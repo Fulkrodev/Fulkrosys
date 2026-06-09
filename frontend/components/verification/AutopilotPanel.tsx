@@ -336,7 +336,7 @@ export function AutopilotPanel({ projectId, onRunChange }: AutopilotPanelProps) 
               Hallazgos ({status.total_findings}):
             </span>
             <SeverityChip label="crítico" count={status.critical_count} className="bg-fulkro-danger text-white" />
-            <SeverityChip label="alto" count={status.high_count} className="bg-fulkro-danger/70 text-white" />
+            <SeverityChip label="alto" count={status.high_count} className="bg-fulkro-danger-500 text-white" />
             <SeverityChip label="medio" count={status.medium_count} className="bg-fulkro-warning text-white" />
             <SeverityChip label="bajo" count={status.low_count} className="bg-fulkro-info text-white" />
             <SeverityChip label="info" count={status.info_count} className="bg-fulkro-ink-300 text-fulkro-ink-700" />

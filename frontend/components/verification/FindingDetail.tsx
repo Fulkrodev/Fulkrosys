@@ -27,7 +27,7 @@ import { cn } from "@/lib/utils";
 
 const SEVERITY_STYLES: Record<Severity, string> = {
   critical: "bg-fulkro-danger text-white",
-  high: "bg-fulkro-danger/70 text-white",
+  high: "bg-fulkro-danger-500 text-white",
   medium: "bg-fulkro-warning text-white",
   low: "bg-fulkro-info text-white",
   info: "bg-[color:var(--fulkro-surface-glass-strong)] text-[color:var(--fulkro-muted)]",

@@ -279,20 +279,31 @@ export async function checkFocusVisibleIndicator(
   });
   await page.keyboard.press("Tab");
 
-  // 2026-06-09 · anti-flaky CI: una única lectura a los 100ms daba falsos
-  // negativos en runners de 2 cores (estilos del ring aún computándose tras
-  // los 30 Tabs del tab-order · 3/85 páginas fallaban SOLO en CI con el mismo
-  // skip-link que pasa en local). Poll hasta 1s · MISMO estándar (el indicador
-  // debe aparecer · un bug real sigue fallando los 5 intentos).
+  // 2026-06-09 · anti-flaky CI (ronda 4): en runners de 2 cores el primer
+  // `keyboard.press("Tab")` puede dispararse ANTES de que el frame tenga el
+  // foco de entrada del navegador → la pulsación se pierde y `activeElement`
+  // se queda en <body> indefinidamente (el snapshot de fallo lo confirmó:
+  // billing/alerts/meetings · foco en el generic raíz). La ronda 3 sólo
+  // hacía poll del estilo pero NUNCA re-pulsaba Tab, así que jamás salía de
+  // <body>. Ahora: si el foco sigue en body re-pulsamos Tab (recupera la
+  // pulsación perdida); si ya aterrizó en un elemento seguimos haciendo poll
+  // del ring sin avanzar. MISMO estándar: un bug real (elemento enfocado sin
+  // indicador) sigue fallando los 6 intentos.
   let last: { hasIndicator: boolean; outline?: string; boxShadow?: string } = {
     hasIndicator: false,
   };
-  for (let attempt = 0; attempt < 5; attempt++) {
-    await page.waitForTimeout(attempt === 0 ? 100 : 225);
-    last = await page.evaluate(() => {
+  for (let attempt = 0; attempt < 6; attempt++) {
+    await page.waitForTimeout(attempt === 0 ? 100 : 200);
+    const probe = await page.evaluate(() => {
       const el = document.activeElement as HTMLElement | null;
-      if (!el || el === document.body) {
-        return { hasIndicator: false };
+      const onBody = !el || el === document.body;
+      if (onBody || !el) {
+        return {
+          hasIndicator: false,
+          onBody: true,
+          outline: undefined as string | undefined,
+          boxShadow: undefined as string | undefined,
+        };
       }
       const styles = window.getComputedStyle(el);
       const outline = styles.outline;
@@ -302,9 +313,21 @@ export async function checkFocusVisibleIndicator(
       const hasIndicator =
         (outline !== "none" && outline !== "" && !outline.startsWith("0px")) ||
         (boxShadow !== "none" && boxShadow !== "");
-      return { hasIndicator, outline, boxShadow };
+      return {
+        hasIndicator,
+        onBody: false,
+        outline: outline as string | undefined,
+        boxShadow: boxShadow as string | undefined,
+      };
     });
-    if (last.hasIndicator) return last;
+    last = {
+      hasIndicator: probe.hasIndicator,
+      outline: probe.outline,
+      boxShadow: probe.boxShadow,
+    };
+    if (probe.hasIndicator) return last;
+    // Pulsación de Tab perdida (sigue en body) → re-pulsar para recuperarla.
+    if (probe.onBody) await page.keyboard.press("Tab");
   }
   return last;
 }

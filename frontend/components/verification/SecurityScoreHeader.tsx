@@ -97,7 +97,7 @@ export function SecurityScoreHeader({ projectId }: { projectId: string }) {
           </div>
           <div className="flex flex-wrap gap-2 text-sm">
             <SeverityBadge label="crítico" count={current?.critical ?? 0} color="bg-fulkro-danger text-white" />
-            <SeverityBadge label="alto" count={current?.high ?? 0} color="bg-fulkro-danger/70 text-white" />
+            <SeverityBadge label="alto" count={current?.high ?? 0} color="bg-fulkro-danger-500 text-white" />
             <SeverityBadge label="medio" count={current?.medium ?? 0} color="bg-fulkro-warning text-white" />
             <SeverityBadge label="bajo" count={current?.low ?? 0} color="bg-fulkro-info text-white" />
           </div>

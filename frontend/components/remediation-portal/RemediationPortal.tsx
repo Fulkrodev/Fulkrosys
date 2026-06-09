@@ -48,7 +48,7 @@ const SEVERITY_STYLES: Record<
     label: "Alto",
     emoji: "🟠",
     cardBorder: "border-l-4 border-l-fulkro-danger/70",
-    pill: "bg-fulkro-danger/70 text-white",
+    pill: "bg-fulkro-danger-500 text-white",
     bucket: "bg-fulkro-danger/5 border-fulkro-danger/30",
   },
   medium: {
