@@ -67,7 +67,7 @@ const STATUS_COLOR: Record<string, string> = {
 const MILESTONE_COLOR: Record<string, string> = {
   plan_milestone: "text-fulkro-primary-700",
   conformity_expiration: "text-amber-600",
-  objective: "text-emerald-600",
+  objective: "text-emerald-700",
   kickoff: "text-blue-600",
 };
 

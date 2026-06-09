@@ -115,7 +115,7 @@ export function ImplementationPaymentsPanel({
         <div className="overflow-x-auto">
           <table className="w-full text-sm" aria-label="Hitos y pagos por fase">
             <thead>
-              <tr className="border-b text-left text-xs uppercase tracking-wide text-fulkro-ink-400">
+              <tr className="border-b text-left text-xs uppercase tracking-wide text-fulkro-ink-600">
                 <th className="py-2 pr-3">Fase</th>
                 <th className="py-2 pr-3">Concepto</th>
                 <th className="py-2 pr-3 text-right">Importe (IVA inc.)</th>
@@ -162,7 +162,7 @@ function Totals({
 }) {
   return (
     <div className="rounded-md border bg-white p-3">
-      <div className="text-xs uppercase tracking-wide text-fulkro-ink-400">
+      <div className="text-xs uppercase tracking-wide text-fulkro-ink-600">
         {label}
       </div>
       <div

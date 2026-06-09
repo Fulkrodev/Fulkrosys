@@ -108,7 +108,7 @@ export function MeasureLensesPanel({
       className="rounded-md border bg-card p-3 space-y-2.5"
       data-testid={`measure-lenses-${measureCode}`}
     >
-      <h4 className="text-xs font-semibold uppercase tracking-wide text-foreground/55">
+      <h4 className="text-xs font-semibold uppercase tracking-wide text-foreground/70">
         Estado de la medida · 3 lentes
       </h4>
 

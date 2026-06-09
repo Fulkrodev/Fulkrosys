@@ -125,7 +125,7 @@ export function WorkflowStepDetailDrawerEnriched({
                 <ul className="space-y-1.5">
                   {step.completion_criteria_detailed.map((c, idx) => (
                     <li key={idx} className="flex gap-2 text-sm text-foreground/80">
-                      <CheckCircle2 className="size-3.5 mt-0.5 text-emerald-600 shrink-0" />
+                      <CheckCircle2 className="size-3.5 mt-0.5 text-emerald-700 shrink-0" />
                       <span>{c}</span>
                     </li>
                   ))}
@@ -134,7 +134,7 @@ export function WorkflowStepDetailDrawerEnriched({
             )}
             {step.adaptation_notes_es && (
               <section className="rounded-md border bg-muted/40 p-3">
-                <h4 className="text-xs font-semibold mb-1 uppercase text-foreground/60">
+                <h4 className="text-xs font-semibold mb-1 uppercase text-foreground/70">
                   Notas adaptación
                 </h4>
                 <p className="text-xs text-foreground/80">
@@ -147,7 +147,7 @@ export function WorkflowStepDetailDrawerEnriched({
           {/* Tab 2 · Actores */}
           <TabsContent value="actores" className="space-y-3 pt-4">
             {step.actors.length === 0 ? (
-              <p className="text-sm italic text-foreground/55">
+              <p className="text-sm italic text-foreground/70">
                 Sin actores declarados en el sub-paso
               </p>
             ) : (
@@ -157,7 +157,7 @@ export function WorkflowStepDetailDrawerEnriched({
                     key={idx}
                     className="flex items-center gap-2 rounded-md border bg-card px-3 py-2"
                   >
-                    <Users2 className="size-3.5 text-foreground/60" />
+                    <Users2 className="size-3.5 text-foreground/70" />
                     <span className="text-sm">{actor}</span>
                   </li>
                 ))}
@@ -175,12 +175,12 @@ export function WorkflowStepDetailDrawerEnriched({
                 tone="admin"
               />
             ) : step.deliverable_codes.length === 0 ? (
-              <p className="text-sm italic text-foreground/55">
+              <p className="text-sm italic text-foreground/70">
                 Sin entregables declarados
               </p>
             ) : (
               <>
-                <p className="text-xs text-foreground/60">
+                <p className="text-xs text-foreground/70">
                   Plantillas que produce este sub-paso.
                 </p>
                 <ul className="space-y-2">
@@ -190,7 +190,7 @@ export function WorkflowStepDetailDrawerEnriched({
                       className="flex items-center justify-between rounded-md border bg-card px-3 py-2"
                     >
                       <div className="flex items-center gap-2">
-                        <FolderOpen className="size-3.5 text-foreground/60" />
+                        <FolderOpen className="size-3.5 text-foreground/70" />
                         <span className="text-sm font-medium">{code}</span>
                       </div>
                       <span className="text-xs italic text-foreground/40">
@@ -203,7 +203,7 @@ export function WorkflowStepDetailDrawerEnriched({
             )}
             {step.prerequisite_template_ids.length > 0 && (
               <section className="border-t pt-3">
-                <h4 className="text-xs font-semibold uppercase text-foreground/60 mb-2">
+                <h4 className="text-xs font-semibold uppercase text-foreground/70 mb-2">
                   Pre-requisitos
                 </h4>
                 <ul className="space-y-1">
@@ -261,7 +261,7 @@ export function WorkflowStepDetailDrawerEnriched({
           {/* Tab 5 · ENS refs */}
           <TabsContent value="ens" className="space-y-3 pt-4">
             {Object.keys(step.tooltips_ens).length === 0 ? (
-              <p className="text-sm italic text-foreground/55">
+              <p className="text-sm italic text-foreground/70">
                 Sin referencias ENS específicas declaradas
               </p>
             ) : (
@@ -279,7 +279,7 @@ export function WorkflowStepDetailDrawerEnriched({
                 ))}
               </ul>
             )}
-            <p className="text-xs text-foreground/55 italic pt-2 border-t">
+            <p className="text-xs text-foreground/70 italic pt-2 border-t">
               Refs ENS Anexo II RD 311/2022. Tooltips expanded contextualmente al
               sub-paso · cross-references disponibles vía corpus search.
             </p>
@@ -307,7 +307,7 @@ function DimsRow({
         : value;
   return (
     <>
-      <dt className="text-foreground/60">{label}</dt>
+      <dt className="text-foreground/70">{label}</dt>
       <dd className="font-medium truncate">{display}</dd>
     </>
   );

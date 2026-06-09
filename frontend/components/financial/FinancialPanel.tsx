@@ -60,7 +60,7 @@ function KPI({ label, value, subtitle, icon, accent = "default" }: KPIProps) {
           {icon}
         </div>
         <div className="flex flex-col gap-0.5">
-          <span className="text-xs uppercase tracking-wide text-fulkro-ink-400">
+          <span className="text-xs uppercase tracking-wide text-fulkro-ink-600">
             {label}
           </span>
           <span
@@ -176,7 +176,7 @@ export function FinancialPanel({ projectId }: { projectId: string }) {
             {summary.next_milestone?.label ? (
               <div className="flex flex-wrap items-end justify-between gap-4">
                 <div className="flex flex-col gap-1">
-                  <span className="text-xs uppercase tracking-wide text-fulkro-ink-400">
+                  <span className="text-xs uppercase tracking-wide text-fulkro-ink-600">
                     Hito #{summary.next_milestone.milestone_index ?? "—"}
                   </span>
                   <span className="text-lg font-bold text-[color:var(--fulkro-title)]">

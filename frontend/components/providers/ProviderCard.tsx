@@ -221,7 +221,7 @@ export function ProviderCard({
             </div>
             <div className="flex items-center gap-2">
               <C002Badge status={provider.c002_status} />
-              <span className="text-[10px] text-fulkro-ink-400">
+              <span className="text-[10px] text-fulkro-ink-600">
                 {relativeDate(provider.last_reviewed_at)}
               </span>
             </div>

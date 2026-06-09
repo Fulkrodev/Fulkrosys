@@ -242,6 +242,7 @@ export function ObligationBoard({ projectId }: { projectId: string }) {
                 />
               </div>
               <FilterSelect
+                ariaLabel="Filtrar obligaciones por estado"
                 value={estado}
                 onValueChange={(v) =>
                   setEstado(v as ObligationEstado | "all")
@@ -256,6 +257,7 @@ export function ObligationBoard({ projectId }: { projectId: string }) {
                 ]}
               />
               <FilterSelect
+                ariaLabel="Filtrar obligaciones por modo de ejecución"
                 value={modo}
                 onValueChange={setModo}
                 options={[
@@ -485,14 +487,17 @@ function FilterSelect({
   onValueChange,
   options,
   className,
+  ariaLabel,
 }: {
   value: string;
   onValueChange: (v: string) => void;
   options: { value: string; label: string }[];
   className?: string;
+  ariaLabel: string;
 }) {
   return (
     <select
+      aria-label={ariaLabel}
       value={value}
       onChange={(e) => onValueChange(e.target.value)}
       className={cn(

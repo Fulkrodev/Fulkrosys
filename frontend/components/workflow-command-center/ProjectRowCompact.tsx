@@ -34,7 +34,7 @@ export function ProjectRowCompact({
             {card.categoria}
           </Badge>
         )}
-        <span className="text-xs text-foreground/55 truncate">
+        <span className="text-xs text-foreground/70 truncate">
           fase {card.current_phase}
         </span>
       </div>
@@ -42,7 +42,7 @@ export function ProjectRowCompact({
         <div className="hidden sm:block w-20">
           <Progress value={card.progress_pct} className="h-1.5" />
         </div>
-        <span className="text-xs text-foreground/55 tabular-nums w-10 text-right">
+        <span className="text-xs text-foreground/70 tabular-nums w-10 text-right">
           {card.progress_pct}%
         </span>
         <ChevronRight className="size-3.5 text-foreground/40" />

@@ -92,7 +92,7 @@ export function ActaCard({ acta, onSelect, selected }: Props) {
           )}
         </div>
         <ChevronRight
-          className="h-4 w-4 text-fulkro-ink-400 flex-shrink-0"
+          className="h-4 w-4 text-fulkro-ink-600 flex-shrink-0"
           aria-hidden
         />
       </div>

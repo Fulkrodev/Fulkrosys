@@ -91,7 +91,7 @@ export function CopilotoQuickActions({
 
   return (
     <div className="space-y-1.5" data-testid="copiloto-admin-quick-actions">
-      <p className="text-[10px] uppercase font-semibold text-foreground/55 tracking-wider">
+      <p className="text-[10px] uppercase font-semibold text-foreground/70 tracking-wider">
         Acciones rápidas
       </p>
       <div className="grid grid-cols-1 gap-1.5">

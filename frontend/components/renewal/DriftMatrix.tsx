@@ -171,7 +171,7 @@ export function DriftMatrix({ projectId }: DriftMatrixProps) {
           <table className="w-full border-separate border-spacing-1 text-sm">
             <thead>
               <tr>
-                <th className="w-[180px] text-left text-xs font-semibold uppercase tracking-wide text-fulkro-ink-400">
+                <th className="w-[180px] text-left text-xs font-semibold uppercase tracking-wide text-fulkro-ink-600">
                   Dimensión
                 </th>
                 {DRIFT_SEVERITIES.map((sev) => (

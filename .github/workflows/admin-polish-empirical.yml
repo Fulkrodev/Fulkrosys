@@ -2,47 +2,59 @@ name: Admin + Cliente + Auditor Polish Empirical
 
 # Sub-atom Sesión 3B-2B.3 · regression-proof permanent EXPANDED 80 pages.
 # Ejecutable 7 (2026-05-27) · consolidate Path A · adds cliente + auditor jobs.
+# 2026-06-09 · REESCRITO greenfield (el yml original nunca corrió en GitHub):
+#   - SIN secretos de repo: claves Ed25519 EFÍMERAS por run (openssl → GITHUB_ENV).
+#   - deps backend desde backend/pyproject.toml (pip install -e ".[dev]" + psycopg2).
+#   - BD = postgres service pgvector:pg16, DB **fulkro** (init-roles.sql hardcodea
+#     GRANT CONNECT ON DATABASE fulkro) · extensiones subset CI (uuid-ossp +
+#     pgcrypto + vector · SIN age/pgaudit que la imagen no trae) → init-functions
+#     → init-roles → alembic upgrade head (DATABASE_MIGRATE_URL · fulkro_migrate)
+#     → re-GRANT runtime.
+#   - uvicorn backend.app.main:app desde repo root · health /api/v1/health.
+#   - runtime app = fulkro_app (asyncpg) · paridad con dev/prod (RLS + SET ROLE).
+#   - SIN seed: el globalSetup de Playwright provisiona vía /_dev/create-test-client
+#     + /_dev/seed-rich-demo-project (proyecto fijo 00000000-...-000000000001).
+#   - POLISH_TEST_PROJECT_ID apunta al proyecto seed → cobertura REAL project-scoped
+#     (sin él, los specs project-scoped redirigen al selector y pasan en blando).
+#   - SIN --reporter CLI (pisaría el outputFolder polish-report del config).
 #
-# Locks in:
-#   ─ Admin (80 pages · job polish-empirical):
-#     · 5 PROBE pages (dashboard · projects selector · roadmap · summary · dda)
-#     · 13 P1 pages (cliente-piloto-MEDIA core workflow)
-#     · 42 P2 pages (daily-use Marcos workflow · cliente piloto visibility)
-#     · 20 P3 pages (secundarias edge/lifecycle)
-#   ─ Cliente portal (10 pages · job cliente-polish-empirical):
-#     · 01-10 dashboard · conformidad · evidencias · files · magerit · dda ·
-#       retainer-checkin · billing · account · tasks
-#   ─ Auditor portal (12 pages · job auditor-polish-empirical):
-#     · 01-09 portal sections (summary · dda · magerit · plan · evidence ·
-#       e041 · audit_log · pentest · documents)
-#     · 10 annotations_panel · 11 dda_evidence_gaps · 12 draft_report
-#
-# Coverage real 80/83 admin = 96% · 10/10 cliente · 12/12 auditor.
-#
-# Fails build if ANY axe critical/serious violation appears on these pages
-# (regression-proof) OR if any spec fails its 4 explicit criteria.
+# Gate: axe critical/serious = 0 en cada página + 4 criterios explícitos por spec.
 
-# 2026-06-09 · E2E de accesibilidad (axe) · necesita secretos (FULKRO_AUTH_*),
-# build de frontend prod y BD provisionada. Se ejecuta ON-DEMAND
-# (workflow_dispatch) tras configurar Settings → Secrets en el repo. Hasta
-# entonces NO corre en cada push (evita rojos por config ausente).
-# Future-1.F.ci.polish-empirical-secrets para activarlo permanente.
 on:
   workflow_dispatch:
+  pull_request:
+    branches: [main]
+    paths:
+      - "frontend/**"
+      - ".github/workflows/admin-polish-empirical.yml"
+  push:
+    branches: [main]
+    paths:
+      - "frontend/**"
+      - ".github/workflows/admin-polish-empirical.yml"
+
+env:
+  DATABASE_URL: postgresql+asyncpg://fulkro_app:fulkro_app_dev_password@localhost:5432/fulkro
+  DATABASE_MIGRATE_URL: postgresql://fulkro_migrate:fulkro_migrate_dev_password@localhost:5432/fulkro
+  APP_ENV: dev
+  FULKRO_BACKEND_URL: http://localhost:8000
+  PLAYWRIGHT_PORT: "3100"
+  PLAYWRIGHT_SKIP_WEB_SERVER: "1"
+  PLAYWRIGHT_BACKEND_URL: http://localhost:8000
+  POLISH_TEST_PROJECT_ID: 00000000-0000-0000-0000-000000000001
 
 jobs:
   polish-empirical:
     name: Admin Polish 80 pages (PROBE + P1 + P2 + P3)
     runs-on: ubuntu-latest
-    timeout-minutes: 45
-
+    timeout-minutes: 60
     services:
       postgres:
         image: pgvector/pgvector:pg16
         env:
           POSTGRES_USER: fulkro
           POSTGRES_PASSWORD: fulkro
-          POSTGRES_DB: fulkro_dev
+          POSTGRES_DB: fulkro
         ports:
           - 5432:5432
         options: >-
@@ -50,7 +62,6 @@ jobs:
           --health-interval 10s
           --health-timeout 5s
           --health-retries 5
-
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -62,89 +73,92 @@ jobs:
           cache: "npm"
           cache-dependency-path: frontend/package-lock.json
 
-      - name: Setup Python 3.12 (for backend)
+      - name: Setup Python 3.12
         uses: actions/setup-python@v5
         with:
           python-version: "3.12"
+          cache: "pip"
+
+      - name: Generate ephemeral Ed25519 keys (no repo secrets)
+        run: |
+          set -euo pipefail
+          openssl genpkey -algorithm ed25519 -out /tmp/auth_priv.pem
+          openssl pkey -in /tmp/auth_priv.pem -pubout -out /tmp/auth_pub.pem
+          openssl genpkey -algorithm ed25519 -out /tmp/ml_priv.pem
+          openssl genpkey -algorithm ed25519 -out /tmp/backup_priv.pem
+          {
+            echo 'FULKRO_AUTH_PRIVATE_KEY<<__PEM__';   cat /tmp/auth_priv.pem;   echo '__PEM__'
+            echo 'FULKRO_AUTH_PUBLIC_KEY<<__PEM__';    cat /tmp/auth_pub.pem;    echo '__PEM__'
+            echo 'FULKRO_ML_PRIVATE_KEY<<__PEM__';     cat /tmp/ml_priv.pem;     echo '__PEM__'
+            echo 'FULKRO_BACKUP_SIGNING_KEY<<__PEM__'; cat /tmp/backup_priv.pem; echo '__PEM__'
+          } >> "$GITHUB_ENV"
+
+      - name: Provision DB (extensions subset + functions + roles)
+        run: |
+          set -euo pipefail
+          export PGPASSWORD=fulkro
+          psql -h localhost -U fulkro -d fulkro -v ON_ERROR_STOP=1 \
+            -c 'CREATE EXTENSION IF NOT EXISTS "uuid-ossp";' \
+            -c 'CREATE EXTENSION IF NOT EXISTS pgcrypto;' \
+            -c 'CREATE EXTENSION IF NOT EXISTS vector;'
+          psql -h localhost -U fulkro -d fulkro -v ON_ERROR_STOP=1 -f infra/docker/init-functions.sql
+          psql -h localhost -U fulkro -d fulkro -v ON_ERROR_STOP=1 -f infra/docker/init-roles.sql
+
+      - name: Install backend deps
+        run: |
+          pip install -e "backend[dev]"
+          pip install psycopg2-binary
+
+      - name: Migrations (alembic upgrade head as fulkro_migrate)
+        working-directory: backend
+        run: python -m alembic upgrade head
+
+      - name: Grants runtime (fulkro_app sobre tablas de migraciones)
+        run: |
+          set -euo pipefail
+          export PGPASSWORD=fulkro
+          psql -h localhost -U fulkro -d fulkro -v ON_ERROR_STOP=1 -c \
+            "GRANT SELECT,INSERT,UPDATE,DELETE ON ALL TABLES IN SCHEMA public TO fulkro_app, fulkro_app_bypassrls;
+             GRANT USAGE,SELECT ON ALL SEQUENCES IN SCHEMA public TO fulkro_app, fulkro_app_bypassrls;
+             GRANT EXECUTE ON ALL FUNCTIONS IN SCHEMA public TO fulkro_app, fulkro_app_bypassrls;"
+
+      - name: Start backend (uvicorn desde repo root)
+        run: |
+          python -m uvicorn backend.app.main:app --host 0.0.0.0 --port 8000 \
+            > /tmp/backend.log 2>&1 &
+          for i in $(seq 1 60); do
+            curl -fsS http://localhost:8000/api/v1/health > /dev/null 2>&1 && { echo "Backend ready (${i}s)"; exit 0; }
+            sleep 1
+          done
+          echo "Backend no levantó · log:"; cat /tmp/backend.log; exit 1
 
       - name: Install frontend deps
         working-directory: frontend
         run: npm ci
 
-      - name: Install Playwright browsers
+      - name: Install Playwright Chromium
         working-directory: frontend
         run: npx playwright install --with-deps chromium
 
-      - name: Install backend deps
-        working-directory: backend
-        run: |
-          pip install -r requirements.txt
-          pip install -r requirements-dev.txt
-
-      - name: Run backend migrations + seed
-        working-directory: backend
-        env:
-          DATABASE_URL: postgresql://fulkro:fulkro@localhost:5432/fulkro_dev
-          APP_ENV: dev
-        run: |
-          alembic upgrade head
-          # Optionally seed test clients via _dev endpoint (handled by globalSetup)
-
-      - name: Start backend
-        working-directory: backend
-        env:
-          DATABASE_URL: postgresql://fulkro:fulkro@localhost:5432/fulkro_dev
-          APP_ENV: dev
-          FULKRO_AUTH_PUBLIC_KEY: ${{ secrets.FULKRO_AUTH_PUBLIC_KEY }}
-          FULKRO_AUTH_PRIVATE_KEY: ${{ secrets.FULKRO_AUTH_PRIVATE_KEY }}
-        run: |
-          uvicorn app.main:app --host 0.0.0.0 --port 8000 &
-          # Wait for healthcheck
-          for i in {1..30}; do
-            if curl -fsS http://localhost:8000/health > /dev/null; then
-              echo "Backend ready"
-              break
-            fi
-            sleep 1
-          done
-
-      - name: Build frontend (prod · stable HMR-free)
+      - name: Build frontend (prod)
         working-directory: frontend
-        env:
-          FULKRO_BACKEND_URL: http://localhost:8000
-          FULKRO_AUTH_PUBLIC_KEY: ${{ secrets.FULKRO_AUTH_PUBLIC_KEY }}
         run: npm run build
 
-      - name: Start frontend (next start · port 3100)
+      - name: Start frontend (next start :3100)
         working-directory: frontend
-        env:
-          FULKRO_BACKEND_URL: http://localhost:8000
-          FULKRO_AUTH_PUBLIC_KEY: ${{ secrets.FULKRO_AUTH_PUBLIC_KEY }}
         run: |
-          npx next start -p 3100 &
-          for i in {1..30}; do
-            if curl -fsS -o /dev/null http://localhost:3100; then
-              echo "Frontend ready"
-              break
-            fi
+          npx next start -p 3100 > /tmp/frontend.log 2>&1 &
+          for i in $(seq 1 45); do
+            curl -fsS -o /dev/null http://localhost:3100 2>/dev/null && { echo "Frontend ready (${i}s)"; exit 0; }
             sleep 1
           done
+          echo "Frontend no levantó · log:"; cat /tmp/frontend.log; exit 1
 
-      - name: Run admin polish empirical (PROBE + P1 + P2 + P3 · 80 pages)
+      - name: Run admin polish (PROBE + P1 + P2 + P3 · 75 specs)
         working-directory: frontend
-        env:
-          PLAYWRIGHT_PORT: 3100
-          PLAYWRIGHT_SKIP_WEB_SERVER: "1"
-          PLAYWRIGHT_BACKEND_URL: http://localhost:8000
         run: |
-          # Run all green pages · PROBE + P1 + P2 + P3 = 80 admin pages
-          # Sesión 3B-2B.3 expansion · 22 → 80 verified empirical 96% coverage
           npx playwright test --config=playwright.polish.config.ts \
-            tests/polish/probe/ \
-            tests/polish/p1/ \
-            tests/polish/p2/ \
-            tests/polish/p3/ \
-            --reporter=list,html
+            tests/polish/probe/ tests/polish/p1/ tests/polish/p2/ tests/polish/p3/
 
       - name: Upload polish HTML report
         if: always()
@@ -154,7 +168,7 @@ jobs:
           path: frontend/polish-report/
           retention-days: 14
 
-      - name: Upload polish test results (traces · screenshots · violations)
+      - name: Upload test results (traces · screenshots)
         if: failure()
         uses: actions/upload-artifact@v4
         with:
@@ -162,22 +176,25 @@ jobs:
           path: frontend/polish-test-results/
           retention-days: 14
 
-  # ===========================================================================
-  # Cliente portal polish job · Ejecutable 7 Phase 7.A.3 (2026-05-27)
-  # OPS-026 DRY · mirror admin job setup steps · gate critical+serious axe = 0
-  # ===========================================================================
+      - name: Upload backend log on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: backend-log-admin
+          path: /tmp/backend.log
+          retention-days: 7
+
   cliente-polish-empirical:
     name: Cliente Polish 10 pages (dashboard + 9 core)
     runs-on: ubuntu-latest
-    timeout-minutes: 30
-
+    timeout-minutes: 45
     services:
       postgres:
         image: pgvector/pgvector:pg16
         env:
           POSTGRES_USER: fulkro
           POSTGRES_PASSWORD: fulkro
-          POSTGRES_DB: fulkro_dev
+          POSTGRES_DB: fulkro
         ports:
           - 5432:5432
         options: >-
@@ -185,7 +202,6 @@ jobs:
           --health-interval 10s
           --health-timeout 5s
           --health-retries 5
-
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -197,81 +213,92 @@ jobs:
           cache: "npm"
           cache-dependency-path: frontend/package-lock.json
 
-      - name: Setup Python 3.12 (for backend)
+      - name: Setup Python 3.12
         uses: actions/setup-python@v5
         with:
           python-version: "3.12"
+          cache: "pip"
+
+      - name: Generate ephemeral Ed25519 keys (no repo secrets)
+        run: |
+          set -euo pipefail
+          openssl genpkey -algorithm ed25519 -out /tmp/auth_priv.pem
+          openssl pkey -in /tmp/auth_priv.pem -pubout -out /tmp/auth_pub.pem
+          openssl genpkey -algorithm ed25519 -out /tmp/ml_priv.pem
+          openssl genpkey -algorithm ed25519 -out /tmp/backup_priv.pem
+          {
+            echo 'FULKRO_AUTH_PRIVATE_KEY<<__PEM__';   cat /tmp/auth_priv.pem;   echo '__PEM__'
+            echo 'FULKRO_AUTH_PUBLIC_KEY<<__PEM__';    cat /tmp/auth_pub.pem;    echo '__PEM__'
+            echo 'FULKRO_ML_PRIVATE_KEY<<__PEM__';     cat /tmp/ml_priv.pem;     echo '__PEM__'
+            echo 'FULKRO_BACKUP_SIGNING_KEY<<__PEM__'; cat /tmp/backup_priv.pem; echo '__PEM__'
+          } >> "$GITHUB_ENV"
+
+      - name: Provision DB (extensions subset + functions + roles)
+        run: |
+          set -euo pipefail
+          export PGPASSWORD=fulkro
+          psql -h localhost -U fulkro -d fulkro -v ON_ERROR_STOP=1 \
+            -c 'CREATE EXTENSION IF NOT EXISTS "uuid-ossp";' \
+            -c 'CREATE EXTENSION IF NOT EXISTS pgcrypto;' \
+            -c 'CREATE EXTENSION IF NOT EXISTS vector;'
+          psql -h localhost -U fulkro -d fulkro -v ON_ERROR_STOP=1 -f infra/docker/init-functions.sql
+          psql -h localhost -U fulkro -d fulkro -v ON_ERROR_STOP=1 -f infra/docker/init-roles.sql
+
+      - name: Install backend deps
+        run: |
+          pip install -e "backend[dev]"
+          pip install psycopg2-binary
+
+      - name: Migrations (alembic upgrade head as fulkro_migrate)
+        working-directory: backend
+        run: python -m alembic upgrade head
+
+      - name: Grants runtime (fulkro_app sobre tablas de migraciones)
+        run: |
+          set -euo pipefail
+          export PGPASSWORD=fulkro
+          psql -h localhost -U fulkro -d fulkro -v ON_ERROR_STOP=1 -c \
+            "GRANT SELECT,INSERT,UPDATE,DELETE ON ALL TABLES IN SCHEMA public TO fulkro_app, fulkro_app_bypassrls;
+             GRANT USAGE,SELECT ON ALL SEQUENCES IN SCHEMA public TO fulkro_app, fulkro_app_bypassrls;
+             GRANT EXECUTE ON ALL FUNCTIONS IN SCHEMA public TO fulkro_app, fulkro_app_bypassrls;"
+
+      - name: Start backend (uvicorn desde repo root)
+        run: |
+          python -m uvicorn backend.app.main:app --host 0.0.0.0 --port 8000 \
+            > /tmp/backend.log 2>&1 &
+          for i in $(seq 1 60); do
+            curl -fsS http://localhost:8000/api/v1/health > /dev/null 2>&1 && { echo "Backend ready (${i}s)"; exit 0; }
+            sleep 1
+          done
+          echo "Backend no levantó · log:"; cat /tmp/backend.log; exit 1
 
       - name: Install frontend deps
         working-directory: frontend
         run: npm ci
 
-      - name: Install Playwright browsers
+      - name: Install Playwright Chromium
         working-directory: frontend
         run: npx playwright install --with-deps chromium
 
-      - name: Install backend deps
-        working-directory: backend
-        run: |
-          pip install -r requirements.txt
-          pip install -r requirements-dev.txt
-
-      - name: Run backend migrations + seed
-        working-directory: backend
-        env:
-          DATABASE_URL: postgresql://fulkro:fulkro@localhost:5432/fulkro_dev
-          APP_ENV: dev
-        run: alembic upgrade head
-
-      - name: Start backend
-        working-directory: backend
-        env:
-          DATABASE_URL: postgresql://fulkro:fulkro@localhost:5432/fulkro_dev
-          APP_ENV: dev
-          FULKRO_AUTH_PUBLIC_KEY: ${{ secrets.FULKRO_AUTH_PUBLIC_KEY }}
-          FULKRO_AUTH_PRIVATE_KEY: ${{ secrets.FULKRO_AUTH_PRIVATE_KEY }}
-        run: |
-          uvicorn app.main:app --host 0.0.0.0 --port 8000 &
-          for i in {1..30}; do
-            if curl -fsS http://localhost:8000/health > /dev/null; then
-              echo "Backend ready"
-              break
-            fi
-            sleep 1
-          done
-
-      - name: Build frontend (prod · stable HMR-free)
+      - name: Build frontend (prod)
         working-directory: frontend
-        env:
-          FULKRO_BACKEND_URL: http://localhost:8000
-          FULKRO_AUTH_PUBLIC_KEY: ${{ secrets.FULKRO_AUTH_PUBLIC_KEY }}
         run: npm run build
 
-      - name: Start frontend (next start · port 3100)
+      - name: Start frontend (next start :3100)
         working-directory: frontend
-        env:
-          FULKRO_BACKEND_URL: http://localhost:8000
-          FULKRO_AUTH_PUBLIC_KEY: ${{ secrets.FULKRO_AUTH_PUBLIC_KEY }}
         run: |
-          npx next start -p 3100 &
-          for i in {1..30}; do
-            if curl -fsS -o /dev/null http://localhost:3100; then
-              echo "Frontend ready"
-              break
-            fi
+          npx next start -p 3100 > /tmp/frontend.log 2>&1 &
+          for i in $(seq 1 45); do
+            curl -fsS -o /dev/null http://localhost:3100 2>/dev/null && { echo "Frontend ready (${i}s)"; exit 0; }
             sleep 1
           done
+          echo "Frontend no levantó · log:"; cat /tmp/frontend.log; exit 1
 
-      - name: Run cliente polish empirical (10 pages · WCAG AA + axe critical+serious=0)
+      - name: Run cliente polish (10 pages · axe critical+serious = 0)
         working-directory: frontend
-        env:
-          PLAYWRIGHT_PORT: 3100
-          PLAYWRIGHT_SKIP_WEB_SERVER: "1"
-          PLAYWRIGHT_BACKEND_URL: http://localhost:8000
         run: |
           npx playwright test --config=playwright.polish.config.ts \
-            tests/polish/cliente/ \
-            --reporter=list,html
+            tests/polish/cliente/
 
       - name: Upload cliente polish HTML report
         if: always()
@@ -281,7 +308,7 @@ jobs:
           path: frontend/polish-report/
           retention-days: 14
 
-      - name: Upload cliente polish test results
+      - name: Upload cliente test results
         if: failure()
         uses: actions/upload-artifact@v4
         with:
@@ -289,23 +316,25 @@ jobs:
           path: frontend/polish-test-results/
           retention-days: 14
 
-  # ===========================================================================
-  # Auditor portal polish job · Ejecutable 7 Phase 7.A.3 (2026-05-27)
-  # AUDITOR_PORTAL_TOKEN required at runtime · magic-link AUDITOR_PORTAL_ENAC
-  # OPS-026 DRY · mirror cliente job setup steps · gate critical+serious axe = 0
-  # ===========================================================================
+      - name: Upload backend log on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: backend-log-cliente
+          path: /tmp/backend.log
+          retention-days: 7
+
   auditor-polish-empirical:
     name: Auditor Portal Polish 12 pages (sections + annotations + gaps + report)
     runs-on: ubuntu-latest
-    timeout-minutes: 30
-
+    timeout-minutes: 45
     services:
       postgres:
         image: pgvector/pgvector:pg16
         env:
           POSTGRES_USER: fulkro
           POSTGRES_PASSWORD: fulkro
-          POSTGRES_DB: fulkro_dev
+          POSTGRES_DB: fulkro
         ports:
           - 5432:5432
         options: >-
@@ -313,7 +342,6 @@ jobs:
           --health-interval 10s
           --health-timeout 5s
           --health-retries 5
-
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -325,98 +353,100 @@ jobs:
           cache: "npm"
           cache-dependency-path: frontend/package-lock.json
 
-      - name: Setup Python 3.12 (for backend)
+      - name: Setup Python 3.12
         uses: actions/setup-python@v5
         with:
           python-version: "3.12"
+          cache: "pip"
+
+      - name: Generate ephemeral Ed25519 keys (no repo secrets)
+        run: |
+          set -euo pipefail
+          openssl genpkey -algorithm ed25519 -out /tmp/auth_priv.pem
+          openssl pkey -in /tmp/auth_priv.pem -pubout -out /tmp/auth_pub.pem
+          openssl genpkey -algorithm ed25519 -out /tmp/ml_priv.pem
+          openssl genpkey -algorithm ed25519 -out /tmp/backup_priv.pem
+          {
+            echo 'FULKRO_AUTH_PRIVATE_KEY<<__PEM__';   cat /tmp/auth_priv.pem;   echo '__PEM__'
+            echo 'FULKRO_AUTH_PUBLIC_KEY<<__PEM__';    cat /tmp/auth_pub.pem;    echo '__PEM__'
+            echo 'FULKRO_ML_PRIVATE_KEY<<__PEM__';     cat /tmp/ml_priv.pem;     echo '__PEM__'
+            echo 'FULKRO_BACKUP_SIGNING_KEY<<__PEM__'; cat /tmp/backup_priv.pem; echo '__PEM__'
+          } >> "$GITHUB_ENV"
+
+      - name: Provision DB (extensions subset + functions + roles)
+        run: |
+          set -euo pipefail
+          export PGPASSWORD=fulkro
+          psql -h localhost -U fulkro -d fulkro -v ON_ERROR_STOP=1 \
+            -c 'CREATE EXTENSION IF NOT EXISTS "uuid-ossp";' \
+            -c 'CREATE EXTENSION IF NOT EXISTS pgcrypto;' \
+            -c 'CREATE EXTENSION IF NOT EXISTS vector;'
+          psql -h localhost -U fulkro -d fulkro -v ON_ERROR_STOP=1 -f infra/docker/init-functions.sql
+          psql -h localhost -U fulkro -d fulkro -v ON_ERROR_STOP=1 -f infra/docker/init-roles.sql
+
+      - name: Install backend deps
+        run: |
+          pip install -e "backend[dev]"
+          pip install psycopg2-binary
+
+      - name: Migrations (alembic upgrade head as fulkro_migrate)
+        working-directory: backend
+        run: python -m alembic upgrade head
+
+      - name: Grants runtime (fulkro_app sobre tablas de migraciones)
+        run: |
+          set -euo pipefail
+          export PGPASSWORD=fulkro
+          psql -h localhost -U fulkro -d fulkro -v ON_ERROR_STOP=1 -c \
+            "GRANT SELECT,INSERT,UPDATE,DELETE ON ALL TABLES IN SCHEMA public TO fulkro_app, fulkro_app_bypassrls;
+             GRANT USAGE,SELECT ON ALL SEQUENCES IN SCHEMA public TO fulkro_app, fulkro_app_bypassrls;
+             GRANT EXECUTE ON ALL FUNCTIONS IN SCHEMA public TO fulkro_app, fulkro_app_bypassrls;"
+
+      - name: Start backend (uvicorn desde repo root)
+        run: |
+          python -m uvicorn backend.app.main:app --host 0.0.0.0 --port 8000 \
+            > /tmp/backend.log 2>&1 &
+          for i in $(seq 1 60); do
+            curl -fsS http://localhost:8000/api/v1/health > /dev/null 2>&1 && { echo "Backend ready (${i}s)"; exit 0; }
+            sleep 1
+          done
+          echo "Backend no levantó · log:"; cat /tmp/backend.log; exit 1
+
+      - name: Mint auditor portal token (create-test-client PRIMERO)
+        run: |
+          set -euo pipefail
+          curl -fsS -X POST http://localhost:8000/api/v1/_dev/create-test-client > /dev/null
+          TOKEN=$(curl -fsS -X POST http://localhost:8000/api/v1/_dev/auditor-portal-token | python3 -c "import sys,json; print(json.load(sys.stdin)['token'])")
+          echo "AUDITOR_PORTAL_TOKEN=${TOKEN}" >> "$GITHUB_ENV"
+          echo "auditor token minted (len $(echo -n $TOKEN | wc -c))"
 
       - name: Install frontend deps
         working-directory: frontend
         run: npm ci
 
-      - name: Install Playwright browsers
+      - name: Install Playwright Chromium
         working-directory: frontend
         run: npx playwright install --with-deps chromium
 
-      - name: Install backend deps
-        working-directory: backend
-        run: |
-          pip install -r requirements.txt
-          pip install -r requirements-dev.txt
-
-      - name: Run backend migrations + seed
-        working-directory: backend
-        env:
-          DATABASE_URL: postgresql://fulkro:fulkro@localhost:5432/fulkro_dev
-          APP_ENV: dev
-        run: alembic upgrade head
-
-      - name: Start backend
-        working-directory: backend
-        env:
-          DATABASE_URL: postgresql://fulkro:fulkro@localhost:5432/fulkro_dev
-          APP_ENV: dev
-          FULKRO_AUTH_PUBLIC_KEY: ${{ secrets.FULKRO_AUTH_PUBLIC_KEY }}
-          FULKRO_AUTH_PRIVATE_KEY: ${{ secrets.FULKRO_AUTH_PRIVATE_KEY }}
-          FULKRO_ML_PUBLIC_KEY: ${{ secrets.FULKRO_ML_PUBLIC_KEY }}
-          FULKRO_ML_PRIVATE_KEY: ${{ secrets.FULKRO_ML_PRIVATE_KEY }}
-        run: |
-          uvicorn app.main:app --host 0.0.0.0 --port 8000 &
-          for i in {1..30}; do
-            if curl -fsS http://localhost:8000/health > /dev/null; then
-              echo "Backend ready"
-              break
-            fi
-            sleep 1
-          done
-
-      - name: Build frontend (prod · stable HMR-free)
+      - name: Build frontend (prod)
         working-directory: frontend
-        env:
-          FULKRO_BACKEND_URL: http://localhost:8000
-          FULKRO_AUTH_PUBLIC_KEY: ${{ secrets.FULKRO_AUTH_PUBLIC_KEY }}
         run: npm run build
 
-      - name: Start frontend (next start · port 3100)
+      - name: Start frontend (next start :3100)
         working-directory: frontend
-        env:
-          FULKRO_BACKEND_URL: http://localhost:8000
-          FULKRO_AUTH_PUBLIC_KEY: ${{ secrets.FULKRO_AUTH_PUBLIC_KEY }}
         run: |
-          npx next start -p 3100 &
-          for i in {1..30}; do
-            if curl -fsS -o /dev/null http://localhost:3100; then
-              echo "Frontend ready"
-              break
-            fi
+          npx next start -p 3100 > /tmp/frontend.log 2>&1 &
+          for i in $(seq 1 45); do
+            curl -fsS -o /dev/null http://localhost:3100 2>/dev/null && { echo "Frontend ready (${i}s)"; exit 0; }
             sleep 1
           done
+          echo "Frontend no levantó · log:"; cat /tmp/frontend.log; exit 1
 
-      - name: Generate auditor portal magic-link token via _dev endpoint
-        id: gen_token
-        env:
-          PLAYWRIGHT_BACKEND_URL: http://localhost:8000
-        run: |
-          # _dev endpoint generates AUDITOR_PORTAL_ENAC magic-link token for E2E.
-          # Falls back to a placeholder token if endpoint absent (job will skip
-          # auth-gated specs and still verify axe-CI on public routes).
-          TOKEN=$(curl -fsS -X POST "$PLAYWRIGHT_BACKEND_URL/api/v1/_dev/auditor-portal-token" 2>/dev/null | python -c "import sys,json; print(json.load(sys.stdin).get('token',''))" 2>/dev/null || echo "")
-          echo "AUDITOR_PORTAL_TOKEN=$TOKEN" >> "$GITHUB_ENV"
-          if [ -z "$TOKEN" ]; then
-            echo "::warning::_dev/auditor-portal-token not available · auditor specs may be partially blocked"
-          fi
-
-      - name: Run auditor portal polish empirical (12 pages · WCAG AA + axe critical+serious=0)
+      - name: Run auditor polish (12 pages · token-gated · axe critical+serious = 0)
         working-directory: frontend
-        env:
-          PLAYWRIGHT_PORT: 3100
-          PLAYWRIGHT_SKIP_WEB_SERVER: "1"
-          PLAYWRIGHT_BACKEND_URL: http://localhost:8000
-          AUDITOR_PORTAL_TOKEN: ${{ env.AUDITOR_PORTAL_TOKEN }}
         run: |
           npx playwright test --config=playwright.polish.config.ts \
-            tests/polish/auditor-portal/ \
-            --reporter=list,html
+            tests/polish/auditor-portal/
 
       - name: Upload auditor polish HTML report
         if: always()
@@ -426,10 +456,18 @@ jobs:
           path: frontend/polish-report/
           retention-days: 14
 
-      - name: Upload auditor polish test results
+      - name: Upload auditor test results
         if: failure()
         uses: actions/upload-artifact@v4
         with:
           name: polish-test-results-auditor
           path: frontend/polish-test-results/
           retention-days: 14
+
+      - name: Upload backend log on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: backend-log-auditor
+          path: /tmp/backend.log
+          retention-days: 7

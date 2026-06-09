@@ -150,7 +150,7 @@ export default function ProjectsPage() {
           <div className="relative max-w-md flex-1 min-w-[240px]">
             <Search
               size={14}
-              className="absolute left-3 top-1/2 -translate-y-1/2 text-fulkro-ink-400"
+              className="absolute left-3 top-1/2 -translate-y-1/2 text-fulkro-ink-600"
               aria-hidden
             />
             <Input
@@ -200,7 +200,7 @@ export default function ProjectsPage() {
 
           {/* Sort dropdown */}
           <label className="ml-auto inline-flex items-center gap-1.5 text-xs font-medium text-fulkro-ink-500">
-            <SortAsc size={14} className="text-fulkro-ink-400" aria-hidden />
+            <SortAsc size={14} className="text-fulkro-ink-600" aria-hidden />
             <span className="sr-only md:not-sr-only">Ordenar:</span>
             <select
               value={sortMode}
@@ -318,7 +318,10 @@ function ProjectCard({
         className={cn(
           "h-full transition-colors",
           href && "group-hover:border-fulkro-info group-hover:shadow-md",
-          !href && "opacity-80",
+          // 2026-06-09 · Polish gate: opacity-80 atenuaba TODO el contenido de
+          // la tarjeta (ink-500 → ~3.6:1 · badge → FAIL AA serious ×10 nodos).
+          // Pista visual sin pérdida de contraste: borde discontinuo.
+          !href && "border-dashed",
           isLastUsed && "border-fulkro-info/60 bg-fulkro-info/5",
         )}
       >
@@ -359,7 +362,7 @@ function ProjectCard({
                 Entrar al proyecto <ArrowRight size={12} />
               </span>
             ) : (
-              <span className="inline-flex items-center gap-1 text-fulkro-ink-400">
+              <span className="inline-flex items-center gap-1 text-fulkro-ink-600">
                 Sin proyecto activo
               </span>
             )}

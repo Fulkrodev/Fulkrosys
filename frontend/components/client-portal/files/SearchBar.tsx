@@ -41,7 +41,7 @@ export function SearchBar({
           if (e.key === "Escape") onChange("");
         }}
         placeholder={placeholder}
-        className="flex-1 bg-transparent text-sm outline-none placeholder:text-fulkro-ink-400"
+        className="flex-1 bg-transparent text-sm outline-none placeholder:text-fulkro-ink-600"
       />
       {value && (
         <button

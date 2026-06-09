@@ -145,7 +145,7 @@ export function C002GapsPanel({
 
         <div className="flex flex-col gap-3">
           {gapsQuery.isLoading ? (
-            <p className="py-8 text-center text-sm text-fulkro-ink-400">
+            <p className="py-8 text-center text-sm text-fulkro-ink-600">
               Cargando gaps…
             </p>
           ) : filteredGaps.length === 0 ? (
@@ -176,7 +176,7 @@ export function C002GapsPanel({
                 </div>
                 <p className="text-sm text-fulkro-ink-700">{gap.description}</p>
                 <div className="flex flex-col gap-1.5">
-                  <p className="text-[11px] font-bold uppercase tracking-wide text-fulkro-ink-400">
+                  <p className="text-[11px] font-bold uppercase tracking-wide text-fulkro-ink-600">
                     Cláusula sugerida añadir a C-002
                   </p>
                   <div className="flex items-start gap-2 rounded-md bg-fulkro-ink-50 p-2">

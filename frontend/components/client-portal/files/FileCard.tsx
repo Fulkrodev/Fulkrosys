@@ -143,7 +143,7 @@ export function FileCard(props: Props) {
         </Button>
       </div>
       <ChevronRight
-        className="h-4 w-4 text-fulkro-ink-400 flex-shrink-0 mt-1"
+        className="h-4 w-4 text-fulkro-ink-600 flex-shrink-0 mt-1"
         aria-hidden
       />
     </Card>

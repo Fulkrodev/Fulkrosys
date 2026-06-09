@@ -64,7 +64,7 @@ export function ChainVisualizer({ signatures }: ChainVisualizerProps) {
             </div>
             {idx < signed.length - 1 && (
               <ArrowRight
-                className="h-4 w-4 text-fulkro-ink-400 hidden sm:block flex-shrink-0"
+                className="h-4 w-4 text-fulkro-ink-600 hidden sm:block flex-shrink-0"
                 aria-hidden
               />
             )}

@@ -68,7 +68,7 @@ export function PhaseCard({ entry, onClick, className }: PhaseCardProps) {
               className={cn(
                 entry.status === "done" && "text-fulkro-success",
                 entry.status === "in_progress" && "text-fulkro-primary-700",
-                entry.status === "pending" && "text-fulkro-ink-400",
+                entry.status === "pending" && "text-fulkro-ink-600",
               )}
             />
             <h3 className="font-semibold text-fulkro-ink-900">

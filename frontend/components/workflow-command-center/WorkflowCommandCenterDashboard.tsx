@@ -60,7 +60,7 @@ export function WorkflowCommandCenterDashboard() {
       <Card>
         <CardContent className="py-12 text-center space-y-2">
           <p className="text-lg">📋 Aún no tienes proyectos activos</p>
-          <p className="text-sm text-foreground/60">
+          <p className="text-sm text-foreground/70">
             Crea el primer proyecto desde la sección de Clientes para empezar.
           </p>
         </CardContent>
@@ -84,7 +84,7 @@ export function WorkflowCommandCenterDashboard() {
           >
             <span aria-hidden="true">🔴</span> Urgente hoy
             {data.urgentes_hoy.length > 0 && (
-              <span className="text-sm font-normal text-foreground/60">
+              <span className="text-sm font-normal text-foreground/70">
                 · {data.urgentes_hoy.length}{" "}
                 {data.urgentes_hoy.length === 1
                   ? "cliente requiere acción inmediata"
@@ -107,7 +107,7 @@ export function WorkflowCommandCenterDashboard() {
               <ProjectCardUrgent key={card.project_id} card={card} />
             ))}
             {urgentExtra > 0 && (
-              <p className="text-sm text-foreground/60 italic">
+              <p className="text-sm text-foreground/70 italic">
                 + {urgentExtra} urgencia{urgentExtra === 1 ? "" : "s"} más
               </p>
             )}
@@ -124,7 +124,7 @@ export function WorkflowCommandCenterDashboard() {
               className="text-lg font-semibold flex items-center gap-2"
             >
               <span aria-hidden="true">🟡</span> Esta semana
-              <span className="text-sm font-normal text-foreground/60">
+              <span className="text-sm font-normal text-foreground/70">
                 · {data.esta_semana.length} pendiente
                 {data.esta_semana.length === 1 ? "" : "s"} admin-side
               </span>
@@ -136,7 +136,7 @@ export function WorkflowCommandCenterDashboard() {
             ))}
           </div>
           {weeklyExtra > 0 && (
-            <p className="mt-2 text-sm text-foreground/60 italic">
+            <p className="mt-2 text-sm text-foreground/70 italic">
               + {weeklyExtra} pendiente{weeklyExtra === 1 ? "" : "s"} más
             </p>
           )}
@@ -152,7 +152,7 @@ export function WorkflowCommandCenterDashboard() {
               className="text-lg font-semibold flex items-center gap-2"
             >
               <span aria-hidden="true">🟢</span> En marcha
-              <span className="text-sm font-normal text-foreground/60">
+              <span className="text-sm font-normal text-foreground/70">
                 · {data.en_marcha.length} cliente
                 {data.en_marcha.length === 1 ? "" : "s"} status verde
               </span>
@@ -173,7 +173,7 @@ export function WorkflowCommandCenterDashboard() {
             <CardHeader>
               <CardTitle id="zone-30d-heading" className="text-base">
                 <span aria-hidden="true">📅</span> Próximos 30 días
-                <span className="ml-2 text-sm font-normal text-foreground/60">
+                <span className="ml-2 text-sm font-normal text-foreground/70">
                   · forecast hitos
                 </span>
               </CardTitle>

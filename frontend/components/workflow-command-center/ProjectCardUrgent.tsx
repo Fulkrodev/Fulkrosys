@@ -50,7 +50,7 @@ export function ProjectCardUrgent({
               Step: <span className="font-medium">{card.current_step_title}</span>
             </p>
           )}
-          <div className="flex items-center gap-3 text-xs text-foreground/60">
+          <div className="flex items-center gap-3 text-xs text-foreground/70">
             <span>Fase: {card.current_phase}</span>
             <span>·</span>
             <span>

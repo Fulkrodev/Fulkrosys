@@ -21,6 +21,7 @@ import {
   AlertTriangle,
   CheckCircle2,
   ChevronDown,
+  HelpCircle,
   Loader2,
   Search,
   XCircle,
@@ -260,8 +261,16 @@ export function ExitChecklist({ projectId }: { projectId: string }) {
     {
       accessorKey: "evidence_id",
       header: () => (
+        // WCAG nested-interactive: este header se renderiza DENTRO del botón
+        // de ordenación del DataTable · el trigger del tooltip debe ser un
+        // <span> no focusable, nunca un <button> anidado.
         <span className="inline-flex items-center gap-1">
-          Evidencia <TooltipENS term="evidencia" iconSize={14} />
+          Evidencia{" "}
+          <TooltipENS term="evidencia">
+            <span className="inline-flex items-center text-fulkro-primary-500/70 hover:text-fulkro-primary-700">
+              <HelpCircle size={14} aria-hidden />
+            </span>
+          </TooltipENS>
         </span>
       ),
       cell: ({ row }) =>
@@ -270,7 +279,7 @@ export function ExitChecklist({ projectId }: { projectId: string }) {
             {row.original.evidence_id.slice(0, 8)}…
           </span>
         ) : (
-          <span className="text-xs text-fulkro-ink-400">—</span>
+          <span className="text-xs text-fulkro-ink-600">—</span>
         ),
     },
     {
@@ -283,13 +292,13 @@ export function ExitChecklist({ projectId }: { projectId: string }) {
               {new Date(row.original.completed_at).toLocaleDateString("es-ES")}
             </span>
             {row.original.completed_by ? (
-              <span className="text-fulkro-ink-400">
+              <span className="text-fulkro-ink-600">
                 {row.original.completed_by}
               </span>
             ) : null}
           </div>
         ) : (
-          <span className="text-xs text-fulkro-ink-400">—</span>
+          <span className="text-xs text-fulkro-ink-600">—</span>
         ),
     },
     {
@@ -346,7 +355,7 @@ export function ExitChecklist({ projectId }: { projectId: string }) {
         <CardContent className="flex flex-col gap-4">
           <div className="flex flex-wrap items-center gap-4">
             <div className="flex flex-col gap-1">
-              <span className="text-xs uppercase tracking-wide text-fulkro-ink-400">
+              <span className="text-xs uppercase tracking-wide text-fulkro-ink-600">
                 Progreso
               </span>
               <span className="text-2xl font-bold text-[color:var(--fulkro-title)]">
@@ -396,7 +405,7 @@ export function ExitChecklist({ projectId }: { projectId: string }) {
                   <li key={i}>{b}</li>
                 ))}
                 {blockersPreview.length > 5 ? (
-                  <li className="text-fulkro-ink-400">
+                  <li className="text-fulkro-ink-600">
                     + {blockersPreview.length - 5} adicionales…
                   </li>
                 ) : null}
@@ -417,7 +426,10 @@ export function ExitChecklist({ projectId }: { projectId: string }) {
                 setCategoryFilter(v as ExitCategory | "todas")
               }
             >
-              <SelectTrigger className="w-[180px]">
+              <SelectTrigger
+                className="w-[180px]"
+                aria-label="Filtrar por categoría"
+              >
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
@@ -435,7 +447,10 @@ export function ExitChecklist({ projectId }: { projectId: string }) {
               value={statusFilter}
               onValueChange={(v) => setStatusFilter(v as ExitStatus | "todos")}
             >
-              <SelectTrigger className="w-[180px]">
+              <SelectTrigger
+                className="w-[180px]"
+                aria-label="Filtrar por estado"
+              >
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
@@ -453,7 +468,7 @@ export function ExitChecklist({ projectId }: { projectId: string }) {
               <Search
                 size={14}
                 strokeWidth={2.4}
-                className="pointer-events-none absolute left-2.5 top-1/2 -translate-y-1/2 text-fulkro-ink-400"
+                className="pointer-events-none absolute left-2.5 top-1/2 -translate-y-1/2 text-fulkro-ink-600"
               />
               <Input
                 value={search}

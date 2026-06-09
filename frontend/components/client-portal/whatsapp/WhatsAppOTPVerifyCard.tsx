@@ -44,7 +44,7 @@ export function WhatsAppOTPVerifyCard({ phoneE164, onVerified }: Props) {
     <Card>
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
-          <CheckCircle2 className="h-5 w-5 text-emerald-600" />
+          <CheckCircle2 className="h-5 w-5 text-emerald-700" />
           Introduce el código
         </CardTitle>
       </CardHeader>

@@ -204,7 +204,7 @@ export function MeetingsHistoryTable({
                 </TableCell>
                 <TableCell className="text-xs">
                   {m.interlocutor_name ?? (
-                    <span className="text-fulkro-ink-400">—</span>
+                    <span className="text-fulkro-ink-600">—</span>
                   )}
                 </TableCell>
                 <TableCell className="text-center text-xs">

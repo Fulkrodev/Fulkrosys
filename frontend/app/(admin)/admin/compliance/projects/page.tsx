@@ -45,7 +45,7 @@ export default function ComplianceProjectsPage() {
       <header className="space-y-2">
         <div className="flex items-center justify-between gap-3">
           <h1 className="text-2xl font-semibold flex items-center gap-2 text-fulkro-primary-700">
-            <ShieldCheck className="h-6 w-6 text-emerald-600" />
+            <ShieldCheck className="h-6 w-6 text-emerald-700" />
             Compliance multi-cliente
           </h1>
           <Link

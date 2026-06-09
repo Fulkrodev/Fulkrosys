@@ -36,7 +36,7 @@ export function DdaStatsCard({ projectId }: DdaStatsCardProps) {
     return (
       <Card data-testid="dda-stats-loading">
         <CardContent className="py-6">
-          <div className="flex items-center gap-2 text-sm text-foreground/55">
+          <div className="flex items-center gap-2 text-sm text-foreground/70">
             <Loader2 className="size-4 animate-spin" />
             Cargando estadísticas DdA…
           </div>
@@ -52,7 +52,7 @@ export function DdaStatsCard({ projectId }: DdaStatsCardProps) {
           <p className="font-medium text-sm">
             No se pudieron cargar las estadísticas
           </p>
-          <p className="text-xs text-foreground/55">
+          <p className="text-xs text-foreground/70">
             {error instanceof Error ? error.message : "Error desconocido"}
           </p>
         </CardContent>
@@ -75,7 +75,7 @@ export function DdaStatsCard({ projectId }: DdaStatsCardProps) {
         <CardContent className="space-y-3">
           <div className="flex items-baseline gap-2">
             <span className="text-2xl font-bold">{pct}%</span>
-            <span className="text-xs text-foreground/55">
+            <span className="text-xs text-foreground/70">
               {data.implantadas + data.parcial} de {data.total_aplicables}{" "}
               aplicables
             </span>
@@ -144,7 +144,7 @@ function KpiCard({ label, value, icon, variant }: KpiCardProps) {
   const variantClasses: Record<KpiCardProps["variant"], string> = {
     default: "text-foreground/70",
     info: "text-blue-600",
-    success: "text-emerald-600",
+    success: "text-emerald-700",
     danger: "text-red-600",
   };
   return (

@@ -96,7 +96,7 @@ function statusVisual(status: MilestoneStatus) {
   }
   return {
     Icon: Circle,
-    iconClass: "text-fulkro-ink-400",
+    iconClass: "text-fulkro-ink-600",
     ringClass: "border-fulkro-ink-200 bg-white",
     labelClass: "text-fulkro-ink-500",
     connectorClass: "bg-fulkro-ink-200",
@@ -160,7 +160,7 @@ export function RenewalTimeline({ projectId }: RenewalTimelineProps) {
                   </div>
                   <span className={cn("text-xs", v.labelClass)}>{label}</span>
                   {m.due_date ? (
-                    <span className="text-[10px] text-fulkro-ink-400">
+                    <span className="text-[10px] text-fulkro-ink-600">
                       {new Date(m.due_date).toLocaleDateString("es-ES")}
                     </span>
                   ) : null}
@@ -199,7 +199,7 @@ export function RenewalTimeline({ projectId }: RenewalTimelineProps) {
                 <div className="flex flex-1 flex-col gap-0.5 pb-3">
                   <span className={cn("text-sm", v.labelClass)}>{label}</span>
                   {m.due_date ? (
-                    <span className="text-xs text-fulkro-ink-400">
+                    <span className="text-xs text-fulkro-ink-600">
                       Vence:{" "}
                       {new Date(m.due_date).toLocaleDateString("es-ES")}
                     </span>
@@ -256,7 +256,7 @@ export function RenewalTimeline({ projectId }: RenewalTimelineProps) {
                 ) : null}
                 {selected.notes ? (
                   <div className="rounded-md border border-fulkro-ink-200 bg-fulkro-ink-50 p-3">
-                    <p className="mb-1 text-[11px] font-bold uppercase tracking-wide text-fulkro-ink-400">
+                    <p className="mb-1 text-[11px] font-bold uppercase tracking-wide text-fulkro-ink-600">
                       Notas
                     </p>
                     <p className="text-xs text-fulkro-ink-700">{selected.notes}</p>

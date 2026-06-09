@@ -200,7 +200,7 @@ export function RoleAssignmentCard({
                   </a>
                 ) : null}
               </div>
-              <p className="text-[10px] text-fulkro-ink-400">
+              <p className="text-[10px] text-fulkro-ink-600">
                 Asignado {relativeDate(assignment.assigned_at)}
                 {assignment.assigned_by ? ` · ${assignment.assigned_by}` : ""}
               </p>
@@ -215,7 +215,7 @@ export function RoleAssignmentCard({
               <UserPlus
                 size={20}
                 strokeWidth={2.4}
-                className="text-fulkro-ink-400"
+                className="text-fulkro-ink-600"
               />
               <p className="text-xs font-medium text-fulkro-ink-500">
                 Rol sin asignar

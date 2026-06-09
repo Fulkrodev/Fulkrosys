@@ -191,7 +191,7 @@ function SettingsCard({ section }: { section: SettingsSection }) {
             className={cn(
               "h-5 w-5",
               isDisabled
-                ? "text-fulkro-ink-400"
+                ? "text-fulkro-ink-600"
                 : "text-fulkro-primary-700",
             )}
             aria-hidden="true"

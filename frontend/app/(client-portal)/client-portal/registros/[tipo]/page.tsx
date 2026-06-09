@@ -261,7 +261,7 @@ export default function RegistroTipoPage() {
 
       {!loading && !notApplicable && records.length === 0 && (
         <Card className="flex flex-col items-center gap-3 border-dashed border-fulkro-ink-200 p-8 text-center">
-          <Inbox className="h-10 w-10 text-fulkro-ink-400" aria-hidden />
+          <Inbox className="h-10 w-10 text-fulkro-ink-600" aria-hidden />
           <h3 className="text-sm font-semibold text-fulkro-ink-700">
             Sin entradas{statusFilter !== "all" ? ` ${statusFilter === "active" ? "activas" : "archivadas"}` : ""}
           </h3>
@@ -296,7 +296,7 @@ export default function RegistroTipoPage() {
                       actualizado {formatDateShort(record.updated_at)}
                     </p>
                   </div>
-                  <span className="font-mono text-xs text-fulkro-ink-400">
+                  <span className="font-mono text-xs text-fulkro-ink-600">
                     {record.id.slice(0, 8)}
                   </span>
                 </Card>

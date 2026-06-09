@@ -81,7 +81,7 @@ export function IncidentCard({ incident, onSelect, selected }: Props) {
           {severityBadge(incident.severidad)}
           {stateBadge(incident.workflow_state)}
         </div>
-        <ChevronRight className="h-4 w-4 text-fulkro-ink-400 flex-shrink-0" aria-hidden />
+        <ChevronRight className="h-4 w-4 text-fulkro-ink-600 flex-shrink-0" aria-hidden />
       </div>
     </Card>
   );

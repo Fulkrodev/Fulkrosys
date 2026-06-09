@@ -175,7 +175,9 @@
   --fulkro-title:    rgb(var(--fulkro-primary-900-rgb));   /* #2e2980 morado oscuro */
   --fulkro-subtitle: rgb(var(--fulkro-primary-700-rgb));   /* #5048cc morado medio */
   --fulkro-body:     rgb(var(--fulkro-ink-700-rgb));
-  --fulkro-muted:    rgb(var(--fulkro-ink-500-rgb));
+  /* 2026-06-09 · Polish gate · -500 sobre superficies ink-100 da 4.11 (FAIL AA);
+     -600 da ~7.4 (PASS). Mismo precedente que el re-map de --fulkro-accent. */
+  --fulkro-muted:    rgb(var(--fulkro-ink-600-rgb));
 
   /* ═══ Action gradients · botones primarios y CTAs (housekeeping iter 5) ═══
    * Degradado morado guay 135° · va de oscuro arriba-izquierda a vivo abajo-derecha.

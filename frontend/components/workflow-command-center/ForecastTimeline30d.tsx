@@ -18,7 +18,7 @@ export function ForecastTimeline30d({
 }) {
   if (cards.length === 0) {
     return (
-      <div className="text-sm text-foreground/55 italic">
+      <div className="text-sm text-foreground/70 italic">
         Sin hitos planificados próximos 30 días
       </div>
     );
@@ -42,11 +42,11 @@ export function ForecastTimeline30d({
                   <p className="text-sm font-medium truncate">
                     {card.project_nombre}
                   </p>
-                  <p className="text-xs text-foreground/60 truncate">
+                  <p className="text-xs text-foreground/70 truncate">
                     {card.current_step_title ?? `Fase ${card.current_phase}`}
                   </p>
                 </div>
-                <div className="flex items-center gap-1 text-xs text-foreground/55 shrink-0">
+                <div className="flex items-center gap-1 text-xs text-foreground/70 shrink-0">
                   <Clock className="size-3" />
                   <span>{card.progress_pct}%</span>
                 </div>
@@ -56,7 +56,7 @@ export function ForecastTimeline30d({
         })}
       </ol>
       {cards.length > 8 && (
-        <p className="text-xs text-foreground/55 italic">
+        <p className="text-xs text-foreground/70 italic">
           + {cards.length - 8} hitos más en próximos 30 días
         </p>
       )}

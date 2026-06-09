@@ -66,7 +66,7 @@ export function CheckinCard({ checkin, onSelect, selected }: Props) {
           )}
           {ragBadge(checkin.rag_overall)}
         </div>
-        <ChevronRight className="h-4 w-4 text-fulkro-ink-400 flex-shrink-0" aria-hidden />
+        <ChevronRight className="h-4 w-4 text-fulkro-ink-600 flex-shrink-0" aria-hidden />
       </div>
     </Card>
   );

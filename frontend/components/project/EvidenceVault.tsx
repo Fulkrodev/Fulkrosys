@@ -161,6 +161,7 @@ export function EvidenceVault({ projectId }: { projectId: string }) {
               />
             </div>
             <select
+              aria-label="Filtrar evidencias por estado"
               value={status}
               onChange={(e) =>
                 setStatus(e.target.value as DerivedStatus | "all")

@@ -126,7 +126,7 @@ export function DiagnosticoFlow({ token }: { token: string }) {
         <CardContent className="space-y-3 p-6 text-center">
           <p className="text-base font-semibold text-fulkro-ink-700">No hemos podido abrir el cuestionario</p>
           <p className="text-sm text-fulkro-ink-500">{errorMsg}</p>
-          <p className="text-xs text-fulkro-ink-400">
+          <p className="text-xs text-fulkro-ink-600">
             Si el enlace ha caducado, escríbenos y te enviamos uno nuevo. Sin prisa.
           </p>
         </CardContent>
@@ -173,7 +173,7 @@ export function DiagnosticoFlow({ token }: { token: string }) {
           >
             {inflight ? <Loader2 className="size-4 animate-spin" /> : "Acepto y empiezo"}
           </Button>
-          <p className="text-center text-[11px] text-fulkro-ink-400">
+          <p className="text-center text-[11px] text-fulkro-ink-600">
             Al continuar aceptas el tratamiento de tus datos descrito arriba.
           </p>
         </CardContent>
@@ -247,7 +247,7 @@ function QuestionScreen({
             {question.label}
           </h2>
           {question.tooltip && (
-            <p className="text-sm text-fulkro-ink-400">{question.tooltip}</p>
+            <p className="text-sm text-fulkro-ink-600">{question.tooltip}</p>
           )}
         </div>
 
@@ -303,11 +303,11 @@ function QuestionScreen({
               />
             )}
             <div className="flex items-center justify-between">
-              <span className="text-[11px] text-fulkro-ink-400">
+              <span className="text-[11px] text-fulkro-ink-600">
                 {required ? "Necesario para continuar" : "Opcional"}
               </span>
               {maxLen && (
-                <span className="text-[11px] text-fulkro-ink-400">
+                <span className="text-[11px] text-fulkro-ink-600">
                   {text.length}/{maxLen}
                 </span>
               )}

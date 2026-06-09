@@ -82,7 +82,7 @@ export function SignatureCard({ card }: SignatureCardProps) {
             />
           ) : (
             <FileSignature
-              className="h-5 w-5 mt-0.5 flex-shrink-0 text-fulkro-ink-400"
+              className="h-5 w-5 mt-0.5 flex-shrink-0 text-fulkro-ink-600"
               aria-hidden
             />
           )}

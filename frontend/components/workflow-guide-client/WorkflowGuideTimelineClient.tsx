@@ -49,7 +49,7 @@ export function WorkflowGuideTimelineClient({
         >
           <div className="flex items-center gap-3">
             <CheckCircle2
-              className="size-5 shrink-0 text-emerald-600"
+              className="size-5 shrink-0 text-emerald-700"
               strokeWidth={2.3}
               aria-hidden
             />

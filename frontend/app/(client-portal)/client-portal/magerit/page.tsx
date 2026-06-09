@@ -200,7 +200,7 @@ export default function ClientMageritPage() {
                       <Badge variant="secondary" className="text-[10px]">
                         {asset.code}
                       </Badge>
-                      <span className="text-[11px] text-foreground/55">
+                      <span className="text-[11px] text-foreground/70">
                         {ASSET_TYPE_LABELS[asset.asset_type_code] ??
                           asset.asset_type_code}
                       </span>
@@ -209,7 +209,7 @@ export default function ClientMageritPage() {
                 </li>
               ))}
               {assets.length > 30 && (
-                <p className="text-xs text-foreground/55 italic">
+                <p className="text-xs text-foreground/70 italic">
                   +{assets.length - 30} activos más · tu consultor los está
                   analizando.
                 </p>

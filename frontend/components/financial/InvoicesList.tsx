@@ -46,7 +46,7 @@ const ESTADO_LABELS: Record<EstadoPago, string> = {
 };
 
 function EstadoPagoBadge({ estado }: { estado: EstadoPago | null }) {
-  if (!estado) return <span className="text-xs text-fulkro-ink-400">—</span>;
+  if (!estado) return <span className="text-xs text-fulkro-ink-600">—</span>;
   const variant: "success" | "warning" | "danger" | "outline" | "secondary" = (
     {
       pagada: "success",
@@ -73,7 +73,7 @@ function VerifactuBadge({ invoice }: { invoice: Invoice }) {
       </Badge>
     );
   }
-  return <span className="text-xs text-fulkro-ink-400">—</span>;
+  return <span className="text-xs text-fulkro-ink-600">—</span>;
 }
 
 function fmtEuro(n: number | null): string {
@@ -195,7 +195,7 @@ export function InvoicesList({ projectId }: { projectId: string }) {
             Ver <ExternalLink size={11} strokeWidth={2.4} />
           </a>
         ) : (
-          <span className="text-xs text-fulkro-ink-400">—</span>
+          <span className="text-xs text-fulkro-ink-600">—</span>
         ),
     },
     {

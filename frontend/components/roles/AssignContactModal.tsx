@@ -208,7 +208,7 @@ export function AssignContactModal({
               <UserSearch
                 size={14}
                 strokeWidth={2.4}
-                className="pointer-events-none absolute left-2.5 top-1/2 -translate-y-1/2 text-fulkro-ink-400"
+                className="pointer-events-none absolute left-2.5 top-1/2 -translate-y-1/2 text-fulkro-ink-600"
               />
               <Input
                 value={search}
@@ -219,11 +219,11 @@ export function AssignContactModal({
             </div>
             <div className="max-h-[280px] overflow-y-auto rounded-md border border-fulkro-ink-200">
               {rt.contacts.isLoading ? (
-                <p className="py-6 text-center text-sm text-fulkro-ink-400">
+                <p className="py-6 text-center text-sm text-fulkro-ink-600">
                   Cargando contactos…
                 </p>
               ) : filtered.length === 0 ? (
-                <p className="py-6 text-center text-sm text-fulkro-ink-400">
+                <p className="py-6 text-center text-sm text-fulkro-ink-600">
                   Sin contactos. Crea uno nuevo en la pestaña siguiente.
                 </p>
               ) : (

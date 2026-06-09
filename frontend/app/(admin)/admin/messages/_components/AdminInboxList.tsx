@@ -187,7 +187,7 @@ export function AdminInboxList({
                     {t.unread_for_admin > 0 ? (
                       <Badge variant="default">{t.unread_for_admin}</Badge>
                     ) : (
-                      <span className="text-xs text-fulkro-ink-400">—</span>
+                      <span className="text-xs text-fulkro-ink-600">—</span>
                     )}
                   </TableCell>
                   <TableCell className="text-center">

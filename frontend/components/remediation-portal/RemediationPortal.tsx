@@ -69,7 +69,7 @@ const SEVERITY_STYLES: Record<
     label: "Info",
     emoji: "⚪",
     cardBorder: "border-l-4 border-l-fulkro-ink-300",
-    pill: "bg-fulkro-ink-100 text-fulkro-ink-500",
+    pill: "bg-fulkro-ink-100 text-fulkro-ink-600",
     bucket: "bg-fulkro-ink-100 border-fulkro-ink-300/60",
   },
 };

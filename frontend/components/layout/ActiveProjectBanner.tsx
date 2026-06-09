@@ -28,10 +28,29 @@ import { ProjectSwitcherDropdown } from "./ProjectSwitcherDropdown";
 
 const HEX_COLOR_PATTERN = /^#[0-9A-Fa-f]{6}$/;
 
-const CATEGORIA_BADGE: Record<string, { label: string; variant: "secondary" | "warning" | "success" }> = {
-  BASICA: { label: "BÁSICA", variant: "secondary" },
-  MEDIA: { label: "MEDIA", variant: "warning" },
-  ALTA: { label: "ALTA", variant: "success" },
+// 2026-06-09 · Polish gate · las variantes success/warning/secondary del Badge
+// son translúcidas para TARJETAS BLANCAS; sobre el sidebar oscuro el texto -700
+// quedaba ~2:1 (FAIL AA serious). chromeClass fuerza píldora sólida CLARA con
+// texto oscuro → legible sobre cualquier chrome oscuro (axe PASS).
+const CATEGORIA_BADGE: Record<
+  string,
+  { label: string; variant: "secondary" | "warning" | "success"; chromeClass: string }
+> = {
+  BASICA: {
+    label: "BÁSICA",
+    variant: "secondary",
+    chromeClass: "bg-fulkro-ink-100 text-fulkro-ink-900",
+  },
+  MEDIA: {
+    label: "MEDIA",
+    variant: "warning",
+    chromeClass: "bg-fulkro-warning-50 text-fulkro-warning-700",
+  },
+  ALTA: {
+    label: "ALTA",
+    variant: "success",
+    chromeClass: "bg-fulkro-success-50 text-fulkro-success-700",
+  },
 };
 
 export function ActiveProjectBanner() {
@@ -105,7 +124,7 @@ export function ActiveProjectBanner() {
         {catBadge ? (
           <Badge
             variant={catBadge.variant}
-            className="text-[10px] font-medium"
+            className={`text-[10px] font-medium ${catBadge.chromeClass}`}
             data-testid="active-project-category-badge"
           >
             {catBadge.label}

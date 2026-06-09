@@ -262,7 +262,7 @@ export default function TrustCenterPage() {
               key={p.slug}
               className="flex items-center gap-2 text-sm text-fulkro-ink-700"
             >
-              <CheckCircle2 className="h-4 w-4 text-emerald-600" />
+              <CheckCircle2 className="h-4 w-4 text-emerald-700" />
               <span className="font-medium">{p.name}</span>
               <span className="text-xs text-fulkro-ink-500">
                 · {p.data_location}

@@ -34,7 +34,7 @@ const PROVENANCE_OPTIONS: { value: ConsolidatedProvenance | "all"; label: string
 
 function ProvenanceIcon({ provenance }: { provenance: ConsolidatedProvenance }) {
   if (provenance === "manual") {
-    return <Server className="size-3.5 text-fulkro-ink-400" aria-hidden />;
+    return <Server className="size-3.5 text-fulkro-ink-600" aria-hidden />;
   }
   if (provenance === "cloud") {
     return <Cloud className="size-3.5 text-fulkro-primary-600" aria-hidden />;
@@ -147,7 +147,10 @@ export function ConsolidatedTab({ projectId }: ConsolidatedTabProps) {
             value={provFilter}
             onValueChange={(v) => setProvFilter(v as ConsolidatedProvenance | "all")}
           >
-            <SelectTrigger data-testid="consolidated-filter-provenance">
+            <SelectTrigger
+              aria-label="Filtrar por origen del activo"
+              data-testid="consolidated-filter-provenance"
+            >
               <SelectValue placeholder="Origen" />
             </SelectTrigger>
             <SelectContent>
@@ -162,7 +165,10 @@ export function ConsolidatedTab({ projectId }: ConsolidatedTabProps) {
         {typeOptions.length > 0 && (
           <div className="min-w-[180px]">
             <Select value={typeFilter} onValueChange={setTypeFilter}>
-              <SelectTrigger data-testid="consolidated-filter-type">
+              <SelectTrigger
+                aria-label="Filtrar por tipo de recurso"
+                data-testid="consolidated-filter-type"
+              >
                 <SelectValue placeholder="Tipo recurso" />
               </SelectTrigger>
               <SelectContent>

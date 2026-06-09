@@ -35,7 +35,7 @@ interface ComplianceSummaryCardProps {
 
 function statusIcon(status: HealthIndicator) {
   if (status === "ok") {
-    return <CheckCircle2 className="h-5 w-5 text-emerald-600" />;
+    return <CheckCircle2 className="h-5 w-5 text-emerald-700" />;
   }
   if (status === "warning") {
     return <Clock className="h-5 w-5 text-amber-600" />;

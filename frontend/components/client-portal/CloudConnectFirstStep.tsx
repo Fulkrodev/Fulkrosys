@@ -217,7 +217,7 @@ export function CloudConnectFirstStep({ projectId, onSkip }: Props) {
                     </span>
                     {isConnected && (
                       <CheckCircle2
-                        className="size-5 text-emerald-600"
+                        className="size-5 text-emerald-700"
                         aria-label="Conectado"
                       />
                     )}

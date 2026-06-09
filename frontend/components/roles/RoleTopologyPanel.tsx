@@ -108,7 +108,7 @@ export function RoleTopologyPanelView({ projectId }: { projectId: string }) {
         <CardContent className="flex flex-col gap-4 pt-6">
           <div className="flex flex-wrap items-end justify-between gap-4">
             <div className="flex flex-col gap-1">
-              <span className="text-xs uppercase tracking-wide text-fulkro-ink-400">
+              <span className="text-xs uppercase tracking-wide text-fulkro-ink-600">
                 Cobertura roles ENS{" "}
                 <TooltipENS
                   text="Los 5 roles obligatorios del ENS (Sponsor · RI · RS · RSEG · RSIS) deben estar asignados antes de certificar. Sin ellos, el auditor no firma. CCN-STIC 801 también exige que RSEG ≠ RSIS (segregación de funciones)."

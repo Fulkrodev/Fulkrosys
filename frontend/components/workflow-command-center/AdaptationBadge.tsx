@@ -49,13 +49,13 @@ export function AdaptationBadge({ step, dims }: AdaptationBadgeProps) {
             <ul className="space-y-1 text-xs text-foreground/80">
               {reasons.map((r, idx) => (
                 <li key={idx} className="flex gap-2">
-                  <span className="text-emerald-600">✓</span>
+                  <span className="text-emerald-700">✓</span>
                   <span>{r}</span>
                 </li>
               ))}
             </ul>
           ) : (
-            <p className="text-xs text-foreground/60 italic">
+            <p className="text-xs text-foreground/70 italic">
               Aplicable a todos los proyectos (sin restricciones específicas)
             </p>
           )}

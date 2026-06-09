@@ -128,7 +128,7 @@ export function MeetingNotes({
           {notes.trim() ? (
             <SafeMarkdown body={notes} />
           ) : (
-            <p className="text-sm italic text-fulkro-ink-400">
+            <p className="text-sm italic text-fulkro-ink-600">
               (sin notas — escribe en pestaña Editar)
             </p>
           )}

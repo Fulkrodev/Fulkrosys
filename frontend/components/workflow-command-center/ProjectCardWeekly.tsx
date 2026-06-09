@@ -42,7 +42,7 @@ export function ProjectCardWeekly({
               {card.current_step_title}
             </p>
           )}
-          <div className="text-[11px] text-foreground/55">
+          <div className="text-[11px] text-foreground/70">
             {card.progress_completed}/{card.progress_total} ({card.progress_pct}%) ·
             urgencia {card.current_step_urgency}
           </div>

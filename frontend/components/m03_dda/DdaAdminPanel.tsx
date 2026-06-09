@@ -65,7 +65,7 @@ export function DdaAdminPanel({ projectId }: DdaAdminPanelProps) {
           <ClipboardCheck className="size-5 text-primary" />
           Declaración de Aplicabilidad (DdA)
         </h1>
-        <p className="text-sm text-foreground/55">
+        <p className="text-sm text-foreground/70">
           Gestión de las 73 medidas Anexo II ENS · RD 311/2022 · audit-ready
           ENAC.
         </p>

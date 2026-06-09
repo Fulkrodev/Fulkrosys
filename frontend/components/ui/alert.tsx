@@ -12,14 +12,18 @@ const alertVariants = cva(
   {
     variants: {
       variant: {
+        // 2026-06-09 · Polish gate · texto -500 bare sobre tinte /10 daba
+        // ~4.1-4.4:1 (FAIL AA serious). Texto a -700 (PASS holgado) · icono
+        // se mantiene -500 (decorativo · identidad visual). Mismo precedente
+        // que el overhaul -700 del Badge (Phase A.1).
         default: "border-border bg-background text-foreground",
-        info: "border-fulkro-info/40 bg-fulkro-info/10 text-fulkro-info [&>svg]:text-fulkro-info",
+        info: "border-fulkro-info/40 bg-fulkro-info/10 text-fulkro-info-700 [&>svg]:text-fulkro-info",
         success:
-          "border-fulkro-success/40 bg-fulkro-success/10 text-fulkro-success [&>svg]:text-fulkro-success",
+          "border-fulkro-success/40 bg-fulkro-success/10 text-fulkro-success-700 [&>svg]:text-fulkro-success",
         warning:
-          "border-fulkro-warning/40 bg-fulkro-warning/10 text-fulkro-warning [&>svg]:text-fulkro-warning",
+          "border-fulkro-warning/40 bg-fulkro-warning/10 text-fulkro-warning-700 [&>svg]:text-fulkro-warning",
         danger:
-          "border-destructive/40 bg-destructive/10 text-destructive [&>svg]:text-destructive",
+          "border-destructive/40 bg-destructive/10 text-fulkro-danger-700 [&>svg]:text-destructive",
       },
     },
     defaultVariants: { variant: "default" },

@@ -145,7 +145,7 @@ export function ImplementationPaymentsSummary() {
 function Metric({ label, value }: { label: string; value: string }) {
   return (
     <div className="rounded-md border bg-white p-3">
-      <div className="text-xs uppercase tracking-wide text-fulkro-ink-400">
+      <div className="text-xs uppercase tracking-wide text-fulkro-ink-600">
         {label}
       </div>
       <div className="text-lg font-bold tabular-nums text-fulkro-ink-700">

@@ -245,7 +245,7 @@ export function AdminMessageComposer({
               disabled={submitting}
             />
           ) : (
-            <p className="text-xs italic text-fulkro-ink-400">
+            <p className="text-xs italic text-fulkro-ink-600">
               Selecciona un cliente primero para elegir contacto.
             </p>
           )}
@@ -257,7 +257,7 @@ export function AdminMessageComposer({
           {body.trim() ? (
             <SafeMarkdown body={body} />
           ) : (
-            <p className="text-sm text-fulkro-ink-400">
+            <p className="text-sm text-fulkro-ink-600">
               (vacío — escribe algo en la pestaña Editar)
             </p>
           )}
@@ -316,7 +316,7 @@ export function AdminMessageComposer({
               >
                 <span className="truncate">
                   {mimeIcon(a.file.type)} {a.file.name}{" "}
-                  <span className="text-fulkro-ink-400">
+                  <span className="text-fulkro-ink-600">
                     ({formatFileSize(a.file.size)})
                   </span>
                   {a.status === "uploading" && " ⏳"}
@@ -327,7 +327,7 @@ export function AdminMessageComposer({
                   type="button"
                   onClick={() => removeAttachment(i)}
                   aria-label={`Quitar ${a.file.name}`}
-                  className="text-fulkro-ink-400 hover:text-fulkro-ink-700"
+                  className="text-fulkro-ink-600 hover:text-fulkro-ink-700"
                   disabled={submitting}
                 >
                   <X size={12} />

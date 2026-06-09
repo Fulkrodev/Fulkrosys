@@ -109,7 +109,7 @@ export default function AdminMeetingsListPage() {
         <div className="relative flex-1 min-w-48 max-w-md">
           <Search
             size={14}
-            className="absolute left-2 top-1/2 -translate-y-1/2 text-fulkro-ink-400"
+            className="absolute left-2 top-1/2 -translate-y-1/2 text-fulkro-ink-600"
           />
           <Input
             value={searchQuery}
@@ -192,7 +192,7 @@ export default function AdminMeetingsListPage() {
                 <TableCell className="text-xs">{m.etapa_k ?? "—"}</TableCell>
                 <TableCell className="text-xs">
                   {m.interlocutor_name ?? (
-                    <span className="text-fulkro-ink-400">—</span>
+                    <span className="text-fulkro-ink-600">—</span>
                   )}
                 </TableCell>
                 <TableCell>

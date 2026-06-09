@@ -181,7 +181,7 @@ function KpiCard({
   testid?: string;
 }) {
   const toneClasses = {
-    emerald: "text-emerald-600",
+    emerald: "text-emerald-700",
     amber: "text-amber-600",
     slate: "text-slate-600",
     muted: "text-muted-foreground",

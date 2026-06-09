@@ -61,7 +61,7 @@ function StatChip({ label, value, variant = "default" }: StatChipProps) {
     <div
       className={`flex flex-col gap-0.5 rounded-md border px-3 py-2 ${accent}`}
     >
-      <span className="text-[10px] uppercase tracking-wide text-fulkro-ink-400">
+      <span className="text-[10px] uppercase tracking-wide text-fulkro-ink-600">
         {label}
       </span>
       <span className="text-lg font-bold tabular-nums">{value}</span>
@@ -158,7 +158,10 @@ export function ProvidersGrid({ projectId }: { projectId: string }) {
                   setTypeFilter(v as ProviderType | "todos")
                 }
               >
-                <SelectTrigger className="w-[180px]">
+                <SelectTrigger
+                  className="w-[180px]"
+                  aria-label="Filtrar por tipo de proveedor"
+                >
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
@@ -180,7 +183,10 @@ export function ProvidersGrid({ projectId }: { projectId: string }) {
                   setCritFilter(v as Criticality | "todas")
                 }
               >
-                <SelectTrigger className="w-[180px]">
+                <SelectTrigger
+                  className="w-[180px]"
+                  aria-label="Filtrar por criticidad del proveedor"
+                >
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
@@ -198,7 +204,7 @@ export function ProvidersGrid({ projectId }: { projectId: string }) {
                 <Search
                   size={14}
                   strokeWidth={2.4}
-                  className="pointer-events-none absolute left-2.5 top-1/2 -translate-y-1/2 text-fulkro-ink-400"
+                  className="pointer-events-none absolute left-2.5 top-1/2 -translate-y-1/2 text-fulkro-ink-600"
                 />
                 <Input
                   value={search}

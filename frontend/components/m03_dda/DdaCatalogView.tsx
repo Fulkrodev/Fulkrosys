@@ -55,7 +55,7 @@ export function DdaCatalogView() {
             ))}
           </div>
           {data && (
-            <span className="ml-auto text-foreground/55">
+            <span className="ml-auto text-foreground/70">
               {data.length} medidas
             </span>
           )}
@@ -63,7 +63,7 @@ export function DdaCatalogView() {
 
         {isLoading && (
           <div
-            className="flex items-center gap-2 py-6 text-sm text-foreground/55"
+            className="flex items-center gap-2 py-6 text-sm text-foreground/70"
             data-testid="dda-catalog-loading"
           >
             <Loader2 className="size-4 animate-spin" />
@@ -77,14 +77,14 @@ export function DdaCatalogView() {
             data-testid="dda-catalog-error"
           >
             <p className="font-medium">No se pudo cargar el catálogo</p>
-            <p className="text-xs text-foreground/55 mt-1">
+            <p className="text-xs text-foreground/70 mt-1">
               {error instanceof Error ? error.message : "Error desconocido"}
             </p>
           </div>
         )}
 
         {!isLoading && !isError && data && data.length === 0 && (
-          <p className="py-6 text-sm text-foreground/55 italic">
+          <p className="py-6 text-sm text-foreground/70 italic">
             Sin medidas con este filtro.
           </p>
         )}
@@ -112,7 +112,7 @@ export function DdaCatalogView() {
                 <div className="flex-1 min-w-0">
                   <p className="text-sm font-medium">{measure.nombre}</p>
                   {measure.familia && (
-                    <p className="text-[10px] text-foreground/55 uppercase tracking-wide">
+                    <p className="text-[10px] text-foreground/70 uppercase tracking-wide">
                       Familia: {measure.familia}
                     </p>
                   )}

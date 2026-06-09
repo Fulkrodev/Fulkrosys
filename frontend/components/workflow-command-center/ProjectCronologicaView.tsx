@@ -191,7 +191,7 @@ export function ProjectCronologicaView({
           <ListTree className="mr-1 size-3.5" />
           Próximos pasos
         </Button>
-        <span className="ml-auto text-[10px] text-foreground/55 italic">
+        <span className="ml-auto text-[10px] text-foreground/70 italic">
           AHORA siempre fijo arriba
         </span>
       </div>

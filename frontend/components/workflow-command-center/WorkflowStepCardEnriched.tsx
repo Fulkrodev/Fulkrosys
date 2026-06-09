@@ -89,7 +89,7 @@ export function WorkflowStepCardEnriched({
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-2 flex-wrap mb-1">
               {isCompleted ? (
-                <CheckCircle2 className="size-4 text-emerald-600" />
+                <CheckCircle2 className="size-4 text-emerald-700" />
               ) : isAhora ? (
                 <CircleDot className="size-4 text-primary animate-pulse" />
               ) : (
@@ -108,7 +108,7 @@ export function WorkflowStepCardEnriched({
                 </Badge>
               )}
             </div>
-            <div className="flex items-center gap-2 flex-wrap text-xs text-foreground/60">
+            <div className="flex items-center gap-2 flex-wrap text-xs text-foreground/70">
               <span>Fase {step.phase}</span>
               {step.order_within_phase !== null && (
                 <>
@@ -129,7 +129,7 @@ export function WorkflowStepCardEnriched({
                     ? "text-red-600 font-semibold"
                     : step.urgency_score >= 50
                       ? "text-amber-600 font-medium"
-                      : "text-foreground/55"
+                      : "text-foreground/70"
                 }
               >
                 urgencia {step.urgency_score}
@@ -140,7 +140,7 @@ export function WorkflowStepCardEnriched({
             <button
               type="button"
               onClick={() => setExpanded((x) => !x)}
-              className="text-foreground/55 hover:text-foreground"
+              className="text-foreground/70 hover:text-foreground"
               aria-label={expanded ? "Colapsar" : "Expandir"}
             >
               {expanded ? (
@@ -179,7 +179,7 @@ export function WorkflowStepCardEnriched({
 
             {step.rationale_es && isAhora && (
               <div className="rounded-md bg-muted/40 p-3">
-                <p className="text-xs uppercase font-semibold text-foreground/60 mb-1">
+                <p className="text-xs uppercase font-semibold text-foreground/70 mb-1">
                   Por qué ahora
                 </p>
                 <p className="text-sm text-foreground/80">{step.rationale_es}</p>
@@ -188,7 +188,7 @@ export function WorkflowStepCardEnriched({
 
             {step.completion_criteria_detailed.length > 0 && isAhora && (
               <div>
-                <p className="text-xs uppercase font-semibold text-foreground/60 mb-1.5 flex items-center gap-1">
+                <p className="text-xs uppercase font-semibold text-foreground/70 mb-1.5 flex items-center gap-1">
                   <ClipboardList className="size-3" />
                   Criterios completion
                 </p>

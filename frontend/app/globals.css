@@ -15,7 +15,11 @@
   --background: var(--fulkro-ink-50);
   --foreground: var(--fulkro-ink-900);
   --muted: var(--fulkro-ink-100);
-  --muted-foreground: var(--fulkro-ink-500);
+  /* 2026-06-09 · Polish CI gate · muted-foreground ink-500 (#6e6e7a) sobre
+     bg-muted ink-100 (#e8e8ec) daba 4.11:1 (FAIL AA 4.5). ink-600 (#4d4d59)
+     da ~7.4:1 (PASS holgado). Afecta Badge secondary + texto muted cross-suite
+     (mismo patrón que el overhaul primary/accent -700 de Phase C.1). */
+  --muted-foreground: var(--fulkro-ink-600);
   --border: var(--fulkro-ink-100);
   --input: var(--fulkro-ink-100);
   --ring: var(--fulkro-primary-500);
@@ -46,7 +50,7 @@
   --background-rgb: var(--fulkro-ink-50-rgb);
   --foreground-rgb: var(--fulkro-ink-900-rgb);
   --muted-rgb: var(--fulkro-ink-100-rgb);
-  --muted-foreground-rgb: var(--fulkro-ink-500-rgb);
+  --muted-foreground-rgb: var(--fulkro-ink-600-rgb);
   --border-rgb: var(--fulkro-ink-100-rgb);
   --input-rgb: var(--fulkro-ink-100-rgb);
   --ring-rgb: var(--fulkro-primary-500-rgb);

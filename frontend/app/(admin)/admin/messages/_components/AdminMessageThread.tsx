@@ -155,7 +155,7 @@ export function AdminMessageThread({
                       type="button"
                       onClick={() => handleDelete(m.id)}
                       aria-label="Borrar mensaje (moderación)"
-                      className="text-fulkro-ink-400 hover:text-red-600"
+                      className="text-fulkro-ink-600 hover:text-red-600"
                     >
                       <Trash2 size={12} />
                     </button>

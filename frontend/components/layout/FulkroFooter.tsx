@@ -26,7 +26,7 @@ export function FulkroFooter() {
         <span aria-hidden="true">·</span>
         <Link
           href={`tel:${FULKRO_IDENTITY.phoneTel}`}
-          className="inline-flex items-center gap-1 hover:text-fulkro-primary-700 hover:underline"
+          className="inline-flex items-center gap-1 underline hover:text-fulkro-primary-700"
           aria-label={`Llamar a Fulkro al teléfono ${FULKRO_IDENTITY.phone}`}
         >
           <Phone className="h-3 w-3" strokeWidth={2.3} aria-hidden="true" />
@@ -37,7 +37,7 @@ export function FulkroFooter() {
           href={FULKRO_IDENTITY.webUrl}
           target="_blank"
           rel="noopener noreferrer"
-          className="inline-flex items-center gap-1 hover:text-fulkro-primary-700 hover:underline"
+          className="inline-flex items-center gap-1 underline hover:text-fulkro-primary-700"
           aria-label={`Visitar web Fulkro ${FULKRO_IDENTITY.web} (abre en nueva pestaña)`}
         >
           <Globe className="h-3 w-3" strokeWidth={2.3} aria-hidden="true" />
@@ -46,7 +46,7 @@ export function FulkroFooter() {
         <span aria-hidden="true">·</span>
         <Link
           href={`mailto:${FULKRO_IDENTITY.email}`}
-          className="inline-flex items-center gap-1 hover:text-fulkro-primary-700 hover:underline"
+          className="inline-flex items-center gap-1 underline hover:text-fulkro-primary-700"
           aria-label={`Enviar email a ${FULKRO_IDENTITY.email}`}
         >
           <Mail className="h-3 w-3" strokeWidth={2.3} aria-hidden="true" />

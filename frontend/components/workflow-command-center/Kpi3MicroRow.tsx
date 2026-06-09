@@ -61,7 +61,7 @@ function KpiCard({
 }) {
   const accentClasses: Record<typeof accent, string> = {
     primary: "text-primary",
-    emerald: "text-emerald-600",
+    emerald: "text-emerald-700",
     amber: "text-amber-600",
   };
   return (
@@ -70,7 +70,7 @@ function KpiCard({
         <div className="flex items-center gap-2">
           <span className={accentClasses[accent]}>{icon}</span>
           <div className="min-w-0">
-            <p className="text-[10px] uppercase font-semibold text-foreground/55 tracking-wide">
+            <p className="text-[10px] uppercase font-semibold text-foreground/70 tracking-wide">
               {label}
             </p>
             <p className="text-lg font-semibold tabular-nums leading-tight">

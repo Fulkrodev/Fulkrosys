@@ -74,7 +74,7 @@ export function WorkflowTimelineAdmin({
           />
         ) : (
           <p
-            className="text-sm italic text-foreground/55 ml-6"
+            className="text-sm italic text-foreground/70 ml-6"
             data-testid="ahora-empty-state"
           >
             ✨ Todo al día. Sin sub-pasos urgentes ahora mismo.
@@ -97,7 +97,7 @@ export function WorkflowTimelineAdmin({
                 className="flex items-center gap-2 w-full text-left mb-3 group"
                 data-testid="completed-toggle"
               >
-                <CheckCircle2 className="size-4 text-emerald-600" />
+                <CheckCircle2 className="size-4 text-emerald-700" />
                 <h3
                   id="completed-heading"
                   className="text-sm font-semibold uppercase tracking-wide text-foreground/70"
@@ -105,9 +105,9 @@ export function WorkflowTimelineAdmin({
                   ━━━ COMPLETADO ({completed.length})
                 </h3>
                 {completedExpanded ? (
-                  <ChevronDown className="size-3.5 text-foreground/55" />
+                  <ChevronDown className="size-3.5 text-foreground/70" />
                 ) : (
-                  <ChevronRight className="size-3.5 text-foreground/55" />
+                  <ChevronRight className="size-3.5 text-foreground/70" />
                 )}
               </button>
               {completedExpanded ? (
@@ -124,7 +124,7 @@ export function WorkflowTimelineAdmin({
                   ))}
                 </div>
               ) : (
-                <p className="text-xs text-foreground/55 italic ml-6">
+                <p className="text-xs text-foreground/70 italic ml-6">
                   {completed.length} sub-paso{completed.length === 1 ? "" : "s"}{" "}
                   completado{completed.length === 1 ? "" : "s"} · click para
                   expandir
@@ -152,9 +152,9 @@ export function WorkflowTimelineAdmin({
                   ━━━ PRÓXIMOS 7 DÍAS ({proximos7d.length})
                 </h3>
                 {proximos7dExpanded ? (
-                  <ChevronDown className="size-3.5 text-foreground/55" />
+                  <ChevronDown className="size-3.5 text-foreground/70" />
                 ) : (
-                  <ChevronRight className="size-3.5 text-foreground/55" />
+                  <ChevronRight className="size-3.5 text-foreground/70" />
                 )}
               </button>
               {proximos7dExpanded ? (
@@ -171,7 +171,7 @@ export function WorkflowTimelineAdmin({
                   ))}
                 </div>
               ) : (
-                <p className="text-xs text-foreground/55 italic ml-6">
+                <p className="text-xs text-foreground/70 italic ml-6">
                   {proximos7d.length} tarea{proximos7d.length === 1 ? "" : "s"} ·
                   click para expandir
                 </p>
@@ -193,14 +193,14 @@ export function WorkflowTimelineAdmin({
               >
                 <h3
                   id="proximos30d-heading"
-                  className="text-sm font-semibold uppercase tracking-wide text-foreground/55"
+                  className="text-sm font-semibold uppercase tracking-wide text-foreground/70"
                 >
                   ━━━ PRÓXIMOS 30 DÍAS ({proximos30d.length})
                 </h3>
                 {proximos30dExpanded ? (
-                  <ChevronDown className="size-3.5 text-foreground/55" />
+                  <ChevronDown className="size-3.5 text-foreground/70" />
                 ) : (
-                  <ChevronRight className="size-3.5 text-foreground/55" />
+                  <ChevronRight className="size-3.5 text-foreground/70" />
                 )}
               </button>
               {proximos30dExpanded ? (
@@ -217,7 +217,7 @@ export function WorkflowTimelineAdmin({
                   ))}
                 </div>
               ) : (
-                <p className="text-xs text-foreground/55 italic ml-6">
+                <p className="text-xs text-foreground/70 italic ml-6">
                   {proximos30d.length} tarea{proximos30d.length === 1 ? "" : "s"}{" "}
                   · click para expandir
                 </p>

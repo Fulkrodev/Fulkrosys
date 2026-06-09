@@ -83,6 +83,7 @@ export function MageritImportPanel({ analysisId }: Props) {
               id="xml-file"
               type="file"
               accept=".xml,application/xml,text/xml"
+              aria-label="Seleccionar archivo XML del análisis MAGERIT a importar"
               onChange={(e) => setFile(e.target.files?.[0] ?? null)}
               className="block mx-auto text-sm"
             />

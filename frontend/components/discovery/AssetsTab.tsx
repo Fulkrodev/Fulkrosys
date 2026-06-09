@@ -92,11 +92,11 @@ export function AssetsTab({ projectId }: AssetsTabProps) {
     },
     {
       accessorKey: "tipo_magerit",
-      header: () => (
-        <span className="inline-flex items-center gap-1">
-          Tipo MAGERIT <TooltipENS term="MAGERIT" />
-        </span>
-      ),
+      // WCAG nested-interactive: DataTable renderiza el header DENTRO del
+      // botón de ordenación · un TooltipENS (botón) anidado ahí crea controles
+      // interactivos anidados. El glosario MAGERIT ya está disponible en la
+      // cabecera de la pestaña, junto al título.
+      header: "Tipo MAGERIT",
       cell: ({ row }) =>
         row.original.tipo_magerit ? (
           <Badge variant="outline">{row.original.tipo_magerit}</Badge>

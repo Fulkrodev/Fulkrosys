@@ -306,7 +306,7 @@ export function RenewalWarRoom({ projectId }: { projectId: string }) {
               <CalendarClock size={26} strokeWidth={2.4} />
             </div>
             <div className="flex flex-col gap-0.5">
-              <span className="text-xs uppercase tracking-wide text-fulkro-ink-400">
+              <span className="text-xs uppercase tracking-wide text-fulkro-ink-600">
                 Próxima auditoría{" "}
                 <TooltipENS
                   text="Recertificación bienal ENS: cada 2 años renueva tu conformidad. En MEDIA/ALTA con auditor ENAC externo · en BÁSICA con autoevaluación CCN-STIC 809."
@@ -351,7 +351,7 @@ export function RenewalWarRoom({ projectId }: { projectId: string }) {
             ) : (
               <Badge variant="outline">Auditor sin contactar</Badge>
             )}
-            <span className="text-[10px] text-fulkro-ink-400">
+            <span className="text-[10px] text-fulkro-ink-600">
               {totalOpenDrift} drifts abiertos
             </span>
           </div>

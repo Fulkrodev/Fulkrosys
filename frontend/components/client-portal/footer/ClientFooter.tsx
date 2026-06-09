@@ -27,7 +27,7 @@ export function ClientFooter() {
         Portal asistido por <strong>FULKRO</strong> · consultoría ENS ·{" "}
         <a
           href="https://fulkro.es"
-          className="text-[color:var(--fulkro-accent)] hover:underline"
+          className="text-[color:var(--fulkro-accent)] underline"
           target="_blank"
           rel="noopener noreferrer"
         >
@@ -36,7 +36,7 @@ export function ClientFooter() {
         {" · "}
         <a
           href="/client-portal/transparency"
-          className="text-[color:var(--fulkro-accent)] hover:underline"
+          className="text-[color:var(--fulkro-accent)] underline"
           data-testid="footer-transparency-link"
         >
           Transparencia IA

@@ -67,7 +67,7 @@ export function WhatsAppThreadView({ messages, loading }: Props) {
               <div className="mt-1 flex items-center justify-end gap-1 text-[11px] text-[color:var(--fulkro-muted)]">
                 <span>{formatTs(m.sent_at)}</span>
                 {isOutbound && m.read_at && (
-                  <CheckCheck className="h-3 w-3 text-emerald-600" aria-label="leído" />
+                  <CheckCheck className="h-3 w-3 text-emerald-700" aria-label="leído" />
                 )}
                 {isOutbound && !m.read_at && m.delivered_at && (
                   <CheckCheck className="h-3 w-3" aria-label="entregado" />

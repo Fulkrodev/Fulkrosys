@@ -7,13 +7,28 @@ import { usePathname } from "next/navigation";
 import { Badge } from "@/components/ui/badge";
 import { useActiveProjectStore } from "@/lib/stores/active-project-store";
 
+// 2026-06-09 · Polish gate · píldora sólida clara sobre topbar oscuro (las
+// variantes translúcidas del Badge son para tarjetas blancas · sobre chrome
+// oscuro el texto -700 daba ~2:1 FAIL AA). Mirror ActiveProjectBanner.
 const CATEGORIA_BADGE: Record<
   string,
-  { label: string; variant: "secondary" | "warning" | "success" }
+  { label: string; variant: "secondary" | "warning" | "success"; chromeClass: string }
 > = {
-  BASICA: { label: "BÁSICA", variant: "secondary" },
-  MEDIA: { label: "MEDIA", variant: "warning" },
-  ALTA: { label: "ALTA", variant: "success" },
+  BASICA: {
+    label: "BÁSICA",
+    variant: "secondary",
+    chromeClass: "bg-fulkro-ink-100 text-fulkro-ink-900",
+  },
+  MEDIA: {
+    label: "MEDIA",
+    variant: "warning",
+    chromeClass: "bg-fulkro-warning-50 text-fulkro-warning-700",
+  },
+  ALTA: {
+    label: "ALTA",
+    variant: "success",
+    chromeClass: "bg-fulkro-success-50 text-fulkro-success-700",
+  },
 };
 
 /**
@@ -54,7 +69,7 @@ export function HeaderProjectChip() {
       {catBadge ? (
         <Badge
           variant={catBadge.variant}
-          className="text-[10px] font-medium"
+          className={`text-[10px] font-medium ${catBadge.chromeClass}`}
           data-testid="header-project-chip-category"
         >
           {catBadge.label}

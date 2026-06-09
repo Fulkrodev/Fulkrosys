@@ -102,6 +102,7 @@ export function EvidenciasUploadPage() {
 
           <input
             type="file"
+            aria-label="Seleccionar archivo de evidencia para subir"
             accept={ALLOWED_EXTENSIONS.join(",")}
             onChange={(e) => {
               setFile(e.target.files?.[0] ?? null);

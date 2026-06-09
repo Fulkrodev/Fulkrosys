@@ -35,6 +35,12 @@ export const Progress = React.forwardRef<
       "relative h-2 w-full overflow-hidden rounded-full bg-muted",
       className,
     )}
+    // 2026-06-09 · axe aria-progressbar-name [serious]: role=progressbar exige
+    // nombre accesible · default genérico, sobreescribible vía aria-label(ledby).
+    aria-label={
+      props["aria-label"] ??
+      (props["aria-labelledby"] ? undefined : "Progreso")
+    }
     {...props}
   >
     <ProgressPrimitive.Indicator

@@ -67,7 +67,7 @@ const HEALTH_VARIANTS: Record<HealthIndicator, "success" | "warning" | "danger" 
 };
 
 function StatusIcon({ status }: { status: HealthIndicator }) {
-  if (status === "ok") return <CheckCircle2 className="h-4 w-4 text-emerald-600" />;
+  if (status === "ok") return <CheckCircle2 className="h-4 w-4 text-emerald-700" />;
   if (status === "warning") return <AlertCircle className="h-4 w-4 text-amber-600" />;
   if (status === "critical") return <AlertCircle className="h-4 w-4 text-rose-600" />;
   return <HelpCircle className="h-4 w-4 text-slate-400" />;
@@ -174,7 +174,7 @@ export default function SystemHealthPage() {
                 <Database
                   className={
                     data.db_connection_ok
-                      ? "h-4 w-4 text-emerald-600"
+                      ? "h-4 w-4 text-emerald-700"
                       : "h-4 w-4 text-rose-600"
                   }
                 />

@@ -88,7 +88,7 @@ function Stage({ icon, title, termKey, status }: StageProps) {
         className={cn(
           "flex h-9 w-9 items-center justify-center rounded-full",
           isInactive
-            ? "bg-fulkro-ink-200 text-fulkro-ink-400"
+            ? "bg-fulkro-ink-200 text-fulkro-ink-600"
             : status === "ok"
             ? "bg-fulkro-success text-white"
             : status === "failed"
@@ -120,7 +120,7 @@ export function AAPPBillingStatusCard({
   if (aapp.isLoading) {
     return (
       <Card>
-        <CardContent className="py-8 text-center text-sm text-fulkro-ink-400">
+        <CardContent className="py-8 text-center text-sm text-fulkro-ink-600">
           Cargando estado AAPP…
         </CardContent>
       </Card>
@@ -188,7 +188,7 @@ export function AAPPBillingStatusCard({
           <ArrowRight
             size={18}
             strokeWidth={2.4}
-            className="hidden text-fulkro-ink-400 md:block"
+            className="hidden text-fulkro-ink-600 md:block"
           />
           <Stage
             icon={<Send size={18} strokeWidth={2.4} />}
@@ -199,7 +199,7 @@ export function AAPPBillingStatusCard({
           <ArrowRight
             size={18}
             strokeWidth={2.4}
-            className="hidden text-fulkro-ink-400 md:block"
+            className="hidden text-fulkro-ink-600 md:block"
           />
           <Stage
             icon={<Hash size={18} strokeWidth={2.4} />}

@@ -78,7 +78,7 @@ export function AlertsCard() {
           <div className="flex items-center gap-2 text-base font-medium text-[color:var(--fulkro-muted)]">
             <CheckCircle2
               size={16}
-              className="text-emerald-600"
+              className="text-emerald-700"
               aria-hidden
             />
             Todo tranquilo · sin alertas pendientes.

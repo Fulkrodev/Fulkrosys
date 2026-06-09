@@ -212,7 +212,7 @@ export function EventsTable({
                     )}
                   </Button>
                 ) : (
-                  <span className="text-xs text-fulkro-ink-400">—</span>
+                  <span className="text-xs text-fulkro-ink-600">—</span>
                 )}
                 {feedback && feedback.eventId === event.id ? (
                   <p

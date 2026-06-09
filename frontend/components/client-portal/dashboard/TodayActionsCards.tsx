@@ -48,7 +48,7 @@ export function TodayActionsCards({ actions }: Props) {
         className="rounded-2xl border border-emerald-300/40 bg-emerald-500/10 px-6 py-8 text-center"
         data-testid="today-actions-empty"
       >
-        <PartyPopper className="mx-auto h-10 w-10 text-emerald-600" />
+        <PartyPopper className="mx-auto h-10 w-10 text-emerald-700" />
         <h2 className="mt-3 text-xl font-bold text-emerald-700">
           ¡No tienes pendientes!
         </h2>

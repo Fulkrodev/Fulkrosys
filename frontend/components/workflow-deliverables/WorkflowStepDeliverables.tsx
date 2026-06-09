@@ -49,7 +49,7 @@ function StatusIcon({ status }: { status: DeliverableState["status"] }) {
   if (status === "available") {
     return (
       <CheckCircle2
-        className="size-4 text-emerald-600"
+        className="size-4 text-emerald-700"
         strokeWidth={2.3}
         aria-hidden
       />
@@ -100,7 +100,7 @@ export function WorkflowStepDeliverables({
 
   if (query.isLoading) {
     return (
-      <div className="flex items-center gap-2 py-4 text-sm text-foreground/60">
+      <div className="flex items-center gap-2 py-4 text-sm text-foreground/70">
         <Loader2 className="size-4 animate-spin" />
         Cargando entregables…
       </div>
@@ -109,7 +109,7 @@ export function WorkflowStepDeliverables({
 
   if (query.isError) {
     return (
-      <p className="text-sm text-foreground/60">
+      <p className="text-sm text-foreground/70">
         {tone === "client"
           ? "Estamos teniendo problemas al cargar los documentos · prueba en un momento."
           : "Error cargando deliverables · revisa permisos o intenta refrescar."}
@@ -120,7 +120,7 @@ export function WorkflowStepDeliverables({
   const data = query.data;
   if (!data || data.deliverable_codes.length === 0) {
     return (
-      <p className="text-sm italic text-foreground/55">
+      <p className="text-sm italic text-foreground/70">
         {emptyStateMessage(tone)}
       </p>
     );
@@ -132,7 +132,7 @@ export function WorkflowStepDeliverables({
   return (
     <div className="space-y-3">
       <div className="flex items-center justify-between gap-2">
-        <p className="text-xs text-foreground/60">
+        <p className="text-xs text-foreground/70">
           {tone === "client"
             ? `${data.counts.available} de ${data.deliverable_codes.length} preparados`
             : `${data.counts.available}/${data.deliverable_codes.length} listos · ${data.counts.missing} pendientes generar`}
@@ -169,7 +169,7 @@ export function WorkflowStepDeliverables({
                 <StatusIcon status={d.status} />
                 <div className="min-w-0">
                   <p className="truncate text-sm font-medium">{d.code}</p>
-                  <p className="truncate text-xs text-foreground/55">
+                  <p className="truncate text-xs text-foreground/70">
                     {downloadable ? fileLabel : statusLabel(d.status, tone)}
                   </p>
                 </div>

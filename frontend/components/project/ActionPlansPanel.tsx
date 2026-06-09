@@ -107,7 +107,7 @@ export function ActionPlansPanel({ projectId }: { projectId: string }) {
         <CardContent className="space-y-3">
           {/* Filters */}
           <div className="flex flex-wrap items-center gap-2 text-xs">
-            <span className="font-medium text-foreground/60">Severidad:</span>
+            <span className="font-medium text-foreground/70">Severidad:</span>
             {(["critica", "alta", "media", "baja"] as ActionPlanSeverity[]).map(
               (s) => {
                 const active = severityFilter.includes(s);
@@ -125,7 +125,7 @@ export function ActionPlansPanel({ projectId }: { projectId: string }) {
                     className={`rounded-full border px-2 py-0.5 capitalize transition-colors ${
                       active
                         ? "border-primary bg-primary/10 text-primary"
-                        : "border-input bg-background text-foreground/60 hover:bg-muted"
+                        : "border-input bg-background text-foreground/70 hover:bg-muted"
                     }`}
                     data-testid={`action-plans-filter-severity-${s}`}
                   >
@@ -136,7 +136,7 @@ export function ActionPlansPanel({ projectId }: { projectId: string }) {
             )}
           </div>
           <div className="flex flex-wrap items-center gap-2 text-xs">
-            <span className="font-medium text-foreground/60">Origen:</span>
+            <span className="font-medium text-foreground/70">Origen:</span>
             {(
               ["m04_gap", "m09_audit_prep", "a21_discrepancy"] as ActionPlanSource[]
             ).map((s) => {
@@ -155,7 +155,7 @@ export function ActionPlansPanel({ projectId }: { projectId: string }) {
                   className={`flex items-center gap-1 rounded-full border px-2 py-0.5 transition-colors ${
                     active
                       ? "border-primary bg-primary/10 text-primary"
-                      : "border-input bg-background text-foreground/60 hover:bg-muted"
+                      : "border-input bg-background text-foreground/70 hover:bg-muted"
                   }`}
                   data-testid={`action-plans-filter-source-${s}`}
                 >
@@ -177,7 +177,7 @@ export function ActionPlansPanel({ projectId }: { projectId: string }) {
               </span>
               {Object.entries(query.data.counts_by_severity).map(
                 ([sev, count]) => (
-                  <span key={sev} className="capitalize text-foreground/60">
+                  <span key={sev} className="capitalize text-foreground/70">
                     {sev}: <strong>{count}</strong>
                   </span>
                 ),
@@ -266,7 +266,7 @@ function ActionPlanRow({ item }: { item: ActionPlanItem }) {
           )}
         </div>
         <p className="text-sm text-foreground/85">{item.description}</p>
-        <div className="flex flex-wrap items-center gap-2 text-[11px] text-foreground/55">
+        <div className="flex flex-wrap items-center gap-2 text-[11px] text-foreground/70">
           {item.responsable && (
             <span>Responsable: {item.responsable}</span>
           )}

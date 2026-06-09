@@ -132,7 +132,7 @@ export function CopilotoAdminSidebar({
             {modeBadge.label}
           </Badge>
         </div>
-        <p className="text-[10px] text-foreground/55">
+        <p className="text-[10px] text-foreground/70">
           Modo tutor cronológico · asume cero ENS · explica primer principios
         </p>
       </header>
@@ -156,7 +156,7 @@ export function CopilotoAdminSidebar({
               )}
             </p>
           ) : (
-            <p className="text-foreground/55 italic">
+            <p className="text-foreground/70 italic">
               Sin sub-pasos pendientes ahora
             </p>
           )}
@@ -269,13 +269,13 @@ export function CopilotoAdminSidebar({
       {history.length > 0 && (
         <section className="space-y-1.5 border-t pt-3">
           <div className="flex items-center justify-between">
-            <p className="text-[10px] uppercase font-semibold text-foreground/55 tracking-wider">
+            <p className="text-[10px] uppercase font-semibold text-foreground/70 tracking-wider">
               Respuestas recientes
             </p>
             <button
               type="button"
               onClick={() => setHistory([])}
-              className="text-[10px] text-foreground/55 hover:text-foreground"
+              className="text-[10px] text-foreground/70 hover:text-foreground"
               aria-label="Limpiar"
             >
               <RefreshCcw className="size-2.5" />

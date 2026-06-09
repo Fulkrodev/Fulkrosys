@@ -264,7 +264,7 @@ export default function ComplianceLandingPage() {
                     {FULKRO_OWN_NORMA_LABELS[key]}
                   </h3>
                   {isLoading ? (
-                    <Loader2 className="h-3.5 w-3.5 animate-spin text-fulkro-ink-400" />
+                    <Loader2 className="h-3.5 w-3.5 animate-spin text-fulkro-ink-600" />
                   ) : status === "green" ? (
                     <Badge variant="success" className="text-[10px]">
                       <CheckCircle2 className="mr-1 h-3 w-3" />
@@ -355,7 +355,7 @@ export default function ComplianceLandingPage() {
                 M04 · Gaps técnicos
               </h3>
               {monitorQuery.isLoading ? (
-                <Loader2 className="h-3.5 w-3.5 animate-spin text-fulkro-ink-400" />
+                <Loader2 className="h-3.5 w-3.5 animate-spin text-fulkro-ink-600" />
               ) : (
                 <Badge
                   variant={
@@ -404,7 +404,7 @@ export default function ComplianceLandingPage() {
               ENS Medio aplicadas a la plataforma propia.
             </p>
             <p
-              className="text-[10px] italic text-fulkro-ink-500"
+              className="text-[10px] italic text-fulkro-ink-600"
               data-testid="fulkro-own-m03-dda-future-ref"
             >
               Future-3B-4.F.fulkro-self-dda-m03-ed25519-artifact (~3-4h post-piloto)
@@ -431,7 +431,7 @@ export default function ComplianceLandingPage() {
               evidencias M07 self-applied + readiness score continuous.
             </p>
             <p
-              className="text-[10px] italic text-fulkro-ink-500"
+              className="text-[10px] italic text-fulkro-ink-600"
               data-testid="fulkro-own-m09-audit-future-ref"
             >
               Future-3B-4.F.fulkro-self-audit-prep-m09-full-cycle (~2-3h post-piloto)
@@ -494,7 +494,7 @@ export default function ComplianceLandingPage() {
               />
             </header>
             {kpisQuery.isLoading ? (
-              <Loader2 className="h-4 w-4 animate-spin text-fulkro-ink-400" />
+              <Loader2 className="h-4 w-4 animate-spin text-fulkro-ink-600" />
             ) : kpisQuery.data ? (
               <>
                 <p className="mb-1 text-2xl font-bold tabular-nums text-fulkro-ink-900">
@@ -526,13 +526,13 @@ export default function ComplianceLandingPage() {
                   "h-4 w-4",
                   (globalAlertsQuery.data?.length ?? 0) > 0
                     ? "text-fulkro-warning"
-                    : "text-fulkro-ink-400",
+                    : "text-fulkro-ink-600",
                 )}
                 aria-hidden="true"
               />
             </header>
             {globalAlertsQuery.isLoading ? (
-              <Loader2 className="h-4 w-4 animate-spin text-fulkro-ink-400" />
+              <Loader2 className="h-4 w-4 animate-spin text-fulkro-ink-600" />
             ) : (
               <>
                 <p className="mb-1 text-2xl font-bold tabular-nums text-fulkro-ink-900">
@@ -542,7 +542,7 @@ export default function ComplianceLandingPage() {
                   Cross-cliente abiertas ·{" "}
                   <Link
                     href="/admin/alerts"
-                    className="text-fulkro-info hover:underline"
+                    className="text-fulkro-info underline"
                   >
                     inbox completo
                   </Link>
@@ -566,7 +566,7 @@ export default function ComplianceLandingPage() {
               />
             </header>
             {kpisQuery.isLoading ? (
-              <Loader2 className="h-4 w-4 animate-spin text-fulkro-ink-400" />
+              <Loader2 className="h-4 w-4 animate-spin text-fulkro-ink-600" />
             ) : kpisQuery.data ? (
               <>
                 <p className="mb-1 text-2xl font-bold tabular-nums text-fulkro-ink-900">

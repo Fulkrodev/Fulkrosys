@@ -259,7 +259,7 @@ export function ClientTasksList() {
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-3">
-          <p className="text-xs text-foreground/55">
+          <p className="text-xs text-foreground/70">
             Aquí ves todo lo que Marcos necesita de ti. Filtra por tipo abajo o
             por estado.
           </p>
@@ -294,7 +294,7 @@ export function ClientTasksList() {
 
           {/* Status filters · secundario */}
           <div className="flex flex-wrap items-center gap-1.5 pt-2 border-t">
-            <span className="text-[10px] uppercase tracking-wide text-foreground/55">
+            <span className="text-[10px] uppercase tracking-wide text-foreground/70">
               Estado:
             </span>
             {STATUS_FILTERS.map((f) => (
@@ -321,7 +321,7 @@ export function ClientTasksList() {
           >
             <p className="text-3xl">✨</p>
             <p className="text-base font-medium">Sin tareas pendientes</p>
-            <p className="text-sm text-foreground/55 max-w-md mx-auto">
+            <p className="text-sm text-foreground/70 max-w-md mx-auto">
               {categoryFilter === "all" && statusFilter === "all"
                 ? "Marcos está trabajando · sin acciones pendientes tuyas ahora mismo. Te avisaremos cuando necesite algo."
                 : "No hay tareas en este filtro · prueba a quitar filtros o espera a que tu consultor te asigne más trabajo."}

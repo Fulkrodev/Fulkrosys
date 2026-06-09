@@ -119,7 +119,7 @@ export function ProjectBreadcrumb() {
         >
           {activeProject.clientName}
         </Link>
-        <ChevronRight size={11} className="text-fulkro-ink-400" aria-hidden />
+        <ChevronRight size={11} className="text-fulkro-ink-600" aria-hidden />
         <Link
           href={`${ROUTES.projects}/${activeProject.id}/dashboard`}
           className={
@@ -133,7 +133,7 @@ export function ProjectBreadcrumb() {
         </Link>
         {!isAtDashboard ? (
           <>
-            <ChevronRight size={11} className="text-fulkro-ink-400" aria-hidden />
+            <ChevronRight size={11} className="text-fulkro-ink-600" aria-hidden />
             <span
               className="font-semibold text-fulkro-ink-700"
               data-testid="project-breadcrumb-subpage"

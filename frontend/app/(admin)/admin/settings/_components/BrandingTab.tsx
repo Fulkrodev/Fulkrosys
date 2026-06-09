@@ -102,7 +102,7 @@ export function BrandingTab({ branding, onUpdate, onLogoUploaded }: Props) {
           className="flex flex-col gap-6"
         >
           <div className="flex flex-col gap-2">
-            <Label>Logo corporativo</Label>
+            <Label htmlFor="logo_file">Logo corporativo</Label>
             {currentLogoUrl && (
               // eslint-disable-next-line @next/next/no-img-element
               <img
@@ -112,6 +112,7 @@ export function BrandingTab({ branding, onUpdate, onLogoUploaded }: Props) {
               />
             )}
             <Input
+              id="logo_file"
               type="file"
               accept="image/png,image/jpeg"
               onChange={handleLogoFile}
@@ -128,6 +129,7 @@ export function BrandingTab({ branding, onUpdate, onLogoUploaded }: Props) {
               <Input
                 id="primary_color_picker"
                 type="color"
+                aria-label="Selector visual del color primario"
                 value={form.watch("primary_color") ?? "#7c3aed"}
                 onChange={(e) =>
                   form.setValue("primary_color", e.target.value, {
@@ -156,6 +158,7 @@ export function BrandingTab({ branding, onUpdate, onLogoUploaded }: Props) {
               <Input
                 id="secondary_color_picker"
                 type="color"
+                aria-label="Selector visual del color secundario"
                 value={form.watch("secondary_color") ?? "#0c0a09"}
                 onChange={(e) =>
                   form.setValue("secondary_color", e.target.value, {

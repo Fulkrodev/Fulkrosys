@@ -54,7 +54,7 @@ function statusIcon(status: string) {
     return <Clock className="h-4 w-4 text-amber-600" />;
   }
   if (status === "executed") {
-    return <CheckCircle2 className="h-4 w-4 text-emerald-600" />;
+    return <CheckCircle2 className="h-4 w-4 text-emerald-700" />;
   }
   if (status === "failed") {
     return <AlertCircle className="h-4 w-4 text-rose-600" />;

@@ -189,7 +189,7 @@ export function AuditorPortalChrome({ token, metadata, children }: Props) {
                     <span className="block font-medium leading-tight">
                       {section.label}
                     </span>
-                    <span className="block text-[11px] leading-tight text-fulkro-ink-500">
+                    <span className="block text-[11px] leading-tight text-fulkro-ink-600">
                       {section.description}
                     </span>
                   </span>

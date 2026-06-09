@@ -116,7 +116,7 @@ export function DdaEntriesList({
         {/* List */}
         {isLoading && (
           <div
-            className="flex items-center gap-2 py-6 text-sm text-foreground/55"
+            className="flex items-center gap-2 py-6 text-sm text-foreground/70"
             data-testid="dda-entries-loading"
           >
             <Loader2 className="size-4 animate-spin" />
@@ -130,7 +130,7 @@ export function DdaEntriesList({
             data-testid="dda-entries-error"
           >
             <p className="font-medium">No se pudieron cargar las medidas</p>
-            <p className="text-xs text-foreground/55 mt-1">
+            <p className="text-xs text-foreground/70 mt-1">
               {error instanceof Error ? error.message : "Error desconocido"}
             </p>
           </div>
@@ -138,7 +138,7 @@ export function DdaEntriesList({
 
         {!isLoading && !isError && filteredEntries.length === 0 && (
           <div
-            className="py-6 text-sm text-foreground/55 italic"
+            className="py-6 text-sm text-foreground/70 italic"
             data-testid="dda-entries-empty"
           >
             ✨ No hay medidas con los filtros actuales · ajusta el filtro o
@@ -153,7 +153,7 @@ export function DdaEntriesList({
               data-testid="dda-entries-table"
             >
               <thead>
-                <tr className="text-left text-xs uppercase text-foreground/55 tracking-wide">
+                <tr className="text-left text-xs uppercase text-foreground/70 tracking-wide">
                   <th className="px-2 py-1">Código</th>
                   <th className="px-2 py-1">Medida</th>
                   <th className="px-2 py-1">Marco</th>

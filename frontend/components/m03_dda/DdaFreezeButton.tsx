@@ -102,9 +102,9 @@ export function DdaFreezeButton({ projectId }: DdaFreezeButtonProps) {
       <CardHeader className="pb-3">
         <CardTitle className="text-sm font-semibold flex items-center gap-2">
           {isFrozen ? (
-            <Lock className="size-4 text-emerald-600" />
+            <Lock className="size-4 text-emerald-700" />
           ) : (
-            <Unlock className="size-4 text-foreground/55" />
+            <Unlock className="size-4 text-foreground/70" />
           )}
           {isFrozen ? "DdA congelada · audit-ready" : "DdA editable"}
           <Badge

@@ -132,7 +132,7 @@ export default function ClientWhatsAppPage() {
           <Card data-testid="whatsapp-active-status">
             <CardHeader className="flex flex-row items-center justify-between">
               <CardTitle className="flex items-center gap-2 text-base">
-                <ShieldCheck className="h-5 w-5 text-emerald-600" />
+                <ShieldCheck className="h-5 w-5 text-emerald-700" />
                 WhatsApp activo · {status.whatsapp_number}
               </CardTitle>
               <Button

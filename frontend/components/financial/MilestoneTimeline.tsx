@@ -61,13 +61,13 @@ function PhaseNode({ phase, status }: PhaseNodeProps) {
   const dotColor = {
     completed: "bg-fulkro-success border-fulkro-success text-white",
     active: "bg-fulkro-warning/20 border-fulkro-warning text-fulkro-warning animate-pulse",
-    upcoming: "bg-white border-fulkro-ink-200 text-fulkro-ink-400",
+    upcoming: "bg-white border-fulkro-ink-200 text-fulkro-ink-600",
   }[status];
 
   const labelColor = {
     completed: "text-[color:var(--fulkro-title)]",
     active: "text-fulkro-warning font-bold",
-    upcoming: "text-fulkro-ink-400",
+    upcoming: "text-fulkro-ink-600",
   }[status];
 
   const Icon = status === "completed" ? CheckCircle2 : status === "active" ? Clock : Circle;
@@ -148,7 +148,7 @@ export function MilestoneTimeline({
                       active:
                         "bg-fulkro-warning/20 border-fulkro-warning text-fulkro-warning",
                       upcoming:
-                        "bg-white border-fulkro-ink-200 text-fulkro-ink-400",
+                        "bg-white border-fulkro-ink-200 text-fulkro-ink-600",
                     }[status],
                   )}
                 >
@@ -179,7 +179,7 @@ export function MilestoneTimeline({
                       ? "font-bold text-fulkro-warning"
                       : status === "completed"
                       ? "text-[color:var(--fulkro-title)]"
-                      : "text-fulkro-ink-400",
+                      : "text-fulkro-ink-600",
                   )}
                 >
                   {phase.label}

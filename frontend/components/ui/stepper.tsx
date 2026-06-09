@@ -59,7 +59,7 @@ export function Stepper({ steps, currentIndex, className }: StepperProps) {
                   isCurrent && "bg-fulkro-primary-700 text-white shadow-md",
                   !isComplete &&
                     !isCurrent &&
-                    "bg-fulkro-ink-100 text-fulkro-ink-500",
+                    "bg-fulkro-ink-100 text-fulkro-ink-600",
                 )}
                 aria-label={step.label}
               >
