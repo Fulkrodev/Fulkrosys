@@ -78,6 +78,13 @@ dev = [
     "python-gvm>=27.0",
 ]
 
+[tool.setuptools.packages.find]
+# Empaqueta SOLO `app` (código del backend). Sin esto, setuptools (>=61) aborta
+# `pip install -e .` con "Multiple top-level packages in flat-layout"
+# (assets/migrations/mcp_servers NO son paquetes a instalar). Los tests importan
+# `backend.app` vía PYTHONPATH=repo-root, no por este install (que solo aporta deps).
+include = ["app*"]
+
 [tool.ruff]
 target-version = "py312"
 line-length = 120
