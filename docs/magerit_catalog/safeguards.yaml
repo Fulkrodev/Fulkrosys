@@ -1,0 +1,608 @@
+# MAGERIT v3 — Catálogo completo de salvaguardas
+# Fuente: Libro II "Catálogo de Elementos", Capítulo 6 (p.53-57)
+# 16 familias oficiales (6.1 a 6.16), extraídas directamente del PDF
+# efficacy_typical: bajo(20%), medio(50%), alto(70%), muy_alto(90%)
+
+safeguard_families:
+
+  # === 6.1 Protecciones generales u horizontales === # Libro II, p.53
+  - family: "H"
+    section: "6.1"
+    name: "Protecciones generales u horizontales"
+    page: 53
+    safeguards:
+      - code: "H.IA"
+        name: "Identificación y autenticación"
+        protects_assets: [S, D, SW, HW, COM]
+        mitigates: [A.5, A.6, A.11]
+        efficacy_typical: "alto"
+      - code: "H.AC"
+        name: "Control de acceso lógico"
+        protects_assets: [S, D, SW]
+        mitigates: [A.6, A.7, A.11]
+        efficacy_typical: "alto"
+      - code: "H.ST"
+        name: "Segregación de tareas"
+        protects_assets: [S, D, SW, P]
+        mitigates: [A.6, E.1, E.2]
+        efficacy_typical: "medio"
+      - code: "H.IR"
+        name: "Gestión de incidencias"
+        protects_assets: [S, D, SW, HW, COM]
+        mitigates: [A.8, A.24, E.8]
+        efficacy_typical: "alto"
+      - code: "H.tools.AV"
+        name: "Herramienta contra código dañino"
+        protects_assets: [SW, HW]
+        mitigates: [E.8, A.8]
+        efficacy_typical: "alto"
+      - code: "H.tools.IDS"
+        name: "IDS/IPS: Detección/prevención de intrusión"
+        protects_assets: [COM, S]
+        mitigates: [A.11, A.24, A.12]
+        efficacy_typical: "medio"
+      - code: "H.tools.CC"
+        name: "Herramienta de chequeo de configuración"
+        protects_assets: [SW, HW, COM]
+        mitigates: [E.4, A.4]
+        efficacy_typical: "medio"
+      - code: "H.tools.VA"
+        name: "Herramienta de análisis de vulnerabilidades"
+        protects_assets: [SW, HW, COM]
+        mitigates: [E.20, A.11]
+        efficacy_typical: "medio"
+      - code: "H.tools.TM"
+        name: "Herramienta de monitorización de tráfico"
+        protects_assets: [COM]
+        mitigates: [A.12, A.14]
+        efficacy_typical: "medio"
+      - code: "H.tools.DLP"
+        name: "DLP: Monitorización de contenidos"
+        protects_assets: [D, COM]
+        mitigates: [E.14, E.19, A.19]
+        efficacy_typical: "medio"
+      - code: "H.tools.LA"
+        name: "Herramienta para análisis de logs"
+        protects_assets: [S, SW]
+        mitigates: [A.3, E.3]
+        efficacy_typical: "medio"
+      - code: "H.tools.HP"
+        name: "Honey net / honey pot"
+        protects_assets: [COM, S]
+        mitigates: [A.11, A.5]
+        efficacy_typical: "bajo"
+      - code: "H.tools.SFV"
+        name: "Verificación de las funciones de seguridad"
+        protects_assets: [SW, HW]
+        mitigates: [E.20, A.22]
+        efficacy_typical: "medio"
+      - code: "H.VM"
+        name: "Gestión de vulnerabilidades"
+        protects_assets: [SW, HW, COM]
+        mitigates: [E.20, A.8, A.11]
+        efficacy_typical: "alto"
+      - code: "H.AU"
+        name: "Registro y auditoría"
+        protects_assets: [S, D, SW]
+        mitigates: [A.3, A.6, E.3]
+        efficacy_typical: "medio"
+
+  # === 6.2 Protección de los datos/información === # Libro II, p.54
+  - family: "D"
+    section: "6.2"
+    name: "Protección de los datos / información"
+    page: 54
+    safeguards:
+      - code: "D.A"
+        name: "Copias de seguridad de los datos (backup)"
+        protects_assets: [D, SI]
+        mitigates: [E.18, A.18, N.1, N.2, I.5]
+        efficacy_typical: "muy_alto"
+      - code: "D.I"
+        name: "Aseguramiento de la integridad"
+        protects_assets: [D, SW]
+        mitigates: [A.15, E.15]
+        efficacy_typical: "muy_alto"
+      - code: "D.C"
+        name: "Cifrado de la información"
+        protects_assets: [D, SI]
+        mitigates: [A.14, A.19, E.14, A.11]
+        efficacy_typical: "muy_alto"
+      - code: "D.DS"
+        name: "Uso de firmas electrónicas"
+        protects_assets: [D, S]
+        mitigates: [A.13, A.15]
+        efficacy_typical: "muy_alto"
+      - code: "D.TS"
+        name: "Uso de servicios de fechado electrónico (time stamping)"
+        protects_assets: [D]
+        mitigates: [A.13]
+        efficacy_typical: "alto"
+
+  # === 6.3 Protección de las claves criptográficas === # Libro II, p.54
+  - family: "K"
+    section: "6.3"
+    name: "Gestión de claves criptográficas"
+    page: 54
+    safeguards:
+      - code: "K.IC"
+        name: "Gestión de claves de cifra de información"
+        protects_assets: [D]
+        mitigates: [A.14, A.19]
+        efficacy_typical: "alto"
+      - code: "K.DS"
+        name: "Gestión de claves de firma de información"
+        protects_assets: [D, S]
+        mitigates: [A.13, A.15]
+        efficacy_typical: "alto"
+      - code: "K.disk"
+        name: "Gestión de claves para contenedores criptográficos"
+        protects_assets: [SI, D]
+        mitigates: [A.19, A.25]
+        efficacy_typical: "alto"
+      - code: "K.comms"
+        name: "Gestión de claves de comunicaciones"
+        protects_assets: [COM]
+        mitigates: [A.14, A.12]
+        efficacy_typical: "alto"
+      - code: "K.509"
+        name: "Gestión de certificados"
+        protects_assets: [S, D, COM]
+        mitigates: [A.5, A.13]
+        efficacy_typical: "alto"
+
+  # === 6.4 Protección de los servicios === # Libro II, p.54
+  - family: "S"
+    section: "6.4"
+    name: "Protección de los servicios"
+    page: 54
+    safeguards:
+      - code: "S.A"
+        name: "Aseguramiento de la disponibilidad"
+        protects_assets: [S]
+        mitigates: [I.8, A.24, E.24]
+        efficacy_typical: "alto"
+      - code: "S.start"
+        name: "Aceptación y puesta en operación"
+        protects_assets: [S]
+        mitigates: [E.4, E.2]
+        efficacy_typical: "medio"
+      - code: "S.SC"
+        name: "Se aplican perfiles de seguridad"
+        protects_assets: [S]
+        mitigates: [E.4, A.4]
+        efficacy_typical: "alto"
+      - code: "S.op"
+        name: "Explotación"
+        protects_assets: [S]
+        mitigates: [E.2, E.24]
+        efficacy_typical: "medio"
+      - code: "S.CM"
+        name: "Gestión de cambios (mejoras y sustituciones)"
+        protects_assets: [S]
+        mitigates: [E.21, A.22]
+        efficacy_typical: "medio"
+      - code: "S.end"
+        name: "Terminación"
+        protects_assets: [S]
+        mitigates: [A.19, E.19]
+        efficacy_typical: "medio"
+      - code: "S.www"
+        name: "Protección de servicios y aplicaciones web"
+        protects_assets: [S, SW]
+        mitigates: [A.5, A.7, A.11, A.24]
+        efficacy_typical: "alto"
+      - code: "S.email"
+        name: "Protección del correo electrónico"
+        protects_assets: [S]
+        mitigates: [A.8, A.30, E.9]
+        efficacy_typical: "alto"
+      - code: "S.dir"
+        name: "Protección del directorio"
+        protects_assets: [S, D]
+        mitigates: [A.5, A.11]
+        efficacy_typical: "alto"
+      - code: "S.dns"
+        name: "Protección del servidor de nombres de dominio (DNS)"
+        protects_assets: [S]
+        mitigates: [A.4, A.24]
+        efficacy_typical: "alto"
+      - code: "S.TW"
+        name: "Teletrabajo"
+        protects_assets: [S, COM]
+        mitigates: [A.11, A.14, E.14]
+        efficacy_typical: "medio"
+      - code: "S.voip"
+        name: "Voz sobre IP"
+        protects_assets: [S, COM]
+        mitigates: [A.14, A.12]
+        efficacy_typical: "medio"
+
+  # === 6.5 Protección de las aplicaciones (software) === # Libro II, p.54
+  - family: "SW"
+    section: "6.5"
+    name: "Protección de las aplicaciones informáticas"
+    page: 54
+    safeguards:
+      - code: "SW.A"
+        name: "Copias de seguridad (backup)"
+        protects_assets: [SW]
+        mitigates: [E.18, A.18, I.5]
+        efficacy_typical: "muy_alto"
+      - code: "SW.start"
+        name: "Puesta en producción"
+        protects_assets: [SW]
+        mitigates: [E.4, E.20]
+        efficacy_typical: "medio"
+      - code: "SW.SC"
+        name: "Se aplican perfiles de seguridad"
+        protects_assets: [SW]
+        mitigates: [E.4, A.4, E.20]
+        efficacy_typical: "alto"
+      - code: "SW.op"
+        name: "Explotación / Producción"
+        protects_assets: [SW]
+        mitigates: [E.2, E.4]
+        efficacy_typical: "medio"
+      - code: "SW.CM"
+        name: "Cambios (actualizaciones y mantenimiento)"
+        protects_assets: [SW]
+        mitigates: [E.21, A.22]
+        efficacy_typical: "medio"
+      - code: "SW.end"
+        name: "Terminación"
+        protects_assets: [SW]
+        mitigates: [A.19, E.19]
+        efficacy_typical: "medio"
+
+  # === 6.6 Protección de los equipos (hardware) === # Libro II, p.55
+  - family: "HW"
+    section: "6.6"
+    name: "Protección de los equipos informáticos"
+    page: 55
+    safeguards:
+      - code: "HW.start"
+        name: "Puesta en producción"
+        protects_assets: [HW]
+        mitigates: [E.4, I.5]
+        efficacy_typical: "medio"
+      - code: "HW.SC"
+        name: "Se aplican perfiles de seguridad"
+        protects_assets: [HW]
+        mitigates: [E.4, A.4]
+        efficacy_typical: "alto"
+      - code: "HW.A"
+        name: "Aseguramiento de la disponibilidad"
+        protects_assets: [HW]
+        mitigates: [I.5, I.6, N.1]
+        efficacy_typical: "alto"
+      - code: "HW.op"
+        name: "Operación"
+        protects_assets: [HW]
+        mitigates: [E.23, I.5]
+        efficacy_typical: "medio"
+      - code: "HW.CM"
+        name: "Cambios (actualizaciones y mantenimiento)"
+        protects_assets: [HW]
+        mitigates: [E.23, A.23]
+        efficacy_typical: "medio"
+      - code: "HW.end"
+        name: "Terminación"
+        protects_assets: [HW]
+        mitigates: [A.19, A.25]
+        efficacy_typical: "medio"
+      - code: "HW.PCD"
+        name: "Informática móvil"
+        protects_assets: [HW]
+        mitigates: [A.25, E.25, A.11]
+        efficacy_typical: "medio"
+      - code: "HW.print"
+        name: "Reproducción de documentos"
+        protects_assets: [HW, D]
+        mitigates: [A.19, E.19]
+        efficacy_typical: "bajo"
+      - code: "HW.pabx"
+        name: "Protección de la centralita telefónica (PABX)"
+        protects_assets: [HW, COM]
+        mitigates: [A.14, A.11]
+        efficacy_typical: "medio"
+
+  # === 6.7 Protección de las comunicaciones === # Libro II, p.55
+  - family: "COM"
+    section: "6.7"
+    name: "Protección de las comunicaciones"
+    page: 55
+    safeguards:
+      - code: "COM.start"
+        name: "Entrada en servicio"
+        protects_assets: [COM]
+        mitigates: [E.4, I.5]
+        efficacy_typical: "medio"
+      - code: "COM.SC"
+        name: "Se aplican perfiles de seguridad"
+        protects_assets: [COM]
+        mitigates: [E.4, A.4]
+        efficacy_typical: "alto"
+      - code: "COM.A"
+        name: "Aseguramiento de la disponibilidad"
+        protects_assets: [COM]
+        mitigates: [I.8, A.24]
+        efficacy_typical: "alto"
+      - code: "COM.aut"
+        name: "Autenticación del canal"
+        protects_assets: [COM]
+        mitigates: [A.5, A.9]
+        efficacy_typical: "alto"
+      - code: "COM.I"
+        name: "Protección de la integridad de los datos intercambiados"
+        protects_assets: [COM]
+        mitigates: [A.10, A.15, E.10]
+        efficacy_typical: "muy_alto"
+      - code: "COM.C"
+        name: "Protección criptográfica de la confidencialidad"
+        protects_assets: [COM]
+        mitigates: [A.14, A.12, I.11]
+        efficacy_typical: "muy_alto"
+      - code: "COM.op"
+        name: "Operación"
+        protects_assets: [COM]
+        mitigates: [E.2, E.4]
+        efficacy_typical: "medio"
+      - code: "COM.CM"
+        name: "Cambios (actualizaciones y mantenimiento)"
+        protects_assets: [COM]
+        mitigates: [E.21, A.22]
+        efficacy_typical: "medio"
+      - code: "COM.end"
+        name: "Terminación"
+        protects_assets: [COM]
+        mitigates: [A.19]
+        efficacy_typical: "medio"
+      - code: "COM.internet"
+        name: "Internet: uso de / acceso a"
+        protects_assets: [COM, S]
+        mitigates: [A.8, A.11, A.24]
+        efficacy_typical: "alto"
+      - code: "COM.wifi"
+        name: "Seguridad Wireless (WiFi)"
+        protects_assets: [COM]
+        mitigates: [A.11, A.14]
+        efficacy_typical: "alto"
+      - code: "COM.mobile"
+        name: "Telefonía móvil"
+        protects_assets: [COM]
+        mitigates: [A.14, E.25]
+        efficacy_typical: "medio"
+      - code: "COM.DS"
+        name: "Segregación de las redes en dominios"
+        protects_assets: [COM]
+        mitigates: [A.11, A.12, A.14]
+        efficacy_typical: "alto"
+
+  # === 6.8 Protección en puntos de interconexión === # Libro II, p.55
+  - family: "IP"
+    section: "6.8"
+    name: "Puntos de interconexión: conexiones entre zonas de confianza"
+    page: 55
+    safeguards:
+      - code: "IP.SPP"
+        name: "Sistema de protección perimetral"
+        protects_assets: [COM]
+        mitigates: [A.11, A.24]
+        efficacy_typical: "alto"
+      - code: "IP.BS"
+        name: "Protección de los equipos de frontera"
+        protects_assets: [HW, COM]
+        mitigates: [A.4, A.11]
+        efficacy_typical: "alto"
+
+  # === 6.9 Protección de los soportes de información === # Libro II, p.55-56
+  - family: "MP"
+    section: "6.9"
+    name: "Protección de los soportes de información"
+    page: 55
+    safeguards:
+      - code: "MP.A"
+        name: "Aseguramiento de la disponibilidad"
+        protects_assets: [SI]
+        mitigates: [E.18, A.18, I.10]
+        efficacy_typical: "alto"
+      - code: "MP.IC"
+        name: "Protección criptográfica del contenido"
+        protects_assets: [SI]
+        mitigates: [A.19, A.25, E.25]
+        efficacy_typical: "muy_alto"
+      - code: "MP.clean"
+        name: "Limpieza de contenidos"
+        protects_assets: [SI]
+        mitigates: [A.19, E.19]
+        efficacy_typical: "alto"
+      - code: "MP.end"
+        name: "Destrucción de soportes"
+        protects_assets: [SI]
+        mitigates: [A.19]
+        efficacy_typical: "muy_alto"
+
+  # === 6.10 Protección de los elementos auxiliares === # Libro II, p.56
+  - family: "AUX"
+    section: "6.10"
+    name: "Protección de los elementos auxiliares"
+    page: 56
+    safeguards:
+      - code: "AUX.A"
+        name: "Aseguramiento de la disponibilidad"
+        protects_assets: [AUX]
+        mitigates: [I.6, I.7, I.9]
+        efficacy_typical: "alto"
+      - code: "AUX.start"
+        name: "Instalación"
+        protects_assets: [AUX]
+        mitigates: [E.4, I.5]
+        efficacy_typical: "medio"
+      - code: "AUX.power"
+        name: "Suministro eléctrico"
+        protects_assets: [AUX, HW]
+        mitigates: [I.6]
+        efficacy_typical: "alto"
+      - code: "AUX.AC"
+        name: "Climatización"
+        protects_assets: [AUX, HW]
+        mitigates: [I.7]
+        efficacy_typical: "alto"
+      - code: "AUX.wires"
+        name: "Protección del cableado"
+        protects_assets: [AUX, COM]
+        mitigates: [I.3, A.14]
+        efficacy_typical: "medio"
+
+  # === 6.11 Seguridad física – Protección de las instalaciones === # Libro II, p.56
+  - family: "L"
+    section: "6.11"
+    name: "Protección de las instalaciones"
+    page: 56
+    safeguards:
+      - code: "L.design"
+        name: "Diseño"
+        protects_assets: [L]
+        mitigates: [N.1, N.2, I.1, I.2, I.7]
+        efficacy_typical: "alto"
+      - code: "L.depth"
+        name: "Defensa en profundidad"
+        protects_assets: [L]
+        mitigates: [A.11, A.26, A.27]
+        efficacy_typical: "alto"
+      - code: "L.AC"
+        name: "Control de los accesos físicos"
+        protects_assets: [L]
+        mitigates: [A.11, A.25, A.26, A.27]
+        efficacy_typical: "alto"
+      - code: "L.A"
+        name: "Aseguramiento de la disponibilidad"
+        protects_assets: [L]
+        mitigates: [N.1, N.2, I.1, A.26]
+        efficacy_typical: "alto"
+      - code: "L.end"
+        name: "Terminación"
+        protects_assets: [L]
+        mitigates: [A.19]
+        efficacy_typical: "medio"
+
+  # === 6.12 Salvaguardas relativas al personal === # Libro II, p.56
+  - family: "PS"
+    section: "6.12"
+    name: "Gestión del personal"
+    page: 56
+    safeguards:
+      - code: "PS.AT"
+        name: "Formación y concienciación"
+        protects_assets: [P]
+        mitigates: [E.1, E.2, E.7, A.30]
+        efficacy_typical: "medio"
+      - code: "PS.A"
+        name: "Aseguramiento de la disponibilidad"
+        protects_assets: [P]
+        mitigates: [E.28, A.28]
+        efficacy_typical: "medio"
+
+  # === 6.13 Salvaguardas de tipo organizativo === # Libro II, p.56
+  - family: "G"
+    section: "6.13"
+    name: "Organización"
+    page: 56
+    safeguards:
+      - code: "G.RM"
+        name: "Gestión de riesgos"
+        protects_assets: [S, D, SW, HW, COM, SI, AUX, L, P]
+        mitigates: []  # Meta-salvaguarda: habilita todas las demás
+        efficacy_typical: "alto"
+      - code: "G.plan"
+        name: "Planificación de la seguridad"
+        protects_assets: [S, D, SW, HW, COM, SI, AUX, L, P]
+        mitigates: []  # Meta-salvaguarda
+        efficacy_typical: "medio"
+      - code: "G.exam"
+        name: "Inspecciones de seguridad"
+        protects_assets: [S, D, SW, HW, COM, SI, AUX, L, P]
+        mitigates: [E.4, E.20, A.4]
+        efficacy_typical: "medio"
+
+  # === 6.14 Continuidad de operaciones === # Libro II, p.56
+  - family: "BC"
+    section: "6.14"
+    name: "Continuidad del negocio"
+    page: 56
+    safeguards:
+      - code: "BC.BIA"
+        name: "Análisis de impacto (BIA)"
+        protects_assets: [S]
+        mitigates: []  # Paso previo, no mitiga directamente
+        efficacy_typical: "medio"
+      - code: "BC.DRP"
+        name: "Plan de Recuperación de Desastres (DRP)"
+        protects_assets: [S, D, SW, HW, COM, L]
+        mitigates: [N.1, N.2, I.1, I.5, I.6, A.26]
+        efficacy_typical: "alto"
+
+  # === 6.15 Externalización === # Libro II, p.57
+  - family: "E"
+    section: "6.15"
+    name: "Relaciones externas"
+    page: 57
+    safeguards:
+      - code: "E.1"
+        name: "Acuerdos para intercambio de información y software"
+        protects_assets: [D, SW, S]
+        mitigates: [A.19, E.19, A.14]
+        efficacy_typical: "medio"
+      - code: "E.2"
+        name: "Acceso externo"
+        protects_assets: [S, COM]
+        mitigates: [A.11, A.5]
+        efficacy_typical: "alto"
+      - code: "E.3"
+        name: "Servicios proporcionados por otras organizaciones"
+        protects_assets: [S]
+        mitigates: [I.8, E.24]
+        efficacy_typical: "medio"
+      - code: "E.4"
+        name: "Personal subcontratado"
+        protects_assets: [P]
+        mitigates: [E.7, A.6, A.30]
+        efficacy_typical: "medio"
+
+  # === 6.16 Adquisición y desarrollo === # Libro II, p.57
+  - family: "NEW"
+    section: "6.16"
+    name: "Adquisición / desarrollo"
+    page: 57
+    safeguards:
+      - code: "NEW.S"
+        name: "Servicios: Adquisición o desarrollo"
+        protects_assets: [S]
+        mitigates: [E.4, E.20]
+        efficacy_typical: "medio"
+      - code: "NEW.SW"
+        name: "Aplicaciones: Adquisición o desarrollo"
+        protects_assets: [SW]
+        mitigates: [E.20, A.22]
+        efficacy_typical: "alto"
+      - code: "NEW.HW"
+        name: "Equipos: Adquisición o desarrollo"
+        protects_assets: [HW]
+        mitigates: [I.5, A.23]
+        efficacy_typical: "medio"
+      - code: "NEW.COM"
+        name: "Comunicaciones: Adquisición o contratación"
+        protects_assets: [COM]
+        mitigates: [I.8, E.4]
+        efficacy_typical: "medio"
+      - code: "NEW.MP"
+        name: "Soportes de Información: Adquisición"
+        protects_assets: [SI]
+        mitigates: [I.10]
+        efficacy_typical: "bajo"
+      - code: "NEW.C"
+        name: "Productos certificados o acreditados"
+        protects_assets: [SW, HW]
+        mitigates: [E.20, A.22, A.11]
+        efficacy_typical: "alto"

@@ -1,0 +1,316 @@
+{
+  "id": "onb-fintech-sponsor-v1",
+  "version": "1.0",
+  "sector": "fintech",
+  "role": "sponsor",
+  "nombre": "Onboarding Sponsor — Fintech",
+  "descripcion": "Onboarding para el sponsor ejecutivo de una empresa fintech. Recoge contexto regulatorio, licencias, motivacion ENS, compliance previo y planificacion del proyecto.",
+  "tiempo_estimado_minutos": 38,
+  "language": "es",
+  "questions": [
+    {
+      "id": "q-supervisor_regulatorio",
+      "type": "multi_select",
+      "section": "contexto_regulatorio",
+      "label": "Que supervisores regulatorios os aplican directamente?",
+      "tooltip": "El supervisor regulatorio determina las normativas cruzadas con ENS. Banco de Espana y CNMV tienen requisitos de seguridad que se solapan con ENS Medio/Alto.",
+      "options": [
+        {
+          "value": "banco_espana",
+          "label": "Banco de Espana"
+        },
+        {
+          "value": "cnmv",
+          "label": "CNMV (Comision Nacional del Mercado de Valores)"
+        },
+        {
+          "value": "bce_eba",
+          "label": "BCE / EBA (entidad de credito)"
+        },
+        {
+          "value": "dgsfp",
+          "label": "DGSFP (seguros)"
+        },
+        {
+          "value": "aepd",
+          "label": "Solo AEPD (proteccion de datos)"
+        },
+        {
+          "value": "ninguno_aun",
+          "label": "Aun no tenemos supervisor asignado"
+        }
+      ],
+      "validation": {
+        "required": true
+      }
+    },
+    {
+      "id": "q-licencia_autorizacion",
+      "type": "single_select",
+      "section": "contexto_regulatorio",
+      "label": "Disponeis de licencia o autorizacion regulatoria en vigor?",
+      "tooltip": "La licencia (EMI, PI, entidad de credito) determina las obligaciones regulatorias cruzadas con ENS, DORA y NIS2.",
+      "options": [
+        {
+          "value": "emi",
+          "label": "Entidad de Dinero Electronico (EMI)"
+        },
+        {
+          "value": "pi",
+          "label": "Entidad de Pago (PI)"
+        },
+        {
+          "value": "entidad_credito",
+          "label": "Entidad de Credito (banco)"
+        },
+        {
+          "value": "empresa_inversiones",
+          "label": "Empresa de Servicios de Inversion"
+        },
+        {
+          "value": "en_tramite",
+          "label": "Licencia en tramite"
+        },
+        {
+          "value": "no_regulado",
+          "label": "No requerimos licencia regulatoria"
+        }
+      ],
+      "validation": {
+        "required": true
+      }
+    },
+    {
+      "id": "q-motivacion_ens",
+      "type": "single_select",
+      "section": "contexto_estrategico",
+      "label": "Cual es la motivacion principal para obtener la certificacion ENS?",
+      "tooltip": "ENS es obligatorio para proveedores de servicios TIC a la Administracion Publica. En fintech puede ser requisito de un cliente AAPP o exigencia de un banco partner.",
+      "options": [
+        {
+          "value": "requisito_cliente_aapp",
+          "label": "Requisito de un cliente AAPP o banco publico"
+        },
+        {
+          "value": "acceso_licitaciones",
+          "label": "Acceder a licitaciones publicas"
+        },
+        {
+          "value": "requisito_partner",
+          "label": "Requisito de un banco o partner financiero"
+        },
+        {
+          "value": "decision_estrategica",
+          "label": "Decision estrategica de madurez"
+        },
+        {
+          "value": "otros",
+          "label": "Otros"
+        }
+      ],
+      "validation": {
+        "required": true
+      }
+    },
+    {
+      "id": "q-compliance_previo",
+      "type": "multi_select",
+      "section": "madurez_previa",
+      "label": "Habeis obtenido o estais en proceso de alguna de estas certificaciones o marcos de compliance?",
+      "tooltip": "PCI-DSS, DORA e ISO 27001 comparten controles con ENS. La madurez previa reduce significativamente el esfuerzo del proyecto.",
+      "options": [
+        {
+          "value": "pci_dss",
+          "label": "PCI-DSS"
+        },
+        {
+          "value": "dora",
+          "label": "DORA (Digital Operational Resilience Act)"
+        },
+        {
+          "value": "nis2",
+          "label": "NIS2"
+        },
+        {
+          "value": "iso27001",
+          "label": "ISO 27001"
+        },
+        {
+          "value": "rgpd_lopdgdd",
+          "label": "Adecuacion RGPD/LOPDGDD"
+        },
+        {
+          "value": "ens_previo",
+          "label": "ENS (version anterior)"
+        },
+        {
+          "value": "ninguno",
+          "label": "Ninguno"
+        }
+      ],
+      "validation": {
+        "required": true
+      }
+    },
+    {
+      "id": "q-plazo_objetivo",
+      "type": "date",
+      "section": "planificacion",
+      "label": "Teneis una fecha objetivo de certificacion?",
+      "tooltip": "Una fecha firme, a menudo condicionada por un contrato o licitacion, determina el ritmo del proyecto y la necesidad de recursos adicionales.",
+      "validation": {
+        "required": false
+      }
+    },
+    {
+      "id": "q-presupuesto_aprobado",
+      "type": "boolean",
+      "section": "planificacion",
+      "label": "Teneis presupuesto aprobado para el proyecto ENS completo (consultoria, pentest, auditoria)?",
+      "tooltip": "Un presupuesto aprobado permite planificar con realismo. En fintech, el pentest y la auditoria certificadora tienen costes superiores a otros sectores.",
+      "validation": {
+        "required": true
+      }
+    },
+    {
+      "id": "q-stakeholders_clave",
+      "type": "long_text",
+      "section": "stakeholders",
+      "label": "Indicad los stakeholders clave del proyecto (nombres, roles y por que son criticos para el exito)",
+      "tooltip": "En fintech es habitual tener stakeholders regulatorios, de seguridad, negocio y tecnologia con agendas distintas. Identificarlos desde el inicio es clave.",
+      "validation": {
+        "required": true,
+        "min_length": 30,
+        "max_length": 3000
+      }
+    },
+    {
+      "id": "q-dedicacion_semanal",
+      "type": "single_select",
+      "section": "planificacion",
+      "label": "Cuanto tiempo podeis dedicar como sponsor al proyecto semanalmente?",
+      "tooltip": "El sponsor ejecutivo suele dedicar 1-3h semanales en fases activas. En fintech, la coordinacion con el equipo regulatorio puede requerir mayor dedicacion.",
+      "options": [
+        {
+          "value": "menos_1h",
+          "label": "Menos de 1 hora"
+        },
+        {
+          "value": "1_2h",
+          "label": "1-2 horas"
+        },
+        {
+          "value": "2_4h",
+          "label": "2-4 horas"
+        },
+        {
+          "value": "mas_4h",
+          "label": "Mas de 4 horas"
+        }
+      ],
+      "validation": {
+        "required": true
+      }
+    },
+    {
+      "id": "q-volumen_transacciones",
+      "type": "single_select",
+      "section": "contexto_sectorial",
+      "label": "Volumen aproximado de transacciones procesadas al mes",
+      "options": [
+        {
+          "value": "menos_10k",
+          "label": "<10k"
+        },
+        {
+          "value": "10k_100k",
+          "label": "10k - 100k"
+        },
+        {
+          "value": "100k_1m",
+          "label": "100k - 1M"
+        },
+        {
+          "value": "mas_1m",
+          "label": ">1M"
+        }
+      ],
+      "validation": {
+        "required": true
+      }
+    },
+    {
+      "id": "q-kyc_aml",
+      "type": "boolean",
+      "section": "contexto_sectorial",
+      "label": "Aplicais procesos KYC y AML conforme a SEPBLAC?",
+      "validation": {
+        "required": true
+      }
+    },
+    {
+      "id": "q-open_banking",
+      "type": "boolean",
+      "section": "contexto_sectorial",
+      "label": "Operais bajo PSD2 (Open Banking)?",
+      "validation": {
+        "required": false
+      }
+    },
+    {
+      "id": "q-experiencia_previa_certificacion",
+      "type": "single_select",
+      "section": "contexto_estrategico",
+      "label": "Experiencia previa con certificaciones (ISO, ENS, SOC2)",
+      "options": [
+        {
+          "value": "ninguna",
+          "label": "Ninguna"
+        },
+        {
+          "value": "iso27001",
+          "label": "ISO 27001"
+        },
+        {
+          "value": "ens_anterior",
+          "label": "ENS anterior"
+        },
+        {
+          "value": "otras",
+          "label": "Otras"
+        }
+      ],
+      "validation": {
+        "required": false
+      }
+    },
+    {
+      "id": "q-comite_seguridad",
+      "type": "boolean",
+      "section": "contexto_estrategico",
+      "label": "Existe Comite de Seguridad formal con actas periodicas?",
+      "validation": {
+        "required": true
+      }
+    },
+    {
+      "id": "q-ambicion_recurrente",
+      "type": "boolean",
+      "section": "contexto_estrategico",
+      "label": "Buscan acompanamiento continuo (retainer) tras la certificacion?",
+      "validation": {
+        "required": false
+      }
+    },
+    {
+      "id": "q-numero_sedes",
+      "type": "number",
+      "section": "identificacion",
+      "label": "Numero de sedes fisicas en Espana",
+      "validation": {
+        "required": false,
+        "min_value": 0
+      }
+    }
+  ]
+}

@@ -1,0 +1,41 @@
+subject_es: "Auditoría programada · {{ project_name }} en {{ days_until }} días"
+cta_label_es: "Ver detalles auditoría"
+html_body_es: |
+  <p>Hola {{ recipient_name }},</p>
+  <p>Tienes una auditoría <strong>{{ audit_type }}</strong> programada
+  para el proyecto <strong>{{ project_name }}</strong>:</p>
+  <p style="background:#fffbeb;padding:12px;border-left:4px solid #f59e0b;">
+  📅 <strong>{{ audit_date }}</strong> ({{ days_until }} días)<br>
+  Ámbito: {{ audit_scope }}
+  </p>
+  <p>Revisa la documentación del proyecto y las evidencias activas
+  antes de la fecha para minimizar hallazgos.</p>
+  <p>
+    <a href="{{ cta_url }}" style="background:#f59e0b;color:#fff;padding:10px 20px;text-decoration:none;border-radius:4px;display:inline-block;">
+      Ver detalles de la auditoría
+    </a>
+  </p>
+  <p>Un saludo,<br>
+  <strong>Marcos Mata</strong> · Consultor de Fulkro<br>
+  📞 +34 637 165 328 ·
+  <a href="mailto:marcosmata@fulkro.es">marcosmata@fulkro.es</a> ·
+  <a href="https://www.fulkro.es">www.fulkro.es</a></p>
+text_body_es: |
+  Hola {{ recipient_name }},
+
+  Tienes una auditoría {{ audit_type }} programada para el proyecto
+  {{ project_name }}:
+
+  Fecha: {{ audit_date }} ({{ days_until }} días)
+  Ámbito: {{ audit_scope }}
+
+  Revisa la documentación del proyecto y las evidencias activas
+  antes de la fecha para minimizar hallazgos.
+
+  Ver detalles: {{ cta_url }}
+
+  Un saludo,
+  Marcos Mata · Consultor de Fulkro
+  Tel: +34 637 165 328
+  Email: marcosmata@fulkro.es
+  Web: www.fulkro.es

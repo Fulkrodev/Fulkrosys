@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="480" height="128" viewBox="0 0 480 128">
+  <g transform="translate(40, 16)">
+    <polygon points="48,88 8,88 48,8" fill="#6C63FF" opacity="0.9"/>
+    <polygon points="48,88 88,88 48,8" fill="#8B83FF" opacity="0.75"/>
+    <rect x="12" y="4" width="72" height="10" rx="5" fill="#1a1a2e" opacity="0.9"/>
+    <circle cx="48" cy="9" r="6" fill="#6C63FF"/>
+  </g>
+  <text x="145" y="78" fill="#1a1a2e" font-family="Inter, -apple-system, system-ui, sans-serif" font-size="60" font-weight="500" letter-spacing="-0.02em">fulkro</text>
+</svg>

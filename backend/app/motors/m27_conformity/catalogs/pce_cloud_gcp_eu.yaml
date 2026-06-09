@@ -1,0 +1,84 @@
+# PCE Cloud GCP EU — Perfil de Cumplimiento Google Cloud region EU
+# Aplicable a proyectos ENS con workloads en GCP europe-west-*.
+
+overlay_type: cloud_gcp_eu
+version: "1.0"
+applicability:
+  conditions:
+    - client_uses_gcp_project: true
+    - workloads_in_eu_region: true
+  category_min: "BASICA"
+  auto_detect_hints:
+    - "gcp_project_id"
+    - "europe-west"
+    - "Cloud Identity"
+    - "googleapis.com"
+
+extra_measures:
+  - code: "op.pl.5.pce-gcp.1"
+    title: "Cloud Identity + MFA obligatoria + Context-Aware Access"
+    dimensions: [A, I, C, D]
+    category: "BASICA"
+  - code: "op.exp.10.pce-gcp.1"
+    title: "Security Command Center Standard + Event Threat Detection"
+    dimensions: [D, I]
+    category: "MEDIA"
+  - code: "op.mon.2.pce-gcp.1"
+    title: "Cloud Audit Logs centralizados + 400d retention"
+    dimensions: [T]
+    category: "BASICA"
+  - code: "op.cont.3.pce-gcp.1"
+    title: "Backup & DR Service multi-region europe-west1/west4"
+    dimensions: [D]
+    category: "MEDIA"
+  - code: "mp.com.2.pce-gcp.1"
+    title: "VPC Service Controls + firewall reglas deny-by-default"
+    dimensions: [C, I]
+    category: "MEDIA"
+  - code: "op.acc.5.pce-gcp.1"
+    title: "IAM Recommender + audit Least Privilege mensual"
+    dimensions: [A, T]
+    category: "MEDIA"
+  - code: "mp.info.9.pce-gcp.1"
+    title: "Cloud KMS / HSM con keyring + rotation anual"
+    dimensions: [C, I]
+    category: "MEDIA"
+  - code: "mp.info.3.pce-gcp.1"
+    title: "DLP API + classification auto para Cloud Storage/BigQuery"
+    dimensions: [C]
+    category: "MEDIA"
+  - code: "op.exp.3.pce-gcp.1"
+    title: "Assured Workloads EU + CIS GCP Benchmark compliance"
+    dimensions: [T]
+    category: "MEDIA"
+  - code: "op.exp.7.pce-gcp.1"
+    title: "Chronicle / Cloud Logging sink -> SIEM externo"
+    dimensions: [T, D]
+    category: "ALTA"
+  - code: "mp.sw.2.pce-gcp.1"
+    title: "VM Manager para OS patching automatizado"
+    dimensions: [D, I]
+    category: "BASICA"
+  - code: "op.ext.4.pce-gcp.1"
+    title: "GCP DPA firmado + IDSEU transferencias"
+    dimensions: [C]
+    category: "BASICA"
+  - code: "mp.per.3.pce-gcp.1"
+    title: "Identity-Aware Proxy (IAP) para acceso administrativo"
+    dimensions: [A, T]
+    category: "MEDIA"
+  - code: "org.4.pce-gcp.1"
+    title: "Folder/Org policies para aislar productivo de dev"
+    dimensions: [A, T]
+    category: "MEDIA"
+  - code: "op.pl.4.pce-gcp.1"
+    title: "Labels estandar: env, owner, cost-center"
+    dimensions: [T]
+    category: "BASICA"
+
+compliance_checklist:
+  - "Evidencia E-041-gcp: SCC dashboard + findings activos"
+  - "Evidencia E-041-gcp: export IAM Policy Intelligence"
+  - "Evidencia E-041-gcp: audit log retention screenshot"
+  - "Evidencia E-041-gcp: Assured Workloads EU attestation"
+  - "Evidencia E-041-gcp: DPA Google firmado"

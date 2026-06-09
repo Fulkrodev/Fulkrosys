@@ -1,0 +1,71 @@
+{% extends "_email_base.mjml" %}
+
+{% block subject %}{{ tokens.BRAND_NAME }} · Solicitud de supresión · Resolución motivada{% endblock %}
+{% block preview %}Resolución motivada · base legal RD 311/2022 art. 24.1 ENS + Art. 17.3 RGPD{% endblock %}
+{% block header_tag %}Art. 17.3 RGPD{% endblock %}
+
+{% block hero_badge %}
+  <span class="pill" style="background:{{ tokens.SEVERITY_MEDIUM }};color:#ffffff;">Resolución motivada</span>
+{% endblock %}
+
+{% block hero %}
+  <mj-text font-size="22px" font-weight="700" color="{{ tokens.TEXT_PRIMARY }}" padding-bottom="6px" line-height="1.3">
+    Tu solicitud de supresión no puede atenderse en este momento
+  </mj-text>
+  <mj-text color="{{ tokens.TEXT_SECONDARY }}" font-size="13px">
+    Artículo 17.3.b RGPD y RD 311/2022 (ENS) · Resolución motivada del DPO
+  </mj-text>
+{% endblock %}
+
+{% block content %}
+  <mj-text color="{{ tokens.TEXT_PRIMARY }}" font-size="13px" line-height="1.55" padding-bottom="14px">
+    Estimado/a usuario/a, hemos recibido tu solicitud de supresión recibida el <strong>{{ request.requested_at.strftime("%Y-%m-%d") }}</strong>. Tras valorarla, <strong>no podemos ejecutar la supresión completa</strong> en este momento por la siguiente razón legal:
+  </mj-text>
+
+  <mj-raw>
+    <div style="margin:0 0 18px 0;padding:14px 16px;background:#fffbeb;border-left:4px solid {{ tokens.SEVERITY_MEDIUM }};border-radius:6px;font-size:13px;color:#78350f;line-height:1.55;white-space:pre-wrap;">
+      {{ request.rejection_reason }}
+    </div>
+
+    <div style="margin:0 0 14px 0;padding:14px 16px;background:{{ tokens.BG_SECTION_SUBTLE }};border:1px solid {{ tokens.BORDER_SUBTLE }};border-radius:8px;">
+      <div class="card-title">Qué hemos hecho</div>
+      <ul style="margin:6px 0 0 18px;color:{{ tokens.TEXT_SECONDARY }};font-size:13px;line-height:1.55;">
+        <li style="margin:2px 0;">Hemos registrado tu solicitud en el log de auditoría.</li>
+        <li style="margin:2px 0;">Tus datos quedan sujetos a la obligación legal de retención.</li>
+        <li style="margin:2px 0;">Una vez vencido el plazo, los datos serán anonimizados o suprimidos automáticamente.</li>
+      </ul>
+    </div>
+
+    <div style="margin:0 0 14px 0;padding:14px 16px;background:{{ tokens.BG_SECTION_SUBTLE }};border:1px solid {{ tokens.BORDER_SUBTLE }};border-radius:8px;">
+      <div class="card-title">Qué puedes hacer</div>
+      <div class="muted" style="font-size:13px;margin-top:4px;line-height:1.55;">
+        Si consideras que la base legal invocada no se ajusta a tu caso, puedes:
+        <ul style="margin:6px 0 0 18px;color:{{ tokens.TEXT_SECONDARY }};">
+          <li style="margin:2px 0;">Responder a este correo o escribir a <a class="accent-link" href="mailto:dpo@fulkro.es">dpo@fulkro.es</a> aportando argumentos o documentación adicional.</li>
+          <li style="margin:2px 0;">Presentar una reclamación ante la AEPD: <a class="accent-link" href="https://www.aepd.es">aepd.es</a>.</li>
+          <li style="margin:2px 0;">Solicitar el ejercicio de otros derechos (acceso, rectificación, portabilidad, limitación) desde el portal cliente.</li>
+        </ul>
+      </div>
+    </div>
+  </mj-raw>
+
+  <mj-section padding="14px 0 0 0">
+    <mj-column width="50%" vertical-align="middle">
+      <mj-button background-color="#ffffff" color="{{ tokens.TEXT_PRIMARY }}"
+                 border="1px solid {{ tokens.BORDER_STRONG }}" href="mailto:dpo@fulkro.es"
+                 align="left">
+        Contactar al DPO
+      </mj-button>
+    </mj-column>
+    <mj-column width="50%" vertical-align="middle">
+      <mj-button background-color="{{ tokens.PRIMARY }}" href="{{ tokens.LEGAL_BASE_URL }}/client-portal/account" align="left">
+        Ejercer otros derechos
+      </mj-button>
+    </mj-column>
+  </mj-section>
+
+  <mj-text color="{{ tokens.TEXT_MUTED }}" font-size="11px" padding-top="14px" line-height="1.5">
+    Referencia interna: <span class="mono">{{ request.id }}</span><br />
+    Procesada por {{ request.processed_by }} el {{ request.processed_at.strftime("%Y-%m-%d %H:%M %Z") }}
+  </mj-text>
+{% endblock %}

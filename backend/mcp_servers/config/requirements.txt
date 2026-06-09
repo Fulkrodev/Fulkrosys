@@ -1,0 +1,1 @@
+# Config server relies on system binaries (lynis, oscap).

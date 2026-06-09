@@ -1,0 +1,63 @@
+{% extends "_email_base.mjml" %}
+
+{% block subject %}{{ tokens.BRAND_NAME }} Self-Monitoring · {{ severity_label }}{% endblock %}
+{% block preview %}{{ check_count }} check{{ 's' if check_count != 1 else '' }} en estado {{ status_label }} · {{ period_label }}{% endblock %}
+{% block header_tag %}Self-Monitoring{% endblock %}
+
+{% block hero_badge %}
+  <span class="pill" style="background:{{ severity_solid(severity_level) }};color:#ffffff;">{{ severity_label }}</span>
+{% endblock %}
+
+{% block hero %}
+  <mj-text font-size="22px" font-weight="700" color="{{ tokens.TEXT_PRIMARY }}" padding-bottom="6px" line-height="1.3">
+    {{ check_count }} check{{ 's' if check_count != 1 else '' }} en estado {{ status_label }}
+  </mj-text>
+  <mj-text color="{{ tokens.TEXT_SECONDARY }}" font-size="13px">
+    {{ period_label }} · Verificación automática RGPD · LOPDGDD · ISO 27001
+  </mj-text>
+{% endblock %}
+
+{% block content %}
+  <mj-table padding-bottom="16px">
+    <tr style="background:{{ tokens.BG_SECTION_SUBTLE }};text-align:left;color:{{ tokens.TEXT_SECONDARY }};font-size:11px;text-transform:uppercase;letter-spacing:0.05em;">
+      <th style="padding:10px 14px;border-bottom:1px solid {{ tokens.BORDER_SUBTLE }};">Check</th>
+      <th style="padding:10px 14px;border-bottom:1px solid {{ tokens.BORDER_SUBTLE }};">Estado</th>
+      <th style="padding:10px 14px;border-bottom:1px solid {{ tokens.BORDER_SUBTLE }};">Mensaje</th>
+    </tr>
+    {% for alert in alerts %}
+      <tr style="background:{% if loop.index is even %}#fafbfc{% else %}#ffffff{% endif %};vertical-align:top;">
+        <td class="mono" style="padding:12px 14px;color:{{ tokens.TEXT_PRIMARY }};border-bottom:1px solid #f1f5f9;">{{ alert.check_name }}</td>
+        <td style="padding:12px 14px;border-bottom:1px solid #f1f5f9;">
+          <span class="pill" style="background:{{ outcome_bg(alert.status_level|default('unknown')) }};color:{{ outcome_text(alert.status_level|default('unknown')) }};">{{ alert.status }}</span>
+        </td>
+        <td style="padding:12px 14px;color:{{ tokens.TEXT_SECONDARY }};font-size:13px;line-height:1.5;border-bottom:1px solid #f1f5f9;">{{ alert.message }}</td>
+      </tr>
+    {% endfor %}
+  </mj-table>
+
+  {% if admin_url %}
+    <mj-text color="{{ tokens.TEXT_SECONDARY }}" font-size="13px" padding-bottom="14px">
+      Detalle por check + base regulatoria (Art. 30 RGPD · ISO 27001:2022 · ENS RD 311/2022) en el dashboard interno.
+    </mj-text>
+  {% endif %}
+
+  <mj-section padding="0">
+    <mj-column width="100%" vertical-align="middle">
+      {% if report_url %}
+        <mj-button background-color="{{ tokens.PRIMARY }}" href="{{ report_url }}" align="left">
+          Descargar reporte completo
+        </mj-button>
+        <mj-text color="{{ tokens.TEXT_MUTED }}" font-size="11px" padding-top="6px">
+          Enlace válido durante 7 días (MinIO presigned URL).
+        </mj-text>
+      {% endif %}
+      {% if admin_url %}
+        <mj-button background-color="#ffffff" color="{{ tokens.TEXT_PRIMARY }}"
+                   border="1px solid {{ tokens.BORDER_STRONG }}" href="{{ admin_url }}"
+                   align="left" padding-top="8px">
+          Abrir dashboard
+        </mj-button>
+      {% endif %}
+    </mj-column>
+  </mj-section>
+{% endblock %}

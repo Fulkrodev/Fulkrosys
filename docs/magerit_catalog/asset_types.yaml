@@ -1,0 +1,225 @@
+# MAGERIT v3 — Catálogo de tipos de activos
+# Fuente: Libro II "Catálogo de Elementos", Capítulo 2
+# Cada categoría principal tiene subtipos con sus dimensiones afectadas por defecto
+# Dimensiones: D=Disponibilidad, I=Integridad, C=Confidencialidad, A=Autenticidad, T=Trazabilidad
+
+asset_categories:
+
+  - code: "[S]"
+    name: "Servicios"
+    description: "Función que satisface una necesidad de los usuarios"  # Libro II, sec 2.1, p.6
+    subtypes:
+      - code: "[S.pub]"
+        name: "Servicio al público en general (ciudadanos)"
+        dimensions: [D, I, C, A, T]  # Libro II, sec 2.1, p.6
+      - code: "[S.ext]"
+        name: "Servicio a usuarios externos bajo relación contractual"
+        dimensions: [D, I, C, A, T]
+      - code: "[S.int]"
+        name: "Servicio interno a usuarios de la propia organización"
+        dimensions: [D, I]
+      - code: "[S.www]"
+        name: "Servicio World Wide Web"
+        dimensions: [D, I, C, A]
+      - code: "[S.email]"
+        name: "Correo electrónico"
+        dimensions: [D, I, C, A, T]
+      - code: "[S.dir]"
+        name: "Servicio de directorio / LDAP"
+        dimensions: [D, I, C, A]
+      - code: "[S.dns]"
+        name: "Servicio de resolución de nombres (DNS)"
+        dimensions: [D, I, A]
+      - code: "[S.file]"
+        name: "Servicio de almacenamiento de ficheros"
+        dimensions: [D, I, C]
+      - code: "[S.idm]"
+        name: "Gestión de identidades / autenticación"
+        dimensions: [D, I, C, A, T]
+
+  - code: "[D]"
+    name: "Datos / Información"
+    description: "Elementos de información que representan el conocimiento de la organización"  # Libro II, sec 2.2, p.7
+    subtypes:
+      - code: "[D.files]"
+        name: "Ficheros de datos"
+        dimensions: [D, I, C]  # Libro II, sec 2.2, p.7
+      - code: "[D.personal]"
+        name: "Datos de carácter personal (RGPD)"
+        dimensions: [I, C, A, T]
+      - code: "[D.classified]"
+        name: "Datos clasificados (reservado, confidencial, difusión limitada)"
+        dimensions: [C]
+      - code: "[D.config]"
+        name: "Datos de configuración"
+        dimensions: [I, C, A]
+      - code: "[D.int]"
+        name: "Datos de gestión interna"
+        dimensions: [D, I, C]
+      - code: "[D.password]"
+        name: "Credenciales (contraseñas, claves criptográficas)"
+        dimensions: [I, C, A]
+      - code: "[D.backup]"
+        name: "Copias de respaldo"
+        dimensions: [D, I, C]
+      - code: "[D.log]"
+        name: "Registro de actividad (logs)"
+        dimensions: [I, T]
+      - code: "[D.source]"
+        name: "Código fuente"
+        dimensions: [I, C]
+
+  - code: "[SW]"
+    name: "Software / Aplicaciones informáticas"
+    description: "Programas, aplicaciones y desarrollos que permiten tratar la información"  # Libro II, sec 2.6, p.10
+    subtypes:
+      - code: "[SW.own]"
+        name: "Desarrollo propio (in house)"
+        dimensions: [D, I, A]  # Libro II, sec 2.6, p.10
+      - code: "[SW.std]"
+        name: "Estándar (de mercado / COTS)"
+        dimensions: [D, I]
+      - code: "[SW.www]"
+        name: "Aplicación web / servidor de aplicaciones"
+        dimensions: [D, I, C, A]
+      - code: "[SW.db]"
+        name: "Sistema gestor de base de datos"
+        dimensions: [D, I, C, A, T]
+      - code: "[SW.os]"
+        name: "Sistema operativo"
+        dimensions: [D, I, A]
+      - code: "[SW.av]"
+        name: "Antivirus / EDR"
+        dimensions: [D, I]
+      - code: "[SW.mail]"
+        name: "Servidor de correo electrónico"
+        dimensions: [D, I, C, A]
+      - code: "[SW.backup]"
+        name: "Sistema de backup"
+        dimensions: [D, I]
+
+  - code: "[HW]"
+    name: "Equipos / Hardware"
+    description: "Equipos que hospedan datos, aplicaciones o servicios"  # Libro II, sec 2.7, p.11
+    subtypes:
+      - code: "[HW.host]"
+        name: "Grandes equipos (mainframe, servidor corporativo)"
+        dimensions: [D]  # Libro II, sec 2.7, p.11
+      - code: "[HW.mid]"
+        name: "Equipos medios (servidores departamentales)"
+        dimensions: [D]
+      - code: "[HW.pc]"
+        name: "Equipos personales (puestos de trabajo)"
+        dimensions: [D, I, C]
+      - code: "[HW.mobile]"
+        name: "Equipos portátiles / móviles"
+        dimensions: [D, I, C]
+      - code: "[HW.network]"
+        name: "Equipos de red (switches, routers, firewalls)"
+        dimensions: [D]
+      - code: "[HW.print]"
+        name: "Periféricos (impresoras, escáneres)"
+        dimensions: [D, C]
+      - code: "[HW.crypto]"
+        name: "Dispositivos criptográficos (HSM, tokens)"
+        dimensions: [D, I, C, A]
+
+  - code: "[COM]"
+    name: "Redes de comunicaciones"
+    description: "Medios de transporte que llevan datos de un sitio a otro"  # Libro II, sec 2.8, p.12
+    subtypes:
+      - code: "[COM.LAN]"
+        name: "Red de área local"
+        dimensions: [D, I, C]  # Libro II, sec 2.8, p.12
+      - code: "[COM.MAN]"
+        name: "Red de área metropolitana"
+        dimensions: [D, I, C]
+      - code: "[COM.Internet]"
+        name: "Internet"
+        dimensions: [D, I, C, A]
+      - code: "[COM.wifi]"
+        name: "Red inalámbrica WiFi"
+        dimensions: [D, I, C]
+      - code: "[COM.vpn]"
+        name: "Red privada virtual"
+        dimensions: [D, I, C, A]
+      - code: "[COM.tel]"
+        name: "Telefonía (fija/móvil)"
+        dimensions: [D, C]
+
+  - code: "[SI]"
+    name: "Soportes de información"
+    description: "Dispositivos físicos que permiten almacenar información de forma permanente o temporal"  # Libro II, sec 2.9, p.12
+    subtypes:
+      - code: "[SI.disc]"
+        name: "Discos / almacenamiento SAN/NAS"
+        dimensions: [D, I, C]  # Libro II, sec 2.9
+      - code: "[SI.usb]"
+        name: "Memorias USB / discos removibles"
+        dimensions: [I, C]
+      - code: "[SI.tape]"
+        name: "Cintas magnéticas"
+        dimensions: [D, I, C]
+      - code: "[SI.paper]"
+        name: "Material impreso / papel"
+        dimensions: [I, C]
+      - code: "[SI.cd]"
+        name: "CD-ROM / DVD"
+        dimensions: [I, C]
+
+  - code: "[AUX]"
+    name: "Equipamiento auxiliar"
+    description: "Otros equipos que dan soporte a los sistemas de información sin estar directamente relacionados con datos"  # Libro II, sec 2.10, p.13
+    subtypes:
+      - code: "[AUX.ups]"
+        name: "SAI / Sistemas de alimentación ininterrumpida"
+        dimensions: [D]  # Libro II, sec 2.10
+      - code: "[AUX.ac]"
+        name: "Climatización"
+        dimensions: [D]
+      - code: "[AUX.cabling]"
+        name: "Cableado estructurado"
+        dimensions: [D, I, C]
+      - code: "[AUX.destroy]"
+        name: "Equipos de destrucción de soportes"
+        dimensions: [C]
+      - code: "[AUX.furniture]"
+        name: "Mobiliario (armarios, cajas fuertes)"
+        dimensions: [C]
+
+  - code: "[L]"
+    name: "Instalaciones"
+    description: "Lugares donde se hospedan los sistemas de información y comunicaciones"  # Libro II, sec 2.11, p.13
+    subtypes:
+      - code: "[L.building]"
+        name: "Edificio"
+        dimensions: [D]  # Libro II, sec 2.11
+      - code: "[L.site]"
+        name: "Recinto / local"
+        dimensions: [D]
+      - code: "[L.cpd]"
+        name: "Centro de proceso de datos"
+        dimensions: [D, I, C]
+      - code: "[L.mobile]"
+        name: "Instalaciones móviles"
+        dimensions: [D]
+
+  - code: "[P]"
+    name: "Personal"
+    description: "Personas relacionadas con los sistemas de información"  # Libro II, sec 2.12, p.13
+    subtypes:
+      - code: "[P.ui]"
+        name: "Usuarios internos"
+        dimensions: [D, I, C, A, T]  # Libro II, sec 2.12
+      - code: "[P.ue]"
+        name: "Usuarios externos"
+        dimensions: [D, I, C, A]
+      - code: "[P.adm]"
+        name: "Administradores de sistemas"
+        dimensions: [D, I, C, A, T]
+      - code: "[P.dev]"
+        name: "Desarrolladores / programadores"
+        dimensions: [I, C, A]
+      - code: "[P.sub]"
+        name: "Subcontratas / proveedores"
+        dimensions: [D, I, C]

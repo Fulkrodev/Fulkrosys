@@ -1,0 +1,30 @@
+{
+  "mcp_name": "infra",
+  "version": "1.0",
+  "default_scope_fail_closed": {
+    "allowed_ips_cidr": [],
+    "allowed_domains": [],
+    "time_windows_cron": [],
+    "tools_whitelisted": []
+  },
+  "tools_available": [
+    "bloodhound_analyze",
+    "bloodhound_collect",
+    "certipy",
+    "coercer",
+    "impacket",
+    "kerbrute",
+    "lynis",
+    "metasploit_check",
+    "metasploit_exploit",
+    "metasploit_info",
+    "metasploit_post",
+    "metasploit_search",
+    "netexec",
+    "responder"
+  ],
+  "ens_categorias_aplica": [
+    "A"
+  ],
+  "notes": "Default scope is empty (fail-closed). Cliente debe autorizar explicitamente via /api/v1/projects/<id>/verification/scope antes de cada run."
+}

@@ -1,0 +1,209 @@
+{
+  "id": "onb-fintech-operaciones-v1",
+  "version": "1.0",
+  "sector": "fintech",
+  "role": "operaciones",
+  "nombre": "Onboarding Operaciones - Fintech",
+  "descripcion": "Cuestionario de onboarding para el rol Operaciones en una organizacion del sector Fintech. Recoge contexto estrategico, operativo y regulatorio necesario para arrancar el proyecto ENS.",
+  "tiempo_estimado_minutos": 38,
+  "language": "es",
+  "questions": [
+    {
+      "id": "q-empresa_nombre",
+      "type": "text",
+      "section": "identificacion",
+      "label": "Nombre comercial de la empresa",
+      "validation": {
+        "required": true,
+        "min_length": 2,
+        "max_length": 120
+      }
+    },
+    {
+      "id": "q-persona_contacto",
+      "type": "text",
+      "section": "identificacion",
+      "label": "Nombre de la persona que cumplimenta este cuestionario",
+      "validation": {
+        "required": true,
+        "min_length": 2,
+        "max_length": 120
+      }
+    },
+    {
+      "id": "q-cargo_contacto",
+      "type": "text",
+      "section": "identificacion",
+      "label": "Cargo de la persona de contacto",
+      "validation": {
+        "required": true,
+        "max_length": 120
+      }
+    },
+    {
+      "id": "q-email_contacto",
+      "type": "email",
+      "section": "identificacion",
+      "label": "Email de contacto",
+      "validation": {
+        "required": true
+      }
+    },
+    {
+      "id": "q-procesos_core",
+      "type": "long_text",
+      "section": "procesos",
+      "label": "Cuales son los 3-5 procesos core del negocio?",
+      "validation": {
+        "required": true,
+        "max_length": 2000
+      }
+    },
+    {
+      "id": "q-sla_clientes",
+      "type": "boolean",
+      "section": "procesos",
+      "label": "Teneis SLAs comprometidos con clientes (disponibilidad, RTO)?",
+      "validation": {
+        "required": true
+      }
+    },
+    {
+      "id": "q-continuidad_plan",
+      "type": "single_select",
+      "section": "procesos",
+      "label": "Estado del plan de continuidad de negocio (BCP)",
+      "options": [
+        {
+          "value": "completo_probado",
+          "label": "Completo y probado"
+        },
+        {
+          "value": "completo_no_probado",
+          "label": "Completo, no probado"
+        },
+        {
+          "value": "parcial",
+          "label": "Parcial o desactualizado"
+        },
+        {
+          "value": "no_existe",
+          "label": "No existe formalmente"
+        }
+      ],
+      "validation": {
+        "required": true
+      }
+    },
+    {
+      "id": "q-proveedores_criticos",
+      "type": "number",
+      "section": "procesos",
+      "label": "Numero de proveedores criticos",
+      "validation": {
+        "required": true,
+        "min_value": 0
+      }
+    },
+    {
+      "id": "q-kpis_operativos",
+      "type": "boolean",
+      "section": "procesos",
+      "label": "Medis y revisais KPIs operativos periodicamente?",
+      "validation": {
+        "required": false
+      }
+    },
+    {
+      "id": "q-licencia_financiera",
+      "type": "single_select",
+      "section": "contexto_sectorial",
+      "label": "Disponeis de licencia financiera en vigor?",
+      "options": [
+        {
+          "value": "emi",
+          "label": "Entidad de Dinero Electronico"
+        },
+        {
+          "value": "pi",
+          "label": "Entidad de Pago"
+        },
+        {
+          "value": "entidad_credito",
+          "label": "Entidad de Credito"
+        },
+        {
+          "value": "no_regulado",
+          "label": "No requerimos licencia"
+        }
+      ],
+      "validation": {
+        "required": true
+      }
+    },
+    {
+      "id": "q-dora_aplica",
+      "type": "boolean",
+      "section": "contexto_sectorial",
+      "label": "Estais sujetos al Reglamento DORA?",
+      "tooltip": "DORA aplica desde enero 2025 a entidades financieras UE.",
+      "validation": {
+        "required": true
+      }
+    },
+    {
+      "id": "q-pci_dss",
+      "type": "boolean",
+      "section": "contexto_sectorial",
+      "label": "Procesais datos de tarjeta (PCI-DSS)?",
+      "validation": {
+        "required": true
+      }
+    },
+    {
+      "id": "q-volumen_transacciones",
+      "type": "single_select",
+      "section": "contexto_sectorial",
+      "label": "Volumen aproximado de transacciones procesadas al mes",
+      "options": [
+        {
+          "value": "menos_10k",
+          "label": "<10k"
+        },
+        {
+          "value": "10k_100k",
+          "label": "10k - 100k"
+        },
+        {
+          "value": "100k_1m",
+          "label": "100k - 1M"
+        },
+        {
+          "value": "mas_1m",
+          "label": ">1M"
+        }
+      ],
+      "validation": {
+        "required": true
+      }
+    },
+    {
+      "id": "q-kyc_aml",
+      "type": "boolean",
+      "section": "contexto_sectorial",
+      "label": "Aplicais procesos KYC y AML conforme a SEPBLAC?",
+      "validation": {
+        "required": true
+      }
+    },
+    {
+      "id": "q-open_banking",
+      "type": "boolean",
+      "section": "contexto_sectorial",
+      "label": "Operais bajo PSD2 (Open Banking)?",
+      "validation": {
+        "required": false
+      }
+    }
+  ]
+}

@@ -1,0 +1,56 @@
+{
+  "last_run": {
+    "time": "2026-04-24T09:20:00Z",
+    "run_parameters": {"services": ["computeengine", "iam", "cloudstorage"]}
+  },
+  "provider_code": "gcp",
+  "provider_name": "Google Cloud Platform",
+  "account_id": "fulkro-client-proj-001",
+  "services": {
+    "computeengine": {
+      "findings": {
+        "gcp-compute-firewall-rule-allow-any": {
+          "description": "Firewall rule allowing 0.0.0.0/0 to tcp:22",
+          "rationale": "Unrestricted SSH ingress is a critical exposure.",
+          "dashboard_name": "Firewall",
+          "level": "danger",
+          "checked_items": 8,
+          "flagged_items": 1,
+          "items": [
+            "//compute.googleapis.com/projects/fulkro-client-proj-001/global/firewalls/allow-ssh-any"
+          ],
+          "remediation": "Replace 0.0.0.0/0 with bastion VPC or IAP tunnel."
+        },
+        "gcp-compute-instance-public-ip": {
+          "description": "Compute instance with ephemeral public IP",
+          "rationale": "Direct public IPs widen the attack surface.",
+          "dashboard_name": "Compute",
+          "level": "warning",
+          "checked_items": 12,
+          "flagged_items": 2,
+          "items": [
+            "//compute.googleapis.com/projects/fulkro-client-proj-001/zones/europe-west4-a/instances/web-frontend-1",
+            "//compute.googleapis.com/projects/fulkro-client-proj-001/zones/europe-west4-a/instances/legacy-bastion"
+          ],
+          "remediation": "Use Cloud NAT + IAP tunnel instead of public IPs."
+        }
+      }
+    },
+    "iam": {
+      "findings": {
+        "gcp-iam-service-account-with-user-keys": {
+          "description": "Service account has user-managed keys",
+          "rationale": "User-managed keys lack automatic rotation.",
+          "dashboard_name": "IAM",
+          "level": "danger",
+          "checked_items": 6,
+          "flagged_items": 1,
+          "items": [
+            "//iam.googleapis.com/projects/fulkro-client-proj-001/serviceAccounts/deploy-bot@fulkro-client-proj-001.iam.gserviceaccount.com"
+          ],
+          "remediation": "Use workload identity federation or short-lived tokens."
+        }
+      }
+    }
+  }
+}

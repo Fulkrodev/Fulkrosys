@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<fulkro_magerit_analysis version="1.0">
+  <metadata>
+    <analysis_id>11111111-2222-3333-4444-555555555555</analysis_id>
+    <name>Análisis FULKRO native round-trip</name>
+    <calculation_mode>qualitative</calculation_mode>
+    <methodology_version>MAGERIT v3</methodology_version>
+  </metadata>
+  <assets>
+    <asset code="FN-A-001" name="API gateway" type="SW">
+      <dimensions>
+        <d>8</d>
+        <i>7</i>
+        <c>6</c>
+        <a>6</a>
+        <t>4</t>
+      </dimensions>
+    </asset>
+    <asset code="FN-A-002" name="Storage S3" type="SI">
+      <dimensions>
+        <d>6</d>
+        <i>8</i>
+        <c>9</c>
+      </dimensions>
+    </asset>
+  </assets>
+  <threats>
+    <threat code="N.1" asset="FN-A-001">
+      <probability>A</probability>
+      <degradation>
+        <d>70</d>
+      </degradation>
+    </threat>
+  </threats>
+</fulkro_magerit_analysis>

@@ -1,0 +1,226 @@
+{
+  "id": "onb-logistica-sponsor-v1",
+  "version": "1.0",
+  "sector": "logistica",
+  "role": "sponsor",
+  "nombre": "Onboarding Sponsor Ejecutivo - Logistica",
+  "descripcion": "Cuestionario de onboarding para el rol Sponsor Ejecutivo en una organizacion del sector Logistica. Recoge contexto estrategico, operativo y regulatorio necesario para arrancar el proyecto ENS.",
+  "tiempo_estimado_minutos": 38,
+  "language": "es",
+  "questions": [
+    {
+      "id": "q-empresa_nombre",
+      "type": "text",
+      "section": "identificacion",
+      "label": "Nombre comercial de la empresa",
+      "validation": {
+        "required": true,
+        "min_length": 2,
+        "max_length": 120
+      }
+    },
+    {
+      "id": "q-persona_contacto",
+      "type": "text",
+      "section": "identificacion",
+      "label": "Nombre de la persona que cumplimenta este cuestionario",
+      "validation": {
+        "required": true,
+        "min_length": 2,
+        "max_length": 120
+      }
+    },
+    {
+      "id": "q-cargo_contacto",
+      "type": "text",
+      "section": "identificacion",
+      "label": "Cargo de la persona de contacto",
+      "validation": {
+        "required": true,
+        "max_length": 120
+      }
+    },
+    {
+      "id": "q-email_contacto",
+      "type": "email",
+      "section": "identificacion",
+      "label": "Email de contacto",
+      "validation": {
+        "required": true
+      }
+    },
+    {
+      "id": "q-motivacion_ens",
+      "type": "single_select",
+      "section": "contexto_estrategico",
+      "label": "Cual es la motivacion principal para obtener la certificacion ENS?",
+      "options": [
+        {
+          "value": "requisito_cliente",
+          "label": "Requisito de un cliente"
+        },
+        {
+          "value": "licitaciones",
+          "label": "Acceso a licitaciones publicas"
+        },
+        {
+          "value": "estrategico",
+          "label": "Decision estrategica"
+        },
+        {
+          "value": "obligacion_legal",
+          "label": "Obligacion legal"
+        }
+      ],
+      "validation": {
+        "required": true
+      }
+    },
+    {
+      "id": "q-presupuesto_asignado",
+      "type": "boolean",
+      "section": "contexto_estrategico",
+      "label": "Existe presupuesto aprobado para el proyecto?",
+      "validation": {
+        "required": true
+      }
+    },
+    {
+      "id": "q-fecha_objetivo",
+      "type": "date",
+      "section": "contexto_estrategico",
+      "label": "Fecha objetivo para la certificacion o auditoria",
+      "validation": {
+        "required": false
+      }
+    },
+    {
+      "id": "q-categoria_estimada",
+      "type": "single_select",
+      "section": "contexto_estrategico",
+      "label": "Categoria ENS estimada del sistema",
+      "options": [
+        {
+          "value": "basica",
+          "label": "Basica"
+        },
+        {
+          "value": "media",
+          "label": "Media"
+        },
+        {
+          "value": "alta",
+          "label": "Alta"
+        },
+        {
+          "value": "no_se",
+          "label": "No lo se aun"
+        }
+      ],
+      "validation": {
+        "required": true
+      }
+    },
+    {
+      "id": "q-sponsors_alternativos",
+      "type": "long_text",
+      "section": "contexto_estrategico",
+      "label": "Otros sponsors o stakeholders clave",
+      "validation": {
+        "required": false,
+        "max_length": 1000
+      }
+    },
+    {
+      "id": "q-tms_wms",
+      "type": "multi_select",
+      "section": "contexto_sectorial",
+      "label": "Que sistemas de gestion logistica usais?",
+      "options": [
+        {
+          "value": "tms",
+          "label": "TMS"
+        },
+        {
+          "value": "wms",
+          "label": "WMS"
+        },
+        {
+          "value": "erp_logistica",
+          "label": "ERP con modulo logistica"
+        },
+        {
+          "value": "ninguno",
+          "label": "Ninguno formal"
+        }
+      ],
+      "validation": {
+        "required": true
+      }
+    },
+    {
+      "id": "q-tracking_gps",
+      "type": "boolean",
+      "section": "contexto_sectorial",
+      "label": "Usais tracking GPS de flota o activos?",
+      "tooltip": "El tracking genera datos de geolocalizacion sujetos a RGPD.",
+      "validation": {
+        "required": true
+      }
+    },
+    {
+      "id": "q-aduanas_intermodal",
+      "type": "boolean",
+      "section": "contexto_sectorial",
+      "label": "Operais trafico internacional con AEAT/aduanas?",
+      "validation": {
+        "required": false
+      }
+    },
+    {
+      "id": "q-iot_sensores",
+      "type": "boolean",
+      "section": "contexto_sectorial",
+      "label": "Usais IoT (temperatura, presion, cadena de frio)?",
+      "validation": {
+        "required": false
+      }
+    },
+    {
+      "id": "q-experiencia_previa_certificacion",
+      "type": "single_select",
+      "section": "contexto_estrategico",
+      "label": "Experiencia previa con certificaciones (ISO, ENS, SOC2)",
+      "options": [
+        {
+          "value": "ninguna",
+          "label": "Ninguna"
+        },
+        {
+          "value": "iso27001",
+          "label": "ISO 27001"
+        },
+        {
+          "value": "ens_anterior",
+          "label": "ENS anterior"
+        },
+        {
+          "value": "otras",
+          "label": "Otras"
+        }
+      ],
+      "validation": {
+        "required": false
+      }
+    },
+    {
+      "id": "q-comite_seguridad",
+      "type": "boolean",
+      "section": "contexto_estrategico",
+      "label": "Existe Comite de Seguridad formal con actas periodicas?",
+      "validation": {
+        "required": true
+      }
+    }
+  ]
+}

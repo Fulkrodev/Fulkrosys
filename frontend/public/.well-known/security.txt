@@ -1,0 +1,12 @@
+# FULKRO · Security disclosure policy (RFC 9116)
+# Si encuentras una vulnerabilidad en fulkro.es o en cualquier servicio
+# operado por FULKRO, contáctanos. Trabajamos en programa de divulgación
+# coordinada y agradecemos los hallazgos de seguridad responsables.
+
+Contact: mailto:security@fulkro.es
+Contact: https://fulkro.es/trust
+Expires: 2027-05-12T00:00:00.000Z
+Preferred-Languages: es, en
+Canonical: https://fulkro.es/.well-known/security.txt
+Policy: https://fulkro.es/trust
+Hiring: https://fulkro.es

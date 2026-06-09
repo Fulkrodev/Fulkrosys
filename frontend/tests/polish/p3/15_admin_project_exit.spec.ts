@@ -1,0 +1,16 @@
+/**
+ * P3 15 · /admin/projects/[id]/exit · exit lifecycle.
+ *
+ * Sesión 3B-2B.3 Cluster D.3.
+ */
+import { test } from "../_helpers/polish-test-fixture";
+import { runProjectScopedProbe } from "../_helpers/spec-template";
+
+test.describe("P3 · /admin/projects/[id]/exit", () => {
+  test("12-criteria empirical sweep", async ({ authedPage }, testInfo) => {
+    await runProjectScopedProbe(authedPage, testInfo, {
+      subPath: "exit",
+      pageName: "admin-project-exit",
+    });
+  });
+});

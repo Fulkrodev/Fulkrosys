@@ -1,0 +1,903 @@
+# ==============================================================================
+# CATÁLOGO DE RIESGOS DEL PROYECTO CONSULTOR ENS — Motor 19
+# ==============================================================================
+# Fuente: ENS Platform Master Spec v2.1 — sección 3.2.10
+# Versión: 1.0
+# Fecha: 2026-04-14
+# Autor del catálogo: Marcos Mata (spec) + defaults estimados por Anthropic
+# Validación: requiere revisión de Marcos tras primer uso real en proyecto piloto
+#
+# ESTRUCTURA de cada riesgo:
+#   codigo:                 Identificador único (R-001 a R-030)
+#   numero:                 Número en el spec (1-30)
+#   titulo:                 Nombre corto del riesgo
+#   descripcion:            Descripción ampliada (qué pasa exactamente)
+#   categoria:              cliente | personas | presupuesto | normativo | tecnico | comercial
+#   probabilidad_default:   0.0-1.0 (estimación baseline, consultor ajusta por proyecto)
+#   impacto_dias_default:   Retraso estimado si se materializa
+#   impacto_euros_default:  Coste económico estimado si se materializa
+#   owner_default:          Rol responsable del seguimiento
+#   trigger_condicion:      Condición que dispara el paso "identificado→materializado"
+#   mitigation_plan:        Acciones preventivas (evitar que se materialice)
+#   contingency_plan:       Acciones reactivas (qué hacer si se materializa)
+# ==============================================================================
+
+version: "1.0"
+fecha: "2026-04-14"
+fuente:
+  documento: "ENS Platform Master Spec v2.1"
+  seccion: "3.2.10 Plan de gestión de riesgos del proyecto"
+  tipo: "Riesgos del PROYECTO CONSULTOR (no del sistema del cliente)"
+
+total_riesgos: 30
+
+categorias:
+  cliente:
+    descripcion: "Riesgos relacionados con colaboración, disponibilidad e interés del cliente"
+  personas:
+    descripcion: "Riesgos relacionados con recursos humanos (del cliente o del consultor)"
+  presupuesto:
+    descripcion: "Riesgos relacionados con presupuesto, alcance y cambios económicos"
+  normativo:
+    descripcion: "Riesgos relacionados con cambios normativos, criterios de auditor o entidad certificadora"
+  tecnico:
+    descripcion: "Riesgos técnicos u operacionales (ciberseguridad, terceros, conocimiento)"
+  comercial:
+    descripcion: "Riesgos comerciales y contractuales (pagos, fin de contrato, competencia)"
+
+riesgos_base:
+
+  # ============================================================================
+  # CATEGORÍA: cliente (colaboración, disponibilidad, interés)
+  # ============================================================================
+
+  - codigo: "R-001"
+    numero: 1
+    titulo: "Cliente no colabora en plazos acordados"
+    descripcion: >
+      El cliente no responde en los plazos comprometidos (revisión de
+      documentos, aportación de evidencias, disponibilidad para entrevistas),
+      bloqueando el avance del proyecto y generando efecto cascada sobre hitos.
+    categoria: "cliente"
+    probabilidad_default: 0.50
+    impacto_dias_default: 15
+    impacto_euros_default: 4000.00
+    owner_default: "Project Manager consultor"
+    trigger_condicion: "Sin respuesta a comunicación formal durante 7 días hábiles"
+    mitigation_plan:
+      acciones:
+        - "Cláusula SLA de respuesta máxima 48h en contrato firmado"
+        - "Calendario compartido con hitos de respuesta y alertas automáticas"
+        - "Reunión semanal de seguimiento con acta de pendientes"
+        - "Asignación de interlocutor único del cliente con backup"
+      kpi_indicador: "Tasa de respuesta en plazo >= 90%"
+    contingency_plan:
+      acciones:
+        - "Email formal con log de comunicaciones no respondidas"
+        - "Escalación al sponsor ejecutivo con 48h de aviso"
+        - "Pausa formal del proyecto documentada con parada de hitos"
+        - "Revisión de contrato para invocar cláusula de rearranque"
+      nivel_escalacion: "sponsor_ejecutivo"
+
+  - codigo: "R-002"
+    numero: 2
+    titulo: "Persona clave del cliente se va durante el proyecto"
+    descripcion: >
+      El interlocutor principal del cliente (CISO, responsable de IT,
+      director de sistemas) abandona la organización durante el proyecto,
+      perdiendo contexto acumulado y generando pérdida de tracción.
+    categoria: "personas"
+    probabilidad_default: 0.20
+    impacto_dias_default: 20
+    impacto_euros_default: 5000.00
+    owner_default: "Project Manager consultor"
+    trigger_condicion: "Baja formal del interlocutor principal o cambio de rol"
+    mitigation_plan:
+      acciones:
+        - "Identificar 2 interlocutores (titular + backup) desde kickoff"
+        - "Documentación viva del proyecto accesible a todo el equipo cliente"
+        - "Actas de reunión compartidas con CC: a sponsor"
+        - "Knowledge base del proyecto en SharePoint/Drive del cliente"
+    contingency_plan:
+      acciones:
+        - "Reunión de transición con el backup y el sponsor"
+        - "Handover formal documentado de 4 horas con nuevo interlocutor"
+        - "Revisión conjunta del roadmap para ajustar plazos si procede"
+        - "Solicitud formal por escrito de nuevo punto de contacto único"
+      nivel_escalacion: "sponsor_ejecutivo"
+
+  - codigo: "R-003"
+    numero: 3
+    titulo: "Presupuesto del cliente se recorta a mitad del proyecto"
+    descripcion: >
+      El cliente comunica un recorte presupuestario por razones internas
+      (reducción de partida, cambio de prioridades, crisis de liquidez)
+      que afecta al alcance original del proyecto.
+    categoria: "presupuesto"
+    probabilidad_default: 0.20
+    impacto_dias_default: 10
+    impacto_euros_default: 8000.00
+    owner_default: "Account Manager"
+    trigger_condicion: "Comunicación formal del cliente de reducción de partida"
+    mitigation_plan:
+      acciones:
+        - "Hitos de facturación quincenales, no mensuales"
+        - "Contrato con cláusula de terminación anticipada con penalización"
+        - "Fases modulares con valor independiente por fase"
+        - "Revisiones financieras trimestrales con el sponsor"
+    contingency_plan:
+      acciones:
+        - "Renegociación formal de alcance: priorizar medidas obligatorias ENS"
+        - "Propuesta de fases opcionales deferidas a año siguiente"
+        - "Documento de alcance mínimo viable (MVP) firmado por cliente"
+        - "Conservar derechos sobre entregables ya facturados"
+      nivel_escalacion: "legal"
+
+  - codigo: "R-004"
+    numero: 4
+    titulo: "Alcance se expande sin change request formal"
+    descripcion: >
+      El cliente solicita verbalmente o por email ampliaciones del alcance
+      ("aprovechando que estáis aquí...") sin pasar por un proceso formal
+      de change request, generando scope creep silencioso.
+    categoria: "presupuesto"
+    probabilidad_default: 0.60
+    impacto_dias_default: 10
+    impacto_euros_default: 3500.00
+    owner_default: "Project Manager consultor"
+    trigger_condicion: "Solicitud de trabajo fuera del SoW original no respondida con CR"
+    mitigation_plan:
+      acciones:
+        - "Statement of Work detallado firmado con alcance exhaustivo"
+        - "Proceso de change request documentado desde kickoff"
+        - "Plantilla de CR con estimación de tiempo y coste obligatoria"
+        - "Formación al cliente sobre el proceso en sesión de kickoff"
+    contingency_plan:
+      acciones:
+        - "Email formal clarificando que la solicitud está fuera de alcance"
+        - "Envío de plantilla de change request para formalización"
+        - "Registro en log de scope creep con impacto acumulado calculado"
+        - "Revisión trimestral del scope creep con el sponsor"
+      nivel_escalacion: "sponsor_ejecutivo"
+
+  - codigo: "R-005"
+    numero: 5
+    titulo: "Proveedor crítico del cliente no responde al cuestionario"
+    descripcion: >
+      Un proveedor en la cadena de suministro del cliente (hosting, SaaS,
+      integrador) no responde al cuestionario de seguridad requerido para
+      la categorización y el análisis de riesgos ENS.
+    categoria: "tecnico"
+    probabilidad_default: 0.40
+    impacto_dias_default: 12
+    impacto_euros_default: 2500.00
+    owner_default: "Consultor técnico"
+    trigger_condicion: "Sin respuesta del proveedor tras 2 requerimientos formales"
+    mitigation_plan:
+      acciones:
+        - "Identificación temprana de proveedores críticos en fase 1"
+        - "Carta formal del cliente al proveedor con plazo y consecuencias"
+        - "Cuestionario simplificado con solo campos críticos ENS"
+        - "Alternativa de auditoría documental si hay información pública"
+    contingency_plan:
+      acciones:
+        - "Análisis de riesgos degradado: marcar proveedor como 'no verificado'"
+        - "Documentar evidencia de comunicaciones no respondidas"
+        - "Clasificar proveedor como riesgo alto en el análisis MAGERIT"
+        - "Recomendación formal al cliente de cambio de proveedor"
+      nivel_escalacion: "cliente_direccion"
+
+  - codigo: "R-006"
+    numero: 6
+    titulo: "Plazo del pliego imposible incluso con la plataforma"
+    descripcion: >
+      El pliego público o contrato fija plazos irrealistas para el cumplimiento
+      ENS incluso con las ventajas de automatización de Fulkro, forzando
+      compromisos imposibles de cumplir.
+    categoria: "comercial"
+    probabilidad_default: 0.25
+    impacto_dias_default: 30
+    impacto_euros_default: 12000.00
+    owner_default: "Account Manager"
+    trigger_condicion: "Análisis de plazos en kickoff revela gap > 15 días vs fecha hito"
+    mitigation_plan:
+      acciones:
+        - "Due diligence previo a la firma del contrato con análisis de plazos"
+        - "Template de estimación por categoría ENS (BASICA/MEDIA/ALTA) probado"
+        - "Cláusula de revisión de plazos si el cliente tiene gaps graves previos"
+        - "No aceptar pliegos con plazos < 8 semanas para categoría MEDIA"
+    contingency_plan:
+      acciones:
+        - "Comunicación formal al cliente del gap con evidencia técnica"
+        - "Propuesta de alcance mínimo ENS para cumplir con el plazo formal"
+        - "Solicitud de prórroga formal al órgano contratante"
+        - "Plan de completar medidas restantes post-entrega en retainer"
+      nivel_escalacion: "legal"
+
+  - codigo: "R-007"
+    numero: 7
+    titulo: "Incidente real durante la implantación distrae al equipo cliente"
+    descripcion: >
+      Durante el proyecto, el cliente sufre un incidente operativo (caída de
+      servicio, fallo de hardware, problema de producción no-seguridad) que
+      desvía la atención del equipo técnico del cliente, bloqueando avance.
+    categoria: "tecnico"
+    probabilidad_default: 0.30
+    impacto_dias_default: 7
+    impacto_euros_default: 2000.00
+    owner_default: "Project Manager consultor"
+    trigger_condicion: "Incidente P1/P2 del cliente declarado oficialmente"
+    mitigation_plan:
+      acciones:
+        - "Identificar momentos de menor carga operativa para planificar hitos"
+        - "Buffer de 10% de días extra por riesgos operativos en el plan"
+        - "Reuniones cortas (30 min) en lugar de workshops largos"
+        - "Priorizar tareas asíncronas (doc review) sobre síncronas"
+    contingency_plan:
+      acciones:
+        - "Pausa formal del proyecto documentada con fecha estimada de rearranque"
+        - "Reprogramación de hitos desplazando fechas sin coste adicional"
+        - "Oferta de soporte del consultor para gestión del incidente si aplica"
+        - "Revisión de RTO/RPO como oportunidad de aprendizaje real"
+      nivel_escalacion: "project_manager"
+
+  # ============================================================================
+  # CATEGORÍA: normativo (auditor, certificadora, cambios legales)
+  # ============================================================================
+
+  - codigo: "R-008"
+    numero: 8
+    titulo: "Auditor exige cosas fuera del RD por criterios personales"
+    descripcion: >
+      Un auditor ENS específico interpreta el RD 311/2022 con criterios
+      personales más estrictos que el texto oficial, exigiendo evidencias
+      o controles no requeridos explícitamente por la norma.
+    categoria: "normativo"
+    probabilidad_default: 0.35
+    impacto_dias_default: 8
+    impacto_euros_default: 2000.00
+    owner_default: "Consultor técnico"
+    trigger_condicion: "Auditor solicita evidencia no referenciada en RD o CCN-STIC"
+    mitigation_plan:
+      acciones:
+        - "Documentación exhaustiva referenciando artículo/párrafo del RD"
+        - "Conocimiento del auditor asignado antes de la auditoría (histórico)"
+        - "Preparación de mapping evidencia ↔ requisito normativo literal"
+        - "Contacto informal previo con el auditor para alinear expectativas"
+    contingency_plan:
+      acciones:
+        - "Presentación formal con cita literal del RD 311/2022 y CCN-STIC 804"
+        - "Escalación a la Comisión de Calidad del ENAC si es irrazonable"
+        - "Documentar la discrepancia para aprendizaje futuro del equipo"
+        - "Producir la evidencia solicitada como 'extra' sin aceptar precedente"
+      nivel_escalacion: "entidad_certificadora"
+
+  - codigo: "R-009"
+    numero: 9
+    titulo: "Entidad certificadora cambia sus criterios durante el proyecto"
+    descripcion: >
+      La entidad certificadora actualiza sus criterios internos de evaluación
+      durante el proyecto (ej: nuevo checklist, nueva versión de CCN-STIC
+      que exige revisión), invalidando trabajo ya hecho.
+    categoria: "normativo"
+    probabilidad_default: 0.15
+    impacto_dias_default: 20
+    impacto_euros_default: 5000.00
+    owner_default: "Account Manager"
+    trigger_condicion: "Publicación oficial de nuevo criterio por la certificadora"
+    mitigation_plan:
+      acciones:
+        - "Suscripción a alertas de CCN-CERT y entidades certificadoras"
+        - "Revisión mensual de novedades normativas en equipo consultor"
+        - "Contrato con cliente que exima del riesgo de cambios externos"
+        - "Base de evidencias versionada por fecha del criterio aplicable"
+    contingency_plan:
+      acciones:
+        - "Análisis de gap entre trabajo actual y nuevo criterio"
+        - "Negociación con certificadora de grandfather clause para proyectos en curso"
+        - "Change request al cliente con presupuesto adicional si procede"
+        - "Documentación del cambio como anexo al contrato"
+      nivel_escalacion: "legal"
+
+  - codigo: "R-010"
+    numero: 10
+    titulo: "Dirección del cliente pierde interés en el proyecto"
+    descripcion: >
+      El sponsor ejecutivo que impulsó el proyecto pierde el foco por otras
+      prioridades corporativas, dejando al equipo técnico sin cobertura
+      política ni capacidad de desbloqueo.
+    categoria: "cliente"
+    probabilidad_default: 0.25
+    impacto_dias_default: 15
+    impacto_euros_default: 6000.00
+    owner_default: "Account Manager"
+    trigger_condicion: "Sponsor no asiste a 2 reuniones de seguimiento consecutivas"
+    mitigation_plan:
+      acciones:
+        - "Steering Committee mensual con sponsor obligatorio en contrato"
+        - "Dashboard ejecutivo simple (1 página) para el sponsor"
+        - "Comunicación de quick wins mensuales con métricas claras"
+        - "Involucrar sponsor en momentos high-visibility (auditoría, demo)"
+    contingency_plan:
+      acciones:
+        - "Solicitud formal de reunión 1:1 con sponsor para realinear"
+        - "Escalación a director general si el sponsor no responde"
+        - "Documento formal de impacto de falta de decisiones ejecutivas"
+        - "Pausa del proyecto si no hay sponsor activo tras 15 días"
+      nivel_escalacion: "direccion_general"
+
+  - codigo: "R-011"
+    numero: 11
+    titulo: "Cambio de gobierno afecta al contrato público subyacente"
+    descripcion: >
+      En clientes del sector público, un cambio electoral o de gobierno
+      (nacional, autonómico, local) puede afectar las prioridades políticas,
+      el presupuesto asignado o la continuidad del contrato ENS.
+    categoria: "normativo"
+    probabilidad_default: 0.15
+    impacto_dias_default: 45
+    impacto_euros_default: 15000.00
+    owner_default: "Account Manager"
+    trigger_condicion: "Elecciones programadas dentro de los próximos 6 meses"
+    mitigation_plan:
+      acciones:
+        - "Cláusulas de continuidad del contrato en pliego ante cambio político"
+        - "Documentación clara del valor técnico neutral (no partidista)"
+        - "Hitos formales firmados rápidamente antes de transiciones"
+        - "Diversificación de cartera cliente privado + público"
+    contingency_plan:
+      acciones:
+        - "Presentación del estado del proyecto al nuevo equipo directivo"
+        - "Dossier de transición con valor técnico entregado hasta fecha"
+        - "Negociación de continuidad con cláusula de rearranque"
+        - "Facturación de trabajo completado hasta fecha de cambio"
+      nivel_escalacion: "legal"
+
+  - codigo: "R-012"
+    numero: 12
+    titulo: "Reorganización interna del cliente"
+    descripcion: >
+      El cliente sufre una reorganización interna (nueva estructura,
+      fusión de departamentos, cambio de organigrama) que redistribuye
+      responsabilidades y cambia los interlocutores del proyecto.
+    categoria: "cliente"
+    probabilidad_default: 0.20
+    impacto_dias_default: 10
+    impacto_euros_default: 3000.00
+    owner_default: "Account Manager"
+    trigger_condicion: "Comunicación oficial del cliente de reestructuración"
+    mitigation_plan:
+      acciones:
+        - "Documentación del proyecto accesible y transferible"
+        - "Múltiples puntos de contacto desde el inicio"
+        - "Steering Committee con representación multi-departamental"
+        - "Contrato con cláusula de continuidad organizacional"
+    contingency_plan:
+      acciones:
+        - "Sesión de presentación del proyecto a nuevos responsables"
+        - "Validación del scope con nuevos stakeholders"
+        - "Ajuste de plazos con buffer de reorganización"
+        - "Documento formal de handover entre organizaciones antiguas y nuevas"
+      nivel_escalacion: "sponsor_ejecutivo"
+
+  - codigo: "R-013"
+    numero: 13
+    titulo: "Fusión o adquisición del cliente"
+    descripcion: >
+      El cliente es adquirido o se fusiona con otra organización durante
+      el proyecto, cambiando radicalmente el contexto (nuevo CISO, nueva
+      arquitectura objetivo, nuevas políticas de grupo).
+    categoria: "comercial"
+    probabilidad_default: 0.10
+    impacto_dias_default: 30
+    impacto_euros_default: 10000.00
+    owner_default: "Account Manager"
+    trigger_condicion: "Anuncio público de fusión o adquisición"
+    mitigation_plan:
+      acciones:
+        - "Cláusula de continuidad contractual ante operaciones corporativas"
+        - "Valor del proyecto alineado con buenas prácticas aplicables a cualquier tamaño"
+        - "Monitoreo de noticias sectoriales del cliente"
+        - "Contrato con hitos cortos facturables individualmente"
+    contingency_plan:
+      acciones:
+        - "Reunión con nueva dirección para presentar el proyecto"
+        - "Propuesta de valor para el nuevo grupo corporativo"
+        - "Facturación rápida del trabajo completado"
+        - "Negociación de nuevo contrato adaptado o cierre ordenado"
+      nivel_escalacion: "legal"
+
+  - codigo: "R-014"
+    numero: 14
+    titulo: "Cliente descubre otro consultor más barato a mitad del proyecto"
+    descripcion: >
+      El cliente recibe una oferta competitiva de otro consultor a precio
+      inferior y cuestiona el valor del proyecto en curso, amenazando con
+      cambiar de proveedor.
+    categoria: "comercial"
+    probabilidad_default: 0.15
+    impacto_dias_default: 5
+    impacto_euros_default: 4000.00
+    owner_default: "Account Manager"
+    trigger_condicion: "Cliente menciona comparación con otro proveedor explícitamente"
+    mitigation_plan:
+      acciones:
+        - "Demostración continua de valor con métricas y quick wins mensuales"
+        - "Diferenciación técnica clara (automatización, plataforma, experiencia)"
+        - "Contrato con cláusula de terminación con penalización proporcional"
+        - "Relación personal fuerte con sponsor y equipo técnico"
+    contingency_plan:
+      acciones:
+        - "Reunión de defensa de valor con dashboard de logros del proyecto"
+        - "Análisis comparativo transparente de la oferta competitiva"
+        - "Ajuste de precio si el cliente tiene razones legítimas"
+        - "Activación de cláusula contractual si rescisión es injustificada"
+      nivel_escalacion: "legal"
+
+  # ============================================================================
+  # CATEGORÍA: tecnico / recursos / dependencias
+  # ============================================================================
+
+  - codigo: "R-015"
+    numero: 15
+    titulo: "IT del cliente sabotea pasivamente el proyecto por miedo"
+    descripcion: >
+      El equipo interno de IT del cliente, temiendo pérdida de control o
+      cambios en su rol, ejerce resistencia pasiva (retraso en accesos,
+      información incompleta, objeciones técnicas marginales).
+    categoria: "personas"
+    probabilidad_default: 0.40
+    impacto_dias_default: 12
+    impacto_euros_default: 3500.00
+    owner_default: "Consultor técnico"
+    trigger_condicion: "Retrasos sistemáticos en entregas de información del equipo IT"
+    mitigation_plan:
+      acciones:
+        - "Sesión de alineamiento temprana con equipo IT (no solo dirección)"
+        - "Posicionamiento del consultor como 'apoyo', no 'auditor'"
+        - "Involucrar a IT en decisiones técnicas para generar ownership"
+        - "Quick wins visibles que beneficien directamente al equipo IT"
+    contingency_plan:
+      acciones:
+        - "Reunión privada con responsable de IT para identificar preocupaciones"
+        - "Comunicación transparente al sponsor del estado real de colaboración"
+        - "Formación al equipo IT sobre beneficios personales del ENS"
+        - "Si persiste, escalación documentada al sponsor ejecutivo"
+      nivel_escalacion: "sponsor_ejecutivo"
+
+  - codigo: "R-016"
+    numero: 16
+    titulo: "Incidente de ciberseguridad real durante el proyecto"
+    descripcion: >
+      El cliente sufre un incidente real de ciberseguridad (ransomware,
+      brecha de datos, phishing masivo) durante el proyecto ENS, desviando
+      completamente recursos y atención.
+    categoria: "tecnico"
+    probabilidad_default: 0.15
+    impacto_dias_default: 25
+    impacto_euros_default: 8000.00
+    owner_default: "Project Manager consultor"
+    trigger_condicion: "Declaración oficial de incidente de seguridad por el cliente"
+    mitigation_plan:
+      acciones:
+        - "Documentación del proyecto como no-crítico para producción"
+        - "Backup del trabajo consultivo en infraestructura propia"
+        - "Cláusula contractual de force majeure para incidentes externos"
+        - "Oferta de soporte incidentes como servicio adicional"
+    contingency_plan:
+      acciones:
+        - "Pausa inmediata del proyecto documentada formalmente"
+        - "Oferta de soporte del consultor en respuesta al incidente si aplica"
+        - "Reanudación del proyecto cuando el cliente declare normalidad"
+        - "Uso del incidente como input real del análisis de riesgos Motor 2"
+      nivel_escalacion: "cliente_direccion"
+
+  - codigo: "R-017"
+    numero: 17
+    titulo: "Dependencia de terceros no declarados inicialmente"
+    descripcion: >
+      Durante el proyecto se descubren dependencias técnicas o contractuales
+      con terceros (proveedores SaaS, integradores, consultores previos)
+      que no fueron declaradas al inicio y complican el alcance.
+    categoria: "tecnico"
+    probabilidad_default: 0.35
+    impacto_dias_default: 10
+    impacto_euros_default: 3000.00
+    owner_default: "Consultor técnico"
+    trigger_condicion: "Descubrimiento de dependencia no documentada en fase 1"
+    mitigation_plan:
+      acciones:
+        - "Inventario exhaustivo de terceros en cuestionario de kickoff"
+        - "Solicitud de diagrama de arquitectura completo con dependencias"
+        - "Cláusula de disclosure completo de terceros en contrato"
+        - "Validación cruzada: contabilidad + IT + seguridad del cliente"
+    contingency_plan:
+      acciones:
+        - "Cuestionario específico al tercero descubierto"
+        - "Análisis de riesgo del tercero integrado en Motor 2 MAGERIT"
+        - "Change request al cliente si aumenta el alcance técnico"
+        - "Documentación formal del hallazgo como riesgo del cliente"
+      nivel_escalacion: "cliente_direccion"
+
+  - codigo: "R-018"
+    numero: 18
+    titulo: "Falta de conocimiento técnico del cliente mayor de lo estimado"
+    descripcion: >
+      El equipo técnico del cliente tiene un nivel de conocimiento de
+      ciberseguridad inferior al supuesto en el pliego, requiriendo
+      formación adicional no presupuestada.
+    categoria: "personas"
+    probabilidad_default: 0.45
+    impacto_dias_default: 12
+    impacto_euros_default: 3500.00
+    owner_default: "Consultor técnico"
+    trigger_condicion: "Evaluación técnica inicial revela gap formativo crítico"
+    mitigation_plan:
+      acciones:
+        - "Evaluación técnica en kickoff con test básico de conocimientos"
+        - "Presupuesto con partida opcional de formación"
+        - "Material didáctico reutilizable preparado previamente"
+        - "Pliego con requisitos mínimos de conocimiento del cliente"
+    contingency_plan:
+      acciones:
+        - "Propuesta formal de formación complementaria al cliente"
+        - "Adaptación del lenguaje técnico a nivel real del equipo"
+        - "Sesiones de formación cortas (1h) durante el proyecto"
+        - "Documentación extendida con glosario y ejemplos"
+      nivel_escalacion: "cliente_direccion"
+
+  - codigo: "R-019"
+    numero: 19
+    titulo: "Resistencia del personal a nuevas políticas de seguridad"
+    descripcion: >
+      Empleados del cliente rechazan las nuevas políticas de seguridad
+      (contraseñas, MFA, bloqueo de puertos, restricciones de uso) por
+      percibirlas como molestas o excesivas.
+    categoria: "personas"
+    probabilidad_default: 0.50
+    impacto_dias_default: 8
+    impacto_euros_default: 2000.00
+    owner_default: "Consultor técnico"
+    trigger_condicion: "Quejas formales o bajo ratio de adopción de políticas"
+    mitigation_plan:
+      acciones:
+        - "Fase de change management y comunicación incluida en plan"
+        - "Roll-out escalonado con early adopters voluntarios"
+        - "Formación con ejemplos relevantes a cada rol"
+        - "Respaldo visible de la dirección en las comunicaciones"
+    contingency_plan:
+      acciones:
+        - "Encuesta anónima para identificar fricciones específicas"
+        - "Ajuste técnico de medidas si hay razones legítimas"
+        - "Comunicación reforzada del 'porqué' por el sponsor"
+        - "Plan de adopción forzada con plazos si procede"
+      nivel_escalacion: "sponsor_ejecutivo"
+
+  - codigo: "R-020"
+    numero: 20
+    titulo: "Conflicto entre roles designados en el proyecto"
+    descripcion: >
+      Los roles asignados en el proyecto (responsable de seguridad,
+      responsable de información, responsable del sistema, responsable
+      del servicio) entran en conflicto por solapamiento de competencias.
+    categoria: "personas"
+    probabilidad_default: 0.25
+    impacto_dias_default: 7
+    impacto_euros_default: 2000.00
+    owner_default: "Project Manager consultor"
+    trigger_condicion: "Decisiones contradictorias de roles designados"
+    mitigation_plan:
+      acciones:
+        - "RACI detallado firmado en kickoff"
+        - "Sesión específica de clarificación de roles ENS"
+        - "Procedimiento de resolución de conflictos por escrito"
+        - "Formación sobre las responsabilidades específicas del RD 311/2022"
+    contingency_plan:
+      acciones:
+        - "Reunión formal de mediación con todos los roles"
+        - "Escalación al Comité de Seguridad del cliente"
+        - "Propuesta de redefinición de roles si hay ambigüedades reales"
+        - "Documentación vinculante de las decisiones tomadas"
+      nivel_escalacion: "comite_seguridad_cliente"
+
+  # ============================================================================
+  # CATEGORÍA: cliente (decisiones, firmas, aprobaciones)
+  # ============================================================================
+
+  - codigo: "R-021"
+    numero: 21
+    titulo: "Dirección no firma documentos clave en plazo"
+    descripcion: >
+      La dirección del cliente retrasa sistemáticamente la firma de
+      documentos clave (política de seguridad, designación de roles,
+      declaración de aplicabilidad) bloqueando hitos del proyecto.
+    categoria: "cliente"
+    probabilidad_default: 0.45
+    impacto_dias_default: 10
+    impacto_euros_default: 2500.00
+    owner_default: "Project Manager consultor"
+    trigger_condicion: "Documento enviado a firma sin respuesta durante 5 días hábiles"
+    mitigation_plan:
+      acciones:
+        - "Calendario de firmas conocido y comunicado con antelación de 2 semanas"
+        - "Firma electrónica integrada con recordatorios automáticos"
+        - "Sesión de kickoff con dirección para anticipar necesidades de firma"
+        - "Sponsor comprometido con plazos de firma en contrato"
+    contingency_plan:
+      acciones:
+        - "Recordatorio formal al sponsor con impacto en hitos"
+        - "Reunión presencial/videollamada si hay dudas que impidan firma"
+        - "Escalación al director general si persiste"
+        - "Documentación formal del retraso para eximir responsabilidad consultor"
+      nivel_escalacion: "direccion_general"
+
+  - codigo: "R-022"
+    numero: 22
+    titulo: "Presupuesto cloud del cliente hace inviables ciertas medidas"
+    descripcion: >
+      Medidas de seguridad recomendadas (backup off-site, replicación,
+      WAF, SIEM gestionado) exceden el presupuesto cloud del cliente,
+      forzando a aceptar riesgos residuales altos.
+    categoria: "presupuesto"
+    probabilidad_default: 0.35
+    impacto_dias_default: 8
+    impacto_euros_default: 3000.00
+    owner_default: "Consultor técnico"
+    trigger_condicion: "Quote de proveedor cloud excede partida asignada"
+    mitigation_plan:
+      acciones:
+        - "Estimación realista de costes cloud en propuesta inicial"
+        - "Alternativas open-source para cada control propietario"
+        - "Compromiso cliente sobre partida cloud en contrato"
+        - "Benchmarks de coste por categoría ENS como referencia"
+    contingency_plan:
+      acciones:
+        - "Análisis coste-beneficio formal de cada medida cara"
+        - "Propuesta de medidas alternativas con riesgo residual justificado"
+        - "Aceptación formal del riesgo residual por la dirección del cliente"
+        - "Documentación del gap para auditoría como decisión consciente"
+      nivel_escalacion: "cliente_direccion"
+
+  - codigo: "R-023"
+    numero: 23
+    titulo: "Cambio normativo durante el proyecto"
+    descripcion: >
+      Durante la ejecución del proyecto se publica una nueva ITS,
+      una nueva guía CCN-STIC relevante o una modificación del RD 311/2022
+      que obliga a revisar trabajo ya realizado.
+    categoria: "normativo"
+    probabilidad_default: 0.15
+    impacto_dias_default: 15
+    impacto_euros_default: 4000.00
+    owner_default: "Consultor técnico"
+    trigger_condicion: "Publicación oficial en BOE o CCN-CERT de novedad normativa"
+    mitigation_plan:
+      acciones:
+        - "Suscripción a alertas BOE, CCN-CERT, INCIBE"
+        - "Revisión semanal de novedades normativas por el consultor"
+        - "Cláusula contractual sobre cambios normativos externos"
+        - "Mantener Motor 3 DdA actualizado con última versión de CCN-STIC 804"
+    contingency_plan:
+      acciones:
+        - "Análisis rápido del impacto del cambio normativo en el proyecto"
+        - "Comunicación formal al cliente con propuesta de ajuste"
+        - "Change request con presupuesto adicional si hay trabajo a rehacer"
+        - "Documentación del proyecto indicando versión normativa aplicable"
+      nivel_escalacion: "legal"
+
+  - codigo: "R-024"
+    numero: 24
+    titulo: "Marcos enferma o tiene emergencia personal"
+    descripcion: >
+      El consultor único (Marcos) sufre enfermedad prolongada, emergencia
+      familiar o circunstancia personal que impide su dedicación al proyecto
+      durante un periodo significativo.
+    categoria: "personas"
+    probabilidad_default: 0.10
+    impacto_dias_default: 21
+    impacto_euros_default: 7000.00
+    owner_default: "Marcos Mata"
+    trigger_condicion: "Baja médica o emergencia personal declarada por Marcos"
+    mitigation_plan:
+      acciones:
+        - "Documentación viva del proyecto actualizada semanalmente"
+        - "Red de consultores aliados para backup en emergencia"
+        - "Seguro de baja laboral con cobertura profesional"
+        - "Comunicación regular con cliente sobre estado del proyecto"
+    contingency_plan:
+      acciones:
+        - "Activación de consultor aliado con handover de 4h"
+        - "Comunicación transparente al cliente sobre situación y plazos"
+        - "Pausa formal del proyecto si no hay backup disponible"
+        - "Cláusula contractual de fuerza mayor activada"
+      nivel_escalacion: "cliente_direccion"
+
+  - codigo: "R-025"
+    numero: 25
+    titulo: "Plataforma Fulkro tiene bug crítico durante el proyecto"
+    descripcion: >
+      Durante el proyecto, la plataforma Fulkro presenta un bug crítico
+      que afecta funcionalidades usadas en el proyecto (análisis, declaración
+      aplicabilidad, magic link, generación de evidencias).
+    categoria: "tecnico"
+    probabilidad_default: 0.20
+    impacto_dias_default: 5
+    impacto_euros_default: 1500.00
+    owner_default: "Marcos Mata"
+    trigger_condicion: "Error reproducible que bloquea funcionalidad clave del proyecto"
+    mitigation_plan:
+      acciones:
+        - "Suite de tests >= 95% cobertura en todos los motores"
+        - "Staging environment separado para validación previa"
+        - "Rollback automático en caso de fallo post-deploy"
+        - "Monitoreo proactivo de errores con Sentry/similar"
+    contingency_plan:
+      acciones:
+        - "Workaround manual documentado para cada funcionalidad crítica"
+        - "Hotfix con rollout express si el bug es aislado"
+        - "Comunicación transparente al cliente con ETA de resolución"
+        - "Uso del incidente real como test case del retainer futuro"
+      nivel_escalacion: "project_manager"
+
+  - codigo: "R-026"
+    numero: 26
+    titulo: "Cliente quiere cambiar de categoría ENS a mitad del proyecto"
+    descripcion: >
+      El cliente decide cambiar la categoría ENS declarada (BÁSICA→MEDIA
+      o MEDIA→ALTA) a mitad del proyecto por nuevos requisitos de negocio,
+      invalidando parte del análisis realizado.
+    categoria: "cliente"
+    probabilidad_default: 0.15
+    impacto_dias_default: 20
+    impacto_euros_default: 6000.00
+    owner_default: "Project Manager consultor"
+    trigger_condicion: "Solicitud formal del cliente de re-categorización"
+    mitigation_plan:
+      acciones:
+        - "Análisis de categorización exhaustivo en fase 1 con múltiples escenarios"
+        - "Documentación del razonamiento de categoría inicial firmado"
+        - "Explicación clara de implicaciones de cada categoría"
+        - "Cláusula contractual de re-categorización con presupuesto adicional"
+    contingency_plan:
+      acciones:
+        - "Análisis de gap entre categoría actual y nueva"
+        - "Change request formal con presupuesto y plazos adicionales"
+        - "Re-ejecución de fase de categorización en Motor 1"
+        - "Nuevo análisis de riesgos MAGERIT con requisitos de nueva categoría"
+      nivel_escalacion: "cliente_direccion"
+
+  - codigo: "R-027"
+    numero: 27
+    titulo: "Cliente descubre que no cumplía RGPD y exige paralelizar"
+    descripcion: >
+      Durante el proyecto ENS, el cliente descubre gaps graves de RGPD
+      (tratamiento no declarado, brecha no notificada, DPIA faltante)
+      y exige trabajar ambos en paralelo, desbordando el alcance.
+    categoria: "normativo"
+    probabilidad_default: 0.20
+    impacto_dias_default: 15
+    impacto_euros_default: 4500.00
+    owner_default: "Consultor técnico"
+    trigger_condicion: "Descubrimiento de gap RGPD durante análisis ENS"
+    mitigation_plan:
+      acciones:
+        - "Due diligence RGPD incluido en kickoff (formulario breve)"
+        - "Derivación clara: Fulkro = ENS, no RGPD (scope limitation)"
+        - "Red de partners especializados en RGPD para derivación"
+        - "Cláusula contractual de scope ENS exclusivo"
+    contingency_plan:
+      acciones:
+        - "Explicación clara del scope del contrato actual al cliente"
+        - "Derivación al partner RGPD con propuesta separada"
+        - "Si el cliente insiste: change request con alcance ampliado"
+        - "Reajuste de plazos del proyecto ENS por el gap RGPD"
+      nivel_escalacion: "cliente_direccion"
+
+  - codigo: "R-028"
+    numero: 28
+    titulo: "Auditor asignado es inexperto y alarga la auditoría"
+    descripcion: >
+      El auditor ENAC asignado es relativamente nuevo y alarga la auditoría
+      con preguntas básicas, solicitud de evidencias redundantes o
+      interpretaciones conservadoras del RD.
+    categoria: "normativo"
+    probabilidad_default: 0.25
+    impacto_dias_default: 10
+    impacto_euros_default: 2500.00
+    owner_default: "Consultor técnico"
+    trigger_condicion: "Auditoría excede en > 50% el tiempo estimado"
+    mitigation_plan:
+      acciones:
+        - "Documentación exhaustiva y autoexplicativa preparada para auditoría"
+        - "Conocimiento previo del auditor asignado (histórico)"
+        - "Presentación inicial exhaustiva para contextualizar el proyecto"
+        - "Mapping claro evidencia ↔ requisito con referencias literales"
+    contingency_plan:
+      acciones:
+        - "Paciencia y soporte activo durante la auditoría"
+        - "Producción ágil de evidencias adicionales solicitadas"
+        - "Explicación didáctica de decisiones técnicas del proyecto"
+        - "Documentar el aprendizaje para proyectos futuros"
+      nivel_escalacion: "entidad_certificadora"
+
+  - codigo: "R-029"
+    numero: 29
+    titulo: "Cliente no quiere contratar el retainer al final del proyecto"
+    descripcion: >
+      Tras cerrar el proyecto inicial ENS, el cliente no contrata el
+      servicio de retainer mensual, eliminando la fuente de ingresos
+      recurrentes sobre la que depende el modelo de negocio Fulkro.
+    categoria: "comercial"
+    probabilidad_default: 0.40
+    impacto_dias_default: 0
+    impacto_euros_default: 12000.00
+    owner_default: "Account Manager"
+    trigger_condicion: "Cliente comunica formalmente no-renovación"
+    mitigation_plan:
+      acciones:
+        - "Propuesta de retainer incluida en contrato inicial como opción"
+        - "Demostración continua de valor del retainer durante el proyecto"
+        - "Quick wins del retainer visibles desde el primer mes"
+        - "Pricing del retainer calibrado con el ROI del cliente"
+    contingency_plan:
+      acciones:
+        - "Reunión de cierre con propuesta de valor del retainer actualizada"
+        - "Oferta de retainer light (menor precio, menor servicio)"
+        - "Oferta de proyectos puntuales si el retainer no convence"
+        - "Plan de win-back post-6-meses con nueva propuesta"
+      nivel_escalacion: "direccion_general"
+
+  - codigo: "R-030"
+    numero: 30
+    titulo: "Cliente no paga un hito facturado"
+    descripcion: >
+      Un hito del proyecto se factura correctamente pero el cliente no
+      paga en plazo (problemas de tesorería, disputa sobre calidad,
+      retraso administrativo), afectando el cashflow del consultor.
+    categoria: "comercial"
+    probabilidad_default: 0.15
+    impacto_dias_default: 0
+    impacto_euros_default: 8000.00
+    owner_default: "Account Manager"
+    trigger_condicion: "Factura vencida sin pago tras 15 días hábiles"
+    mitigation_plan:
+      acciones:
+        - "Condiciones de pago claras en contrato con penalizaciones"
+        - "Hitos pequeños y frecuentes (no facturación única final)"
+        - "Due diligence financiero del cliente en kickoff"
+        - "Factoring disponible con línea bancaria preparada"
+    contingency_plan:
+      acciones:
+        - "Recordatorio formal escalado (email → llamada → carta certificada)"
+        - "Suspensión preventiva del proyecto tras 30 días de impago"
+        - "Activación de seguro de crédito si está contratado"
+        - "Proceso monitorio o reclamación judicial si llega al límite"
+      nivel_escalacion: "legal"
+
+# ==============================================================================
+# MAPPING categoría → riesgos (para consultas rápidas del service)
+# ==============================================================================
+mapping_categorias:
+  cliente:       ["R-001", "R-010", "R-012", "R-021", "R-026"]
+  personas:      ["R-002", "R-015", "R-018", "R-019", "R-020", "R-024"]
+  presupuesto:   ["R-003", "R-004", "R-022"]
+  normativo:     ["R-008", "R-009", "R-011", "R-023", "R-027", "R-028"]
+  tecnico:       ["R-005", "R-007", "R-016", "R-017", "R-025"]
+  comercial:     ["R-006", "R-013", "R-014", "R-029", "R-030"]
+
+# ==============================================================================
+# NOTAS PARA EL CONSULTOR
+# ==============================================================================
+# 1. Este catálogo representa defaults baseline. El consultor DEBE revisarlos
+#    en cada proyecto con el contexto específico del cliente.
+# 2. Las probabilidades están estimadas para proyectos típicos de consultoría
+#    ENS en España (sector público + privado mediano). Ajusta si el contexto
+#    del cliente es distinto.
+# 3. Los impactos están en días de retraso y euros de coste estimado.
+#    Son orientativos - el consultor puede ajustarlos por proyecto.
+# 4. Los mitigation y contingency plans son buenas prácticas generales.
+#    El consultor puede añadir acciones específicas del contexto del cliente.
+# 5. TODO-M19-G1: integración de triggers con Motor 12 (magic link) para
+#    detección automática de "cliente no responde".
+# 6. TODO-M19-G2: contextualización automática por Agente 21 (Detector
+#    de Discrepancias) - pendiente de construcción de agentes.

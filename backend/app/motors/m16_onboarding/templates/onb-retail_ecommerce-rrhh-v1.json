@@ -1,0 +1,251 @@
+{
+  "id": "onb-retail_ecommerce-rrhh-v1",
+  "version": "1.0",
+  "sector": "retail_ecommerce",
+  "role": "rrhh",
+  "nombre": "Onboarding RRHH - Retail / Ecommerce",
+  "descripcion": "Cuestionario de onboarding para el rol RRHH en una organizacion del sector Retail / Ecommerce. Recoge contexto estrategico, operativo y regulatorio necesario para arrancar el proyecto ENS.",
+  "tiempo_estimado_minutos": 38,
+  "language": "es",
+  "questions": [
+    {
+      "id": "q-empresa_nombre",
+      "type": "text",
+      "section": "identificacion",
+      "label": "Nombre comercial de la empresa",
+      "validation": {
+        "required": true,
+        "min_length": 2,
+        "max_length": 120
+      }
+    },
+    {
+      "id": "q-persona_contacto",
+      "type": "text",
+      "section": "identificacion",
+      "label": "Nombre de la persona que cumplimenta este cuestionario",
+      "validation": {
+        "required": true,
+        "min_length": 2,
+        "max_length": 120
+      }
+    },
+    {
+      "id": "q-cargo_contacto",
+      "type": "text",
+      "section": "identificacion",
+      "label": "Cargo de la persona de contacto",
+      "validation": {
+        "required": true,
+        "max_length": 120
+      }
+    },
+    {
+      "id": "q-email_contacto",
+      "type": "email",
+      "section": "identificacion",
+      "label": "Email de contacto",
+      "validation": {
+        "required": true
+      }
+    },
+    {
+      "id": "q-plantilla_total",
+      "type": "number",
+      "section": "personas",
+      "label": "Plantilla total actual",
+      "validation": {
+        "required": true,
+        "min_value": 0
+      }
+    },
+    {
+      "id": "q-teletrabajo",
+      "type": "single_select",
+      "section": "personas",
+      "label": "Porcentaje de empleados en teletrabajo",
+      "options": [
+        {
+          "value": "0",
+          "label": "0%"
+        },
+        {
+          "value": "1_20",
+          "label": "1-20%"
+        },
+        {
+          "value": "21_50",
+          "label": "21-50%"
+        },
+        {
+          "value": "mas_50",
+          "label": "Mas del 50%"
+        }
+      ],
+      "validation": {
+        "required": true
+      }
+    },
+    {
+      "id": "q-byod",
+      "type": "boolean",
+      "section": "personas",
+      "label": "Permitis dispositivos personales (BYOD)?",
+      "validation": {
+        "required": true
+      }
+    },
+    {
+      "id": "q-portal_empleado",
+      "type": "boolean",
+      "section": "personas",
+      "label": "Existe portal del empleado con datos personales online?",
+      "validation": {
+        "required": false
+      }
+    },
+    {
+      "id": "q-formacion_ciberseguridad",
+      "type": "single_select",
+      "section": "personas",
+      "label": "Formacion en ciberseguridad al personal",
+      "options": [
+        {
+          "value": "anual",
+          "label": "Anual obligatoria"
+        },
+        {
+          "value": "onboarding",
+          "label": "Solo en onboarding"
+        },
+        {
+          "value": "adhoc",
+          "label": "Ad-hoc cuando hay incidente"
+        },
+        {
+          "value": "ninguna",
+          "label": "Ninguna formal"
+        }
+      ],
+      "validation": {
+        "required": true
+      }
+    },
+    {
+      "id": "q-sindicatos",
+      "type": "boolean",
+      "section": "personas",
+      "label": "Tratais datos de afiliacion sindical (categoria especial RGPD)?",
+      "validation": {
+        "required": false
+      }
+    },
+    {
+      "id": "q-plataforma_ecommerce",
+      "type": "single_select",
+      "section": "contexto_sectorial",
+      "label": "Que plataforma ecommerce usais?",
+      "options": [
+        {
+          "value": "magento",
+          "label": "Magento"
+        },
+        {
+          "value": "prestashop",
+          "label": "Prestashop"
+        },
+        {
+          "value": "shopify",
+          "label": "Shopify"
+        },
+        {
+          "value": "woocommerce",
+          "label": "WooCommerce"
+        },
+        {
+          "value": "propia",
+          "label": "Plataforma propia"
+        },
+        {
+          "value": "otra",
+          "label": "Otra"
+        }
+      ],
+      "validation": {
+        "required": true
+      }
+    },
+    {
+      "id": "q-pci_dss_merchant",
+      "type": "single_select",
+      "section": "contexto_sectorial",
+      "label": "Nivel PCI-DSS como merchant?",
+      "options": [
+        {
+          "value": "nivel1",
+          "label": "Nivel 1 (>6M transacciones)"
+        },
+        {
+          "value": "nivel2",
+          "label": "Nivel 2"
+        },
+        {
+          "value": "nivel3",
+          "label": "Nivel 3"
+        },
+        {
+          "value": "nivel4",
+          "label": "Nivel 4 (<20k)"
+        },
+        {
+          "value": "no_aplica",
+          "label": "No procesamos tarjeta directamente"
+        }
+      ],
+      "validation": {
+        "required": true
+      }
+    },
+    {
+      "id": "q-cookies_marketing",
+      "type": "boolean",
+      "section": "contexto_sectorial",
+      "label": "Usais cookies de marketing con consentimiento previo?",
+      "validation": {
+        "required": true
+      }
+    },
+    {
+      "id": "q-encuestas_clima",
+      "type": "boolean",
+      "section": "personas",
+      "label": "Realizais encuestas de clima/satisfaccion anual?",
+      "validation": {
+        "required": false
+      }
+    },
+    {
+      "id": "q-rotacion_personal",
+      "type": "single_select",
+      "section": "personas",
+      "label": "Rotacion anual de personal",
+      "options": [
+        {
+          "value": "menos_5",
+          "label": "<5%"
+        },
+        {
+          "value": "5_15",
+          "label": "5-15%"
+        },
+        {
+          "value": "mas_15",
+          "label": ">15%"
+        }
+      ],
+      "validation": {
+        "required": false
+      }
+    }
+  ]
+}

@@ -1,0 +1,251 @@
+{
+  "id": "onb-generico-rrhh-v1",
+  "version": "1.0",
+  "sector": "generico",
+  "role": "rrhh",
+  "nombre": "Onboarding RRHH — Generico",
+  "descripcion": "Onboarding para el responsable de RRHH en cualquier tipo de organizacion. Recoge plantilla, formacion en seguridad, teletrabajo, BYOD, procesos de alta/baja y observaciones.",
+  "tiempo_estimado_minutos": 38,
+  "language": "es",
+  "questions": [
+    {
+      "id": "q-total_empleados",
+      "type": "number",
+      "section": "plantilla",
+      "label": "Cuantos empleados tiene vuestra organizacion en total (incluyendo temporales y becarios)?",
+      "tooltip": "El numero total de empleados determina el alcance de los controles de concienciacion (mp.per.3) y los procedimientos de alta/baja que deben documentarse para ENS.",
+      "validation": {
+        "required": true,
+        "min_value": 1,
+        "max_value": 100000
+      }
+    },
+    {
+      "id": "q-formacion_seguridad_ultimo_ano",
+      "type": "boolean",
+      "section": "concienciacion",
+      "label": "Se ha realizado alguna formacion especifica en seguridad de la informacion para empleados en el ultimo ano?",
+      "tooltip": "La concienciacion en seguridad es obligatoria en ENS (mp.per.3). La formacion anual es el minimo exigible en todas las categorias.",
+      "validation": {
+        "required": true
+      }
+    },
+    {
+      "id": "q-politica_teletrabajo",
+      "type": "single_select",
+      "section": "organizacion",
+      "label": "Cual es la politica de teletrabajo vigente en vuestra organizacion?",
+      "tooltip": "El teletrabajo amplia la superficie de ataque (endpoints remotos, VPN, redes domesticas). ENS exige politicas documentadas y controles especificos para trabajo remoto.",
+      "options": [
+        {
+          "value": "full_remote",
+          "label": "Full remote (mayoritariamente en remoto)"
+        },
+        {
+          "value": "hibrido",
+          "label": "Hibrido (presencial y remoto)"
+        },
+        {
+          "value": "presencial",
+          "label": "Mayoritariamente presencial"
+        },
+        {
+          "value": "sin_politica",
+          "label": "Sin politica formal definida"
+        }
+      ],
+      "validation": {
+        "required": true
+      }
+    },
+    {
+      "id": "q-politica_byod",
+      "type": "single_select",
+      "section": "organizacion",
+      "label": "Cual es la politica de uso de dispositivos personales (BYOD) para acceder a sistemas de la empresa?",
+      "tooltip": "BYOD implica que dispositivos no gestionados acceden a datos corporativos. ENS exige que los dispositivos de acceso cumplan requisitos minimos de seguridad (op.acc.11).",
+      "options": [
+        {
+          "value": "permitido",
+          "label": "Permitido sin restricciones"
+        },
+        {
+          "value": "restringido",
+          "label": "Permitido con restricciones (MDM, VPN, etc.)"
+        },
+        {
+          "value": "prohibido",
+          "label": "Prohibido formalmente"
+        },
+        {
+          "value": "sin_politica",
+          "label": "Sin politica formal definida"
+        }
+      ],
+      "validation": {
+        "required": true
+      }
+    },
+    {
+      "id": "q-onboarding_offboarding_formal",
+      "type": "boolean",
+      "section": "procesos_rrhh",
+      "label": "Existe un proceso formal documentado de alta y baja de empleados que incluya revocacion de accesos?",
+      "tooltip": "ENS exige que los altas y bajas de usuarios se gestionen con procedimientos documentados (op.acc.1, op.acc.4). La revocacion inmediata de accesos en bajas es un control critico.",
+      "validation": {
+        "required": true
+      }
+    },
+    {
+      "id": "q-observaciones_rrhh",
+      "type": "long_text",
+      "section": "observaciones",
+      "label": "Hay alguna particularidad de plantilla, rotacion o cultura organizativa que debamos conocer?",
+      "tooltip": "Alta rotacion, contratistas habituales, colectivos especiales (personal sanitario, cuerpos de seguridad) o restricciones sindicales pueden afectar a los controles de personal del ENS.",
+      "validation": {
+        "required": false,
+        "max_length": 5000
+      }
+    },
+    {
+      "id": "q-obligaciones_legales",
+      "type": "multi_select",
+      "section": "contexto_sectorial",
+      "label": "Obligaciones legales conocidas que ya cumplis",
+      "options": [
+        {
+          "value": "rgpd",
+          "label": "RGPD"
+        },
+        {
+          "value": "lopdgdd",
+          "label": "LOPDGDD"
+        },
+        {
+          "value": "lssi",
+          "label": "LSSI-CE"
+        },
+        {
+          "value": "otros",
+          "label": "Otros"
+        },
+        {
+          "value": "ninguno",
+          "label": "Ninguno especifico"
+        }
+      ],
+      "validation": {
+        "required": true
+      }
+    },
+    {
+      "id": "q-cliente_sector_publico",
+      "type": "boolean",
+      "section": "contexto_sectorial",
+      "label": "Algun cliente vuestro es del sector publico?",
+      "validation": {
+        "required": true
+      }
+    },
+    {
+      "id": "q-equipo_seguridad_dedicado",
+      "type": "boolean",
+      "section": "contexto_sectorial",
+      "label": "Existe equipo o persona dedicada a seguridad de la informacion?",
+      "validation": {
+        "required": true
+      }
+    },
+    {
+      "id": "q-encuestas_clima",
+      "type": "boolean",
+      "section": "personas",
+      "label": "Realizais encuestas de clima/satisfaccion anual?",
+      "validation": {
+        "required": false
+      }
+    },
+    {
+      "id": "q-rotacion_personal",
+      "type": "single_select",
+      "section": "personas",
+      "label": "Rotacion anual de personal",
+      "options": [
+        {
+          "value": "menos_5",
+          "label": "<5%"
+        },
+        {
+          "value": "5_15",
+          "label": "5-15%"
+        },
+        {
+          "value": "mas_15",
+          "label": ">15%"
+        }
+      ],
+      "validation": {
+        "required": false
+      }
+    },
+    {
+      "id": "q-onboarding_seguridad",
+      "type": "boolean",
+      "section": "personas",
+      "label": "Onboarding incluye formacion en seguridad obligatoria?",
+      "validation": {
+        "required": true
+      }
+    },
+    {
+      "id": "q-numero_sedes",
+      "type": "number",
+      "section": "identificacion",
+      "label": "Numero de sedes fisicas en Espana",
+      "validation": {
+        "required": false,
+        "min_value": 0
+      }
+    },
+    {
+      "id": "q-actividad_internacional",
+      "type": "boolean",
+      "section": "identificacion",
+      "label": "Operais en otros paises ademas de Espana?",
+      "validation": {
+        "required": false
+      }
+    },
+    {
+      "id": "q-presupuesto_seguridad",
+      "type": "single_select",
+      "section": "identificacion",
+      "label": "Presupuesto anual estimado para seguridad de la informacion",
+      "options": [
+        {
+          "value": "menos_25k",
+          "label": "<25k EUR"
+        },
+        {
+          "value": "25k_100k",
+          "label": "25k - 100k EUR"
+        },
+        {
+          "value": "100k_500k",
+          "label": "100k - 500k EUR"
+        },
+        {
+          "value": "mas_500k",
+          "label": ">500k EUR"
+        },
+        {
+          "value": "no_definido",
+          "label": "No definido"
+        }
+      ],
+      "validation": {
+        "required": false
+      }
+    }
+  ]
+}

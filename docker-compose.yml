@@ -1,0 +1,406 @@
+services:
+  postgres:
+    build:
+      context: ./infra/docker
+      dockerfile: Dockerfile.postgres
+    image: fulkro/postgres:pg16
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: fulkro
+      POSTGRES_USER: fulkro
+      POSTGRES_PASSWORD: changeme
+    ports:
+      - "5433:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    command:
+      - "postgres"
+      - "-c"
+      - "shared_preload_libraries=pgaudit"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U fulkro"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+    shm_size: "256mb"
+
+  redis:
+    image: redis:7-alpine
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+
+  minio:
+    image: minio/minio:latest
+    restart: unless-stopped
+    environment:
+      MINIO_ROOT_USER: fulkro
+      MINIO_ROOT_PASSWORD: changeme123
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    volumes:
+      - miniodata:/data
+    command: server /data --console-address ":9001"
+
+  # ─────── ClamAV antivirus (MB-6 atom 6 · Gap A27 ENS mp.s.5) ───────
+  # Cisco-Talos image · GPL2 · UE-sovereign · clamd TCP 3310 internal.
+  # Virus signatures DB persistente · freshclam auto-update cada 6h.
+  # Cold-start ~60-120s (start_period grace + healthcheck retries).
+  clamav:
+    image: clamav/clamav:stable
+    restart: unless-stopped
+    ports:
+      - "3310:3310"
+    volumes:
+      - clamavdata:/var/lib/clamav
+    environment:
+      CLAMAV_NO_FRESHCLAMD: "false"
+      CLAMAV_NO_CLAMD: "false"
+      CLAMD_STARTUP_TIMEOUT: "180"
+    healthcheck:
+      test: ["CMD", "clamdcheck.sh"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 180s
+
+  # ─────── Celery worker + beat (sub-fase 6.A.0 H1) ───────
+  # Workers ejecutan tasks definidas en motors (m07/m08/m23/m25/m26/m27/m28
+  # y M29 FASE 6). Beat dispara schedule en backend/app/core/celery_app.py.
+  # Profile "workers" — opt-in con: docker compose --profile workers up -d
+  # Mantiene comportamiento dev local (uvicorn directo en host) por
+  # defecto; smoke real producción-like requiere activar profile.
+  celery-worker:
+    build:
+      context: .
+      dockerfile: infra/docker/Dockerfile
+    image: fulkro/backend:latest
+    restart: unless-stopped
+    command:
+      - "celery"
+      - "-A"
+      - "backend.app.core.celery_app"
+      - "worker"
+      - "--loglevel=info"
+      - "--concurrency=2"
+    environment:
+      DATABASE_URL: postgresql+asyncpg://fulkro_app:fulkro_app_dev_password@postgres:5432/fulkro
+      DATABASE_URL_SYNC: postgresql://fulkro_app:fulkro_app_dev_password@postgres:5432/fulkro
+      FULKRO_REDIS_URL: redis://redis:6379/1
+      FULKRO_REDIS_RESULT_URL: redis://redis:6379/2
+      MINIO_ENDPOINT: minio:9000
+      MINIO_ACCESS_KEY: fulkro
+      MINIO_SECRET_KEY: changeme123
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    profiles:
+      - workers
+
+  celery-beat:
+    build:
+      context: .
+      dockerfile: infra/docker/Dockerfile
+    image: fulkro/backend:latest
+    restart: unless-stopped
+    command:
+      - "celery"
+      - "-A"
+      - "backend.app.core.celery_app"
+      - "beat"
+      - "--loglevel=info"
+    environment:
+      DATABASE_URL: postgresql+asyncpg://fulkro_app:fulkro_app_dev_password@postgres:5432/fulkro
+      DATABASE_URL_SYNC: postgresql://fulkro_app:fulkro_app_dev_password@postgres:5432/fulkro
+      FULKRO_REDIS_URL: redis://redis:6379/1
+      FULKRO_REDIS_RESULT_URL: redis://redis:6379/2
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      celery-worker:
+        condition: service_started
+    profiles:
+      - workers
+
+  # ─────── M8 v5.1 Verification scanner (Sesion 7) ───────
+  # ZAP daemon en API mode. La app FastAPI lo invoca via HTTP API
+  # (zapv2 client en zap_runner.py). Aislado del runtime principal
+  # porque ZAP es pesado (Java + Selenium ~2GB) y no debe contaminar
+  # el container app.
+  fulkro-scanner:
+    image: zaproxy/zap-stable:2.15.0
+    restart: unless-stopped
+    command: >
+      zap.sh -daemon
+        -host 0.0.0.0
+        -port 8090
+        -config api.disablekey=true
+        -config api.addrs.addr.name=.*
+        -config api.addrs.addr.regex=true
+    ports:
+      - "8090:8090"
+    volumes:
+      - zapdata:/zap/wrk
+    healthcheck:
+      test: ["CMD-SHELL", "curl -s http://localhost:8090/JSON/core/view/version/ || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 6
+      start_period: 30s
+    profiles:
+      # No arranca por defecto (es pesado). Activar con:
+      #   docker compose --profile scanner up -d fulkro-scanner
+      - scanner
+
+  # ════════════════════════════════════════════════════════════════════
+  # SAN-B.MB-7.2 · MCP Pentest profile (14 servicios merged from
+  # backend/mcp_servers/docker-compose.pentest.yml).
+  # Activar: docker compose --profile pentest up -d
+  # Default mode (sin profile): solo arranca core (postgres/redis/minio).
+  # ════════════════════════════════════════════════════════════════════
+
+  scope-enforcer:
+    build: ./backend/mcp_servers/scope_enforcer
+    container_name: fulkro-scope-enforcer
+    networks: [pentest-net]
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          cpus: "0.5"
+          memory: 256M
+    profiles: [pentest]
+
+  recon:
+    build: ./backend/mcp_servers/recon
+    container_name: fulkro-recon
+    networks: [pentest-net, pentest-external]
+    depends_on: [scope-enforcer]
+    volumes:
+      - recon-data:/app/data
+    deploy:
+      resources:
+        limits:
+          cpus: "2"
+          memory: 2G
+    profiles: [pentest]
+
+  vulnscan:
+    build: ./backend/mcp_servers/vulnscan
+    container_name: fulkro-vulnscan
+    networks: [pentest-net, pentest-external]
+    depends_on: [scope-enforcer]
+    volumes:
+      - nuclei-templates:/root/nuclei-templates
+    deploy:
+      resources:
+        limits:
+          cpus: "2"
+          memory: 3G
+    profiles: [pentest]
+
+  webpentest:
+    build: ./backend/mcp_servers/webpentest
+    container_name: fulkro-webpentest
+    networks: [pentest-net, pentest-external]
+    depends_on: [scope-enforcer]
+    deploy:
+      resources:
+        limits:
+          cpus: "2"
+          memory: 4G
+    profiles: [pentest]
+
+  infra-mcp:
+    build: ./backend/mcp_servers/infra
+    container_name: fulkro-infra-mcp
+    networks: [pentest-net]
+    depends_on: [scope-enforcer]
+    volumes:
+      - msf-data:/root/.msf4
+    deploy:
+      resources:
+        limits:
+          cpus: "4"
+          memory: 6G
+    profiles: [pentest]
+
+  redteam:
+    build: ./backend/mcp_servers/redteam
+    container_name: fulkro-redteam
+    networks: [pentest-net]
+    depends_on: [scope-enforcer]
+    volumes:
+      - caldera-data:/opt/caldera/data
+    deploy:
+      resources:
+        limits:
+          cpus: "2"
+          memory: 4G
+    profiles: [pentest]
+
+  cloud-mcp:
+    build: ./backend/mcp_servers/cloud
+    container_name: fulkro-cloud-mcp
+    networks: [pentest-net, pentest-external]
+    depends_on: [scope-enforcer]
+    deploy:
+      resources:
+        limits:
+          cpus: "2"
+          memory: 2G
+    profiles: [pentest]
+
+  config-mcp:
+    build: ./backend/mcp_servers/config
+    container_name: fulkro-config-mcp
+    networks: [pentest-net]
+    depends_on: [scope-enforcer]
+    deploy:
+      resources:
+        limits:
+          cpus: "1"
+          memory: 1G
+    profiles: [pentest]
+
+  phishing:
+    build: ./backend/mcp_servers/phishing
+    container_name: fulkro-phishing
+    networks: [pentest-net, pentest-external]
+    depends_on: [scope-enforcer]
+    ports:
+      - "3333:3333"
+    volumes:
+      - gophish-data:/opt/gophish/data
+    deploy:
+      resources:
+        limits:
+          cpus: "1"
+          memory: 512M
+    profiles: [pentest]
+
+  sast:
+    build: ./backend/mcp_servers/sast
+    container_name: fulkro-sast
+    networks: [pentest-net, pentest-external]
+    depends_on: [scope-enforcer]
+    deploy:
+      resources:
+        limits:
+          cpus: "2"
+          memory: 2G
+    profiles: [pentest]
+
+  cracking:
+    build: ./backend/mcp_servers/cracking
+    container_name: fulkro-cracking
+    networks: [pentest-net]
+    depends_on: [scope-enforcer]
+    volumes:
+      - wordlists:/opt/wordlists
+    deploy:
+      resources:
+        limits:
+          cpus: "4"
+          memory: 4G
+    profiles: [pentest]
+
+  apisec:
+    build: ./backend/mcp_servers/apisec
+    container_name: fulkro-apisec
+    networks: [pentest-net, pentest-external]
+    depends_on: [scope-enforcer]
+    deploy:
+      resources:
+        limits:
+          cpus: "1"
+          memory: 1G
+    profiles: [pentest]
+
+  mobile:
+    build: ./backend/mcp_servers/mobile
+    container_name: fulkro-mobile
+    networks: [pentest-net]
+    depends_on: [scope-enforcer]
+    deploy:
+      resources:
+        limits:
+          cpus: "2"
+          memory: 3G
+    profiles: [pentest]
+
+  wireless:
+    build: ./backend/mcp_servers/wireless
+    container_name: fulkro-wireless
+    networks: [pentest-net]
+    depends_on: [scope-enforcer]
+    deploy:
+      resources:
+        limits:
+          cpus: "1"
+          memory: 512M
+    profiles: [pentest]
+
+  # Greenbone Community Edition (OpenVAS) · monolitica · primer arranque
+  # descarga ~5GB feed (~45-60 min). scripts/start_openvas_container.sh
+  openvas:
+    image: immauss/openvas:latest
+    container_name: fulkro-openvas
+    networks: [pentest-net, pentest-external]
+    ports:
+      - "9392:9392"   # Web UI HTTPS
+      - "9390:9390"   # GMP protocol (TLS)
+    environment:
+      PASSWORD: "${OPENVAS_ADMIN_PASSWORD:-fulkro_openvas_dev}"
+      USERNAME: "${OPENVAS_ADMIN_USERNAME:-admin}"
+      AUTO_SYNC: "true"
+    volumes:
+      - openvas-data:/data
+    deploy:
+      resources:
+        limits:
+          cpus: "4"
+          memory: 8G
+    healthcheck:
+      test: ["CMD-SHELL", "curl -fsk https://localhost:9392 || exit 1"]
+      interval: 60s
+      timeout: 10s
+      retries: 30
+      start_period: 3600s
+    profiles: [pentest]
+
+
+networks:
+  default: {}
+  pentest-net:
+    driver: bridge
+    internal: true
+    ipam:
+      config:
+        - subnet: 172.30.0.0/24
+  pentest-external:
+    driver: bridge
+
+
+volumes:
+  pgdata:
+  miniodata:
+  zapdata:
+  recon-data:
+  nuclei-templates:
+  msf-data:
+  caldera-data:
+  gophish-data:
+  wordlists:
+  openvas-data:
+  clamavdata:

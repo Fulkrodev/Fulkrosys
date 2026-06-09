@@ -1,0 +1,150 @@
+{
+  "version": "1.0",
+  "description": "Catalog of evidence types for ENS compliance in FULKRO",
+  "types": [
+    {
+      "id": "EVT-politica_firmada-001",
+      "nombre": "Politica firmada",
+      "descripcion": "Documento de politica aprobado y firmado por la direccion",
+      "categoria": "politica",
+      "mime_types_permitidos": ["application/pdf"],
+      "extensiones_permitidas": [".pdf"],
+      "tamano_max_mb": 25,
+      "caducidad_dias": 365,
+      "medidas_asociadas": ["org.1", "org.2", "org.3"],
+      "obligatorio": true
+    },
+    {
+      "id": "EVT-acta_comite-001",
+      "nombre": "Acta de comite de seguridad",
+      "descripcion": "Acta de reunion del comite de seguridad de la informacion",
+      "categoria": "acta",
+      "mime_types_permitidos": ["application/pdf", "application/vnd.openxmlformats-officedocument.wordprocessingml.document"],
+      "extensiones_permitidas": [".pdf", ".docx"],
+      "tamano_max_mb": 15,
+      "caducidad_dias": 90,
+      "medidas_asociadas": ["org.1", "org.2"],
+      "obligatorio": true
+    },
+    {
+      "id": "EVT-procedimiento_operativo-001",
+      "nombre": "Procedimiento operativo",
+      "descripcion": "Procedimiento operativo documentado y aprobado",
+      "categoria": "politica",
+      "mime_types_permitidos": ["application/pdf", "application/vnd.openxmlformats-officedocument.wordprocessingml.document"],
+      "extensiones_permitidas": [".pdf", ".docx"],
+      "tamano_max_mb": 25,
+      "caducidad_dias": 365,
+      "medidas_asociadas": ["op.pl.1", "op.pl.2", "op.exp.1"],
+      "obligatorio": true
+    },
+    {
+      "id": "EVT-captura_idp_mfa-001",
+      "nombre": "Captura de configuracion IDP/MFA",
+      "descripcion": "Captura de pantalla demostrando configuracion de autenticacion multifactor",
+      "categoria": "captura",
+      "mime_types_permitidos": ["image/png", "image/jpeg", "application/pdf"],
+      "extensiones_permitidas": [".png", ".jpg", ".jpeg", ".pdf"],
+      "tamano_max_mb": 10,
+      "caducidad_dias": 90,
+      "medidas_asociadas": ["op.acc.5", "op.acc.6"],
+      "obligatorio": false
+    },
+    {
+      "id": "EVT-export_inventario-001",
+      "nombre": "Exportacion de inventario de activos",
+      "descripcion": "Listado exportado del inventario de activos de informacion",
+      "categoria": "export",
+      "mime_types_permitidos": ["text/csv", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"],
+      "extensiones_permitidas": [".csv", ".xlsx"],
+      "tamano_max_mb": 50,
+      "caducidad_dias": 90,
+      "medidas_asociadas": ["mp.info.1", "mp.sw.1"],
+      "obligatorio": false
+    },
+    {
+      "id": "EVT-export_siem-001",
+      "nombre": "Exportacion de logs SIEM",
+      "descripcion": "Logs exportados del sistema SIEM demostrando monitorizacion activa",
+      "categoria": "export",
+      "mime_types_permitidos": ["application/json", "text/csv", "application/zip"],
+      "extensiones_permitidas": [".json", ".csv", ".zip"],
+      "tamano_max_mb": 200,
+      "caducidad_dias": 30,
+      "medidas_asociadas": ["op.mon.1", "op.mon.2"],
+      "obligatorio": false
+    },
+    {
+      "id": "EVT-certificado_ssl-001",
+      "nombre": "Certificado SSL/TLS",
+      "descripcion": "Certificado digital del servidor o servicio",
+      "categoria": "certificado",
+      "mime_types_permitidos": ["application/x-pem-file", "application/x-x509-ca-cert"],
+      "extensiones_permitidas": [".pem", ".crt"],
+      "tamano_max_mb": 1,
+      "caducidad_dias": null,
+      "medidas_asociadas": ["mp.com.2", "mp.com.3"],
+      "obligatorio": false
+    },
+    {
+      "id": "EVT-testssl_report-001",
+      "nombre": "Informe testssl.sh",
+      "descripcion": "Resultado de analisis testssl.sh sobre configuracion TLS",
+      "categoria": "informe",
+      "mime_types_permitidos": ["application/json", "text/html"],
+      "extensiones_permitidas": [".json", ".html"],
+      "tamano_max_mb": 10,
+      "caducidad_dias": 90,
+      "medidas_asociadas": ["mp.com.2", "mp.com.3"],
+      "obligatorio": false
+    },
+    {
+      "id": "EVT-dmarc_dig-001",
+      "nombre": "Registro DMARC/SPF/DKIM",
+      "descripcion": "Captura de consulta DNS mostrando registros DMARC, SPF o DKIM",
+      "categoria": "captura",
+      "mime_types_permitidos": ["text/plain", "image/png"],
+      "extensiones_permitidas": [".txt", ".png"],
+      "tamano_max_mb": 1,
+      "caducidad_dias": 90,
+      "medidas_asociadas": ["mp.com.1"],
+      "obligatorio": false
+    },
+    {
+      "id": "EVT-prueba_restauracion-001",
+      "nombre": "Prueba de restauracion de backups",
+      "descripcion": "Informe documentando prueba exitosa de restauracion de copias de seguridad",
+      "categoria": "informe",
+      "mime_types_permitidos": ["application/pdf"],
+      "extensiones_permitidas": [".pdf"],
+      "tamano_max_mb": 25,
+      "caducidad_dias": 365,
+      "medidas_asociadas": ["op.cont.1", "op.cont.2"],
+      "obligatorio": true
+    },
+    {
+      "id": "EVT-informe_pentest-001",
+      "nombre": "Informe de test de intrusion",
+      "descripcion": "Informe completo de pruebas de penetracion realizadas por tercero cualificado",
+      "categoria": "informe",
+      "mime_types_permitidos": ["application/pdf"],
+      "extensiones_permitidas": [".pdf"],
+      "tamano_max_mb": 100,
+      "caducidad_dias": 365,
+      "medidas_asociadas": ["op.exp.3", "op.exp.7"],
+      "obligatorio": true
+    },
+    {
+      "id": "EVT-prowler_report-001",
+      "nombre": "Informe Prowler/ScoutSuite",
+      "descripcion": "Informe automatizado de auditoria de seguridad en la nube",
+      "categoria": "informe",
+      "mime_types_permitidos": ["application/json", "text/html", "text/csv"],
+      "extensiones_permitidas": [".json", ".html", ".csv"],
+      "tamano_max_mb": 50,
+      "caducidad_dias": 180,
+      "medidas_asociadas": ["op.nub.1", "op.mon.1"],
+      "obligatorio": false
+    }
+  ]
+}

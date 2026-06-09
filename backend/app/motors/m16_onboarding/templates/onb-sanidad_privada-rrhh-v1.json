@@ -1,0 +1,208 @@
+{
+  "id": "onb-sanidad_privada-rrhh-v1",
+  "version": "1.0",
+  "sector": "sanidad_privada",
+  "role": "rrhh",
+  "nombre": "Onboarding RRHH - Sanidad Privada",
+  "descripcion": "Cuestionario de onboarding para el rol RRHH en una organizacion del sector Sanidad Privada. Recoge contexto estrategico, operativo y regulatorio necesario para arrancar el proyecto ENS.",
+  "tiempo_estimado_minutos": 38,
+  "language": "es",
+  "questions": [
+    {
+      "id": "q-empresa_nombre",
+      "type": "text",
+      "section": "identificacion",
+      "label": "Nombre comercial de la empresa",
+      "validation": {
+        "required": true,
+        "min_length": 2,
+        "max_length": 120
+      }
+    },
+    {
+      "id": "q-persona_contacto",
+      "type": "text",
+      "section": "identificacion",
+      "label": "Nombre de la persona que cumplimenta este cuestionario",
+      "validation": {
+        "required": true,
+        "min_length": 2,
+        "max_length": 120
+      }
+    },
+    {
+      "id": "q-cargo_contacto",
+      "type": "text",
+      "section": "identificacion",
+      "label": "Cargo de la persona de contacto",
+      "validation": {
+        "required": true,
+        "max_length": 120
+      }
+    },
+    {
+      "id": "q-email_contacto",
+      "type": "email",
+      "section": "identificacion",
+      "label": "Email de contacto",
+      "validation": {
+        "required": true
+      }
+    },
+    {
+      "id": "q-plantilla_total",
+      "type": "number",
+      "section": "personas",
+      "label": "Plantilla total actual",
+      "validation": {
+        "required": true,
+        "min_value": 0
+      }
+    },
+    {
+      "id": "q-teletrabajo",
+      "type": "single_select",
+      "section": "personas",
+      "label": "Porcentaje de empleados en teletrabajo",
+      "options": [
+        {
+          "value": "0",
+          "label": "0%"
+        },
+        {
+          "value": "1_20",
+          "label": "1-20%"
+        },
+        {
+          "value": "21_50",
+          "label": "21-50%"
+        },
+        {
+          "value": "mas_50",
+          "label": "Mas del 50%"
+        }
+      ],
+      "validation": {
+        "required": true
+      }
+    },
+    {
+      "id": "q-byod",
+      "type": "boolean",
+      "section": "personas",
+      "label": "Permitis dispositivos personales (BYOD)?",
+      "validation": {
+        "required": true
+      }
+    },
+    {
+      "id": "q-portal_empleado",
+      "type": "boolean",
+      "section": "personas",
+      "label": "Existe portal del empleado con datos personales online?",
+      "validation": {
+        "required": false
+      }
+    },
+    {
+      "id": "q-formacion_ciberseguridad",
+      "type": "single_select",
+      "section": "personas",
+      "label": "Formacion en ciberseguridad al personal",
+      "options": [
+        {
+          "value": "anual",
+          "label": "Anual obligatoria"
+        },
+        {
+          "value": "onboarding",
+          "label": "Solo en onboarding"
+        },
+        {
+          "value": "adhoc",
+          "label": "Ad-hoc cuando hay incidente"
+        },
+        {
+          "value": "ninguna",
+          "label": "Ninguna formal"
+        }
+      ],
+      "validation": {
+        "required": true
+      }
+    },
+    {
+      "id": "q-sindicatos",
+      "type": "boolean",
+      "section": "personas",
+      "label": "Tratais datos de afiliacion sindical (categoria especial RGPD)?",
+      "validation": {
+        "required": false
+      }
+    },
+    {
+      "id": "q-his_hce",
+      "type": "multi_select",
+      "section": "contexto_sectorial",
+      "label": "Que sistemas de historia clinica usais?",
+      "options": [
+        {
+          "value": "his_propio",
+          "label": "HIS propio"
+        },
+        {
+          "value": "his_saas",
+          "label": "HIS SaaS"
+        },
+        {
+          "value": "hce_integrada",
+          "label": "HCE integrada con AAPP"
+        },
+        {
+          "value": "papel_mixto",
+          "label": "Papel + digital"
+        }
+      ],
+      "validation": {
+        "required": true
+      }
+    },
+    {
+      "id": "q-datos_categoria_especial",
+      "type": "boolean",
+      "section": "contexto_sectorial",
+      "label": "Tratais datos de salud (categoria especial RGPD art. 9)?",
+      "tooltip": "Los datos de salud requieren medidas reforzadas (mp.info.1).",
+      "validation": {
+        "required": true
+      }
+    },
+    {
+      "id": "q-interop_hl7_fhir",
+      "type": "boolean",
+      "section": "contexto_sectorial",
+      "label": "Interoperais con otras plataformas via HL7/FHIR?",
+      "validation": {
+        "required": false
+      }
+    },
+    {
+      "id": "q-telemedicina",
+      "type": "boolean",
+      "section": "contexto_sectorial",
+      "label": "Ofreceis consultas telematicas (telemedicina)?",
+      "validation": {
+        "required": true
+      }
+    },
+    {
+      "id": "q-consentimiento_digital",
+      "type": "boolean",
+      "section": "contexto_sectorial",
+      "label": "Gestionais consentimiento informado en formato digital?",
+      "validation": {
+        "required": false
+      }
+    }
+  ]
+}

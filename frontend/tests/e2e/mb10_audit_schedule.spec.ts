@@ -1,0 +1,10 @@
+import { expect, test } from "@playwright/test";
+
+const TEST_PROJECT_ID = "00000000-0000-0000-0000-000000000000";
+
+test("AuditScheduleCountdown · /conformity tab no rompe SSR", async ({ page }) => {
+  await page.goto(`/admin/projects/${TEST_PROJECT_ID}/conformity`);
+  const html = await page.content();
+  expect(html).not.toMatch(/Application error/i);
+  expect(html).not.toMatch(/Internal Server Error/i);
+});

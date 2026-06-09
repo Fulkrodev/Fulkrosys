@@ -1,0 +1,208 @@
+{
+  "id": "onb-industria-rrhh-v1",
+  "version": "1.0",
+  "sector": "industria",
+  "role": "rrhh",
+  "nombre": "Onboarding RRHH - Industria",
+  "descripcion": "Cuestionario de onboarding para el rol RRHH en una organizacion del sector Industria. Recoge contexto estrategico, operativo y regulatorio necesario para arrancar el proyecto ENS.",
+  "tiempo_estimado_minutos": 38,
+  "language": "es",
+  "questions": [
+    {
+      "id": "q-empresa_nombre",
+      "type": "text",
+      "section": "identificacion",
+      "label": "Nombre comercial de la empresa",
+      "validation": {
+        "required": true,
+        "min_length": 2,
+        "max_length": 120
+      }
+    },
+    {
+      "id": "q-persona_contacto",
+      "type": "text",
+      "section": "identificacion",
+      "label": "Nombre de la persona que cumplimenta este cuestionario",
+      "validation": {
+        "required": true,
+        "min_length": 2,
+        "max_length": 120
+      }
+    },
+    {
+      "id": "q-cargo_contacto",
+      "type": "text",
+      "section": "identificacion",
+      "label": "Cargo de la persona de contacto",
+      "validation": {
+        "required": true,
+        "max_length": 120
+      }
+    },
+    {
+      "id": "q-email_contacto",
+      "type": "email",
+      "section": "identificacion",
+      "label": "Email de contacto",
+      "validation": {
+        "required": true
+      }
+    },
+    {
+      "id": "q-plantilla_total",
+      "type": "number",
+      "section": "personas",
+      "label": "Plantilla total actual",
+      "validation": {
+        "required": true,
+        "min_value": 0
+      }
+    },
+    {
+      "id": "q-teletrabajo",
+      "type": "single_select",
+      "section": "personas",
+      "label": "Porcentaje de empleados en teletrabajo",
+      "options": [
+        {
+          "value": "0",
+          "label": "0%"
+        },
+        {
+          "value": "1_20",
+          "label": "1-20%"
+        },
+        {
+          "value": "21_50",
+          "label": "21-50%"
+        },
+        {
+          "value": "mas_50",
+          "label": "Mas del 50%"
+        }
+      ],
+      "validation": {
+        "required": true
+      }
+    },
+    {
+      "id": "q-byod",
+      "type": "boolean",
+      "section": "personas",
+      "label": "Permitis dispositivos personales (BYOD)?",
+      "validation": {
+        "required": true
+      }
+    },
+    {
+      "id": "q-portal_empleado",
+      "type": "boolean",
+      "section": "personas",
+      "label": "Existe portal del empleado con datos personales online?",
+      "validation": {
+        "required": false
+      }
+    },
+    {
+      "id": "q-formacion_ciberseguridad",
+      "type": "single_select",
+      "section": "personas",
+      "label": "Formacion en ciberseguridad al personal",
+      "options": [
+        {
+          "value": "anual",
+          "label": "Anual obligatoria"
+        },
+        {
+          "value": "onboarding",
+          "label": "Solo en onboarding"
+        },
+        {
+          "value": "adhoc",
+          "label": "Ad-hoc cuando hay incidente"
+        },
+        {
+          "value": "ninguna",
+          "label": "Ninguna formal"
+        }
+      ],
+      "validation": {
+        "required": true
+      }
+    },
+    {
+      "id": "q-sindicatos",
+      "type": "boolean",
+      "section": "personas",
+      "label": "Tratais datos de afiliacion sindical (categoria especial RGPD)?",
+      "validation": {
+        "required": false
+      }
+    },
+    {
+      "id": "q-ot_scada",
+      "type": "boolean",
+      "section": "contexto_sectorial",
+      "label": "Operais sistemas OT/SCADA en planta?",
+      "tooltip": "Los entornos OT tienen requisitos de segregacion con IT (mp.com).",
+      "validation": {
+        "required": true
+      }
+    },
+    {
+      "id": "q-pic",
+      "type": "boolean",
+      "section": "contexto_sectorial",
+      "label": "Sois operador critico (Ley 8/2011 PIC) o esencial (NIS2)?",
+      "validation": {
+        "required": true
+      }
+    },
+    {
+      "id": "q-patentes_iprop",
+      "type": "boolean",
+      "section": "contexto_sectorial",
+      "label": "Tratais informacion confidencial industrial (patentes, planos)?",
+      "validation": {
+        "required": true
+      }
+    },
+    {
+      "id": "q-sectores_clientes_publicos",
+      "type": "boolean",
+      "section": "contexto_sectorial",
+      "label": "Algun cliente vuestro es Administracion Publica espanola?",
+      "validation": {
+        "required": true
+      }
+    },
+    {
+      "id": "q-certificacion_iso",
+      "type": "multi_select",
+      "section": "contexto_sectorial",
+      "label": "Certificaciones ISO en vigor",
+      "options": [
+        {
+          "value": "iso_9001",
+          "label": "ISO 9001"
+        },
+        {
+          "value": "iso_14001",
+          "label": "ISO 14001"
+        },
+        {
+          "value": "iso_27001",
+          "label": "ISO 27001"
+        },
+        {
+          "value": "ninguna",
+          "label": "Ninguna"
+        }
+      ],
+      "validation": {
+        "required": false
+      }
+    }
+  ]
+}

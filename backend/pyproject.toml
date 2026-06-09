@@ -1,0 +1,115 @@
+[project]
+name = "fulkro"
+version = "0.1.0"
+description = "FULKRO - Plataforma de implantacion ENS (RD 311/2022)"
+requires-python = ">= 3.12"
+dependencies = [
+    "fastapi[standard]>=0.115",
+    "uvicorn[standard]>=0.30",
+    "sse-starlette>=3.4",
+    "sqlalchemy[asyncio]>=2.0",
+    "asyncpg>=0.29",
+    "alembic>=1.13",
+    "pydantic[email]>=2.0",
+    "pydantic-settings>=2.0",
+    "redis>=5.0",
+    "celery[redis]>=5.4",
+    "httpx>=0.27",
+    "anthropic>=0.40",
+    "fastembed>=0.4.2",
+    "pgvector>=0.3.6",
+    "python-dotenv>=1.0.1",
+    "python-multipart>=0.0.9",
+    "python-jose[cryptography]>=3.3",
+    "PyJWT[crypto]>=2.8",
+    "pyotp>=2.9",
+    "passlib[bcrypt]>=1.7",
+    "PyNaCl>=1.5",
+    # WebAuthn/FIDO2 (Yubikey · Marcos R4). El código importa `fido2`
+    # (python-fido2 de Yubico, 2.x) en backend/app/auth/webauthn_svc.py.
+    # NO es el paquete `py-webauthn` (que no pasa de 0.0.6 en PyPI).
+    "fido2>=2.2",
+    "docxtpl>=0.18",
+    "pdfplumber>=0.11",
+    "python-docx>=1.1",
+    # Fase 1.E E.2 · propuesta PDF generator (radar outbound · Marcos cement 2026-05-27)
+    "reportlab>=4.0",
+    "svglib>=1.5,<2.0",
+    "openpyxl>=3.1",
+    "loguru>=0.7",
+    "tenacity>=9.0",
+    "boto3>=1.35",
+    "paramiko>=3.4",
+    # SAN-D MB-16.3 · NotificationOrchestrator templates YAML + Jinja2 (ADR-039).
+    "Jinja2>=3.1",
+    # SAN-E MB-9.bis mini-atom · MJML email design system (compliance templates).
+    "mjml-python>=1.4",
+    "PyYAML>=6.0",
+    # SAN-E MB-6 atom 6 · ClamAV antivirus scan client uploads (ENS mp.s.5).
+    "clamd>=1.0.2",
+    # M10 ENS Radar · fuzzy matching (CCN cross-check, ICP blacklist, dedup).
+    "rapidfuzz>=3.0",
+    # M10 ENS Radar · scraping CCN headless (portal sirve datos solo a navegador).
+    # Tras instalar: `playwright install chromium`.
+    "playwright>=1.40",
+    # MinIO SDK · cliente central de almacenamiento (core/storage/minio_client.py
+    # + m26_backup/offsite.py). Lo importa el grafo de backend.app.main al arrancar
+    # uvicorn: sin él el backend NO bootea en la imagen de prod (validación deploy
+    # 2026-06-08 · `import backend.app.main` lo destapó como dep no declarada).
+    "minio>=7.2",
+    # libphonenumber port · m31_whatsapp/service.py (normalización E.164). Igual que
+    # minio: importado por el grafo de backend.app.main → requerido para arrancar.
+    "phonenumbers>=8.13",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.0",
+    "pytest-asyncio>=0.24",
+    "pytest-cov>=5.0",
+    "pytest-timeout>=2.4",
+    "pytest-rerunfailures>=14.0",
+    "ruff>=0.7",
+    "mypy>=1.11",
+    "httpx>=0.27",
+    # Sesion 10 Paso 4.1: mock AWS para tests Prowler sin credenciales ni binario
+    "moto[iam,s3,ec2,sts]>=5.0",
+    # Sesion 10 Paso 4.3: cliente GMP para OpenVAS/Greenbone (lazy import en runner)
+    "python-gvm>=27.0",
+]
+
+[tool.ruff]
+target-version = "py312"
+line-length = 120
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "N", "W"]
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+testpaths = ["tests"]
+markers = [
+    "llm: tests requiring real Anthropic API call",
+    "flaky: flaky tests (primarily LLM probabilistic outputs) to rerun via pytest-rerunfailures",
+    "real_auth: tests que validan auth real (opt-out del autouse override en tests/conftest.py — sub-fase 4.D ADR-021)",
+    "golden: golden dataset regression tests (1.E.1.B.3 · eval_runner harness · pass_rate threshold gates)",
+]
+timeout = 300
+timeout_method = "thread"
+
+[tool.coverage.run]
+concurrency = ["thread", "greenlet"]
+source = ["backend/app"]
+
+[tool.coverage.report]
+exclude_lines = [
+    "pragma: no cover",
+    "raise NotImplementedError",
+    "if __name__ == .__main__.:",
+    "if TYPE_CHECKING:",
+]
+
+[tool.mypy]
+python_version = "3.12"
+warn_return_any = true
+warn_unused_configs = true

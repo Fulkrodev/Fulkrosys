@@ -1,0 +1,1 @@
+# Cracking server relies on system binaries (hashcat, john) + cewl gem.

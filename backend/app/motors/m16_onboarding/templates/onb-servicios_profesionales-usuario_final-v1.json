@@ -1,0 +1,228 @@
+{
+  "id": "onb-servicios_profesionales-usuario_final-v1",
+  "version": "1.0",
+  "sector": "servicios_profesionales",
+  "role": "usuario_final",
+  "nombre": "Onboarding Usuario Final - Servicios Profesionales",
+  "descripcion": "Cuestionario de onboarding para el rol Usuario Final en una organizacion del sector Servicios Profesionales. Recoge contexto estrategico, operativo y regulatorio necesario para arrancar el proyecto ENS.",
+  "tiempo_estimado_minutos": 38,
+  "language": "es",
+  "questions": [
+    {
+      "id": "q-empresa_nombre",
+      "type": "text",
+      "section": "identificacion",
+      "label": "Nombre comercial de la empresa",
+      "validation": {
+        "required": true,
+        "min_length": 2,
+        "max_length": 120
+      }
+    },
+    {
+      "id": "q-persona_contacto",
+      "type": "text",
+      "section": "identificacion",
+      "label": "Nombre de la persona que cumplimenta este cuestionario",
+      "validation": {
+        "required": true,
+        "min_length": 2,
+        "max_length": 120
+      }
+    },
+    {
+      "id": "q-cargo_contacto",
+      "type": "text",
+      "section": "identificacion",
+      "label": "Cargo de la persona de contacto",
+      "validation": {
+        "required": true,
+        "max_length": 120
+      }
+    },
+    {
+      "id": "q-email_contacto",
+      "type": "email",
+      "section": "identificacion",
+      "label": "Email de contacto",
+      "validation": {
+        "required": true
+      }
+    },
+    {
+      "id": "q-dispositivo_trabajo",
+      "type": "single_select",
+      "section": "uso_habitual",
+      "label": "Que dispositivo usas para trabajar?",
+      "options": [
+        {
+          "value": "corporativo_fijo",
+          "label": "Corporativo fijo"
+        },
+        {
+          "value": "corporativo_portatil",
+          "label": "Corporativo portatil"
+        },
+        {
+          "value": "personal_byod",
+          "label": "Personal (BYOD)"
+        },
+        {
+          "value": "mixto",
+          "label": "Mixto"
+        }
+      ],
+      "validation": {
+        "required": true
+      }
+    },
+    {
+      "id": "q-teletrabajo_frecuencia",
+      "type": "single_select",
+      "section": "uso_habitual",
+      "label": "Con que frecuencia teletrabajas?",
+      "options": [
+        {
+          "value": "nunca",
+          "label": "Nunca"
+        },
+        {
+          "value": "ocasional",
+          "label": "Ocasional"
+        },
+        {
+          "value": "hibrido",
+          "label": "Hibrido"
+        },
+        {
+          "value": "siempre",
+          "label": "Siempre remoto"
+        }
+      ],
+      "validation": {
+        "required": true
+      }
+    },
+    {
+      "id": "q-mfa_personal",
+      "type": "boolean",
+      "section": "uso_habitual",
+      "label": "Usas MFA para acceder a aplicaciones de empresa?",
+      "validation": {
+        "required": true
+      }
+    },
+    {
+      "id": "q-usb_externos",
+      "type": "single_select",
+      "section": "uso_habitual",
+      "label": "Usas USB o discos externos para datos de empresa?",
+      "options": [
+        {
+          "value": "nunca",
+          "label": "Nunca"
+        },
+        {
+          "value": "cifrados",
+          "label": "Si, siempre cifrados"
+        },
+        {
+          "value": "sin_cifrar",
+          "label": "Si, sin cifrar"
+        },
+        {
+          "value": "no_se",
+          "label": "No lo se"
+        }
+      ],
+      "validation": {
+        "required": true
+      }
+    },
+    {
+      "id": "q-formacion_phishing",
+      "type": "boolean",
+      "section": "uso_habitual",
+      "label": "Has recibido formacion sobre phishing?",
+      "validation": {
+        "required": true
+      }
+    },
+    {
+      "id": "q-incidentes_reportados",
+      "type": "boolean",
+      "section": "uso_habitual",
+      "label": "Has reportado alguna vez un incidente/email sospechoso?",
+      "validation": {
+        "required": false
+      }
+    },
+    {
+      "id": "q-colegio_profesional",
+      "type": "text",
+      "section": "contexto_sectorial",
+      "label": "A que colegio profesional o asociacion estais adscritos?",
+      "tooltip": "El colegio profesional puede tener codigos deontologicos que afecten al tratamiento de datos.",
+      "validation": {
+        "required": false,
+        "max_length": 200
+      }
+    },
+    {
+      "id": "q-tipo_cliente_principal",
+      "type": "single_select",
+      "section": "contexto_sectorial",
+      "label": "Que tipo de cliente predomina?",
+      "options": [
+        {
+          "value": "particulares",
+          "label": "Particulares"
+        },
+        {
+          "value": "empresas",
+          "label": "Empresas privadas"
+        },
+        {
+          "value": "aapp",
+          "label": "Administracion Publica"
+        },
+        {
+          "value": "mixto",
+          "label": "Mixto"
+        }
+      ],
+      "validation": {
+        "required": true
+      }
+    },
+    {
+      "id": "q-expedientes_confidenciales",
+      "type": "boolean",
+      "section": "contexto_sectorial",
+      "label": "Gestionais expedientes bajo secreto profesional?",
+      "tooltip": "Abogados, medicos y auditores suelen tener obligacion reforzada de confidencialidad.",
+      "validation": {
+        "required": true
+      }
+    },
+    {
+      "id": "q-numero_expedientes_anio",
+      "type": "number",
+      "section": "contexto_sectorial",
+      "label": "Numero aproximado de expedientes activos al ano",
+      "validation": {
+        "required": false,
+        "min_value": 0
+      }
+    },
+    {
+      "id": "q-archivo_fisico",
+      "type": "boolean",
+      "section": "contexto_sectorial",
+      "label": "Mantenies archivo fisico de expedientes?",
+      "validation": {
+        "required": false
+      }
+    }
+  ]
+}

@@ -1,0 +1,403 @@
+# ════════════════════════════════════════════════════════════════════════════
+# FULKRO — docker-compose.prod.yml · PRODUCCIÓN (Hetzner)
+# ════════════════════════════════════════════════════════════════════════════
+# Stack production-grade completo. NO usar para dev (usar docker-compose.yml).
+#
+#   env_file: .env.prod   (NUNCA .env · .env es dev · .env.prod va gitignored)
+#
+# Orden de provisión (servicio `provision` lo automatiza · ver
+# infra/docker/provision-entrypoint.sh + docs/deploy/HETZNER_DEPLOY_RUNBOOK.md):
+#   postgres healthy → provision (init-roles + alembic upgrade head + seed +
+#   REVOKE audit_log) completa → backend/celery arrancan.
+#
+# Validación local (throwaway · NO toca dev ni la BD live):
+#   docker compose -f docker-compose.prod.yml --env-file .env.prod config
+#   docker compose -f docker-compose.prod.yml build
+#
+# FRONTERA HONESTA (Hetzner-only · NO validable aquí):
+#   - TLS real (Let's Encrypt) requiere dominio público + puertos 80/443 +
+#     DNS apuntando al server → solo en Hetzner (caddy auto_https).
+#   - ClamAV freshclam DB (~200MB) + cold-start ~2 min · MinIO WORM real
+#     (Object Lock 7y) · fastembed cargando el modelo de embeddings.
+#   - El smoke completo del stack entero up (TLS + dominio) ocurre en Hetzner.
+# ════════════════════════════════════════════════════════════════════════════
+
+x-backend-image: &backend-image
+  build:
+    context: .
+    dockerfile: infra/docker/Dockerfile
+  image: fulkro/backend:prod
+
+services:
+
+  # ─────────────────────── PostgreSQL 16 ───────────────────────
+  # Imagen propia: pgvector + Apache AGE + pgAudit (Dockerfile.postgres).
+  # init-extensions / init-functions / init-roles montados en initdb.d en ORDEN
+  # (01/02/03) → se ejecutan AUTO en el PRIMER arranque (data-dir vacío).
+  # El servicio `provision` los reejecuta (idempotente) para cubrir volúmenes
+  # pre-existentes y garantizar orden explícito antes de alembic/seed.
+  postgres:
+    build:
+      context: ./infra/docker
+      dockerfile: Dockerfile.postgres
+    image: fulkro/postgres:pg16
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-fulkro}
+      POSTGRES_USER: ${POSTGRES_USER:-fulkro}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?POSTGRES_PASSWORD requerido en .env.prod}
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      - ./infra/docker/init-extensions.sql:/docker-entrypoint-initdb.d/01-extensions.sql:ro
+      - ./infra/docker/init-functions.sql:/docker-entrypoint-initdb.d/02-functions.sql:ro
+      - ./infra/docker/init-roles.sql:/docker-entrypoint-initdb.d/03-roles.sql:ro
+    command:
+      - "postgres"
+      - "-c"
+      - "shared_preload_libraries=pgaudit"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-fulkro} -d ${POSTGRES_DB:-fulkro}"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
+    shm_size: "256mb"
+    networks:
+      - fulkro-net
+    # NO publicamos 5432 al host en prod (acceso solo intra-red · Caddy/Hetzner
+    # firewall). Si se necesita túnel admin, usar `docker exec` o SSH port-forward.
+
+  # ─────────────────────── Redis 7 ───────────────────────
+  redis:
+    image: redis:7-alpine
+    restart: unless-stopped
+    # FIX P3-1: requirepass (defensa en profundidad · red interna). La password
+    # viene de .env.prod (generate-prod-secrets.sh). backend/worker/beat la
+    # consumen vía FULKRO_REDIS_URL (con password) del env_file.
+    environment:
+      REDIS_PASSWORD: ${REDIS_PASSWORD:?REDIS_PASSWORD requerido en .env.prod}
+    command:
+      - "redis-server"
+      - "--appendonly"
+      - "yes"
+      - "--requirepass"
+      - "${REDIS_PASSWORD:?REDIS_PASSWORD requerido en .env.prod}"
+    volumes:
+      - redisdata:/data
+    healthcheck:
+      test: ["CMD-SHELL", "redis-cli -a \"$$REDIS_PASSWORD\" ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+    networks:
+      - fulkro-net
+
+  # ─────────────────────── Provision (one-shot) ───────────────────────
+  # Corre la secuencia inviolable y termina. backend/celery dependen de que
+  # complete OK (service_completed_successfully). Re-ejecutable (idempotente).
+  provision:
+    <<: *backend-image
+    restart: "no"
+    env_file:
+      - .env.prod
+    environment:
+      PROVISION_PGHOST: postgres
+      PROVISION_PGPORT: "5432"
+      PROVISION_PGDB: ${POSTGRES_DB:-fulkro}
+      PROVISION_SUPER_USER: ${POSTGRES_USER:-fulkro}
+      PROVISION_SUPER_PW: ${POSTGRES_PASSWORD:?POSTGRES_PASSWORD requerido en .env.prod}
+      # Nombre canónico (= generate-prod-secrets.sh + .env.prod.template).
+      # Antes leía FULKRO_MIGRATE_PASSWORD (typo) → caía al dev pwd → mismatch B3.
+      PROVISION_MIGRATE_PW: ${FULKRO_MIGRATE_DB_PASSWORD:-fulkro_migrate_dev_password}
+      # Password del rol runtime fulkro_app (la consume el ALTER USER del entrypoint
+      # para alinear el rol al DATABASE_URL del backend · idempotente).
+      PROVISION_APP_PW: ${FULKRO_APP_DB_PASSWORD:-fulkro_app_dev_password}
+      PROVISION_REPO_ROOT: /app
+      # En Hetzner hay fastembed + (opcional) AGE superuser. Si están listos,
+      # poner PROVISION_SEED_FLAGS="" para seed completo. Default conservador:
+      PROVISION_SEED_FLAGS: ${PROVISION_SEED_FLAGS:---skip-corpus --skip-age-kg}
+    volumes:
+      # El backend image SOLO copia backend/ + frontend/ (no infra/). Montamos
+      # infra/docker para que el provision tenga los init-*.sql + el entrypoint.
+      - ./infra/docker:/app/infra/docker:ro
+    entrypoint: ["bash", "/app/infra/docker/provision-entrypoint.sh"]
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - fulkro-net
+
+  # ─────────────────────── Backend FastAPI (uvicorn) ───────────────────────
+  # Alias de red `app` → el Caddyfile.prod hace `reverse_proxy app:8000`.
+  backend:
+    <<: *backend-image
+    restart: unless-stopped
+    env_file:
+      - .env.prod
+    environment:
+      # FIX P3-4: cache de modelos HuggingFace (embeddings e5-large in-process)
+      # bajo el volumen persistente vardata → se descarga 1 vez y sobrevive a un
+      # recreate (evita ~2GB de descarga en cada arranque del contenedor).
+      HF_HOME: /app/var/hf-cache
+    volumes:
+      # FIX P0-1: /app/var persistente COMPARTIDO con celery-worker. Necesario
+      # para datos que deben sobrevivir un recreate (evidencias en filesystem
+      # hasta la migración a MinIO, fallback dev de claves, artefactos). Las
+      # claves de firma de PRODUCCIÓN vienen de env (FULKRO_M0X_SIGNING_*), no
+      # de este volumen, pero el volumen evita pérdida de cualquier otro var/*.
+      - vardata:/app/var
+    command:
+      - "uvicorn"
+      - "backend.app.main:app"
+      - "--host"
+      - "0.0.0.0"
+      - "--port"
+      - "8000"
+      - "--workers"
+      - "4"
+    healthcheck:
+      test: ["CMD-SHELL", "curl -fsS http://localhost:8000/api/v1/health || exit 1"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      provision:
+        condition: service_completed_successfully
+    networks:
+      fulkro-net:
+        aliases:
+          - app
+
+  # ─────────────────────── Celery worker ───────────────────────
+  celery-worker:
+    <<: *backend-image
+    restart: unless-stopped
+    env_file:
+      - .env.prod
+    environment:
+      # FIX P3-4: mismo cache HF persistente que backend (tareas RAG embeben).
+      HF_HOME: /app/var/hf-cache
+    volumes:
+      # FIX P0-1: MISMO volumen var que backend (el worker escribe evidencias /
+      # artefactos en filesystem que el backend sirve en descarga · deben
+      # compartir el almacén hasta la migración completa a MinIO).
+      - vardata:/app/var
+    command:
+      - "celery"
+      - "-A"
+      - "backend.app.core.celery_app"
+      - "worker"
+      - "--loglevel=info"
+      - "--concurrency=2"
+    healthcheck:
+      test: ["CMD-SHELL", "celery -A backend.app.core.celery_app inspect ping -d celery@$$HOSTNAME || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 40s
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      provision:
+        condition: service_completed_successfully
+    networks:
+      - fulkro-net
+
+  # ─────────────────────── Celery beat (scheduler) ───────────────────────
+  celery-beat:
+    <<: *backend-image
+    restart: unless-stopped
+    env_file:
+      - .env.prod
+    command:
+      - "celery"
+      - "-A"
+      - "backend.app.core.celery_app"
+      - "beat"
+      - "--loglevel=info"
+    depends_on:
+      redis:
+        condition: service_healthy
+      provision:
+        condition: service_completed_successfully
+      celery-worker:
+        condition: service_started
+    networks:
+      - fulkro-net
+
+  # ─────────────────────── Frontend Next.js 14 ───────────────────────
+  # next start. FULKRO_AUTH_PUBLIC_KEY + FULKRO_BACKEND_URL son RUNTIME env
+  # (server-side · middleware.ts + next.config rewrites) → NO build-args.
+  # FULKRO_BACKEND_URL se fuerza al servicio interno backend:8000.
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    image: fulkro/frontend:prod
+    restart: unless-stopped
+    env_file:
+      - .env.prod
+    environment:
+      NODE_ENV: production
+      PORT: "3000"
+      # Proxy interno /api/* → backend (override del default localhost).
+      FULKRO_BACKEND_URL: http://backend:8000
+    healthcheck:
+      test: ["CMD-SHELL", "curl -fsS http://localhost:3000/ || exit 1"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 40s
+    depends_on:
+      backend:
+        condition: service_healthy
+    networks:
+      - fulkro-net
+
+  # ─────────────────────── MinIO (S3-compatible) ───────────────────────
+  # Object Lock se habilita por bucket en minio-init (fulkro-evidence-worm).
+  minio:
+    image: minio/minio:latest
+    restart: unless-stopped
+    environment:
+      MINIO_ROOT_USER: ${MINIO_ROOT_USER:?MINIO_ROOT_USER requerido en .env.prod}
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD:?MINIO_ROOT_PASSWORD requerido en .env.prod}
+    command: server /data --console-address ":9001"
+    volumes:
+      - miniodata:/data
+    healthcheck:
+      test: ["CMD-SHELL", "mc ready local || curl -fsS http://localhost:9000/minio/health/live || exit 1"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
+    networks:
+      - fulkro-net
+    # Consola 9001 NO publicada al host en prod (acceso vía SSH tunnel/Caddy).
+
+  # ─────────────────────── MinIO bucket bootstrap (one-shot) ───────────────────────
+  minio-init:
+    image: minio/mc:latest
+    restart: "no"
+    entrypoint: ["/bin/sh", "/scripts/minio-init.sh"]
+    environment:
+      MINIO_INIT_ENDPOINT: http://minio:9000
+      MINIO_ROOT_USER: ${MINIO_ROOT_USER:?MINIO_ROOT_USER requerido en .env.prod}
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD:?MINIO_ROOT_PASSWORD requerido en .env.prod}
+    volumes:
+      - ./infra/docker/minio-init.sh:/scripts/minio-init.sh:ro
+    depends_on:
+      minio:
+        condition: service_healthy
+    networks:
+      - fulkro-net
+
+  # ─────────────────────── ClamAV antivirus ───────────────────────
+  # clamd TCP 3310 interno · DB de firmas persistente · cold-start ~2 min.
+  clamav:
+    image: clamav/clamav:latest
+    restart: unless-stopped
+    volumes:
+      - clamavdata:/var/lib/clamav
+    environment:
+      CLAMAV_NO_FRESHCLAMD: "false"
+      CLAMAV_NO_CLAMD: "false"
+      CLAMD_STARTUP_TIMEOUT: "300"
+    healthcheck:
+      test: ["CMD", "clamdcheck.sh"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 300s
+    networks:
+      - fulkro-net
+
+  # ─────────────────────── fastembed (embeddings · e5/bge) ───────────────────────
+  # El backend llama EMBEDDINGS_ENDPOINT (:8080) para vectorizar (pgvector RAG).
+  # NO existe imagen oficial única "fastembed server"; FULKRO usa un endpoint
+  # HTTP que sirve el modelo de embeddings_model (.env: BAAI/bge-m3).
+  #
+  # HONEST NOTE (Hetzner-only · placeholder):
+  #   La imagen de abajo (qdrant/fastembed) es un PLACEHOLDER. En Hetzner hay
+  #   que fijar la imagen real del micro-servicio de embeddings que FULKRO use
+  #   (p.ej. un contenedor propio con fastembed 0.4.2 + FastAPI sirviendo
+  #   /embed, o text-embeddings-inference de HuggingFace:
+  #     ghcr.io/huggingface/text-embeddings-inference:cpu-1.5
+  #     command: ["--model-id", "BAAI/bge-m3", "--port", "8080"]
+  #   Ajustar IMAGE + command al servidor real antes del deploy productivo.
+  fastembed:
+    image: ${FASTEMBED_IMAGE:-ghcr.io/huggingface/text-embeddings-inference:cpu-1.5}
+    restart: unless-stopped
+    # command/args dependen de la imagen final · ejemplo TEI:
+    command: ${FASTEMBED_ARGS:---model-id BAAI/bge-m3 --port 8080}
+    volumes:
+      - fastembeddata:/data
+    healthcheck:
+      test: ["CMD-SHELL", "curl -fsS http://localhost:8080/health || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 10
+      start_period: 120s
+    networks:
+      - fulkro-net
+
+  # ─────────────────────── Caddy (reverse proxy · TLS) ───────────────────────
+  # Caddyfile.prod monta · proxy a `app:8000` (alias del backend) + /static.
+  #
+  # HONEST NOTE (frontend routing): el Caddyfile.prod existente proxya TODO a
+  # `app:8000` (modelo backend-sirve-todo). Con frontend Next.js separado, en
+  # Hetzner añadir al Caddyfile una ruta para el frontend, p.ej.:
+  #     reverse_proxy /api/* app:8000        # API → backend
+  #     reverse_proxy frontend:3000          # resto → Next.js
+  # (o un handle_path por prefijo). Se documenta · NO se reescribe aquí para no
+  # tocar el Caddyfile.prod endurecido sin validación en server real.
+  #
+  # rate_limit en Caddyfile.prod requiere binario con módulo caddy-ratelimit
+  # (xcaddy build --with github.com/mholt/caddy-ratelimit). La imagen caddy:2
+  # estándar NO lo trae → o se construye imagen custom o se comenta el bloque
+  # (la app conserva BodySizeLimitMiddleware + cap LLM como defensa en profundidad).
+  caddy:
+    image: caddy:2
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+      - "443:443/udp"   # HTTP/3 (h3)
+    volumes:
+      - ./infra/caddy/Caddyfile.prod:/etc/caddy/Caddyfile:ro
+      - caddydata:/data
+      - caddyconfig:/config
+      - caddylogs:/var/log/caddy
+    depends_on:
+      backend:
+        condition: service_healthy
+      frontend:
+        condition: service_healthy
+    networks:
+      - fulkro-net
+
+
+# ════════════════════════════════════════════════════════════════════════════
+networks:
+  fulkro-net:
+    driver: bridge
+
+
+# ════════════════════════════════════════════════════════════════════════════
+volumes:
+  pgdata:
+  redisdata:
+  miniodata:
+  clamavdata:
+  fastembeddata:
+  caddydata:
+  caddyconfig:
+  caddylogs:
+  vardata:   # FIX P0-1 · /app/var persistente compartido backend + celery-worker

@@ -1,0 +1,47 @@
+subject_es: "Hito {{ milestone_number }} completado · Factura {{ invoice_number }} · {{ project_name }}"
+cta_label_es: "Ver factura en el portal"
+html_body_es: |
+  <p>Hola {{ recipient_name }},</p>
+  <p>Hemos completado el hito
+  <strong>{{ milestone_name }}</strong>
+  ({{ milestone_number }}º) del proyecto
+  <strong>{{ project_name }}</strong>.</p>
+  <p>Se ha emitido la factura
+  <strong>{{ invoice_number }}</strong> por
+  <strong>{{ amount_eur }} €</strong>.</p>
+  {{ bank_instructions_html | safe }}
+  <p>Cuando reciba la transferencia te confirmo y desbloqueo la
+  siguiente fase del proyecto en el portal (24-48h normalmente).</p>
+  <p>
+    <a href="{{ cta_url }}" style="background:#2563eb;color:#fff;padding:10px 20px;text-decoration:none;border-radius:4px;display:inline-block;">
+      Ver factura en el portal
+    </a>
+  </p>
+  <p>Si tienes dudas, escríbeme directamente desde el portal.</p>
+  <p>Un saludo,<br>
+  <strong>Marcos Mata</strong> · Consultor de Fulkro<br>
+  📞 +34 637 165 328 ·
+  <a href="mailto:marcosmata@fulkro.es">marcosmata@fulkro.es</a> ·
+  <a href="https://www.fulkro.es">www.fulkro.es</a></p>
+text_body_es: |
+  Hola {{ recipient_name }},
+
+  Hemos completado el hito {{ milestone_name }} ({{ milestone_number }}º)
+  del proyecto {{ project_name }}.
+
+  Se ha emitido la factura {{ invoice_number }} por {{ amount_eur }} €.
+
+  {{ bank_instructions_text }}
+
+  Cuando reciba la transferencia te confirmo y desbloqueo la siguiente
+  fase del proyecto en el portal (24-48h normalmente).
+
+  Ver factura en el portal: {{ cta_url }}
+
+  Si tienes dudas, escríbeme directamente desde el portal.
+
+  Un saludo,
+  Marcos Mata · Consultor de Fulkro
+  Tel: +34 637 165 328
+  Email: marcosmata@fulkro.es
+  Web: www.fulkro.es

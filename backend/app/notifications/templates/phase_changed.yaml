@@ -1,0 +1,45 @@
+subject_es: "Fase actualizada · {{ project_name }} → {{ new_phase }}"
+cta_label_es: "Ver workflow"
+html_body_es: |
+  <p>Hola {{ recipient_name }},</p>
+  <p>El proyecto <strong>{{ project_name }}</strong> ha avanzado a la
+  fase <strong>{{ new_phase }}</strong>.</p>
+  {% if previous_phase %}
+  <p style="color:#666;font-size:14px;">
+  Fase anterior: {{ previous_phase }}
+  </p>
+  {% endif %}
+  {% if next_milestone %}
+  <p>📌 Próximo hito: <strong>{{ next_milestone }}</strong></p>
+  {% endif %}
+  <p>
+    <a href="{{ cta_url }}" style="background:#2563eb;color:#fff;padding:10px 20px;text-decoration:none;border-radius:4px;display:inline-block;">
+      Ver el workflow del proyecto
+    </a>
+  </p>
+  <p>Un saludo,<br>
+  <strong>Marcos Mata</strong> · Consultor de Fulkro<br>
+  📞 +34 637 165 328 ·
+  <a href="mailto:marcosmata@fulkro.es">marcosmata@fulkro.es</a> ·
+  <a href="https://www.fulkro.es">www.fulkro.es</a></p>
+text_body_es: |
+  Hola {{ recipient_name }},
+
+  El proyecto {{ project_name }} ha avanzado a la fase
+  {{ new_phase }}.
+
+  {% if previous_phase %}
+  Fase anterior: {{ previous_phase }}
+  {% endif %}
+
+  {% if next_milestone %}
+  Próximo hito: {{ next_milestone }}
+  {% endif %}
+
+  Ver el workflow del proyecto: {{ cta_url }}
+
+  Un saludo,
+  Marcos Mata · Consultor de Fulkro
+  Tel: +34 637 165 328
+  Email: marcosmata@fulkro.es
+  Web: www.fulkro.es

@@ -1,0 +1,55 @@
+{
+  "Findings": [
+    {
+      "SchemaVersion": "2018-10-08",
+      "Id": "prowler-iam_root_mfa_enabled-123456789012-eu-central-1",
+      "ProductArn": "arn:aws:securityhub:eu-central-1::product/prowler/prowler",
+      "GeneratorId": "prowler-iam_root_mfa_enabled",
+      "AwsAccountId": "123456789012",
+      "Types": ["Software and Configuration Checks/Industry and Regulatory Standards/CIS AWS Foundations Benchmark"],
+      "CreatedAt": "2026-04-24T08:00:00Z",
+      "UpdatedAt": "2026-04-24T08:00:00Z",
+      "Severity": {"Label": "CRITICAL"},
+      "Title": "MFA is not enabled for the root account",
+      "Description": "The root account is the most privileged user. MFA adds an extra layer of protection.",
+      "Remediation": {"Recommendation": {"Text": "Enable MFA on the root account."}},
+      "Resources": [{"Type": "AwsIamUser", "Id": "arn:aws:iam::123456789012:root", "Region": "eu-central-1"}],
+      "Compliance": {"Status": "FAILED", "RelatedRequirements": ["CIS-1.5"]},
+      "ProductFields": {"ProviderName": "prowler", "ProwlerCheckId": "iam_root_mfa_enabled"}
+    },
+    {
+      "SchemaVersion": "2018-10-08",
+      "Id": "prowler-iam_user_mfa_enabled_console_access-123456789012-eu-central-1",
+      "ProductArn": "arn:aws:securityhub:eu-central-1::product/prowler/prowler",
+      "GeneratorId": "prowler-iam_user_mfa_enabled_console_access",
+      "AwsAccountId": "123456789012",
+      "Types": ["Software and Configuration Checks/Industry and Regulatory Standards/CIS AWS Foundations Benchmark"],
+      "CreatedAt": "2026-04-24T08:00:01Z",
+      "UpdatedAt": "2026-04-24T08:00:01Z",
+      "Severity": {"Label": "HIGH"},
+      "Title": "User fulkro-admin has console access without MFA",
+      "Description": "Users with console access must have MFA enabled.",
+      "Remediation": {"Recommendation": {"Text": "Enable MFA for user fulkro-admin."}},
+      "Resources": [{"Type": "AwsIamUser", "Id": "arn:aws:iam::123456789012:user/fulkro-admin", "Region": "eu-central-1"}],
+      "Compliance": {"Status": "FAILED", "RelatedRequirements": ["CIS-1.10"]},
+      "ProductFields": {"ProviderName": "prowler", "ProwlerCheckId": "iam_user_mfa_enabled_console_access"}
+    },
+    {
+      "SchemaVersion": "2018-10-08",
+      "Id": "prowler-iam_password_policy_minimum_length_14-123456789012-eu-central-1",
+      "ProductArn": "arn:aws:securityhub:eu-central-1::product/prowler/prowler",
+      "GeneratorId": "prowler-iam_password_policy_minimum_length_14",
+      "AwsAccountId": "123456789012",
+      "Types": ["Software and Configuration Checks/Industry and Regulatory Standards/CIS AWS Foundations Benchmark"],
+      "CreatedAt": "2026-04-24T08:00:02Z",
+      "UpdatedAt": "2026-04-24T08:00:02Z",
+      "Severity": {"Label": "MEDIUM"},
+      "Title": "IAM password policy does not require minimum 14 characters",
+      "Description": "Strong password policies reduce brute-force risk.",
+      "Remediation": {"Recommendation": {"Text": "Set password policy minimum length to 14."}},
+      "Resources": [{"Type": "AwsAccount", "Id": "arn:aws:iam::123456789012:account", "Region": "eu-central-1"}],
+      "Compliance": {"Status": "FAILED", "RelatedRequirements": ["CIS-1.8"]},
+      "ProductFields": {"ProviderName": "prowler", "ProwlerCheckId": "iam_password_policy_minimum_length_14"}
+    }
+  ]
+}

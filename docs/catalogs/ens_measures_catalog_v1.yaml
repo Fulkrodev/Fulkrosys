@@ -1,0 +1,1521 @@
+version: '1.0'
+fecha: '2026-04-13'
+fuentes:
+  descripciones: CCN-STIC 804 v2017 (junio 2017) - Centro Criptológico Nacional
+  aplicabilidad_y_refuerzos: RD 311/2022 Anexo II - Medidas de seguridad ENS
+  codigos_validados_contra: magerit_ens_mapping (73 códigos confirmados en DB)
+notas_importantes:
+- CCN-STIC 804 v2017 está basado en RD 3/2010 (versión anterior del ENS).
+- Las descripciones de las medidas son casi idénticas entre RD 3/2010 y RD 311/2022.
+- Aplicabilidad por categoría y refuerzos están actualizados al RD 311/2022 Anexo II.
+- Algunas medidas nuevas (op.nub.1, op.mon.3, mp.s.3) tienen TODO de descripción pendiente CCN-STIC 804 v2025.
+medidas_count: 79
+medidas:
+- codigo: org.1
+  nombre: Política De Seguridad
+  marco: org
+  familia: org
+  familia_nombre: Marco organizativo
+  descripcion: '3.1 [ORG.1] POLÍTICA DE SEGURIDAD Es un documento de alto nivel que define el significado de “seguridad de
+    la información” en una organización. El documento debe estar accesible y ser conocido por todos los miembros de la organización
+    y redactado de forma sencilla, precisa y comprensible. Conviene que sea breve, dejando los detalles técnicos para otros
+    documentos normativos. Establece las autoridades dentro de la organización: roles y funciones. La política tiene carácter
+    de obligado cumplimiento. de Implantación. TIC Son de especial relevancia los siguientes principios básicos:  Artículo
+    La '
+  aplica_basica: true
+  aplica_media: true
+  aplica_alta: true
+  categoria_minima: BASICA
+  dimensiones_aplicables:
+  - T
+  refuerzos: {}
+  fuente_oficial: CCN-STIC 804 v2017 (junio) - sección 3.1
+- codigo: org.2
+  nombre: Normativa De Seguridad
+  marco: org
+  familia: org
+  familia_nombre: Marco organizativo
+  descripcion: 3.2 [ORG.2] NORMATIVA DE SEGURIDAD Conjunto de documentos que, sin entrar en detalles, establecen la forma
+    de afrontar un cierto tema en materia de seguridad. Definen la posición del organismo Nacional sirven para indicar cómo
+    se debe actuar en CLASIFICAR caso de que una cierta circunstancia no esté recogida en un procedimiento explícito o que
+    el procedimiento pueda ser impreciso o contradictorio en sus términos. A veces se denominan “policies” (en inglés). A
+    veces se denominan “standards” (en inglés). International Organization for Standardization. Organización internacional
+    de normalización.
+  aplica_basica: true
+  aplica_media: true
+  aplica_alta: true
+  categoria_minima: BASICA
+  dimensiones_aplicables:
+  - T
+  refuerzos: {}
+  fuente_oficial: CCN-STIC 804 v2017 (junio) - sección 3.2
+- codigo: org.3
+  nombre: Procedimientos Operativos De Seguridad
+  marco: org
+  familia: org
+  familia_nombre: Marco organizativo
+  descripcion: '3.3 [ORG.3] PROCEDIMIENTOS OPERATIVOS DE SEGURIDAD Conjunto de documentos que describen paso a paso cómo realizar
+    una cierta actividad. Facilitan las tareas rutinarias evitando que se olviden pasos importantes. Lo que nunca debe ocurrir
+    es que una cierta actividad sólo sepa hacerla una determinada persona; debe estar escrito cómo se hace para que la persona
+    pueda ser remplazada. de Implantación. Un procedimiento puede estar definido (es comunicado a los organismos implicadas,
+    se comprende por su parte y se ejecuta regularmente conforme a lo definido) y un procedimiento puede estar documentado '
+  aplica_basica: true
+  aplica_media: true
+  aplica_alta: true
+  categoria_minima: BASICA
+  dimensiones_aplicables:
+  - T
+  refuerzos: {}
+  fuente_oficial: CCN-STIC 804 v2017 (junio) - sección 3.3
+- codigo: org.4
+  nombre: Proceso De Autorización
+  marco: org
+  familia: org
+  familia_nombre: Marco organizativo
+  descripcion: '3.4 [ORG.4] PROCESO DE AUTORIZACIÓN Ningún sistema de información con responsabilidades sobre la información
+    que maneja o los servicios que presta debería admitir elementos no autorizados por cuanto la libre incorporación de elementos
+    socavaría de raíz la confianza en el sistema, al modificar la superficie de ataque y dar pie a nuevas vulnerabilidades
+    susceptibles de ser explotadas. El ENS singulariza una serie de elementos, sin perjuicio de que se aplique siempre la
+    regla de ‘se requiere autorización previa’ con carácter general a todos los componentes durante todo su ciclo de vida:
+    a. Utiliz'
+  aplica_basica: true
+  aplica_media: true
+  aplica_alta: true
+  categoria_minima: BASICA
+  dimensiones_aplicables:
+  - T
+  refuerzos: {}
+  fuente_oficial: CCN-STIC 804 v2017 (junio) - sección 3.4
+- codigo: op.acc.1
+  nombre: Identificación
+  marco: op
+  familia: op.acc
+  familia_nombre: Control de acceso
+  descripcion: '4.2.1 [OP.ACC.1] IDENTIFICACIÓN Se debe asignar un identificador singular para cada entidad (usuario o proceso)
+    que accede al sistema y para cada rol de cada entidad frente al sistema (administrador, usuario, etc.). De esta manera:
+     se puede saber quién recibe qué derechos de acceso,  se puede saber quién ha hecho qué, y qué ha hecho para corregir
+    o para perseguir. La identificación de usuarios suele ir asociada a una "cuenta de usuario". A menudo se habla de "derechos
+    de una cuenta" para referirse a los derechos del titular de la cuenta. Se dice que los derechos de un usuario son los
+    de su '
+  aplica_basica: true
+  aplica_media: true
+  aplica_alta: true
+  categoria_minima: BASICA
+  dimensiones_aplicables:
+  - I
+  - C
+  - A
+  - T
+  refuerzos: {}
+  fuente_oficial: CCN-STIC 804 v2017 (junio) - sección 4.2.1
+- codigo: op.acc.2
+  nombre: Requisitos De Acceso
+  marco: op
+  familia: op.acc
+  familia_nombre: Control de acceso
+  descripcion: 4.2.2 [OP.ACC.2] REQUISITOS DE ACCESO Es necesario que tanto los sistemas en producción como los previos a
+    su puesta en explotación cuenten con un mecanismo de control de acceso, basado en el identificador asignado a cada entidad
+    (usuario o proceso) y un mecanismo de autenticación. Para definir este control de accesos, debe definirse un documento
+    o matriz donde se especifique cuáles son los componentes del sistema y sus ficheros o registros de configuración y se
+    relacionen con los diferentes permisos de usuario, de manera que únicamente puedan acceder a los recursos los usuarios
+    autorizados. S
+  aplica_basica: true
+  aplica_media: true
+  aplica_alta: true
+  categoria_minima: BASICA
+  dimensiones_aplicables:
+  - I
+  - C
+  - A
+  - T
+  refuerzos: {}
+  fuente_oficial: CCN-STIC 804 v2017 (junio) - sección 4.2.2
+- codigo: op.acc.3
+  nombre: Segregación De Funciones Y Tareas
+  marco: op
+  familia: op.acc
+  familia_nombre: Control de acceso
+  descripcion: '4.2.3 [OP.ACC.3] SEGREGACIÓN DE FUNCIONES Y TAREAS La segregación de funciones tiene dos objetivos:  prevenir
+    errores  impedir el abuso de privilegios por parte de los usuarios autorizados Debe documentarse un esquema de funciones
+    y tareas en el que se contemplan las que son incompatibles en una misma persona. La incompatibilidad debe garantizar que
+    para llevar a cabo un proceso o actividad crítica siempre se requieren al menos 2 personas. Debe establecerse un procedimiento
+    de asignación de personas a funciones y tareas a personas que garantice que no se viola el esquema anterior, ni cuando '
+  aplica_basica: false
+  aplica_media: true
+  aplica_alta: true
+  categoria_minima: MEDIA
+  dimensiones_aplicables:
+  - I
+  - C
+  - A
+  - T
+  refuerzos: {}
+  fuente_oficial: CCN-STIC 804 v2017 (junio) - sección 4.2.3
+- codigo: op.acc.4
+  nombre: Proceso De Gestión De Derechos De Acceso
+  marco: op
+  familia: op.acc
+  familia_nombre: Control de acceso
+  descripcion: 4.2.4 [OP.ACC.4] PROCESO DE GESTIÓN DE DERECHOS DE ACCESO En la estructuración de los derechos de acceso se
+    deben en cuenta las necesidades de cada usuario según su función en la organización y las tareas que tiene encomendadas.
+    La necesidad de acceso debe venir por escrito de parte del responsable de la información o proceso al que va a concedérsele
+    acceso. El reconocimiento de la necesidad de acceso debe ser reasegurado periódicamente, extinguiéndose cuando no se demuestre
+    positivamente que la necesidad perdura. Deberá prestarse una especial atención a las cuentas de administración del siste
+  aplica_basica: true
+  aplica_media: true
+  aplica_alta: true
+  categoria_minima: BASICA
+  dimensiones_aplicables:
+  - I
+  - C
+  - A
+  - T
+  refuerzos: {}
+  fuente_oficial: CCN-STIC 804 v2017 (junio) - sección 4.2.4
+- codigo: op.acc.5
+  nombre: Mecanismo De Autenticación
+  marco: op
+  familia: op.acc
+  familia_nombre: Control de acceso
+  descripcion: '4.2.5 [OP.ACC.5] MECANISMO DE AUTENTICACIÓN Es el mecanismo que permite validar la identidad de un usuario.
+    Es crítico por cuanto la identificación del usuario es, en general, fácilmente accesible. Típicamente los mecanismos de
+    autenticación recurren:  a algo que se conoce (un secreto, por ejemplo, una contraseña)  a algo que se tiene (un objeto,
+    por ejemplo, una tarjeta o una llave)  a algo que es propio del usuario (características biométricas) A veces estos mecanismos
+    se emplean por pares para dificultar la falsificación y ganar tiempo frente a la pérdida de alguno de los mecanismos.
+    Com'
+  aplica_basica: true
+  aplica_media: true
+  aplica_alta: true
+  categoria_minima: BASICA
+  dimensiones_aplicables:
+  - I
+  - C
+  - A
+  - T
+  refuerzos:
+    M:
+    - R1
+    A:
+    - R1
+    - R2
+  fuente_oficial: CCN-STIC 804 v2017 (junio) - sección 4.2.5
+- codigo: op.acc.6
+  nombre: Acceso Local (Local Logon)
+  marco: op
+  familia: op.acc
+  familia_nombre: Control de acceso
+  descripcion: 4.2.6 [OP.ACC.6] ACCESO LOCAL (LOCAL LOGON) La mayor parte de las medidas requeridas se pueden conseguir simplemente
+    configurando los puestos de usuario según se indica.  Como manera preventiva, la información que se visualiza antes de
+    acceder a un sistema deberá procurar ser la menos posible para evitar dar a conocer qué información puede encontrar dentro
+    alguien pueda estar tentado de vulnerar el sistema. Por tanto, es recomendable que se muestre meramente el diálogo de
+    acceso y en todo caso algo de información comercial sin valor relacionada con la información manejada. Por ejemplo, deberá
+  aplica_basica: true
+  aplica_media: true
+  aplica_alta: true
+  categoria_minima: BASICA
+  dimensiones_aplicables:
+  - I
+  - C
+  - A
+  - T
+  refuerzos:
+    M:
+    - R1
+    A:
+    - R1
+    - R2
+  fuente_oficial: CCN-STIC 804 v2017 (junio) - sección 4.2.6
+- codigo: op.cont.1
+  nombre: Análisis De Impacto
+  marco: op
+  familia: op.cont
+  familia_nombre: Continuidad del servicio
+  descripcion: '4.5.1 [OP.CONT.1] ANÁLISIS DE IMPACTO Un análisis de impacto es un estudio pormenorizado de cómo afectaría
+    un desastre a la prestación de servicios, identificando los elementos del sistema de información que son necesarios para
+    la prestación de cada servicio. Un análisis de impacto es una actividad metódica que sigue los siguientes pasos:  se
+    identifican los servicios, procesos o actividades críticos,  se valora el impacto de la interrupción de dichos servicios,
+    procesos o actividades en función del tiempo que dure la interrupción; sin perjuicio de que en cada caso se elija la escala
+    más ade'
+  aplica_basica: false
+  aplica_media: true
+  aplica_alta: true
+  categoria_minima: MEDIA
+  dimensiones_aplicables:
+  - D
+  refuerzos: {}
+  fuente_oficial: CCN-STIC 804 v2017 (junio) - sección 4.5.1
+- codigo: op.cont.2
+  nombre: Plan De Continuidad
+  marco: op
+  familia: op.cont
+  familia_nombre: Continuidad del servicio
+  descripcion: '4.5.2 [OP.CONT.2] PLAN DE CONTINUIDAD Se debe identificar funciones, responsabilidades y actividades a realizar
+    en caso de desastre que impida prestar el servicio en las condiciones habituales y con los medios habituales, pudiendo
+    diferenciarse para los distintos escenarios de continuidad que se identifiquen. En particular:  quiénes componen el comité
+    de crisis que toma la decisión de aplicar los planes de continuidad tras analizar el desastre y evaluar las consecuencias
+     quiénes se encargarán de la comunicación con las partes afectadas en caso de crisis  quiénes se encargan de reconstruir '
+  aplica_basica: false
+  aplica_media: false
+  aplica_alta: true
+  categoria_minima: ALTA
+  dimensiones_aplicables:
+  - D
+  refuerzos: {}
+  fuente_oficial: CCN-STIC 804 v2017 (junio) - sección 4.5.2
+- codigo: op.cont.3
+  nombre: Pruebas Periódicas
+  marco: op
+  familia: op.cont
+  familia_nombre: Continuidad del servicio
+  descripcion: '4.5.3 [OP.CONT.3] PRUEBAS PERIÓDICAS Se deben realizar pruebas periódicas para localizar (y corregir en su
+    caso) los errores o deficiencias que puedan existir en el plan de acción en caso de desastre. Se diseñarán pruebas que,
+    aunque traten las acciones a realizar en base a pruebas parciales independientes, terminen cubriendo todo el espectro
+    de acciones que tendrían que realizarse en caso de una situación de continuidad. Estas pruebas deberán involucrar a los
+    responsables de su ejecución en caso de producirse y podrán ser de diversa tipología como:  Pruebas de validación: Validan
+    el conocimi'
+  aplica_basica: false
+  aplica_media: false
+  aplica_alta: true
+  categoria_minima: ALTA
+  dimensiones_aplicables:
+  - D
+  refuerzos: {}
+  fuente_oficial: CCN-STIC 804 v2017 (junio) - sección 4.5.3
+- codigo: op.cont.4
+  nombre: Medios alternativos
+  marco: op
+  familia: op.cont
+  familia_nombre: Continuidad del servicio
+  descripcion: 'Se dispondrán medios alternativos para garantizar la prestación de servicios en caso de indisponibilidad de los medios habituales, con capacidades equivalentes y activación dentro de los plazos comprometidos.'
+  aplica_basica: false
+  aplica_media: false
+  aplica_alta: true
+  categoria_minima: ALTA
+  dimensiones_aplicables:
+  - D
+  refuerzos: {}
+  fuente_oficial: RD 311/2022 Anexo II (medida nueva)
+- codigo: op.exp.1
+  nombre: Inventario De Activos
+  marco: op
+  familia: op.exp
+  familia_nombre: Explotación
+  descripcion: '4.3.1 [OP.EXP.1] INVENTARIO DE ACTIVOS El inventario debe cubrir todo el dominio de seguridad del responsable
+    de la seguridad del sistema de información, hasta alcanzar los puntos de interconexión y los servicios prestados por terceros.
+    La granularidad debe ser suficiente para cubrir las necesidades de reporte de incidentes y para hacer un seguimiento,
+    tanto formal (auditorías) como reactivo en el proceso de gestión de incidentes.  Identificación del activo: fabricante,
+    modelo, número de serie  Configuración del activo: perfil, política, software instalado  Software instalado: fabricante,
+    p'
+  aplica_basica: true
+  aplica_media: true
+  aplica_alta: true
+  categoria_minima: BASICA
+  dimensiones_aplicables:
+  - T
+  refuerzos: {}
+  fuente_oficial: CCN-STIC 804 v2017 (junio) - sección 4.3.1
+- codigo: op.exp.10
+  nombre: Protección De Los Registros De Actividad
+  marco: op
+  familia: op.exp
+  familia_nombre: Explotación
+  descripcion: '4.3.10 [OP.EXP.10] PROTECCIÓN DE LOS REGISTROS DE ACTIVIDAD Se deberán retener los registros de manera adecuada:
+     existe una declaración formal de los periodos de retención habituales  existe un plan para garantizar la capacidad
+    de almacenamiento de registros atendiendo a su volumen y política de retención  existe un procedimiento formal para la
+    retención de evidencias tras un incidente Existen mecanismos que garanticen la corrección de la hora a la que se realiza
+    el registro, en prevención de manipulaciones de los relojes Únicamente el personal autorizado podrá modificar o eliminar
+    los reg'
+  aplica_basica: true
+  aplica_media: true
+  aplica_alta: true
+  categoria_minima: BASICA
+  dimensiones_aplicables:
+  - T
+  refuerzos: {}
+  fuente_oficial: CCN-STIC 804 v2017 (junio) - sección 4.3.10
+- codigo: op.exp.11
+  nombre: Protección De Las Claves Criptográficas
+  marco: op
+  familia: op.exp
+  familia_nombre: Explotación
+  descripcion: 4.3.11 [OP.EXP.11] PROTECCIÓN DE LAS CLAVES CRIPTOGRÁFICAS Las claves deben generarse en un equipo y después
+    trasladarse al equipo en el que se van a usar. Los elementos de generación que no son necesarios para el uso se quedarán
+    en el equipo de generación. Es muy recomendable emplear un soporte de información (por ejemplo, un disco USB o una tarjeta
+    de memoria) para trasladar las claves. Cuando una clave se retira de explotación, la política marcará durante cuánto tiempo
+    se debe retener, bien por razones operativas, bien como prueba de auditoría. Nacional habitual se da en claves de descifrad
+  aplica_basica: false
+  aplica_media: true
+  aplica_alta: true
+  categoria_minima: MEDIA
+  dimensiones_aplicables:
+  - I
+  - C
+  - A
+  refuerzos:
+    A:
+    - R1
+  fuente_oficial: CCN-STIC 804 v2017 (junio) - sección 4.3.11
+- codigo: op.exp.2
+  nombre: Configuración De Seguridad
+  marco: op
+  familia: op.exp
+  familia_nombre: Explotación
+  descripcion: '4.3.2 [OP.EXP.2] CONFIGURACIÓN DE SEGURIDAD Todos los sistemas deben ser configurados de forma sistemática
+    antes de entrar en producción. El organismo debe elaborar unos pocos perfiles de configuración para las diferentes actividades
+    a que pueden ser dedicados, siendo típicos los siguientes:  usuarios normales (uso administrativo)  atención a clientes
+     gestión de proveedores (incluidos bancos)  desarrollo  operadores y administradores (técnicos de sistemas)  responsable
+    de seguridad (consola de configuración)  auditoría La medida se instrumenta por medio de una lista de verificación (ch'
+  aplica_basica: true
+  aplica_media: true
+  aplica_alta: true
+  categoria_minima: BASICA
+  dimensiones_aplicables:
+  - T
+  refuerzos: {}
+  fuente_oficial: CCN-STIC 804 v2017 (junio) - sección 4.3.2
+- codigo: op.exp.3
+  nombre: Gestión De La Configuración
+  marco: op
+  familia: op.exp
+  familia_nombre: Explotación
+  descripcion: '4.3.3 [OP.EXP.3] GESTIÓN DE LA CONFIGURACIÓN Por encima de la configuración de cada equipo, hay que tener
+    una visión integral del sistema, de los equipos que trabajan coordinadamente, de la estructura de líneas de defensa en
+    profundidad y de la dinámica del sistema: su evolución temporal desde el punto de vista de arquitectura del sistema y
+    desde el punto de vista de actualizaciones de los componentes. Los cambios deben ser controlados y la configuración debe
+    ir a la par. NIST SP 800-53 rev4:  [CM-3] Configuration Change Control  [CM-9] Configuration Management Plan Otras referencias:
+     SANS'
+  aplica_basica: true
+  aplica_media: true
+  aplica_alta: true
+  categoria_minima: BASICA
+  dimensiones_aplicables:
+  - T
+  refuerzos: {}
+  fuente_oficial: CCN-STIC 804 v2017 (junio) - sección 4.3.3
+- codigo: op.exp.4
+  nombre: Mantenimiento
+  marco: op
+  familia: op.exp
+  familia_nombre: Explotación
+  descripcion: '4.3.4 [OP.EXP.4] MANTENIMIENTO Proactivamente se deberá estar informado de los defectos anunciados por parte
+    del fabricante o proveedor (como por ejemplo mediante suscripciones a listas de correo o RSS, consultando noticias en
+    webs de tecnología, seguridad o fabricantes, etc.). de Implantación. Deberá existir un procedimiento para establecer cuándo
+    implantar los cambios y determinar su prioridad y urgencia proporcionada al riesgo que implica su no aplicación (cambios
+    preaprobados, cambios de emergencia, etc.). ISO/IEC 27000  27002:2013: o 11.2.4 - Mantenimiento de los equipos o 12.6.1
+    - Gesti'
+  aplica_basica: true
+  aplica_media: true
+  aplica_alta: true
+  categoria_minima: BASICA
+  dimensiones_aplicables:
+  - T
+  refuerzos:
+    M:
+    - R1
+    A:
+    - R1
+    - R2
+  fuente_oficial: CCN-STIC 804 v2017 (junio) - sección 4.3.4
+- codigo: op.exp.5
+  nombre: Gestión De Cambios
+  marco: op
+  familia: op.exp
+  familia_nombre: Explotación
+  descripcion: '4.3.5 [OP.EXP.5] GESTIÓN DE CAMBIOS Debe existir un procedimiento para cambiar componentes del sistema que
+    requiere:  la aprobación del responsable,  la documentación del cambio,  pruebas de la seguridad del sistema tras el
+    cambio, en un entorno equivalente que no esté en producción (o se encuentre aislado del mismo)  la retención de una copia
+    del componente previo por un tiempo prestablecido de Implantación.  copias de seguridad de los componentes software,
+    cubriendo al menos la versión actual y la inmediata anterior  se actualiza el inventario de activos  se actualizan los
+    procedimien'
+  aplica_basica: false
+  aplica_media: true
+  aplica_alta: true
+  categoria_minima: MEDIA
+  dimensiones_aplicables:
+  - T
+  refuerzos: {}
+  fuente_oficial: CCN-STIC 804 v2017 (junio) - sección 4.3.5
+- codigo: op.exp.6
+  nombre: Protección Frente A Código Dañino
+  marco: op
+  familia: op.exp
+  familia_nombre: Explotación
+  descripcion: '4.3.6 [OP.EXP.6] PROTECCIÓN FRENTE A CÓDIGO DAÑINO Deben monitorizarse los puntos de entrada y de salida de
+    código dañino, primero para no vernos afectados y segundo para no expandir la infección. Debe concienciarse al personal
+    para detectar comportamiento sospechoso y establecer canales para reportarlo. Deben establecerse procedimientos para reaccionar
+    prestamente a detecciones o simples sospechas, aislar el problema recopilando evidencias suficientes para el análisisNacional
+    proceso de gestión de incidencias. ISO/IEC 27000  27002:2013: o 12.2.1 Controles contra el código malicioso NIST SP 8'
+  aplica_basica: true
+  aplica_media: true
+  aplica_alta: true
+  categoria_minima: BASICA
+  dimensiones_aplicables:
+  - T
+  refuerzos: {}
+  fuente_oficial: CCN-STIC 804 v2017 (junio) - sección 4.3.6
+- codigo: op.exp.7
+  nombre: Gestión De Incidentes
+  marco: op
+  familia: op.exp
+  familia_nombre: Explotación
+  descripcion: '4.3.7 [OP.EXP.7] GESTIÓN DE INCIDENTES Hay que establecer un proceso de gestión que instrumente las siguientes
+    actividades:  reporte de eventos de seguridad y debilidades detectados por los usuarios, detallando los criterios de
+    clasificación y el escalado de la notificación  reporte de incidentes reportados por proveedores externos (terceras partes)
+     se informa a los usuarios potencialmente afectados  se informa a los proveedores potencialmente afectados  se toman
+    medidas urgentes para contener el problema, evitar que crezca dentro de la organización e impedir que se transmita a otras
+    org'
+  aplica_basica: true
+  aplica_media: true
+  aplica_alta: true
+  categoria_minima: BASICA
+  dimensiones_aplicables:
+  - T
+  refuerzos: {}
+  fuente_oficial: CCN-STIC 804 v2017 (junio) - sección 4.3.7
+- codigo: op.exp.8
+  nombre: Registro De La Actividad De Los Usuarios
+  marco: op
+  familia: op.exp
+  familia_nombre: Explotación
+  descripcion: '4.3.8 [OP.EXP.8] REGISTRO DE LA ACTIVIDAD DE LOS USUARIOS Se realiza una inspección regular de los registros
+    para identificar anomalías en el uso de los sistemas (uso irregular o no previsto) Se utilizan herramientas automáticas
+    para recoger y analizar los registros en busca de actividades fuera de lo normal (por ejemplo: consola de seguridad centralizada,
+    SIEM13). Nacional ISO/IEC 27000  27002:2013: o 12.4.1 - Registro de eventos o 12.4.3 - Registros de administración y
+    operación Security Information and Event Mangement de Implantación. NIST SP 800-53 rev4:  [AU] Audit and Accountability
+    Ot'
+  aplica_basica: true
+  aplica_media: true
+  aplica_alta: true
+  categoria_minima: BASICA
+  dimensiones_aplicables:
+  - T
+  refuerzos:
+    A:
+    - R1
+  fuente_oficial: CCN-STIC 804 v2017 (junio) - sección 4.3.8
+- codigo: op.exp.9
+  nombre: Registro De La Gestión De Incidentes
+  marco: op
+  familia: op.exp
+  familia_nombre: Explotación
+  descripcion: '4.3.9 [OP.EXP.9] REGISTRO DE LA GESTIÓN DE INCIDENTES Categoría MEDIA Se registrarán todas las actuaciones
+    relacionadas con la gestión de incidentes: el reporte inicial, las actuaciones de emergencia y las modificaciones del
+    sistema derivadas del incidente. Temprana (SAT) ISO/IEC 27000  27002:2013: o 16.1.5 - Respuesta a incidentes de seguridad
+    de la información o 16.1.7 - Recopilación de evidencias NIST SP 800-53 rev4: Otras referencias:  SANS - CIS Critical
+    Security Controls - Version 6.1 o CSC.19 - Incident Response and Management'
+  aplica_basica: false
+  aplica_media: true
+  aplica_alta: true
+  categoria_minima: MEDIA
+  dimensiones_aplicables:
+  - T
+  refuerzos: {}
+  fuente_oficial: CCN-STIC 804 v2017 (junio) - sección 4.3.9
+- codigo: op.ext.1
+  nombre: Contratación Y Acuerdos De Nivel De Servicio
+  marco: op
+  familia: op.ext
+  familia_nombre: Servicios externos
+  descripcion: '4.4.1 [OP.EXT.1] CONTRATACIÓN Y ACUERDOS DE NIVEL DE SERVICIO Debe realizarse un análisis de riesgos que identifique
+    los riesgos asociados al proveedor externo. Debe establecerse un contrato formal, aprobado por ambas partes y actualizado
+    periódicamente estableciendo:  detalle por parte del proveedor de las características del servicio a prestar, de modo
+    que quede constancia de que abarca los requisitos de servicio y seguridad requeridos  roles y funciones en ambas partes,
+    en materia de seguridad, incluyendo los mecanismos de contacto (teléfono, e-mail, etc.)  obligaciones de cada parte 
+    r'
+  aplica_basica: false
+  aplica_media: true
+  aplica_alta: true
+  categoria_minima: MEDIA
+  dimensiones_aplicables:
+  - T
+  refuerzos: {}
+  fuente_oficial: CCN-STIC 804 v2017 (junio) - sección 4.4.1
+- codigo: op.ext.2
+  nombre: Gestión Diaria
+  marco: op
+  familia: op.ext
+  familia_nombre: Servicios externos
+  descripcion: '4.4.2 [OP.EXT.2] GESTIÓN DIARIA A partir de una serie de indicadores, se establece un plan de reporte y seguimiento
+    con puntos de alarma cuando se superen ciertos umbrales. Estas alarmas dispararán procedimientos de resolución y de escalado,
+    tratándose como una incidencia que debe resolverse. El proceso de resolución de la incidencia levantada por una alarma
+    se regirá según [op.exp.7] y [op.exp.9] ISO/IEC 27000  27002:2013: o 15.2 – Gestión de la provisión de servicios del
+    proveedor NIST SP 800-53 rev4:  [SA-9] Nacional SINServices CLASIFICAR Otras referencias:  NIST SP 800-35 – Guide to
+    In'
+  aplica_basica: false
+  aplica_media: true
+  aplica_alta: true
+  categoria_minima: MEDIA
+  dimensiones_aplicables:
+  - T
+  refuerzos: {}
+  fuente_oficial: CCN-STIC 804 v2017 (junio) - sección 4.4.2
+- codigo: op.ext.3
+  nombre: Protección de la cadena de suministro
+  marco: op
+  familia: op.ext
+  familia_nombre: Servicios externos
+  descripcion: 'Se identificarán los elementos de la cadena de suministro relevantes para el sistema y se establecerán requisitos y medidas de control para asegurar que los productos y servicios adquiridos o utilizados satisfacen los niveles de seguridad requeridos.'
+  aplica_basica: false
+  aplica_media: false
+  aplica_alta: true
+  categoria_minima: ALTA
+  dimensiones_aplicables:
+  - T
+  refuerzos: {}
+  fuente_oficial: RD 311/2022 Anexo II (medida nueva)
+- codigo: op.ext.4
+  nombre: Interconexión de sistemas
+  marco: op
+  familia: op.ext
+  familia_nombre: Servicios externos
+  descripcion: 'Cuando el sistema se conecte con otros sistemas externos, se identificarán los riesgos derivados de la interconexión y se aplicarán los controles necesarios para mantener los niveles de seguridad exigidos a ambos lados de la conexión.'
+  aplica_basica: false
+  aplica_media: false
+  aplica_alta: true
+  categoria_minima: ALTA
+  dimensiones_aplicables:
+  - T
+  refuerzos: {}
+  fuente_oficial: RD 311/2022 Anexo II (medida nueva)
+- codigo: op.mon.1
+  nombre: Detección De Intrusión
+  marco: op
+  familia: op.mon
+  familia_nombre: Monitorización del sistema
+  descripcion: '4.6.1 [OP.MON.1] DETECCIÓN DE INTRUSIÓN Estas actividades permiten instrumentar los principios de seguridad:
+     Artículo 7 – Prevención, reacción y recuperación.  Artículo 8 – Líneas de defensa. La monitorización del sistema permite
+    detectar ataques e incidentes en general habilitando las medidas de reacción y recopilando información para analizar el
+    incidente. Las herramientas de monitorización pueden observar el tráfico en la red o los registros de actividad en los
+    equipos. En este segundo caso, hay que organizar un sistema de recopilación de información desde los puntos en que se
+    genera. Es'
+  aplica_basica: true
+  aplica_media: true
+  aplica_alta: true
+  categoria_minima: BASICA
+  dimensiones_aplicables:
+  - T
+  refuerzos:
+    A:
+    - R1
+  fuente_oficial: CCN-STIC 804 v2017 (junio) - sección 4.6.1
+- codigo: op.mon.2
+  nombre: Sistema De Métricas
+  marco: op
+  familia: op.mon
+  familia_nombre: Monitorización del sistema
+  descripcion: 4.6.2 [OP.MON.2] SISTEMA DE MÉTRICAS Estas actividades permiten instrumentar los principios de seguridad 
+    Artículo 7 – Prevención, reacción y recuperación.  Artículo 9 – Reevaluación periódica. Se debe disponer de métricas
+    predictivas que anuncian posibles incidentes antes de que estos se produzcan. Típicamente se recurre a indicadores de
+    cumplimiento y medidas de los recursos dedicados a la seguridad del sistema y a los resultados de las auditorías o autoevaluaciones
+    realizadas. Se debe disponer de métricas de eficiencia que miden si los recursos dedicados a la seguridad son de un volumen
+    a
+  aplica_basica: true
+  aplica_media: true
+  aplica_alta: true
+  categoria_minima: BASICA
+  dimensiones_aplicables:
+  - T
+  refuerzos: {}
+  fuente_oficial: CCN-STIC 804 v2017 (junio) - sección 4.6.2
+- codigo: op.mon.3
+  nombre: Vigilancia
+  marco: op
+  familia: op.mon
+  familia_nombre: Monitorización del sistema
+  descripcion: 'Se establecerá una vigilancia continuada del sistema orientada a detectar actividades anómalas o comportamientos que puedan indicar incidentes de seguridad, con capacidad de reacción proporcionada al nivel de amenaza.'
+  aplica_basica: true
+  aplica_media: true
+  aplica_alta: true
+  categoria_minima: BASICA
+  dimensiones_aplicables:
+  - T
+  refuerzos: {}
+  fuente_oficial: RD 311/2022 Anexo II (medida nueva)
+- codigo: op.nub.1
+  nombre: Protección de servicios en la nube
+  marco: op
+  familia: op.nub
+  familia_nombre: Servicios en la nube
+  descripcion: 'Cuando se utilicen servicios en la nube para dar soporte al sistema, se identificarán, evaluarán y tratarán los riesgos específicos asociados a estos servicios, aplicando los controles necesarios para mantener los niveles de seguridad exigidos por la categoría del sistema.'
+  aplica_basica: true
+  aplica_media: true
+  aplica_alta: true
+  categoria_minima: BASICA
+  dimensiones_aplicables:
+  - T
+  refuerzos: {}
+  fuente_oficial: RD 311/2022 Anexo II (medida nueva)
+- codigo: op.pl.1
+  nombre: Análisis De Riesgos
+  marco: op
+  familia: op.pl
+  familia_nombre: Planificación
+  descripcion: '4.1.1 [OP.PL.1] ANÁLISIS DE RIESGOS Empleamos la expresión “análisis de riesgos” en el sentido de “risk assessment”4
+    en la terminología de ISO. El análisis de riesgos permite:  validar el conjunto de medidas de seguridad implantado, 
+    detectar la necesidad de medidas adicionales y  justificar el uso de medidas de protección alternativas. Todo análisis
+    de riesgos debe identificar y priorizar los riesgos más significativos a fin de conocer los riesgos a los que estamos
+    sometidos y tomar las medidas oportunas, técnicas o de otro tipo. El análisis de riesgos debe ser una actividad recurrente;
+    es'
+  aplica_basica: true
+  aplica_media: true
+  aplica_alta: true
+  categoria_minima: BASICA
+  dimensiones_aplicables:
+  - T
+  refuerzos:
+    M:
+    - R1
+    A:
+    - R1
+    - R2
+  fuente_oficial: CCN-STIC 804 v2017 (junio) - sección 4.1.1
+- codigo: op.pl.2
+  nombre: Arquitectura De Seguridad
+  marco: op
+  familia: op.pl
+  familia_nombre: Planificación
+  descripcion: '4.1.2 [OP.PL.2] ARQUITECTURA DE SEGURIDAD Lo que se busca con esta medida de seguridad es tener una visión
+    global, íntegra e integradora de cómo es el sistema de información, cómo se gestiona y cómo se defiende. Esta medida es
+    básicamente documental y descriptiva. La arquitectura de seguridad es elaborada bajo la dirección del Responsable del
+    Sistema, y es aprobada por el Responsable de la Seguridad. Son de especial relevancia los siguientes principios básicos:
+     Artículo Prevención, reacción y recuperación.  Artículo Líneas de defensa. ISO 27000  27002:2013 o 8.1.1 - Inventario
+    de activos o'
+  aplica_basica: true
+  aplica_media: true
+  aplica_alta: true
+  categoria_minima: BASICA
+  dimensiones_aplicables:
+  - T
+  refuerzos:
+    A:
+    - R1
+  fuente_oficial: CCN-STIC 804 v2017 (junio) - sección 4.1.2
+- codigo: op.pl.3
+  nombre: Adquisición De Nuevos Componentes
+  marco: op
+  familia: op.pl
+  familia_nombre: Planificación
+  descripcion: '4.1.3 [OP.PL.3] ADQUISICIÓN DE NUEVOS COMPONENTES La adquisición de nuevos componentes debe:  tener en cuenta
+    el análisis de riesgos [op.pl.1]  ajustarse a la arquitectura de seguridad [op.pl.2]  prever los recursos necesarios,
+    esfuerzo y medios económicos para: o la implantación inicial. o el mantenimiento a lo largo de su vida útil. o atender
+    a la evolución de la tecnología.  en todo momento se atenderá tanto a las necesidades técnicas como a la necesaria concienciación
+    y formación de las personas que van a trabajar con los componentes. de Implantación. Son de especial relevancia los sig'
+  aplica_basica: true
+  aplica_media: true
+  aplica_alta: true
+  categoria_minima: BASICA
+  dimensiones_aplicables:
+  - T
+  refuerzos: {}
+  fuente_oficial: CCN-STIC 804 v2017 (junio) - sección 4.1.3
+- codigo: op.pl.4
+  nombre: Dimensionamiento / Gestión De Capacidades
+  marco: op
+  familia: op.pl
+  familia_nombre: Planificación
+  descripcion: 4.1.4 [OP.PL.4] DIMENSIONAMIENTO / GESTIÓN DE CAPACIDADES Conviene destacar que esta medida de seguridad no
+    es meramente técnica, sino que tiene implicaciones presupuestarias y por ello debe gestionarse con tiempo para que las
+    necesidades queden debidamente recogidas en los presupuestos. Si en todas las medidas de seguridad hay que huir de la
+    improvisación, en esta con mayor razón. Nótese que en entornos flexibles como es el empleo de recursos en la nube, el
+    dimensionado efectivo del sistema puede ser dinámico, adecuándose a las necesidades del servicio. ISO/IEC 27000  27002:2013
+    o 12.1.3 - G
+  aplica_basica: true
+  aplica_media: true
+  aplica_alta: true
+  categoria_minima: BASICA
+  dimensiones_aplicables:
+  - D
+  refuerzos: {}
+  fuente_oficial: CCN-STIC 804 v2017 (junio) - sección 4.1.4
+- codigo: op.pl.5
+  nombre: Componentes Certificados
+  marco: op
+  familia: op.pl
+  familia_nombre: Planificación
+  descripcion: 4.1.5 [OP.PL.5] COMPONENTES CERTIFICADOS Todas las palabras se quedan cortas para insistir en la necesidad
+    de recurrir a componentes probados, evaluados y certificados. Desarrollar los propios componentes exige un apreciable
+    nivel de formación, un considerable esfuerzo y una capacidad de mantenimiento de la seguridad frente a vulnerabilidades,
+    defectos y nuevas amenazas. Todo esto se simplifica notablemente recurriendo a componentes de terceras partes siempre
+    y cuando dichos componentes estén asegurados para protegernos de acuerdo a nuestras necesidades y frente a nuestras amenazas.
+    Esto quier
+  aplica_basica: false
+  aplica_media: true
+  aplica_alta: true
+  categoria_minima: MEDIA
+  dimensiones_aplicables:
+  - T
+  refuerzos: {}
+  fuente_oficial: CCN-STIC 804 v2017 (junio) - sección 4.1.5
+- codigo: mp.com.1
+  nombre: Perímetro Seguro
+  marco: mp
+  familia: mp.com
+  familia_nombre: Protección de las comunicaciones
+  descripcion: '5.4.1 [MP.COM.1] PERÍMETRO SEGURO Se debe delimitar el perímetro lógico del sistema; es decir, los puntos
+    de interconexión con el exterior. Este perímetro deberá estar reflejado en la documentación de la arquitectura del sistema
+    (por ejemplo, el esquema de red). Se debe disponer de cortafuegos que separen la red interna del exterior. Todo el tráfico
+    deberá atravesar dichos cortafuegos que sólo dejaran transitar los flujos previamente autorizados. Cuando se requiera
+    niveles de seguridad ALTA, el sistema de cortafuegos constará de dos o más equipos de diferente fabricante dispuestos
+    en cascada. '
+  aplica_basica: true
+  aplica_media: true
+  aplica_alta: true
+  categoria_minima: BASICA
+  dimensiones_aplicables:
+  - T
+  refuerzos: {}
+  fuente_oficial: CCN-STIC 804 v2017 (junio) - sección 5.4.1
+- codigo: mp.com.2
+  nombre: Protección De La Confidencialidad
+  marco: mp
+  familia: mp.com
+  familia_nombre: Protección de las comunicaciones
+  descripcion: 5.4.2 [MP.COM.2] PROTECCIÓN DE LA CONFIDENCIALIDAD Es frecuente que autenticidad, integridad y confidencialidad
+    se traten de forma conjunta Nacional parámetros y las claves en la fase de CLASIFICAR establecimiento. Es por ello que
+    esta medida suele implementarse a la par que [mp.com.3]. garanticen el secreto de los datos transmitidos. En conexiones
+    establecidas fuera del dominio de seguridad de la organización, se recurrirá a redes privadas virtuales que, con métodos
+    criptográficos y tras una autenticación fiable (ver [mp.com.3]), establecen una clave de cifrado para la sesión. de Implantación
+  aplica_basica: true
+  aplica_media: true
+  aplica_alta: true
+  categoria_minima: BASICA
+  dimensiones_aplicables:
+  - C
+  refuerzos:
+    M:
+    - R1
+    A:
+    - R1
+    - R2
+  fuente_oficial: CCN-STIC 804 v2017 (junio) - sección 5.4.2
+- codigo: mp.com.3
+  nombre: Protección De La Autenticidad Y De La Integridad
+  marco: mp
+  familia: mp.com
+  familia_nombre: Protección de las comunicaciones
+  descripcion: 5.4.3 [MP.COM.3] PROTECCIÓN DE LA AUTENTICIDAD Y DE LA INTEGRIDAD Es frecuente que autenticidad, integridad
+    y confidencialidad se traten de forma conjunta negociando los protocolos, los parámetros y las claves en la fase de establecimiento.
+    Es por ello que esta medida suele implementarse a la par que [mp.com.2]. Se debe establecer de forma fehaciente la autenticidad
+    del otro extremo de un canal de comunicación antes de intercambiar información alguna. Se debe evitar la utilización de
+    mecanismos de autenticación y protocolos no contemplados en la normativa de la organización. Se deben usar prot
+  aplica_basica: true
+  aplica_media: true
+  aplica_alta: true
+  categoria_minima: BASICA
+  dimensiones_aplicables:
+  - I
+  - A
+  refuerzos:
+    M:
+    - R1
+    A:
+    - R1
+    - R2
+  fuente_oficial: CCN-STIC 804 v2017 (junio) - sección 5.4.3
+- codigo: mp.com.4
+  nombre: Segregación De Redes
+  marco: mp
+  familia: mp.com
+  familia_nombre: Protección de las comunicaciones
+  descripcion: '5.4.4 [MP.COM.4] SEGREGACIÓN DE REDES La segregación de redes acota el acceso a la información y acota la
+    propagación de los incidentes de seguridad que quedan restringidos al entorno donde ocurren. Esta deberá quedar reflejada
+    en documentación de la arquitectura del sistema (por ejemplo, el esquema de red) [op.pl.2]. Se debe segmentar la red de
+    forma que haya:  control (de entrada) de los usuarios que pueden trabajar en cada segmento, en particular si el acceso
+    se realiza desde el exterior del segmento, tanto si es desde otro segmento de la red corporativa como si el acceso procede
+    del exter'
+  aplica_basica: false
+  aplica_media: true
+  aplica_alta: true
+  categoria_minima: MEDIA
+  dimensiones_aplicables:
+  - T
+  refuerzos: {}
+  fuente_oficial: CCN-STIC 804 v2017 (junio) - sección 5.4.4
+- codigo: mp.com.9
+  nombre: Medios Alternativos
+  marco: mp
+  familia: mp.com
+  familia_nombre: Protección de las comunicaciones
+  descripcion: 5.4.5 [MP.COM.9] MEDIOS ALTERNATIVOS Se debe prever medios alternativos de comunicación para el caso de que
+    fallen los medios habituales. Estos medios alternativos deben proporcionar las mismas garantías de seguridad que los medios
+    habituales y deberá establecerse un tiempo máximo de entrada en funcionamiento que esté aprobado por su responsable. En
+    todo caso, el tiempo de entrada en servicio debe estar respaldado por un análisis de impacto (ver [op.cont.1]), ser parte
+    del plan de continuidad probado (ver [op.cont.2]) y ser objeto de pruebas regulares para validar la viabilidad del plan
+    (ver [
+  aplica_basica: false
+  aplica_media: false
+  aplica_alta: true
+  categoria_minima: ALTA
+  dimensiones_aplicables:
+  - D
+  refuerzos: {}
+  fuente_oficial: CCN-STIC 804 v2017 (junio) - sección 5.4.5
+- codigo: mp.eq.1
+  nombre: Puesto De Trabajo Despejado
+  marco: mp
+  familia: mp.eq
+  familia_nombre: Protección de los equipos
+  descripcion: '5.3.1 [MP.EQ.1] PUESTO DE TRABAJO DESPEJADO Se debe exigir que los puestos de trabajo permanezcan despejados,
+    sin más material encima de la mesa que el requerido para la actividad que se está realizando en cada momento. Según se
+    termine una tarea, el material se retirará a de Implantación. otra zona: cajones, estanterías personales o comunes, cuarto
+    de almacenamiento, etc. El material de trabajo se guardará en lugar cerrado. Pueden ser cajones o armarios con llave,
+    o un cuarto separado cerrado con llave al menos fuera del horario de trabajo. ISO/IEC 27000  ISO/IEC 27002:2013: o 11.2.9
+    - Polít'
+  aplica_basica: true
+  aplica_media: true
+  aplica_alta: true
+  categoria_minima: BASICA
+  dimensiones_aplicables:
+  - C
+  refuerzos: {}
+  fuente_oficial: CCN-STIC 804 v2017 (junio) - sección 5.3.1
+- codigo: mp.eq.2
+  nombre: Bloqueo De Puesto De Trabajo
+  marco: mp
+  familia: mp.eq
+  familia_nombre: Protección de los equipos
+  descripcion: 5.3.2 [MP.EQ.2] BLOQUEO DE PUESTO DE TRABAJO Se debe bloquear automáticamente el puesto de trabajo desde el
+    que se accede a servicios o datos de nivel medio o superior al cabo de un tiempo de inactividad, que se marcará por parte
+    de la entidad o compañía. Se debe requerir al usuario autenticarse de nuevo para reanudar la actividad en curso. El tiempo
+    mencionado será parte de la configuración del equipo y no podrá ser alterado por el usuario. Se cancelarán las sesiones
+    abiertas tanto desde dicho puesto de trabajo como las remotas al cabo de un tiempo de inactividad (superior al bloqueo
+    del pues
+  aplica_basica: false
+  aplica_media: true
+  aplica_alta: true
+  categoria_minima: MEDIA
+  dimensiones_aplicables:
+  - T
+  refuerzos: {}
+  fuente_oficial: CCN-STIC 804 v2017 (junio) - sección 5.3.2
+- codigo: mp.eq.3
+  nombre: Protección De Equipos Portátiles
+  marco: mp
+  familia: mp.eq
+  familia_nombre: Protección de los equipos
+  descripcion: 5.3.3 [MP.EQ.3] PROTECCIÓN DE EQUIPOS PORTÁTILES Debe existir un inventario de los equipos portátiles, que
+    identifique el equipo portátil junto a la persona responsable del mismo. Se debe verificar regularmente en el inventario
+    que el equipo permanece bajo control del usuario al que está asignado. Se recomienda que los equipos portátiles tengan
+    instalado y activado un sistema de protección perimetral (cortafuegos personal) configurado para bloquear de Implantación.
+    accesos salvo los autorizados. Los accesos autorizados seguirán los procedimientos de autorización del organismo (ver
+    [org.4]). Lo
+  aplica_basica: true
+  aplica_media: true
+  aplica_alta: true
+  categoria_minima: BASICA
+  dimensiones_aplicables:
+  - C
+  - T
+  refuerzos: {}
+  fuente_oficial: CCN-STIC 804 v2017 (junio) - sección 5.3.3
+- codigo: mp.eq.4
+  nombre: Otros dispositivos conectados a la red
+  marco: mp
+  familia: mp.eq
+  familia_nombre: Protección de los equipos
+  descripcion: 'Se identificarán y protegerán los dispositivos distintos de los puestos de trabajo estándar que se conecten a la red del sistema (equipos portátiles, dispositivos móviles, equipos de impresión, equipos IoT u otros), aplicando controles equivalentes a los del sistema principal.'
+  aplica_basica: true
+  aplica_media: true
+  aplica_alta: true
+  categoria_minima: BASICA
+  dimensiones_aplicables:
+  - D
+  refuerzos: {}
+  fuente_oficial: RD 311/2022 Anexo II (medida nueva)
+- codigo: mp.if.1
+  nombre: Áreas Separadas Y Con Control De Acceso
+  marco: mp
+  familia: mp.if
+  familia_nombre: Protección de las instalaciones e infraestructuras
+  descripcion: 5.1.1 [MP.IF.1] ÁREAS SEPARADAS Y CON CONTROL DE ACCESO Se deben delimitar las áreas de trabajo y de equipos,
+    disponiendo de un inventario actualizado que para cada área determine su función y las personas responsables de su seguridad
+    y de autorizar el acceso. Cuando el acceso se controle por medio de llaves o dispositivos equivalentes, se dispondrá de
+    un inventario de llaves junto con un registro de quién las toma, quién las devuelve y en manos de quién hay copias en
+    cada momento. En caso de sustracción o pérdida, se procederá al cambio con diligencia para evitar el riesgo. Se dispondrá
+    de me
+  aplica_basica: true
+  aplica_media: true
+  aplica_alta: true
+  categoria_minima: BASICA
+  dimensiones_aplicables:
+  - T
+  refuerzos: {}
+  fuente_oficial: CCN-STIC 804 v2017 (junio) - sección 5.1.1
+- codigo: mp.if.2
+  nombre: Identificación De Las Personas
+  marco: mp
+  familia: mp.if
+  familia_nombre: Protección de las instalaciones e infraestructuras
+  descripcion: 5.1.2 [MP.IF.2] IDENTIFICACIÓN DE LAS PERSONAS Para las áreas de acceso restringido, se debe mantener una relación
+    de personas autorizadas y un sistema de control de acceso que verifique la identidad y la autorización y deje registro
+    de todos los accesos de personas (por ejemplo, persona o identificador corporativo, fecha y hora de cada entrada y salida).
+    Se recomienda que exista segregación de funciones en el proceso de gestión de acceso a los locales con equipamiento (solicitud
+    y autorización). Dichas funciones deben recaer en al menos dos personas. Debe realizarse periódicamente una revisió
+  aplica_basica: true
+  aplica_media: true
+  aplica_alta: true
+  categoria_minima: BASICA
+  dimensiones_aplicables:
+  - T
+  refuerzos: {}
+  fuente_oficial: CCN-STIC 804 v2017 (junio) - sección 5.1.2
+- codigo: mp.if.3
+  nombre: Acondicionamiento De Los Locales
+  marco: mp
+  familia: mp.if
+  familia_nombre: Protección de las instalaciones e infraestructuras
+  descripcion: '5.1.3 [MP.IF.3] ACONDICIONAMIENTO DE LOS LOCALES Se debe disponer de unas instalaciones adecuadas para el
+    eficaz desempeño del equipamiento que se instala en ellas. Sin perjuicio de lo dispuesto en otras medidas más específicas,
+    los locales deben:  garantizar que la temperatura se encuentra en el margen especificado por los fabricantes de los equipos
+     garantizar que la humedad se encuentra dentro del margen especificado por los fabricantes de los equipos  se debe proteger
+    el local frente a las amenazas identificadas en el análisis de riesgos, tanto de índole natural, como derivadas del ento'
+  aplica_basica: true
+  aplica_media: true
+  aplica_alta: true
+  categoria_minima: BASICA
+  dimensiones_aplicables:
+  - T
+  refuerzos: {}
+  fuente_oficial: CCN-STIC 804 v2017 (junio) - sección 5.1.3
+- codigo: mp.if.4
+  nombre: Energía Eléctrica
+  marco: mp
+  familia: mp.if
+  familia_nombre: Protección de las instalaciones e infraestructuras
+  descripcion: '5.1.4 [MP.IF.4] ENERGÍA ELÉCTRICA Se deben prever medidas para atajar un posible corte de suministro eléctrico
+    y un correcto funcionamiento de las luces de emergencia. Prevención de problemas de origen interno:  dimensionado y protección
+    del cableado de potencia  dimensionado y protección de los cuadros y armarios de potencia Reacción a problemas de origen
+    externo:  suministro alternativo: UPS19, generadores, proveedor alternativo Se debe disponer de un plan de emergencia,
+    de reacción y de recuperación de desastres. Hay que disponer de una alimentación suficiente para apagar los equipos de '
+  aplica_basica: true
+  aplica_media: true
+  aplica_alta: true
+  categoria_minima: BASICA
+  dimensiones_aplicables:
+  - D
+  refuerzos: {}
+  fuente_oficial: CCN-STIC 804 v2017 (junio) - sección 5.1.4
+- codigo: mp.if.5
+  nombre: Protección Frente A Incendios
+  marco: mp
+  familia: mp.if
+  familia_nombre: Protección de las instalaciones e infraestructuras
+  descripcion: '5.1.5 [MP.IF.5] PROTECCIÓN FRENTE A INCENDIOS Se debe realizar un estudio del riesgo de incendios, tanto de
+    origen natural como industrial:  entorno natural proclive a incendios  entorno industrial que pudiera incendiarse 
+    instalaciones propias con riesgo de incendio Si el fuego no se puede evitar, hay que desplegar medidas de prevención,
+    monitorización y limitación del impacto  disponer de carteles para evacuación  evitar el uso de materiales inflamables
+     aislamiento (cortafuegos, puertas ignífugas)  sistema de detección conectado a central de alarmas 24x7  medios de
+    reacción: medios '
+  aplica_basica: true
+  aplica_media: true
+  aplica_alta: true
+  categoria_minima: BASICA
+  dimensiones_aplicables:
+  - T
+  refuerzos: {}
+  fuente_oficial: CCN-STIC 804 v2017 (junio) - sección 5.1.5
+- codigo: mp.if.6
+  nombre: Protección Frente A Inundaciones
+  marco: mp
+  familia: mp.if
+  familia_nombre: Protección de las instalaciones e infraestructuras
+  descripcion: '5.1.6 [MP.IF.6] PROTECCIÓN FRENTE A INUNDACIONES Se debe realizar un estudio del riesgo de inundaciones, tanto
+    de origen natural como industrial:  cercanía a ríos o corrientes de agua especialmente Si el riesgo no se puede evitar,
+    hay que desplegar medidas de prevención, monitorización y limitación del impacto  aislamiento de humedades  canalización
+    de desagüe con procedimientos regulares de limpieza  sistema de detección conectado a central de alarmas 24x7  plan
+    de reacción y recuperación de desastres; en el caso de canalizaciones industriales, el plan de reacción puede incluir
+    el cierre'
+  aplica_basica: false
+  aplica_media: true
+  aplica_alta: true
+  categoria_minima: MEDIA
+  dimensiones_aplicables:
+  - T
+  refuerzos: {}
+  fuente_oficial: CCN-STIC 804 v2017 (junio) - sección 5.1.6
+- codigo: mp.if.7
+  nombre: Registro De Entrada Y Salida De Equipamiento
+  marco: mp
+  familia: mp.if
+  familia_nombre: Protección de las instalaciones e infraestructuras
+  descripcion: '5.1.7 [MP.IF.7] REGISTRO DE ENTRADA Y SALIDA DE EQUIPAMIENTO Se debe llevar un registro pormenorizado de toda
+    entrada y salida de equipamiento, haciendo constar en el mismo:  fecha y hora  identificación inequívoca del equipamiento
+    (servidores, portátiles, equipos de comunicaciones, soportes de información, etc.)  persona que realiza la entrada o
+    salida  persona que autoriza la entrada o salida  persona que realiza el registro Se recomienda que exista segregación
+    de funciones en el proceso de gestión de entrada y salida de equipamiento en los locales (solicitud y autorización). Dichas
+    fun'
+  aplica_basica: true
+  aplica_media: true
+  aplica_alta: true
+  categoria_minima: BASICA
+  dimensiones_aplicables:
+  - T
+  refuerzos: {}
+  fuente_oficial: CCN-STIC 804 v2017 (junio) - sección 5.1.7
+- codigo: mp.if.9
+  nombre: Instalaciones Alternativas
+  marco: mp
+  familia: mp.if
+  familia_nombre: Protección de las instalaciones e infraestructuras
+  descripcion: 5.1.8 [MP.IF.9] INSTALACIONES ALTERNATIVAS Se debe disponer de planes para poder prestar los servicios en un
+    lugar alternativo en caso de indisponibilidad de las instalaciones actuales. Las instalaciones alternativas deben garantizar
+    las mismas medidas de protección que las habituales. En particular, en lo que respecta a control de acceso de personas
+    y entrada y salida de equipos. Las instalaciones alternativas pueden estar dispuestas para entrar en servicio inmediatamente
+    (hot site) o requerir un tiempo de personalización (cold site). En todo caso el tiempo de entrada en servicio debe estar
+    r
+  aplica_basica: false
+  aplica_media: false
+  aplica_alta: true
+  categoria_minima: ALTA
+  dimensiones_aplicables:
+  - D
+  refuerzos: {}
+  fuente_oficial: CCN-STIC 804 v2017 (junio) - sección 5.1.8
+- codigo: mp.info.1
+  nombre: Datos De Carácter Personal
+  marco: mp
+  familia: mp.info
+  familia_nombre: Protección de la información
+  descripcion: 5.7.1 [MP.INFO.1] DATOS DE CARÁCTER PERSONAL Es obligatorio el cumplimiento de la regulación de protección
+    de información personal que esté vigente, ya sean las medidas de protección determinadas para cada nivel en el Real Decreto
+    1720/2007 o las especificaciones del Reglamento General de Protección de Datos. Referencias  Reglamento (UE) 2016/679
+    del Parlamento Europeo y del Consejo, de 27 de abril de 2016, relativo a la protección de las personas físicas en lo que
+    respecta al tratamiento de datos personales y a la libre circulación de estos datos  Ley Orgánica 15/1999, de 13 de diciembre,
+    d
+  aplica_basica: true
+  aplica_media: true
+  aplica_alta: true
+  categoria_minima: BASICA
+  dimensiones_aplicables:
+  - C
+  refuerzos: {}
+  fuente_oficial: CCN-STIC 804 v2017 (junio) - sección 5.7.1
+- codigo: mp.info.2
+  nombre: Calificación De La Información
+  marco: mp
+  familia: mp.info
+  familia_nombre: Protección de la información
+  descripcion: '5.7.2 [MP.INFO.2] CALIFICACIÓN DE LA INFORMACIÓN Se debe establecer un esquema para asignar un nivel de calificación
+    a la información, en función de sus necesidades de confidencialidad. El sistema de calificación:  debe ser acorde con
+    otros sistemas de calificación propios del entorno en el que desarrolla su actividad la organización  debe ser acorde
+    con lo indicado en el Anexo I del ENS sobre calificación de la información y categorización de los sistemas de información
+     debe establecer las responsabilidades para adscribir inicialmente una cierta información a una cierta calificación y
+    par'
+  aplica_basica: false
+  aplica_media: true
+  aplica_alta: true
+  categoria_minima: MEDIA
+  dimensiones_aplicables:
+  - C
+  refuerzos: {}
+  fuente_oficial: CCN-STIC 804 v2017 (junio) - sección 5.7.2
+- codigo: mp.info.3
+  nombre: Firma Electrónica
+  marco: mp
+  familia: mp.info
+  familia_nombre: Protección de la información
+  descripcion: 5.7.4 [MP.INFO.4] FIRMA ELECTRÓNICA Todas las actividades relacionadas con la firma electrónica y el sellado
+    de tiempo deben regirse por un marco técnico y procedimental aprobado formalmente. Se suele denominar Política de Firma.
+    En el caso de que se utilicen otros mecanismos de firma electrónica sujetos a derecho, el sistema debe incorporar medidas
+    compensatorias suficientes que ofrezcan garantías equivalentes o superiores en lo relativo a prevención del repudio. de
+    Implantación. Política de firma electrónica Política de firma electrónica. En el caso de la Administración General del
+    Estado, d
+  aplica_basica: true
+  aplica_media: true
+  aplica_alta: true
+  categoria_minima: BASICA
+  dimensiones_aplicables:
+  - I
+  - A
+  refuerzos:
+    A:
+    - R1
+    - R2
+  fuente_oficial: CCN-STIC 804 v2017 (junio) - sección 5.7.4 · código RD 311/2022 Anexo II = mp.info.3 (Firma electrónica)
+- codigo: mp.info.4
+  nombre: Sellos De Tiempo
+  marco: mp
+  familia: mp.info
+  familia_nombre: Protección de la información
+  descripcion: 5.7.5 [MP.INFO.5] SELLOS DE TIEMPO Los sellos de tiempo previenen la posibilidad de un repudio posterior de
+    la información que sea susceptible de ser utilizada como evidencia en el futuro, o que requiera capacidad probatoria según
+    la ley de procedimiento administrativo. Por ello, todas las actividades relacionadas con la firma electrónica y el sellado
+    de tiempo deben regirse por un marco técnico y procedimental aprobado formalmente. Se suele denominar Política de Firma.
+    Debe identificarse y establecerse el tiempo de retención de la información. Se fechan electrónicamente los documentos
+    cuya fe
+  aplica_basica: false
+  aplica_media: false
+  aplica_alta: true
+  categoria_minima: ALTA
+  dimensiones_aplicables:
+  - T
+  refuerzos: {}
+  fuente_oficial: CCN-STIC 804 v2017 (junio) - sección 5.7.5 · código RD 311/2022 Anexo II = mp.info.4 (Sellos de tiempo)
+- codigo: mp.info.5
+  nombre: Limpieza De Documentos
+  marco: mp
+  familia: mp.info
+  familia_nombre: Protección de la información
+  descripcion: '5.7.6 [MP.INFO.6] LIMPIEZA DE DOCUMENTOS Se debe retirar de los documentos que van a ser trasferido a un ámbito
+    fuera del dominio de seguridad toda la información adicional contenida en campos ocultos, meta-datos, comentarios, revisiones
+    anteriores, etc. salvo cuando dicha información sea pertinente para el receptor del documento. Esta medida es especialmente
+    relevante cuando el documento se difunde ampliamente, como ocurre cuando se ofrece al público en un servidor web u otro
+    tipo de repositorios de información. El incumplimiento de esta medida puede perjudicar:  al mantenimiento de la confi'
+  aplica_basica: true
+  aplica_media: true
+  aplica_alta: true
+  categoria_minima: BASICA
+  dimensiones_aplicables:
+  - C
+  refuerzos: {}
+  fuente_oficial: CCN-STIC 804 v2017 (junio) - sección 5.7.6 · código RD 311/2022 Anexo II = mp.info.5 (Limpieza de documentos)
+- codigo: mp.info.6
+  nombre: Copias De Seguridad
+  marco: mp
+  familia: mp.info
+  familia_nombre: Protección de la información
+  descripcion: '5.7.7 [MP.INFO.9] COPIAS DE SEGURIDAD (BACKUP) Se deben realizar copias de respaldo que permitan recuperar
+    datos perdidos accidental o intencionadamente con una antigüedad a determinar por la organización. Las copias de respaldo
+    poseerán el mismo nivel de seguridad que los datos integridad, trazabilidad. En particular, debe considerarse la conveniencia
+    o necesidad de que las copias de seguridad estén cifradas para garantizar la confidencialidad (en cuyo caso se estará
+    a lo dispuesto en [op.exp.11]). Se recomienda establecer un proceso de autorización para la recuperación de información
+    de las '
+  aplica_basica: true
+  aplica_media: true
+  aplica_alta: true
+  categoria_minima: BASICA
+  dimensiones_aplicables:
+  - D
+  refuerzos:
+    A:
+    - R1
+  fuente_oficial: CCN-STIC 804 v2017 (junio) - sección 5.7.7 · código RD 311/2022 Anexo II = mp.info.6 (Copias de seguridad)
+- codigo: mp.per.1
+  nombre: Caracterización Del Puesto De Trabajo
+  marco: mp
+  familia: mp.per
+  familia_nombre: Gestión del personal
+  descripcion: 5.2.1 [MP.PER.1] CARACTERIZACIÓN DEL PUESTO DE TRABAJO Se deben definir las responsabilidades relacionadas
+    con cada puesto de trabajo en materia de seguridad. La definición debe venir respaldada por el análisis de riesgos en
+    la medida en que afecta a cada puesto de trabajo. Se deben definir los requisitos que deben satisfacer las personas que
+    vayan a ocupar el puesto de trabajo, en particular en términos de confidencialidad. Se deben tener en cuenta dichos requisitos
+    en la selección de la persona que va a ocuparlo, incluyendo la verificación de sus antecedentes laborales, formación y
+    otras ref
+  aplica_basica: false
+  aplica_media: true
+  aplica_alta: true
+  categoria_minima: MEDIA
+  dimensiones_aplicables:
+  - T
+  refuerzos: {}
+  fuente_oficial: CCN-STIC 804 v2017 (junio) - sección 5.2.1
+- codigo: mp.per.2
+  nombre: Deberes Y Obligaciones
+  marco: mp
+  familia: mp.per
+  familia_nombre: Gestión del personal
+  descripcion: 5.2.2 [MP.PER.2] DEBERES Y OBLIGACIONES Se debe informar a cada persona relacionada con el sistema de los deberes
+    y responsabilidades de su puesto de trabajo en materia de seguridad, incluyendo las medidas disciplinarias a que haya
+    lugar. Se debe cubrir tanto el periodo durante el cual se desempeña el puesto como las obligaciones en caso de terminación
+    de la asignación, incluyendo el caso de traslado a otro puesto de trabajo. de Implantación. Es de especial relevancia
+    el deber de confidencialidad respecto de los datos a los que tengan acceso, tanto durante el periodo durante el que estén
+    adscr
+  aplica_basica: true
+  aplica_media: true
+  aplica_alta: true
+  categoria_minima: BASICA
+  dimensiones_aplicables:
+  - T
+  refuerzos: {}
+  fuente_oficial: CCN-STIC 804 v2017 (junio) - sección 5.2.2
+- codigo: mp.per.3
+  nombre: Concienciación
+  marco: mp
+  familia: mp.per
+  familia_nombre: Gestión del personal
+  descripcion: '5.2.3 [MP.PER.3] CONCIENCIACIÓN Se debe concienciar regularmente al personal acerca de su papel y responsabilidad
+    para que la seguridad del sistema alcance los niveles exigidos. En particular hay que refrescar regularmente:  la normativa
+    al CLASIFICAR buen uso de los sistemas  la identificación de incidentes, actividades o comportamientos sospechosos que
+    deban ser reportados para su tratamiento por personal especializado  el procedimiento de reporte de incidentes de seguridad,
+    seas reales o falsas alarmas Todo el personal debe recibir inicial y regularmente información acerca de los puntos '
+  aplica_basica: true
+  aplica_media: true
+  aplica_alta: true
+  categoria_minima: BASICA
+  dimensiones_aplicables:
+  - T
+  refuerzos: {}
+  fuente_oficial: CCN-STIC 804 v2017 (junio) - sección 5.2.3
+- codigo: mp.per.4
+  nombre: Formación
+  marco: mp
+  familia: mp.per
+  familia_nombre: Gestión del personal
+  descripcion: '5.2.4 [MP.PER.4] FORMACIÓN Se debe formar regularmente a las personas en aquellas técnicas que requieran para
+    el desempeño de sus funciones. Es de destacar, sin perjuicio de otros aspectos:  configuración de sistemas  gestión
+    de incidentes (detección y reacción)  procedimientos relativos a sus funciones sobre la gestión de la información (almacenamiento,
+    transferencia, copias, distribución y destrucción) La formación debe actualizarse cada vez que cambian los componentes
+    del sistema de información, introduciéndose nuevos equipos, nuevo software, nuevas instalaciones, etc. ISO/IEC 27000 
+    27'
+  aplica_basica: true
+  aplica_media: true
+  aplica_alta: true
+  categoria_minima: BASICA
+  dimensiones_aplicables:
+  - T
+  refuerzos: {}
+  fuente_oficial: CCN-STIC 804 v2017 (junio) - sección 5.2.4
+- codigo: mp.per.9
+  nombre: Personal Alternativo
+  marco: mp
+  familia: mp.per
+  familia_nombre: Gestión del personal
+  descripcion: '5.2.5 [MP.PER.9] PERSONAL ALTERNATIVO Se debe prever la existencia de otras personas que se puedan hacer cargo
+    de las funciones en caso de indisponibilidad del personal habitual. El personal alternativo deberá ofrecer las mismas
+    garantías de seguridad que el personal habitual. Este personal alternativo puede ser, por ejemplo:  Personal del mismo
+    equipo sobredimensionado con capacidad de asumir el trabajo  Personal de otros turnos 24x7 que puedan cubrir bajas eventuales
+     Personal de otros departamentos con los conocimientos necesarios (respetando la segregación)  Personal de un tercero
+    cont'
+  aplica_basica: false
+  aplica_media: false
+  aplica_alta: true
+  categoria_minima: ALTA
+  dimensiones_aplicables:
+  - D
+  refuerzos: {}
+  fuente_oficial: CCN-STIC 804 v2017 (junio) - sección 5.2.5
+- codigo: mp.s.1
+  nombre: Protección Del Correo Electrónico (E-Mail)
+  marco: mp
+  familia: mp.s
+  familia_nombre: Protección de los servicios
+  descripcion: '5.8.1 [MP.S.1] PROTECCIÓN DEL CORREO ELECTRÓNICO (E-MAIL) Cuando se ofrezca correo electrónico como parte
+    del sistema, deberá protegerse frente a las amenazas que le son propias mediante:  Protección del cuerpo de los mensajes
+    y documentos adjuntos que pueda contener el correo electrónico de Implantación.  Protección del encaminamiento de mensajes
+    (por ejemplo, protegiendo el servidor DNS24 y su configuración) y del establecimiento de las conexiones (impidiendo que
+    el usuario final pueda conectarse a un servidor de correo que no sea el corporativo)  Protección de la organización frente
+    a co'
+  aplica_basica: true
+  aplica_media: true
+  aplica_alta: true
+  categoria_minima: BASICA
+  dimensiones_aplicables:
+  - T
+  refuerzos: {}
+  fuente_oficial: CCN-STIC 804 v2017 (junio) - sección 5.8.1
+- codigo: mp.s.2
+  nombre: Protección De Servicios Y Aplicaciones Web
+  marco: mp
+  familia: mp.s
+  familia_nombre: Protección de los servicios
+  descripcion: 5.8.2 [MP.S.2] PROTECCIÓN DE SERVICIOS Y APLICACIONES WEB Se debe proteger a los subsistemas dedicados a la
+    publicación de información frente a los ataques o amenazas que les son propias. Una serie de medidas son preventivas,
+    poniendo el énfasis en los procesos de  desarrollo (mp.sw),  configuración de seguridad (op.exp.2 y op.exp.3),  en
+    los controles de mantenimiento (op.exp.4) y  en las protecciones de separación de tareas (op.acc.3) Domain Name System
+    Programa empotrado en una página web. Cuando se accede a la página con un navegador, dicho programa se descarga y ejecuta
+    automáticament
+  aplica_basica: true
+  aplica_media: true
+  aplica_alta: true
+  categoria_minima: BASICA
+  dimensiones_aplicables:
+  - T
+  refuerzos: {}
+  fuente_oficial: CCN-STIC 804 v2017 (junio) - sección 5.8.2
+- codigo: mp.s.3
+  nombre: Protección de la navegación web
+  marco: mp
+  familia: mp.s
+  familia_nombre: Protección de los servicios
+  descripcion: 'Se protegerán los mecanismos de navegación web utilizados desde el sistema frente a amenazas transmitidas a través de la red, incluyendo el filtrado de contenidos, la prevención de ejecución de código malicioso y la detección de intentos de explotación.'
+  aplica_basica: true
+  aplica_media: true
+  aplica_alta: true
+  categoria_minima: BASICA
+  dimensiones_aplicables:
+  - T
+  refuerzos: {}
+  fuente_oficial: RD 311/2022 Anexo II (medida nueva)
+- codigo: mp.s.4
+  nombre: Protección frente a denegación de servicio
+  marco: mp
+  familia: mp.s
+  familia_nombre: Protección de los servicios
+  descripcion: 'Se dispondrán medidas de protección frente a ataques de denegación de servicio orientadas a garantizar la disponibilidad del sistema, incluyendo mecanismos de detección, mitigación y escalado de capacidad cuando sea necesario.'
+  aplica_basica: false
+  aplica_media: true
+  aplica_alta: true
+  categoria_minima: MEDIA
+  dimensiones_aplicables:
+  - D
+  refuerzos: {}
+  fuente_oficial: RD 311/2022 Anexo II
+- codigo: mp.s.8
+  nombre: Protección Frente A La Denegación De Servicio
+  marco: mp
+  familia: mp.s
+  familia_nombre: Protección de los servicios
+  descripcion: 5.8.3 [MP.S.8] PROTECCIÓN FRENTE A LA DENEGACIÓN DE SERVICIO Se deben establecer medidas preventivas y reactivas
+    frente a ataques de denegación de servicio (DoS28). Los ataques de denegación de servicio pueden prevenirse dimensionando
+    con holgura los elementos susceptibles de ser atacados desde el exterior, aunque poco se puede hacer frente a un ataque
+    con suficientes recursos por parte del atacante. Múltiples ataques de denegación de servicio son facilitados por un software
+    deficiente por parte del servidor, bien porque no se han actualizado las versiones, bien porque la configuración no es
+    i
+  aplica_basica: false
+  aplica_media: false
+  aplica_alta: true
+  categoria_minima: ALTA
+  dimensiones_aplicables:
+  - D
+  refuerzos: {}
+  fuente_oficial: CCN-STIC 804 v2017 (junio) - sección 5.8.3
+- codigo: mp.s.9
+  nombre: Medios Alternativos
+  marco: mp
+  familia: mp.s
+  familia_nombre: Protección de los servicios
+  descripcion: '5.8.4 [MP.S.9] MEDIOS ALTERNATIVOS Centro Se debeNacional Criptológico prever medios alternativos SIN para
+    ofrecer los servicios en el caso de que CLASIFICAR fallen los medios habituales, mientras se recupera la disponibilidad
+    de éstos (como por ejemplo una instancia alternativa a un portal). Estos medios alternativos estarán sujetos a las mismas
+    garantías de protección. Se debe establecer un tiempo máximo para que los servicios alternativos entren en funcionamiento.
+    Computer Emergency Response Team Intrusion Detection System de Implantación. Los servicios alternativos pueden estar dispuestos '
+  aplica_basica: false
+  aplica_media: false
+  aplica_alta: true
+  categoria_minima: ALTA
+  dimensiones_aplicables:
+  - D
+  refuerzos: {}
+  fuente_oficial: CCN-STIC 804 v2017 (junio) - sección 5.8.4
+- codigo: mp.si.1
+  nombre: Etiquetado
+  marco: mp
+  familia: mp.si
+  familia_nombre: Protección de los soportes de información
+  descripcion: 5.5.1 [MP.SI.1] ETIQUETADO Se debe etiquetar de forma que, sin revelar su contenido, se indique el nivel de
+    calificación más alto de la información contenida. Una opción es que el propio soporte, en su exterior, lleve escrito
+    el nivel de información que contiene o puede contener. Una alternativa es que el soporte sea identificable por medio de
+    algún código o referencia y que el usuario pueda acceder a un repositorio de información donde se indica el nivel de información
+    que el soporte contiene o puede contener. La etiqueta del soporte determina las normativas y los procedimientos que deben
+    apl
+  aplica_basica: false
+  aplica_media: true
+  aplica_alta: true
+  categoria_minima: MEDIA
+  dimensiones_aplicables:
+  - C
+  refuerzos: {}
+  fuente_oficial: CCN-STIC 804 v2017 (junio) - sección 5.5.1
+- codigo: mp.si.2
+  nombre: Criptografía
+  marco: mp
+  familia: mp.si
+  familia_nombre: Protección de los soportes de información
+  descripcion: '5.5.2 [MP.SI.2] CRIPTOGRAFÍA Este requisito se aplica, en particular, a todos los dispositivos removibles
+    (como CD, DVD, discos USB, etc.). En lo referente a claves criptográficas, se debe aplicar [op.exp.11]. Una opción es
+    asegurarse que los datos se protegen antes de copiarse al soporte; es decir, se cifran o se firman exteriormente. Otra
+    opción es proteger todo el soporte instalando en el mismo un disco virtual que se encarga de acoger todo lo que se copie
+    en el mismo, así como controlar el acceso al mismo. Otra opción es emplear soportes con cifrado incorporado por hardware
+    que se encarga '
+  aplica_basica: false
+  aplica_media: true
+  aplica_alta: true
+  categoria_minima: MEDIA
+  dimensiones_aplicables:
+  - C
+  - I
+  refuerzos: {}
+  fuente_oficial: CCN-STIC 804 v2017 (junio) - sección 5.5.2
+- codigo: mp.si.3
+  nombre: Custodia
+  marco: mp
+  familia: mp.si
+  familia_nombre: Protección de los soportes de información
+  descripcion: '5.5.3 [MP.SI.3] CUSTODIA Se debe aplicar la debida diligencia y control a los soportes de información (tanto
+    en soporte electrónico como no electrónico) que permanecen bajo la responsabilidad de la organización:  garantizando
+    el control de acceso con medidas físicas ([mp.if.1] y [mp.if.7) o lógicas ([mp.si.2]) o ambas  garantizando que se respetan
+    las exigencias de mantenimiento del fabricante, en especial en lo referente a temperatura, humedad y otros agresores medioambientales
+    Se recomienda conservar la historia de cada dispositivo, desde su primer uso hasta la terminación de su vida útil '
+  aplica_basica: true
+  aplica_media: true
+  aplica_alta: true
+  categoria_minima: BASICA
+  dimensiones_aplicables:
+  - T
+  refuerzos: {}
+  fuente_oficial: CCN-STIC 804 v2017 (junio) - sección 5.5.3
+- codigo: mp.si.4
+  nombre: Transporte
+  marco: mp
+  familia: mp.si
+  familia_nombre: Protección de los soportes de información
+  descripcion: '5.5.4 [MP.SI.4] TRANSPORTE Se debe garantizar que los dispositivos permanecen bajo control y se satisfacen
+    sus requisitos de seguridad mientras están siendo desplazados de un lugar a otro. Se debe:  disponer de un registro de
+    salida que identifica al menos la etiqueta y al transportista que recibe el soporte para su traslado (tanto electrónico
+    como no electrónico)  disponer de un registro de entrada que identifica al menos la etiqueta y al transportista que lo
+    entrega  disponer de un procedimiento rutinario que coteja las salidas con las llegadas y levanta las alarmas pertinentes
+    cuando se '
+  aplica_basica: true
+  aplica_media: true
+  aplica_alta: true
+  categoria_minima: BASICA
+  dimensiones_aplicables:
+  - T
+  refuerzos: {}
+  fuente_oficial: CCN-STIC 804 v2017 (junio) - sección 5.5.4
+- codigo: mp.si.5
+  nombre: Borrado Y Destrucción
+  marco: mp
+  familia: mp.si
+  familia_nombre: Protección de los soportes de información
+  descripcion: '5.5.5 [MP.SI.5] BORRADO Y DESTRUCCIÓN Se debe aplicar un mecanismo de borrado seguro a los soportes extraíbles
+    (electrónicos y no electrónicos) que vayan a ser reutilizados para otra información o liberados a otra organización. El
+    mecanismo de borrado será proporcionado a la clasificación de la información que ha estado presente en el soporte. Se
+    deben destruir los soportes, de forma segura:  cuando la naturaleza del soporte no permita un borrado seguro  cuando
+    el procedimiento asociado al nivel de clasificación de la información contenida así lo requiera El mecanismo de destrucción
+    será pro'
+  aplica_basica: true
+  aplica_media: true
+  aplica_alta: true
+  categoria_minima: BASICA
+  dimensiones_aplicables:
+  - C
+  refuerzos: {}
+  fuente_oficial: CCN-STIC 804 v2017 (junio) - sección 5.5.5
+- codigo: mp.sw.1
+  nombre: Desarrollo
+  marco: mp
+  familia: mp.sw
+  familia_nombre: Protección de las aplicaciones informáticas
+  descripcion: 5.6.1 [MP.SW.1] DESARROLLO El desarrollo de aplicaciones se realizará sobre un sistema diferente y separado
+    del de producción, no debiendo existir herramientas o datos de desarrollo en el entorno de producción. Ver [op.acc.3]
+    sobre segregación de funciones. Para que la segregación sea creíble, se deben separar los entornos y controlar los mecanismos
+    de identificación, autenticación y control de acceso de los usuarios diferenciando rigurosamente los privilegios de cada
+    uno. La metodología de desarrollo conviene que sea un estándar reconocido que incluya la seguridad como parte integral
+    del desa
+  aplica_basica: false
+  aplica_media: true
+  aplica_alta: true
+  categoria_minima: MEDIA
+  dimensiones_aplicables:
+  - T
+  refuerzos: {}
+  fuente_oficial: CCN-STIC 804 v2017 (junio) - sección 5.6.1
+- codigo: mp.sw.2
+  nombre: Aceptación Y Puesta En Servicio
+  marco: mp
+  familia: mp.sw
+  familia_nombre: Protección de las aplicaciones informáticas
+  descripcion: 5.6.2 [MP.SW.2] ACEPTACIÓN Y PUESTA EN SERVICIO Categoría BÁSICA Se realizan pruebas estándar de aceptación
+    para que un nuevo software se integre Esto incluye verificar que se satisfacen los requisitos de seguridad, que hay mecanismos
+    que detectan y registran los fallos reales o sospechas de violación de la seguridad y que están preparados los procedimientos
+    de gestión de incidentes. Las pruebas deben hacerse en un entorno separado para no causar problemas a la producción, ni
+    alterando datos, ni abriendo brechas de seguridad por defectos de convivencia. Es conveniente utilizar un entorno de pr
+  aplica_basica: true
+  aplica_media: true
+  aplica_alta: true
+  categoria_minima: BASICA
+  dimensiones_aplicables:
+  - T
+  refuerzos: {}
+  fuente_oficial: CCN-STIC 804 v2017 (junio) - sección 5.6.2

@@ -1,0 +1,192 @@
+{
+  "id": "onb-industria-operaciones-v1",
+  "version": "1.0",
+  "sector": "industria",
+  "role": "operaciones",
+  "nombre": "Onboarding Operaciones - Industria",
+  "descripcion": "Cuestionario de onboarding para el rol Operaciones en una organizacion del sector Industria. Recoge contexto estrategico, operativo y regulatorio necesario para arrancar el proyecto ENS.",
+  "tiempo_estimado_minutos": 38,
+  "language": "es",
+  "questions": [
+    {
+      "id": "q-empresa_nombre",
+      "type": "text",
+      "section": "identificacion",
+      "label": "Nombre comercial de la empresa",
+      "validation": {
+        "required": true,
+        "min_length": 2,
+        "max_length": 120
+      }
+    },
+    {
+      "id": "q-persona_contacto",
+      "type": "text",
+      "section": "identificacion",
+      "label": "Nombre de la persona que cumplimenta este cuestionario",
+      "validation": {
+        "required": true,
+        "min_length": 2,
+        "max_length": 120
+      }
+    },
+    {
+      "id": "q-cargo_contacto",
+      "type": "text",
+      "section": "identificacion",
+      "label": "Cargo de la persona de contacto",
+      "validation": {
+        "required": true,
+        "max_length": 120
+      }
+    },
+    {
+      "id": "q-email_contacto",
+      "type": "email",
+      "section": "identificacion",
+      "label": "Email de contacto",
+      "validation": {
+        "required": true
+      }
+    },
+    {
+      "id": "q-procesos_core",
+      "type": "long_text",
+      "section": "procesos",
+      "label": "Cuales son los 3-5 procesos core del negocio?",
+      "validation": {
+        "required": true,
+        "max_length": 2000
+      }
+    },
+    {
+      "id": "q-sla_clientes",
+      "type": "boolean",
+      "section": "procesos",
+      "label": "Teneis SLAs comprometidos con clientes (disponibilidad, RTO)?",
+      "validation": {
+        "required": true
+      }
+    },
+    {
+      "id": "q-continuidad_plan",
+      "type": "single_select",
+      "section": "procesos",
+      "label": "Estado del plan de continuidad de negocio (BCP)",
+      "options": [
+        {
+          "value": "completo_probado",
+          "label": "Completo y probado"
+        },
+        {
+          "value": "completo_no_probado",
+          "label": "Completo, no probado"
+        },
+        {
+          "value": "parcial",
+          "label": "Parcial o desactualizado"
+        },
+        {
+          "value": "no_existe",
+          "label": "No existe formalmente"
+        }
+      ],
+      "validation": {
+        "required": true
+      }
+    },
+    {
+      "id": "q-proveedores_criticos",
+      "type": "number",
+      "section": "procesos",
+      "label": "Numero de proveedores criticos",
+      "validation": {
+        "required": true,
+        "min_value": 0
+      }
+    },
+    {
+      "id": "q-kpis_operativos",
+      "type": "boolean",
+      "section": "procesos",
+      "label": "Medis y revisais KPIs operativos periodicamente?",
+      "validation": {
+        "required": false
+      }
+    },
+    {
+      "id": "q-ot_scada",
+      "type": "boolean",
+      "section": "contexto_sectorial",
+      "label": "Operais sistemas OT/SCADA en planta?",
+      "tooltip": "Los entornos OT tienen requisitos de segregacion con IT (mp.com).",
+      "validation": {
+        "required": true
+      }
+    },
+    {
+      "id": "q-pic",
+      "type": "boolean",
+      "section": "contexto_sectorial",
+      "label": "Sois operador critico (Ley 8/2011 PIC) o esencial (NIS2)?",
+      "validation": {
+        "required": true
+      }
+    },
+    {
+      "id": "q-patentes_iprop",
+      "type": "boolean",
+      "section": "contexto_sectorial",
+      "label": "Tratais informacion confidencial industrial (patentes, planos)?",
+      "validation": {
+        "required": true
+      }
+    },
+    {
+      "id": "q-sectores_clientes_publicos",
+      "type": "boolean",
+      "section": "contexto_sectorial",
+      "label": "Algun cliente vuestro es Administracion Publica espanola?",
+      "validation": {
+        "required": true
+      }
+    },
+    {
+      "id": "q-certificacion_iso",
+      "type": "multi_select",
+      "section": "contexto_sectorial",
+      "label": "Certificaciones ISO en vigor",
+      "options": [
+        {
+          "value": "iso_9001",
+          "label": "ISO 9001"
+        },
+        {
+          "value": "iso_14001",
+          "label": "ISO 14001"
+        },
+        {
+          "value": "iso_27001",
+          "label": "ISO 27001"
+        },
+        {
+          "value": "ninguna",
+          "label": "Ninguna"
+        }
+      ],
+      "validation": {
+        "required": false
+      }
+    },
+    {
+      "id": "q-incidentes_operativos_anio",
+      "type": "number",
+      "section": "procesos",
+      "label": "Numero de incidentes operativos significativos al ano",
+      "validation": {
+        "required": false,
+        "min_value": 0
+      }
+    }
+  ]
+}

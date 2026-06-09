@@ -1,0 +1,218 @@
+/* FULKRO — Brand tokens · paleta DEFINITIVA purple + ink (FASE 1, S11)
+ * Imported from frontend/app/globals.css.
+ *
+ * Tokens están en formato RGB triplet (`R G B` sin coma ni paréntesis) para
+ * habilitar Tailwind alpha modifier (e.g. `bg-fulkro-primary-500/40`).
+ * Resolución para uso directo en CSS via wrapper `rgb(var(--token-rgb))`.
+ */
+
+:root {
+  /* ═══ RGB triplets — usados por Tailwind alpha modifier ═══ */
+
+  /* Brand colors — purple primary */
+  --fulkro-primary-50-rgb:  243 242 255;
+  --fulkro-primary-100-rgb: 224 222 255;
+  --fulkro-primary-200-rgb: 196 193 255;  /* P1.b · interpolado mid(100,300) */
+  --fulkro-primary-300-rgb: 168 163 255;
+  --fulkro-primary-500-rgb: 108 99 255;   /* SVG mark izquierda + dot pivot */
+  --fulkro-primary-600-rgb: 94 86 230;    /* P1.b · interpolado mid(500,700) */
+  --fulkro-primary-700-rgb: 80 72 204;
+  --fulkro-primary-800-rgb: 63 57 166;    /* P1.b · interpolado mid(700,900) */
+  --fulkro-primary-900-rgb: 46 41 128;
+
+  /* Accent — purple light */
+  --fulkro-accent-300-rgb: 179 172 255;
+  --fulkro-accent-500-rgb: 139 131 255;   /* SVG mark derecha */
+
+  /* Ink — neutrales y dark */
+  --fulkro-ink-50-rgb:  250 250 250;
+  --fulkro-ink-100-rgb: 232 232 236;
+  --fulkro-ink-200-rgb: 208 208 216;      /* P1.b · interpolado mid(100,300) */
+  --fulkro-ink-300-rgb: 184 184 196;
+  --fulkro-ink-400-rgb: 147 147 159;      /* P1.b · interpolado mid(300,500) */
+  --fulkro-ink-500-rgb: 110 110 122;
+  --fulkro-ink-600-rgb: 77 77 89;         /* P1.b · interpolado mid(500,700) */
+  --fulkro-ink-700-rgb: 44 44 56;
+  --fulkro-ink-800-rgb: 35 35 51;         /* P1.b · interpolado mid(700,900) */
+  --fulkro-ink-900-rgb: 26 26 46;         /* SVG dark text + bg */
+  --fulkro-ink-950-rgb: 15 15 18;         /* SVG dark canvas variant */
+
+  /* Canvas — superficie inset (tracks, code blocks, hovers) · P1.b */
+  --fulkro-canvas-rgb: 232 232 236;
+
+  /* Estados semánticos — bare = -500 (valores S11 intactos) */
+  --fulkro-success-rgb: 44 140 92;
+  --fulkro-warning-rgb: 200 138 44;
+  --fulkro-info-rgb:    44 108 140;
+  --fulkro-danger-rgb:  179 74 60;
+
+  /* Estados semánticos — escala 3-step · P1.b (50 tinte · 500=bare · 700 sombra) */
+  --fulkro-success-50-rgb:  230 241 235;
+  --fulkro-success-500-rgb: var(--fulkro-success-rgb);
+  --fulkro-success-700-rgb: 30 95 63;
+  --fulkro-warning-50-rgb:  248 241 230;
+  --fulkro-warning-500-rgb: var(--fulkro-warning-rgb);
+  --fulkro-warning-700-rgb: 136 94 30;
+  --fulkro-info-50-rgb:     230 237 241;
+  --fulkro-info-500-rgb:    var(--fulkro-info-rgb);
+  --fulkro-info-700-rgb:    30 73 95;
+  --fulkro-danger-50-rgb:   246 233 232;
+  --fulkro-danger-500-rgb:  var(--fulkro-danger-rgb);
+  --fulkro-danger-700-rgb:  122 50 41;
+
+  /* ═══ CSS vars resueltos — para uso directo en CSS (var(--token)) ═══ */
+
+  --fulkro-primary-50:  rgb(var(--fulkro-primary-50-rgb));
+  --fulkro-primary-100: rgb(var(--fulkro-primary-100-rgb));
+  --fulkro-primary-200: rgb(var(--fulkro-primary-200-rgb));
+  --fulkro-primary-300: rgb(var(--fulkro-primary-300-rgb));
+  --fulkro-primary-500: rgb(var(--fulkro-primary-500-rgb));
+  --fulkro-primary-600: rgb(var(--fulkro-primary-600-rgb));
+  --fulkro-primary-700: rgb(var(--fulkro-primary-700-rgb));
+  --fulkro-primary-800: rgb(var(--fulkro-primary-800-rgb));
+  --fulkro-primary-900: rgb(var(--fulkro-primary-900-rgb));
+
+  --fulkro-accent-300: rgb(var(--fulkro-accent-300-rgb));
+  --fulkro-accent-500: rgb(var(--fulkro-accent-500-rgb));
+  /* Sub-atom Sesión 3B-2B.3 Phase C.1 · bare --fulkro-accent var re-mapped
+     from -500 (#8B83FF · 2.9:1 FAIL AA) to -700 (#5048CC · 6.6:1 PASS).
+     31 existing CSS usages of var(--fulkro-accent) now inherit WCAG AA.
+     -500 still available explicitly via --fulkro-accent-500 for decorative SVG marks. */
+  --fulkro-accent:     rgb(var(--fulkro-primary-700-rgb));
+  --fulkro-spark:      rgb(var(--fulkro-accent-500-rgb));   /* P1.b · highlight de citas (copiloto) · decorative SVG */
+
+  --fulkro-ink-50:  rgb(var(--fulkro-ink-50-rgb));
+  --fulkro-ink-100: rgb(var(--fulkro-ink-100-rgb));
+  --fulkro-ink-200: rgb(var(--fulkro-ink-200-rgb));
+  --fulkro-ink-300: rgb(var(--fulkro-ink-300-rgb));
+  --fulkro-ink-400: rgb(var(--fulkro-ink-400-rgb));
+  --fulkro-ink-500: rgb(var(--fulkro-ink-500-rgb));
+  --fulkro-ink-600: rgb(var(--fulkro-ink-600-rgb));
+  --fulkro-ink-700: rgb(var(--fulkro-ink-700-rgb));
+  --fulkro-ink-800: rgb(var(--fulkro-ink-800-rgb));
+  --fulkro-ink-900: rgb(var(--fulkro-ink-900-rgb));
+  --fulkro-ink-950: rgb(var(--fulkro-ink-950-rgb));
+
+  --fulkro-canvas: rgb(var(--fulkro-canvas-rgb));           /* P1.b */
+
+  --fulkro-success: rgb(var(--fulkro-success-rgb));
+  --fulkro-warning: rgb(var(--fulkro-warning-rgb));
+  --fulkro-info:    rgb(var(--fulkro-info-rgb));
+  --fulkro-danger:  rgb(var(--fulkro-danger-rgb));
+
+  /* Escala semántica resuelta · P1.b */
+  --fulkro-success-50:  rgb(var(--fulkro-success-50-rgb));
+  --fulkro-success-500: rgb(var(--fulkro-success-500-rgb));
+  --fulkro-success-700: rgb(var(--fulkro-success-700-rgb));
+  --fulkro-warning-50:  rgb(var(--fulkro-warning-50-rgb));
+  --fulkro-warning-500: rgb(var(--fulkro-warning-500-rgb));
+  --fulkro-warning-700: rgb(var(--fulkro-warning-700-rgb));
+  --fulkro-info-50:  rgb(var(--fulkro-info-50-rgb));
+  --fulkro-info-500: rgb(var(--fulkro-info-500-rgb));
+  --fulkro-info-700: rgb(var(--fulkro-info-700-rgb));
+  --fulkro-danger-50:  rgb(var(--fulkro-danger-50-rgb));
+  --fulkro-danger-500: rgb(var(--fulkro-danger-500-rgb));
+  --fulkro-danger-700: rgb(var(--fulkro-danger-700-rgb));
+
+  /* Tipografía */
+  --font-fulkro-sans: 'Inter', -apple-system, BlinkMacSystemFont,
+                      'Segoe UI', sans-serif;
+  --font-fulkro-mono: 'JetBrains Mono', 'Fira Code', monospace;
+
+  /* Spacing */
+  --space-xs:  0.25rem;
+  --space-sm:  0.5rem;
+  --space-md:  1rem;
+  --space-lg:  1.5rem;
+  --space-xl:  2rem;
+  --space-2xl: 3rem;
+
+  /* Shadows */
+  --shadow-sm: 0 1px 2px rgba(26, 26, 46, 0.05);
+  --shadow-md: 0 4px 6px rgba(26, 26, 46, 0.1);
+  --shadow-lg: 0 10px 15px rgba(26, 26, 46, 0.1);
+
+  /* Borders */
+  --radius-sm: 0.25rem;
+  --radius-md: 0.5rem;
+  --radius-lg: 0.75rem;
+
+  /* ═══ Chrome gradients · housekeeping iteración 3 (1 mayo 2026) ═══
+   * Topbar negro plano. Sidebar gradient vertical morado-azulado arriba →
+   * rojizo abajo, todo oscuro para máximo contraste con texto blanco
+   * (>12:1 AAA holgado en cualquier punto del gradient). */
+  --fulkro-sidebar-gradient: linear-gradient(
+    180deg,
+    #0a1a5c 0%,
+    #241338 50%,
+    #3a1330 100%
+  );
+  --fulkro-topbar-gradient: linear-gradient(
+    90deg,
+    #0a1a5c 0%,
+    #241338 50%,
+    #3a1330 100%
+  );
+
+  /* Texto chrome · blanco con jerarquía sutil */
+  --fulkro-chrome-text-primary:   #ffffff;
+  --fulkro-chrome-text-secondary: rgba(255, 255, 255, 0.85);
+  --fulkro-chrome-text-tertiary:  rgba(255, 255, 255, 0.65);
+
+  /* Hover/active states sobre chrome oscuro · funcionan sobre gradient */
+  --fulkro-chrome-hover-bg:  rgba(255, 255, 255, 0.08);
+  --fulkro-chrome-active-bg: rgba(255, 255, 255, 0.14);
+
+  /* ═══ Surface glass · interior recuadros dashboards (housekeeping iter 4) ═══
+   * Tinte morado-índigo pasteloso muy translúcido. Sobre fondo blanco/ink-50
+   * pinta lila pastel apenas perceptible · sobre claro queda elegante.
+   * Usado por Card, CopilotChat panel, inputs, chips. */
+  --fulkro-surface-glass:        rgba(108, 99, 255, 0.07);
+  --fulkro-surface-glass-strong: rgba(108, 99, 255, 0.12);
+  --fulkro-surface-glass-border: rgba(108, 99, 255, 0.18);
+
+  /* Texto contenido · títulos morado oscuro, cuerpo ink-700 */
+  --fulkro-title:    rgb(var(--fulkro-primary-900-rgb));   /* #2e2980 morado oscuro */
+  --fulkro-subtitle: rgb(var(--fulkro-primary-700-rgb));   /* #5048cc morado medio */
+  --fulkro-body:     rgb(var(--fulkro-ink-700-rgb));
+  --fulkro-muted:    rgb(var(--fulkro-ink-500-rgb));
+
+  /* ═══ Action gradients · botones primarios y CTAs (housekeeping iter 5) ═══
+   * Degradado morado guay 135° · va de oscuro arriba-izquierda a vivo abajo-derecha.
+   * Mismas familia que sidebar pero más vibrante. Usado por Button primary +
+   * cualquier CTA accionable destacado (Lanzar agente, Re-evaluar, etc.). */
+  --fulkro-action-gradient: linear-gradient(
+    135deg,
+    #2e2980 0%,
+    #5048cc 55%,
+    #8b83ff 100%
+  );
+  --fulkro-action-gradient-hover: linear-gradient(
+    135deg,
+    #1f1c5e 0%,
+    #4039b3 55%,
+    #7a72f0 100%
+  );
+}
+
+/* Google Fonts — Inter + JetBrains Mono */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
+
+/* Base */
+body {
+  font-family: var(--font-fulkro-sans);
+  color: var(--fulkro-ink-900);
+  background: var(--fulkro-ink-50);
+  letter-spacing: -0.01em;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-fulkro-sans);
+  font-weight: 600;
+  color: var(--fulkro-ink-900);
+  letter-spacing: -0.02em;
+}
+
+code, pre {
+  font-family: var(--font-fulkro-mono);
+}

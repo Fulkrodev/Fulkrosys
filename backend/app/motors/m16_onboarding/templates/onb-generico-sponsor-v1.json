@@ -1,0 +1,281 @@
+{
+  "id": "onb-generico-sponsor-v1",
+  "version": "1.0",
+  "sector": "generico",
+  "role": "sponsor",
+  "nombre": "Onboarding Sponsor — Generico",
+  "descripcion": "Onboarding para el sponsor ejecutivo en cualquier tipo de organizacion. Recoge motivacion, tamano, sector, cumplimiento previo, categoria ENS estimada, plazo, presupuesto y dedicacion.",
+  "tiempo_estimado_minutos": 38,
+  "language": "es",
+  "questions": [
+    {
+      "id": "q-motivacion_ens",
+      "type": "single_select",
+      "section": "contexto_estrategico",
+      "label": "Cual es la motivacion principal del proyecto ENS?",
+      "tooltip": "El ENS puede emprenderse por obligacion legal, requisito de cliente, licitacion publica o decision estrategica. Saber el origen ayuda a priorizar el alcance y la urgencia.",
+      "options": [
+        {
+          "value": "obligacion_legal",
+          "label": "Obligacion legal directa"
+        },
+        {
+          "value": "licitacion_publica",
+          "label": "Licitacion o contrato publico"
+        },
+        {
+          "value": "requisito_cliente",
+          "label": "Requisito de un cliente concreto"
+        },
+        {
+          "value": "decision_estrategica",
+          "label": "Decision estrategica de madurez"
+        },
+        {
+          "value": "otros",
+          "label": "Otros"
+        }
+      ],
+      "validation": {
+        "required": true
+      }
+    },
+    {
+      "id": "q-num_empleados",
+      "type": "number",
+      "section": "contexto_estrategico",
+      "label": "Cuantos empleados tiene vuestra organizacion (aproximadamente)?",
+      "tooltip": "El tamano de la organizacion influye en el alcance del ENS, el numero de activos a inventariar y los recursos disponibles para el proyecto.",
+      "validation": {
+        "required": true,
+        "min_value": 1,
+        "max_value": 100000
+      }
+    },
+    {
+      "id": "q-sector_detallado",
+      "type": "text",
+      "section": "contexto_estrategico",
+      "label": "Describid brevemente a que se dedica vuestra organizacion y en que sector opera",
+      "tooltip": "Una descripcion del sector real permite identificar normativas cruzadas (NIS2, DORA, sector financiero, sanitario) y comparar con organizaciones similares ya certificadas.",
+      "example": "Ejemplo: 'Empresa de desarrollo de software para el sector financiero, con sede en Madrid y 80 empleados'",
+      "validation": {
+        "required": true,
+        "min_length": 20,
+        "max_length": 500
+      }
+    },
+    {
+      "id": "q-cumplimiento_previo",
+      "type": "multi_select",
+      "section": "madurez_previa",
+      "label": "Habeis realizado previamente alguno de estos proyectos de compliance?",
+      "tooltip": "La experiencia previa en ISO 27001 o RGPD reduce significativamente el esfuerzo ENS al reutilizar politicas, controles y cultura de seguridad ya existentes.",
+      "options": [
+        {
+          "value": "iso27001",
+          "label": "ISO 27001 (certificacion activa o pasada)"
+        },
+        {
+          "value": "rgpd_lopdgdd",
+          "label": "Adecuacion RGPD/LOPDGDD"
+        },
+        {
+          "value": "ens_previo",
+          "label": "ENS anterior (version antigua)"
+        },
+        {
+          "value": "pcidss",
+          "label": "PCI-DSS"
+        },
+        {
+          "value": "ninguno",
+          "label": "Ninguno"
+        }
+      ],
+      "validation": {
+        "required": true
+      }
+    },
+    {
+      "id": "q-categoria_ens_estimada",
+      "type": "single_select",
+      "section": "contexto_estrategico",
+      "label": "Que categoria ENS objetivo creeis que necesitais?",
+      "tooltip": "ENS define 3 categorias segun el impacto de un incidente: Basica (B), Media (M) y Alta (A). La categoria determina los controles obligatorios y el coste del proyecto.",
+      "options": [
+        {
+          "value": "basica",
+          "label": "Basica"
+        },
+        {
+          "value": "media",
+          "label": "Media"
+        },
+        {
+          "value": "alta",
+          "label": "Alta"
+        },
+        {
+          "value": "no_lo_se",
+          "label": "No lo se aun"
+        }
+      ],
+      "validation": {
+        "required": true
+      }
+    },
+    {
+      "id": "q-plazo_objetivo",
+      "type": "date",
+      "section": "contexto_estrategico",
+      "label": "Teneis una fecha objetivo de certificacion?",
+      "tooltip": "Una fecha firme cambia el ritmo del proyecto y los recursos necesarios. Si es flexible, indicad una fecha estimada razonable.",
+      "validation": {
+        "required": false
+      }
+    },
+    {
+      "id": "q-presupuesto_aprobado",
+      "type": "boolean",
+      "section": "contexto_estrategico",
+      "label": "Teneis presupuesto aprobado para el proyecto ENS completo (consultoria, pentesting, herramientas)?",
+      "tooltip": "Un presupuesto aprobado permite planificar sin fricciones. Incluye honorarios, posibles contrataciones (pentesting, abogado TIC) y coste interno de personal.",
+      "validation": {
+        "required": true
+      }
+    },
+    {
+      "id": "q-dedicacion_semanal_sponsor",
+      "type": "single_select",
+      "section": "expectativas",
+      "label": "Cuanto tiempo podeis dedicar vosotros (sponsor) al proyecto semanalmente?",
+      "tooltip": "El sponsor suele dedicar 1-3h/semana en fases activas para validar decisiones de alcance, presupuesto y comunicacion interna.",
+      "options": [
+        {
+          "value": "menos_1h",
+          "label": "Menos de 1 hora"
+        },
+        {
+          "value": "1_2h",
+          "label": "1-2 horas"
+        },
+        {
+          "value": "2_4h",
+          "label": "2-4 horas"
+        },
+        {
+          "value": "mas_4h",
+          "label": "Mas de 4 horas"
+        }
+      ],
+      "validation": {
+        "required": true
+      }
+    },
+    {
+      "id": "q-obligaciones_legales",
+      "type": "multi_select",
+      "section": "contexto_sectorial",
+      "label": "Obligaciones legales conocidas que ya cumplis",
+      "options": [
+        {
+          "value": "rgpd",
+          "label": "RGPD"
+        },
+        {
+          "value": "lopdgdd",
+          "label": "LOPDGDD"
+        },
+        {
+          "value": "lssi",
+          "label": "LSSI-CE"
+        },
+        {
+          "value": "otros",
+          "label": "Otros"
+        },
+        {
+          "value": "ninguno",
+          "label": "Ninguno especifico"
+        }
+      ],
+      "validation": {
+        "required": true
+      }
+    },
+    {
+      "id": "q-cliente_sector_publico",
+      "type": "boolean",
+      "section": "contexto_sectorial",
+      "label": "Algun cliente vuestro es del sector publico?",
+      "validation": {
+        "required": true
+      }
+    },
+    {
+      "id": "q-equipo_seguridad_dedicado",
+      "type": "boolean",
+      "section": "contexto_sectorial",
+      "label": "Existe equipo o persona dedicada a seguridad de la informacion?",
+      "validation": {
+        "required": true
+      }
+    },
+    {
+      "id": "q-experiencia_previa_certificacion",
+      "type": "single_select",
+      "section": "contexto_estrategico",
+      "label": "Experiencia previa con certificaciones (ISO, ENS, SOC2)",
+      "options": [
+        {
+          "value": "ninguna",
+          "label": "Ninguna"
+        },
+        {
+          "value": "iso27001",
+          "label": "ISO 27001"
+        },
+        {
+          "value": "ens_anterior",
+          "label": "ENS anterior"
+        },
+        {
+          "value": "otras",
+          "label": "Otras"
+        }
+      ],
+      "validation": {
+        "required": false
+      }
+    },
+    {
+      "id": "q-comite_seguridad",
+      "type": "boolean",
+      "section": "contexto_estrategico",
+      "label": "Existe Comite de Seguridad formal con actas periodicas?",
+      "validation": {
+        "required": true
+      }
+    },
+    {
+      "id": "q-ambicion_recurrente",
+      "type": "boolean",
+      "section": "contexto_estrategico",
+      "label": "Buscan acompanamiento continuo (retainer) tras la certificacion?",
+      "validation": {
+        "required": false
+      }
+    },
+    {
+      "id": "q-numero_sedes",
+      "type": "number",
+      "section": "identificacion",
+      "label": "Numero de sedes fisicas en Espana",
+      "validation": {
+        "required": false,
+        "min_value": 0
+      }
+    }
+  ]
+}

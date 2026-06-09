@@ -1,0 +1,102 @@
+{
+  "id": "onb-individual-sponsor-v1",
+  "version": "1.0",
+  "sector": "individual",
+  "role": "sponsor",
+  "nombre": "Onboarding Autonomo / Microempresa",
+  "descripcion": "Cuestionario de onboarding ligero para autonomos y microempresas (organizacion unipersonal o <=5 personas que licita a la AAPP). Una sola persona cubre todos los roles ENS. El copiloto asume cero conocimiento de ENS y guia paso a paso. Soporta los tres niveles (BASICA / MEDIA / ALTA).",
+  "tiempo_estimado_minutos": 18,
+  "language": "es",
+  "questions": [
+    {
+      "id": "q-empresa_nombre",
+      "type": "text",
+      "section": "identificacion",
+      "label": "Nombre comercial o tu nombre (si eres autonomo)",
+      "validation": { "required": true, "min_length": 2, "max_length": 120 }
+    },
+    {
+      "id": "q-nif",
+      "type": "text",
+      "section": "identificacion",
+      "label": "NIF / DNI",
+      "validation": { "required": true, "min_length": 8, "max_length": 12 }
+    },
+    {
+      "id": "q-contacto_email",
+      "type": "email",
+      "section": "identificacion",
+      "label": "Email de contacto",
+      "validation": { "required": true }
+    },
+    {
+      "id": "q-n_personas",
+      "type": "single_select",
+      "section": "organizacion",
+      "label": "Cuantas personas trabajan en la organizacion?",
+      "options": [
+        { "value": "1", "label": "Solo yo (autonomo)" },
+        { "value": "2_5", "label": "Entre 2 y 5" }
+      ],
+      "validation": { "required": true }
+    },
+    {
+      "id": "q-acumulacion_roles",
+      "type": "boolean",
+      "section": "gobierno",
+      "label": "Entiendo que asumire los roles de Responsable de Seguridad y del Sistema, y que debo documentar esa acumulacion con su justificacion (Art. 11 RD 311/2022 · CCN-STIC 801). El copiloto me guiara.",
+      "validation": { "required": true }
+    },
+    {
+      "id": "q-infraestructura",
+      "type": "single_select",
+      "section": "infraestructura",
+      "label": "Donde estan tus sistemas y datos principalmente?",
+      "options": [
+        { "value": "saas_cloud", "label": "Servicios en la nube / SaaS (Google, Microsoft 365, etc.)" },
+        { "value": "hibrido", "label": "Mezcla de nube y equipos propios" },
+        { "value": "on_premise", "label": "Servidores/equipos propios (on-premise)" }
+      ],
+      "validation": { "required": true }
+    },
+    {
+      "id": "q-relacion_aapp",
+      "type": "single_select",
+      "section": "contexto",
+      "label": "Cual es tu relacion con la Administracion Publica?",
+      "options": [
+        { "value": "licito_actual", "label": "Ya licito / tengo contratos con la AAPP" },
+        { "value": "quiero_licitar", "label": "Quiero empezar a licitar" },
+        { "value": "subcontrata", "label": "Soy subcontrata de un proveedor de la AAPP" }
+      ],
+      "validation": { "required": true }
+    },
+    {
+      "id": "q-nivel_objetivo",
+      "type": "single_select",
+      "section": "alcance",
+      "label": "Que nivel de ENS necesitas? (si no lo sabes, deja que el copiloto te oriente)",
+      "options": [
+        { "value": "basica", "label": "BASICA (autodeclaracion · sin auditoria externa)" },
+        { "value": "media", "label": "MEDIA (auditoria ENAC externa)" },
+        { "value": "alta", "label": "ALTA (auditoria ENAC + pentest externo)" },
+        { "value": "no_lo_se", "label": "No lo se · que me oriente el copiloto" }
+      ],
+      "validation": { "required": true }
+    },
+    {
+      "id": "q-datos_sensibles",
+      "type": "boolean",
+      "section": "datos",
+      "label": "Tratas datos personales especialmente sensibles (salud, ideologia, biometricos · Art. 9 RGPD)?",
+      "validation": { "required": true }
+    },
+    {
+      "id": "q-alcance_sistemas",
+      "type": "long_text",
+      "section": "alcance",
+      "label": "Describe brevemente que sistema/servicio quieres certificar y para que lo usas.",
+      "validation": { "required": true, "min_length": 10, "max_length": 1000 }
+    }
+  ]
+}

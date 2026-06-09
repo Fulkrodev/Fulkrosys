@@ -1,0 +1,1011 @@
+version: '1.0'
+fecha: '2026-04-13'
+fuente:
+  titulo: MAGERIT v3.0 - Libro II - Catálogo de Elementos
+  autor: Ministerio de Hacienda y Administraciones Públicas
+  coordinador: Dirección General de Modernización Administrativa
+  colaboradores: Miguel Ángel Amutio Gómez (MINHAP) + Javier Candau (CCN) + José Antonio Mañas (UPM)
+  fecha_publicacion: Octubre 2012
+  nipo: 630-12-171-8
+  url_oficial: https://administracionelectronica.gob.es/pae_Home/dam/jcr:80b13ac0-32ec-4935-bba9-d26ca30ca4cc/2012_Magerit_v3_libro2_catalogo-de-elementos_NIPO_630-12-171-8.pdf
+total_amenazas: 57
+amenazas_por_familia:
+  N: 3
+  I: 12
+  E: 18
+  A: 24
+dimensiones_valoracion:
+- codigo: D
+  nombre: Disponibilidad
+  definicion: Propiedad o característica de los activos consistente en que las entidades o procesos autorizados tienen acceso
+    a los mismos cuando lo requieren.
+  norma: UNE 71504:2008
+- codigo: I
+  nombre: Integridad
+  definicion: Propiedad o característica consistente en que el activo de información no ha sido alterado de manera no autorizada.
+  norma: ISO/IEC 13335-1:2004
+- codigo: C
+  nombre: Confidencialidad
+  definicion: Propiedad o característica consistente en que la información ni se pone a disposición, ni se revela a individuos,
+    entidades o procesos no autorizados.
+  norma: UNE-ISO/IEC 27001:2007
+- codigo: A
+  nombre: Autenticidad
+  definicion: Propiedad o característica consistente en que una entidad es quien dice ser o bien que garantiza la fuente de
+    la que proceden los datos.
+  norma: UNE 71504:2008
+- codigo: T
+  nombre: Trazabilidad
+  definicion: Propiedad o característica consistente en que las actuaciones de una entidad pueden ser imputadas exclusivamente
+    a dicha entidad.
+  norma: UNE 71504:2008
+tipos_activos_raiz:
+- codigo: essential
+  nombre: Activos esenciales
+  seccion: '2.1'
+- codigo: arch
+  nombre: Arquitectura del sistema
+  seccion: '2.2'
+- codigo: D
+  nombre: Datos / Información
+  seccion: '2.3'
+- codigo: K
+  nombre: Claves criptográficas
+  seccion: '2.4'
+- codigo: S
+  nombre: Servicios
+  seccion: '2.5'
+- codigo: SW
+  nombre: Software - Aplicaciones informáticas
+  seccion: '2.6'
+- codigo: HW
+  nombre: Equipamiento informático (hardware)
+  seccion: '2.7'
+- codigo: COM
+  nombre: Redes de comunicaciones
+  seccion: '2.8'
+- codigo: Media
+  nombre: Soportes de información
+  seccion: '2.9'
+- codigo: AUX
+  nombre: Equipamiento auxiliar
+  seccion: '2.10'
+- codigo: L
+  nombre: Instalaciones
+  seccion: '2.11'
+- codigo: P
+  nombre: Personal
+  seccion: '2.12'
+amenazas:
+- codigo: N.1
+  nombre: Fuego
+  familia: N
+  familia_nombre: Desastres naturales
+  descripcion: 'incendios: posibilidad de que el fuego acabe con recursos del sistema.'
+  tipos_activos_afectados:
+  - HW
+  - D
+  - Media
+  - AUX
+  - L
+  dimensiones_afectadas:
+  - D
+  origen: ''
+  ebios_ref: 01- INCENDIO
+  fuente_oficial: MAGERIT v3 Libro II - sección 5.1.1
+- codigo: N.2
+  nombre: Daños por agua
+  familia: N
+  familia_nombre: Desastres naturales
+  descripcion: 'inundaciones: posibilidad de que el agua acabe con recursos del sistema.'
+  tipos_activos_afectados:
+  - HW
+  - D
+  - Media
+  - AUX
+  - L
+  dimensiones_afectadas:
+  - D
+  origen: ''
+  ebios_ref: 02 - PERJUICIOS OCASIONADOS POR EL AGUA
+  fuente_oficial: MAGERIT v3 Libro II - sección 5.1.2
+- codigo: N.*
+  nombre: Desastres naturales
+  familia: N
+  familia_nombre: Desastres naturales
+  descripcion: 'otros incidentes que se producen sin intervención humana: rayo, tormenta eléctrica, terremoto, ciclones, avalancha,
+    corrimiento de tierras, ... Se excluyen desastres específicos tales como incendios (ver [N.1]) e inundaciones (ver [N.2]).
+    Se excluye al personal por cuanto se ha previsto una amenaza específica [E.31] para cubrir la indisponibilidad involuntaria
+    del personal sin entrar en sus causas.'
+  tipos_activos_afectados:
+  - HW
+  - D
+  - Media
+  - AUX
+  - L
+  dimensiones_afectadas:
+  - D
+  - I
+  origen: ''
+  ebios_ref: 03 – CONTAMINACIÓN 04 - SINIESTRO MAYOR 06 - FENÓMENO CLIMÁTICO 07 - FENÓMENO SÍSMICO 08 - FENÓMENO DE ORIGEN
+    VOLCÁNICO 09 - FENÓMENO METEOROLÓGICO 10 - INUNDACIÓN
+  fuente_oficial: MAGERIT v3 Libro II - sección 5.1.3
+- codigo: I.1
+  nombre: Fuego
+  familia: I
+  familia_nombre: De origen industrial
+  descripcion: 'incendio: posibilidad de que el fuego acabe con los recursos del sistema.'
+  tipos_activos_afectados:
+  - HW
+  - D
+  - Media
+  - AUX
+  - L
+  dimensiones_afectadas:
+  - D
+  origen: Entorno (accidental) Humano (accidental o deliberado)
+  ebios_ref: 01- INCENDIO
+  fuente_oficial: MAGERIT v3 Libro II - sección 5.2.1
+- codigo: I.2
+  nombre: Daños por agua
+  familia: I
+  familia_nombre: De origen industrial
+  descripcion: 'escapes, fugas, inundaciones: posibilidad de que el agua acabe con los recursos del sistema.'
+  tipos_activos_afectados:
+  - HW
+  - D
+  - Media
+  - AUX
+  - L
+  dimensiones_afectadas:
+  - D
+  origen: Entorno (accidental) Humano (accidental o deliberado)
+  ebios_ref: 02 - PERJUICIOS OCASIONADOS POR EL AGUA
+  fuente_oficial: MAGERIT v3 Libro II - sección 5.2.2
+- codigo: I.3
+  nombre: Contaminación mecánica
+  familia: I
+  familia_nombre: De origen industrial
+  descripcion: vibraciones, polvo, suciedad, ...
+  tipos_activos_afectados:
+  - HW
+  - D
+  - Media
+  - AUX
+  dimensiones_afectadas:
+  - D
+  origen: Entorno (accidental) Humano (accidental o deliberado)
+  ebios_ref: 03 – CONTAMINACIÓN
+  fuente_oficial: MAGERIT v3 Libro II - sección 5.2.4
+- codigo: I.4
+  nombre: Contaminación electromagnética
+  familia: I
+  familia_nombre: De origen industrial
+  descripcion: interferencias de radio, campos magnéticos, luz ultravioleta, ...
+  tipos_activos_afectados:
+  - HW
+  - D
+  - Media
+  - AUX
+  dimensiones_afectadas:
+  - D
+  origen: Entorno (accidental) Humano (accidental o deliberado)
+  ebios_ref: 14 - EMISIONES ELECTROMAGNÉTICAS 15- RADIACIONES TÉRMICAS 16 - IMPULSOS ELECTROMAGNÉTICOS
+  fuente_oficial: MAGERIT v3 Libro II - sección 5.2.5
+- codigo: I.5
+  nombre: Avería de origen físico o lógico
+  familia: I
+  familia_nombre: De origen industrial
+  descripcion: fallos en los equipos y/o fallos en los programas. Puede ser debida a un defecto de origen o sobrevenida durante
+    el funcionamiento del sistema. En sistemas de propósito específico, a veces es difícil saber si el origen del fallo es
+    físico o lógico; pero para las consecuencias que se derivan, esta distinción no suele ser relevante.
+  tipos_activos_afectados:
+  - SW
+  - D
+  - HW
+  - Media
+  - AUX
+  dimensiones_afectadas:
+  - D
+  origen: Entorno (accidental) Humano (accidental o deliberado)
+  ebios_ref: 28 - AVERÍA DEL HARDWARE 29 - FALLA DE FUNCIONAMIENTO DEL HARDWARE
+  fuente_oficial: MAGERIT v3 Libro II - sección 5.2.6
+- codigo: I.6
+  nombre: Corte del suministro eléctrico
+  familia: I
+  familia_nombre: De origen industrial
+  descripcion: cese de la alimentación de potencia
+  tipos_activos_afectados:
+  - HW
+  - D
+  - Media
+  - AUX
+  dimensiones_afectadas:
+  - D
+  origen: Entorno (accidental) Humano (accidental o deliberado)
+  ebios_ref: 12 - PÉRDIDA DE SUMINISTRO DE ENERGÍA
+  fuente_oficial: MAGERIT v3 Libro II - sección 5.2.7
+- codigo: I.7
+  nombre: Condiciones inadecuadas de temperatura o humedad
+  familia: I
+  familia_nombre: De origen industrial
+  descripcion: 'deficiencias en la aclimatación de los locales, excediendo los márgenes de trabajo de los equipos: excesivo
+    calor, excesivo frío, exceso de humedad, ...'
+  tipos_activos_afectados:
+  - HW
+  - D
+  - Media
+  - AUX
+  dimensiones_afectadas:
+  - D
+  origen: Entorno (accidental) Humano (accidental o deliberado)
+  ebios_ref: 11- FALLAS EN LA CLIMATIZACIÓN
+  fuente_oficial: MAGERIT v3 Libro II - sección 5.2.8
+- codigo: I.8
+  nombre: Fallo de servicios de comunicaciones
+  familia: I
+  familia_nombre: De origen industrial
+  descripcion: cese de la capacidad de transmitir datos de un sitio a otro. Típicamente se debe a la destruc­ ción física
+    de los medios físicos de transporte o a la detención de los centros de conmutación, sea por destrucción, detención o simple
+    incapacidad para atender al tráfico presente.
+  tipos_activos_afectados:
+  - COM
+  - D
+  dimensiones_afectadas:
+  - D
+  origen: Entorno (accidental) Humano (accidental o deliberado)
+  ebios_ref: 13 - PÉRDIDA DE LOS MEDIOS DE TELECOMUNICACIÓN
+  fuente_oficial: MAGERIT v3 Libro II - sección 5.2.9
+- codigo: I.9
+  nombre: Interrupción de otros servicios y suministros esenciales
+  familia: I
+  familia_nombre: De origen industrial
+  descripcion: otros servicios o recursos de los que depende la operación de los equipos; por ejemplo, papel para las impresoras,
+    toner, refrigerante, ...
+  tipos_activos_afectados:
+  - AUX
+  - D
+  dimensiones_afectadas:
+  - D
+  origen: Entorno (accidental) Humano (accidental o deliberado)
+  ebios_ref: no disponible
+  fuente_oficial: MAGERIT v3 Libro II - sección 5.2.10
+- codigo: I.10
+  nombre: Degradación de los soportes de almacenamiento de la informa­
+  familia: I
+  familia_nombre: De origen industrial
+  descripcion: como consecuencia del paso del tiempo
+  tipos_activos_afectados:
+  - Media
+  - D
+  dimensiones_afectadas:
+  - D
+  origen: Entorno (accidental) Humano (accidental o deliberado)
+  ebios_ref: 28 - AVERÍA DEL HARDWARE 29 - FALLA DE FUNCIONAMIENTO DEL HARDWARE
+  fuente_oficial: MAGERIT v3 Libro II - sección 5.2.11
+- codigo: I.11
+  nombre: Emanaciones electromagnéticas
+  familia: I
+  familia_nombre: De origen industrial
+  descripcion: hecho de poner vía radio datos internos a disposición de terceros. Es una amenaza donde el emisor es víctima
+    pasiva del ataque. Prácticamente todos los dispositivos electrónicos emiten radiaciones al exterior que pudieran ser interceptadas
+    por otros equipos (receptores de radio) derivándose una fuga de informa­ ción. Esta amenaza se denomina, incorrecta pero
+    frecuentemente, ataque TEMPEST (del inglés “Transient Electromagnetic Pulse Standard”). Abusando del significado primigenio,
+    es frecuen­ te oír hablar de que un equipo disfruta de "TEMPEST protection", queriendo decir que se ha diseñado para que
+    no emita, electromagnéticamente, nada de interés por si alguien lo captara. No se contempla e
+  tipos_activos_afectados:
+  - HW
+  - Media
+  - AUX
+  - L
+  dimensiones_afectadas:
+  - C
+  origen: Entorno (accidental) Humano (accidental o deliberado)
+  ebios_ref: 17 - INTERCEPTACIÓN DE SEÑALES PARÁSITAS COMPROMETEDORAS
+  fuente_oficial: MAGERIT v3 Libro II - sección 5.2.12
+- codigo: I.*
+  nombre: Desastres industriales
+  familia: I
+  familia_nombre: De origen industrial
+  descripcion: 'otros desastres debidos a la actividad humana: explosiones, derrumbes, ... contaminación química, ... sobrecarga
+    eléctrica, fluctuaciones eléctricas, ... accidentes de tráfico, ... Se excluyen amenazas específicas como incendio (ver
+    [I.1]) e inundación (ver [I.2]). Se excluye al personal por cuanto se ha previsto una amenaza específica, [E.31], para
+    cubrir la indisponibilidad involuntaria del personal sin entrar en sus causas.'
+  tipos_activos_afectados:
+  - HW
+  - D
+  - Media
+  - AUX
+  - L
+  dimensiones_afectadas:
+  - D
+  origen: Entorno (accidental) Humano (accidental o deliberado)
+  ebios_ref: 04 - SINIESTRO MAYOR
+  fuente_oficial: MAGERIT v3 Libro II - sección 5.2.3
+- codigo: E.1
+  nombre: Errores de los usuarios
+  familia: E
+  familia_nombre: Errores y fallos no intencionados
+  descripcion: equivocaciones de las personas cuando usan los servicios, datos, etc.
+  tipos_activos_afectados:
+  - D
+  - keys
+  - S
+  - SW
+  - Media
+  dimensiones_afectadas:
+  - I
+  - C
+  - D
+  origen: ''
+  ebios_ref: 38 - ERROR DE USO
+  fuente_oficial: MAGERIT v3 Libro II - sección 5.3.1
+- codigo: E.2
+  nombre: Errores del administrador
+  familia: E
+  familia_nombre: Errores y fallos no intencionados
+  descripcion: equivocaciones de personas con responsabilidades de instalación y operación
+  tipos_activos_afectados:
+  - D
+  - keys
+  - S
+  - SW
+  - HW
+  - COM
+  - Media
+  dimensiones_afectadas:
+  - D
+  - I
+  - C
+  origen: ''
+  ebios_ref: 38 - ERROR DE USO
+  fuente_oficial: MAGERIT v3 Libro II - sección 5.3.2
+- codigo: E.3
+  nombre: Errores de monitorización (log)
+  familia: E
+  familia_nombre: Errores y fallos no intencionados
+  descripcion: 'inadecuado registro de actividades: falta de registros, registros incompletos, registros incorrec­ tamente
+    fechados, registros incorrectamente atribuidos, ...'
+  tipos_activos_afectados:
+  - D.log
+  dimensiones_afectadas:
+  - I
+  origen: ''
+  ebios_ref: no disponible
+  fuente_oficial: MAGERIT v3 Libro II - sección 5.3.3
+- codigo: E.4
+  nombre: Errores de configuración
+  familia: E
+  familia_nombre: Errores y fallos no intencionados
+  descripcion: 'introducción de datos de configuración erróneos. Prácticamente todos los activos dependen de su configuración
+    y ésta de la diligencia del ad­ ministrador: privilegios de acceso, flujos de actividades, registro de actividad, encaminamien­
+    to, etc.'
+  tipos_activos_afectados:
+  - D.conf
+  dimensiones_afectadas:
+  - I
+  origen: ''
+  ebios_ref: no disponible
+  fuente_oficial: MAGERIT v3 Libro II - sección 5.3.4
+- codigo: E.7
+  nombre: Deficiencias en la organización
+  familia: E
+  familia_nombre: Errores y fallos no intencionados
+  descripcion: cuando no está claro quién tiene que hacer exactamente qué y cuándo, incluyendo tomar me­ didas sobre los activos
+    o informar a la jerarquía de gestión. Acciones descoordinadas, errores por omisión, etc.
+  tipos_activos_afectados:
+  - P
+  - D
+  dimensiones_afectadas:
+  - D
+  origen: ''
+  ebios_ref: no disponible
+  fuente_oficial: MAGERIT v3 Libro II - sección 5.3.5
+- codigo: E.8
+  nombre: Difusión de software dañino
+  familia: E
+  familia_nombre: Errores y fallos no intencionados
+  descripcion: propagación inocente de virus, espías (spyware), gusanos, troyanos, bombas lógicas, etc.
+  tipos_activos_afectados:
+  - SW
+  - D
+  dimensiones_afectadas:
+  - D
+  - I
+  - C
+  origen: ''
+  ebios_ref: no disponible
+  fuente_oficial: MAGERIT v3 Libro II - sección 5.3.6
+- codigo: E.9
+  nombre: Errores de [re-]encaminamiento
+  familia: E
+  familia_nombre: Errores y fallos no intencionados
+  descripcion: envío de información a través de un sistema o una red usando, accidentalmente, una ruta in­ correcta que lleve
+    la información a donde o por donde no es debido; puede tratarse de mensa­ jes entre personas, entre procesos o entre unos
+    y otros. Es particularmente destacable el caso de que el error de encaminamiento suponga un error de entrega, acabando
+    la información en manos de quien no se espera.
+  tipos_activos_afectados:
+  - S
+  - SW
+  - COM
+  dimensiones_afectadas:
+  - C
+  origen: ''
+  ebios_ref: no disponible
+  fuente_oficial: MAGERIT v3 Libro II - sección 5.3.7
+- codigo: E.10
+  nombre: Errores de secuencia
+  familia: E
+  familia_nombre: Errores y fallos no intencionados
+  descripcion: alteración accidental del orden de los mensajes transmitidos.
+  tipos_activos_afectados:
+  - S
+  - SW
+  - COM
+  dimensiones_afectadas:
+  - I
+  origen: ''
+  ebios_ref: no disponible
+  fuente_oficial: MAGERIT v3 Libro II - sección 5.3.8
+- codigo: E.14
+  nombre: Escapes de información
+  familia: E
+  familia_nombre: Errores y fallos no intencionados
+  descripcion: la información llega accidentalmente al conocimiento de personas que no deberían tener co­ nocimiento de ella,
+    sin que la información en sí misma se vea alterada. Magerit 3.0 Amenazas
+  tipos_activos_afectados: []
+  dimensiones_afectadas:
+  - C
+  origen: ''
+  ebios_ref: ''
+  fuente_oficial: MAGERIT v3 Libro II - sección 5.3.9
+- codigo: E.15
+  nombre: Alteración accidental de la información
+  familia: E
+  familia_nombre: Errores y fallos no intencionados
+  descripcion: alteración accidental de la información. Esta amenaza sólo se identifica sobre datos en general, pues cuando
+    la información está en algún soporte informático, hay amenazas específicas.
+  tipos_activos_afectados:
+  - D
+  - keys
+  - S
+  - SW
+  - COM
+  - Media
+  - L
+  dimensiones_afectadas:
+  - I
+  origen: ''
+  ebios_ref: no disponible
+  fuente_oficial: MAGERIT v3 Libro II - sección 5.3.10
+- codigo: E.18
+  nombre: Destrucción de información
+  familia: E
+  familia_nombre: Errores y fallos no intencionados
+  descripcion: pérdida accidental de información. Esta amenaza sólo se identifica sobre datos en general, pues cuando la información
+    está en algún soporte informático, hay amenazas específicas.
+  tipos_activos_afectados:
+  - D
+  - keys
+  - S
+  - SW
+  - COM
+  - Media
+  - L
+  dimensiones_afectadas:
+  - D
+  origen: ''
+  ebios_ref: no disponible
+  fuente_oficial: MAGERIT v3 Libro II - sección 5.3.11
+- codigo: E.19
+  nombre: Fugas de información
+  familia: E
+  familia_nombre: Errores y fallos no intencionados
+  descripcion: revelación por indiscreción. Incontinencia verbal, medios electrónicos, soporte papel, etc.
+  tipos_activos_afectados:
+  - D
+  - keys
+  - S
+  - SW
+  - COM
+  - Media
+  - L
+  - P
+  dimensiones_afectadas:
+  - C
+  origen: ''
+  ebios_ref: no disponible
+  fuente_oficial: MAGERIT v3 Libro II - sección 5.3.12
+- codigo: E.20
+  nombre: Vulnerabilidades de los programas (software)
+  familia: E
+  familia_nombre: Errores y fallos no intencionados
+  descripcion: defectos en el código que dan pie a una operación defectuosa sin intención por parte del usuario pero con consecuencias
+    sobre la integridad de los datos o la capacidad misma de operar.
+  tipos_activos_afectados:
+  - SW
+  - D
+  dimensiones_afectadas:
+  - I
+  - D
+  - C
+  origen: ''
+  ebios_ref: no disponible
+  fuente_oficial: MAGERIT v3 Libro II - sección 5.3.13
+- codigo: E.21
+  nombre: Errores de mantenimiento / actualización de programas (softwa­
+  familia: E
+  familia_nombre: Errores y fallos no intencionados
+  descripcion: defectos en los procedimientos o controles de actualización del código que permiten que sigan utilizándose
+    programas con defectos conocidos y reparados por el fabricante.
+  tipos_activos_afectados:
+  - SW
+  - D
+  dimensiones_afectadas:
+  - I
+  - D
+  origen: ''
+  ebios_ref: 31 - FALLA DE FUNCIONAMIENTO DEL SOFTWARE 32 - PERJUICIO A LA MANTENIBILIDAD DEL SISTEMA DE INFORMACIÓN
+  fuente_oficial: MAGERIT v3 Libro II - sección 5.3.14
+- codigo: E.23
+  nombre: Errores de mantenimiento / actualización de equipos (hardware)
+  familia: E
+  familia_nombre: Errores y fallos no intencionados
+  descripcion: defectos en los procedimientos o controles de actualización de los equipos que permiten que sigan utilizándose
+    más allá del tiempo nominal de uso.
+  tipos_activos_afectados:
+  - HW
+  - D
+  - Media
+  - AUX
+  dimensiones_afectadas:
+  - D
+  origen: ''
+  ebios_ref: 32 - PERJUICIO A LA MANTENIBILIDAD DEL SISTEMA DE INFORMACIÓN
+  fuente_oficial: MAGERIT v3 Libro II - sección 5.3.15
+- codigo: E.24
+  nombre: Caída del sistema por agotamiento de recursos
+  familia: E
+  familia_nombre: Errores y fallos no intencionados
+  descripcion: la carencia de recursos suficientes provoca la caída del sistema cuando la carga de trabajo es desmesurada.
+  tipos_activos_afectados:
+  - S
+  - D
+  - HW
+  - COM
+  dimensiones_afectadas:
+  - D
+  origen: ''
+  ebios_ref: 30 - SATURACIÓN DEL SISTEMA INFORMÁTICO
+  fuente_oficial: MAGERIT v3 Libro II - sección 5.3.16
+- codigo: E.25
+  nombre: Pérdida de equipos
+  familia: E
+  familia_nombre: Errores y fallos no intencionados
+  descripcion: la pérdida de equipos provoca directamente la carencia de un medio para prestar los servi­ cios, es decir una
+    indisponibilidad. Se puede perder todo tipo de equipamiento, siendo la pérdida de equipos y soportes de infor­ mación
+    los más habituales. En el caso de equipos que hospedan datos, además se puede sufrir una fuga de información.
+  tipos_activos_afectados:
+  - HW
+  - D
+  - Media
+  - AUX
+  dimensiones_afectadas:
+  - D
+  - C
+  origen: ''
+  ebios_ref: 22 - RECUPERACIÓN DE SOPORTES RECICLADOS O DESECHADOS
+  fuente_oficial: MAGERIT v3 Libro II - sección 5.3.17
+- codigo: E.28
+  nombre: Indisponibilidad del personal
+  familia: E
+  familia_nombre: Errores y fallos no intencionados
+  descripcion: 'ausencia accidental del puesto de trabajo: enfermedad, alteraciones del orden público, guerra bacteriológica,
+    ...'
+  tipos_activos_afectados:
+  - P
+  - D
+  dimensiones_afectadas:
+  - D
+  - A
+  origen: Humano (deliberado) Ver correlación de errores y amenazas.
+  ebios_ref: 42 - DAÑO A LA DISPONIBILIDAD DEL PERSONAL
+  fuente_oficial: MAGERIT v3 Libro II - sección 5.3.18
+- codigo: A.3
+  nombre: Manipulación de los registros de actividad (log)
+  familia: A
+  familia_nombre: Ataques intencionados
+  descripcion: 'Ver: EBIOS: no disponible'
+  tipos_activos_afectados:
+  - D.log
+  dimensiones_afectadas:
+  - I
+  origen: ''
+  ebios_ref: no disponible
+  fuente_oficial: MAGERIT v3 Libro II - sección 5.4.1
+- codigo: A.4
+  nombre: Manipulación de la configuración
+  familia: A
+  familia_nombre: Ataques intencionados
+  descripcion: 'prácticamente todos los activos dependen de su configuración y ésta de la diligencia del ad­ ministrador:
+    privilegios de acceso, flujos de actividades, registro de actividad, encaminamien­ to, etc.'
+  tipos_activos_afectados:
+  - D.log
+  dimensiones_afectadas:
+  - I
+  - C
+  - A
+  origen: ''
+  ebios_ref: no disponible
+  fuente_oficial: MAGERIT v3 Libro II - sección 5.4.2
+- codigo: A.5
+  nombre: Suplantación de la identidad del usuario
+  familia: A
+  familia_nombre: Ataques intencionados
+  descripcion: cuando un atacante consigue hacerse pasar por un usuario autorizado, disfruta de los privile­ gios de este
+    para sus fines propios. Esta amenaza puede ser perpetrada por personal interno, por personas ajenas a la Organiza­ ción
+    o por personal contratado temporalmente.
+  tipos_activos_afectados:
+  - D
+  - keys
+  - S
+  - SW
+  - COM
+  dimensiones_afectadas:
+  - C
+  - A
+  - I
+  origen: ''
+  ebios_ref: 40 - USURPACIÓN DE DERECHO
+  fuente_oficial: MAGERIT v3 Libro II - sección 5.4.3
+- codigo: A.6
+  nombre: Abuso de privilegios de acceso
+  familia: A
+  familia_nombre: Ataques intencionados
+  descripcion: cada usuario disfruta de un nivel de privilegios para un determinado propósito; cuando un usuario abusa de
+    su nivel de privilegios para realizar tareas que no son de su competencia, hay problemas.
+  tipos_activos_afectados:
+  - D
+  - keys
+  - S
+  - SW
+  - HW
+  - COM
+  dimensiones_afectadas:
+  - C
+  - I
+  - D
+  origen: ''
+  ebios_ref: 39 - ABUSO DE DERECHO
+  fuente_oficial: MAGERIT v3 Libro II - sección 5.4.4
+- codigo: A.7
+  nombre: Uso no previsto
+  familia: A
+  familia_nombre: Ataques intencionados
+  descripcion: 'utilización de los recursos del sistema para fines no previstos, típicamente de interés personal: juegos,
+    consultas personales en Internet, bases de datos personales, programas personales, almacenamiento de datos personales,
+    etc.'
+  tipos_activos_afectados:
+  - S
+  - D
+  - SW
+  - HW
+  - COM
+  - Media
+  - AUX
+  - L
+  dimensiones_afectadas:
+  - D
+  - C
+  - I
+  origen: ''
+  ebios_ref: no disponible
+  fuente_oficial: MAGERIT v3 Libro II - sección 5.4.5
+- codigo: A.8
+  nombre: Difusión de software dañino
+  familia: A
+  familia_nombre: Ataques intencionados
+  descripcion: propagación intencionada de virus, espías (spyware), gusanos, troyanos, bombas lógicas, etc.
+  tipos_activos_afectados:
+  - SW
+  - D
+  dimensiones_afectadas:
+  - D
+  - I
+  - C
+  origen: ''
+  ebios_ref: no disponible
+  fuente_oficial: MAGERIT v3 Libro II - sección 5.4.6
+- codigo: A.9
+  nombre: '[Re-]encaminamiento de mensajes'
+  familia: A
+  familia_nombre: Ataques intencionados
+  descripcion: envío de información a un destino incorrecto a través de un sistema o una red, que llevan la información a
+    donde o por donde no es debido; puede tratarse de mensajes entre personas, entre procesos o entre unos y otros. Un atacante
+    puede forzar un mensaje para circular a través de un nodo determinado de la red donde puede ser interceptado. Es particularmente
+    destacable el caso de que el ataque de encaminamiento lleve a una entre­ ga fraudulenta, acabando la información en manos
+    de quien no debe.
+  tipos_activos_afectados:
+  - S
+  - SW
+  - COM
+  dimensiones_afectadas:
+  - C
+  origen: ''
+  ebios_ref: no disponible
+  fuente_oficial: MAGERIT v3 Libro II - sección 5.4.7
+- codigo: A.10
+  nombre: Alteración de secuencia
+  familia: A
+  familia_nombre: Ataques intencionados
+  descripcion: alteración del orden de los mensajes transmitidos. Con ánimo de que el nuevo orden altere el significado del
+    conjunto de mensajes, perjudicando a la integridad de los datos afectados.
+  tipos_activos_afectados:
+  - S
+  - SW
+  - COM
+  dimensiones_afectadas:
+  - I
+  origen: ''
+  ebios_ref: 36 - ALTERACIÓN DE DATOS
+  fuente_oficial: MAGERIT v3 Libro II - sección 5.4.8
+- codigo: A.11
+  nombre: Acceso no autorizado
+  familia: A
+  familia_nombre: Ataques intencionados
+  descripcion: el atacante consigue acceder a los recursos del sistema sin tener autorización para ello, típi­ camente aprovechando
+    un fallo del sistema de identificación y autorización.
+  tipos_activos_afectados:
+  - D
+  - keys
+  - S
+  - SW
+  - HW
+  - COM
+  - Media
+  - AUX
+  - L
+  dimensiones_afectadas:
+  - C
+  - I
+  origen: ''
+  ebios_ref: 33 - USO ILÍCITO DEL HARDWARE
+  fuente_oficial: MAGERIT v3 Libro II - sección 5.4.9
+- codigo: A.12
+  nombre: Análisis de tráfico
+  familia: A
+  familia_nombre: Ataques intencionados
+  descripcion: el atacante, sin necesidad de entrar a analizar el contenido de las comunicaciones, es capaz de extraer conclusiones
+    a partir del análisis del origen, destino, volumen y frecuencia de los in­ tercambios. A veces se denomina “monitorización
+    de tráfico”.
+  tipos_activos_afectados:
+  - COM
+  dimensiones_afectadas:
+  - C
+  origen: ''
+  ebios_ref: no disponible
+  fuente_oficial: MAGERIT v3 Libro II - sección 5.4.10
+- codigo: A.13
+  nombre: Repudio
+  familia: A
+  familia_nombre: Ataques intencionados
+  descripcion: 'negación a posteriori de actuaciones o compromisos adquiridos en el pasado. Repudio de origen: negación de
+    ser el remitente u origen de un mensaje o comunicación. Repudio de recepción: negación de haber recibido un mensaje o
+    comunicación. Repudio de entrega: negación de haber recibido un mensaje para su entrega a otro.'
+  tipos_activos_afectados:
+  - S
+  - D.log
+  dimensiones_afectadas:
+  - I
+  origen: ''
+  ebios_ref: 41 - NEGACIÓN DE ACCIONES
+  fuente_oficial: MAGERIT v3 Libro II - sección 5.4.11
+- codigo: A.14
+  nombre: Interceptación de información (escucha)
+  familia: A
+  familia_nombre: Ataques intencionados
+  descripcion: el atacante llega a tener acceso a información que no le corresponde, sin que la información en sí misma se
+    vea alterada.
+  tipos_activos_afectados:
+  - COM
+  dimensiones_afectadas:
+  - C
+  origen: ''
+  ebios_ref: 19 - ESCUCHA PASIVA
+  fuente_oficial: MAGERIT v3 Libro II - sección 5.4.12
+- codigo: A.15
+  nombre: Modificación deliberada de la información
+  familia: A
+  familia_nombre: Ataques intencionados
+  descripcion: alteración intencional de la información, con ánimo de obtener un beneficio o causar un perjui­ cio.
+  tipos_activos_afectados:
+  - D
+  - keys
+  - S
+  - SW
+  - COM
+  - Media
+  - L
+  dimensiones_afectadas:
+  - I
+  origen: ''
+  ebios_ref: no disponible
+  fuente_oficial: MAGERIT v3 Libro II - sección 5.4.13
+- codigo: A.18
+  nombre: Destrucción de información
+  familia: A
+  familia_nombre: Ataques intencionados
+  descripcion: eliminación intencional de información, con ánimo de obtener un beneficio o causar un perjui­ cio.
+  tipos_activos_afectados:
+  - D
+  - keys
+  - S
+  - SW
+  - Media
+  - L
+  dimensiones_afectadas:
+  - D
+  origen: ''
+  ebios_ref: no disponible
+  fuente_oficial: MAGERIT v3 Libro II - sección 5.4.14
+- codigo: A.19
+  nombre: Divulgación de información
+  familia: A
+  familia_nombre: Ataques intencionados
+  descripcion: revelación de información.
+  tipos_activos_afectados:
+  - D
+  - keys
+  - S
+  - SW
+  - COM
+  - Media
+  - L
+  dimensiones_afectadas:
+  - C
+  origen: ''
+  ebios_ref: 23 – DIVULGACIÓN 27 – GEOLOCALIZACIÓN 34 - COPIA ILEGAL DE SOFTWARE
+  fuente_oficial: MAGERIT v3 Libro II - sección 5.4.15
+- codigo: A.22
+  nombre: Manipulación de programas
+  familia: A
+  familia_nombre: Ataques intencionados
+  descripcion: alteración intencionada del funcionamiento de los programas, persiguiendo un beneficio indi­ recto cuando una
+    persona autorizada lo utiliza.
+  tipos_activos_afectados:
+  - SW
+  - D
+  dimensiones_afectadas:
+  - C
+  - I
+  - D
+  origen: ''
+  ebios_ref: 26 - ALTERACIÓN DE PROGRAMAS
+  fuente_oficial: MAGERIT v3 Libro II - sección 5.4.16
+- codigo: A.23
+  nombre: Manipulación de los equipos
+  familia: A
+  familia_nombre: Ataques intencionados
+  descripcion: alteración intencionada del funcionamiento de los programas, persiguiendo un beneficio indi­ recto cuando una
+    persona autorizada lo utiliza.
+  tipos_activos_afectados:
+  - HW
+  - Media
+  - D
+  - AUX
+  dimensiones_afectadas:
+  - C
+  - D
+  origen: ''
+  ebios_ref: 25 - SABOTAJE DEL HARDWARE
+  fuente_oficial: MAGERIT v3 Libro II - sección 5.4.17
+- codigo: A.24
+  nombre: Denegación de servicio
+  familia: A
+  familia_nombre: Ataques intencionados
+  descripcion: la carencia de recursos suficientes provoca la caída del sistema cuando la carga de trabajo es desmesurada.
+  tipos_activos_afectados:
+  - S
+  - D
+  - HW
+  - COM
+  dimensiones_afectadas:
+  - D
+  origen: ''
+  ebios_ref: 30 - SATURACIÓN DEL SISTEMA INFORMÁTICO
+  fuente_oficial: MAGERIT v3 Libro II - sección 5.4.18
+- codigo: A.25
+  nombre: Robo
+  familia: A
+  familia_nombre: Ataques intencionados
+  descripcion: la sustracción de equipamiento provoca directamente la carencia de un medio para prestar los servicios, es
+    decir una indisponibilidad. El robo puede afectar a todo tipo de equipamiento, siendo el robo de equipos y el robo de
+    so­ portes de información los más habituales. El robo puede realizarlo personal interno, personas ajenas a la Organización
+    o personas con­ tratadas de forma temporal, lo que establece diferentes grados de facilidad para acceder al objeto sustraído
+    y diferentes consecuencias. En el caso de equipos que hospedan datos, además se puede sufrir una fuga de información.
+  tipos_activos_afectados:
+  - HW
+  - D
+  - Media
+  - AUX
+  dimensiones_afectadas:
+  - D
+  - C
+  origen: ''
+  ebios_ref: 20 - ROBO DE SOPORTES O DOCUMENTOS 21 - ROBO DE HARDWARE
+  fuente_oficial: MAGERIT v3 Libro II - sección 5.4.19
+- codigo: A.26
+  nombre: Ataque destructivo
+  familia: A
+  familia_nombre: Ataques intencionados
+  descripcion: vandalismo, terrorismo, acción militar, ... Esta amenaza puede ser perpetrada por personal interno, por personas
+    ajenas a la Organiza­ ción o por personas contratadas de forma temporal.
+  tipos_activos_afectados:
+  - HW
+  - D
+  - Media
+  - AUX
+  - L
+  dimensiones_afectadas:
+  - D
+  origen: ''
+  ebios_ref: 05 - DESTRUCCIÓN DE HARDWARE O DE SOPORTES
+  fuente_oficial: MAGERIT v3 Libro II - sección 5.4.20
+- codigo: A.27
+  nombre: Ocupación enemiga
+  familia: A
+  familia_nombre: Ataques intencionados
+  descripcion: cuando los locales han sido invadidos y se carece de control sobre los propios medios de tra­ bajo.
+  tipos_activos_afectados:
+  - L
+  - D
+  dimensiones_afectadas:
+  - D
+  - C
+  origen: ''
+  ebios_ref: no disponible
+  fuente_oficial: MAGERIT v3 Libro II - sección 5.4.21
+- codigo: A.28
+  nombre: Indisponibilidad del personal
+  familia: A
+  familia_nombre: Ataques intencionados
+  descripcion: 'ausencia deliberada del puesto de trabajo: como huelgas, absentismo laboral, bajas no justifi­ cadas, bloqueo
+    de los accesos, ...'
+  tipos_activos_afectados:
+  - P
+  - D
+  dimensiones_afectadas:
+  - D
+  origen: ''
+  ebios_ref: 42 - DAÑO A LA DISPONIBILIDAD DEL PERSONAL
+  fuente_oficial: MAGERIT v3 Libro II - sección 5.4.22
+- codigo: A.29
+  nombre: Extorsión
+  familia: A
+  familia_nombre: Ataques intencionados
+  descripcion: presión que, mediante amenazas, se ejerce sobre alguien para obligarle a obrar en determi­ nado sentido.
+  tipos_activos_afectados:
+  - P
+  - D
+  dimensiones_afectadas:
+  - C
+  - I
+  - D
+  origen: ''
+  ebios_ref: no disponible
+  fuente_oficial: MAGERIT v3 Libro II - sección 5.4.23
+- codigo: A.30
+  nombre: Ingeniería social (picaresca)
+  familia: A
+  familia_nombre: Ataques intencionados
+  descripcion: abuso de la buena fe de las personas para que realicen actividades que interesan a un terce­ ro.
+  tipos_activos_afectados:
+  - P
+  - D
+  dimensiones_afectadas:
+  - C
+  - I
+  - D
+  origen: ''
+  ebios_ref: no disponible
+  fuente_oficial: MAGERIT v3 Libro II - sección 5.4.24

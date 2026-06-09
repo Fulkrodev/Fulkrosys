@@ -1,0 +1,313 @@
+{
+  "id": "onb-saas_tech-legal_dpo-v1",
+  "version": "1.0",
+  "sector": "saas_tech",
+  "role": "legal_dpo",
+  "nombre": "Onboarding Legal/DPO — SaaS / Tech",
+  "descripcion": "Onboarding para el responsable legal o DPO de una empresa SaaS. Recoge contexto RGPD, residencia de datos, subencargados y brechas notificadas.",
+  "tiempo_estimado_minutos": 38,
+  "language": "es",
+  "questions": [
+    {
+      "id": "q-dpo_designado",
+      "type": "single_select",
+      "section": "rgpd",
+      "label": "Teneis DPO (Delegado de Proteccion de Datos) designado formalmente?",
+      "tooltip": "Un SaaS que trata datos de clientes AAPP puede estar obligado a nombrar DPO (Art. 37 RGPD). Su ausencia es una no conformidad critica detectada en auditoria.",
+      "options": [
+        {
+          "value": "interno",
+          "label": "Si, DPO interno"
+        },
+        {
+          "value": "externo",
+          "label": "Si, DPO externo"
+        },
+        {
+          "value": "no_obligatorio",
+          "label": "No, consideramos que no es obligatorio"
+        },
+        {
+          "value": "deberiamos_pero_no",
+          "label": "Deberiamos tenerlo pero aun no"
+        }
+      ],
+      "validation": {
+        "required": true
+      }
+    },
+    {
+      "id": "q-datos_sensibles_saas",
+      "type": "multi_select",
+      "section": "rgpd",
+      "label": "Que categorias de datos personales trata vuestro SaaS en nombre de los clientes?",
+      "tooltip": "La categoria de datos determina el nivel de riesgo y las medidas de seguridad exigibles bajo RGPD y ENS. Datos de categorias especiales requieren ENS Medio o Alto.",
+      "options": [
+        {
+          "value": "identificativos_basicos",
+          "label": "Datos identificativos basicos (nombre, email, telefono)"
+        },
+        {
+          "value": "financieros",
+          "label": "Datos financieros (nominas, facturas, cuentas)"
+        },
+        {
+          "value": "salud",
+          "label": "Datos de salud"
+        },
+        {
+          "value": "menores",
+          "label": "Datos de menores"
+        },
+        {
+          "value": "categorias_especiales",
+          "label": "Otras categorias especiales (Art. 9 RGPD)"
+        },
+        {
+          "value": "no_datos_personales",
+          "label": "No tratamos datos personales de usuarios finales"
+        }
+      ],
+      "validation": {
+        "required": true
+      }
+    },
+    {
+      "id": "q-residencia_datos_ue",
+      "type": "single_select",
+      "section": "transferencias_internacionales",
+      "label": "Los datos personales de clientes se almacenan y procesan exclusivamente en la UE/EEE?",
+      "tooltip": "Las transferencias fuera del EEE requieren garantias adicionales (Art. 46 RGPD). Algunos clientes AAPP exigen datos en suelo espanol.",
+      "options": [
+        {
+          "value": "si_espana",
+          "label": "Si, exclusivamente en Espana"
+        },
+        {
+          "value": "si_ue_eee",
+          "label": "Si, en la UE/EEE (no necesariamente Espana)"
+        },
+        {
+          "value": "fuera_ue_garantias",
+          "label": "Fuera de la UE, con garantias formales (SCCs, BCRs)"
+        },
+        {
+          "value": "fuera_ue_sin_garantias",
+          "label": "Fuera de la UE sin garantias formales"
+        },
+        {
+          "value": "no_lo_se",
+          "label": "No lo se con certeza"
+        }
+      ],
+      "validation": {
+        "required": true
+      }
+    },
+    {
+      "id": "q-subprocesadores_rgpd",
+      "type": "single_select",
+      "section": "proveedores",
+      "label": "Teneis inventariados y con contratos Art. 28 RGPD a todos vuestros subencargados de tratamiento?",
+      "tooltip": "Como SaaS sois encargados de los datos de vuestros clientes AAPP. A su vez, teneis subencargados (cloud, email, analytics). Todos deben estar contractualizados bajo Art. 28 RGPD.",
+      "options": [
+        {
+          "value": "todos_contrato",
+          "label": "Si, todos inventariados y con contrato Art. 28"
+        },
+        {
+          "value": "mayoria_contrato",
+          "label": "La mayoria, algunos pendientes"
+        },
+        {
+          "value": "inventario_sin_contratos",
+          "label": "Tenemos inventario pero sin contratos formales"
+        },
+        {
+          "value": "no_inventario",
+          "label": "No tenemos un inventario formal"
+        }
+      ],
+      "validation": {
+        "required": true
+      }
+    },
+    {
+      "id": "q-brechas_aepd",
+      "type": "number",
+      "section": "rgpd",
+      "label": "Cuantas brechas de seguridad de datos personales habeis notificado a la AEPD en los ultimos 12 meses?",
+      "tooltip": "ENS Medio y Alto requieren procedimientos de gestion de incidentes (op.exp.7) alineados con RGPD Art. 33. El historial de brechas orienta el nivel de riesgo residual.",
+      "validation": {
+        "required": true,
+        "min_value": 0,
+        "max_value": 1000
+      }
+    },
+    {
+      "id": "q-clausula_seguridad_tos",
+      "type": "single_select",
+      "section": "contratos",
+      "label": "Vuestros terminos de servicio o contratos con clientes incluyen clausulas especificas de seguridad y SLA?",
+      "tooltip": "Los clientes AAPP suelen exigir compromisos contractuales de seguridad, notificacion de incidentes y disponibilidad alineados con el ENS.",
+      "options": [
+        {
+          "value": "clausulas_detalladas",
+          "label": "Si, con clausulas detalladas de seguridad y SLA"
+        },
+        {
+          "value": "menciones_genericas",
+          "label": "Hay menciones genericas pero no clausulas especificas"
+        },
+        {
+          "value": "negociado_caso_a_caso",
+          "label": "Se negocia caso a caso con cada cliente AAPP"
+        },
+        {
+          "value": "no_clausulas",
+          "label": "No tenemos clausulas de seguridad formales"
+        }
+      ],
+      "validation": {
+        "required": true
+      }
+    },
+    {
+      "id": "q-clientes_publicos",
+      "type": "boolean",
+      "section": "contexto_sectorial",
+      "label": "Teneis clientes del sector publico espanol?",
+      "validation": {
+        "required": true
+      }
+    },
+    {
+      "id": "q-soc_pentest_recientes",
+      "type": "single_select",
+      "section": "contexto_sectorial",
+      "label": "Habeis realizado pentest externo en los ultimos 12 meses?",
+      "options": [
+        {
+          "value": "si_sin_hallazgos_criticos",
+          "label": "Si, sin hallazgos criticos"
+        },
+        {
+          "value": "si_con_hallazgos",
+          "label": "Si, con hallazgos abiertos"
+        },
+        {
+          "value": "no",
+          "label": "No"
+        }
+      ],
+      "validation": {
+        "required": false
+      }
+    },
+    {
+      "id": "q-encargados_tratamiento",
+      "type": "number",
+      "section": "compliance",
+      "label": "Numero aproximado de encargados de tratamiento (Art. 28)",
+      "validation": {
+        "required": true,
+        "min_value": 0
+      }
+    },
+    {
+      "id": "q-derechos_arco",
+      "type": "single_select",
+      "section": "compliance",
+      "label": "Tiempo medio de respuesta a derechos ARCO+",
+      "options": [
+        {
+          "value": "menos_15",
+          "label": "<15 dias"
+        },
+        {
+          "value": "15_30",
+          "label": "15-30 dias"
+        },
+        {
+          "value": "mas_30",
+          "label": ">30 dias"
+        },
+        {
+          "value": "no_aplica",
+          "label": "Sin solicitudes"
+        }
+      ],
+      "validation": {
+        "required": false
+      }
+    },
+    {
+      "id": "q-procedimiento_brechas",
+      "type": "boolean",
+      "section": "compliance",
+      "label": "Procedimiento formal de notificacion de brechas (Art. 33)?",
+      "validation": {
+        "required": true
+      }
+    },
+    {
+      "id": "q-evaluaciones_riesgo_documentadas",
+      "type": "boolean",
+      "section": "compliance",
+      "label": "Evaluaciones de riesgo formales documentadas?",
+      "validation": {
+        "required": false
+      }
+    },
+    {
+      "id": "q-numero_sedes",
+      "type": "number",
+      "section": "identificacion",
+      "label": "Numero de sedes fisicas en Espana",
+      "validation": {
+        "required": false,
+        "min_value": 0
+      }
+    },
+    {
+      "id": "q-actividad_internacional",
+      "type": "boolean",
+      "section": "identificacion",
+      "label": "Operais en otros paises ademas de Espana?",
+      "validation": {
+        "required": false
+      }
+    },
+    {
+      "id": "q-presupuesto_seguridad",
+      "type": "single_select",
+      "section": "identificacion",
+      "label": "Presupuesto anual estimado para seguridad de la informacion",
+      "options": [
+        {
+          "value": "menos_25k",
+          "label": "<25k EUR"
+        },
+        {
+          "value": "25k_100k",
+          "label": "25k - 100k EUR"
+        },
+        {
+          "value": "100k_500k",
+          "label": "100k - 500k EUR"
+        },
+        {
+          "value": "mas_500k",
+          "label": ">500k EUR"
+        },
+        {
+          "value": "no_definido",
+          "label": "No definido"
+        }
+      ],
+      "validation": {
+        "required": false
+      }
+    }
+  ]
+}

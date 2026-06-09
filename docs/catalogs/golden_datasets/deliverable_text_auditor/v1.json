@@ -1,0 +1,496 @@
+{
+  "agent_name": "deliverable_text_auditor",
+  "version": "v1",
+  "created_at": "2026-05-23",
+  "curated_by": "marcos",
+  "purpose": "10 golden entries production-ready ENS deliverable text audit baseline · 4 PASS + 4 FAIL + 2 NEEDS_REVISION · distribución BÁSICA/MEDIA/ALTA/CROSS · Marcos-curated insights: DoA ≠ Declaración Conformidad · alcance explícito obligatorio · tabla aplicabilidad multi-campo · MAGERIT configurable · MEDIA exige MFA · ALTA exige SOC+DR+monitorización 24/7 · Plan Adecuación + Carpeta Evidencias estructuradas por Anexo II.",
+  "capability_required": "DeliverableTextAuditor (NEW capability · NOT existing · pending build en Future-1.E.1.dossier-pack-10docs · interface async def audit_deliverable(text: str, ens_category: str) → AuditResult · AuditResult schema verdict + issues_critical + issues_moderate + key_phrases_analysis + rubric_results).",
+  "label_revision_note": "Folder renamed agent_11_auditor_virtual → deliverable_text_auditor (2026-05-23 · commit 1.E.1.B.3.D Paso 2). Rationale: Agent11AuditorVirtual existing es M10 audit result enricher (genera PAC + preguntas sector + narrativa) · NO audita deliverable text raw. Entry IDs preservados historical a11-* (traceability con B.3.C curation insights Marcos).",
+  "schema_version": "1.1",
+  "regression_thresholds": {
+    "pass_rate_warn_below": 0.8,
+    "pass_rate_alert_below": 0.6
+  },
+  "entries": [
+    {
+      "id": "a11-001",
+      "category": "ens_doa_basica_full",
+      "deliverable_type": "declaracion_aplicabilidad_basica_full",
+      "ens_category": "BASICA",
+      "input": {
+        "deliverable_text": "DECLARACIÓN DE APLICABILIDAD ENS\n[Cliente XYZ] · Sistema: [Plataforma corporativa gestión documental] · Categoría: BÁSICA\n\n1. Objeto\nEl presente documento formaliza la relación de medidas de seguridad del Anexo II del Real Decreto 311/2022 que resultan aplicables al sistema de información indicado, de acuerdo con su categorización ENS, el análisis de riesgos realizado y el alcance definido.\n\n2. Alcance\nSistema incluido: Aplicación web · Base de datos PostgreSQL · Repositorio documental · Backups · Logs · Soporte técnico · Procesos asociados de prestación de servicio a entidades del sector público bajo contrato.\nExclusiones: sistemas contables internos · marketing · dispositivos personales no gestionados.\n\n3. Categorización del sistema\nValoración por dimensiones DICAT:\n- Disponibilidad: BAJO · servicio no crítico continuidad\n- Autenticidad: BAJO · bajo impacto suplantación\n- Integridad: BAJO · alteración con impacto limitado\n- Confidencialidad: BAJO · datos limitados no sensibles\n- Trazabilidad: BAJO · necesidad básica de logs\nCategoría resultante: BÁSICA. Ninguna dimensión alcanza nivel MEDIO o ALTO dentro del alcance declarado.\n\n4. Criterio de aplicabilidad\nMedidas seleccionadas conforme al Anexo II considerando: categoría del sistema · dimensiones aplicables · activos en alcance · análisis de riesgos · requisitos contractuales del servicio público · medidas compensatorias si existieran.\n\n5. Tabla de aplicabilidad (extracto representativo)\nMedida: org.1 Política de seguridad\n  Aplicabilidad: Aplicable · Nivel: Base BÁSICA · Estado: Implantada\n  Evidencia: PSI v1.2 aprobada por dirección el [DD/MM/AAAA]\n  Responsable: Responsable de Seguridad\nMedida: op.pl.1 Análisis de riesgos\n  Aplicabilidad: Aplicable · Nivel: Base BÁSICA · Estado: Implantada\n  Evidencia: Informe de análisis de riesgos ref AR-[AAAA]-001\n  Responsable: Responsable de Seguridad\n  Observaciones: metodología MAGERIT v3 (configurable a ISO 27005 según proyecto)\nMedida: op.acc.5 Mecanismo de autenticación\n  Aplicabilidad: Aplicable · Nivel: Base BÁSICA · Estado: Implantada\n  Evidencia: política de contraseñas v2 · bloqueo intentos fallidos · MFA accesos privilegiados/remotos cuando aplique · configuración documentada\n  Responsable: Responsable de Seguridad\n\n6. Medidas no aplicables\nToda medida marcada no aplicable incluye motivo · activos/procesos afectados · evidencia justificación · aprobación Responsable de Seguridad.\n\n7. Medidas compensatorias\nN/A en este sistema.\n\n8. Estado de implantación\nMedidas aplicables: 24 · Implantadas: 22 · Parciales: 2 · No implantadas: 0 · No aplicables justificadas: 8 · Compensatorias: 0.\n\n9. Aprobación\nFirmado por el Responsable de Seguridad y revisado anualmente o cuando se produzcan cambios significativos en sistema · alcance · riesgos · servicios o requisitos contractuales.\nResponsable de Seguridad: [Nombre · Firma · Fecha]\nAprobación Dirección: [Nombre · Firma · Fecha]",
+        "context": {
+          "ens_category": "BASICA",
+          "sector": "sector_publico_contratado",
+          "system_type": "plataforma_gestion_documental"
+        }
+      },
+      "expected_output": {
+        "verdict": "PASS_AUDITOR_READY",
+        "issues_critical": [],
+        "issues_moderate": [],
+        "key_phrases_required": [
+          "real decreto 311/2022",
+          "anexo ii",
+          "disponibilidad",
+          "autenticidad",
+          "integridad",
+          "confidencialidad",
+          "trazabilidad",
+          "alcance",
+          "responsable de seguridad",
+          "categorización",
+          "aplicabilidad",
+          "evidencia",
+          "org.",
+          "op.",
+          "mp."
+        ],
+        "key_phrases_forbidden": []
+      },
+      "rubric": {
+        "structure_check": true,
+        "has_alcance_explicit": true,
+        "has_dicat_5_dimensions_with_justification": true,
+        "has_per_measure_status_evidence_responsable": true,
+        "has_no_aplicables_section": true,
+        "has_compensatorias_section": true,
+        "has_signature_responsable_seguridad": true,
+        "NOT_confunde_DoA_with_Conformidad": true,
+        "NOT_promete_certificacion_sin_audit": true,
+        "ens_coverage_required_pct": 90,
+        "language_formality_required": true
+      }
+    },
+    {
+      "id": "a11-002",
+      "category": "ens_doa_basica_incomplete",
+      "deliverable_type": "declaracion_aplicabilidad_basica_incomplete",
+      "ens_category": "BASICA",
+      "input": {
+        "deliverable_text": "DECLARACIÓN DE APLICABILIDAD · [Cliente XYZ] · ENS Categoría BÁSICA\n\nEn cumplimiento del Real Decreto 311/2022, de 3 de mayo, por el que se regula el Esquema Nacional de Seguridad, [Cliente XYZ] ha realizado el análisis de aplicabilidad de las medidas de seguridad del Anexo II conforme a la categoría BÁSICA proyectada según el procedimiento DICAT en sus cinco dimensiones.\n\nCategorización del sistema: BÁSICA · Justificación: ningún activo de información alcanza nivel MEDIO o ALTO en las cinco dimensiones DICAT.\n\nAplicabilidad de medidas Anexo II:\n- org.1 Política de seguridad: APLICABLE · documento aprobado por dirección\n- org.2 Normativa de seguridad: APLICABLE\n- op.pl.1 Análisis de riesgos: APLICABLE · metodología MAGERIT v3\n- op.acc.1 Identificación: APLICABLE\n- op.acc.5 Mecanismo de autenticación: APLICABLE · usuario+contraseña según CCN-STIC 803 nivel BÁSICA\n\nSe cumplirán las medidas aplicables del Anexo II conforme a la categoría declarada.\n\nRevisión y aprobación: documento revisado anualmente por el Responsable de Seguridad y aprobado por dirección. Fecha de aprobación: [DD/MM/AAAA].",
+        "context": {
+          "ens_category": "BASICA",
+          "sector": "generico",
+          "system_type": "no_especificado"
+        }
+      },
+      "expected_output": {
+        "verdict": "FAIL_CRITICAL",
+        "issues_critical": [
+          "Falta alcance explícito del sistema · '[Cliente XYZ]' insuficiente · sin especificar qué sistema entra",
+          "Tabla aplicabilidad insuficiente · solo 'APLICABLE' sin Estado · Evidencia · Responsable per medida",
+          "Categorización justifica solo por 'activos' · ENS exige valoración información Y servicios por dimensión con evidencia",
+          "MAGERIT v3 hardcoded · debe ser configurable (MAGERIT/ISO 27005/otra reconocida)",
+          "op.acc.5 incompleto · 'usuario+contraseña' no expresa MFA · longitud · bloqueo · gestión credenciales",
+          "Sin sección Medidas Compensatorias",
+          "Sin sección Medidas No Aplicables con justificación",
+          "Sin Estado de Implantación con counts/summary"
+        ],
+        "issues_moderate": [
+          "Frase 'Se cumplirán las medidas aplicables' genérica · característica de output LLM mal generado"
+        ],
+        "key_phrases_required": [
+          "real decreto 311/2022",
+          "anexo ii"
+        ],
+        "key_phrases_forbidden": [
+          "se cumplirán las medidas aplicables"
+        ]
+      },
+      "rubric": {
+        "structure_check": true,
+        "has_alcance_explicit": false,
+        "has_dicat_5_dimensions_with_justification": false,
+        "has_per_measure_status_evidence_responsable": false,
+        "has_no_aplicables_section": false,
+        "has_compensatorias_section": false,
+        "has_signature_responsable_seguridad": false,
+        "NOT_confunde_DoA_with_Conformidad": true,
+        "NOT_promete_certificacion_sin_audit": true,
+        "ens_coverage_required_pct": 50,
+        "language_formality_required": true
+      }
+    },
+    {
+      "id": "a11-003",
+      "category": "ens_doa_falsa_certificacion",
+      "deliverable_type": "declaracion_falsa_certificacion",
+      "ens_category": "BASICA",
+      "input": {
+        "deliverable_text": "DECLARACIÓN DE CONFORMIDAD ENS · [Cliente XYZ]\n\nSe certifica que [Cliente XYZ] cuenta con certificado ENS BÁSICA emitido tras auditoría superada que acredita el cumplimiento del Real Decreto 311/2022.\n\nSistema certificado conforme al Esquema Nacional de Seguridad. La conformidad ENS ha sido auditada y aprobada con resultado favorable, garantizando el cumplimiento de todas las medidas aplicables del Anexo II.\n\nEsta certificación se renovará periódicamente según los procedimientos establecidos. El cumplimiento ENS está garantizado y respaldado por la conformidad obtenida.\n\nDirección Ejecutiva\n[DD/MM/AAAA]",
+        "context": {
+          "ens_category": "BASICA",
+          "sector": "generico",
+          "anti_pattern": "afirma_certificacion_sin_autoevaluacion"
+        }
+      },
+      "expected_output": {
+        "verdict": "FAIL_CRITICAL",
+        "issues_critical": [
+          "Afirma 'certificado ENS BÁSICA' sin evidencia · sin autoevaluación · sin alcance",
+          "Confunde Declaración de Aplicabilidad con Declaración de Conformidad y con Certificación",
+          "Promete cumplimiento sin trazabilidad · evidencias · responsable",
+          "BÁSICA conformidad se obtiene por autoevaluación al menos cada 2 años · NO certificación obligatoria",
+          "Sin tabla aplicabilidad · sin alcance · sin firma Responsable de Seguridad · solo firma Dirección"
+        ],
+        "issues_moderate": [],
+        "key_phrases_required": [],
+        "key_phrases_forbidden": [
+          "certificado ens básica",
+          "auditoría superada",
+          "conformidad auditada y aprobada",
+          "cumplimiento ens está garantizado"
+        ]
+      },
+      "rubric": {
+        "structure_check": true,
+        "has_alcance_explicit": false,
+        "has_dicat_5_dimensions_with_justification": false,
+        "has_per_measure_status_evidence_responsable": false,
+        "NOT_confunde_DoA_with_Conformidad": false,
+        "NOT_promete_certificacion_sin_audit": false,
+        "ens_coverage_required_pct": 10,
+        "language_formality_required": true
+      }
+    },
+    {
+      "id": "a11-004",
+      "category": "ens_doa_media_full",
+      "deliverable_type": "declaracion_aplicabilidad_media_full",
+      "ens_category": "MEDIA",
+      "input": {
+        "deliverable_text": "DECLARACIÓN DE APLICABILIDAD ENS\n[Cliente XYZ] · Sistema: [Plataforma servicios ciudadanos AAPP] · Categoría: MEDIA\n\n1. Objeto\nFormaliza la relación de medidas Anexo II RD 311/2022 aplicables al sistema, conforme a categorización ENS MEDIA, análisis de riesgos MAGERIT y alcance contratado.\n\n2. Alcance\nSistema incluido: portal ciudadano · APIs internas · BD relacional con datos personales de administrados · pasarela pagos · backup cifrado · logs centralizados · SOC tier-2 de proveedor especializado. Exclusiones documentadas: workstations RRHH internas · sistemas contables ERP.\n\n3. Categorización del sistema\n- Disponibilidad: MEDIO · indisponibilidad afecta servicio público obligatorio\n- Autenticidad: MEDIO · suplantación impacta confianza ciudadana\n- Integridad: MEDIO · alteración de datos personales con perjuicio administrados\n- Confidencialidad: MEDIO · datos personales art. 6 RGPD en alcance\n- Trazabilidad: MEDIO · evidencia accesos exigida por auditoría AAPP\nCategoría resultante: MEDIA. Justificación documentada por activo de información y por servicio.\n\n4. Criterio de aplicabilidad\nAplicación medidas Anexo II MEDIA + refuerzos voluntarios documentados en sección 7.\n\n5. Tabla de aplicabilidad (extracto)\nMedida: op.pl.1 Análisis de riesgos\n  Aplicabilidad: Aplicable · Nivel: MEDIA · Estado: Implantada\n  Evidencia: Análisis cuantitativo MAGERIT v3 ref AR-[AAAA]-MED-002 · matriz amenazas+salvaguardas\n  Responsable: Responsable de Seguridad\n  Observaciones: metodología configurable MAGERIT/ISO 27005 según proyecto\nMedida: op.acc.5 Mecanismo de autenticación\n  Aplicabilidad: Aplicable · Nivel: MEDIA · Estado: Implantada\n  Evidencia: MFA obligatorio para todos los usuarios · políticas contraseña reforzadas · bloqueo · gestión credenciales documentada\n  Responsable: Responsable de Seguridad\nMedida: mp.s.8 Protección frente a código dañino\n  Aplicabilidad: Aplicable · Nivel: MEDIA · Estado: Implantada\n  Evidencia: EDR centralizado · firmas actualizadas · cuarentena automatizada\n  Responsable: IT Operations\nMedida: op.exp.8 Registro de la actividad de los usuarios\n  Aplicabilidad: Aplicable · Nivel: MEDIA · Estado: Implantada\n  Evidencia: SIEM con retención 12 meses · revisión semanal · alertas correlacionadas\n  Responsable: SOC tier-2\n\n6. Medidas no aplicables\nDocumentadas en anexo con motivo · activos afectados · evidencia justificación · aprobación.\n\n7. Medidas compensatorias y refuerzos voluntarios\nAplicación voluntaria de op.acc.6 nivel ALTO (autenticación fuerte privilegios) para cuentas administradoras del sistema, motivada por riesgo residual identificado en el análisis cuantitativo. Justificación documentada · evidencia: configuración MFA hardware token.\n\n8. Estado de implantación\nMedidas aplicables: 41 · Implantadas: 38 · Parciales: 3 · No implantadas: 0 · No aplicables justificadas: 11 · Compensatorias: 1 refuerzo voluntario.\n\n9. Plan de monitorización continua\nRevisión trimestral de medidas implantadas · monitorización SIEM continua 24/5 · auditoría interna semestral · revisión anual completa de DoA por cambios significativos.\n\n10. Aprobación\nResponsable de Seguridad: [Nombre · Firma · Fecha]\nDirección: [Nombre · Firma · Fecha]\nFecha próxima revisión: [DD/MM/AAAA]",
+        "context": {
+          "ens_category": "MEDIA",
+          "sector": "aapp",
+          "system_type": "portal_ciudadano"
+        }
+      },
+      "expected_output": {
+        "verdict": "PASS_AUDITOR_READY",
+        "issues_critical": [],
+        "issues_moderate": [],
+        "key_phrases_required": [
+          "rd 311/2022",
+          "anexo ii",
+          "disponibilidad",
+          "confidencialidad",
+          "trazabilidad",
+          "alcance",
+          "responsable de seguridad",
+          "categorización",
+          "magerit",
+          "mfa",
+          "monitorización",
+          "media",
+          "evidencia"
+        ],
+        "key_phrases_forbidden": [
+          "se cumplirán las medidas aplicables"
+        ]
+      },
+      "rubric": {
+        "structure_check": true,
+        "has_alcance_explicit": true,
+        "has_dicat_5_dimensions_with_justification": true,
+        "has_per_measure_status_evidence_responsable": true,
+        "has_no_aplicables_section": true,
+        "has_compensatorias_section": true,
+        "has_signature_responsable_seguridad": true,
+        "NOT_confunde_DoA_with_Conformidad": true,
+        "NOT_promete_certificacion_sin_audit": true,
+        "includes_quantitative_risk_analysis": true,
+        "includes_mfa_for_media": true,
+        "ens_coverage_required_pct": 95,
+        "language_formality_required": true
+      }
+    },
+    {
+      "id": "a11-005",
+      "category": "ens_doa_media_overreach",
+      "deliverable_type": "declaracion_aplicabilidad_media_overreach",
+      "ens_category": "MEDIA",
+      "input": {
+        "deliverable_text": "DECLARACIÓN DE APLICABILIDAD ENS\n[Cliente XYZ] · Sistema: [Sistema interno] · Categoría: MEDIA\n\n1. Alcance\nSistema interno de gestión · APIs · base de datos · backups · logs.\n\n2. Categorización\nDimensiones DICAT: Disponibilidad MEDIO · Autenticidad MEDIO · Integridad MEDIO · Confidencialidad MEDIO · Trazabilidad MEDIO.\n\n3. Tabla aplicabilidad\nMedida: mp.eq.1 Puesto de trabajo despejado · Aplicabilidad: Aplicable · Nivel: ALTO · Estado: Implantada\nMedida: op.acc.6 Mecanismo de autenticación fuerte · Aplicabilidad: Aplicable · Nivel: ALTO · Estado: Implantada\nMedida: op.mon.3 Monitorización continua 24/7 · Aplicabilidad: Aplicable · Nivel: ALTO · Estado: Implantada\nMedida: op.cont.4 Plan de continuidad probado anualmente · Aplicabilidad: Aplicable · Nivel: ALTO · Estado: Implantada\nMedida: mp.s.9 Centro de Operaciones Seguridad · Aplicabilidad: Aplicable · Nivel: ALTO · Estado: Implantada\n\n4. Aprobación\nResponsable de Seguridad: [Firma]\nDirección: [Firma]\n[DD/MM/AAAA]",
+        "context": {
+          "ens_category": "MEDIA",
+          "sector": "generico",
+          "anti_pattern": "overreach_medidas_alta_sin_justificar"
+        }
+      },
+      "expected_output": {
+        "verdict": "NEEDS_REVISION",
+        "issues_critical": [
+          "Aplica medidas explícitamente ALTA (mp.eq.1 · op.acc.6 · op.mon.3 · op.cont.4 · mp.s.9) en proyección MEDIA sin justificar refuerzo voluntario",
+          "Hallucination LLM típica: 'sobre-aplicación' medidas para parecer más exhaustivo · sin base en análisis de riesgos"
+        ],
+        "issues_moderate": [
+          "Si efectivamente aplica medidas ALTA · documentar como refuerzo voluntario en sección Medidas Compensatorias con justificación de riesgo",
+          "Falta sección Medidas No Aplicables con justificación",
+          "Falta justificación dimensional DICAT (solo lista niveles sin evidencia)"
+        ],
+        "key_phrases_required": [
+          "anexo ii",
+          "responsable de seguridad"
+        ],
+        "key_phrases_forbidden": [
+          "nivel: alto · estado: implantada"
+        ]
+      },
+      "rubric": {
+        "structure_check": true,
+        "has_alcance_explicit": true,
+        "has_dicat_5_dimensions_with_justification": false,
+        "has_per_measure_status_evidence_responsable": false,
+        "has_no_aplicables_section": false,
+        "has_compensatorias_section": false,
+        "measures_outside_category_have_justification": false,
+        "NOT_confunde_DoA_with_Conformidad": true,
+        "NOT_promete_certificacion_sin_audit": true,
+        "ens_coverage_required_pct": 60,
+        "language_formality_required": true
+      }
+    },
+    {
+      "id": "a11-006",
+      "category": "ens_doa_alta_full",
+      "deliverable_type": "declaracion_aplicabilidad_alta_full",
+      "ens_category": "ALTA",
+      "input": {
+        "deliverable_text": "DECLARACIÓN DE APLICABILIDAD ENS\n[Cliente XYZ] · Sistema: [Plataforma servicios críticos sector sanitario] · Categoría: ALTA\n\n1. Objeto\nFormaliza relación medidas Anexo II RD 311/2022 aplicables a sistema categorizado ALTA tras análisis cuantitativo MAGERIT y revisión externa de riesgos.\n\n2. Alcance\nSistema incluido: aplicación clínica · BD historia clínica electrónica · pasarela HL7 · backup cifrado off-site · DR site replicado · SOC 24/7 propio · plataforma SIEM centralizada · evidencia digital notarizada blockchain interno. Exclusiones: redes wifi visitantes (segregadas físicamente con justificación documentada).\n\n3. Categorización del sistema\n- Disponibilidad: ALTO · indisponibilidad afecta atención sanitaria continua\n- Autenticidad: ALTO · suplantación con potencial riesgo vital\n- Integridad: ALTO · alteración historia clínica con riesgo grave para paciente\n- Confidencialidad: ALTO · datos salud art. 9 RGPD máxima protección\n- Trazabilidad: ALTO · evidencia accesos exigida judicialmente\nCategoría: ALTA. Justificación por activo y por servicio · evidencia análisis cuantitativo MAGERIT v3 ref AR-[AAAA]-ALT-003.\n\n4. Criterio de aplicabilidad\nMedidas Anexo II ALTA · adicionalmente CCN-STIC guías sector sanitario · medidas compensatorias documentadas si aplicaran.\n\n5. Tabla de aplicabilidad (extracto)\nMedida: op.acc.6 Mecanismo de autenticación fuerte\n  Aplicabilidad: Aplicable · Nivel: ALTA · Estado: Implantada\n  Evidencia: MFA hardware token cross-system para todos los usuarios · privilegios reforzados con FIDO2 · gestión centralizada\n  Responsable: Responsable de Seguridad\nMedida: op.mon.3 Monitorización continua\n  Aplicabilidad: Aplicable · Nivel: ALTA · Estado: Implantada\n  Evidencia: SOC 24/7 propio · SIEM tier-1 · alertas correlacionadas · runbook respuesta incidentes\n  Responsable: SOC Manager\nMedida: op.cont.3 Plan de continuidad probado\n  Aplicabilidad: Aplicable · Nivel: ALTA · Estado: Implantada\n  Evidencia: DR site replicado · RTO < 4h verificado en simulacro semestral · acta simulacro [DD/MM/AAAA]\n  Responsable: BCM Officer\nMedida: mp.s.8 Cifrado backups\n  Aplicabilidad: Aplicable · Nivel: ALTA · Estado: Implantada\n  Evidencia: backups cifrados AES-256 · llaves HSM · rotación trimestral · verificación restore mensual\n  Responsable: IT Operations\nMedida: op.exp.8 Registro actividad usuarios\n  Aplicabilidad: Aplicable · Nivel: ALTA · Estado: Implantada\n  Evidencia: SIEM retención 5 años · firma digital logs · evidencia notarizada blockchain interno · accesos judicialmente trazables\n  Responsable: SOC tier-1\n\n6. Medidas no aplicables\nDocumentadas con motivo · evidencia · aprobación Responsable Seguridad.\n\n7. Medidas compensatorias\nN/A · todas las medidas ALTA aplicables están implantadas en nivel exigido.\n\n8. Estado de implantación\nMedidas aplicables: 76 · Implantadas: 74 · Parciales: 2 · No implantadas: 0 · No aplicables justificadas: 14 · Compensatorias: 0.\n\n9. Auditoría continua y certificación\nSistema sometido a auditoría continua por entidad acreditada ENAC. Última auditoría externa: [DD/MM/AAAA] · resultado favorable · informe disponible. Próxima auditoría: anual.\n\n10. Aprobación\nResponsable de Seguridad: [Nombre · Firma digital · Fecha]\nDirección: [Nombre · Firma digital · Fecha]\nAuditor externo: [Entidad acreditada ENAC · Fecha emisión informe]",
+        "context": {
+          "ens_category": "ALTA",
+          "sector": "sanidad",
+          "system_type": "plataforma_clinica"
+        }
+      },
+      "expected_output": {
+        "verdict": "PASS_AUDITOR_READY",
+        "issues_critical": [],
+        "issues_moderate": [],
+        "key_phrases_required": [
+          "rd 311/2022",
+          "anexo ii",
+          "disponibilidad",
+          "confidencialidad",
+          "trazabilidad",
+          "alcance",
+          "responsable de seguridad",
+          "magerit",
+          "soc",
+          "dr",
+          "alta",
+          "auditoría continua",
+          "evidencia digital",
+          "firma digital",
+          "op.mon",
+          "op.cont"
+        ],
+        "key_phrases_forbidden": [
+          "se cumplirán las medidas aplicables"
+        ]
+      },
+      "rubric": {
+        "structure_check": true,
+        "has_alcance_explicit": true,
+        "has_dicat_5_dimensions_with_justification": true,
+        "has_per_measure_status_evidence_responsable": true,
+        "has_no_aplicables_section": true,
+        "has_compensatorias_section": true,
+        "has_signature_responsable_seguridad": true,
+        "includes_soc_or_monitoring_24_7": true,
+        "includes_dr_continuity_plan_tested": true,
+        "has_evidence_digital_trail": true,
+        "NOT_confunde_DoA_with_Conformidad": true,
+        "NOT_promete_certificacion_sin_audit": true,
+        "ens_coverage_required_pct": 98,
+        "language_formality_required": true
+      }
+    },
+    {
+      "id": "a11-007",
+      "category": "ens_doa_alta_incomplete",
+      "deliverable_type": "declaracion_aplicabilidad_alta_incomplete",
+      "ens_category": "ALTA",
+      "input": {
+        "deliverable_text": "DECLARACIÓN DE APLICABILIDAD ENS\n[Cliente XYZ] · Sistema crítico · Categoría: ALTA\n\n1. Alcance\nPlataforma crítica de [Cliente XYZ] incluyendo aplicación · BD · backups.\n\n2. Categorización\nDICAT: Disponibilidad ALTO · Autenticidad ALTO · Integridad ALTO · Confidencialidad ALTO · Trazabilidad ALTO.\nCategoría: ALTA.\n\n3. Tabla aplicabilidad\nMedida: org.1 Política de seguridad · Aplicable · Implantada · PSI v3\nMedida: op.pl.1 Análisis de riesgos · Aplicable · Implantada · MAGERIT v3\nMedida: op.acc.5 Autenticación · Aplicable · Implantada · MFA básico\nMedida: mp.s.2 Cifrado backups · Aplicable · Implantada · AES-128\nMedida: op.exp.8 Logs · Aplicable · Implantada · retención 6 meses\nSe cumplirán las medidas aplicables del Anexo II conforme a categoría ALTA.\n\n4. Aprobación\nResponsable de Seguridad: [Firma]\n[DD/MM/AAAA]",
+        "context": {
+          "ens_category": "ALTA",
+          "sector": "generico",
+          "anti_pattern": "categoriza_alta_implementa_basica"
+        }
+      },
+      "expected_output": {
+        "verdict": "FAIL_CRITICAL",
+        "issues_critical": [
+          "Categorización ALTA pero NO incluye op.mon.* monitorización 24/7 requerida",
+          "Categorización ALTA pero NO incluye op.cont.* plan continuidad probado requerido",
+          "SOC · DR · MFA cross-system MISSING para categoría ALTA",
+          "op.acc.5 con 'MFA básico' insuficiente · ALTA exige op.acc.6 autenticación fuerte cross-system",
+          "mp.s.2 con 'AES-128' insuficiente · ALTA exige AES-256 + HSM + rotación trimestral",
+          "Logs 'retención 6 meses' insuficiente · ALTA exige retención multi-año + firma digital + trazabilidad judicial",
+          "Sin secciones Medidas No Aplicables · Compensatorias · Estado Implantación · Auditoría",
+          "Frase 'Se cumplirán las medidas aplicables' genérica · regresión LLM en deliverable ALTA"
+        ],
+        "issues_moderate": [
+          "Tabla aplicabilidad sin Responsable per medida (solo 'Aplicable · Implantada' lista)"
+        ],
+        "key_phrases_required": [
+          "anexo ii"
+        ],
+        "key_phrases_forbidden": [
+          "se cumplirán las medidas aplicables",
+          "aes-128",
+          "mfa básico"
+        ]
+      },
+      "rubric": {
+        "structure_check": true,
+        "has_alcance_explicit": true,
+        "has_dicat_5_dimensions_with_justification": false,
+        "has_per_measure_status_evidence_responsable": false,
+        "has_no_aplicables_section": false,
+        "has_compensatorias_section": false,
+        "includes_soc_or_monitoring_24_7": false,
+        "includes_dr_continuity_plan_tested": false,
+        "has_evidence_digital_trail": false,
+        "NOT_confunde_DoA_with_Conformidad": true,
+        "NOT_promete_certificacion_sin_audit": true,
+        "ens_coverage_required_pct": 40,
+        "language_formality_required": true
+      }
+    },
+    {
+      "id": "a11-008",
+      "category": "iso_sin_mapping_ens_y_rgpd_mezclado",
+      "deliverable_type": "declaracion_iso_sin_mapping_ens",
+      "ens_category": "CROSS",
+      "input": {
+        "deliverable_text": "MARCO DE CONTROLES DE SEGURIDAD · [Cliente XYZ]\n\n1. Marco normativo\nLa organización aplica ISO/IEC 27001:2022 como marco de gestión de seguridad de la información, complementado con controles del Anexo A. Se considera que los controles ISO 27001 cubren los requisitos del Esquema Nacional de Seguridad (ENS).\n\n2. Aplicabilidad de controles\nControl A.5.1 Políticas de seguridad de la información: APLICABLE · documento aprobado por dirección\nControl A.8.2 Privilegios de acceso: APLICABLE · gestión basada en roles\nControl A.8.24 Uso de criptografía: APLICABLE · TLS 1.3 · AES-256\nControl A.8.32 Gestión de cambios: APLICABLE · CAB semanal\n\n3. Protección de datos personales\nEn cumplimiento del Reglamento General de Protección de Datos (GDPR), la organización aplica el Art. 32 GDPR sobre seguridad del tratamiento como medida ENS, junto con las medidas técnicas y organizativas exigidas en el Anexo A de ISO 27001.\n\n4. Categorización ENS\nLa categorización ENS se considera implícita por aplicación de ISO 27001:2022 + GDPR · sin necesidad de procedimiento DICAT específico.\n\n5. Aprobación\nResponsable: CISO · [DD/MM/AAAA]",
+        "context": {
+          "ens_category": "CROSS",
+          "sector": "tecnologia",
+          "anti_pattern": "iso_sustituye_ens_y_rgpd_es_ens"
+        }
+      },
+      "expected_output": {
+        "verdict": "NEEDS_REVISION",
+        "issues_critical": [
+          "ISO 27001 referenciado sin mapping explícito a medidas Anexo II ENS · NO se sustituye uno por otro",
+          "Categorización ENS NO se considera implícita · DICAT por dimensiones es requisito independiente",
+          "Art. 32 GDPR no es medida ENS · son marcos separados aunque complementarios",
+          "Sin tabla aplicabilidad Anexo II · sin códigos org./op./mp. · ENS exige tabla específica"
+        ],
+        "issues_moderate": [
+          "ISO 27001 puede mapearse como apoyo a Anexo II · refactor a tabla mapping bidireccional ENS ↔ ISO",
+          "GDPR debe documentarse en RoPA Art. 30 separado · NO mezclado con DoA ENS",
+          "Hallucination LLM común: cuando no conoce ENS específico sustituye por ISO 27001 que conoce mejor"
+        ],
+        "key_phrases_required": [],
+        "key_phrases_forbidden": [
+          "art. 32 gdpr como medida ens",
+          "categorización ens implícita",
+          "iso 27001 cubre los requisitos del ens"
+        ]
+      },
+      "rubric": {
+        "structure_check": true,
+        "references_anexo_ii_explicit": false,
+        "separates_rgpd_from_ens": false,
+        "has_dicat_5_dimensions_with_justification": false,
+        "NOT_confunde_DoA_with_Conformidad": true,
+        "NOT_promete_certificacion_sin_audit": true,
+        "ens_coverage_required_pct": 30,
+        "language_formality_required": true
+      }
+    },
+    {
+      "id": "a11-009",
+      "category": "plan_adecuacion_basica",
+      "deliverable_type": "plan_adecuacion_basica",
+      "ens_category": "BASICA",
+      "input": {
+        "deliverable_text": "PLAN DE ADECUACIÓN ENS · [Cliente XYZ] · Categoría BÁSICA\n\n1. Objeto\nDocumento de tratamiento para cerrar brechas detectadas en análisis Gap del sistema [Nombre del Sistema] frente al Anexo II RD 311/2022 categoría BÁSICA.\n\n2. Análisis Gap (resumen)\nBrechas identificadas: 6 mayores · 4 menores · 2 oportunidades de mejora.\nTabla brechas:\n- Brecha B-001: org.2 Normativa de seguridad parcial · falta procedimiento gestión incidentes documentado\n- Brecha B-002: op.acc.5 sin política contraseñas formal · solo configuración ad-hoc\n- Brecha B-003: mp.s.1 sin perímetro segmentado · red plana\n- Brecha B-004: op.exp.8 logs sin retención mínima · solo 30 días\n- Brecha B-005: org.4 sin proceso revisión periódica controles\n- Brecha B-006: mp.per.1 sin formación anual obligatoria\n\n3. Acciones correctivas\nAcción A-001 (cierra B-001):\n  Qué: Documentar procedimiento gestión incidentes ENS\n  Cómo: Plantilla CCN-STIC adaptada · revisión Responsable Seguridad\n  Cuándo: H1 · semanas 0-4\n  Responsable: Responsable de Seguridad\n  Evidencia esperada: PROC-INC-001 v1 aprobado y publicado\n\nAcción A-002 (cierra B-002):\n  Qué: Política contraseñas formal con MFA accesos privilegiados\n  Cómo: política escrita · configurar Active Directory según política · documentar\n  Cuándo: H1 · semanas 2-6\n  Responsable: IT Manager\n  Evidencia esperada: POL-PWD-001 v1 + configuración AD verificada\n\nAcción A-003 (cierra B-003):\n  Qué: Segmentar red en VLANs por función (servidores · usuarios · invitados)\n  Cómo: rediseño · implantación · verificación con auditor de redes\n  Cuándo: H2 · semanas 4-12\n  Responsable: Network Manager\n  Evidencia esperada: diagrama VLAN + capturas configuración switches\n\nAcción A-004 (cierra B-004):\n  Qué: Aumentar retención logs a 12 meses en SIEM\n  Cómo: ampliar storage SIEM · ajustar política retención · documentar\n  Cuándo: H2 · semanas 6-10\n  Responsable: SOC tier-2\n  Evidencia esperada: política retención v2 + dashboard SIEM 12 meses\n\nAcción A-005 (cierra B-005):\n  Qué: Establecer revisión semestral controles\n  Cómo: definir procedimiento revisión · calendario · acta\n  Cuándo: H2 · semanas 8-14\n  Responsable: Responsable de Seguridad\n  Evidencia esperada: PROC-REV-001 + primera acta revisión\n\nAcción A-006 (cierra B-006):\n  Qué: Programa formación anual obligatorio toda la plantilla\n  Cómo: contenidos CCN-STIC adaptados · plataforma LMS · seguimiento\n  Cuándo: H3 · semanas 12-26\n  Responsable: RRHH + Responsable Seguridad\n  Evidencia esperada: plan formación + registros LMS por empleado\n\n4. Riesgos residuales\nDocumentados en análisis de riesgos AR-[AAAA]-001 · aceptados por Responsable de Seguridad y Dirección.\n\n5. Cronograma\nH1 (0-6 semanas): A-001 · A-002\nH2 (6-14 semanas): A-003 · A-004 · A-005\nH3 (14-26 semanas): A-006\n\n6. Vinculación con DoA y análisis de riesgos\nCada acción correctiva vincula a brecha en DoA · evidencia esperada se incorpora a Carpeta Evidencias organizada por Anexo II.\n\n7. Aprobación\nResponsable de Seguridad: [Nombre · Firma · Fecha]\nDirección: [Nombre · Firma · Fecha]",
+        "context": {
+          "ens_category": "BASICA",
+          "sector": "generico",
+          "system_type": "sistema_corporativo"
+        }
+      },
+      "expected_output": {
+        "verdict": "PASS_AUDITOR_READY",
+        "issues_critical": [],
+        "issues_moderate": [],
+        "key_phrases_required": [
+          "plan de adecuación",
+          "brecha",
+          "acción correctiva",
+          "riesgo residual",
+          "cronograma",
+          "responsable",
+          "evidencia esperada",
+          "hito",
+          "anexo ii"
+        ],
+        "key_phrases_forbidden": [
+          "se cumplirán"
+        ]
+      },
+      "rubric": {
+        "structure_check": true,
+        "has_gaps_per_anexo_ii": true,
+        "has_corrective_actions_with_owner_date": true,
+        "has_residual_risk_documented": true,
+        "has_approval_signature": true,
+        "linked_to_doa_and_risk_analysis": true,
+        "NOT_confunde_DoA_with_Conformidad": true,
+        "ens_coverage_required_pct": 90,
+        "language_formality_required": true
+      }
+    },
+    {
+      "id": "a11-010",
+      "category": "carpeta_evidencias_unstructured",
+      "deliverable_type": "carpeta_evidencias_unstructured",
+      "ens_category": "CROSS",
+      "input": {
+        "deliverable_text": "CARPETA DE EVIDENCIAS · [Cliente XYZ]\n\nÍndice del repositorio de evidencias del sistema:\n\n/evidencias/\n  documento1.pdf\n  captura_pantalla.png\n  acta_reunion.docx\n  configuracion.txt\n  reporte_auditoria.pdf\n  varios_logs.zip\n  presentacion.pptx\n  email_aprobacion.eml\n  procedimiento.docx\n  excel_seguimiento.xlsx\n\nDescripción: la carpeta contiene los documentos varios de seguridad del sistema, organizados cronológicamente. Los archivos se actualizan cuando hay cambios. Acceso restringido al equipo de seguridad.\n\nResponsable: equipo de seguridad\nÚltima actualización: [DD/MM/AAAA]",
+        "context": {
+          "ens_category": "CROSS",
+          "sector": "generico",
+          "anti_pattern": "documentos_varios_sin_organizacion_anexo_ii"
+        }
+      },
+      "expected_output": {
+        "verdict": "FAIL_CRITICAL",
+        "issues_critical": [
+          "Evidencias NO organizadas por medidas Anexo II (estructura por familias org/* · op/* · mp/* obligatoria)",
+          "Sin nomenclatura coherente per evidencia · nombres ad-hoc no trazables",
+          "Sin trazabilidad evidencia → medida específica Anexo II",
+          "Sin fecha · responsable · versión per evidencia individual",
+          "Responsable genérico 'equipo de seguridad' · cada evidencia debe nombrar responsable concreto"
+        ],
+        "issues_moderate": [
+          "Recomendación estructura: una subcarpeta per medida Anexo II · README.md per medida explicando evidencias incluidas · nomenclatura YYYY-MM-DD_<medida>_<descripcion>_<vN>.<ext>",
+          "Reporte auditoría dentro de carpeta evidencias sin organización es señal de hallucination LLM"
+        ],
+        "key_phrases_required": [],
+        "key_phrases_forbidden": [
+          "documentos varios",
+          "organizados cronológicamente"
+        ]
+      },
+      "rubric": {
+        "structure_check": true,
+        "evidence_organized_by_anexo_ii": false,
+        "evidence_has_traceability_to_measure": false,
+        "evidence_has_metadata": false,
+        "NOT_confunde_DoA_with_Conformidad": true,
+        "NOT_promete_certificacion_sin_audit": true,
+        "ens_coverage_required_pct": 20,
+        "language_formality_required": true
+      }
+    }
+  ]
+}

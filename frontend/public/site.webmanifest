@@ -1,0 +1,23 @@
+{
+  "name": "FULKRO",
+  "short_name": "FULKRO",
+  "description": "Plataforma de implantación ENS (RD 311/2022) — consultoría automatizada",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#fafafa",
+  "theme_color": "#6C63FF",
+  "icons": [
+    {
+      "src": "/brand/favicon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/brand/favicon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}

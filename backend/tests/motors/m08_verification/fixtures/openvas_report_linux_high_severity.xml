@@ -1,0 +1,83 @@
+<?xml version="1.0"?>
+<get_reports_response status="200" status_text="OK">
+  <report id="rep-linux-high-001" format_id="a994b278-1f62-11e1-96ac-406186ea4fc5">
+    <name>fulkro-scan-linux-high</name>
+    <creation_time>2026-04-24T10:00:00Z</creation_time>
+    <results start="1" max="100">
+      <result id="r-linux-high-001">
+        <name>Apache HTTP Server Path Traversal CVE-2021-41773</name>
+        <host>
+          10.0.12.50
+          <hostname>linux-web-01.internal</hostname>
+        </host>
+        <port>443/tcp</port>
+        <nvt oid="1.3.6.1.4.1.25623.1.0.150000">
+          <name>Apache HTTP Server 2.4.49 Path Traversal</name>
+          <family>Web Servers</family>
+          <cvss_base>9.8</cvss_base>
+          <refs>
+            <ref type="cve" id="CVE-2021-41773"/>
+          </refs>
+        </nvt>
+        <threat>High</threat>
+        <severity>9.8</severity>
+        <description>Apache HTTP Server 2.4.49 is affected by a path traversal vulnerability allowing remote code execution.</description>
+        <qod>
+          <value>95</value>
+          <type>remote_vul</type>
+        </qod>
+      </result>
+      <result id="r-linux-high-002">
+        <name>OpenSSH 7.2 User Enumeration CVE-2018-15473</name>
+        <host>
+          10.0.12.50
+          <hostname>linux-web-01.internal</hostname>
+        </host>
+        <port>22/tcp</port>
+        <nvt oid="1.3.6.1.4.1.25623.1.0.150001">
+          <name>OpenSSH User Enumeration CVE-2018-15473</name>
+          <family>General</family>
+          <cvss_base>5.3</cvss_base>
+          <refs>
+            <ref type="cve" id="CVE-2018-15473"/>
+          </refs>
+        </nvt>
+        <threat>Medium</threat>
+        <severity>5.3</severity>
+        <description>OpenSSH through 7.7 allows enumeration of valid usernames.</description>
+      </result>
+      <result id="r-linux-high-003">
+        <name>PHP 5.6 End of Life</name>
+        <host>
+          10.0.12.50
+          <hostname>linux-web-01.internal</hostname>
+        </host>
+        <port>443/tcp</port>
+        <nvt oid="1.3.6.1.4.1.25623.1.0.150002">
+          <name>PHP End of Life Detection</name>
+          <family>Web Servers</family>
+          <cvss_base>7.5</cvss_base>
+          <refs/>
+        </nvt>
+        <threat>High</threat>
+        <severity>7.5</severity>
+        <description>PHP 5.6 has reached end of life and no longer receives security updates.</description>
+      </result>
+      <result id="r-linux-high-004">
+        <name>ICMP timestamp request enabled</name>
+        <host>
+          10.0.12.50
+        </host>
+        <port>general/icmp</port>
+        <nvt oid="1.3.6.1.4.1.25623.1.0.100091">
+          <name>ICMP Timestamp Detection</name>
+          <family>General</family>
+          <cvss_base>0.0</cvss_base>
+        </nvt>
+        <threat>Log</threat>
+        <severity>0.0</severity>
+        <description>The remote host responds to ICMP timestamp requests.</description>
+      </result>
+    </results>
+  </report>
+</get_reports_response>

@@ -1,0 +1,314 @@
+{
+  "id": "onb-industria-ti_cto-v1",
+  "version": "1.0",
+  "sector": "industria",
+  "role": "ti_cto",
+  "nombre": "Onboarding Responsable TI/CTO — Industria",
+  "descripcion": "Onboarding para el responsable de TI o CTO en empresa industrial. Recoge separacion IT/OT, presencia de SCADA/ICS, ERP, turnos, cloud, MFA, backup, endpoints y pentest.",
+  "tiempo_estimado_minutos": 38,
+  "language": "es",
+  "questions": [
+    {
+      "id": "q-separacion_it_ot",
+      "type": "boolean",
+      "section": "infraestructura",
+      "label": "Existe una separacion de red clara entre la red IT (oficinas) y la red OT (planta/produccion)?",
+      "tooltip": "La segmentacion IT/OT es un control critico en ENS para entornos industriales. Sin separacion, un incidente en oficinas puede impactar directamente en produccion.",
+      "validation": {
+        "required": true
+      }
+    },
+    {
+      "id": "q-scada_ics",
+      "type": "boolean",
+      "section": "infraestructura",
+      "label": "Disponeis de sistemas SCADA, ICS o PLCs en vuestra infraestructura?",
+      "tooltip": "Los sistemas de control industrial (SCADA/ICS) tienen requisitos de seguridad especificos en ENS y pueden estar bajo regulacion de infraestructuras criticas.",
+      "validation": {
+        "required": true
+      }
+    },
+    {
+      "id": "q-erp_sistema",
+      "type": "single_select",
+      "section": "infraestructura",
+      "label": "Que sistema ERP usais como nucleo de gestion empresarial?",
+      "tooltip": "El ERP suele ser el sistema mas critico. Su modelo de despliegue (cloud/on-prem) y los accesos determinan controles clave del ENS (op.acc, mp.si).",
+      "options": [
+        {
+          "value": "sap",
+          "label": "SAP (cualquier edicion)"
+        },
+        {
+          "value": "oracle",
+          "label": "Oracle ERP / NetSuite"
+        },
+        {
+          "value": "microsoft_dynamics",
+          "label": "Microsoft Dynamics 365"
+        },
+        {
+          "value": "otro_erp",
+          "label": "Otro ERP"
+        },
+        {
+          "value": "sin_erp",
+          "label": "Sin ERP formalizado"
+        }
+      ],
+      "validation": {
+        "required": true
+      }
+    },
+    {
+      "id": "q-turnos_24h",
+      "type": "boolean",
+      "section": "infraestructura",
+      "label": "Vuestra planta o servicio opera en turnos 24/7 o fuera del horario laboral estandar?",
+      "tooltip": "La operacion continua obliga a garantizar disponibilidad del soporte TI y de los controles de seguridad en todos los turnos (op.cont.*).",
+      "validation": {
+        "required": true
+      }
+    },
+    {
+      "id": "q-cloud_uso",
+      "type": "multi_select",
+      "section": "infraestructura",
+      "label": "Que servicios o plataformas cloud usais actualmente?",
+      "tooltip": "El uso de cloud determina que medidas del ENS se aplican (op.nub.*). En industria es frecuente un modelo hibrido con on-prem dominante.",
+      "options": [
+        {
+          "value": "aws",
+          "label": "AWS"
+        },
+        {
+          "value": "azure",
+          "label": "Azure / Microsoft 365"
+        },
+        {
+          "value": "gcp",
+          "label": "Google Cloud Platform"
+        },
+        {
+          "value": "on_prem_only",
+          "label": "Solo infraestructura propia (on-prem)"
+        },
+        {
+          "value": "saas_varios",
+          "label": "SaaS varios (sin IaaS propio)"
+        }
+      ],
+      "validation": {
+        "required": true
+      }
+    },
+    {
+      "id": "q-mfa_universal",
+      "type": "single_select",
+      "section": "identidad",
+      "label": "El MFA esta habilitado de forma obligatoria para todos los usuarios?",
+      "tooltip": "MFA universal es requisito de ENS Medio y Alto (op.acc.6 R2). En entornos industriales los usuarios de planta suelen ser la excepcion mas comun.",
+      "options": [
+        {
+          "value": "si_todos",
+          "label": "Si, para todos los usuarios"
+        },
+        {
+          "value": "solo_privilegiados",
+          "label": "Solo para usuarios privilegiados"
+        },
+        {
+          "value": "voluntario",
+          "label": "Voluntario (no obligatorio)"
+        },
+        {
+          "value": "no",
+          "label": "No esta habilitado"
+        }
+      ],
+      "validation": {
+        "required": true
+      }
+    },
+    {
+      "id": "q-backup_estrategia",
+      "type": "single_select",
+      "section": "continuidad",
+      "label": "Como gestionais las copias de seguridad de sistemas criticos?",
+      "tooltip": "La regla 3-2-1 es el minimo para ENS (mp.info.9). En industria es critico incluir backups de configuraciones de PLCs y SCADA.",
+      "options": [
+        {
+          "value": "cloud_automatico",
+          "label": "Backup cloud automatico"
+        },
+        {
+          "value": "software_dedicado",
+          "label": "Software dedicado (Veeam, Acronis, etc.)"
+        },
+        {
+          "value": "scripts_manuales",
+          "label": "Scripts/procesos manuales"
+        },
+        {
+          "value": "no_formal",
+          "label": "No tenemos proceso formal"
+        }
+      ],
+      "validation": {
+        "required": true
+      }
+    },
+    {
+      "id": "q-endpoints_managed",
+      "type": "single_select",
+      "section": "endpoints",
+      "label": "Gestionais los endpoints (portatiles, equipos de planta) de forma centralizada?",
+      "tooltip": "MDM/UEM (Intune, Jamf) es la forma estandar de cumplir con op.exp.2, op.exp.3. En planta industrial es comun tener equipos fuera de MDM.",
+      "options": [
+        {
+          "value": "si_mdm",
+          "label": "Si, con MDM/UEM (Intune, Jamf, etc.)"
+        },
+        {
+          "value": "solo_antivirus",
+          "label": "Solo antivirus centralizado"
+        },
+        {
+          "value": "no",
+          "label": "No, son gestionados por usuarios o sin gestion"
+        }
+      ],
+      "validation": {
+        "required": true
+      }
+    },
+    {
+      "id": "q-pentest_ultimo",
+      "type": "single_select",
+      "section": "seguridad_ofensiva",
+      "label": "Cuando fue el ultimo pentest externo o evaluacion de vulnerabilidades que hicisteis?",
+      "tooltip": "ENS Medio requiere pentest externo anual (mp.s.2). En entornos industriales es especialmente relevante el alcance OT.",
+      "options": [
+        {
+          "value": "ultimo_ano",
+          "label": "En el ultimo ano"
+        },
+        {
+          "value": "hace_1_3_anos",
+          "label": "Hace 1-3 anos"
+        },
+        {
+          "value": "mas_3_anos",
+          "label": "Hace mas de 3 anos"
+        },
+        {
+          "value": "nunca",
+          "label": "Nunca"
+        }
+      ],
+      "validation": {
+        "required": true
+      }
+    },
+    {
+      "id": "q-sectores_clientes_publicos",
+      "type": "boolean",
+      "section": "contexto_sectorial",
+      "label": "Algun cliente vuestro es Administracion Publica espanola?",
+      "validation": {
+        "required": true
+      }
+    },
+    {
+      "id": "q-certificacion_iso",
+      "type": "multi_select",
+      "section": "contexto_sectorial",
+      "label": "Certificaciones ISO en vigor",
+      "options": [
+        {
+          "value": "iso_9001",
+          "label": "ISO 9001"
+        },
+        {
+          "value": "iso_14001",
+          "label": "ISO 14001"
+        },
+        {
+          "value": "iso_27001",
+          "label": "ISO 27001"
+        },
+        {
+          "value": "ninguna",
+          "label": "Ninguna"
+        }
+      ],
+      "validation": {
+        "required": false
+      }
+    },
+    {
+      "id": "q-mfa_proveedores",
+      "type": "boolean",
+      "section": "infraestructura",
+      "label": "MFA obligatorio tambien para proveedores externos con acceso?",
+      "validation": {
+        "required": true
+      }
+    },
+    {
+      "id": "q-segregacion_red",
+      "type": "single_select",
+      "section": "infraestructura",
+      "label": "Segregacion de red corporativa",
+      "options": [
+        {
+          "value": "completa",
+          "label": "Completa (VLANs por zona)"
+        },
+        {
+          "value": "parcial",
+          "label": "Parcial"
+        },
+        {
+          "value": "ninguna",
+          "label": "Red plana"
+        }
+      ],
+      "validation": {
+        "required": true
+      }
+    },
+    {
+      "id": "q-cobertura_edr",
+      "type": "single_select",
+      "section": "infraestructura",
+      "label": "Cobertura EDR/antimalware en endpoints",
+      "options": [
+        {
+          "value": "100",
+          "label": "100%"
+        },
+        {
+          "value": "80_99",
+          "label": "80-99%"
+        },
+        {
+          "value": "menos_80",
+          "label": "<80%"
+        }
+      ],
+      "validation": {
+        "required": true
+      }
+    },
+    {
+      "id": "q-revision_logs",
+      "type": "boolean",
+      "section": "infraestructura",
+      "label": "Existe revision sistematica de logs (SIEM o equivalente)?",
+      "validation": {
+        "required": false
+      }
+    }
+  ]
+}

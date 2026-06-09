@@ -1,0 +1,209 @@
+{
+  "id": "onb-sanidad_privada-sponsor-v1",
+  "version": "1.0",
+  "sector": "sanidad_privada",
+  "role": "sponsor",
+  "nombre": "Onboarding Sponsor Ejecutivo - Sanidad Privada",
+  "descripcion": "Cuestionario de onboarding para el rol Sponsor Ejecutivo en una organizacion del sector Sanidad Privada. Recoge contexto estrategico, operativo y regulatorio necesario para arrancar el proyecto ENS.",
+  "tiempo_estimado_minutos": 38,
+  "language": "es",
+  "questions": [
+    {
+      "id": "q-empresa_nombre",
+      "type": "text",
+      "section": "identificacion",
+      "label": "Nombre comercial de la empresa",
+      "validation": {
+        "required": true,
+        "min_length": 2,
+        "max_length": 120
+      }
+    },
+    {
+      "id": "q-persona_contacto",
+      "type": "text",
+      "section": "identificacion",
+      "label": "Nombre de la persona que cumplimenta este cuestionario",
+      "validation": {
+        "required": true,
+        "min_length": 2,
+        "max_length": 120
+      }
+    },
+    {
+      "id": "q-cargo_contacto",
+      "type": "text",
+      "section": "identificacion",
+      "label": "Cargo de la persona de contacto",
+      "validation": {
+        "required": true,
+        "max_length": 120
+      }
+    },
+    {
+      "id": "q-email_contacto",
+      "type": "email",
+      "section": "identificacion",
+      "label": "Email de contacto",
+      "validation": {
+        "required": true
+      }
+    },
+    {
+      "id": "q-motivacion_ens",
+      "type": "single_select",
+      "section": "contexto_estrategico",
+      "label": "Cual es la motivacion principal para obtener la certificacion ENS?",
+      "options": [
+        {
+          "value": "requisito_cliente",
+          "label": "Requisito de un cliente"
+        },
+        {
+          "value": "licitaciones",
+          "label": "Acceso a licitaciones publicas"
+        },
+        {
+          "value": "estrategico",
+          "label": "Decision estrategica"
+        },
+        {
+          "value": "obligacion_legal",
+          "label": "Obligacion legal"
+        }
+      ],
+      "validation": {
+        "required": true
+      }
+    },
+    {
+      "id": "q-presupuesto_asignado",
+      "type": "boolean",
+      "section": "contexto_estrategico",
+      "label": "Existe presupuesto aprobado para el proyecto?",
+      "validation": {
+        "required": true
+      }
+    },
+    {
+      "id": "q-fecha_objetivo",
+      "type": "date",
+      "section": "contexto_estrategico",
+      "label": "Fecha objetivo para la certificacion o auditoria",
+      "validation": {
+        "required": false
+      }
+    },
+    {
+      "id": "q-categoria_estimada",
+      "type": "single_select",
+      "section": "contexto_estrategico",
+      "label": "Categoria ENS estimada del sistema",
+      "options": [
+        {
+          "value": "basica",
+          "label": "Basica"
+        },
+        {
+          "value": "media",
+          "label": "Media"
+        },
+        {
+          "value": "alta",
+          "label": "Alta"
+        },
+        {
+          "value": "no_se",
+          "label": "No lo se aun"
+        }
+      ],
+      "validation": {
+        "required": true
+      }
+    },
+    {
+      "id": "q-sponsors_alternativos",
+      "type": "long_text",
+      "section": "contexto_estrategico",
+      "label": "Otros sponsors o stakeholders clave",
+      "validation": {
+        "required": false,
+        "max_length": 1000
+      }
+    },
+    {
+      "id": "q-his_hce",
+      "type": "multi_select",
+      "section": "contexto_sectorial",
+      "label": "Que sistemas de historia clinica usais?",
+      "options": [
+        {
+          "value": "his_propio",
+          "label": "HIS propio"
+        },
+        {
+          "value": "his_saas",
+          "label": "HIS SaaS"
+        },
+        {
+          "value": "hce_integrada",
+          "label": "HCE integrada con AAPP"
+        },
+        {
+          "value": "papel_mixto",
+          "label": "Papel + digital"
+        }
+      ],
+      "validation": {
+        "required": true
+      }
+    },
+    {
+      "id": "q-datos_categoria_especial",
+      "type": "boolean",
+      "section": "contexto_sectorial",
+      "label": "Tratais datos de salud (categoria especial RGPD art. 9)?",
+      "tooltip": "Los datos de salud requieren medidas reforzadas (mp.info.1).",
+      "validation": {
+        "required": true
+      }
+    },
+    {
+      "id": "q-interop_hl7_fhir",
+      "type": "boolean",
+      "section": "contexto_sectorial",
+      "label": "Interoperais con otras plataformas via HL7/FHIR?",
+      "validation": {
+        "required": false
+      }
+    },
+    {
+      "id": "q-telemedicina",
+      "type": "boolean",
+      "section": "contexto_sectorial",
+      "label": "Ofreceis consultas telematicas (telemedicina)?",
+      "validation": {
+        "required": true
+      }
+    },
+    {
+      "id": "q-consentimiento_digital",
+      "type": "boolean",
+      "section": "contexto_sectorial",
+      "label": "Gestionais consentimiento informado en formato digital?",
+      "validation": {
+        "required": false
+      }
+    },
+    {
+      "id": "q-acreditaciones_sanitarias",
+      "type": "text",
+      "section": "contexto_sectorial",
+      "label": "Acreditaciones sanitarias en vigor (JCI, ISO 9001, etc.)",
+      "validation": {
+        "required": false,
+        "max_length": 200
+      }
+    }
+  ]
+}

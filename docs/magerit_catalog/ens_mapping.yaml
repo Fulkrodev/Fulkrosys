@@ -1,0 +1,459 @@
+# Mapeo completo: Salvaguardas MAGERIT v3 ↔ 73 Medidas ENS Anexo II (RD 311/2022)
+# Fuentes: CCN-STIC 804 (Medidas implantación) + CCN-STIC 803 (Valoración) + RAG corpus
+# Cubre las 73 medidas: 4 org + 33 op + 36 mp
+# mapped: null → medida ENS sin equivalente directo en MAGERIT (con justificación)
+
+# =====================================================================
+# MARCO ORGANIZATIVO (org) — 4 medidas
+# Todas son organizativas; MAGERIT las cubre con la familia G (Organización)
+# =====================================================================
+ens_to_magerit:
+  - measure: "org.1"
+    name: "Política de seguridad"
+    magerit_safeguards: ["G.plan"]
+    confidence: "high"
+    notes: "La política es el marco que habilita G.plan (planificación)"
+
+  - measure: "org.2"
+    name: "Normativa de seguridad"
+    magerit_safeguards: ["G.plan"]
+    confidence: "high"
+
+  - measure: "org.3"
+    name: "Procedimientos de seguridad"
+    magerit_safeguards: ["G.plan"]
+    confidence: "high"
+
+  - measure: "org.4"
+    name: "Proceso de autorización"
+    magerit_safeguards: ["G.plan"]
+    confidence: "medium"
+    notes: "Proceso organizativo, G.plan es el más cercano"
+
+  # =====================================================================
+  # MARCO OPERACIONAL — PLANIFICACIÓN (op.pl) — 5 medidas
+  # =====================================================================
+  - measure: "op.pl.1"
+    name: "Análisis de riesgos"
+    magerit_safeguards: ["G.RM"]
+    confidence: "high"
+    notes: "MAGERIT es la propia metodología de análisis de riesgos"
+
+  - measure: "op.pl.2"
+    name: "Arquitectura de seguridad"
+    magerit_safeguards: ["G.plan"]
+    confidence: "medium"
+
+  - measure: "op.pl.3"
+    name: "Adquisición de nuevos componentes"
+    magerit_safeguards: ["NEW.SW", "NEW.HW", "NEW.COM", "NEW.C"]
+    confidence: "high"
+    notes: "Familia 6.16 Adquisición y desarrollo"
+
+  - measure: "op.pl.4"
+    name: "Dimensionamiento / gestión de capacidad"
+    magerit_safeguards: ["S.A", "HW.A", "COM.A"]
+    confidence: "medium"
+    notes: "Aseguramiento de disponibilidad en distintas familias"
+
+  - measure: "op.pl.5"
+    name: "Componentes certificados"
+    magerit_safeguards: ["NEW.C"]
+    confidence: "high"
+    notes: "Productos certificados o acreditados (CPSTIC)"
+
+  # =====================================================================
+  # MARCO OPERACIONAL — CONTROL DE ACCESO (op.acc) — 6 medidas
+  # =====================================================================
+  - measure: "op.acc.1"
+    name: "Identificación"
+    magerit_safeguards: ["H.IA"]
+    confidence: "high"
+
+  - measure: "op.acc.2"
+    name: "Requisitos de acceso"
+    magerit_safeguards: ["H.AC"]
+    confidence: "high"
+
+  - measure: "op.acc.3"
+    name: "Segregación de funciones y tareas"
+    magerit_safeguards: ["H.ST"]
+    confidence: "high"
+
+  - measure: "op.acc.4"
+    name: "Proceso de gestión de derechos de acceso"
+    magerit_safeguards: ["H.AC"]
+    confidence: "high"
+
+  - measure: "op.acc.5"
+    name: "Mecanismos de autenticación (usuarios externos)"
+    magerit_safeguards: ["H.IA", "E.2"]
+    confidence: "high"
+
+  - measure: "op.acc.6"
+    name: "Mecanismos de autenticación (usuarios de la organización)"
+    magerit_safeguards: ["H.IA"]
+    confidence: "high"
+
+  # =====================================================================
+  # MARCO OPERACIONAL — EXPLOTACIÓN (op.exp) — 10 medidas
+  # =====================================================================
+  - measure: "op.exp.1"
+    name: "Inventario de activos"
+    magerit_safeguards: ["G.RM"]
+    confidence: "high"
+    notes: "El inventario es parte del análisis de riesgos MAGERIT"
+
+  - measure: "op.exp.2"
+    name: "Configuración de seguridad"
+    magerit_safeguards: ["SW.SC", "HW.SC", "COM.SC", "H.tools.CC"]
+    confidence: "high"
+
+  - measure: "op.exp.3"
+    name: "Gestión de la configuración"
+    magerit_safeguards: ["SW.SC", "HW.SC", "COM.SC"]
+    confidence: "high"
+
+  - measure: "op.exp.4"
+    name: "Mantenimiento y actualizaciones de seguridad"
+    magerit_safeguards: ["SW.CM", "HW.CM", "COM.CM", "H.VM"]
+    confidence: "high"
+    notes: "Cambios + gestión de vulnerabilidades"
+
+  - measure: "op.exp.5"
+    name: "Gestión de cambios"
+    magerit_safeguards: ["SW.CM", "HW.CM", "COM.CM", "S.CM"]
+    confidence: "high"
+
+  - measure: "op.exp.6"
+    name: "Protección frente a código dañino"
+    magerit_safeguards: ["H.tools.AV"]
+    confidence: "high"
+
+  - measure: "op.exp.7"
+    name: "Gestión de incidentes"
+    magerit_safeguards: ["H.IR"]
+    confidence: "high"
+
+  - measure: "op.exp.8"
+    name: "Registro de la actividad"
+    magerit_safeguards: ["H.AU", "H.tools.LA"]
+    confidence: "high"
+
+  - measure: "op.exp.9"
+    name: "Registro de la gestión de incidentes"
+    magerit_safeguards: ["H.IR", "H.AU"]
+    confidence: "high"
+
+  - measure: "op.exp.10"
+    name: "Protección de los registros de actividad"
+    magerit_safeguards: ["H.AU"]
+    confidence: "high"
+
+  # =====================================================================
+  # MARCO OPERACIONAL — SERVICIOS EXTERNOS (op.ext) — 4 medidas
+  # =====================================================================
+  - measure: "op.ext.1"
+    name: "Contratación y acuerdos de nivel de servicio"
+    magerit_safeguards: ["E.3", "S.SC"]
+    confidence: "high"
+
+  - measure: "op.ext.2"
+    name: "Gestión diaria"
+    magerit_safeguards: ["E.3", "S.op"]
+    confidence: "high"
+
+  - measure: "op.ext.3"
+    name: "Protección de la cadena de suministro"
+    magerit_safeguards: ["E.3", "E.4"]
+    confidence: "medium"
+    notes: "MAGERIT no cubre cadena de suministro explícitamente; E.3/E.4 son lo más cercano. Medida nueva en RD 311/2022."
+
+  - measure: "op.ext.4"
+    name: "Interconexión de sistemas"
+    magerit_safeguards: ["IP.SPP", "IP.BS", "COM.DS"]
+    confidence: "high"
+    notes: "Protección perimetral + segregación"
+
+  # =====================================================================
+  # MARCO OPERACIONAL — SERVICIOS EN LA NUBE (op.nub) — 1 medida
+  # =====================================================================
+  - measure: "op.nub.1"
+    name: "Protección de servicios en la nube"
+    magerit_safeguards: ["E.3", "S.SC"]
+    confidence: "medium"
+    notes: "MAGERIT v3 (2012) es anterior a cloud moderno. E.3 + perfiles de seguridad son lo más cercano. Complementar con PCE CCN-STIC 887."
+
+  # =====================================================================
+  # MARCO OPERACIONAL — CONTINUIDAD (op.cont) — 4 medidas
+  # =====================================================================
+  - measure: "op.cont.1"
+    name: "Análisis de impacto"
+    magerit_safeguards: ["BC.BIA"]
+    confidence: "high"
+
+  - measure: "op.cont.2"
+    name: "Plan de continuidad"
+    magerit_safeguards: ["BC.DRP"]
+    confidence: "high"
+
+  - measure: "op.cont.3"
+    name: "Pruebas periódicas"
+    magerit_safeguards: ["BC.DRP"]
+    confidence: "high"
+    notes: "Las pruebas son parte del DRP"
+
+  - measure: "op.cont.4"
+    name: "Medios alternativos"
+    magerit_safeguards: ["BC.DRP", "HW.A", "COM.A"]
+    confidence: "high"
+
+  # =====================================================================
+  # MARCO OPERACIONAL — MONITORIZACIÓN (op.mon) — 3 medidas
+  # =====================================================================
+  - measure: "op.mon.1"
+    name: "Detección de intrusión"
+    magerit_safeguards: ["H.tools.IDS"]
+    confidence: "high"
+
+  - measure: "op.mon.2"
+    name: "Sistema de métricas"
+    magerit_safeguards: ["G.exam"]
+    confidence: "medium"
+    notes: "Inspecciones de seguridad incluyen métricas"
+
+  - measure: "op.mon.3"
+    name: "Vigilancia"
+    magerit_safeguards: ["H.tools.TM", "H.VM"]
+    confidence: "medium"
+    notes: "Monitorización de tráfico + gestión de vulnerabilidades. Vigilancia CCN-CERT no cubierta por MAGERIT."
+
+  # =====================================================================
+  # MEDIDAS DE PROTECCIÓN — INSTALACIONES (mp.if) — 7 medidas
+  # =====================================================================
+  - measure: "mp.if.1"
+    name: "Áreas separadas y con control de acceso"
+    magerit_safeguards: ["L.AC", "L.depth"]
+    confidence: "high"
+
+  - measure: "mp.if.2"
+    name: "Identificación de las personas"
+    magerit_safeguards: ["L.AC"]
+    confidence: "high"
+
+  - measure: "mp.if.3"
+    name: "Acondicionamiento de los locales"
+    magerit_safeguards: ["L.design"]
+    confidence: "high"
+
+  - measure: "mp.if.4"
+    name: "Energía eléctrica"
+    magerit_safeguards: ["AUX.power"]
+    confidence: "high"
+
+  - measure: "mp.if.5"
+    name: "Protección frente a incendios"
+    magerit_safeguards: ["L.design"]
+    confidence: "high"
+
+  - measure: "mp.if.6"
+    name: "Protección frente a inundaciones"
+    magerit_safeguards: ["L.design"]
+    confidence: "high"
+
+  - measure: "mp.if.7"
+    name: "Registro de entrada y salida de equipamiento"
+    magerit_safeguards: ["L.AC"]
+    confidence: "high"
+
+  # =====================================================================
+  # MEDIDAS DE PROTECCIÓN — PERSONAL (mp.per) — 4 medidas
+  # =====================================================================
+  - measure: "mp.per.1"
+    name: "Caracterización del puesto de trabajo"
+    magerit_safeguards: ["PS.AT"]
+    confidence: "medium"
+    notes: "Definición de perfiles de seguridad por puesto. PS.AT es lo más cercano."
+
+  - measure: "mp.per.2"
+    name: "Deberes y obligaciones"
+    magerit_safeguards: ["PS.AT", "E.4"]
+    confidence: "medium"
+    notes: "Compromiso de confidencialidad, NDAs"
+
+  - measure: "mp.per.3"
+    name: "Concienciación"
+    magerit_safeguards: ["PS.AT"]
+    confidence: "high"
+
+  - measure: "mp.per.4"
+    name: "Formación"
+    magerit_safeguards: ["PS.AT"]
+    confidence: "high"
+
+  # =====================================================================
+  # MEDIDAS DE PROTECCIÓN — EQUIPOS (mp.eq) — 4 medidas
+  # =====================================================================
+  - measure: "mp.eq.1"
+    name: "Puesto de trabajo despejado (mesa limpia)"
+    magerit_safeguards: ["L.AC"]
+    confidence: "medium"
+    notes: "Control organizativo, L.AC es lo más cercano en MAGERIT"
+
+  - measure: "mp.eq.2"
+    name: "Bloqueo de puesto de trabajo"
+    magerit_safeguards: ["HW.SC"]
+    confidence: "high"
+    notes: "Perfil de seguridad de equipos (GPO)"
+
+  - measure: "mp.eq.3"
+    name: "Protección de equipos portátiles"
+    magerit_safeguards: ["HW.PCD", "D.C", "MP.IC"]
+    confidence: "high"
+    notes: "Informática móvil + cifrado"
+
+  - measure: "mp.eq.4"
+    name: "Otros dispositivos conectados a la red"
+    magerit_safeguards: ["HW.SC", "COM.DS"]
+    confidence: "medium"
+    notes: "IoT/OT no explícito en MAGERIT v3 (2012). Perfiles de seguridad + segmentación."
+
+  # =====================================================================
+  # MEDIDAS DE PROTECCIÓN — COMUNICACIONES (mp.com) — 4 medidas
+  # =====================================================================
+  - measure: "mp.com.1"
+    name: "Perímetro seguro"
+    magerit_safeguards: ["IP.SPP", "IP.BS", "COM.DS"]
+    confidence: "high"
+
+  - measure: "mp.com.2"
+    name: "Protección de la confidencialidad"
+    magerit_safeguards: ["COM.C"]
+    confidence: "high"
+
+  - measure: "mp.com.3"
+    name: "Protección de la integridad y de la autenticidad"
+    magerit_safeguards: ["COM.I", "COM.aut"]
+    confidence: "high"
+
+  - measure: "mp.com.4"
+    name: "Segregación de redes"
+    magerit_safeguards: ["COM.DS"]
+    confidence: "high"
+
+  # =====================================================================
+  # MEDIDAS DE PROTECCIÓN — SOPORTES (mp.si) — 5 medidas
+  # =====================================================================
+  - measure: "mp.si.1"
+    name: "Etiquetado"
+    magerit_safeguards: ["MP.A"]
+    confidence: "medium"
+    notes: "Control organizativo sobre soportes"
+
+  - measure: "mp.si.2"
+    name: "Criptografía"
+    magerit_safeguards: ["MP.IC", "K.disk"]
+    confidence: "high"
+
+  - measure: "mp.si.3"
+    name: "Custodia"
+    magerit_safeguards: ["MP.A", "L.AC"]
+    confidence: "high"
+    notes: "Disponibilidad de soportes + control de acceso físico"
+
+  - measure: "mp.si.4"
+    name: "Transporte"
+    magerit_safeguards: ["MP.IC"]
+    confidence: "high"
+    notes: "Cifrado durante transporte"
+
+  - measure: "mp.si.5"
+    name: "Borrado y destrucción"
+    magerit_safeguards: ["MP.clean", "MP.end"]
+    confidence: "high"
+
+  # =====================================================================
+  # MEDIDAS DE PROTECCIÓN — SOFTWARE (mp.sw) — 2 medidas
+  # =====================================================================
+  - measure: "mp.sw.1"
+    name: "Desarrollo de aplicaciones"
+    magerit_safeguards: ["NEW.SW", "SW.SC"]
+    confidence: "high"
+    notes: "SSDLC = adquisición segura + perfiles"
+
+  - measure: "mp.sw.2"
+    name: "Aceptación y puesta en servicio"
+    magerit_safeguards: ["SW.start", "S.start"]
+    confidence: "high"
+    notes: "Puesta en producción con controles previos"
+
+  # =====================================================================
+  # MEDIDAS DE PROTECCIÓN — INFORMACIÓN (mp.info) — 6 medidas
+  # =====================================================================
+  - measure: "mp.info.1"
+    name: "Datos de carácter personal"
+    magerit_safeguards: null
+    confidence: "n/a"
+    notes: "RGPD/LOPDGDD, no es una salvaguarda técnica MAGERIT"
+
+  - measure: "mp.info.2"
+    name: "Calificación de la información"
+    magerit_safeguards: null
+    confidence: "n/a"
+    notes: "Esquema de clasificación, proceso organizativo"
+
+  - measure: "mp.info.3"
+    name: "Cifrado"
+    magerit_safeguards: ["D.C", "K.IC"]
+    confidence: "high"
+
+  - measure: "mp.info.4"
+    name: "Firma electrónica"
+    magerit_safeguards: ["D.DS", "K.DS"]
+    confidence: "high"
+
+  - measure: "mp.info.5"
+    name: "Sellos de tiempo"
+    magerit_safeguards: ["D.TS"]
+    confidence: "high"
+
+  - measure: "mp.info.6"
+    name: "Limpieza de documentos"
+    magerit_safeguards: ["MP.clean"]
+    confidence: "high"
+    notes: "Eliminar metadatos antes de difusión"
+
+  # =====================================================================
+  # MEDIDAS DE PROTECCIÓN — SERVICIOS (mp.s) — 4 medidas
+  # =====================================================================
+  - measure: "mp.s.1"
+    name: "Protección del correo electrónico"
+    magerit_safeguards: ["S.email"]
+    confidence: "high"
+
+  - measure: "mp.s.2"
+    name: "Protección de servicios y aplicaciones web"
+    magerit_safeguards: ["S.www"]
+    confidence: "high"
+
+  - measure: "mp.s.3"
+    name: "Protección frente a la denegación de servicio"
+    magerit_safeguards: ["S.A", "COM.A", "IP.SPP"]
+    confidence: "medium"
+    notes: "DoS no tiene salvaguarda MAGERIT dedicada. Disponibilidad + perímetro."
+
+  - measure: "mp.s.4"
+    name: "Otros servicios"
+    magerit_safeguards: ["S.SC", "S.op"]
+    confidence: "medium"
+    notes: "Medida genérica del ENS para servicios no cubiertos por mp.s.1-3"
+
+
+# =====================================================================
+# RESUMEN DE COBERTURA
+# =====================================================================
+# Total medidas ENS Anexo II: 73 (4 org + 33 op + 36 mp)
+# Con mapeo directo a MAGERIT: 63
+# Sin equivalente directo (null): 2 (mp.info.1 datos personales, mp.info.2 clasificación)
+# Con mapeo indirecto (confidence medium): 8
+# pending_manual_review: 0 (todas resueltas)

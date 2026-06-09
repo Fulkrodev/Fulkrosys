@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<magerit_analysis>
+  <name>Análisis ejemplo PILAR-compat</name>
+  <assets>
+    <asset code="A-001" name="Servidor web frontal" type="HW">
+      <description>Servidor producción frontal HTTP</description>
+      <dimensions>
+        <d>7</d>
+        <i>5</i>
+        <c>4</c>
+        <a>5</a>
+        <t>3</t>
+      </dimensions>
+    </asset>
+    <asset code="A-002" name="Base datos clientes" type="SW">
+      <description>RDBMS PostgreSQL clientes</description>
+      <dimensions>
+        <d>9</d>
+        <i>9</i>
+        <c>9</c>
+        <a>7</a>
+        <t>5</t>
+      </dimensions>
+    </asset>
+    <asset code="A-003" name="Backup offsite" type="SI">
+      <dimensions>
+        <d>5</d>
+        <i>7</i>
+        <c>9</c>
+      </dimensions>
+    </asset>
+  </assets>
+  <threats>
+    <threat code="E.2" asset="A-001">
+      <probability>M</probability>
+      <degradation>
+        <d>50</d>
+        <i>20</i>
+        <c>10</c>
+      </degradation>
+    </threat>
+    <threat code="A.5" asset="A-002">
+      <probability>B</probability>
+      <degradation>
+        <d>30</d>
+        <i>80</i>
+        <c>90</c>
+      </degradation>
+    </threat>
+  </threats>
+  <safeguards>
+    <safeguard code="op.exp.7" status="planned"/>
+    <safeguard code="op.cont.4" status="deployed"/>
+  </safeguards>
+</magerit_analysis>

@@ -1,0 +1,248 @@
+{
+  "id": "onb-fintech-legal_dpo-v1",
+  "version": "1.0",
+  "sector": "fintech",
+  "role": "legal_dpo",
+  "nombre": "Onboarding Legal/DPO — Fintech",
+  "descripcion": "Onboarding para el responsable legal o DPO de una fintech. Recoge contexto regulatorio, PSD2, contratos con proveedores de pagos y brechas.",
+  "tiempo_estimado_minutos": 38,
+  "language": "es",
+  "questions": [
+    {
+      "id": "q-dpo_designado",
+      "type": "single_select",
+      "section": "rgpd",
+      "label": "Teneis DPO designado formalmente?",
+      "tooltip": "En fintech el DPO suele ser obligatorio por volumen de datos personales tratados.",
+      "options": [
+        {
+          "value": "interno",
+          "label": "Si, DPO interno"
+        },
+        {
+          "value": "externo",
+          "label": "Si, DPO externo"
+        },
+        {
+          "value": "no",
+          "label": "No tenemos DPO"
+        }
+      ],
+      "validation": {
+        "required": true
+      }
+    },
+    {
+      "id": "q-regulador_supervisor",
+      "type": "multi_select",
+      "section": "regulatorio",
+      "label": "Que reguladores os supervisan?",
+      "tooltip": "El regulador determina obligaciones adicionales al ENS (DORA, PSD2, etc.).",
+      "options": [
+        {
+          "value": "bde",
+          "label": "Banco de Espana"
+        },
+        {
+          "value": "cnmv",
+          "label": "CNMV"
+        },
+        {
+          "value": "dgsfp",
+          "label": "DGSFP"
+        },
+        {
+          "value": "aepd",
+          "label": "AEPD (solo RGPD)"
+        },
+        {
+          "value": "ninguno",
+          "label": "Ninguno especifico"
+        }
+      ],
+      "validation": {
+        "required": true
+      }
+    },
+    {
+      "id": "q-psd2_sca",
+      "type": "boolean",
+      "section": "regulatorio",
+      "label": "Os aplican obligaciones PSD2/SCA (autenticacion reforzada de clientes)?",
+      "tooltip": "PSD2 impone requisitos de autenticacion que se solapan con ENS op.acc.5/op.acc.6.",
+      "validation": {
+        "required": true
+      }
+    },
+    {
+      "id": "q-contratos_proveedores_pagos",
+      "type": "single_select",
+      "section": "proveedores",
+      "label": "Los contratos con proveedores de servicios de pago incluyen clausulas de seguridad y auditoria?",
+      "tooltip": "ENS op.ext.* y DORA requieren gestion de proveedores criticos con derecho de auditoria.",
+      "options": [
+        {
+          "value": "todos",
+          "label": "Todos con clausulas completas"
+        },
+        {
+          "value": "mayoria",
+          "label": "La mayoria"
+        },
+        {
+          "value": "pocos",
+          "label": "Solo algunos"
+        },
+        {
+          "value": "ninguno",
+          "label": "Sin clausulas formales"
+        }
+      ],
+      "validation": {
+        "required": true
+      }
+    },
+    {
+      "id": "q-brechas_notificadas",
+      "type": "number",
+      "section": "incidentes",
+      "label": "Cuantas brechas de datos habeis notificado a reguladores en los ultimos 12 meses?",
+      "tooltip": "ENS op.exp.7 + RGPD Art. 33 + DORA requieren procedimientos de notificacion.",
+      "validation": {
+        "required": true,
+        "min_value": 0,
+        "max_value": 100
+      }
+    },
+    {
+      "id": "q-inspecciones_recientes",
+      "type": "long_text",
+      "section": "regulatorio",
+      "label": "Habeis tenido inspecciones regulatorias en los ultimos 24 meses? Describid brevemente.",
+      "tooltip": "Inspecciones previas revelan areas de atencion para el proyecto ENS.",
+      "validation": {
+        "required": false,
+        "max_length": 3000
+      }
+    },
+    {
+      "id": "q-volumen_transacciones",
+      "type": "single_select",
+      "section": "contexto_sectorial",
+      "label": "Volumen aproximado de transacciones procesadas al mes",
+      "options": [
+        {
+          "value": "menos_10k",
+          "label": "<10k"
+        },
+        {
+          "value": "10k_100k",
+          "label": "10k - 100k"
+        },
+        {
+          "value": "100k_1m",
+          "label": "100k - 1M"
+        },
+        {
+          "value": "mas_1m",
+          "label": ">1M"
+        }
+      ],
+      "validation": {
+        "required": true
+      }
+    },
+    {
+      "id": "q-kyc_aml",
+      "type": "boolean",
+      "section": "contexto_sectorial",
+      "label": "Aplicais procesos KYC y AML conforme a SEPBLAC?",
+      "validation": {
+        "required": true
+      }
+    },
+    {
+      "id": "q-open_banking",
+      "type": "boolean",
+      "section": "contexto_sectorial",
+      "label": "Operais bajo PSD2 (Open Banking)?",
+      "validation": {
+        "required": false
+      }
+    },
+    {
+      "id": "q-encargados_tratamiento",
+      "type": "number",
+      "section": "compliance",
+      "label": "Numero aproximado de encargados de tratamiento (Art. 28)",
+      "validation": {
+        "required": true,
+        "min_value": 0
+      }
+    },
+    {
+      "id": "q-derechos_arco",
+      "type": "single_select",
+      "section": "compliance",
+      "label": "Tiempo medio de respuesta a derechos ARCO+",
+      "options": [
+        {
+          "value": "menos_15",
+          "label": "<15 dias"
+        },
+        {
+          "value": "15_30",
+          "label": "15-30 dias"
+        },
+        {
+          "value": "mas_30",
+          "label": ">30 dias"
+        },
+        {
+          "value": "no_aplica",
+          "label": "Sin solicitudes"
+        }
+      ],
+      "validation": {
+        "required": false
+      }
+    },
+    {
+      "id": "q-procedimiento_brechas",
+      "type": "boolean",
+      "section": "compliance",
+      "label": "Procedimiento formal de notificacion de brechas (Art. 33)?",
+      "validation": {
+        "required": true
+      }
+    },
+    {
+      "id": "q-evaluaciones_riesgo_documentadas",
+      "type": "boolean",
+      "section": "compliance",
+      "label": "Evaluaciones de riesgo formales documentadas?",
+      "validation": {
+        "required": false
+      }
+    },
+    {
+      "id": "q-numero_sedes",
+      "type": "number",
+      "section": "identificacion",
+      "label": "Numero de sedes fisicas en Espana",
+      "validation": {
+        "required": false,
+        "min_value": 0
+      }
+    },
+    {
+      "id": "q-actividad_internacional",
+      "type": "boolean",
+      "section": "identificacion",
+      "label": "Operais en otros paises ademas de Espana?",
+      "validation": {
+        "required": false
+      }
+    }
+  ]
+}

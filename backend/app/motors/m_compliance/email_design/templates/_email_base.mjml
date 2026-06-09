@@ -1,0 +1,91 @@
+{# FULKRO MJML email base · shared chrome for every compliance template.
+
+   Children extend this base and override the ``content`` block.
+   Optional override blocks: ``hero_badge`` (top-right of hero card) and
+   ``footer_extra`` (additional small print before the auto-generated
+   disclaimer). #}
+<mjml>
+  <mj-head>
+    <mj-title>{% block subject %}{{ tokens.BRAND_NAME }} · Compliance{% endblock %}</mj-title>
+    <mj-preview>{% block preview %}{{ tokens.BRAND_NAME }} · Notificación de compliance{% endblock %}</mj-preview>
+    <mj-attributes>
+      <mj-all font-family="{{ tokens.FONT_FAMILY }}" />
+      <mj-text color="{{ tokens.TEXT_PRIMARY }}" font-size="14px" line-height="1.55" padding="0" />
+      <mj-section padding="0" />
+      <mj-column padding="0" />
+      <mj-button background-color="{{ tokens.PRIMARY }}" color="#ffffff"
+                 font-weight="600" font-size="13px" inner-padding="11px 22px"
+                 border-radius="6px" />
+    </mj-attributes>
+    <mj-style inline="inline">
+      .pill { display:inline-block; padding:3px 10px; border-radius:9999px; font-size:11px; font-weight:600; letter-spacing:0.04em; text-transform:uppercase; }
+      .mono { font-family:{{ tokens.FONT_MONO }}; font-size:12px; }
+      .card-title { font-weight:600; color:{{ tokens.TEXT_PRIMARY }}; font-size:13px; letter-spacing:0.01em; }
+      .muted { color:{{ tokens.TEXT_SECONDARY }}; }
+      .accent-link { color:{{ tokens.ACCENT }}; text-decoration:underline; }
+    </mj-style>
+  </mj-head>
+
+  <mj-body background-color="{{ tokens.BG_BODY }}" width="{{ body_width|default(tokens.CONTAINER_WIDTH) }}">
+    {# ── Header bar · brand logo + contextual tag + hero badge ──── #}
+    <mj-section background-color="{{ tokens.PRIMARY }}" padding="20px 28px" border-radius="12px 12px 0 0">
+      <mj-column vertical-align="middle" width="55%" padding="0">
+        <mj-image
+          src="{{ logo_base64 }}"
+          alt="{{ tokens.BRAND_NAME }}"
+          width="140px"
+          height="38px"
+          align="left"
+          padding="0"
+        />
+        <mj-text color="{{ tokens.TEXT_ON_DARK_MUTED }}" font-size="11px" font-weight="500" letter-spacing="0.08em" align="left" padding="6px 0 0 0" text-transform="uppercase">
+          {% block header_tag %}Compliance{% endblock %}
+        </mj-text>
+      </mj-column>
+      <mj-column vertical-align="middle" width="45%" padding="0">
+        <mj-text align="right" padding="0">
+          {% block hero_badge %}{% endblock %}
+        </mj-text>
+      </mj-column>
+    </mj-section>
+
+    {# ── Hero · title + subtitle ─────────────────────────────────── #}
+    <mj-section background-color="{{ tokens.BG_CARD }}" padding="32px 28px 8px 28px">
+      <mj-column>
+        {% block hero %}{% endblock %}
+      </mj-column>
+    </mj-section>
+
+    {# ── Content body (cards · tables · CTAs) ────────────────────── #}
+    <mj-section background-color="{{ tokens.BG_CARD }}" padding="8px 28px 24px 28px">
+      <mj-column>
+        {% block content %}{% endblock %}
+      </mj-column>
+    </mj-section>
+
+    {# ── Footer · DPO + legal links + disclaimer (dark) ──────────── #}
+    <mj-section background-color="{{ tokens.PRIMARY }}" padding="22px 28px" border-radius="0 0 12px 12px">
+      <mj-column>
+        <mj-text color="{{ tokens.TEXT_ON_DARK }}" font-size="13px" font-weight="700" letter-spacing="0.04em" padding-bottom="6px">
+          {{ tokens.BRAND_NAME }}
+          <span style="color:{{ tokens.TEXT_ON_DARK_MUTED }}; font-size:11px; font-weight:400; margin-left:8px;">{{ tokens.BRAND_TAGLINE }}</span>
+        </mj-text>
+        <mj-text color="{{ tokens.TEXT_ON_DARK_MUTED }}" font-size="12px" line-height="1.6">
+          DPO: <a href="mailto:{{ tokens.DPO_EMAIL }}" style="color:{{ tokens.ACCENT_LIGHT }}; text-decoration:underline;">{{ tokens.DPO_EMAIL }}</a>
+          &nbsp;·&nbsp;
+          Seguridad: <a href="mailto:{{ tokens.SECURITY_EMAIL }}" style="color:{{ tokens.ACCENT_LIGHT }}; text-decoration:underline;">{{ tokens.SECURITY_EMAIL }}</a><br />
+          <a href="{{ tokens.LEGAL_BASE_URL }}/privacy" style="color:{{ tokens.ACCENT_LIGHT }};">Política de Privacidad</a>
+          &nbsp;·&nbsp;
+          <a href="{{ tokens.LEGAL_BASE_URL }}/cookies" style="color:{{ tokens.ACCENT_LIGHT }};">Cookies</a>
+          &nbsp;·&nbsp;
+          <a href="{{ tokens.LEGAL_BASE_URL }}/trust" style="color:{{ tokens.ACCENT_LIGHT }};">Trust Center</a>
+        </mj-text>
+        {% block footer_extra %}{% endblock %}
+        <mj-text color="{{ tokens.TEXT_ON_DARK_MUTED }}" font-size="11px" padding-top="14px" line-height="1.5">
+          Generado automáticamente · No respondas a este correo;
+          si tienes dudas escribe a {{ tokens.DPO_EMAIL }}.
+        </mj-text>
+      </mj-column>
+    </mj-section>
+  </mj-body>
+</mjml>

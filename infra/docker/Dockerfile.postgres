@@ -1,0 +1,27 @@
+# FULKRO PostgreSQL image: pgvector + Apache AGE + pgAudit
+# Base: pgvector/pgvector:pg16 (debian bookworm + postgres 16 + vector extension).
+# Adds:
+#   - pgAudit (from postgresql-16-pgaudit apt package)
+#   - Apache AGE (compiled from source, PG16 branch)
+FROM pgvector/pgvector:pg16
+
+ARG AGE_REF=PG16/v1.5.0-rc0
+
+RUN set -eux; \
+    apt-get update; \
+    apt-get install -y --no-install-recommends \
+        postgresql-16-pgaudit \
+        build-essential \
+        ca-certificates \
+        git \
+        postgresql-server-dev-16 \
+        flex \
+        bison; \
+    cd /tmp; \
+    git clone --depth 1 --branch "${AGE_REF}" https://github.com/apache/age.git; \
+    cd age; \
+    make PG_CONFIG=/usr/bin/pg_config install; \
+    cd /; \
+    rm -rf /tmp/age; \
+    apt-get purge -y --auto-remove build-essential git postgresql-server-dev-16 flex bison; \
+    rm -rf /var/lib/apt/lists/*

@@ -1,0 +1,243 @@
+{
+  "id": "onb-fintech-usuario_final-v1",
+  "version": "1.0",
+  "sector": "fintech",
+  "role": "usuario_final",
+  "nombre": "Onboarding Usuario Final - Fintech",
+  "descripcion": "Cuestionario de onboarding para el rol Usuario Final en una organizacion del sector Fintech. Recoge contexto estrategico, operativo y regulatorio necesario para arrancar el proyecto ENS.",
+  "tiempo_estimado_minutos": 38,
+  "language": "es",
+  "questions": [
+    {
+      "id": "q-empresa_nombre",
+      "type": "text",
+      "section": "identificacion",
+      "label": "Nombre comercial de la empresa",
+      "validation": {
+        "required": true,
+        "min_length": 2,
+        "max_length": 120
+      }
+    },
+    {
+      "id": "q-persona_contacto",
+      "type": "text",
+      "section": "identificacion",
+      "label": "Nombre de la persona que cumplimenta este cuestionario",
+      "validation": {
+        "required": true,
+        "min_length": 2,
+        "max_length": 120
+      }
+    },
+    {
+      "id": "q-cargo_contacto",
+      "type": "text",
+      "section": "identificacion",
+      "label": "Cargo de la persona de contacto",
+      "validation": {
+        "required": true,
+        "max_length": 120
+      }
+    },
+    {
+      "id": "q-email_contacto",
+      "type": "email",
+      "section": "identificacion",
+      "label": "Email de contacto",
+      "validation": {
+        "required": true
+      }
+    },
+    {
+      "id": "q-dispositivo_trabajo",
+      "type": "single_select",
+      "section": "uso_habitual",
+      "label": "Que dispositivo usas para trabajar?",
+      "options": [
+        {
+          "value": "corporativo_fijo",
+          "label": "Corporativo fijo"
+        },
+        {
+          "value": "corporativo_portatil",
+          "label": "Corporativo portatil"
+        },
+        {
+          "value": "personal_byod",
+          "label": "Personal (BYOD)"
+        },
+        {
+          "value": "mixto",
+          "label": "Mixto"
+        }
+      ],
+      "validation": {
+        "required": true
+      }
+    },
+    {
+      "id": "q-teletrabajo_frecuencia",
+      "type": "single_select",
+      "section": "uso_habitual",
+      "label": "Con que frecuencia teletrabajas?",
+      "options": [
+        {
+          "value": "nunca",
+          "label": "Nunca"
+        },
+        {
+          "value": "ocasional",
+          "label": "Ocasional"
+        },
+        {
+          "value": "hibrido",
+          "label": "Hibrido"
+        },
+        {
+          "value": "siempre",
+          "label": "Siempre remoto"
+        }
+      ],
+      "validation": {
+        "required": true
+      }
+    },
+    {
+      "id": "q-mfa_personal",
+      "type": "boolean",
+      "section": "uso_habitual",
+      "label": "Usas MFA para acceder a aplicaciones de empresa?",
+      "validation": {
+        "required": true
+      }
+    },
+    {
+      "id": "q-usb_externos",
+      "type": "single_select",
+      "section": "uso_habitual",
+      "label": "Usas USB o discos externos para datos de empresa?",
+      "options": [
+        {
+          "value": "nunca",
+          "label": "Nunca"
+        },
+        {
+          "value": "cifrados",
+          "label": "Si, siempre cifrados"
+        },
+        {
+          "value": "sin_cifrar",
+          "label": "Si, sin cifrar"
+        },
+        {
+          "value": "no_se",
+          "label": "No lo se"
+        }
+      ],
+      "validation": {
+        "required": true
+      }
+    },
+    {
+      "id": "q-formacion_phishing",
+      "type": "boolean",
+      "section": "uso_habitual",
+      "label": "Has recibido formacion sobre phishing?",
+      "validation": {
+        "required": true
+      }
+    },
+    {
+      "id": "q-incidentes_reportados",
+      "type": "boolean",
+      "section": "uso_habitual",
+      "label": "Has reportado alguna vez un incidente/email sospechoso?",
+      "validation": {
+        "required": false
+      }
+    },
+    {
+      "id": "q-licencia_financiera",
+      "type": "single_select",
+      "section": "contexto_sectorial",
+      "label": "Disponeis de licencia financiera en vigor?",
+      "options": [
+        {
+          "value": "emi",
+          "label": "Entidad de Dinero Electronico"
+        },
+        {
+          "value": "pi",
+          "label": "Entidad de Pago"
+        },
+        {
+          "value": "entidad_credito",
+          "label": "Entidad de Credito"
+        },
+        {
+          "value": "no_regulado",
+          "label": "No requerimos licencia"
+        }
+      ],
+      "validation": {
+        "required": true
+      }
+    },
+    {
+      "id": "q-dora_aplica",
+      "type": "boolean",
+      "section": "contexto_sectorial",
+      "label": "Estais sujetos al Reglamento DORA?",
+      "tooltip": "DORA aplica desde enero 2025 a entidades financieras UE.",
+      "validation": {
+        "required": true
+      }
+    },
+    {
+      "id": "q-pci_dss",
+      "type": "boolean",
+      "section": "contexto_sectorial",
+      "label": "Procesais datos de tarjeta (PCI-DSS)?",
+      "validation": {
+        "required": true
+      }
+    },
+    {
+      "id": "q-volumen_transacciones",
+      "type": "single_select",
+      "section": "contexto_sectorial",
+      "label": "Volumen aproximado de transacciones procesadas al mes",
+      "options": [
+        {
+          "value": "menos_10k",
+          "label": "<10k"
+        },
+        {
+          "value": "10k_100k",
+          "label": "10k - 100k"
+        },
+        {
+          "value": "100k_1m",
+          "label": "100k - 1M"
+        },
+        {
+          "value": "mas_1m",
+          "label": ">1M"
+        }
+      ],
+      "validation": {
+        "required": true
+      }
+    },
+    {
+      "id": "q-kyc_aml",
+      "type": "boolean",
+      "section": "contexto_sectorial",
+      "label": "Aplicais procesos KYC y AML conforme a SEPBLAC?",
+      "validation": {
+        "required": true
+      }
+    }
+  ]
+}

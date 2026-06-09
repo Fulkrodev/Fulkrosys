@@ -1,0 +1,297 @@
+{
+  "id": "onb-industria-sponsor-v1",
+  "version": "1.0",
+  "sector": "industria",
+  "role": "sponsor",
+  "nombre": "Onboarding Sponsor — Industria",
+  "descripcion": "Onboarding para el sponsor ejecutivo del proyecto ENS en empresa industrial (fabricacion, energia, logistica). Recoge motivacion estrategica, tipo de industria, certificaciones previas de sector y capacidad de dedicacion.",
+  "tiempo_estimado_minutos": 38,
+  "language": "es",
+  "questions": [
+    {
+      "id": "q-motivacion_ens",
+      "type": "single_select",
+      "section": "contexto_estrategico",
+      "label": "Cual es la motivacion principal del proyecto ENS?",
+      "tooltip": "El ENS puede ser obligatorio (proveedor de infraestructura critica), requisito de licitacion publica o decision estrategica. Saber el origen define la urgencia real.",
+      "options": [
+        {
+          "value": "obligacion_legal",
+          "label": "Obligacion legal directa"
+        },
+        {
+          "value": "licitacion_publica",
+          "label": "Licitacion o contrato publico"
+        },
+        {
+          "value": "requisito_cliente",
+          "label": "Requisito de un cliente concreto"
+        },
+        {
+          "value": "decision_estrategica",
+          "label": "Decision estrategica de madurez"
+        },
+        {
+          "value": "otros",
+          "label": "Otros"
+        }
+      ],
+      "validation": {
+        "required": true
+      }
+    },
+    {
+      "id": "q-tipo_industria",
+      "type": "single_select",
+      "section": "contexto_estrategico",
+      "label": "Cual es el tipo principal de actividad industrial de vuestra empresa?",
+      "tooltip": "El subsector industrial determina la presencia de sistemas OT/SCADA y la regulacion aplicable (infraestructuras criticas, DORA, NIS2).",
+      "options": [
+        {
+          "value": "fabricacion",
+          "label": "Fabricacion / Manufactura"
+        },
+        {
+          "value": "energia",
+          "label": "Energia (electrica, gas, agua)"
+        },
+        {
+          "value": "logistica",
+          "label": "Logistica / Transporte / Distribucion"
+        },
+        {
+          "value": "construccion",
+          "label": "Construccion / Ingenieria"
+        },
+        {
+          "value": "otro",
+          "label": "Otro tipo industrial"
+        }
+      ],
+      "validation": {
+        "required": true
+      }
+    },
+    {
+      "id": "q-certificaciones_sector_previas",
+      "type": "multi_select",
+      "section": "madurez_previa",
+      "label": "Disponeis de alguna de estas certificaciones sectoriales activas?",
+      "tooltip": "Certificaciones como ISO 9001 o 45001 indican madurez en sistemas de gestion. Reducen el esfuerzo en documentacion y cultura de cumplimiento del ENS.",
+      "options": [
+        {
+          "value": "iso_9001",
+          "label": "ISO 9001 (Calidad)"
+        },
+        {
+          "value": "iso_14001",
+          "label": "ISO 14001 (Medio ambiente)"
+        },
+        {
+          "value": "iso_45001",
+          "label": "ISO 45001 (Seguridad laboral)"
+        },
+        {
+          "value": "iso_27001",
+          "label": "ISO 27001 (Seguridad informacion)"
+        },
+        {
+          "value": "ninguna",
+          "label": "Ninguna certificacion activa"
+        }
+      ],
+      "validation": {
+        "required": true
+      }
+    },
+    {
+      "id": "q-clientes_sector_publico",
+      "type": "boolean",
+      "section": "contexto_estrategico",
+      "label": "Vuestra empresa trabaja directamente con administraciones publicas o es proveedora critica del Estado?",
+      "tooltip": "Los proveedores de la Administracion Publica estan sujetos al articulo 32 del RD 311/2022, que puede exigirles conformidad ENS.",
+      "validation": {
+        "required": true
+      }
+    },
+    {
+      "id": "q-plazo_objetivo",
+      "type": "date",
+      "section": "contexto_estrategico",
+      "label": "Teneis una fecha objetivo de certificacion?",
+      "tooltip": "Una fecha firme condiciona el alcance y los recursos necesarios. Si es flexible, indicad una fecha estimada razonable.",
+      "validation": {
+        "required": false
+      }
+    },
+    {
+      "id": "q-presupuesto_aprobado",
+      "type": "boolean",
+      "section": "contexto_estrategico",
+      "label": "Teneis presupuesto aprobado para el proyecto ENS completo (consultoria, pentesting, herramientas)?",
+      "tooltip": "Un presupuesto aprobado permite planificar con certeza. Si no, identificaremos que partidas son prioritarias.",
+      "validation": {
+        "required": true
+      }
+    },
+    {
+      "id": "q-dedicacion_semanal_sponsor",
+      "type": "single_select",
+      "section": "expectativas",
+      "label": "Cuanto tiempo podeis dedicar vosotros (sponsor) al proyecto semanalmente?",
+      "tooltip": "El sponsor industrial suele dedicar entre 1-3h/semana en fases activas para toma de decisiones y desbloqueo de recursos.",
+      "options": [
+        {
+          "value": "menos_1h",
+          "label": "Menos de 1 hora"
+        },
+        {
+          "value": "1_2h",
+          "label": "1-2 horas"
+        },
+        {
+          "value": "2_4h",
+          "label": "2-4 horas"
+        },
+        {
+          "value": "mas_4h",
+          "label": "Mas de 4 horas"
+        }
+      ],
+      "validation": {
+        "required": true
+      }
+    },
+    {
+      "id": "q-sectores_clientes_publicos",
+      "type": "boolean",
+      "section": "contexto_sectorial",
+      "label": "Algun cliente vuestro es Administracion Publica espanola?",
+      "validation": {
+        "required": true
+      }
+    },
+    {
+      "id": "q-certificacion_iso",
+      "type": "multi_select",
+      "section": "contexto_sectorial",
+      "label": "Certificaciones ISO en vigor",
+      "options": [
+        {
+          "value": "iso_9001",
+          "label": "ISO 9001"
+        },
+        {
+          "value": "iso_14001",
+          "label": "ISO 14001"
+        },
+        {
+          "value": "iso_27001",
+          "label": "ISO 27001"
+        },
+        {
+          "value": "ninguna",
+          "label": "Ninguna"
+        }
+      ],
+      "validation": {
+        "required": false
+      }
+    },
+    {
+      "id": "q-experiencia_previa_certificacion",
+      "type": "single_select",
+      "section": "contexto_estrategico",
+      "label": "Experiencia previa con certificaciones (ISO, ENS, SOC2)",
+      "options": [
+        {
+          "value": "ninguna",
+          "label": "Ninguna"
+        },
+        {
+          "value": "iso27001",
+          "label": "ISO 27001"
+        },
+        {
+          "value": "ens_anterior",
+          "label": "ENS anterior"
+        },
+        {
+          "value": "otras",
+          "label": "Otras"
+        }
+      ],
+      "validation": {
+        "required": false
+      }
+    },
+    {
+      "id": "q-comite_seguridad",
+      "type": "boolean",
+      "section": "contexto_estrategico",
+      "label": "Existe Comite de Seguridad formal con actas periodicas?",
+      "validation": {
+        "required": true
+      }
+    },
+    {
+      "id": "q-ambicion_recurrente",
+      "type": "boolean",
+      "section": "contexto_estrategico",
+      "label": "Buscan acompanamiento continuo (retainer) tras la certificacion?",
+      "validation": {
+        "required": false
+      }
+    },
+    {
+      "id": "q-numero_sedes",
+      "type": "number",
+      "section": "identificacion",
+      "label": "Numero de sedes fisicas en Espana",
+      "validation": {
+        "required": false,
+        "min_value": 0
+      }
+    },
+    {
+      "id": "q-actividad_internacional",
+      "type": "boolean",
+      "section": "identificacion",
+      "label": "Operais en otros paises ademas de Espana?",
+      "validation": {
+        "required": false
+      }
+    },
+    {
+      "id": "q-presupuesto_seguridad",
+      "type": "single_select",
+      "section": "identificacion",
+      "label": "Presupuesto anual estimado para seguridad de la informacion",
+      "options": [
+        {
+          "value": "menos_25k",
+          "label": "<25k EUR"
+        },
+        {
+          "value": "25k_100k",
+          "label": "25k - 100k EUR"
+        },
+        {
+          "value": "100k_500k",
+          "label": "100k - 500k EUR"
+        },
+        {
+          "value": "mas_500k",
+          "label": ">500k EUR"
+        },
+        {
+          "value": "no_definido",
+          "label": "No definido"
+        }
+      ],
+      "validation": {
+        "required": false
+      }
+    }
+  ]
+}

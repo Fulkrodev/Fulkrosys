@@ -1,0 +1,397 @@
+{
+  "id": "onb-saas_tech-ti_cto-v1",
+  "version": "1.0",
+  "sector": "saas_tech",
+  "role": "ti_cto",
+  "nombre": "Onboarding Responsable TI/CTO — SaaS / Tech",
+  "descripcion": "Onboarding para el CTO o responsable de ingenieria de una empresa SaaS. Recoge stack tecnologico, CI/CD, hosting, seguridad perimetral, SIEM y gestion de identidad.",
+  "tiempo_estimado_minutos": 38,
+  "language": "es",
+  "questions": [
+    {
+      "id": "q-tech_stack_principal",
+      "type": "multi_select",
+      "section": "arquitectura",
+      "label": "Cual es el lenguaje o framework principal de vuestro backend y frontend?",
+      "tooltip": "El stack tecnologico determina las herramientas de SAST/DAST aplicables y las guias de hardening exigibles por ENS (mp.sw.1, mp.sw.2).",
+      "options": [
+        {
+          "value": "python",
+          "label": "Python (Django, FastAPI, Flask)"
+        },
+        {
+          "value": "node_js",
+          "label": "Node.js / TypeScript"
+        },
+        {
+          "value": "java_spring",
+          "label": "Java / Spring Boot"
+        },
+        {
+          "value": "dotnet",
+          "label": ".NET / C#"
+        },
+        {
+          "value": "go",
+          "label": "Go"
+        },
+        {
+          "value": "ruby_rails",
+          "label": "Ruby on Rails"
+        },
+        {
+          "value": "otro",
+          "label": "Otro"
+        }
+      ],
+      "validation": {
+        "required": true
+      }
+    },
+    {
+      "id": "q-hosting_provider",
+      "type": "single_select",
+      "section": "infraestructura",
+      "label": "Donde esta alojado principalmente vuestro SaaS en produccion?",
+      "tooltip": "El proveedor cloud define el modelo de responsabilidad compartida y los controles tecnicos requeridos por ENS (op.nub.1).",
+      "options": [
+        {
+          "value": "aws",
+          "label": "AWS"
+        },
+        {
+          "value": "azure",
+          "label": "Azure"
+        },
+        {
+          "value": "gcp",
+          "label": "Google Cloud Platform"
+        },
+        {
+          "value": "ovh_hetzner",
+          "label": "OVH / Hetzner / datacenter europeo"
+        },
+        {
+          "value": "multi_cloud",
+          "label": "Multi-cloud"
+        },
+        {
+          "value": "on_prem",
+          "label": "Infraestructura propia (on-premise)"
+        }
+      ],
+      "validation": {
+        "required": true
+      }
+    },
+    {
+      "id": "q-cicd_pipeline",
+      "type": "single_select",
+      "section": "desarrollo",
+      "label": "Teneis pipeline CI/CD automatizado para despliegues a produccion?",
+      "tooltip": "Los pipelines CI/CD son el lugar natural para integrar SAST, SCA y validaciones de seguridad requeridas por ENS (mp.sw.2).",
+      "options": [
+        {
+          "value": "si_github_actions",
+          "label": "Si, GitHub Actions"
+        },
+        {
+          "value": "si_gitlab_ci",
+          "label": "Si, GitLab CI/CD"
+        },
+        {
+          "value": "si_jenkins",
+          "label": "Si, Jenkins u otra plataforma"
+        },
+        {
+          "value": "parcial",
+          "label": "Parcialmente (no todos los entornos)"
+        },
+        {
+          "value": "no",
+          "label": "No, despliegues manuales"
+        }
+      ],
+      "validation": {
+        "required": true
+      }
+    },
+    {
+      "id": "q-container_orchestration",
+      "type": "single_select",
+      "section": "infraestructura",
+      "label": "Usais orquestacion de contenedores?",
+      "tooltip": "Kubernetes y ECS requieren controles especificos de aislamiento de workloads y gestion de secretos bajo ENS (op.nub.1, mp.sw.2).",
+      "options": [
+        {
+          "value": "kubernetes",
+          "label": "Kubernetes (EKS, GKE, AKS o self-managed)"
+        },
+        {
+          "value": "ecs_fargate",
+          "label": "AWS ECS / Fargate"
+        },
+        {
+          "value": "docker_compose",
+          "label": "Docker Compose (sin orquestacion avanzada)"
+        },
+        {
+          "value": "serverless",
+          "label": "Principalmente serverless / FaaS"
+        },
+        {
+          "value": "no_contenedores",
+          "label": "No usamos contenedores"
+        }
+      ],
+      "validation": {
+        "required": true
+      }
+    },
+    {
+      "id": "q-api_publica",
+      "type": "boolean",
+      "section": "arquitectura",
+      "label": "Teneis una API publica o accesible a clientes y/o integradores externos?",
+      "tooltip": "Las APIs publicas requieren autenticacion robusta, rate limiting y gestion de claves API (op.acc.5, op.acc.6). Es un vector de ataque critico en un SaaS.",
+      "validation": {
+        "required": true
+      }
+    },
+    {
+      "id": "q-gestion_dependencias",
+      "type": "single_select",
+      "section": "desarrollo",
+      "label": "Como gestionais las vulnerabilidades en dependencias de terceros (SCA)?",
+      "tooltip": "El analisis de composicion de software (SCA) es necesario para cumplir mp.sw.2 y evitar CVEs conocidos en produccion.",
+      "options": [
+        {
+          "value": "herramienta_automatica",
+          "label": "Herramienta automatica (Dependabot, Snyk, OWASP Dependency-Check)"
+        },
+        {
+          "value": "revision_manual",
+          "label": "Revision manual periodica"
+        },
+        {
+          "value": "solo_en_auditoria",
+          "label": "Solo cuando hay auditoria o incidente"
+        },
+        {
+          "value": "no_proceso",
+          "label": "No tenemos proceso formal"
+        }
+      ],
+      "validation": {
+        "required": true
+      }
+    },
+    {
+      "id": "q-waf_cdn",
+      "type": "single_select",
+      "section": "perimetro",
+      "label": "Teneis WAF (Web Application Firewall) y/o CDN en produccion?",
+      "tooltip": "El WAF protege contra ataques OWASP Top 10 y es un control tecnico recomendado para ENS Medio y Alto (op.acc.7, mp.com.1).",
+      "options": [
+        {
+          "value": "waf_y_cdn",
+          "label": "Si, WAF y CDN (Cloudflare, Akamai, AWS WAF+CloudFront)"
+        },
+        {
+          "value": "solo_waf",
+          "label": "Solo WAF"
+        },
+        {
+          "value": "solo_cdn",
+          "label": "Solo CDN"
+        },
+        {
+          "value": "planeado",
+          "label": "No actualmente, esta planeado"
+        },
+        {
+          "value": "no",
+          "label": "No"
+        }
+      ],
+      "validation": {
+        "required": true
+      }
+    },
+    {
+      "id": "q-siem_activo",
+      "type": "single_select",
+      "section": "monitorizacion",
+      "label": "Teneis SIEM o plataforma de gestion centralizada de logs y alertas de seguridad?",
+      "tooltip": "La monitorizacion continua con alertas es obligatoria en ENS Medio y Alto (op.mon.1, op.mon.3).",
+      "options": [
+        {
+          "value": "siem_dedicado",
+          "label": "Si, SIEM dedicado (Splunk, Elastic SIEM, Sentinel, etc.)"
+        },
+        {
+          "value": "cloud_native",
+          "label": "Si, herramientas cloud nativas (CloudWatch, GCP Security Command Center, etc.)"
+        },
+        {
+          "value": "logs_centralizados",
+          "label": "Logs centralizados pero sin alertas automaticas"
+        },
+        {
+          "value": "no",
+          "label": "No tenemos monitorizacion centralizada"
+        }
+      ],
+      "validation": {
+        "required": true
+      }
+    },
+    {
+      "id": "q-mfa_universal",
+      "type": "single_select",
+      "section": "identidad",
+      "label": "El MFA esta habilitado de forma obligatoria para todos los usuarios de la plataforma (empleados y clientes)?",
+      "tooltip": "MFA universal es requisito en ENS Medio y Alto (op.acc.6 R2). Para un SaaS con clientes AAPP es un control critico e innegociable.",
+      "options": [
+        {
+          "value": "empleados_y_clientes",
+          "label": "Si, para empleados y clientes"
+        },
+        {
+          "value": "solo_empleados",
+          "label": "Solo para empleados internos"
+        },
+        {
+          "value": "solo_privilegiados",
+          "label": "Solo para roles privilegiados"
+        },
+        {
+          "value": "voluntario",
+          "label": "Disponible pero voluntario"
+        },
+        {
+          "value": "no",
+          "label": "No esta implementado"
+        }
+      ],
+      "validation": {
+        "required": true
+      }
+    },
+    {
+      "id": "q-ultimo_pentest",
+      "type": "single_select",
+      "section": "seguridad_ofensiva",
+      "label": "Cuando realizasteis el ultimo pentest externo sobre el SaaS?",
+      "tooltip": "ENS Medio y Alto requieren pruebas de penetracion periodicas (mp.s.2). Para un SaaS, el perimetro web y API son el objetivo principal.",
+      "options": [
+        {
+          "value": "ultimo_ano",
+          "label": "En el ultimo ano"
+        },
+        {
+          "value": "hace_1_2_anos",
+          "label": "Hace 1-2 anos"
+        },
+        {
+          "value": "mas_2_anos",
+          "label": "Hace mas de 2 anos"
+        },
+        {
+          "value": "nunca",
+          "label": "Nunca se ha realizado"
+        }
+      ],
+      "validation": {
+        "required": true
+      }
+    },
+    {
+      "id": "q-clientes_publicos",
+      "type": "boolean",
+      "section": "contexto_sectorial",
+      "label": "Teneis clientes del sector publico espanol?",
+      "validation": {
+        "required": true
+      }
+    },
+    {
+      "id": "q-soc_pentest_recientes",
+      "type": "single_select",
+      "section": "contexto_sectorial",
+      "label": "Habeis realizado pentest externo en los ultimos 12 meses?",
+      "options": [
+        {
+          "value": "si_sin_hallazgos_criticos",
+          "label": "Si, sin hallazgos criticos"
+        },
+        {
+          "value": "si_con_hallazgos",
+          "label": "Si, con hallazgos abiertos"
+        },
+        {
+          "value": "no",
+          "label": "No"
+        }
+      ],
+      "validation": {
+        "required": false
+      }
+    },
+    {
+      "id": "q-mfa_proveedores",
+      "type": "boolean",
+      "section": "infraestructura",
+      "label": "MFA obligatorio tambien para proveedores externos con acceso?",
+      "validation": {
+        "required": true
+      }
+    },
+    {
+      "id": "q-segregacion_red",
+      "type": "single_select",
+      "section": "infraestructura",
+      "label": "Segregacion de red corporativa",
+      "options": [
+        {
+          "value": "completa",
+          "label": "Completa (VLANs por zona)"
+        },
+        {
+          "value": "parcial",
+          "label": "Parcial"
+        },
+        {
+          "value": "ninguna",
+          "label": "Red plana"
+        }
+      ],
+      "validation": {
+        "required": true
+      }
+    },
+    {
+      "id": "q-cobertura_edr",
+      "type": "single_select",
+      "section": "infraestructura",
+      "label": "Cobertura EDR/antimalware en endpoints",
+      "options": [
+        {
+          "value": "100",
+          "label": "100%"
+        },
+        {
+          "value": "80_99",
+          "label": "80-99%"
+        },
+        {
+          "value": "menos_80",
+          "label": "<80%"
+        }
+      ],
+      "validation": {
+        "required": true
+      }
+    }
+  ]
+}

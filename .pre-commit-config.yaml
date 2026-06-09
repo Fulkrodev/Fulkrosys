@@ -1,0 +1,9 @@
+repos:
+  - repo: local
+    hooks:
+      - id: no-paso-prefix
+        name: Prevent new paso{N}_* prefix files
+        entry: python backend/scripts/ruff_rules/no_paso_prefix.py
+        language: system
+        types: [python]
+        pass_filenames: true

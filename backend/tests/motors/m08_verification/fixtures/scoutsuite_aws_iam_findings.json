@@ -1,0 +1,62 @@
+{
+  "last_run": {
+    "time": "2026-04-24T09:00:00Z",
+    "run_parameters": {"services": ["iam", "cloudtrail"]}
+  },
+  "provider_code": "aws",
+  "provider_name": "Amazon Web Services",
+  "account_id": "123456789012",
+  "services": {
+    "iam": {
+      "findings": {
+        "iam-root-account-used-recently": {
+          "description": "Root account used in the last 30 days",
+          "rationale": "Root account should only be used to bootstrap the environment. Use IAM users with minimum privilege instead.",
+          "dashboard_name": "Root activity",
+          "level": "danger",
+          "checked_items": 1,
+          "flagged_items": 1,
+          "items": ["arn:aws:iam::123456789012:root"],
+          "remediation": "Avoid direct root usage. Create admin IAM users and rotate access keys."
+        },
+        "iam-user-with-password-and-no-mfa": {
+          "description": "IAM user with password login and without MFA enabled",
+          "rationale": "MFA reduces risk of account compromise.",
+          "dashboard_name": "IAM user security",
+          "level": "danger",
+          "checked_items": 4,
+          "flagged_items": 2,
+          "items": [
+            "arn:aws:iam::123456789012:user/fulkro-admin",
+            "arn:aws:iam::123456789012:user/reports-viewer"
+          ],
+          "remediation": "Enable hardware or virtual MFA device per user."
+        },
+        "iam-user-with-multiple-access-keys": {
+          "description": "IAM user with more than one active access key",
+          "rationale": "Multiple active keys complicate rotation and incident response.",
+          "dashboard_name": "IAM user security",
+          "level": "warning",
+          "checked_items": 4,
+          "flagged_items": 1,
+          "items": ["arn:aws:iam::123456789012:user/fulkro-admin"],
+          "remediation": "Keep at most one active key and rotate every 90 days."
+        }
+      }
+    },
+    "cloudtrail": {
+      "findings": {
+        "cloudtrail-no-global-trail": {
+          "description": "No multi-region CloudTrail configured",
+          "rationale": "Without multi-region trail, cross-region actions are not audited.",
+          "dashboard_name": "CloudTrail",
+          "level": "danger",
+          "checked_items": 1,
+          "flagged_items": 1,
+          "items": [],
+          "remediation": "Enable a multi-region CloudTrail covering all event types."
+        }
+      }
+    }
+  }
+}

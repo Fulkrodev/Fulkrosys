@@ -1,0 +1,227 @@
+{
+  "id": "onb-educacion_privada-ti_cto-v1",
+  "version": "1.0",
+  "sector": "educacion_privada",
+  "role": "ti_cto",
+  "nombre": "Onboarding TI / CTO - Educacion Privada",
+  "descripcion": "Cuestionario de onboarding para el rol TI / CTO en una organizacion del sector Educacion Privada. Recoge contexto estrategico, operativo y regulatorio necesario para arrancar el proyecto ENS.",
+  "tiempo_estimado_minutos": 38,
+  "language": "es",
+  "questions": [
+    {
+      "id": "q-empresa_nombre",
+      "type": "text",
+      "section": "identificacion",
+      "label": "Nombre comercial de la empresa",
+      "validation": {
+        "required": true,
+        "min_length": 2,
+        "max_length": 120
+      }
+    },
+    {
+      "id": "q-persona_contacto",
+      "type": "text",
+      "section": "identificacion",
+      "label": "Nombre de la persona que cumplimenta este cuestionario",
+      "validation": {
+        "required": true,
+        "min_length": 2,
+        "max_length": 120
+      }
+    },
+    {
+      "id": "q-cargo_contacto",
+      "type": "text",
+      "section": "identificacion",
+      "label": "Cargo de la persona de contacto",
+      "validation": {
+        "required": true,
+        "max_length": 120
+      }
+    },
+    {
+      "id": "q-email_contacto",
+      "type": "email",
+      "section": "identificacion",
+      "label": "Email de contacto",
+      "validation": {
+        "required": true
+      }
+    },
+    {
+      "id": "q-numero_servidores",
+      "type": "number",
+      "section": "infraestructura",
+      "label": "Numero aproximado de servidores (fisicos + virtuales)",
+      "validation": {
+        "required": true,
+        "min_value": 0
+      }
+    },
+    {
+      "id": "q-usuarios_activos",
+      "type": "number",
+      "section": "infraestructura",
+      "label": "Numero de usuarios activos en el sistema",
+      "validation": {
+        "required": true,
+        "min_value": 0
+      }
+    },
+    {
+      "id": "q-directorio_activo",
+      "type": "boolean",
+      "section": "infraestructura",
+      "label": "Usais Active Directory / LDAP / IdP central?",
+      "validation": {
+        "required": true
+      }
+    },
+    {
+      "id": "q-mfa_implantado",
+      "type": "single_select",
+      "section": "infraestructura",
+      "label": "MFA implantado?",
+      "options": [
+        {
+          "value": "completo",
+          "label": "Si, para todos"
+        },
+        {
+          "value": "parcial",
+          "label": "Solo admin/privilegiado"
+        },
+        {
+          "value": "no",
+          "label": "No implantado"
+        }
+      ],
+      "validation": {
+        "required": true
+      }
+    },
+    {
+      "id": "q-backup_estrategia",
+      "type": "single_select",
+      "section": "infraestructura",
+      "label": "Estrategia de backup actual",
+      "options": [
+        {
+          "value": "3_2_1",
+          "label": "Regla 3-2-1"
+        },
+        {
+          "value": "basico",
+          "label": "Backup diario basico"
+        },
+        {
+          "value": "cloud",
+          "label": "Solo cloud nativo"
+        },
+        {
+          "value": "ninguno",
+          "label": "Sin backup sistematico"
+        }
+      ],
+      "validation": {
+        "required": true
+      }
+    },
+    {
+      "id": "q-lms",
+      "type": "single_select",
+      "section": "contexto_sectorial",
+      "label": "Que LMS usais?",
+      "options": [
+        {
+          "value": "moodle",
+          "label": "Moodle"
+        },
+        {
+          "value": "google_classroom",
+          "label": "Google Classroom"
+        },
+        {
+          "value": "canvas",
+          "label": "Canvas"
+        },
+        {
+          "value": "blackboard",
+          "label": "Blackboard"
+        },
+        {
+          "value": "propio",
+          "label": "LMS propio"
+        },
+        {
+          "value": "ninguno",
+          "label": "Ninguno"
+        }
+      ],
+      "validation": {
+        "required": true
+      }
+    },
+    {
+      "id": "q-datos_menores",
+      "type": "boolean",
+      "section": "contexto_sectorial",
+      "label": "Tratais datos de menores de edad (LOPDGDD art. 7)?",
+      "tooltip": "Los datos de menores requieren consentimiento de padres/tutores.",
+      "validation": {
+        "required": true
+      }
+    },
+    {
+      "id": "q-campus_virtual",
+      "type": "boolean",
+      "section": "contexto_sectorial",
+      "label": "Teneis campus virtual (streaming, tutorias online)?",
+      "validation": {
+        "required": false
+      }
+    },
+    {
+      "id": "q-sied_becas",
+      "type": "boolean",
+      "section": "contexto_sectorial",
+      "label": "Gestionais SIED/becas con intercambio con AAPP?",
+      "validation": {
+        "required": false
+      }
+    },
+    {
+      "id": "q-mfa_proveedores",
+      "type": "boolean",
+      "section": "infraestructura",
+      "label": "MFA obligatorio tambien para proveedores externos con acceso?",
+      "validation": {
+        "required": true
+      }
+    },
+    {
+      "id": "q-segregacion_red",
+      "type": "single_select",
+      "section": "infraestructura",
+      "label": "Segregacion de red corporativa",
+      "options": [
+        {
+          "value": "completa",
+          "label": "Completa (VLANs por zona)"
+        },
+        {
+          "value": "parcial",
+          "label": "Parcial"
+        },
+        {
+          "value": "ninguna",
+          "label": "Red plana"
+        }
+      ],
+      "validation": {
+        "required": true
+      }
+    }
+  ]
+}

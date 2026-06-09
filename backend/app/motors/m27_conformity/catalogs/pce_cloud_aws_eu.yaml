@@ -1,0 +1,91 @@
+# PCE Cloud AWS EU — Perfil de Cumplimiento AWS region EU
+# Aplicable a proyectos ENS con workloads en AWS eu-west-* / eu-central-*.
+
+overlay_type: cloud_aws_eu
+version: "1.0"
+applicability:
+  conditions:
+    - client_uses_aws_account: true
+    - workloads_in_eu_region: true
+  category_min: "BASICA"
+  auto_detect_hints:
+    - "aws_account_id"
+    - "eu-west-1"
+    - "eu-central-1"
+    - "IAM"
+    - "awsamazon.com"
+
+extra_measures:
+  - code: "op.pl.5.pce-aws.1"
+    title: "IAM Identity Center + MFA obligatoria en root y cuentas admin"
+    justification: >
+      Single Sign-On, SCP organization-wide, roles con least-privilege
+      segun AWS Well-Architected.
+    dimensions: [A, I, C, D]
+    category: "BASICA"
+  - code: "op.exp.10.pce-aws.1"
+    title: "AWS Security Hub + GuardDuty activos multi-region"
+    dimensions: [D, I]
+    category: "MEDIA"
+  - code: "op.mon.2.pce-aws.1"
+    title: "CloudTrail multi-region con S3 Object Lock (WORM)"
+    justification: >
+      Activity logs inmutables con retencion minima 400 dias. Log
+      file integrity validation habilitada.
+    dimensions: [T]
+    category: "BASICA"
+  - code: "op.cont.3.pce-aws.1"
+    title: "AWS Backup con cross-region copy en paired region EU"
+    dimensions: [D]
+    category: "MEDIA"
+  - code: "mp.com.2.pce-aws.1"
+    title: "VPC con Network Firewall + Security Groups deny-by-default"
+    dimensions: [C, I]
+    category: "MEDIA"
+  - code: "op.acc.5.pce-aws.1"
+    title: "IAM Access Analyzer + external resource audit mensual"
+    dimensions: [A, T]
+    category: "MEDIA"
+  - code: "mp.info.9.pce-aws.1"
+    title: "AWS KMS con CMKs + rotation anual para datos C/I/MEDIA"
+    dimensions: [C, I]
+    category: "MEDIA"
+  - code: "mp.info.3.pce-aws.1"
+    title: "Macie para discovery y clasificacion S3"
+    dimensions: [C]
+    category: "MEDIA"
+  - code: "op.exp.3.pce-aws.1"
+    title: "AWS Config con Compliance Pack CIS Benchmark"
+    dimensions: [T]
+    category: "MEDIA"
+  - code: "op.exp.7.pce-aws.1"
+    title: "Centralized SIEM via CloudWatch Logs -> OpenSearch / Splunk"
+    dimensions: [T, D]
+    category: "ALTA"
+  - code: "mp.sw.2.pce-aws.1"
+    title: "Systems Manager Patch Manager con compliance reports"
+    dimensions: [D, I]
+    category: "BASICA"
+  - code: "op.ext.4.pce-aws.1"
+    title: "AWS DPA firmado + GDPR addendum + transferencias"
+    dimensions: [C]
+    category: "BASICA"
+  - code: "mp.per.3.pce-aws.1"
+    title: "SSM Session Manager (zero-SSH) + audit logs"
+    dimensions: [A, T]
+    category: "MEDIA"
+  - code: "org.4.pce-aws.1"
+    title: "AWS Organizations SCP para aislar cuentas productivas"
+    dimensions: [A, T]
+    category: "MEDIA"
+  - code: "op.pl.4.pce-aws.1"
+    title: "Tagging estandar obligatorio: Environment, Owner, CostCenter"
+    dimensions: [T]
+    category: "BASICA"
+
+compliance_checklist:
+  - "Evidencia E-041-aws: screenshot Security Hub dashboard green"
+  - "Evidencia E-041-aws: export IAM Access Analyzer findings"
+  - "Evidencia E-041-aws: CloudTrail Object Lock policy + log sample"
+  - "Evidencia E-041-aws: AWS Config Compliance Report CIS"
+  - "Evidencia E-041-aws: DPA AWS Ireland firmado"

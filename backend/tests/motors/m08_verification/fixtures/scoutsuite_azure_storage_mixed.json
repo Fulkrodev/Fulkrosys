@@ -1,0 +1,72 @@
+{
+  "last_run": {
+    "time": "2026-04-24T09:10:00Z",
+    "run_parameters": {"services": ["storageaccounts", "sqldatabase", "network"]}
+  },
+  "provider_code": "azure",
+  "provider_name": "Microsoft Azure",
+  "account_id": "sub-00000000-0000-0000-0000-000000000001",
+  "services": {
+    "storageaccounts": {
+      "findings": {
+        "azure-storage-account-blob-public": {
+          "description": "Storage account with blob public access allowed",
+          "rationale": "Public blob access risks data exfiltration.",
+          "dashboard_name": "Storage",
+          "level": "danger",
+          "checked_items": 3,
+          "flagged_items": 1,
+          "items": [
+            "/subscriptions/sub-00000000/resourceGroups/rg-fulkro/providers/Microsoft.Storage/storageAccounts/fulkroPublicStorage"
+          ],
+          "remediation": "Set allowBlobPublicAccess=false at account level."
+        },
+        "azure-storage-account-no-soft-delete": {
+          "description": "Storage account without soft-delete enabled",
+          "rationale": "Soft-delete protects against accidental/malicious deletion.",
+          "dashboard_name": "Storage",
+          "level": "warning",
+          "checked_items": 3,
+          "flagged_items": 2,
+          "items": [
+            "/subscriptions/sub-00000000/resourceGroups/rg-fulkro/providers/Microsoft.Storage/storageAccounts/fulkroPublicStorage",
+            "/subscriptions/sub-00000000/resourceGroups/rg-fulkro/providers/Microsoft.Storage/storageAccounts/fulkroLogsStorage"
+          ],
+          "remediation": "Enable blob soft-delete with 7+ day retention."
+        }
+      }
+    },
+    "sqldatabase": {
+      "findings": {
+        "azure-sqldatabase-no-encryption": {
+          "description": "Azure SQL Database without transparent data encryption (TDE)",
+          "rationale": "Data at rest must be encrypted.",
+          "dashboard_name": "SQL",
+          "level": "danger",
+          "checked_items": 2,
+          "flagged_items": 1,
+          "items": [
+            "/subscriptions/sub-00000000/resourceGroups/rg-fulkro/providers/Microsoft.Sql/servers/fulkro-sql/databases/app-db"
+          ],
+          "remediation": "Enable TDE with service-managed key or customer key."
+        }
+      }
+    },
+    "network": {
+      "findings": {
+        "azure-network-security-group-open": {
+          "description": "NSG allows inbound traffic from 0.0.0.0/0 on sensitive ports",
+          "rationale": "Unrestricted ingress to admin ports is a critical exposure.",
+          "dashboard_name": "Network",
+          "level": "danger",
+          "checked_items": 5,
+          "flagged_items": 1,
+          "items": [
+            "/subscriptions/sub-00000000/resourceGroups/rg-fulkro/providers/Microsoft.Network/networkSecurityGroups/fulkro-nsg-prod"
+          ],
+          "remediation": "Restrict SSH/RDP/3389 inbound to bastion or VPN CIDR."
+        }
+      }
+    }
+  }
+}

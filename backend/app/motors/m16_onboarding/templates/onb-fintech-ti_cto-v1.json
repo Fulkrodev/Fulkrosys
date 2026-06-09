@@ -1,0 +1,355 @@
+{
+  "id": "onb-fintech-ti_cto-v1",
+  "version": "1.0",
+  "sector": "fintech",
+  "role": "ti_cto",
+  "nombre": "Onboarding Responsable TI — Fintech",
+  "descripcion": "Onboarding para el CTO o responsable TI de una fintech. Recoge stack, identidad, crypto, segregacion de entornos y compliance tecnico PCI/DORA.",
+  "tiempo_estimado_minutos": 38,
+  "language": "es",
+  "questions": [
+    {
+      "id": "q-identity_provider",
+      "type": "single_select",
+      "section": "identidad",
+      "label": "Que plataforma de identidad usais?",
+      "tooltip": "Critico para ENS op.acc.* y para integrar connectors de discovery.",
+      "options": [
+        {
+          "value": "microsoft_365",
+          "label": "Microsoft 365 / Entra ID"
+        },
+        {
+          "value": "google_workspace",
+          "label": "Google Workspace"
+        },
+        {
+          "value": "okta",
+          "label": "Okta"
+        },
+        {
+          "value": "auth0",
+          "label": "Auth0"
+        },
+        {
+          "value": "otro",
+          "label": "Otro"
+        }
+      ],
+      "validation": {
+        "required": true
+      }
+    },
+    {
+      "id": "q-mfa_universal",
+      "type": "single_select",
+      "section": "identidad",
+      "label": "MFA obligatorio para todos los usuarios?",
+      "tooltip": "ENS Medio+ y DORA exigen MFA universal. En fintech es critico.",
+      "options": [
+        {
+          "value": "si_todos",
+          "label": "Si, todos"
+        },
+        {
+          "value": "solo_privilegiados",
+          "label": "Solo privilegiados"
+        },
+        {
+          "value": "voluntario",
+          "label": "Voluntario"
+        },
+        {
+          "value": "no",
+          "label": "No"
+        }
+      ],
+      "validation": {
+        "required": true
+      }
+    },
+    {
+      "id": "q-hsm_kms",
+      "type": "single_select",
+      "section": "criptografia",
+      "label": "Usais HSM o KMS para gestion de claves criptograficas?",
+      "tooltip": "ENS mp.info.3 y PCI-DSS requieren gestion de claves robusta.",
+      "options": [
+        {
+          "value": "hsm_dedicado",
+          "label": "HSM dedicado"
+        },
+        {
+          "value": "cloud_kms",
+          "label": "Cloud KMS (AWS KMS, Azure Key Vault)"
+        },
+        {
+          "value": "software",
+          "label": "Gestion por software"
+        },
+        {
+          "value": "no_formal",
+          "label": "Sin gestion formal"
+        }
+      ],
+      "validation": {
+        "required": true
+      }
+    },
+    {
+      "id": "q-datos_sensibles",
+      "type": "multi_select",
+      "section": "datos",
+      "label": "Que tipos de datos especialmente sensibles tratais?",
+      "tooltip": "Determina requisitos de cifrado y controles adicionales.",
+      "options": [
+        {
+          "value": "transacciones",
+          "label": "Transacciones financieras"
+        },
+        {
+          "value": "balances",
+          "label": "Balances de cuentas"
+        },
+        {
+          "value": "tarjetas",
+          "label": "Datos de tarjetas (PCI scope)"
+        },
+        {
+          "value": "scoring",
+          "label": "Scoring crediticio"
+        },
+        {
+          "value": "pii_basico",
+          "label": "Solo datos personales basicos"
+        }
+      ],
+      "validation": {
+        "required": true
+      }
+    },
+    {
+      "id": "q-segregacion_entornos",
+      "type": "single_select",
+      "section": "infraestructura",
+      "label": "Teneis entornos separados (produccion, staging, desarrollo)?",
+      "tooltip": "La segregacion es obligatoria en ENS Medio+ y critica para PCI.",
+      "options": [
+        {
+          "value": "completa",
+          "label": "Completa (prod + staging + dev separados)"
+        },
+        {
+          "value": "parcial",
+          "label": "Parcial (prod separado, staging/dev juntos)"
+        },
+        {
+          "value": "no",
+          "label": "No hay segregacion formal"
+        }
+      ],
+      "validation": {
+        "required": true
+      }
+    },
+    {
+      "id": "q-api_banking",
+      "type": "boolean",
+      "section": "infraestructura",
+      "label": "Exponeis APIs bancarias o de pagos a terceros?",
+      "tooltip": "APIs de pagos tienen requisitos PSD2/SCA y ENS op.ext.4.",
+      "validation": {
+        "required": true
+      }
+    },
+    {
+      "id": "q-pci_scope",
+      "type": "single_select",
+      "section": "compliance",
+      "label": "Estais bajo alcance PCI-DSS?",
+      "tooltip": "Si procesais datos de tarjetas, PCI-DSS es obligatorio ademas del ENS.",
+      "options": [
+        {
+          "value": "certificado",
+          "label": "Si, certificados PCI-DSS"
+        },
+        {
+          "value": "en_proceso",
+          "label": "En proceso de certificacion"
+        },
+        {
+          "value": "no_aplica",
+          "label": "No procesamos datos de tarjetas"
+        },
+        {
+          "value": "no_seguro",
+          "label": "No estoy seguro"
+        }
+      ],
+      "validation": {
+        "required": true
+      }
+    },
+    {
+      "id": "q-siem_soc",
+      "type": "single_select",
+      "section": "monitorizacion",
+      "label": "Teneis SIEM y/o SOC (propio o contratado)?",
+      "tooltip": "ENS Medio+ requiere monitorizacion continua. DORA lo refuerza.",
+      "options": [
+        {
+          "value": "siem_soc_propio",
+          "label": "SIEM + SOC propio"
+        },
+        {
+          "value": "soc_externo",
+          "label": "SOC contratado"
+        },
+        {
+          "value": "solo_siem",
+          "label": "Solo SIEM sin SOC"
+        },
+        {
+          "value": "no",
+          "label": "No tenemos"
+        }
+      ],
+      "validation": {
+        "required": true
+      }
+    },
+    {
+      "id": "q-backup_strategy",
+      "type": "single_select",
+      "section": "continuidad",
+      "label": "Como gestionais backups?",
+      "tooltip": "ENS y DORA requieren backups cifrados con pruebas de restauracion.",
+      "options": [
+        {
+          "value": "cloud_auto",
+          "label": "Cloud automatico cifrado"
+        },
+        {
+          "value": "software_dedicado",
+          "label": "Software dedicado"
+        },
+        {
+          "value": "manual",
+          "label": "Manual"
+        },
+        {
+          "value": "no_formal",
+          "label": "Sin proceso formal"
+        }
+      ],
+      "validation": {
+        "required": true
+      }
+    },
+    {
+      "id": "q-pentest_frecuencia",
+      "type": "single_select",
+      "section": "seguridad_ofensiva",
+      "label": "Con que frecuencia haceis pentest?",
+      "tooltip": "ENS Medio+ y DORA exigen pentest regular. PCI requiere anual.",
+      "options": [
+        {
+          "value": "trimestral",
+          "label": "Trimestral"
+        },
+        {
+          "value": "semestral",
+          "label": "Semestral"
+        },
+        {
+          "value": "anual",
+          "label": "Anual"
+        },
+        {
+          "value": "nunca",
+          "label": "Nunca"
+        }
+      ],
+      "validation": {
+        "required": true
+      }
+    },
+    {
+      "id": "q-volumen_transacciones",
+      "type": "single_select",
+      "section": "contexto_sectorial",
+      "label": "Volumen aproximado de transacciones procesadas al mes",
+      "options": [
+        {
+          "value": "menos_10k",
+          "label": "<10k"
+        },
+        {
+          "value": "10k_100k",
+          "label": "10k - 100k"
+        },
+        {
+          "value": "100k_1m",
+          "label": "100k - 1M"
+        },
+        {
+          "value": "mas_1m",
+          "label": ">1M"
+        }
+      ],
+      "validation": {
+        "required": true
+      }
+    },
+    {
+      "id": "q-kyc_aml",
+      "type": "boolean",
+      "section": "contexto_sectorial",
+      "label": "Aplicais procesos KYC y AML conforme a SEPBLAC?",
+      "validation": {
+        "required": true
+      }
+    },
+    {
+      "id": "q-open_banking",
+      "type": "boolean",
+      "section": "contexto_sectorial",
+      "label": "Operais bajo PSD2 (Open Banking)?",
+      "validation": {
+        "required": false
+      }
+    },
+    {
+      "id": "q-mfa_proveedores",
+      "type": "boolean",
+      "section": "infraestructura",
+      "label": "MFA obligatorio tambien para proveedores externos con acceso?",
+      "validation": {
+        "required": true
+      }
+    },
+    {
+      "id": "q-segregacion_red",
+      "type": "single_select",
+      "section": "infraestructura",
+      "label": "Segregacion de red corporativa",
+      "options": [
+        {
+          "value": "completa",
+          "label": "Completa (VLANs por zona)"
+        },
+        {
+          "value": "parcial",
+          "label": "Parcial"
+        },
+        {
+          "value": "ninguna",
+          "label": "Red plana"
+        }
+      ],
+      "validation": {
+        "required": true
+      }
+    }
+  ]
+}

@@ -1,0 +1,439 @@
+name: Admin + Cliente + Auditor Polish Empirical
+
+# Sub-atom Sesión 3B-2B.3 · regression-proof permanent EXPANDED 80 pages.
+# Ejecutable 7 (2026-05-27) · consolidate Path A · adds cliente + auditor jobs.
+#
+# Locks in:
+#   ─ Admin (80 pages · job polish-empirical):
+#     · 5 PROBE pages (dashboard · projects selector · roadmap · summary · dda)
+#     · 13 P1 pages (cliente-piloto-MEDIA core workflow)
+#     · 42 P2 pages (daily-use Marcos workflow · cliente piloto visibility)
+#     · 20 P3 pages (secundarias edge/lifecycle)
+#   ─ Cliente portal (10 pages · job cliente-polish-empirical):
+#     · 01-10 dashboard · conformidad · evidencias · files · magerit · dda ·
+#       retainer-checkin · billing · account · tasks
+#   ─ Auditor portal (12 pages · job auditor-polish-empirical):
+#     · 01-09 portal sections (summary · dda · magerit · plan · evidence ·
+#       e041 · audit_log · pentest · documents)
+#     · 10 annotations_panel · 11 dda_evidence_gaps · 12 draft_report
+#
+# Coverage real 80/83 admin = 96% · 10/10 cliente · 12/12 auditor.
+#
+# Fails build if ANY axe critical/serious violation appears on these pages
+# (regression-proof) OR if any spec fails its 4 explicit criteria.
+
+on:
+  pull_request:
+    branches: [main, fulkro-1.0, radar-v9]
+    paths:
+      - "frontend/**"
+      - ".github/workflows/admin-polish-empirical.yml"
+  push:
+    branches: [main, fulkro-1.0]
+    paths:
+      - "frontend/**"
+      - ".github/workflows/admin-polish-empirical.yml"
+
+jobs:
+  polish-empirical:
+    name: Admin Polish 80 pages (PROBE + P1 + P2 + P3)
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+
+    services:
+      postgres:
+        image: pgvector/pgvector:pg16
+        env:
+          POSTGRES_USER: fulkro
+          POSTGRES_PASSWORD: fulkro
+          POSTGRES_DB: fulkro_dev
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U fulkro"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Setup Python 3.12 (for backend)
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install frontend deps
+        working-directory: frontend
+        run: npm ci
+
+      - name: Install Playwright browsers
+        working-directory: frontend
+        run: npx playwright install --with-deps chromium
+
+      - name: Install backend deps
+        working-directory: backend
+        run: |
+          pip install -r requirements.txt
+          pip install -r requirements-dev.txt
+
+      - name: Run backend migrations + seed
+        working-directory: backend
+        env:
+          DATABASE_URL: postgresql://fulkro:fulkro@localhost:5432/fulkro_dev
+          APP_ENV: dev
+        run: |
+          alembic upgrade head
+          # Optionally seed test clients via _dev endpoint (handled by globalSetup)
+
+      - name: Start backend
+        working-directory: backend
+        env:
+          DATABASE_URL: postgresql://fulkro:fulkro@localhost:5432/fulkro_dev
+          APP_ENV: dev
+          FULKRO_AUTH_PUBLIC_KEY: ${{ secrets.FULKRO_AUTH_PUBLIC_KEY }}
+          FULKRO_AUTH_PRIVATE_KEY: ${{ secrets.FULKRO_AUTH_PRIVATE_KEY }}
+        run: |
+          uvicorn app.main:app --host 0.0.0.0 --port 8000 &
+          # Wait for healthcheck
+          for i in {1..30}; do
+            if curl -fsS http://localhost:8000/health > /dev/null; then
+              echo "Backend ready"
+              break
+            fi
+            sleep 1
+          done
+
+      - name: Build frontend (prod · stable HMR-free)
+        working-directory: frontend
+        env:
+          FULKRO_BACKEND_URL: http://localhost:8000
+          FULKRO_AUTH_PUBLIC_KEY: ${{ secrets.FULKRO_AUTH_PUBLIC_KEY }}
+        run: npm run build
+
+      - name: Start frontend (next start · port 3100)
+        working-directory: frontend
+        env:
+          FULKRO_BACKEND_URL: http://localhost:8000
+          FULKRO_AUTH_PUBLIC_KEY: ${{ secrets.FULKRO_AUTH_PUBLIC_KEY }}
+        run: |
+          npx next start -p 3100 &
+          for i in {1..30}; do
+            if curl -fsS -o /dev/null http://localhost:3100; then
+              echo "Frontend ready"
+              break
+            fi
+            sleep 1
+          done
+
+      - name: Run admin polish empirical (PROBE + P1 + P2 + P3 · 80 pages)
+        working-directory: frontend
+        env:
+          PLAYWRIGHT_PORT: 3100
+          PLAYWRIGHT_SKIP_WEB_SERVER: "1"
+          PLAYWRIGHT_BACKEND_URL: http://localhost:8000
+        run: |
+          # Run all green pages · PROBE + P1 + P2 + P3 = 80 admin pages
+          # Sesión 3B-2B.3 expansion · 22 → 80 verified empirical 96% coverage
+          npx playwright test --config=playwright.polish.config.ts \
+            tests/polish/probe/ \
+            tests/polish/p1/ \
+            tests/polish/p2/ \
+            tests/polish/p3/ \
+            --reporter=list,html
+
+      - name: Upload polish HTML report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: polish-report-admin
+          path: frontend/polish-report/
+          retention-days: 14
+
+      - name: Upload polish test results (traces · screenshots · violations)
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: polish-test-results-admin
+          path: frontend/polish-test-results/
+          retention-days: 14
+
+  # ===========================================================================
+  # Cliente portal polish job · Ejecutable 7 Phase 7.A.3 (2026-05-27)
+  # OPS-026 DRY · mirror admin job setup steps · gate critical+serious axe = 0
+  # ===========================================================================
+  cliente-polish-empirical:
+    name: Cliente Polish 10 pages (dashboard + 9 core)
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    services:
+      postgres:
+        image: pgvector/pgvector:pg16
+        env:
+          POSTGRES_USER: fulkro
+          POSTGRES_PASSWORD: fulkro
+          POSTGRES_DB: fulkro_dev
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U fulkro"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Setup Python 3.12 (for backend)
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install frontend deps
+        working-directory: frontend
+        run: npm ci
+
+      - name: Install Playwright browsers
+        working-directory: frontend
+        run: npx playwright install --with-deps chromium
+
+      - name: Install backend deps
+        working-directory: backend
+        run: |
+          pip install -r requirements.txt
+          pip install -r requirements-dev.txt
+
+      - name: Run backend migrations + seed
+        working-directory: backend
+        env:
+          DATABASE_URL: postgresql://fulkro:fulkro@localhost:5432/fulkro_dev
+          APP_ENV: dev
+        run: alembic upgrade head
+
+      - name: Start backend
+        working-directory: backend
+        env:
+          DATABASE_URL: postgresql://fulkro:fulkro@localhost:5432/fulkro_dev
+          APP_ENV: dev
+          FULKRO_AUTH_PUBLIC_KEY: ${{ secrets.FULKRO_AUTH_PUBLIC_KEY }}
+          FULKRO_AUTH_PRIVATE_KEY: ${{ secrets.FULKRO_AUTH_PRIVATE_KEY }}
+        run: |
+          uvicorn app.main:app --host 0.0.0.0 --port 8000 &
+          for i in {1..30}; do
+            if curl -fsS http://localhost:8000/health > /dev/null; then
+              echo "Backend ready"
+              break
+            fi
+            sleep 1
+          done
+
+      - name: Build frontend (prod · stable HMR-free)
+        working-directory: frontend
+        env:
+          FULKRO_BACKEND_URL: http://localhost:8000
+          FULKRO_AUTH_PUBLIC_KEY: ${{ secrets.FULKRO_AUTH_PUBLIC_KEY }}
+        run: npm run build
+
+      - name: Start frontend (next start · port 3100)
+        working-directory: frontend
+        env:
+          FULKRO_BACKEND_URL: http://localhost:8000
+          FULKRO_AUTH_PUBLIC_KEY: ${{ secrets.FULKRO_AUTH_PUBLIC_KEY }}
+        run: |
+          npx next start -p 3100 &
+          for i in {1..30}; do
+            if curl -fsS -o /dev/null http://localhost:3100; then
+              echo "Frontend ready"
+              break
+            fi
+            sleep 1
+          done
+
+      - name: Run cliente polish empirical (10 pages · WCAG AA + axe critical+serious=0)
+        working-directory: frontend
+        env:
+          PLAYWRIGHT_PORT: 3100
+          PLAYWRIGHT_SKIP_WEB_SERVER: "1"
+          PLAYWRIGHT_BACKEND_URL: http://localhost:8000
+        run: |
+          npx playwright test --config=playwright.polish.config.ts \
+            tests/polish/cliente/ \
+            --reporter=list,html
+
+      - name: Upload cliente polish HTML report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: polish-report-cliente
+          path: frontend/polish-report/
+          retention-days: 14
+
+      - name: Upload cliente polish test results
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: polish-test-results-cliente
+          path: frontend/polish-test-results/
+          retention-days: 14
+
+  # ===========================================================================
+  # Auditor portal polish job · Ejecutable 7 Phase 7.A.3 (2026-05-27)
+  # AUDITOR_PORTAL_TOKEN required at runtime · magic-link AUDITOR_PORTAL_ENAC
+  # OPS-026 DRY · mirror cliente job setup steps · gate critical+serious axe = 0
+  # ===========================================================================
+  auditor-polish-empirical:
+    name: Auditor Portal Polish 12 pages (sections + annotations + gaps + report)
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    services:
+      postgres:
+        image: pgvector/pgvector:pg16
+        env:
+          POSTGRES_USER: fulkro
+          POSTGRES_PASSWORD: fulkro
+          POSTGRES_DB: fulkro_dev
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U fulkro"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Setup Python 3.12 (for backend)
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install frontend deps
+        working-directory: frontend
+        run: npm ci
+
+      - name: Install Playwright browsers
+        working-directory: frontend
+        run: npx playwright install --with-deps chromium
+
+      - name: Install backend deps
+        working-directory: backend
+        run: |
+          pip install -r requirements.txt
+          pip install -r requirements-dev.txt
+
+      - name: Run backend migrations + seed
+        working-directory: backend
+        env:
+          DATABASE_URL: postgresql://fulkro:fulkro@localhost:5432/fulkro_dev
+          APP_ENV: dev
+        run: alembic upgrade head
+
+      - name: Start backend
+        working-directory: backend
+        env:
+          DATABASE_URL: postgresql://fulkro:fulkro@localhost:5432/fulkro_dev
+          APP_ENV: dev
+          FULKRO_AUTH_PUBLIC_KEY: ${{ secrets.FULKRO_AUTH_PUBLIC_KEY }}
+          FULKRO_AUTH_PRIVATE_KEY: ${{ secrets.FULKRO_AUTH_PRIVATE_KEY }}
+          FULKRO_ML_PUBLIC_KEY: ${{ secrets.FULKRO_ML_PUBLIC_KEY }}
+          FULKRO_ML_PRIVATE_KEY: ${{ secrets.FULKRO_ML_PRIVATE_KEY }}
+        run: |
+          uvicorn app.main:app --host 0.0.0.0 --port 8000 &
+          for i in {1..30}; do
+            if curl -fsS http://localhost:8000/health > /dev/null; then
+              echo "Backend ready"
+              break
+            fi
+            sleep 1
+          done
+
+      - name: Build frontend (prod · stable HMR-free)
+        working-directory: frontend
+        env:
+          FULKRO_BACKEND_URL: http://localhost:8000
+          FULKRO_AUTH_PUBLIC_KEY: ${{ secrets.FULKRO_AUTH_PUBLIC_KEY }}
+        run: npm run build
+
+      - name: Start frontend (next start · port 3100)
+        working-directory: frontend
+        env:
+          FULKRO_BACKEND_URL: http://localhost:8000
+          FULKRO_AUTH_PUBLIC_KEY: ${{ secrets.FULKRO_AUTH_PUBLIC_KEY }}
+        run: |
+          npx next start -p 3100 &
+          for i in {1..30}; do
+            if curl -fsS -o /dev/null http://localhost:3100; then
+              echo "Frontend ready"
+              break
+            fi
+            sleep 1
+          done
+
+      - name: Generate auditor portal magic-link token via _dev endpoint
+        id: gen_token
+        env:
+          PLAYWRIGHT_BACKEND_URL: http://localhost:8000
+        run: |
+          # _dev endpoint generates AUDITOR_PORTAL_ENAC magic-link token for E2E.
+          # Falls back to a placeholder token if endpoint absent (job will skip
+          # auth-gated specs and still verify axe-CI on public routes).
+          TOKEN=$(curl -fsS -X POST "$PLAYWRIGHT_BACKEND_URL/api/v1/_dev/auditor-portal-token" 2>/dev/null | python -c "import sys,json; print(json.load(sys.stdin).get('token',''))" 2>/dev/null || echo "")
+          echo "AUDITOR_PORTAL_TOKEN=$TOKEN" >> "$GITHUB_ENV"
+          if [ -z "$TOKEN" ]; then
+            echo "::warning::_dev/auditor-portal-token not available · auditor specs may be partially blocked"
+          fi
+
+      - name: Run auditor portal polish empirical (12 pages · WCAG AA + axe critical+serious=0)
+        working-directory: frontend
+        env:
+          PLAYWRIGHT_PORT: 3100
+          PLAYWRIGHT_SKIP_WEB_SERVER: "1"
+          PLAYWRIGHT_BACKEND_URL: http://localhost:8000
+          AUDITOR_PORTAL_TOKEN: ${{ env.AUDITOR_PORTAL_TOKEN }}
+        run: |
+          npx playwright test --config=playwright.polish.config.ts \
+            tests/polish/auditor-portal/ \
+            --reporter=list,html
+
+      - name: Upload auditor polish HTML report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: polish-report-auditor
+          path: frontend/polish-report/
+          retention-days: 14
+
+      - name: Upload auditor polish test results
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: polish-test-results-auditor
+          path: frontend/polish-test-results/
+          retention-days: 14

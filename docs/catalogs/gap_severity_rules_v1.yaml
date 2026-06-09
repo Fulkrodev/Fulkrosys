@@ -1,0 +1,1462 @@
+# Catálogo de reglas de severidad y quick-wins para Motor 4 Gap Analysis Engine
+# ============================================================================
+# Plataforma: FULKRO ENS
+# Motor: Motor 4 — Gap Analysis Engine (ENS Platform Master Spec v2.1 §5.4)
+# Fuente normativa: Anexo II RD 311/2022 + CCN-STIC 803 + CCN-STIC 808
+# Propósito: determinar severidad base de cada gap, esfuerzo estimado por
+#            categoría del sistema (B/M/A), y flag de quick-win. Usado por
+#            el Gap Analysis Engine para priorizar findings sin alucinación.
+# Generado por: Anthropic para Fulkro, revisado contra CCN-STIC 803 §4
+# Versión: 1.0
+# Fecha: 2026-04-14
+
+version: "1.0"
+fecha: "2026-04-14"
+fuente: "ENS Platform Master Spec v2.1 §5.4 + Anexo II RD 311/2022 + CCN-STIC 808"
+
+# =========================================================================
+# MEDIDAS CRÍTICAS NUCLEARES
+# =========================================================================
+# Estas medidas tienen prioridad absoluta en la auditoría ENAC. Un gap en
+# cualquiera de ellas bloquea la certificación. El spec §5.4 menciona
+# explícitamente op.acc.6, mp.info.3 y op.exp.7 como "siempre primero".
+# Completado con criterio consultor basado en CCN-STIC 808 §requisitos
+# nucleares (requisitos marcados en gris que siempre se evalúan).
+medidas_criticas_nucleares:
+  - org.1       # Política de seguridad — sin esto el auditor no empieza
+  - op.pl.1     # Análisis de riesgos — base de todo el SGSI
+  - op.acc.6    # MFA usuarios internos — el auditor mira con lupa
+  - op.exp.1    # Inventario de activos — sin inventario no hay alcance
+  - op.exp.4    # Parches de seguridad — CVE críticas sin parchear = NC mayor
+  - op.exp.7    # Gestión de incidentes — incluye LUCIA
+  - op.exp.8    # Registro de actividad — sin logs no hay auditoría
+  - op.cont.1   # Análisis de impacto BIA — fundamental para Medio/Alto
+  - mp.info.3   # Cifrado — datos sensibles sin cifrar = NC mayor inmediato
+  - mp.per.3    # Concienciación del personal — factor humano
+
+# =========================================================================
+# THRESHOLDS DEL MOTOR
+# =========================================================================
+thresholds:
+  # Quick win: severidad alta o superior AND esfuerzo <= 24h
+  # Esto captura las acciones "gran impacto, poco coste" para el feed
+  # del cliente (Agente 16 Quick Wins las publica como motivación)
+  quick_win_max_horas: 24
+  quick_win_min_severidad_numeric: 4   # 4 = alta
+
+  # Semáforo del dashboard del motor
+  # score = severidad_numeric * gap_magnitude (1-5)
+  semaforo:
+    rojo_min_score: 15     # ~ severidad alta + gap_magnitude 4+
+    amarillo_min_score: 6  # ~ severidad media + gap_magnitude 2
+
+# =========================================================================
+# MAPPING SEVERIDAD A NUMÉRICO
+# =========================================================================
+severidad_scoring:
+  critica: 5
+  alta: 4
+  media: 3
+  baja: 2
+  informativa: 1
+
+# =========================================================================
+# CATÁLOGO DE 73 MEDIDAS DEL ANEXO II
+# =========================================================================
+# Cada entrada tiene:
+#   codigo: el código oficial del Anexo II
+#   nombre: nombre oficial de la medida
+#   familia: familia del marco (org, op.pl, op.acc, etc.)
+#   marco: organizativo | operacional | proteccion
+#   aplica_desde: basica | media | alta (categoría mínima donde aplica)
+#   severidad_base: severidad asignada al gap por categoría del sistema
+#   esfuerzo_horas_base: horas estimadas por categoría para cerrar el gap
+#                        desde L1 hasta estado objetivo (no desde L0)
+#   quick_win: true si severidad >= alta AND esfuerzo_media <= 24
+#   guia_remediacion: texto corto de orientación al consultor
+#   evidencia_tipica: qué evidencia espera el auditor
+#   notas_auditor: observación práctica del criterio ENAC
+#
+# Criterio de esfuerzo: horas de trabajo consultor+cliente para cerrar un
+# gap típico, asumiendo que el cliente parte de madurez L1-L2. Multiplicar
+# por factor de Apéndice N del spec para cálculo total del proyecto.
+
+medidas:
+
+  # ------------------------------------------------------------------------
+  # MARCO ORGANIZATIVO (org) — 4 medidas
+  # ------------------------------------------------------------------------
+
+  - codigo: org.1
+    nombre: "Política de seguridad"
+    familia: org
+    marco: organizativo
+    aplica_desde: basica
+    severidad_base:
+      basica: critica
+      media: critica
+      alta: critica
+    esfuerzo_horas_base:
+      basica: 8
+      media: 16
+      alta: 24
+    quick_win: true
+    guia_remediacion: "Generar E-001 con plantilla docxtpl basada en CCN-STIC 805, aprobar en Comité, difundir, registrar acuse de recibo."
+    evidencia_tipica: "Documento firmado por órgano superior + acta de aprobación + registro de difusión + acuse de recibo del personal"
+    notas_auditor: "Siempre es la primera pregunta del auditor ENAC. Si no existe política formal aprobada, la visita termina en los primeros 15 minutos."
+
+  - codigo: org.2
+    nombre: "Normativa de seguridad"
+    familia: org
+    marco: organizativo
+    aplica_desde: basica
+    severidad_base:
+      basica: alta
+      media: critica
+      alta: critica
+    esfuerzo_horas_base:
+      basica: 16
+      media: 32
+      alta: 48
+    quick_win: false
+    guia_remediacion: "Cuerpo normativo (27 políticas E-100 a E-126) que desarrolla la Política. Generación por lotes con Motor 6 + revisión legal."
+    evidencia_tipica: "Conjunto de políticas vigentes con versión, fecha de aprobación y responsable + registro de revisiones anuales"
+    notas_auditor: "En Media el auditor exige el conjunto completo. En Alta con normas específicas adicionales (PAM, claves, BYOD)."
+
+  - codigo: org.3
+    nombre: "Procedimientos de seguridad"
+    familia: org
+    marco: organizativo
+    aplica_desde: basica
+    severidad_base:
+      basica: alta
+      media: alta
+      alta: critica
+    esfuerzo_horas_base:
+      basica: 24
+      media: 48
+      alta: 80
+    quick_win: false
+    guia_remediacion: "35 procedimientos operativos E-200 a E-234 con actores, pasos, entradas, salidas, registros. Motor 6 + revisión operativa."
+    evidencia_tipica: "Procedimientos documentados + registros de ejecución de los últimos 3-6 meses"
+    notas_auditor: "El auditor pide ver tanto el documento como evidencia de ejecución real. Procedimientos sin registros = cero."
+
+  - codigo: org.4
+    nombre: "Proceso de autorización"
+    familia: org
+    marco: organizativo
+    aplica_desde: basica
+    severidad_base:
+      basica: alta
+      media: alta
+      alta: alta
+    esfuerzo_horas_base:
+      basica: 8
+      media: 12
+      alta: 16
+    quick_win: true
+    guia_remediacion: "Procedimiento formal de autorización de cambios, equipos, conexiones, medios personales. Integrar con CAB del cliente."
+    evidencia_tipica: "Registro de autorizaciones + actas del CAB + matriz de aprobadores"
+    notas_auditor: "Se prueba pidiendo 3-5 autorizaciones aleatorias de los últimos meses y verificando trazabilidad completa."
+
+  # ------------------------------------------------------------------------
+  # MARCO OPERACIONAL - PLANIFICACIÓN (op.pl) — 5 medidas
+  # ------------------------------------------------------------------------
+
+  - codigo: op.pl.1
+    nombre: "Análisis de riesgos"
+    familia: op.pl
+    marco: operacional
+    aplica_desde: basica
+    severidad_base:
+      basica: critica
+      media: critica
+      alta: critica
+    esfuerzo_horas_base:
+      basica: 40
+      media: 80
+      alta: 150
+    quick_win: false
+    guia_remediacion: "AR MAGERIT v3 completo con catálogos precargados. Motor 2 lo genera. En Alta exportar a PILAR (.mgr) obligatorio."
+    evidencia_tipica: "Documento AR firmado + tabla de activos + tabla de amenazas aplicadas + plan de tratamiento + firma RSEG y dirección"
+    notas_auditor: "En Alta el auditor exige ver PILAR nativo. Sin AR firmado por dirección el sistema no se certifica."
+
+  - codigo: op.pl.2
+    nombre: "Arquitectura de seguridad"
+    familia: op.pl
+    marco: operacional
+    aplica_desde: basica
+    severidad_base:
+      basica: alta
+      media: alta
+      alta: alta
+    esfuerzo_horas_base:
+      basica: 24
+      media: 40
+      alta: 60
+    quick_win: false
+    guia_remediacion: "Documento de arquitectura con diagrama lógico + físico + flujos de datos + controles de seguridad por zona."
+    evidencia_tipica: "Documento de arquitectura + diagramas actualizados + justificación de decisiones de diseño"
+    notas_auditor: "Auditor busca coherencia entre la arquitectura declarada y lo que ve en discovery técnico."
+
+  - codigo: op.pl.3
+    nombre: "Adquisición de nuevos componentes"
+    familia: op.pl
+    marco: operacional
+    aplica_desde: basica
+    severidad_base:
+      basica: media
+      media: alta
+      alta: alta
+    esfuerzo_horas_base:
+      basica: 8
+      media: 16
+      alta: 24
+    quick_win: true
+    guia_remediacion: "Procedimiento E-205 de adquisición con checklist de seguridad + aprobación del RSEG + uso de CPSTIC en M/A."
+    evidencia_tipica: "Procedimiento documentado + registro de adquisiciones + validaciones de seguridad previas"
+    notas_auditor: "Auditor toma muestra de 2-3 adquisiciones recientes y verifica que pasaron el filtro de seguridad."
+
+  - codigo: op.pl.4
+    nombre: "Dimensionamiento / gestión de la capacidad"
+    familia: op.pl
+    marco: operacional
+    aplica_desde: basica
+    severidad_base:
+      basica: media
+      media: alta
+      alta: alta
+    esfuerzo_horas_base:
+      basica: 8
+      media: 16
+      alta: 24
+    quick_win: true
+    guia_remediacion: "Plan de capacidad con métricas (CPU, RAM, disco, red, concurrencia) y umbrales de alerta. Nuevo en 311/2022 desde BÁSICA."
+    evidencia_tipica: "Plan de capacidad + monitorización activa + informes trimestrales de uso"
+    notas_auditor: "Cambio en 311/2022 respecto al RD anterior: antes solo M, ahora ya en B. Auditor lo sabe y lo pregunta."
+
+  - codigo: op.pl.5
+    nombre: "Componentes certificados"
+    familia: op.pl
+    marco: operacional
+    aplica_desde: media
+    severidad_base:
+      basica: informativa
+      media: alta
+      alta: critica
+    esfuerzo_horas_base:
+      basica: 0
+      media: 16
+      alta: 24
+    quick_win: true
+    guia_remediacion: "Uso de productos del catálogo CPSTIC (CCN-STIC 105). Sugerencia automática por Motor 5 para cada control técnico."
+    evidencia_tipica: "Inventario de productos con referencia CPSTIC + justificación si no hay CPSTIC disponible (Art. 19 RD 311/2022)"
+    notas_auditor: "En M/A obligatorio. Si no hay producto CPSTIC, se usa producto certificado conforme Art. 19 con justificación."
+
+  # ------------------------------------------------------------------------
+  # MARCO OPERACIONAL - CONTROL DE ACCESO (op.acc) — 6 medidas
+  # ------------------------------------------------------------------------
+
+  - codigo: op.acc.1
+    nombre: "Identificación"
+    familia: op.acc
+    marco: operacional
+    aplica_desde: basica
+    severidad_base:
+      basica: alta
+      media: alta
+      alta: alta
+    esfuerzo_horas_base:
+      basica: 8
+      media: 16
+      alta: 24
+    quick_win: true
+    guia_remediacion: "Política de nombres de usuario únicos + prohibición de cuentas compartidas + trazabilidad individual."
+    evidencia_tipica: "Política de identificación + export del directorio + ausencia de cuentas compartidas"
+    notas_auditor: "Cuentas compartidas detectadas = NC menor mínimo. Si son privilegiadas = NC mayor."
+
+  - codigo: op.acc.2
+    nombre: "Requisitos de acceso"
+    familia: op.acc
+    marco: operacional
+    aplica_desde: basica
+    severidad_base:
+      basica: alta
+      media: alta
+      alta: alta
+    esfuerzo_horas_base:
+      basica: 12
+      media: 24
+      alta: 40
+    quick_win: true
+    guia_remediacion: "Catálogo de perfiles de acceso + matriz puesto-permiso + procedimiento de solicitud, aprobación y revisión."
+    evidencia_tipica: "Matriz de perfiles vigente + flujos de aprobación + revisiones periódicas documentadas"
+    notas_auditor: "Auditor pide muestra de 5 usuarios y verifica que sus permisos coinciden con el perfil de su puesto."
+
+  - codigo: op.acc.3
+    nombre: "Segregación de funciones y tareas"
+    familia: op.acc
+    marco: operacional
+    aplica_desde: media
+    severidad_base:
+      basica: media
+      media: alta
+      alta: critica
+    esfuerzo_horas_base:
+      basica: 8
+      media: 32
+      alta: 48
+    quick_win: false
+    guia_remediacion: "Identificar funciones incompatibles y separarlas. Ej: quien autoriza pagos no ejecuta pagos, quien desarrolla no despliega en producción."
+    evidencia_tipica: "Matriz de segregación de funciones + análisis de incompatibilidades + controles compensatorios donde no sea posible"
+    notas_auditor: "En equipos pequeños es difícil; se aceptan controles compensatorios documentados (ej. revisión posterior obligatoria)."
+
+  - codigo: op.acc.4
+    nombre: "Proceso de gestión de derechos de acceso"
+    familia: op.acc
+    marco: operacional
+    aplica_desde: basica
+    severidad_base:
+      basica: alta
+      media: alta
+      alta: critica
+    esfuerzo_horas_base:
+      basica: 16
+      media: 32
+      alta: 48
+    quick_win: false
+    guia_remediacion: "Procedimiento E-210 completo: alta, modificación, baja, revisión periódica, revocación inmediata en cese. Vinculado a RRHH."
+    evidencia_tipica: "Procedimiento + registro de altas/bajas del año + revisiones periódicas ejecutadas + pruebas de revocación tras cese"
+    notas_auditor: "Auditor cruza lista de bajas de RRHH con accesos activos. Si encuentra cuentas activas de ex-empleados = NC mayor."
+
+  - codigo: op.acc.5
+    nombre: "Mecanismos de autenticación (usuarios externos)"
+    familia: op.acc
+    marco: operacional
+    aplica_desde: basica
+    severidad_base:
+      basica: alta
+      media: critica
+      alta: critica
+    esfuerzo_horas_base:
+      basica: 16
+      media: 32
+      alta: 48
+    quick_win: false
+    guia_remediacion: "Factores de autenticación para externos según categoría. MFA obligatorio en M/A. Integración con IdP o federación."
+    evidencia_tipica: "Configuración del IdP + listado de usuarios externos con MFA activo + política de acceso externo"
+    notas_auditor: "Portales públicos del sector público suelen exigir cl@ve. En M/A MFA universal para externos es obligatorio."
+
+  - codigo: op.acc.6
+    nombre: "Mecanismos de autenticación (usuarios de la organización)"
+    familia: op.acc
+    marco: operacional
+    aplica_desde: basica
+    severidad_base:
+      basica: alta
+      media: critica
+      alta: critica
+    esfuerzo_horas_base:
+      basica: 24
+      media: 48
+      alta: 80
+    quick_win: false
+    guia_remediacion: "MFA universal (recomendado Yubikey/TOTP/FIDO2). Single factor solo desde zonas controladas. Política de contraseñas CCN-STIC 821."
+    evidencia_tipica: "Configuración del IdP/AD con MFA enforcement ON + >=95% de usuarios con MFA activo + excepciones aprobadas por RSEG"
+    notas_auditor: "El auditor mira esto con lupa. R1 admite un factor SOLO desde zonas controladas sin atravesar zonas no controladas. MFA parcial = NC mayor."
+
+  # ------------------------------------------------------------------------
+  # MARCO OPERACIONAL - EXPLOTACIÓN (op.exp) — 10 medidas
+  # ------------------------------------------------------------------------
+
+  - codigo: op.exp.1
+    nombre: "Inventario de activos"
+    familia: op.exp
+    marco: operacional
+    aplica_desde: basica
+    severidad_base:
+      basica: critica
+      media: critica
+      alta: critica
+    esfuerzo_horas_base:
+      basica: 16
+      media: 40
+      alta: 80
+    quick_win: false
+    guia_remediacion: "Inventario completo mantenido automáticamente desde Motor 22 Discovery. Reconciliación mensual con fuentes autoritativas."
+    evidencia_tipica: "Inventario vigente con propietario, ubicación, criticidad, dimensiones ENS + evidencia de actualización periódica"
+    notas_auditor: "Sin inventario no hay alcance. Auditor valida contra discovery real en vivo. Gap >10% entre inventario y realidad = NC mayor."
+
+  - codigo: op.exp.2
+    nombre: "Configuración de seguridad"
+    familia: op.exp
+    marco: operacional
+    aplica_desde: basica
+    severidad_base:
+      basica: alta
+      media: alta
+      alta: critica
+    esfuerzo_horas_base:
+      basica: 24
+      media: 48
+      alta: 80
+    quick_win: false
+    guia_remediacion: "Baselines de configuración alineados con CIS Benchmark + CCN-STIC 521/570/580. Verificación con CLARA/Lynis/CIS-CAT."
+    evidencia_tipica: "Baselines documentados + resultados CLARA o equivalente + plan de remediación de desviaciones"
+    notas_auditor: "Al auditor ENAC le encanta ver CLARA porque es la herramienta oficial española."
+
+  - codigo: op.exp.3
+    nombre: "Gestión de la configuración"
+    familia: op.exp
+    marco: operacional
+    aplica_desde: basica
+    severidad_base:
+      basica: media
+      media: alta
+      alta: alta
+    esfuerzo_horas_base:
+      basica: 16
+      media: 32
+      alta: 48
+    quick_win: false
+    guia_remediacion: "CMDB + procedimiento E-212 de cambios con aprobación CAB + trazabilidad completa. Puede aprovecharse de ServiceNow/GLPI si existen."
+    evidencia_tipica: "CMDB con histórico + registros de cambios + aprobaciones del CAB + rollback plan cuando aplique"
+    notas_auditor: "Auditor muestrea 3-5 cambios y pide ver desde la solicitud hasta el cierre con evidencia."
+
+  - codigo: op.exp.4
+    nombre: "Mantenimiento y actualizaciones de seguridad"
+    familia: op.exp
+    marco: operacional
+    aplica_desde: basica
+    severidad_base:
+      basica: critica
+      media: critica
+      alta: critica
+    esfuerzo_horas_base:
+      basica: 16
+      media: 32
+      alta: 48
+    quick_win: false
+    guia_remediacion: "Procedimiento E-213 + ventanas de mantenimiento + SLA de parches críticos <30d / altos <60d. Integración WSUS/Intune/Ansible."
+    evidencia_tipica: "Procedimiento + informe mensual de parches + CVE críticas abiertas <5% + ejecución puntual de ventanas"
+    notas_auditor: "CVE crítica sin parchear >30d = NC mayor automática. Auditor cruza inventario con base de CVE pública."
+
+  - codigo: op.exp.5
+    nombre: "Gestión de cambios"
+    familia: op.exp
+    marco: operacional
+    aplica_desde: basica
+    severidad_base:
+      basica: alta
+      media: alta
+      alta: alta
+    esfuerzo_horas_base:
+      basica: 8
+      media: 16
+      alta: 24
+    quick_win: true
+    guia_remediacion: "Procedimiento E-212 alineado con op.exp.3 pero enfocado al flujo: solicitud → evaluación → aprobación → implementación → verificación → cierre."
+    evidencia_tipica: "Registro de cambios + aprobaciones CAB + pruebas post-cambio + evidencia de comunicación a stakeholders"
+    notas_auditor: "Mismo patrón que op.exp.3 pero con foco en el workflow. Suele cubrirse con la misma evidencia."
+
+  - codigo: op.exp.6
+    nombre: "Protección frente a código dañino"
+    familia: op.exp
+    marco: operacional
+    aplica_desde: basica
+    severidad_base:
+      basica: alta
+      media: alta
+      alta: critica
+    esfuerzo_horas_base:
+      basica: 8
+      media: 16
+      alta: 24
+    quick_win: true
+    guia_remediacion: "EDR en todos los endpoints + antimalware en servidores + protección en email gateway + filtrado web. Actualización continua de firmas/IoCs."
+    evidencia_tipica: "Cobertura EDR >=98% + configuración con protección en tiempo real + logs de detecciones + respuesta a incidentes de malware"
+    notas_auditor: "Cobertura EDR parcial es NC automática. Auditor pide export del EDR y lo cruza con inventario."
+
+  - codigo: op.exp.7
+    nombre: "Gestión de incidentes"
+    familia: op.exp
+    marco: operacional
+    aplica_desde: basica
+    severidad_base:
+      basica: critica
+      media: critica
+      alta: critica
+    esfuerzo_horas_base:
+      basica: 24
+      media: 48
+      alta: 80
+    quick_win: false
+    guia_remediacion: "Procedimiento E-204 completo + integración con LUCIA para notificación obligatoria + playbooks por tipo + post-mortem."
+    evidencia_tipica: "Procedimiento + registro de incidentes del año + notificaciones LUCIA + post-mortems firmados + lecciones aprendidas"
+    notas_auditor: "Si hubo incidente en el año y NO fue notificado a LUCIA siendo notificable = NC mayor. Auditor cruza con CCN-CERT."
+
+  - codigo: op.exp.8
+    nombre: "Registro de la actividad"
+    familia: op.exp
+    marco: operacional
+    aplica_desde: basica
+    severidad_base:
+      basica: critica
+      media: critica
+      alta: critica
+    esfuerzo_horas_base:
+      basica: 40
+      media: 80
+      alta: 150
+    quick_win: false
+    guia_remediacion: "SIEM (opensource Wazuh/Graylog o comercial) + retención mínima 1-3 años según categoría + casos de uso activos + alerting 24/7."
+    evidencia_tipica: "Arquitectura del SIEM + cobertura de fuentes de log + dashboard de alertas + tiempo medio de detección"
+    notas_auditor: "Sin SIEM en Media/Alta es casi imposible aprobar. En Básica se acepta logging centralizado más simple."
+
+  - codigo: op.exp.9
+    nombre: "Registro de la gestión de incidentes"
+    familia: op.exp
+    marco: operacional
+    aplica_desde: basica
+    severidad_base:
+      basica: alta
+      media: alta
+      alta: alta
+    esfuerzo_horas_base:
+      basica: 8
+      media: 16
+      alta: 24
+    quick_win: true
+    guia_remediacion: "Tabla de incidentes con plazos, responsables, estado, evidencias, acciones correctivas. Integrado con el SIEM y con LUCIA."
+    evidencia_tipica: "Registro vigente + métricas MTTD/MTTR + análisis de tendencias + trazabilidad completa del ciclo"
+    notas_auditor: "Se prueba tomando 1-3 incidentes y siguiendo todo el ciclo desde detección hasta cierre con evidencia."
+
+  - codigo: op.exp.10
+    nombre: "Protección de los registros de actividad"
+    familia: op.exp
+    marco: operacional
+    aplica_desde: basica
+    severidad_base:
+      basica: alta
+      media: alta
+      alta: critica
+    esfuerzo_horas_base:
+      basica: 8
+      media: 16
+      alta: 24
+    quick_win: true
+    guia_remediacion: "Inmutabilidad de logs (WORM, hash chain, export periódico a almacenamiento sellado). Acceso restringido a SRE y auditor interno."
+    evidencia_tipica: "Configuración WORM del SIEM + verificación de hash chain + política de retención + registro de accesos al log"
+    notas_auditor: "Logs que pueden ser modificados por admin = NC. Se prueba pidiendo hash de un log antiguo y verificando que no cambia."
+
+  # ------------------------------------------------------------------------
+  # MARCO OPERACIONAL - SERVICIOS EXTERNOS (op.ext) — 4 medidas
+  # ------------------------------------------------------------------------
+
+  - codigo: op.ext.1
+    nombre: "Contratación y acuerdos de nivel de servicio"
+    familia: op.ext
+    marco: operacional
+    aplica_desde: basica
+    severidad_base:
+      basica: alta
+      media: alta
+      alta: alta
+    esfuerzo_horas_base:
+      basica: 16
+      media: 32
+      alta: 48
+    quick_win: false
+    guia_remediacion: "Revisión de contratos con proveedores críticos + adendas con cláusulas ENS/RGPD Art. 28. Motor 14 genera adendas automáticamente."
+    evidencia_tipica: "Inventario de proveedores + contratos vigentes + cláusulas ENS firmadas + SLAs medibles"
+    notas_auditor: "Auditor pide 2-3 contratos de proveedores críticos y verifica las cláusulas. Sin cláusula Art. 28 = NC menor al menos."
+
+  - codigo: op.ext.2
+    nombre: "Gestión diaria"
+    familia: op.ext
+    marco: operacional
+    aplica_desde: basica
+    severidad_base:
+      basica: media
+      media: alta
+      alta: alta
+    esfuerzo_horas_base:
+      basica: 8
+      media: 16
+      alta: 24
+    quick_win: true
+    guia_remediacion: "Procedimiento operativo de seguimiento: tickets, métricas SLA, reuniones periódicas, escalado. Reporte mensual."
+    evidencia_tipica: "Registros de reuniones + métricas SLA + escalados + acciones correctivas a proveedores"
+    notas_auditor: "Se valida pidiendo actas de reuniones con 2-3 proveedores críticos de los últimos 6 meses."
+
+  - codigo: op.ext.3
+    nombre: "Protección de la cadena de suministro"
+    familia: op.ext
+    marco: operacional
+    aplica_desde: media
+    severidad_base:
+      basica: media
+      media: alta
+      alta: critica
+    esfuerzo_horas_base:
+      basica: 8
+      media: 32
+      alta: 48
+    quick_win: false
+    guia_remediacion: "Análisis de cadena de suministro de sub-proveedores + SBOM de componentes software + verificación de origen. Nueva en 311/2022."
+    evidencia_tipica: "Mapa de cadena de suministro + SBOM de aplicaciones críticas + análisis de riesgos por sub-proveedor"
+    notas_auditor: "Nueva en 311/2022. Auditores la usan para cazar dependencias de proveedores rusos/chinos en infraestructura crítica."
+
+  - codigo: op.ext.4
+    nombre: "Interconexión de sistemas"
+    familia: op.ext
+    marco: operacional
+    aplica_desde: basica
+    severidad_base:
+      basica: alta
+      media: alta
+      alta: critica
+    esfuerzo_horas_base:
+      basica: 16
+      media: 32
+      alta: 48
+    quick_win: false
+    guia_remediacion: "Acuerdos de interconexión con sistemas externos + mecanismos de protección (VPN, API gateway, mTLS) + monitorización."
+    evidencia_tipica: "Acuerdos firmados + configuración técnica de la interconexión + logs + pruebas periódicas"
+    notas_auditor: "Nueva en 311/2022 con más fuerza. Auditor busca interconexiones no documentadas (shadow IT)."
+
+  # ------------------------------------------------------------------------
+  # MARCO OPERACIONAL - SERVICIOS EN LA NUBE (op.nub) — 1 medida
+  # ------------------------------------------------------------------------
+
+  - codigo: op.nub.1
+    nombre: "Protección de servicios en la nube"
+    familia: op.nub
+    marco: operacional
+    aplica_desde: basica
+    severidad_base:
+      basica: alta
+      media: critica
+      alta: critica
+    esfuerzo_horas_base:
+      basica: 24
+      media: 48
+      alta: 80
+    quick_win: false
+    guia_remediacion: "Perfil ENS nativo del proveedor (AWS/Azure/GCP/M365) + CCN-STIC 823 + PCE específico si aplica (887 AWS, etc). Prowler con perfil ENS."
+    evidencia_tipica: "Configuración conforme a PCE + output de Prowler con perfil ENS + responsabilidad compartida documentada"
+    notas_auditor: "Con PCE aplicable, éste PRIMA sobre la medida base. Auditor valida contra el PCE (CCN-STIC 887 para AWS, etc)."
+
+  # ------------------------------------------------------------------------
+  # MARCO OPERACIONAL - CONTINUIDAD (op.cont) — 4 medidas
+  # ------------------------------------------------------------------------
+
+  - codigo: op.cont.1
+    nombre: "Análisis de impacto"
+    familia: op.cont
+    marco: operacional
+    aplica_desde: basica
+    severidad_base:
+      basica: alta
+      media: critica
+      alta: critica
+    esfuerzo_horas_base:
+      basica: 24
+      media: 48
+      alta: 80
+    quick_win: false
+    guia_remediacion: "BIA formal con RTO/RPO por proceso + dependencias + impacto económico/reputacional. Agente 23 Mapeador de Procesos lo genera."
+    evidencia_tipica: "Documento BIA (E-400) firmado + mapa de procesos críticos + RTO/RPO acordados con dirección"
+    notas_auditor: "En Básica basta análisis simple. En M/A el BIA completo es obligatorio y el auditor lo revisa en profundidad."
+
+  - codigo: op.cont.2
+    nombre: "Plan de continuidad"
+    familia: op.cont
+    marco: operacional
+    aplica_desde: media
+    severidad_base:
+      basica: media
+      media: critica
+      alta: critica
+    esfuerzo_horas_base:
+      basica: 16
+      media: 80
+      alta: 150
+    quick_win: false
+    guia_remediacion: "BCP derivado del BIA + DRP técnico + procedimientos de activación + roles de crisis. Motor 6 genera las plantillas E-402/E-403."
+    evidencia_tipica: "BCP y DRP firmados + procedimientos + contactos de crisis actualizados + simulacros ejecutados"
+    notas_auditor: "En M/A obligatorio. Sin BCP probado el auditor lo marca como NC mayor automática."
+
+  - codigo: op.cont.3
+    nombre: "Pruebas periódicas"
+    familia: op.cont
+    marco: operacional
+    aplica_desde: media
+    severidad_base:
+      basica: baja
+      media: alta
+      alta: critica
+    esfuerzo_horas_base:
+      basica: 8
+      media: 32
+      alta: 48
+    quick_win: false
+    guia_remediacion: "Plan anual de pruebas (tabletop, simulacro técnico, conmutación real). Periodicidad según categoría: anual en M, semestral en A."
+    evidencia_tipica: "Calendario de pruebas + informes de ejecución + lecciones aprendidas + plan de mejora"
+    notas_auditor: "BCP sin pruebas = BCP sin valor. Auditor pide evidencia de al menos una prueba anual."
+
+  - codigo: op.cont.4
+    nombre: "Medios alternativos"
+    familia: op.cont
+    marco: operacional
+    aplica_desde: alta
+    severidad_base:
+      basica: informativa
+      media: media
+      alta: alta
+    esfuerzo_horas_base:
+      basica: 0
+      media: 24
+      alta: 80
+    quick_win: false
+    guia_remediacion: "Sitio alternativo operativo + medios de comunicación de respaldo + capacidad de conmutación probada. Obligatorio en Alta."
+    evidencia_tipica: "Descripción del sitio alternativo + prueba de conmutación reciente + RTO real medido"
+    notas_auditor: "En Alta el auditor exige visita o prueba documentada al sitio alternativo con fecha y resultado."
+
+  # ------------------------------------------------------------------------
+  # MARCO OPERACIONAL - MONITORIZACIÓN (op.mon) — 3 medidas
+  # ------------------------------------------------------------------------
+
+  - codigo: op.mon.1
+    nombre: "Detección de intrusión"
+    familia: op.mon
+    marco: operacional
+    aplica_desde: media
+    severidad_base:
+      basica: baja
+      media: alta
+      alta: critica
+    esfuerzo_horas_base:
+      basica: 0
+      media: 24
+      alta: 80
+    quick_win: false
+    guia_remediacion: "IDS/IPS + EDR con módulo de detección comportamental + casos de uso en SIEM + playbooks de respuesta. Integración con CCN-CERT."
+    evidencia_tipica: "Arquitectura del IDS + casos de uso activos + estadísticas de detección + playbooks + integración SIEM"
+    notas_auditor: "En M/A obligatorio. El auditor suele pedir demostración en vivo generando un test de intrusión controlado."
+
+  - codigo: op.mon.2
+    nombre: "Sistema de métricas"
+    familia: op.mon
+    marco: operacional
+    aplica_desde: media
+    severidad_base:
+      basica: informativa
+      media: media
+      alta: alta
+    esfuerzo_horas_base:
+      basica: 0
+      media: 16
+      alta: 24
+    quick_win: true
+    guia_remediacion: "Catálogo de métricas CCN-STIC 815 + dashboard de seguridad + reporte trimestral. Motor 18 lo genera automáticamente."
+    evidencia_tipica: "Dashboard vivo + métricas calculadas + reporte trimestral + análisis de tendencias"
+    notas_auditor: "Se contrasta con el CCN-STIC 815. Auditor mira si las métricas están alineadas y se usan en decisiones."
+
+  - codigo: op.mon.3
+    nombre: "Vigilancia"
+    familia: op.mon
+    marco: operacional
+    aplica_desde: basica
+    severidad_base:
+      basica: media
+      media: alta
+      alta: alta
+    esfuerzo_horas_base:
+      basica: 8
+      media: 16
+      alta: 24
+    quick_win: true
+    guia_remediacion: "Feeds CCN-CERT + OSINT + threat intel + vigilancia normativa. Agente 15 lo automatiza. Nueva en 311/2022."
+    evidencia_tipica: "Procedimiento de vigilancia + logs de alertas recibidas + acciones tomadas sobre alertas relevantes"
+    notas_auditor: "Nueva en 311/2022. Auditor pregunta 'qué hacéis cuando el CCN-CERT publica un aviso crítico'."
+
+  # ------------------------------------------------------------------------
+  # MEDIDAS DE PROTECCIÓN - INSTALACIONES (mp.if) — 7 medidas
+  # ------------------------------------------------------------------------
+
+  - codigo: mp.if.1
+    nombre: "Áreas separadas y con control de acceso"
+    familia: mp.if
+    marco: proteccion
+    aplica_desde: basica
+    severidad_base:
+      basica: media
+      media: alta
+      alta: alta
+    esfuerzo_horas_base:
+      basica: 8
+      media: 16
+      alta: 24
+    quick_win: true
+    guia_remediacion: "Zonificación física + control de acceso por tarjeta/biometría + registro de accesos. CCN-STIC 820."
+    evidencia_tipica: "Plano de zonas + registros de acceso físico + fotos del control de acceso + lista de autorizados"
+    notas_auditor: "Auditor hace walkthrough físico y prueba entrar en zonas restringidas con su tarjeta (no debería poder)."
+
+  - codigo: mp.if.2
+    nombre: "Identificación de las personas"
+    familia: mp.if
+    marco: proteccion
+    aplica_desde: basica
+    severidad_base:
+      basica: media
+      media: media
+      alta: alta
+    esfuerzo_horas_base:
+      basica: 4
+      media: 8
+      alta: 16
+    quick_win: true
+    guia_remediacion: "Tarjetas de identificación visibles para empleados + badges de visitante + registro en recepción."
+    evidencia_tipica: "Política de identificación + registro de visitantes + fotos del modelo de tarjeta"
+    notas_auditor: "Auditor observa si al entrar le dan badge y si el personal lleva su tarjeta visible."
+
+  - codigo: mp.if.3
+    nombre: "Acondicionamiento de los locales"
+    familia: mp.if
+    marco: proteccion
+    aplica_desde: basica
+    severidad_base:
+      basica: baja
+      media: media
+      alta: media
+    esfuerzo_horas_base:
+      basica: 4
+      media: 8
+      alta: 16
+    quick_win: true
+    guia_remediacion: "Climatización adecuada + humedad controlada + protección frente a polvo/vibración en CPD."
+    evidencia_tipica: "Datos de monitorización ambiental del CPD + contratos de mantenimiento"
+    notas_auditor: "Si el cliente usa cloud puro y no tiene CPD, esta medida puede ser N/A con justificación."
+
+  - codigo: mp.if.4
+    nombre: "Energía eléctrica"
+    familia: mp.if
+    marco: proteccion
+    aplica_desde: basica
+    severidad_base:
+      basica: media
+      media: alta
+      alta: alta
+    esfuerzo_horas_base:
+      basica: 8
+      media: 16
+      alta: 24
+    quick_win: true
+    guia_remediacion: "SAI + grupo electrógeno (en M/A) + pruebas periódicas + monitorización de consumo. N/A si cloud puro."
+    evidencia_tipica: "Inventario de SAI/grupo + pruebas recientes + contratos de mantenimiento"
+    notas_auditor: "N/A aceptable si el cliente no tiene CPD propio. Auditor pide ver el contrato cloud para verificar."
+
+  - codigo: mp.if.5
+    nombre: "Protección frente a incendios"
+    familia: mp.if
+    marco: proteccion
+    aplica_desde: basica
+    severidad_base:
+      basica: media
+      media: alta
+      alta: alta
+    esfuerzo_horas_base:
+      basica: 8
+      media: 16
+      alta: 24
+    quick_win: true
+    guia_remediacion: "Sistema de detección + extinción + revisiones anuales + plan de evacuación. Integrado con PRL del cliente."
+    evidencia_tipica: "Certificado de instalación + revisiones + plan de evacuación + simulacros"
+    notas_auditor: "Se aprovecha del cumplimiento PRL. Auditor pide ver el certificado más reciente."
+
+  - codigo: mp.if.6
+    nombre: "Protección frente a inundaciones"
+    familia: mp.if
+    marco: proteccion
+    aplica_desde: alta
+    severidad_base:
+      basica: informativa
+      media: baja
+      alta: alta
+    esfuerzo_horas_base:
+      basica: 0
+      media: 4
+      alta: 16
+    quick_win: true
+    guia_remediacion: "Análisis del riesgo de inundación del local + elevación de equipos + detección de agua. Frecuentemente N/A."
+    evidencia_tipica: "Análisis de riesgo de inundación + medidas aplicadas o justificación de N/A"
+    notas_auditor: "N/A aceptable en oficinas en planta alta. En Alta sí se exige análisis formal incluso si se justifica N/A."
+
+  - codigo: mp.if.7
+    nombre: "Registro de entrada y salida de equipamiento"
+    familia: mp.if
+    marco: proteccion
+    aplica_desde: basica
+    severidad_base:
+      basica: baja
+      media: media
+      alta: alta
+    esfuerzo_horas_base:
+      basica: 4
+      media: 8
+      alta: 16
+    quick_win: true
+    guia_remediacion: "Procedimiento de autorización + registro en Excel/sistema + control en recepción. Integrado con op.exp.1 inventario."
+    evidencia_tipica: "Procedimiento + registro de entradas/salidas + correlación con inventario"
+    notas_auditor: "Auditor muestrea 2-3 equipos recientemente movidos y verifica trazabilidad."
+
+  # ------------------------------------------------------------------------
+  # MEDIDAS DE PROTECCIÓN - PERSONAL (mp.per) — 4 medidas
+  # ------------------------------------------------------------------------
+
+  - codigo: mp.per.1
+    nombre: "Caracterización del puesto de trabajo"
+    familia: mp.per
+    marco: proteccion
+    aplica_desde: basica
+    severidad_base:
+      basica: media
+      media: media
+      alta: alta
+    esfuerzo_horas_base:
+      basica: 4
+      media: 8
+      alta: 16
+    quick_win: true
+    guia_remediacion: "Descripciones de puesto con responsabilidades de seguridad explícitas. Derivado de op.acc.2."
+    evidencia_tipica: "Fichas de puesto firmadas por RRHH + matriz puesto-responsabilidad"
+    notas_auditor: "Se cruza con op.acc.2. Si hay contradicción entre puesto y permisos = NC."
+
+  - codigo: mp.per.2
+    nombre: "Deberes y obligaciones"
+    familia: mp.per
+    marco: proteccion
+    aplica_desde: basica
+    severidad_base:
+      basica: alta
+      media: alta
+      alta: alta
+    esfuerzo_horas_base:
+      basica: 4
+      media: 8
+      alta: 16
+    quick_win: true
+    guia_remediacion: "Cláusulas de confidencialidad en contratos laborales + acuerdo de aceptación de políticas + anexo RGPD + desvinculación formal."
+    evidencia_tipica: "Contratos firmados con cláusulas de seguridad + acuses de recibo de políticas + procedimiento de desvinculación"
+    notas_auditor: "Auditor toma 3-5 contratos aleatorios y verifica que las cláusulas están y se firmaron."
+
+  - codigo: mp.per.3
+    nombre: "Concienciación"
+    familia: mp.per
+    marco: proteccion
+    aplica_desde: basica
+    severidad_base:
+      basica: alta
+      media: critica
+      alta: critica
+    esfuerzo_horas_base:
+      basica: 16
+      media: 32
+      alta: 48
+    quick_win: false
+    guia_remediacion: "Programa de concienciación anual + campañas trimestrales + phishing simulacros (GoPhish) + comunicación activa."
+    evidencia_tipica: "Plan anual + contenidos + asistencia + resultados de phishing simulacro + tasa de reporte"
+    notas_auditor: "Factor humano es NC frecuente. Sin plan documentado y ejecutado = NC menor al menos."
+
+  - codigo: mp.per.4
+    nombre: "Formación"
+    familia: mp.per
+    marco: proteccion
+    aplica_desde: basica
+    severidad_base:
+      basica: alta
+      media: alta
+      alta: critica
+    esfuerzo_horas_base:
+      basica: 16
+      media: 32
+      alta: 48
+    quick_win: false
+    guia_remediacion: "Plan de formación por rol + formación específica para privilegiados + registro de asistencia + evaluación. Mini-LMS de la plataforma."
+    evidencia_tipica: "Plan + currículos + registro de asistencia + certificados + evaluación de eficacia"
+    notas_auditor: "Diferenciado de mp.per.3: concienciación es básica, formación es técnica por rol. Ambas deben existir."
+
+  # ------------------------------------------------------------------------
+  # MEDIDAS DE PROTECCIÓN - EQUIPOS (mp.eq) — 4 medidas
+  # ------------------------------------------------------------------------
+
+  - codigo: mp.eq.1
+    nombre: "Puesto de trabajo despejado"
+    familia: mp.eq
+    marco: proteccion
+    aplica_desde: basica
+    severidad_base:
+      basica: baja
+      media: media
+      alta: media
+    esfuerzo_horas_base:
+      basica: 4
+      media: 8
+      alta: 16
+    quick_win: true
+    guia_remediacion: "Política de mesa limpia + armarios con llave + destrucción de papeles + walkthrough periódico."
+    evidencia_tipica: "Política firmada + registros de walkthrough con hallazgos + cartelería"
+    notas_auditor: "Auditor pasea por oficinas fuera de horario laboral buscando papeles con información sensible."
+
+  - codigo: mp.eq.2
+    nombre: "Bloqueo de puesto de trabajo"
+    familia: mp.eq
+    marco: proteccion
+    aplica_desde: basica
+    severidad_base:
+      basica: alta
+      media: alta
+      alta: alta
+    esfuerzo_horas_base:
+      basica: 4
+      media: 8
+      alta: 16
+    quick_win: true
+    guia_remediacion: "GPO/Intune para bloqueo automático en <15 min (M) o <5 min (A) + bloqueo manual al ausentarse + validación con scanner."
+    evidencia_tipica: "GPO aplicada a 100% de endpoints + evidencia de compliance + política de ausencia"
+    notas_auditor: "Se prueba visitando la oficina y viendo si hay pantallas desbloqueadas sin usuario presente."
+
+  - codigo: mp.eq.3
+    nombre: "Protección de equipos portátiles"
+    familia: mp.eq
+    marco: proteccion
+    aplica_desde: basica
+    severidad_base:
+      basica: alta
+      media: alta
+      alta: critica
+    esfuerzo_horas_base:
+      basica: 8
+      media: 16
+      alta: 24
+    quick_win: true
+    guia_remediacion: "Cifrado completo de disco (BitLocker/LUKS) + MDM con remote wipe + seguimiento por geolocalización + protección antirrobo."
+    evidencia_tipica: "Cobertura de cifrado 100% + configuración MDM + política de uso de portátiles firmada"
+    notas_auditor: "Portátil robado con datos sin cifrar = brecha RGPD automática. Auditor verifica BitLocker/LUKS en muestra."
+
+  - codigo: mp.eq.4
+    nombre: "Otros dispositivos conectados a la red"
+    familia: mp.eq
+    marco: proteccion
+    aplica_desde: basica
+    severidad_base:
+      basica: media
+      media: alta
+      alta: alta
+    esfuerzo_horas_base:
+      basica: 8
+      media: 16
+      alta: 24
+    quick_win: true
+    guia_remediacion: "Inventario de IoT/OT/impresoras + segmentación en VLAN propia + hardening + actualización de firmware. Nueva en 311/2022."
+    evidencia_tipica: "Inventario + arquitectura de red con VLAN IoT + configuración de segmentación + plan de actualización firmware"
+    notas_auditor: "Nueva en 311/2022. Auditor busca impresoras/cámaras/IoT en red corporativa plana = NC menor."
+
+  # ------------------------------------------------------------------------
+  # MEDIDAS DE PROTECCIÓN - COMUNICACIONES (mp.com) — 4 medidas
+  # ------------------------------------------------------------------------
+
+  - codigo: mp.com.1
+    nombre: "Perímetro seguro"
+    familia: mp.com
+    marco: proteccion
+    aplica_desde: basica
+    severidad_base:
+      basica: alta
+      media: alta
+      alta: critica
+    esfuerzo_horas_base:
+      basica: 16
+      media: 32
+      alta: 48
+    quick_win: false
+    guia_remediacion: "Firewall NGFW + WAF para expuestos + reglas revisadas + cambios con gestión de cambios + monitorización de tráfico."
+    evidencia_tipica: "Config del firewall exportada + revisiones de reglas + dashboard de tráfico + alertas activas"
+    notas_auditor: "Auditor pide export del firewall y muestrea 10 reglas. Regla 'any-any' permitida = NC mayor."
+
+  - codigo: mp.com.2
+    nombre: "Protección de la confidencialidad"
+    familia: mp.com
+    marco: proteccion
+    aplica_desde: basica
+    severidad_base:
+      basica: alta
+      media: alta
+      alta: critica
+    esfuerzo_horas_base:
+      basica: 8
+      media: 16
+      alta: 24
+    quick_win: true
+    guia_remediacion: "TLS 1.3 obligatorio + HSTS + prohibición TLS 1.0/1.1 + verificación testssl.sh de todos los FQDN."
+    evidencia_tipica: "Output testssl.sh con calificación >=A- + configuración de servidores + política de cifrado"
+    notas_auditor: "TLS 1.0/1.1 habilitado = NC mayor automática en M/A. Auditor prueba con testssl.sh en vivo."
+
+  - codigo: mp.com.3
+    nombre: "Protección de la integridad y autenticidad"
+    familia: mp.com
+    marco: proteccion
+    aplica_desde: basica
+    severidad_base:
+      basica: alta
+      media: alta
+      alta: alta
+    esfuerzo_horas_base:
+      basica: 8
+      media: 16
+      alta: 24
+    quick_win: true
+    guia_remediacion: "HMAC/firmas digitales en comunicaciones críticas + DNSSEC + SPF/DKIM/DMARC del dominio corporativo."
+    evidencia_tipica: "Registros DNS con SPF/DKIM/DMARC + config DNSSEC + políticas de integridad de mensajes"
+    notas_auditor: "Auditor comprueba SPF/DKIM/DMARC con lookup público. Ausentes o misconfigurados = NC menor."
+
+  - codigo: mp.com.4
+    nombre: "Separación de flujos de información en la red"
+    familia: mp.com
+    marco: proteccion
+    aplica_desde: media
+    severidad_base:
+      basica: baja
+      media: media
+      alta: alta
+    esfuerzo_horas_base:
+      basica: 0
+      media: 24
+      alta: 80
+    quick_win: false
+    guia_remediacion: "Segmentación VLAN por criticidad + microsegmentación en cloud + zero-trust para críticos."
+    evidencia_tipica: "Diagrama de red con VLAN + política de segmentación + reglas entre segmentos"
+    notas_auditor: "Red plana en M/A es NC. Auditor pide diagrama lógico de red."
+
+  # ------------------------------------------------------------------------
+  # MEDIDAS DE PROTECCIÓN - SOPORTES (mp.si) — 5 medidas
+  # ------------------------------------------------------------------------
+
+  - codigo: mp.si.1
+    nombre: "Marcado de soportes"
+    familia: mp.si
+    marco: proteccion
+    aplica_desde: basica
+    severidad_base:
+      basica: baja
+      media: media
+      alta: media
+    esfuerzo_horas_base:
+      basica: 4
+      media: 8
+      alta: 16
+    quick_win: true
+    guia_remediacion: "Etiquetado de soportes con nivel de clasificación + procedimiento E-218 de marcado + inventario."
+    evidencia_tipica: "Procedimiento + fotos de soportes etiquetados + inventario"
+    notas_auditor: "Casi siempre N/A si el cliente no usa soportes extraíbles. Si los usa, se verifica por muestreo."
+
+  - codigo: mp.si.2
+    nombre: "Criptografía"
+    familia: mp.si
+    marco: proteccion
+    aplica_desde: media
+    severidad_base:
+      basica: media
+      media: alta
+      alta: critica
+    esfuerzo_horas_base:
+      basica: 8
+      media: 32
+      alta: 48
+    quick_win: false
+    guia_remediacion: "Cifrado de soportes extraíbles + gestión de claves (KMS/HSM) + algoritmos CCN-STIC 807 + rotación."
+    evidencia_tipica: "Inventario de soportes cifrados + configuración del KMS + política de gestión de claves"
+    notas_auditor: "En M/A obligatorio. Se verifica contra CCN-STIC 807 (solo algoritmos aprobados)."
+
+  - codigo: mp.si.3
+    nombre: "Custodia"
+    familia: mp.si
+    marco: proteccion
+    aplica_desde: basica
+    severidad_base:
+      basica: media
+      media: alta
+      alta: alta
+    esfuerzo_horas_base:
+      basica: 4
+      media: 8
+      alta: 16
+    quick_win: true
+    guia_remediacion: "Armarios ignífugos para soportes + cadena de custodia documentada + control de acceso físico."
+    evidencia_tipica: "Inventario de soportes + registros de acceso al almacén + cadena de custodia"
+    notas_auditor: "Frecuentemente N/A si es cloud puro. Si hay backups físicos, se verifica."
+
+  - codigo: mp.si.4
+    nombre: "Transporte"
+    familia: mp.si
+    marco: proteccion
+    aplica_desde: media
+    severidad_base:
+      basica: informativa
+      media: media
+      alta: alta
+    esfuerzo_horas_base:
+      basica: 0
+      media: 4
+      alta: 16
+    quick_win: true
+    guia_remediacion: "Procedimiento de transporte seguro + cifrado en tránsito + registro de envíos + servicios de mensajería autorizados."
+    evidencia_tipica: "Procedimiento + registros de envíos + contratos con mensajeros"
+    notas_auditor: "Frecuentemente N/A. Si aplica, auditor pide 2-3 envíos recientes."
+
+  - codigo: mp.si.5
+    nombre: "Borrado y destrucción"
+    familia: mp.si
+    marco: proteccion
+    aplica_desde: basica
+    severidad_base:
+      basica: alta
+      media: alta
+      alta: critica
+    esfuerzo_horas_base:
+      basica: 8
+      media: 16
+      alta: 24
+    quick_win: true
+    guia_remediacion: "Procedimiento E-126 con borrado criptográfico o físico + certificados de destrucción + contrato con empresa autorizada."
+    evidencia_tipica: "Procedimiento + certificados de destrucción firmados + registros de equipos dados de baja"
+    notas_auditor: "Auditor pide ver 1-2 certificados recientes. Sin procedimiento formal = NC menor."
+
+  # ------------------------------------------------------------------------
+  # MEDIDAS DE PROTECCIÓN - APLICACIONES (mp.sw) — 2 medidas
+  # ------------------------------------------------------------------------
+
+  - codigo: mp.sw.1
+    nombre: "Desarrollo de aplicaciones"
+    familia: mp.sw
+    marco: proteccion
+    aplica_desde: media
+    severidad_base:
+      basica: informativa
+      media: media
+      alta: alta
+    esfuerzo_horas_base:
+      basica: 0
+      media: 24
+      alta: 80
+    quick_win: false
+    guia_remediacion: "SDLC seguro + OWASP Top 10 + SAST (Semgrep) + SCA (Trivy) + code review obligatorio + formación dev."
+    evidencia_tipica: "Procedimiento SDLC + output de SAST/SCA + registros de code review + formación"
+    notas_auditor: "Solo aplica si el cliente desarrolla. Si compra todo, es N/A con justificación."
+
+  - codigo: mp.sw.2
+    nombre: "Aceptación y puesta en servicio"
+    familia: mp.sw
+    marco: proteccion
+    aplica_desde: media
+    severidad_base:
+      basica: baja
+      media: media
+      alta: alta
+    esfuerzo_horas_base:
+      basica: 0
+      media: 8
+      alta: 24
+    quick_win: true
+    guia_remediacion: "Checklist de aceptación + pentest previo a prod para críticas + firma del responsable antes de puesta en servicio."
+    evidencia_tipica: "Checklist firmado + informe de pentest + autorización de puesta en servicio"
+    notas_auditor: "Se muestrean 2-3 aplicaciones puestas en servicio recientemente y se pide el expediente de aceptación."
+
+  # ------------------------------------------------------------------------
+  # MEDIDAS DE PROTECCIÓN - INFORMACIÓN (mp.info) — 6 medidas
+  # ------------------------------------------------------------------------
+
+  - codigo: mp.info.1
+    nombre: "Datos de carácter personal"
+    familia: mp.info
+    marco: proteccion
+    aplica_desde: basica
+    severidad_base:
+      basica: alta
+      media: critica
+      alta: critica
+    esfuerzo_horas_base:
+      basica: 16
+      media: 32
+      alta: 48
+    quick_win: false
+    guia_remediacion: "Cumplimiento RGPD + registro de tratamientos + DPO si aplica + PIAs en riesgos altos + procedimientos de ejercicio de derechos."
+    evidencia_tipica: "Registro de tratamientos + DPO designado + PIAs realizadas + procedimiento de derechos ARSULIPO"
+    notas_auditor: "Se solapa con RGPD. Auditor ENS aprovecha cumplimiento RGPD existente. Sin RGPD = doble NC."
+
+  - codigo: mp.info.2
+    nombre: "Calificación de la información"
+    familia: mp.info
+    marco: proteccion
+    aplica_desde: basica
+    severidad_base:
+      basica: media
+      media: alta
+      alta: alta
+    esfuerzo_horas_base:
+      basica: 8
+      media: 16
+      alta: 24
+    quick_win: true
+    guia_remediacion: "Política de clasificación (Público/Interno/Confidencial/Restringido) + etiquetado + formación del personal."
+    evidencia_tipica: "Política E-104 firmada + ejemplos de clasificación aplicada + formación al personal"
+    notas_auditor: "Auditor pide ver 3-5 documentos recientes y verifica que tienen etiqueta de clasificación."
+
+  - codigo: mp.info.3
+    nombre: "Cifrado"
+    familia: mp.info
+    marco: proteccion
+    aplica_desde: media
+    severidad_base:
+      basica: alta
+      media: critica
+      alta: critica
+    esfuerzo_horas_base:
+      basica: 16
+      media: 48
+      alta: 80
+    quick_win: false
+    guia_remediacion: "Cifrado at-rest obligatorio + KMS/HSM + algoritmos CCN-STIC 807 + rotación de claves. Cobertura universal en M/A."
+    evidencia_tipica: "Configuración de cifrado en BD/filesystems/backups + KMS + rotación + procedimientos de recuperación"
+    notas_auditor: "Datos sensibles sin cifrar at-rest = NC mayor inmediata. Auditor valida configuración de BD y backups."
+
+  - codigo: mp.info.4
+    nombre: "Firma electrónica"
+    familia: mp.info
+    marco: proteccion
+    aplica_desde: basica
+    severidad_base:
+      basica: media
+      media: alta
+      alta: alta
+    esfuerzo_horas_base:
+      basica: 8
+      media: 16
+      alta: 24
+    quick_win: true
+    guia_remediacion: "Firma electrónica cualificada para documentos legales + Ed25519 para firmas técnicas + integración con QTSP español (FNMT)."
+    evidencia_tipica: "Procedimiento + certificados cualificados de los firmantes + ejemplos de documentos firmados"
+    notas_auditor: "Auditor verifica conformidad eIDAS. Firmas en formato PAdES/XAdES cuando aplican."
+
+  - codigo: mp.info.5
+    nombre: "Sellos de tiempo"
+    familia: mp.info
+    marco: proteccion
+    aplica_desde: alta
+    severidad_base:
+      basica: informativa
+      media: baja
+      alta: media
+    esfuerzo_horas_base:
+      basica: 0
+      media: 4
+      alta: 16
+    quick_win: true
+    guia_remediacion: "Sellado de tiempo cualificado para documentos críticos + integración con TSA española."
+    evidencia_tipica: "Contrato con TSA + ejemplos de documentos sellados + procedimiento"
+    notas_auditor: "En Alta se exige. En Media solo si aplica por tipo de información tratada."
+
+  - codigo: mp.info.6
+    nombre: "Limpieza de documentos"
+    familia: mp.info
+    marco: proteccion
+    aplica_desde: basica
+    severidad_base:
+      basica: baja
+      media: baja
+      alta: media
+    esfuerzo_horas_base:
+      basica: 4
+      media: 8
+      alta: 16
+    quick_win: true
+    guia_remediacion: "Procedimiento de limpieza de metadatos antes de publicar documentos + herramienta automatizada."
+    evidencia_tipica: "Procedimiento + herramienta + formación al personal que publica"
+    notas_auditor: "Auditor comprueba metadatos de documentos públicos del cliente (web) con exiftool."
+
+  # ------------------------------------------------------------------------
+  # MEDIDAS DE PROTECCIÓN - SERVICIOS (mp.s) — 4 medidas
+  # ------------------------------------------------------------------------
+
+  - codigo: mp.s.1
+    nombre: "Protección del correo electrónico"
+    familia: mp.s
+    marco: proteccion
+    aplica_desde: basica
+    severidad_base:
+      basica: alta
+      media: alta
+      alta: alta
+    esfuerzo_horas_base:
+      basica: 8
+      media: 16
+      alta: 24
+    quick_win: true
+    guia_remediacion: "SPF/DKIM/DMARC strict + sandbox de adjuntos + filtrado anti-phishing + cifrado S/MIME para críticos + archivado."
+    evidencia_tipica: "Configuración del gateway + registros DNS + política de uso + estadísticas de filtrado"
+    notas_auditor: "DMARC en modo 'none' o ausente = NC menor. Gateway sin anti-phishing = NC menor."
+
+  - codigo: mp.s.2
+    nombre: "Protección de servicios y aplicaciones web"
+    familia: mp.s
+    marco: proteccion
+    aplica_desde: basica
+    severidad_base:
+      basica: alta
+      media: alta
+      alta: critica
+    esfuerzo_horas_base:
+      basica: 16
+      media: 32
+      alta: 48
+    quick_win: false
+    guia_remediacion: "WAF + hardening de servidores web + revisión periódica de vulnerabilidades OWASP + testssl.sh + headers de seguridad."
+    evidencia_tipica: "Config del WAF + escaneos ZAP/Nuclei + headers (HSTS, CSP, X-Frame) + pentest anual"
+    notas_auditor: "Auditor hace scan básico en vivo con Nuclei. Hallazgos sin parchear = NC según severidad."
+
+  - codigo: mp.s.3
+    nombre: "Protección de la navegación web"
+    familia: mp.s
+    marco: proteccion
+    aplica_desde: basica
+    severidad_base:
+      basica: media
+      media: alta
+      alta: alta
+    esfuerzo_horas_base:
+      basica: 8
+      media: 16
+      alta: 24
+    quick_win: true
+    guia_remediacion: "Proxy con filtrado de URL + bloqueo de categorías de riesgo + DNS filtering + TLS inspection en M/A. Nueva en 311/2022."
+    evidencia_tipica: "Configuración del proxy + logs de navegación + política de navegación + incidentes detectados"
+    notas_auditor: "Nueva en 311/2022 desde BÁSICA. Ausencia total de filtrado = NC menor."
+
+  - codigo: mp.s.4
+    nombre: "Protección frente a la denegación de servicio"
+    familia: mp.s
+    marco: proteccion
+    aplica_desde: media
+    severidad_base:
+      basica: baja
+      media: alta
+      alta: critica
+    esfuerzo_horas_base:
+      basica: 0
+      media: 16
+      alta: 48
+    quick_win: false
+    guia_remediacion: "Protección anti-DDoS (Cloudflare/Akamai/AWS Shield) + rate limiting + runbook de respuesta + simulacros."
+    evidencia_tipica: "Contrato con proveedor anti-DDoS + configuración + playbook de respuesta + histórico de mitigaciones"
+    notas_auditor: "En servicios expuestos al sector público se exige protección activa. Cliente sin anti-DDoS en M/A = NC menor."

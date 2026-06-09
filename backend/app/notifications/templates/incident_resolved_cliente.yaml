@@ -1,0 +1,35 @@
+subject_es: "Incidente resuelto y firmado · {{ project_name }}"
+cta_label_es: "Ver incidente en el portal"
+html_body_es: |
+  <p>Hola {{ recipient_name }},</p>
+  <p>El incidente <strong>{{ incident_codigo }}</strong>
+  (<em>{{ incident_titulo }}</em>) ha quedado <strong>resuelto y
+  firmado</strong> el {{ signed_at_short }}.</p>
+  <p>Cumplimiento CCN-STIC 817 · auditor ENAC puede verificar el
+  cierre y la trazabilidad de las acciones tomadas.</p>
+  <p>
+    <a href="{{ cta_url }}" style="background:#7c3aed;color:#fff;padding:10px 20px;text-decoration:none;border-radius:4px;display:inline-block;">
+      Ver detalles del incidente
+    </a>
+  </p>
+  <p>Un saludo,<br>
+  <strong>Marcos Mata</strong> · Consultor de Fulkro<br>
+  📞 +34 637 165 328 ·
+  <a href="mailto:marcosmata@fulkro.es">marcosmata@fulkro.es</a> ·
+  <a href="https://www.fulkro.es">www.fulkro.es</a></p>
+text_body_es: |
+  Hola {{ recipient_name }},
+
+  El incidente {{ incident_codigo }} ({{ incident_titulo }}) ha quedado
+  resuelto y firmado el {{ signed_at_short }}.
+
+  Cumplimiento CCN-STIC 817 · auditor ENAC puede verificar el cierre
+  y la trazabilidad de las acciones tomadas.
+
+  Ver detalles del incidente: {{ cta_url }}
+
+  Un saludo,
+  Marcos Mata · Consultor de Fulkro
+  Tel: +34 637 165 328
+  Email: marcosmata@fulkro.es
+  Web: www.fulkro.es

@@ -1,0 +1,254 @@
+# MAGERIT v3 — Escalas de valoración
+# Fuente: Libro I "Método", Capítulo 4; Libro III "Guía de Técnicas", Cap 2-3
+# Estas escalas son la referencia para los cálculos del Motor 2
+
+# === Escala de valoración de activos ===
+# Libro I, sec 4.3.2, p.28-29; Libro III, sec 2.1, p.13-14
+asset_value_scale:
+  description: "Escala cualitativa de valor de un activo en cada dimensión DICAT"
+  levels:
+    - level: 0
+      name: "despreciable"
+      description: "Daño irrelevante a efectos prácticos"  # Libro I, p.28
+      numeric_range: [0, 0]
+
+    - level: 1
+      name: "bajo"
+      description: "Daño menor, fácilmente reparable"  # Libro I, p.28
+      numeric_range: [1, 1]
+
+    - level: 2
+      name: "medio-bajo"
+      description: "Daño importante para algún individuo"
+      numeric_range: [2, 2]
+
+    - level: 3
+      name: "medio"
+      description: "Daño importante para un grupo de individuos"  # Libro I, p.29
+      numeric_range: [3, 4]
+
+    - level: 5
+      name: "medio-alto"
+      description: "Daño grave para la organización"
+      numeric_range: [5, 5]
+
+    - level: 6
+      name: "alto"
+      description: "Daño muy grave a la organización"  # Libro I, p.29
+      numeric_range: [6, 7]
+
+    - level: 7
+      name: "muy alto"
+      description: "Daño grave a un grupo de organizaciones o al sector"
+      numeric_range: [7, 8]
+
+    - level: 9
+      name: "extremo"
+      description: "Daño extremadamente grave a la organización, posiblemente irreparable"
+      numeric_range: [9, 9]
+
+    - level: 10
+      name: "máximo"
+      description: "Daño máximo posible: afecta a la seguridad nacional, vidas humanas"  # Libro I, p.29
+      numeric_range: [10, 10]
+
+
+# === Escala de probabilidad/frecuencia ===
+# Libro I, sec 4.4, p.30; Libro III, sec 2.3, p.19
+probability_scale:
+  description: "Frecuencia estimada de materialización de una amenaza"
+  levels:
+    - code: "MA"
+      name: "Muy alta"
+      description: "A diario o prácticamente a diario"  # Libro I, p.30
+      frequency_per_year: 365
+      numeric: 5
+
+    - code: "A"
+      name: "Alta"
+      description: "Una vez al mes"
+      frequency_per_year: 12
+      numeric: 4
+
+    - code: "M"
+      name: "Media"
+      description: "Una vez al a��o"  # Libro I, p.30
+      frequency_per_year: 1
+      numeric: 3
+
+    - code: "B"
+      name: "Baja"
+      description: "Cada varios años (periodo entre 1 y 10 años)"
+      frequency_per_year: 0.1
+      numeric: 2
+
+    - code: "MB"
+      name: "Muy baja"
+      description: "Siglos (extraordinariamente raro)"  # Libro I, p.30
+      frequency_per_year: 0.01
+      numeric: 1
+
+
+# === Escala de degradación ===
+# Libro I, sec 4.4.2, p.31; Libro III, sec 2.2, p.17
+degradation_scale:
+  description: "Porcentaje de pérdida del valor del activo cuando se materializa la amenaza"
+  levels:
+    - code: "T"
+      name: "Total"
+      description: "Degradación completa del activo"  # Libro I, p.31
+      percentage: 100
+
+    - code: "MA"
+      name: "Muy alta"
+      description: "Degradación muy considerable"
+      percentage: 90
+
+    - code: "A"
+      name: "Alta"
+      description: "Degradación considerable"
+      percentage: 50
+
+    - code: "M"
+      name: "Media"
+      description: "Degradación media"
+      percentage: 20
+
+    - code: "B"
+      name: "Baja"
+      description: "Degradación baja"
+      percentage: 10
+
+    - code: "MB"
+      name: "Muy baja"
+      description: "Degradación despreciable"
+      percentage: 1
+
+
+# === Cálculo de impacto ===
+# Libro I, sec 4.4.3, p.32; Libro III, sec 2.4, p.21
+impact_calculation:
+  description: >
+    Impacto = Valor_activo × Degradación.
+    Para riesgo acumulado, se usa el valor acumulado del activo
+    (máximo entre su valor propio y el propagado por dependencias).
+    Para riesgo repercutido, se propaga hacia los activos superiores.
+  formula: "impacto = valor_activo * degradacion"  # Libro I, sec 4.4.3
+  notes: >
+    El valor del activo se toma de la dimensión afectada por la amenaza.
+    La degradación viene de la valoración de la amenaza sobre esa dimensión.
+
+
+# === Cálculo de riesgo ===
+# Libro I, sec 4.4.4, p.33; Libro III, sec 3.1, p.29
+risk_calculation:
+  description: >
+    Riesgo = f(impacto, probabilidad).
+    MAGERIT usa una función que da más peso al impacto.
+    En la práctica cualitativa: tabla cruzada impacto × probabilidad.
+  formula: "riesgo = impacto × probabilidad"  # Libro III, sec 3.1, p.29
+  qualitative_matrix:  # Libro III, sec 3.1.2, p.30-31
+    description: >
+      Tabla de combinación cualitativa. Las filas son niveles de impacto
+      (de despreciable a máximo) y las columnas niveles de probabilidad
+      (de MB a MA). El resultado es un nivel de riesgo.
+    # Valores: riesgo resultante = impacto_level + probabilidad_level - 1
+    # Ajustado según la tabla del Libro III con ponderación al impacto
+
+
+# === Escala de riesgo resultante ===
+# Libro III, sec 3.1, p.29-31
+risk_levels:
+  description: "Niveles de riesgo resultantes tras combinar impacto y probabilidad"
+  levels:
+    - code: "MC"
+      name: "Muy crítico"
+      description: "Riesgo inaceptable, requiere acción inmediata"
+      numeric_range: [9, 10]
+      color: "rojo"
+
+    - code: "C"
+      name: "Crítico"
+      description: "Riesgo grave, requiere plan de tratamiento urgente"
+      numeric_range: [7, 8]
+      color: "naranja"
+
+    - code: "I"
+      name: "Importante"
+      description: "Riesgo significativo, requiere tratamiento planificado"
+      numeric_range: [5, 6]
+      color: "amarillo"
+
+    - code: "A"
+      name: "Apreciable"
+      description: "Riesgo moderado, puede ser aceptado con supervisión"
+      numeric_range: [3, 4]
+      color: "verde_claro"
+
+    - code: "D"
+      name: "Despreciable"
+      description: "Riesgo bajo, aceptable sin tratamiento adicional"
+      numeric_range: [0, 2]
+      color: "verde"
+
+
+# === Criterios de aceptabilidad ===
+# Libro I, sec 4.6, p.36
+risk_acceptance:
+  description: "Criterios para decidir si un riesgo es aceptable"
+  thresholds:
+    - zone: "aceptable"
+      risk_levels: ["D"]
+      action: "Aceptar sin tratamiento adicional"
+
+    - zone: "tolerable"
+      risk_levels: ["A"]
+      action: "Supervisar. Considerar mejoras si son de bajo coste"
+
+    - zone: "inaceptable"
+      risk_levels: ["I", "C", "MC"]
+      action: "Requiere plan de tratamiento: mitigar, transferir o eliminar"
+
+  treatment_options:  # Libro I, sec 4.6.1, p.37
+    - code: "mitigar"
+      description: "Reducir el riesgo implantando salvaguardas"
+    - code: "transferir"
+      description: "Compartir el riesgo con un tercero (seguro, externalización)"
+    - code: "aceptar"
+      description: "Asumir el riesgo residual con aprobación de la dirección"
+    - code: "eliminar"
+      description: "Prescindir del activo o del servicio que genera el riesgo"
+
+
+# === Efecto de las salvaguardas ===
+# Libro I, sec 4.5, p.34; Libro III, sec 3.2, p.32
+safeguard_effect:
+  description: >
+    Las salvaguardas reducen el riesgo actuando sobre la probabilidad
+    (preventivas) o sobre la degradación (paliativas/correctivas).
+  formula_preventive: "probabilidad_efectiva = probabilidad * (1 - eficacia_preventiva)"  # Libro III, sec 3.2
+  formula_palliative: "degradacion_efectiva = degradacion * (1 - eficacia_paliativa)"  # Libro III, sec 3.2
+  efficacy_scale:
+    - code: "L0"
+      name: "Inexistente"
+      percentage: 0
+    - code: "L1"
+      name: "Inicial/ad hoc"
+      percentage: 20
+    - code: "L2"
+      name: "Reproducible pero intuitivo"
+      percentage: 50
+    - code: "L3"
+      name: "Proceso definido"
+      percentage: 70
+    - code: "L4"
+      name: "Gestionado y medible"
+      percentage: 85
+    - code: "L5"
+      name: "Optimizado"
+      percentage: 95
+  notes: >
+    La eficacia L0-L5 corresponde a los grados de madurez de CCN-STIC 808.
+    Cuando varias salvaguardas protegen el mismo activo contra la misma amenaza,
+    la eficacia combinada se calcula como: 1 - (1-e1)*(1-e2)*...*(1-en)
+    [Libro III, sec 3.2.2, "paquete de salvaguardas"]

@@ -1,0 +1,18 @@
+# Self-contained image for E2E Playwright tests without needing sudo apt on the host.
+# Build:  docker build -f Dockerfile.e2e -t fulkro-e2e .
+# Run:    docker run --rm fulkro-e2e
+FROM mcr.microsoft.com/playwright:v1.59.1-noble
+
+WORKDIR /work
+
+# Install node deps first for layer caching.
+COPY package.json package-lock.json ./
+RUN npm ci --no-audit --no-fund
+
+# Copy the rest of the project (node_modules and .next are excluded via .dockerignore).
+COPY . .
+
+# Production build serves tests through the same bundle that will ship.
+RUN npm run build
+
+CMD ["npx", "playwright", "test", "--reporter=line"]

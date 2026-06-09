@@ -1,0 +1,51 @@
+# SAN-D MB-19.11 · ADR-042 · Magic-link soft-deprecated → ClientTask mapping.
+#
+# Maps each deprecated magic-link purpose a templates ClientTask portal
+# equivalents. Migration data script (backend/scripts/migrate_magic_links_to_tasks.py)
+# usa este YAML para convert magic-links activos no consumidos en
+# ClientTask records portal cliente workspace.
+#
+# Total: 2 purposes deprecated soft (ADR-042 categorización).
+#
+# Convención campos:
+# - title/description: español hispano (Cliente UI)
+# - cta_label: action label botón portal
+# - cta_url_template: URL portal con placeholder {project_id}
+# - phase: workflow_phase target (10 fases ADR-026 · DEFAULT_FALLBACK
+#   resuelto desde Project.fase actual si template no la fija)
+# - expected_evidence_type / count: solo aplicable APORTE_EVIDENCIA
+# - priority: 0=normal · 1=alta · 2=urgente
+
+ONBOARDING_INICIAL:
+  title: "Completa tu acceso al portal cliente"
+  description: |
+    Tu cuenta cliente FULKRO está lista. Activa tu primer acceso desde
+    aquí · introduce nueva contraseña tras el primer login para asegurar
+    tu cuenta.
+  cta_label: "Acceder al portal"
+  cta_url_template: "/client-portal/login"
+  template_prefix: "migrated_onboarding_inicial"
+  phase: "onboarding"
+  priority: 1
+  expected_evidence_type: null
+  expected_evidence_count: 0
+  metadata_extras:
+    flow: "primer_acceso_cliente"
+    migration_source: "magic_link_onboarding_inicial"
+
+APORTE_EVIDENCIA:
+  title: "Sube las evidencias pendientes"
+  description: |
+    Marcos ha solicitado evidencias documentales para avanzar el proyecto.
+    Sube los archivos desde la sección Evidencias del portal · soporta
+    PDF · imágenes · documentos office hasta 50MB.
+  cta_label: "Subir evidencias"
+  cta_url_template: "/client-portal/evidencias"
+  template_prefix: "migrated_aporte_evidencia"
+  phase: "implantacion"
+  priority: 1
+  expected_evidence_type: "documento"
+  expected_evidence_count: 1
+  metadata_extras:
+    flow: "aporte_evidencia"
+    migration_source: "magic_link_aporte_evidencia"

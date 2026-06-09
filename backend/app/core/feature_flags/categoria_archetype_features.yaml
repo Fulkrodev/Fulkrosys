@@ -1,0 +1,168 @@
+# FULKRO Feature Flags per categoría ENS + arquetipo PYME (ADR-036)
+# Source of truth · backend + frontend leen este archivo
+#
+# Per feature:
+#   description                          - texto humano
+#   applicable_categories                - list ["BASICA","MEDIA","ALTA"] o "ALL"
+#   applicable_archetypes                - list lowercase enum o "ALL"
+#   required_for_phase                   - int 1-indexed WorkflowPhase o "ALL"
+#   blocks_phase_transition_if_missing   - int phase bloqueada si feature no completa
+#   requires_employee_count              - opcional ">=N" o ">N"
+#
+# WorkflowPhase mapping (1-indexed):
+#   1=PRE_VENTA · 2=ONBOARDING · 3=DIAGNOSTICO · 4=ANALISIS_RIESGOS
+#   5=ADECUACION · 6=IMPLANTACION · 7=DDA_FINAL · 8=VERIFICACION
+#   9=CONFORMIDAD · 10=RETAINER_CIERRE
+#
+# PymeArquetipo enum values (lowercase real):
+#   saas_only · teletrabajo_total · sector_salud · sector_educacion
+#   desarrollador_aapp · proveedor_financiero · generico
+
+version: "1.0.0"
+
+features:
+  # ============================================================
+  # FEATURES POR CATEGORÍA ENS
+  # ============================================================
+
+  basica_autoevaluacion:
+    description: "Autoevaluación conformidad CCN-STIC 809 (Básica)"
+    applicable_categories: ["BASICA"]
+    applicable_archetypes: "ALL"
+    required_for_phase: 9
+
+  media_auditor_enac:
+    description: "Auditor externo ENAC obligatorio"
+    applicable_categories: ["MEDIA", "ALTA"]
+    applicable_archetypes: "ALL"
+    required_for_phase: 8
+    blocks_phase_transition_if_missing: 9
+
+  media_auditoria_externa:
+    description: "Auditoría externa 3-5 jornadas"
+    applicable_categories: ["MEDIA", "ALTA"]
+    applicable_archetypes: "ALL"
+    required_for_phase: 8
+
+  media_vuln_scan:
+    description: "Análisis de vulnerabilidades obligatorio (Media/Alta) antes de Conformidad"
+    applicable_categories: ["MEDIA", "ALTA"]
+    applicable_archetypes: "ALL"
+    required_for_phase: 8
+    blocks_phase_transition_if_missing: 9
+
+  alta_pentest_cpstic:
+    description: "Pentest CPSTIC obligatorio (CCN-STIC 105/140)"
+    applicable_categories: ["ALTA"]
+    applicable_archetypes: "ALL"
+    required_for_phase: 8
+    blocks_phase_transition_if_missing: 9
+
+  alta_productos_cpstic:
+    description: "Productos certificados CPSTIC catálogo"
+    applicable_categories: ["ALTA"]
+    applicable_archetypes: "ALL"
+    required_for_phase: 6
+    blocks_phase_transition_if_missing: 9
+
+  alta_criptografia_807:
+    description: "Criptografía acreditada CCN-STIC 807"
+    applicable_categories: ["ALTA"]
+    applicable_archetypes: "ALL"
+    required_for_phase: 6
+    blocks_phase_transition_if_missing: 9
+
+  alta_red_team:
+    description: "Ejercicio Red Team E-704"
+    applicable_categories: ["ALTA"]
+    applicable_archetypes: "ALL"
+    required_for_phase: 8
+
+  alta_co_consultoria:
+    description: "Co-consultoría partner senior 50/50"
+    applicable_categories: ["ALTA"]
+    applicable_archetypes: "ALL"
+    required_for_phase: "ALL"
+
+  refuerzos_r1:
+    description: "Refuerzos nivel R1 (Media+)"
+    applicable_categories: ["MEDIA", "ALTA"]
+    applicable_archetypes: "ALL"
+    required_for_phase: 7
+
+  refuerzos_r2_r3_r4:
+    description: "Refuerzos R2/R3/R4 (Alta)"
+    applicable_categories: ["ALTA"]
+    applicable_archetypes: "ALL"
+    required_for_phase: 7
+
+  # ============================================================
+  # FEATURES POR ARQUETIPO PYME
+  # ============================================================
+
+  art9_rgpd_data:
+    description: "Tratamiento datos especiales art.9 RGPD (salud)"
+    applicable_categories: "ALL"
+    applicable_archetypes: ["sector_salud"]
+    required_for_phase: 3
+
+  pre_categorizacion_alta_salud:
+    description: "Pre-categorización Alta automática sector salud"
+    applicable_categories: "ALL"
+    applicable_archetypes: ["sector_salud"]
+    required_for_phase: 3
+
+  pce_universidades:
+    description: "PCE Universidades CCN-STIC 881/881A"
+    applicable_categories: "ALL"
+    applicable_archetypes: ["sector_educacion"]
+    required_for_phase: 5
+
+  cra_sdlc_seguro:
+    description: "Cyber Resilience Act + SDLC seguro"
+    applicable_categories: "ALL"
+    applicable_archetypes: ["desarrollador_aapp"]
+    required_for_phase: 6
+    mp_sw_reforzado: true
+
+  dora_dual_compliance:
+    description: "Doble cumplimiento ENS + DORA art.6+19"
+    applicable_categories: ["MEDIA", "ALTA"]
+    applicable_archetypes: ["proveedor_financiero"]
+    required_for_phase: 5
+
+  skip_mp_if_instalaciones:
+    description: "Skip mp.if (instalaciones físicas) si SAAS only"
+    applicable_categories: "ALL"
+    applicable_archetypes: ["saas_only"]
+    required_for_phase: 6
+
+  ztna_mfa_obligatorio:
+    description: "ZTNA + MFA + VPN obligatorios teletrabajo total"
+    applicable_categories: "ALL"
+    applicable_archetypes: ["teletrabajo_total"]
+    required_for_phase: 6
+
+  # ============================================================
+  # FEATURES MIXTAS (categoría + arquetipo + empleados)
+  # ============================================================
+
+  pce_nis2:
+    description: "PCE-NIS2 CCN-STIC 892 si entidad esencial/importante"
+    applicable_categories: ["MEDIA", "ALTA"]
+    applicable_archetypes: ["proveedor_financiero", "sector_salud", "desarrollador_aapp"]
+    required_for_phase: 5
+    requires_employee_count: ">=50"
+
+# ============================================================
+# FEATURES SIEMPRE APLICABLES (no condicionales)
+# ============================================================
+
+always_required:
+  - "categoria_cidat"
+  - "inventario_activos_magerit"
+  - "analisis_riesgos_basico"
+  - "dda_anexo_ii"
+  - "plan_adecuacion"
+  - "psi_e100"
+  - "auditoria_interna_ccn_stic_802"

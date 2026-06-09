@@ -1,0 +1,322 @@
+{
+  "version": "1.0",
+  "fecha_publicacion": "2026-04-21",
+  "alcance": "Mini-LMS interno para formacion ENS basica del personal del cliente. Tres cursos minimos exigidos por op.acc.5 (concienciacion) y op.exp.10 (procedimientos). Genera evidencias E-502 (asistencia) y E-503 (cuestionario) admisibles ante auditoria ENAC.",
+  "passing_score_default": 70,
+  "courses": [
+    {
+      "codigo": "LMS-001",
+      "titulo": "Concienciacion en Esquema Nacional de Seguridad",
+      "descripcion": "Curso fundamental sobre el ENS (RD 311/2022): que es, por que aplica al sector, principios basicos y obligaciones del personal. Recomendado para todo el personal con acceso a sistemas afectados por el ENS.",
+      "duracion_minutos": 30,
+      "audiencia": "todo el personal",
+      "obligatorio": true,
+      "modulos": [
+        {
+          "numero": 1,
+          "titulo": "Que es el ENS y por que nos aplica",
+          "duracion_minutos": 8,
+          "objetivos_aprendizaje": [
+            "Identificar el origen normativo del ENS (Ley 40/2015 + RD 311/2022)",
+            "Comprender el ambito de aplicacion: AAPP + sus proveedores",
+            "Distinguir las tres categorias de seguridad: Basica, Media, Alta"
+          ],
+          "contenido_resumen": "El Esquema Nacional de Seguridad (ENS) es el marco obligatorio para todas las administraciones publicas espanolas y para los privados que les prestan servicios afectados. El RD 311/2022 actualizo el marco anterior (RD 3/2010) introduciendo nuevas medidas, refuerzos y guias CCN-STIC vinculantes. El alcance del ENS aplica a cualquier sistema que trate informacion del sector publico. La categorizacion Basica/Media/Alta se determina segun el impacto que un incidente tendria sobre disponibilidad, integridad, confidencialidad, autenticidad y trazabilidad."
+        },
+        {
+          "numero": 2,
+          "titulo": "Principios basicos y deberes del personal",
+          "duracion_minutos": 12,
+          "objetivos_aprendizaje": [
+            "Reconocer los 7 principios basicos del ENS",
+            "Identificar deberes individuales: confidencialidad, reporte de incidentes, custodia de credenciales",
+            "Aplicar buenas practicas en el dia a dia"
+          ],
+          "contenido_resumen": "El ENS se asienta sobre 7 principios: seguridad como proceso integral, gestion de riesgos basada en analisis, prevencion-deteccion-respuesta-conservacion, lineas de defensa, vigilancia continua, reevaluacion periodica y diferenciacion de responsabilidades. Cada miembro del personal debe asumir tres deberes explicitos: (1) custodia diligente de credenciales (no compartirlas, usar MFA cuando se exija); (2) reporte inmediato de cualquier incidente o sospecha (correo phishing, USB desconocido, perdida de dispositivo); (3) confidencialidad sobre la informacion tratada, incluso despues de cesar la relacion laboral."
+        },
+        {
+          "numero": 3,
+          "titulo": "Documentacion y evidencias",
+          "duracion_minutos": 10,
+          "objetivos_aprendizaje": [
+            "Saber que es una evidencia y por que es necesaria",
+            "Identificar las evidencias mas habituales que el auditor ENAC solicitara",
+            "Conocer donde se guardan las politicas y procedimientos"
+          ],
+          "contenido_resumen": "Una evidencia es cualquier registro que demuestre que un control esta efectivamente implementado: un log, un acta firmada, un cuestionario respondido, una captura de pantalla de la configuracion. El auditor ENAC, durante la auditoria de certificacion, NO acepta declaraciones; exige evidencias. Por eso este curso emite dos evidencias automaticamente: E-502 (asistencia: confirma que has cubierto el contenido) y E-503 (cuestionario: confirma que has aprovechado el contenido)."
+        }
+      ],
+      "quiz": {
+        "pass_score": 70,
+        "preguntas": [
+          {
+            "id": "q1",
+            "enunciado": "Cual de las siguientes normas regula actualmente el Esquema Nacional de Seguridad?",
+            "opciones": [
+              {"key": "a", "texto": "Real Decreto 3/2010"},
+              {"key": "b", "texto": "Real Decreto 311/2022"},
+              {"key": "c", "texto": "Reglamento (UE) 2016/679 (RGPD)"},
+              {"key": "d", "texto": "Ley Organica 3/2018 (LOPDGDD)"}
+            ],
+            "respuesta_correcta": "b",
+            "explicacion": "El RD 311/2022, de 3 de mayo, derogo el RD 3/2010 y es el marco vigente del ENS. Las otras opciones regulan ambitos relacionados pero no el ENS."
+          },
+          {
+            "id": "q2",
+            "enunciado": "Cuantas categorias de seguridad establece el ENS?",
+            "opciones": [
+              {"key": "a", "texto": "2 (Estandar y Reforzada)"},
+              {"key": "b", "texto": "3 (Basica, Media, Alta)"},
+              {"key": "c", "texto": "4 (Inicial, Basica, Avanzada, Critica)"},
+              {"key": "d", "texto": "5 (D, I, C, A, T)"}
+            ],
+            "respuesta_correcta": "b",
+            "explicacion": "Las categorias son Basica, Media y Alta. D/I/C/A/T son las dimensiones de seguridad (Disponibilidad, Integridad, Confidencialidad, Autenticidad, Trazabilidad), no categorias."
+          },
+          {
+            "id": "q3",
+            "enunciado": "Cuantos principios basicos enumera el RD 311/2022?",
+            "opciones": [
+              {"key": "a", "texto": "5"},
+              {"key": "b", "texto": "7"},
+              {"key": "c", "texto": "10"},
+              {"key": "d", "texto": "12"}
+            ],
+            "respuesta_correcta": "b",
+            "explicacion": "El art. 5 del RD 311/2022 enumera 7 principios basicos del ENS."
+          },
+          {
+            "id": "q4",
+            "enunciado": "Si recibe un correo sospechoso de phishing dirigido a una cuenta corporativa, que debe hacer en primer lugar?",
+            "opciones": [
+              {"key": "a", "texto": "Borrarlo de la bandeja de entrada y olvidarlo"},
+              {"key": "b", "texto": "Reenviarlo a sus companeros para que lo conozcan"},
+              {"key": "c", "texto": "Reportarlo al canal de incidentes definido por la organizacion"},
+              {"key": "d", "texto": "Responder pidiendo aclaraciones al remitente"}
+            ],
+            "respuesta_correcta": "c",
+            "explicacion": "Reportar al canal oficial permite analizar la amenaza y proteger al resto del personal. Borrarlo destruye evidencia, reenviarlo amplia exposicion, responder confirma al atacante que la cuenta esta activa."
+          },
+          {
+            "id": "q5",
+            "enunciado": "Cual es la finalidad de una evidencia en el contexto del ENS?",
+            "opciones": [
+              {"key": "a", "texto": "Justificar gastos ante la direccion"},
+              {"key": "b", "texto": "Demostrar al auditor que un control esta implementado de forma efectiva"},
+              {"key": "c", "texto": "Sustituir la documentacion del SGSI"},
+              {"key": "d", "texto": "Cumplir requisitos del RGPD"}
+            ],
+            "respuesta_correcta": "b",
+            "explicacion": "Una evidencia es la prueba objetiva de que un control opera como esta documentado. Sin evidencias, el auditor ENAC no acepta el control como conforme."
+          }
+        ]
+      },
+      "evidencias_generadas": ["E-502", "E-503"]
+    },
+    {
+      "codigo": "LMS-002",
+      "titulo": "Contrasenas seguras y autenticacion multifactor (MFA)",
+      "descripcion": "Curso practico sobre gestion de credenciales y MFA. Aborda construccion de contrasenas robustas, errores frecuentes, uso de gestores y configuracion de MFA en cuentas corporativas. Aplicable a la medida op.acc.5 del Anexo II del RD 311/2022.",
+      "duracion_minutos": 15,
+      "audiencia": "todo el personal con cuentas corporativas",
+      "obligatorio": true,
+      "modulos": [
+        {
+          "numero": 1,
+          "titulo": "Por que las contrasenas siguen siendo el primer punto de fallo",
+          "duracion_minutos": 5,
+          "objetivos_aprendizaje": [
+            "Conocer el coste real de una credencial comprometida",
+            "Identificar los tres ataques mas frecuentes: phishing, password spray, credential stuffing"
+          ],
+          "contenido_resumen": "El 80% de las brechas de datos comienzan con una credencial comprometida. Los atacantes ya no 'rompen' contrasenas: las consiguen mediante phishing dirigido, las prueban masivamente desde brechas anteriores (credential stuffing) o las adivinan desde diccionarios (password spray). Una unica credencial reutilizada en LinkedIn y en la VPN corporativa es el camino mas comun para un compromiso de la red."
+        },
+        {
+          "numero": 2,
+          "titulo": "Como construir una contrasena robusta y como gestionarla",
+          "duracion_minutos": 5,
+          "objetivos_aprendizaje": [
+            "Construir contrasenas largas (passphrases >=14 caracteres)",
+            "No reutilizar entre servicios criticos",
+            "Usar un gestor de contrasenas autorizado"
+          ],
+          "contenido_resumen": "La longitud bate a la complejidad: una passphrase de 4 palabras separadas por puntos (p.ej. 'cocina.tinta.barco.naranja') es exponencialmente mas dificil de crackear que 'P@ss1!'. Reglas practicas: minimo 14 caracteres, sin reutilizar entre cuentas criticas, usar un gestor de contrasenas (Bitwarden, 1Password, KeePass) que ademas detecta credenciales en brechas conocidas. Nunca compartir credenciales por email o chat: si necesita compartirlas con un companero, hagalo por canal cifrado y de un solo uso."
+        },
+        {
+          "numero": 3,
+          "titulo": "MFA: que es, como activarla y por que duplica la seguridad",
+          "duracion_minutos": 5,
+          "objetivos_aprendizaje": [
+            "Distinguir factores de autenticacion: algo que sabes / algo que tienes / algo que eres",
+            "Activar MFA en correo, VPN y servicios cloud corporativos",
+            "Saber que hacer si se pierde el segundo factor"
+          ],
+          "contenido_resumen": "MFA combina al menos dos factores distintos. La mejor combinacion en empresa es contrasena + app autenticadora (TOTP, p.ej. Microsoft Authenticator o FreeOTP). Las llaves fisicas (Yubikey) son aun mas robustas y resistentes al phishing. SMS es el factor mas debil y solo debe usarse como fallback. Si pierde el dispositivo del segundo factor: contactar al area de TI por canal alternativo verificable, NO desactivar MFA por correo electronico (es justo lo que un atacante intentaria)."
+        }
+      ],
+      "quiz": {
+        "pass_score": 70,
+        "preguntas": [
+          {
+            "id": "q1",
+            "enunciado": "Cual de las siguientes contrasenas es la mas segura segun los criterios actuales?",
+            "opciones": [
+              {"key": "a", "texto": "P@ssw0rd2026!"},
+              {"key": "b", "texto": "lluvia-cocina-barco-naranja"},
+              {"key": "c", "texto": "Mi cumple es 31/05"},
+              {"key": "d", "texto": "qwerty12345"}
+            ],
+            "respuesta_correcta": "b",
+            "explicacion": "Una passphrase de 4 palabras (longitud >25) es mucho mas dificil de crackear que una contrasena corta con simbolos. NIST recomienda longitud sobre complejidad."
+          },
+          {
+            "id": "q2",
+            "enunciado": "Que es la autenticacion multifactor (MFA)?",
+            "opciones": [
+              {"key": "a", "texto": "Una contrasena muy larga"},
+              {"key": "b", "texto": "Combinar dos o mas factores de autenticacion distintos"},
+              {"key": "c", "texto": "Cambiar la contrasena cada 30 dias"},
+              {"key": "d", "texto": "Usar la misma contrasena en todos los servicios"}
+            ],
+            "respuesta_correcta": "b",
+            "explicacion": "MFA combina factores de tipos distintos: algo que sabes (contrasena), algo que tienes (telefono, llave), algo que eres (huella). Cambiar la contrasena no es MFA."
+          },
+          {
+            "id": "q3",
+            "enunciado": "Cual de estos canales de MFA es el MENOS seguro?",
+            "opciones": [
+              {"key": "a", "texto": "App TOTP (Microsoft Authenticator, FreeOTP)"},
+              {"key": "b", "texto": "Llave fisica FIDO2 (Yubikey)"},
+              {"key": "c", "texto": "SMS al telefono"},
+              {"key": "d", "texto": "Notificacion push verificada"}
+            ],
+            "respuesta_correcta": "c",
+            "explicacion": "El SMS es vulnerable a SIM swapping y al sniffing en redes moviles. Solo debe usarse como fallback de emergencia."
+          },
+          {
+            "id": "q4",
+            "enunciado": "Un companero le pide que le envie su contrasena del SAP por correo porque ha olvidado la suya. Que debe hacer?",
+            "opciones": [
+              {"key": "a", "texto": "Enviarsela cifrada con base64"},
+              {"key": "b", "texto": "Negarse y derivarle al area de TI para que reset su propia contrasena"},
+              {"key": "c", "texto": "Enviarsela por el chat corporativo"},
+              {"key": "d", "texto": "Llamarle por telefono y dictarsela"}
+            ],
+            "respuesta_correcta": "b",
+            "explicacion": "Las credenciales son personales e intransferibles. Compartirlas, aunque sea con buena intencion, es una violacion de la politica de seguridad y rompe la trazabilidad de las acciones."
+          }
+        ]
+      },
+      "evidencias_generadas": ["E-502", "E-503"]
+    },
+    {
+      "codigo": "LMS-003",
+      "titulo": "Gestion de incidentes de seguridad — primera respuesta",
+      "descripcion": "Curso practico sobre como detectar, reportar y contener un incidente de seguridad en sus primeras horas. Cubre las acciones que debe (y NO debe) hacer cualquier miembro del personal antes de que llegue el equipo tecnico. Aplicable a la medida op.exp.7 del Anexo II del RD 311/2022.",
+      "duracion_minutos": 20,
+      "audiencia": "todo el personal con acceso a sistemas",
+      "obligatorio": true,
+      "modulos": [
+        {
+          "numero": 1,
+          "titulo": "Que es un incidente y como reconocerlo",
+          "duracion_minutos": 6,
+          "objetivos_aprendizaje": [
+            "Distinguir entre evento, incidente y crisis",
+            "Reconocer los 6 tipos mas frecuentes: phishing, ransomware, fuga de datos, indisponibilidad, acceso no autorizado, perdida de dispositivo",
+            "Identificar los indicadores tempranos (IoCs) habituales"
+          ],
+          "contenido_resumen": "Un evento es cualquier suceso observable; un incidente es un evento que afecta o puede afectar a la seguridad (confidencialidad, integridad, disponibilidad, trazabilidad o autenticidad). Una crisis es un incidente con impacto critico que requiere comite. Los indicadores tempranos a vigilar incluyen: lentitud anormal del equipo, archivos cifrados o renombrados de forma inesperada, ventanas emergentes inusuales, conexiones desde IPs desconocidas, alertas del antivirus, correos de phishing dirigidos. Si duda, asuma que es un incidente y reporte."
+        },
+        {
+          "numero": 2,
+          "titulo": "Que hacer en los primeros 15 minutos (y que NO hacer)",
+          "duracion_minutos": 7,
+          "objetivos_aprendizaje": [
+            "Aplicar el protocolo PARAR (Preservar, Aislar, Reportar, Anotar, Respaldar)",
+            "Saber que NO debe hacer: apagar el equipo, borrar evidencia, intentar 'arreglarlo' personalmente",
+            "Saber a quien y como reportar"
+          ],
+          "contenido_resumen": "Protocolo PARAR: (1) PRESERVAR el estado del sistema sin tocar el equipo (no apagar, no reiniciar); (2) AISLAR fisicamente: desconectar el cable de red o desactivar el WiFi para evitar propagacion; (3) REPORTAR al canal de incidentes oficial (rseg@cliente.es / linea de incidentes); (4) ANOTAR todo lo observado con hora exacta (que vio, en que orden, capturas si es seguro); (5) RESPALDAR informacion critica solo si el responsable de seguridad lo autoriza. Que NO hacer: apagar el equipo (destruye evidencia volatil), borrar archivos sospechosos (destruye evidencia forense), intentar limpiar el malware con herramientas propias, comunicar el incidente externamente sin autorizacion."
+        },
+        {
+          "numero": 3,
+          "titulo": "El reloj corre: implicaciones legales y plazos",
+          "duracion_minutos": 7,
+          "objetivos_aprendizaje": [
+            "Conocer el plazo de notificacion al CCN-CERT (24h para criticos)",
+            "Conocer el plazo RGPD a la AEPD (72h si afecta a datos personales)",
+            "Comprender las obligaciones contractuales con clientes"
+          ],
+          "contenido_resumen": "Cada incidente activa contadores legales. Si el sistema tratado afecta a la AAPP, debe notificarse al CCN-CERT a traves del CSIRT de la organizacion. Si hay datos personales potencialmente afectados, la organizacion debe notificar a la Agencia Espanola de Proteccion de Datos (AEPD) dentro de las 72 horas siguientes a tener constancia del hecho. Algunos contratos comerciales obligan a notificar al cliente afectado antes incluso. La velocidad y la calidad de la primera notificacion estan entre los principales mitigantes de la sancion administrativa."
+        }
+      ],
+      "quiz": {
+        "pass_score": 70,
+        "preguntas": [
+          {
+            "id": "q1",
+            "enunciado": "Detecta que su equipo se vuelve muy lento y aparecen archivos con extensiones extranas (.locked). Cual debe ser su PRIMERA accion?",
+            "opciones": [
+              {"key": "a", "texto": "Apagar el equipo inmediatamente para parar el dano"},
+              {"key": "b", "texto": "Desconectar el cable de red y reportar al canal de incidentes"},
+              {"key": "c", "texto": "Intentar borrar los archivos cifrados"},
+              {"key": "d", "texto": "Reiniciar el equipo a ver si se arregla"}
+            ],
+            "respuesta_correcta": "b",
+            "explicacion": "Aislar (desconectar red) detiene la propagacion sin destruir evidencia. Apagar el equipo destruye memoria volatil critica para el analisis forense."
+          },
+          {
+            "id": "q2",
+            "enunciado": "En que plazo maximo debe notificarse a la AEPD un incidente que afecte a datos personales?",
+            "opciones": [
+              {"key": "a", "texto": "24 horas"},
+              {"key": "b", "texto": "72 horas"},
+              {"key": "c", "texto": "5 dias laborables"},
+              {"key": "d", "texto": "1 mes"}
+            ],
+            "respuesta_correcta": "b",
+            "explicacion": "El art. 33 del RGPD obliga a notificar a la autoridad de control en un plazo maximo de 72 horas tras tener constancia."
+          },
+          {
+            "id": "q3",
+            "enunciado": "Que significa el acronimo PARAR en el protocolo de primera respuesta?",
+            "opciones": [
+              {"key": "a", "texto": "Prevenir, Avisar, Reaccionar, Auditar, Resolver"},
+              {"key": "b", "texto": "Preservar, Aislar, Reportar, Anotar, Respaldar"},
+              {"key": "c", "texto": "Programar, Aplicar, Revisar, Analizar, Reconducir"},
+              {"key": "d", "texto": "Plan, Actuacion, Respuesta, Auditoria, Recuperacion"}
+            ],
+            "respuesta_correcta": "b",
+            "explicacion": "PARAR: Preservar el estado, Aislar la red, Reportar al canal, Anotar lo observado, Respaldar bajo autorizacion."
+          },
+          {
+            "id": "q4",
+            "enunciado": "Cual de las siguientes acciones NUNCA debe hacer ante un incidente de seguridad?",
+            "opciones": [
+              {"key": "a", "texto": "Anotar la hora y la secuencia de hechos observados"},
+              {"key": "b", "texto": "Desconectar el cable de red"},
+              {"key": "c", "texto": "Comunicar el incidente a los medios de comunicacion antes de la respuesta oficial"},
+              {"key": "d", "texto": "Reportar al canal de incidentes"}
+            ],
+            "respuesta_correcta": "c",
+            "explicacion": "La comunicacion externa es responsabilidad del comite de crisis y, en su caso, del DPO/area legal. Una comunicacion prematura puede agravar el incidente y exponer a la organizacion a sanciones adicionales."
+          },
+          {
+            "id": "q5",
+            "enunciado": "Por que NO se debe apagar inmediatamente un equipo afectado por un posible incidente?",
+            "opciones": [
+              {"key": "a", "texto": "Porque tarda mucho en encender de nuevo"},
+              {"key": "b", "texto": "Porque se pierde evidencia forense en memoria volatil"},
+              {"key": "c", "texto": "Porque la garantia se anula"},
+              {"key": "d", "texto": "Porque consume mas energia volver a encenderlo"}
+            ],
+            "respuesta_correcta": "b",
+            "explicacion": "Procesos en ejecucion, conexiones de red activas, claves de cifrado en memoria y rastros de malware desaparecen al apagar. El equipo de respuesta los necesita para entender el incidente."
+          }
+        ]
+      },
+      "evidencias_generadas": ["E-502", "E-503"]
+    }
+  ]
+}

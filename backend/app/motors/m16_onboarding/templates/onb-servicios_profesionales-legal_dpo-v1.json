@@ -1,0 +1,255 @@
+{
+  "id": "onb-servicios_profesionales-legal_dpo-v1",
+  "version": "1.0",
+  "sector": "servicios_profesionales",
+  "role": "legal_dpo",
+  "nombre": "Onboarding Legal/DPO — Servicios Profesionales",
+  "descripcion": "Onboarding para el responsable legal o DPO. Recoge contexto RGPD, obligaciones legales cruzadas y situacion contractual con proveedores.",
+  "tiempo_estimado_minutos": 38,
+  "language": "es",
+  "questions": [
+    {
+      "id": "q-dpo_designado",
+      "type": "single_select",
+      "section": "rgpd",
+      "label": "Teneis DPO (Delegado de Proteccion de Datos) designado formalmente?",
+      "tooltip": "El DPO es obligatorio en despachos que tratan datos especialmente sensibles o a gran escala.",
+      "options": [
+        {
+          "value": "interno",
+          "label": "Si, DPO interno"
+        },
+        {
+          "value": "externo",
+          "label": "Si, DPO externo"
+        },
+        {
+          "value": "no_obligatorio",
+          "label": "No, consideramos que no es obligatorio"
+        },
+        {
+          "value": "deberiamos_pero_no",
+          "label": "Deberiamos tenerlo pero aun no"
+        }
+      ],
+      "validation": {
+        "required": true
+      }
+    },
+    {
+      "id": "q-brechas_datos_12_meses",
+      "type": "number",
+      "section": "rgpd",
+      "label": "Cuantas brechas de seguridad de datos personales habeis notificado a la AEPD en los ultimos 12 meses?",
+      "tooltip": "ENS Medio y Alto requieren procedimientos de notificacion de incidentes (op.exp.7) alineados con RGPD Art. 33.",
+      "validation": {
+        "required": true,
+        "min_value": 0,
+        "max_value": 1000
+      }
+    },
+    {
+      "id": "q-normativa_sectorial",
+      "type": "multi_select",
+      "section": "compliance_cruzado",
+      "label": "Os aplica alguna normativa sectorial adicional al RGPD?",
+      "tooltip": "Normativas adicionales pueden reforzar o contradecir algunos requisitos del ENS.",
+      "options": [
+        {
+          "value": "blanqueo_capitales",
+          "label": "Prevencion de blanqueo de capitales (PBC)"
+        },
+        {
+          "value": "codigo_deontologico",
+          "label": "Codigo deontologico colegial"
+        },
+        {
+          "value": "nis2",
+          "label": "NIS2"
+        },
+        {
+          "value": "ninguna_adicional",
+          "label": "Ninguna adicional al RGPD"
+        }
+      ],
+      "validation": {
+        "required": true
+      }
+    },
+    {
+      "id": "q-num_proveedores_criticos",
+      "type": "number",
+      "section": "proveedores",
+      "label": "Cuantos proveedores considerais criticos (acceso a datos personales o infraestructura core)?",
+      "tooltip": "ENS requiere gestion de proveedores (op.ext.*). RGPD Art. 28 requiere contratos.",
+      "validation": {
+        "required": true,
+        "min_value": 0,
+        "max_value": 500
+      }
+    },
+    {
+      "id": "q-contratos_encargado_firmados",
+      "type": "single_select",
+      "section": "proveedores",
+      "label": "Los contratos de encargado de tratamiento (Art. 28 RGPD) con esos proveedores estan firmados y actualizados?",
+      "tooltip": "Es un requisito RGPD nuclear. Ausencia genera no conformidad inmediata en auditoria.",
+      "options": [
+        {
+          "value": "todos",
+          "label": "Todos firmados y actualizados"
+        },
+        {
+          "value": "mayoria",
+          "label": "La mayoria, algunos pendientes"
+        },
+        {
+          "value": "pocos",
+          "label": "Solo algunos"
+        },
+        {
+          "value": "ninguno",
+          "label": "No tenemos contratos Art. 28 formalizados"
+        }
+      ],
+      "validation": {
+        "required": true
+      }
+    },
+    {
+      "id": "q-observaciones_legales",
+      "type": "long_text",
+      "section": "observaciones",
+      "label": "Hay alguna cuestion legal, contractual o regulatoria que debamos conocer para el proyecto?",
+      "tooltip": "Inspecciones pendientes, procedimientos sancionadores, clausulas peculiares con clientes.",
+      "validation": {
+        "required": false,
+        "max_length": 5000
+      }
+    },
+    {
+      "id": "q-numero_expedientes_anio",
+      "type": "number",
+      "section": "contexto_sectorial",
+      "label": "Numero aproximado de expedientes activos al ano",
+      "validation": {
+        "required": false,
+        "min_value": 0
+      }
+    },
+    {
+      "id": "q-archivo_fisico",
+      "type": "boolean",
+      "section": "contexto_sectorial",
+      "label": "Mantenies archivo fisico de expedientes?",
+      "validation": {
+        "required": false
+      }
+    },
+    {
+      "id": "q-encargados_tratamiento",
+      "type": "number",
+      "section": "compliance",
+      "label": "Numero aproximado de encargados de tratamiento (Art. 28)",
+      "validation": {
+        "required": true,
+        "min_value": 0
+      }
+    },
+    {
+      "id": "q-derechos_arco",
+      "type": "single_select",
+      "section": "compliance",
+      "label": "Tiempo medio de respuesta a derechos ARCO+",
+      "options": [
+        {
+          "value": "menos_15",
+          "label": "<15 dias"
+        },
+        {
+          "value": "15_30",
+          "label": "15-30 dias"
+        },
+        {
+          "value": "mas_30",
+          "label": ">30 dias"
+        },
+        {
+          "value": "no_aplica",
+          "label": "Sin solicitudes"
+        }
+      ],
+      "validation": {
+        "required": false
+      }
+    },
+    {
+      "id": "q-procedimiento_brechas",
+      "type": "boolean",
+      "section": "compliance",
+      "label": "Procedimiento formal de notificacion de brechas (Art. 33)?",
+      "validation": {
+        "required": true
+      }
+    },
+    {
+      "id": "q-evaluaciones_riesgo_documentadas",
+      "type": "boolean",
+      "section": "compliance",
+      "label": "Evaluaciones de riesgo formales documentadas?",
+      "validation": {
+        "required": false
+      }
+    },
+    {
+      "id": "q-numero_sedes",
+      "type": "number",
+      "section": "identificacion",
+      "label": "Numero de sedes fisicas en Espana",
+      "validation": {
+        "required": false,
+        "min_value": 0
+      }
+    },
+    {
+      "id": "q-actividad_internacional",
+      "type": "boolean",
+      "section": "identificacion",
+      "label": "Operais en otros paises ademas de Espana?",
+      "validation": {
+        "required": false
+      }
+    },
+    {
+      "id": "q-presupuesto_seguridad",
+      "type": "single_select",
+      "section": "identificacion",
+      "label": "Presupuesto anual estimado para seguridad de la informacion",
+      "options": [
+        {
+          "value": "menos_25k",
+          "label": "<25k EUR"
+        },
+        {
+          "value": "25k_100k",
+          "label": "25k - 100k EUR"
+        },
+        {
+          "value": "100k_500k",
+          "label": "100k - 500k EUR"
+        },
+        {
+          "value": "mas_500k",
+          "label": ">500k EUR"
+        },
+        {
+          "value": "no_definido",
+          "label": "No definido"
+        }
+      ],
+      "validation": {
+        "required": false
+      }
+    }
+  ]
+}

@@ -1,0 +1,2161 @@
+version: '1.0'
+catalog_date: '2026-04-14'
+templates:
+- codigo: E-100
+  nombre: Politica de Seguridad de la Informacion
+  categoria: politica
+  familia_ens: org
+  aplica_desde: basica
+  version_actual: '1.0'
+  fuente_md: docs/spec/F1_1_POLITICAS_CRITICAS_E100_E104 (1).md
+  placeholders_requeridos:
+    cliente.razon_social:
+      description: Razon social de la entidad
+      required: true
+    cliente.nif:
+      description: NIF de la entidad
+      required: true
+    proyecto.fecha_aprobacion_inicial:
+      description: Fecha de aprobacion
+      required: true
+    cliente.organo_aprobador_politicas:
+      description: Cliente > Organo Aprobador Politicas
+      required: true
+    proyecto.version_actual:
+      description: Proyecto > Version Actual
+      required: true
+    proyecto.codigo_documento_base:
+      description: Proyecto > Codigo Documento Base
+      required: true
+    responsables.responsable_seguridad.nombre:
+      description: Responsables > Responsable Seguridad > Nombre
+      required: true
+    responsables.responsable_seguridad.cargo:
+      description: Responsables > Responsable Seguridad > Cargo
+      required: true
+  is_active: true
+  stub_content: Politica madre del SGSI. Art. 12 RD 311/2022.
+- codigo: E-101
+  nombre: Politica de Control de Accesos
+  categoria: politica
+  familia_ens: org
+  aplica_desde: basica
+  version_actual: '1.0'
+  fuente_md: docs/spec/F1_1_POLITICAS_CRITICAS_E100_E104 (1).md
+  placeholders_requeridos:
+    cliente.razon_social:
+      description: Razon social de la entidad
+      required: true
+    cliente.nif:
+      description: NIF de la entidad
+      required: true
+    proyecto.fecha_aprobacion_inicial:
+      description: Fecha de aprobacion
+      required: true
+    cliente.organo_aprobador_politicas:
+      description: Cliente > Organo Aprobador Politicas
+      required: true
+    proyecto.version_actual:
+      description: Proyecto > Version Actual
+      required: true
+    proyecto.codigo_documento_base:
+      description: Proyecto > Codigo Documento Base
+      required: true
+    responsables.responsable_seguridad.nombre:
+      description: Responsables > Responsable Seguridad > Nombre
+      required: true
+    responsables.responsable_seguridad.cargo:
+      description: Responsables > Responsable Seguridad > Cargo
+      required: true
+  is_active: true
+  stub_content: Control de accesos logico y fisico. op.acc.
+- codigo: E-102
+  nombre: Politica de Contrasenas y Autenticacion
+  categoria: politica
+  familia_ens: org
+  aplica_desde: basica
+  version_actual: '1.0'
+  fuente_md: docs/spec/CORRECCION_5A_7_POLITICAS_ALTA_PRIORIDAD.md
+  placeholders_requeridos:
+    cliente.razon_social:
+      description: Razon social de la entidad
+      required: true
+    cliente.nif:
+      description: NIF de la entidad
+      required: true
+    proyecto.fecha_aprobacion_inicial:
+      description: Fecha de aprobacion
+      required: true
+    cliente.organo_aprobador_politicas:
+      description: Cliente > Organo Aprobador Politicas
+      required: true
+    proyecto.version_actual:
+      description: Proyecto > Version Actual
+      required: true
+    proyecto.codigo_documento_base:
+      description: Proyecto > Codigo Documento Base
+      required: true
+    responsables.responsable_seguridad.nombre:
+      description: Responsables > Responsable Seguridad > Nombre
+      required: true
+    responsables.responsable_seguridad.cargo:
+      description: Responsables > Responsable Seguridad > Cargo
+      required: true
+  is_active: true
+  stub_content: Contrasenas, MFA, autenticacion. op.acc.5, op.acc.6.
+- codigo: E-103
+  nombre: Politica de Uso Aceptable de los Recursos TI
+  categoria: politica
+  familia_ens: org
+  aplica_desde: basica
+  version_actual: '1.0'
+  fuente_md: docs/spec/F1_1_POLITICAS_CRITICAS_E100_E104 (1).md
+  placeholders_requeridos:
+    cliente.razon_social:
+      description: Razon social de la entidad
+      required: true
+    cliente.nif:
+      description: NIF de la entidad
+      required: true
+    proyecto.fecha_aprobacion_inicial:
+      description: Fecha de aprobacion
+      required: true
+    cliente.organo_aprobador_politicas:
+      description: Cliente > Organo Aprobador Politicas
+      required: true
+    proyecto.version_actual:
+      description: Proyecto > Version Actual
+      required: true
+    proyecto.codigo_documento_base:
+      description: Proyecto > Codigo Documento Base
+      required: true
+    responsables.responsable_seguridad.nombre:
+      description: Responsables > Responsable Seguridad > Nombre
+      required: true
+    responsables.responsable_seguridad.cargo:
+      description: Responsables > Responsable Seguridad > Cargo
+      required: true
+  is_active: true
+  stub_content: Uso aceptable de recursos TI corporativos.
+- codigo: E-104
+  nombre: Politica de Clasificacion de la Informacion
+  categoria: politica
+  familia_ens: org
+  aplica_desde: basica
+  version_actual: '1.0'
+  fuente_md: docs/spec/F1_1_POLITICAS_CRITICAS_E100_E104 (1).md
+  placeholders_requeridos:
+    cliente.razon_social:
+      description: Razon social de la entidad
+      required: true
+    cliente.nif:
+      description: NIF de la entidad
+      required: true
+    proyecto.fecha_aprobacion_inicial:
+      description: Fecha de aprobacion
+      required: true
+    cliente.organo_aprobador_politicas:
+      description: Cliente > Organo Aprobador Politicas
+      required: true
+    proyecto.version_actual:
+      description: Proyecto > Version Actual
+      required: true
+    proyecto.codigo_documento_base:
+      description: Proyecto > Codigo Documento Base
+      required: true
+    responsables.responsable_seguridad.nombre:
+      description: Responsables > Responsable Seguridad > Nombre
+      required: true
+    responsables.responsable_seguridad.cargo:
+      description: Responsables > Responsable Seguridad > Cargo
+      required: true
+  is_active: true
+  stub_content: Clasificacion y tratamiento de la informacion.
+- codigo: E-105
+  nombre: Politica de Tratamiento de Datos Personales (RGPD)
+  categoria: politica
+  familia_ens: mp.info
+  aplica_desde: basica
+  version_actual: '1.0'
+  fuente_md: docs/spec/CORRECCION_5A_7_POLITICAS_ALTA_PRIORIDAD.md
+  placeholders_requeridos:
+    cliente.razon_social:
+      description: Razon social de la entidad
+      required: true
+    cliente.nif:
+      description: NIF de la entidad
+      required: true
+    proyecto.fecha_aprobacion_inicial:
+      description: Fecha de aprobacion
+      required: true
+    cliente.organo_aprobador_politicas:
+      description: Cliente > Organo Aprobador Politicas
+      required: true
+    proyecto.version_actual:
+      description: Proyecto > Version Actual
+      required: true
+    proyecto.codigo_documento_base:
+      description: Proyecto > Codigo Documento Base
+      required: true
+    responsables.responsable_seguridad.nombre:
+      description: Responsables > Responsable Seguridad > Nombre
+      required: true
+    responsables.responsable_seguridad.cargo:
+      description: Responsables > Responsable Seguridad > Cargo
+      required: true
+  is_active: true
+  stub_content: RGPD art. 5, 6, 9, 32. LOPDGDD. DPO.
+- codigo: E-106
+  nombre: Politica de Copias de Seguridad
+  categoria: politica
+  familia_ens: op.cont
+  aplica_desde: basica
+  version_actual: '1.0'
+  fuente_md: docs/spec/CORRECCION_5A_7_POLITICAS_ALTA_PRIORIDAD.md
+  placeholders_requeridos:
+    cliente.razon_social:
+      description: Razon social de la entidad
+      required: true
+    cliente.nif:
+      description: NIF de la entidad
+      required: true
+    proyecto.fecha_aprobacion_inicial:
+      description: Fecha de aprobacion
+      required: true
+    cliente.organo_aprobador_politicas:
+      description: Cliente > Organo Aprobador Politicas
+      required: true
+    proyecto.version_actual:
+      description: Proyecto > Version Actual
+      required: true
+    proyecto.codigo_documento_base:
+      description: Proyecto > Codigo Documento Base
+      required: true
+    responsables.responsable_seguridad.nombre:
+      description: Responsables > Responsable Seguridad > Nombre
+      required: true
+    responsables.responsable_seguridad.cargo:
+      description: Responsables > Responsable Seguridad > Cargo
+      required: true
+  is_active: true
+  stub_content: Copias de seguridad. op.cont.
+- codigo: E-107
+  nombre: Politica Criptografica
+  categoria: politica
+  familia_ens: mp.info
+  aplica_desde: basica
+  version_actual: '1.0'
+  fuente_md: docs/spec/F1_2_POLITICAS_CRITICAS_E105_E108 (1).md
+  placeholders_requeridos:
+    cliente.razon_social:
+      description: Razon social de la entidad
+      required: true
+    cliente.nif:
+      description: NIF de la entidad
+      required: true
+    proyecto.fecha_aprobacion_inicial:
+      description: Fecha de aprobacion
+      required: true
+    cliente.organo_aprobador_politicas:
+      description: Cliente > Organo Aprobador Politicas
+      required: true
+    proyecto.version_actual:
+      description: Proyecto > Version Actual
+      required: true
+    proyecto.codigo_documento_base:
+      description: Proyecto > Codigo Documento Base
+      required: true
+    responsables.responsable_seguridad.nombre:
+      description: Responsables > Responsable Seguridad > Nombre
+      required: true
+    responsables.responsable_seguridad.cargo:
+      description: Responsables > Responsable Seguridad > Cargo
+      required: true
+  is_active: true
+  stub_content: Cifrado y gestion de claves. mp.info.3, CCN-STIC 807.
+- codigo: E-108
+  nombre: Politica de Gestion de Incidentes
+  categoria: politica
+  familia_ens: op.exp
+  aplica_desde: basica
+  version_actual: '1.0'
+  fuente_md: docs/spec/F1_2_POLITICAS_CRITICAS_E105_E108 (1).md
+  placeholders_requeridos:
+    cliente.razon_social:
+      description: Razon social de la entidad
+      required: true
+    cliente.nif:
+      description: NIF de la entidad
+      required: true
+    proyecto.fecha_aprobacion_inicial:
+      description: Fecha de aprobacion
+      required: true
+    cliente.organo_aprobador_politicas:
+      description: Cliente > Organo Aprobador Politicas
+      required: true
+    proyecto.version_actual:
+      description: Proyecto > Version Actual
+      required: true
+    proyecto.codigo_documento_base:
+      description: Proyecto > Codigo Documento Base
+      required: true
+    responsables.responsable_seguridad.nombre:
+      description: Responsables > Responsable Seguridad > Nombre
+      required: true
+    responsables.responsable_seguridad.cargo:
+      description: Responsables > Responsable Seguridad > Cargo
+      required: true
+  is_active: true
+  stub_content: Gestion de incidentes de seguridad. op.exp.7.
+- codigo: E-109
+  nombre: Politica de Continuidad de Negocio
+  categoria: politica
+  familia_ens: op.cont
+  aplica_desde: basica
+  version_actual: '1.0'
+  fuente_md: docs/spec/CORRECCION_5A_7_POLITICAS_ALTA_PRIORIDAD.md
+  placeholders_requeridos:
+    cliente.razon_social:
+      description: Razon social de la entidad
+      required: true
+    cliente.nif:
+      description: NIF de la entidad
+      required: true
+    proyecto.fecha_aprobacion_inicial:
+      description: Fecha de aprobacion
+      required: true
+    cliente.organo_aprobador_politicas:
+      description: Cliente > Organo Aprobador Politicas
+      required: true
+    proyecto.version_actual:
+      description: Proyecto > Version Actual
+      required: true
+    proyecto.codigo_documento_base:
+      description: Proyecto > Codigo Documento Base
+      required: true
+    responsables.responsable_seguridad.nombre:
+      description: Responsables > Responsable Seguridad > Nombre
+      required: true
+    responsables.responsable_seguridad.cargo:
+      description: Responsables > Responsable Seguridad > Cargo
+      required: true
+  is_active: true
+  stub_content: Continuidad del servicio. op.cont.1 a op.cont.4.
+- codigo: E-110
+  nombre: Politica de Teletrabajo y Movilidad
+  categoria: politica
+  familia_ens: op.ext
+  aplica_desde: basica
+  version_actual: '1.0'
+  fuente_md: docs/spec/CORRECCION_5A_7_POLITICAS_ALTA_PRIORIDAD.md
+  placeholders_requeridos:
+    cliente.razon_social:
+      description: Razon social de la entidad
+      required: true
+    cliente.nif:
+      description: NIF de la entidad
+      required: true
+    proyecto.fecha_aprobacion_inicial:
+      description: Fecha de aprobacion
+      required: true
+    cliente.organo_aprobador_politicas:
+      description: Cliente > Organo Aprobador Politicas
+      required: true
+    proyecto.version_actual:
+      description: Proyecto > Version Actual
+      required: true
+    proyecto.codigo_documento_base:
+      description: Proyecto > Codigo Documento Base
+      required: true
+    responsables.responsable_seguridad.nombre:
+      description: Responsables > Responsable Seguridad > Nombre
+      required: true
+    responsables.responsable_seguridad.cargo:
+      description: Responsables > Responsable Seguridad > Cargo
+      required: true
+  is_active: true
+  stub_content: Teletrabajo y movilidad. op.ext.
+- codigo: E-111
+  nombre: Politica de Uso de Servicios Cloud
+  categoria: politica
+  familia_ens: op.ext
+  aplica_desde: basica
+  version_actual: '1.0'
+  fuente_md: docs/spec/CORRECCION_5A_7_POLITICAS_ALTA_PRIORIDAD.md
+  placeholders_requeridos:
+    cliente.razon_social:
+      description: Razon social de la entidad
+      required: true
+    cliente.nif:
+      description: NIF de la entidad
+      required: true
+    proyecto.fecha_aprobacion_inicial:
+      description: Fecha de aprobacion
+      required: true
+    cliente.organo_aprobador_politicas:
+      description: Cliente > Organo Aprobador Politicas
+      required: true
+    proyecto.version_actual:
+      description: Proyecto > Version Actual
+      required: true
+    proyecto.codigo_documento_base:
+      description: Proyecto > Codigo Documento Base
+      required: true
+    responsables.responsable_seguridad.nombre:
+      description: Responsables > Responsable Seguridad > Nombre
+      required: true
+    responsables.responsable_seguridad.cargo:
+      description: Responsables > Responsable Seguridad > Cargo
+      required: true
+  is_active: true
+  stub_content: Servicios cloud. op.ext.
+- codigo: E-112
+  nombre: Politica de Gestion de Proveedores
+  categoria: politica
+  familia_ens: op.ext
+  aplica_desde: basica
+  version_actual: '1.0'
+  fuente_md: docs/spec/F1_2_POLITICAS_CRITICAS_E105_E108 (1).md
+  placeholders_requeridos:
+    cliente.razon_social:
+      description: Razon social de la entidad
+      required: true
+    cliente.nif:
+      description: NIF de la entidad
+      required: true
+    proyecto.fecha_aprobacion_inicial:
+      description: Fecha de aprobacion
+      required: true
+    cliente.organo_aprobador_politicas:
+      description: Cliente > Organo Aprobador Politicas
+      required: true
+    proyecto.version_actual:
+      description: Proyecto > Version Actual
+      required: true
+    proyecto.codigo_documento_base:
+      description: Proyecto > Codigo Documento Base
+      required: true
+    responsables.responsable_seguridad.nombre:
+      description: Responsables > Responsable Seguridad > Nombre
+      required: true
+    responsables.responsable_seguridad.cargo:
+      description: Responsables > Responsable Seguridad > Cargo
+      required: true
+  is_active: true
+  stub_content: Gestion de proveedores y terceros. op.ext.
+- codigo: E-113
+  nombre: Politica de Adquisicion de Tecnologia
+  categoria: politica
+  familia_ens: op.pl
+  aplica_desde: media
+  version_actual: '1.0'
+  fuente_md: docs/spec/CORRECCION_5B_12_POLITICAS_RESTANTES.md
+  placeholders_requeridos:
+    cliente.razon_social:
+      description: Razon social de la entidad
+      required: true
+    cliente.nif:
+      description: NIF de la entidad
+      required: true
+    proyecto.fecha_aprobacion_inicial:
+      description: Fecha de aprobacion
+      required: true
+    cliente.organo_aprobador_politicas:
+      description: Cliente > Organo Aprobador Politicas
+      required: true
+    proyecto.version_actual:
+      description: Proyecto > Version Actual
+      required: true
+    proyecto.codigo_documento_base:
+      description: Proyecto > Codigo Documento Base
+      required: true
+    responsables.responsable_seguridad.nombre:
+      description: Responsables > Responsable Seguridad > Nombre
+      required: true
+    responsables.responsable_seguridad.cargo:
+      description: Responsables > Responsable Seguridad > Cargo
+      required: true
+  is_active: true
+  stub_content: Adquisicion de tecnologia. op.pl.3, op.pl.5 CPSTIC.
+- codigo: E-114
+  nombre: Politica de Desarrollo Seguro (SSDLC)
+  categoria: politica
+  familia_ens: mp.sw
+  aplica_desde: media
+  version_actual: '1.0'
+  fuente_md: docs/spec/CORRECCION_5B_12_POLITICAS_RESTANTES.md
+  placeholders_requeridos:
+    cliente.razon_social:
+      description: Razon social de la entidad
+      required: true
+    cliente.nif:
+      description: NIF de la entidad
+      required: true
+    proyecto.fecha_aprobacion_inicial:
+      description: Fecha de aprobacion
+      required: true
+    cliente.organo_aprobador_politicas:
+      description: Cliente > Organo Aprobador Politicas
+      required: true
+    proyecto.version_actual:
+      description: Proyecto > Version Actual
+      required: true
+    proyecto.codigo_documento_base:
+      description: Proyecto > Codigo Documento Base
+      required: true
+    responsables.responsable_seguridad.nombre:
+      description: Responsables > Responsable Seguridad > Nombre
+      required: true
+    responsables.responsable_seguridad.cargo:
+      description: Responsables > Responsable Seguridad > Cargo
+      required: true
+  is_active: true
+  stub_content: Desarrollo seguro SSDLC. mp.sw.1, mp.sw.2.
+- codigo: E-115
+  nombre: Politica de Gestion de Vulnerabilidades
+  categoria: politica
+  familia_ens: op.exp
+  aplica_desde: media
+  version_actual: '1.0'
+  fuente_md: docs/spec/CORRECCION_5B_12_POLITICAS_RESTANTES.md
+  placeholders_requeridos:
+    cliente.razon_social:
+      description: Razon social de la entidad
+      required: true
+    cliente.nif:
+      description: NIF de la entidad
+      required: true
+    proyecto.fecha_aprobacion_inicial:
+      description: Fecha de aprobacion
+      required: true
+    cliente.organo_aprobador_politicas:
+      description: Cliente > Organo Aprobador Politicas
+      required: true
+    proyecto.version_actual:
+      description: Proyecto > Version Actual
+      required: true
+    proyecto.codigo_documento_base:
+      description: Proyecto > Codigo Documento Base
+      required: true
+    responsables.responsable_seguridad.nombre:
+      description: Responsables > Responsable Seguridad > Nombre
+      required: true
+    responsables.responsable_seguridad.cargo:
+      description: Responsables > Responsable Seguridad > Cargo
+      required: true
+  is_active: true
+  stub_content: Gestion de vulnerabilidades. op.exp.
+- codigo: E-116
+  nombre: Politica de Gestion de Cambios
+  categoria: politica
+  familia_ens: op.exp
+  aplica_desde: media
+  version_actual: '1.0'
+  fuente_md: docs/spec/CORRECCION_5B_12_POLITICAS_RESTANTES.md
+  placeholders_requeridos:
+    cliente.razon_social:
+      description: Razon social de la entidad
+      required: true
+    cliente.nif:
+      description: NIF de la entidad
+      required: true
+    proyecto.fecha_aprobacion_inicial:
+      description: Fecha de aprobacion
+      required: true
+    cliente.organo_aprobador_politicas:
+      description: Cliente > Organo Aprobador Politicas
+      required: true
+    proyecto.version_actual:
+      description: Proyecto > Version Actual
+      required: true
+    proyecto.codigo_documento_base:
+      description: Proyecto > Codigo Documento Base
+      required: true
+    responsables.responsable_seguridad.nombre:
+      description: Responsables > Responsable Seguridad > Nombre
+      required: true
+    responsables.responsable_seguridad.cargo:
+      description: Responsables > Responsable Seguridad > Cargo
+      required: true
+  is_active: true
+  stub_content: Gestion de cambios. op.exp.
+- codigo: E-117
+  nombre: Politica de Gestion de Privilegios y PAM
+  categoria: politica
+  familia_ens: op.acc
+  aplica_desde: media
+  version_actual: '1.0'
+  fuente_md: docs/spec/CORRECCION_5B_12_POLITICAS_RESTANTES.md
+  placeholders_requeridos:
+    cliente.razon_social:
+      description: Razon social de la entidad
+      required: true
+    cliente.nif:
+      description: NIF de la entidad
+      required: true
+    proyecto.fecha_aprobacion_inicial:
+      description: Fecha de aprobacion
+      required: true
+    cliente.organo_aprobador_politicas:
+      description: Cliente > Organo Aprobador Politicas
+      required: true
+    proyecto.version_actual:
+      description: Proyecto > Version Actual
+      required: true
+    proyecto.codigo_documento_base:
+      description: Proyecto > Codigo Documento Base
+      required: true
+    responsables.responsable_seguridad.nombre:
+      description: Responsables > Responsable Seguridad > Nombre
+      required: true
+    responsables.responsable_seguridad.cargo:
+      description: Responsables > Responsable Seguridad > Cargo
+      required: true
+  is_active: true
+  stub_content: Gestion de privilegios y PAM. op.acc.3, op.acc.4.
+- codigo: E-118
+  nombre: Politica de BYOD
+  categoria: politica
+  familia_ens: op.acc
+  aplica_desde: alta
+  version_actual: '1.0'
+  fuente_md: docs/spec/CORRECCION_5B_12_POLITICAS_RESTANTES.md
+  placeholders_requeridos:
+    cliente.razon_social:
+      description: Razon social de la entidad
+      required: true
+    cliente.nif:
+      description: NIF de la entidad
+      required: true
+    proyecto.fecha_aprobacion_inicial:
+      description: Fecha de aprobacion
+      required: true
+    cliente.organo_aprobador_politicas:
+      description: Cliente > Organo Aprobador Politicas
+      required: true
+    proyecto.version_actual:
+      description: Proyecto > Version Actual
+      required: true
+    proyecto.codigo_documento_base:
+      description: Proyecto > Codigo Documento Base
+      required: true
+    responsables.responsable_seguridad.nombre:
+      description: Responsables > Responsable Seguridad > Nombre
+      required: true
+    responsables.responsable_seguridad.cargo:
+      description: Responsables > Responsable Seguridad > Cargo
+      required: true
+  is_active: true
+  stub_content: 'BYOD. Condicional: solo si aplica.'
+- codigo: E-119
+  nombre: Politica de Respuesta a Brechas de Datos Personales
+  categoria: politica
+  familia_ens: mp.info
+  aplica_desde: basica
+  version_actual: '1.0'
+  fuente_md: docs/spec/CORRECCION_5B_12_POLITICAS_RESTANTES.md
+  placeholders_requeridos:
+    cliente.razon_social:
+      description: Razon social de la entidad
+      required: true
+    cliente.nif:
+      description: NIF de la entidad
+      required: true
+    proyecto.fecha_aprobacion_inicial:
+      description: Fecha de aprobacion
+      required: true
+    cliente.organo_aprobador_politicas:
+      description: Cliente > Organo Aprobador Politicas
+      required: true
+    proyecto.version_actual:
+      description: Proyecto > Version Actual
+      required: true
+    proyecto.codigo_documento_base:
+      description: Proyecto > Codigo Documento Base
+      required: true
+    responsables.responsable_seguridad.nombre:
+      description: Responsables > Responsable Seguridad > Nombre
+      required: true
+    responsables.responsable_seguridad.cargo:
+      description: Responsables > Responsable Seguridad > Cargo
+      required: true
+  is_active: true
+  stub_content: Brechas de datos. RGPD art. 33-34, LOPDGDD.
+- codigo: E-120
+  nombre: Politica de Gestion de Claves Criptograficas
+  categoria: politica
+  familia_ens: mp.info
+  aplica_desde: alta
+  version_actual: '1.0'
+  fuente_md: docs/spec/CORRECCION_5B_12_POLITICAS_RESTANTES.md
+  placeholders_requeridos:
+    cliente.razon_social:
+      description: Razon social de la entidad
+      required: true
+    cliente.nif:
+      description: NIF de la entidad
+      required: true
+    proyecto.fecha_aprobacion_inicial:
+      description: Fecha de aprobacion
+      required: true
+    cliente.organo_aprobador_politicas:
+      description: Cliente > Organo Aprobador Politicas
+      required: true
+    proyecto.version_actual:
+      description: Proyecto > Version Actual
+      required: true
+    proyecto.codigo_documento_base:
+      description: Proyecto > Codigo Documento Base
+      required: true
+    responsables.responsable_seguridad.nombre:
+      description: Responsables > Responsable Seguridad > Nombre
+      required: true
+    responsables.responsable_seguridad.cargo:
+      description: Responsables > Responsable Seguridad > Cargo
+      required: true
+  is_active: true
+  stub_content: Gestion de claves criptograficas. Ampliacion de E-107.
+- codigo: E-121
+  nombre: Politica de Redes y Comunicaciones
+  categoria: politica
+  familia_ens: mp.com
+  aplica_desde: media
+  version_actual: '1.0'
+  fuente_md: docs/spec/CORRECCION_5B_12_POLITICAS_RESTANTES.md
+  placeholders_requeridos:
+    cliente.razon_social:
+      description: Razon social de la entidad
+      required: true
+    cliente.nif:
+      description: NIF de la entidad
+      required: true
+    proyecto.fecha_aprobacion_inicial:
+      description: Fecha de aprobacion
+      required: true
+    cliente.organo_aprobador_politicas:
+      description: Cliente > Organo Aprobador Politicas
+      required: true
+    proyecto.version_actual:
+      description: Proyecto > Version Actual
+      required: true
+    proyecto.codigo_documento_base:
+      description: Proyecto > Codigo Documento Base
+      required: true
+    responsables.responsable_seguridad.nombre:
+      description: Responsables > Responsable Seguridad > Nombre
+      required: true
+    responsables.responsable_seguridad.cargo:
+      description: Responsables > Responsable Seguridad > Cargo
+      required: true
+  is_active: true
+  stub_content: Redes y comunicaciones. mp.com.1 a mp.com.4.
+- codigo: E-122
+  nombre: Politica de Gestion de Soportes
+  categoria: politica
+  familia_ens: mp.si
+  aplica_desde: alta
+  version_actual: '1.0'
+  fuente_md: docs/spec/CORRECCION_5B_12_POLITICAS_RESTANTES.md
+  placeholders_requeridos:
+    cliente.razon_social:
+      description: Razon social de la entidad
+      required: true
+    cliente.nif:
+      description: NIF de la entidad
+      required: true
+    proyecto.fecha_aprobacion_inicial:
+      description: Fecha de aprobacion
+      required: true
+    cliente.organo_aprobador_politicas:
+      description: Cliente > Organo Aprobador Politicas
+      required: true
+    proyecto.version_actual:
+      description: Proyecto > Version Actual
+      required: true
+    proyecto.codigo_documento_base:
+      description: Proyecto > Codigo Documento Base
+      required: true
+    responsables.responsable_seguridad.nombre:
+      description: Responsables > Responsable Seguridad > Nombre
+      required: true
+    responsables.responsable_seguridad.cargo:
+      description: Responsables > Responsable Seguridad > Cargo
+      required: true
+  is_active: true
+  stub_content: Gestion de soportes. mp.si.1 a mp.si.5.
+- codigo: E-123
+  nombre: Politica de Seguridad Fisica
+  categoria: politica
+  familia_ens: mp.if
+  aplica_desde: basica
+  version_actual: '1.0'
+  fuente_md: docs/spec/CORRECCION_5B_12_POLITICAS_RESTANTES.md
+  placeholders_requeridos:
+    cliente.razon_social:
+      description: Razon social de la entidad
+      required: true
+    cliente.nif:
+      description: NIF de la entidad
+      required: true
+    proyecto.fecha_aprobacion_inicial:
+      description: Fecha de aprobacion
+      required: true
+    cliente.organo_aprobador_politicas:
+      description: Cliente > Organo Aprobador Politicas
+      required: true
+    proyecto.version_actual:
+      description: Proyecto > Version Actual
+      required: true
+    proyecto.codigo_documento_base:
+      description: Proyecto > Codigo Documento Base
+      required: true
+    responsables.responsable_seguridad.nombre:
+      description: Responsables > Responsable Seguridad > Nombre
+      required: true
+    responsables.responsable_seguridad.cargo:
+      description: Responsables > Responsable Seguridad > Cargo
+      required: true
+  is_active: true
+  stub_content: Seguridad fisica. mp.if.1 a mp.if.7.
+- codigo: E-124
+  nombre: Politica de Seguridad del Personal
+  categoria: politica
+  familia_ens: mp.per
+  aplica_desde: media
+  version_actual: '1.0'
+  fuente_md: docs/spec/CORRECCION_5B_12_POLITICAS_RESTANTES.md
+  placeholders_requeridos:
+    cliente.razon_social:
+      description: Razon social de la entidad
+      required: true
+    cliente.nif:
+      description: NIF de la entidad
+      required: true
+    proyecto.fecha_aprobacion_inicial:
+      description: Fecha de aprobacion
+      required: true
+    cliente.organo_aprobador_politicas:
+      description: Cliente > Organo Aprobador Politicas
+      required: true
+    proyecto.version_actual:
+      description: Proyecto > Version Actual
+      required: true
+    proyecto.codigo_documento_base:
+      description: Proyecto > Codigo Documento Base
+      required: true
+    responsables.responsable_seguridad.nombre:
+      description: Responsables > Responsable Seguridad > Nombre
+      required: true
+    responsables.responsable_seguridad.cargo:
+      description: Responsables > Responsable Seguridad > Cargo
+      required: true
+  is_active: true
+  stub_content: Seguridad del personal. mp.per.1 a mp.per.4.
+- codigo: E-125
+  nombre: Politica de Mesa Limpia y Pantalla Limpia
+  categoria: politica
+  familia_ens: mp.si
+  aplica_desde: alta
+  version_actual: '1.0'
+  fuente_md: docs/spec/CORRECCION_5B_12_POLITICAS_RESTANTES.md
+  placeholders_requeridos:
+    cliente.razon_social:
+      description: Razon social de la entidad
+      required: true
+    cliente.nif:
+      description: NIF de la entidad
+      required: true
+    proyecto.fecha_aprobacion_inicial:
+      description: Fecha de aprobacion
+      required: true
+    cliente.organo_aprobador_politicas:
+      description: Cliente > Organo Aprobador Politicas
+      required: true
+    proyecto.version_actual:
+      description: Proyecto > Version Actual
+      required: true
+    proyecto.codigo_documento_base:
+      description: Proyecto > Codigo Documento Base
+      required: true
+    responsables.responsable_seguridad.nombre:
+      description: Responsables > Responsable Seguridad > Nombre
+      required: true
+    responsables.responsable_seguridad.cargo:
+      description: Responsables > Responsable Seguridad > Cargo
+      required: true
+  is_active: true
+  stub_content: Mesa limpia y pantalla limpia. Subpolitica de E-103.
+- codigo: E-126
+  nombre: Politica de Borrado Seguro y Destruccion
+  categoria: politica
+  familia_ens: mp.info
+  aplica_desde: alta
+  version_actual: '1.0'
+  fuente_md: docs/spec/CORRECCION_5B_12_POLITICAS_RESTANTES.md
+  placeholders_requeridos:
+    cliente.razon_social:
+      description: Razon social de la entidad
+      required: true
+    cliente.nif:
+      description: NIF de la entidad
+      required: true
+    proyecto.fecha_aprobacion_inicial:
+      description: Fecha de aprobacion
+      required: true
+    cliente.organo_aprobador_politicas:
+      description: Cliente > Organo Aprobador Politicas
+      required: true
+    proyecto.version_actual:
+      description: Proyecto > Version Actual
+      required: true
+    proyecto.codigo_documento_base:
+      description: Proyecto > Codigo Documento Base
+      required: true
+    responsables.responsable_seguridad.nombre:
+      description: Responsables > Responsable Seguridad > Nombre
+      required: true
+    responsables.responsable_seguridad.cargo:
+      description: Responsables > Responsable Seguridad > Cargo
+      required: true
+  is_active: true
+  stub_content: Borrado seguro y destruccion. mp.si.5.
+- codigo: E-200
+  nombre: Procedimiento de Alta de Personal
+  categoria: procedimiento
+  familia_ens: mp.per
+  aplica_desde: basica
+  version_actual: '1.0'
+  fuente_md: docs/spec/CORRECCION_6A_11_PROCEDIMIENTOS_ALTA.md
+  placeholders_requeridos:
+    cliente.razon_social:
+      description: Razon social de la entidad
+      required: true
+    cliente.nif:
+      description: NIF de la entidad
+      required: true
+    proyecto.fecha_aprobacion_inicial:
+      description: Fecha de aprobacion
+      required: true
+    responsables.responsable_seguridad.nombre:
+      description: Responsables > Responsable Seguridad > Nombre
+      required: true
+  is_active: true
+  stub_content: Alta de personal. mp.per.1, mp.per.2.
+- codigo: E-201
+  nombre: Procedimiento de Baja de Personal
+  categoria: procedimiento
+  familia_ens: mp.per
+  aplica_desde: basica
+  version_actual: '1.0'
+  fuente_md: docs/spec/CORRECCION_6A_11_PROCEDIMIENTOS_ALTA.md
+  placeholders_requeridos:
+    cliente.razon_social:
+      description: Razon social de la entidad
+      required: true
+    cliente.nif:
+      description: NIF de la entidad
+      required: true
+    proyecto.fecha_aprobacion_inicial:
+      description: Fecha de aprobacion
+      required: true
+    responsables.responsable_seguridad.nombre:
+      description: Responsables > Responsable Seguridad > Nombre
+      required: true
+  is_active: true
+  stub_content: Baja de personal. Revocacion accesos.
+- codigo: E-202
+  nombre: Procedimiento de Cambio de Rol
+  categoria: procedimiento
+  familia_ens: mp.per
+  aplica_desde: basica
+  version_actual: '1.0'
+  fuente_md: docs/spec/CORRECCION_6A_11_PROCEDIMIENTOS_ALTA.md
+  placeholders_requeridos:
+    cliente.razon_social:
+      description: Razon social de la entidad
+      required: true
+    cliente.nif:
+      description: NIF de la entidad
+      required: true
+    proyecto.fecha_aprobacion_inicial:
+      description: Fecha de aprobacion
+      required: true
+    responsables.responsable_seguridad.nombre:
+      description: Responsables > Responsable Seguridad > Nombre
+      required: true
+  is_active: true
+  stub_content: Cambio de rol. Revision de accesos.
+- codigo: E-203
+  nombre: Procedimiento de Gestion de Cambios
+  categoria: procedimiento
+  familia_ens: op.exp
+  aplica_desde: basica
+  version_actual: '1.0'
+  fuente_md: docs/spec/F2_1_PROCEDIMIENTOS_CRITICOS_E200_E218 (1).md
+  placeholders_requeridos:
+    cliente.razon_social:
+      description: Razon social de la entidad
+      required: true
+    cliente.nif:
+      description: NIF de la entidad
+      required: true
+    proyecto.fecha_aprobacion_inicial:
+      description: Fecha de aprobacion
+      required: true
+    responsables.responsable_seguridad.nombre:
+      description: Responsables > Responsable Seguridad > Nombre
+      required: true
+  is_active: true
+  stub_content: Gestion de cambios con CAB. op.exp.
+- codigo: E-204
+  nombre: Procedimiento de Gestion de Incidentes de Seguridad
+  categoria: procedimiento
+  familia_ens: op.exp
+  aplica_desde: basica
+  version_actual: '1.0'
+  fuente_md: docs/spec/F2_1_PROCEDIMIENTOS_CRITICOS_E200_E218 (1).md
+  placeholders_requeridos:
+    cliente.razon_social:
+      description: Razon social de la entidad
+      required: true
+    cliente.nif:
+      description: NIF de la entidad
+      required: true
+    proyecto.fecha_aprobacion_inicial:
+      description: Fecha de aprobacion
+      required: true
+    responsables.responsable_seguridad.nombre:
+      description: Responsables > Responsable Seguridad > Nombre
+      required: true
+  is_active: true
+  stub_content: Gestion de incidentes. op.exp.7.
+- codigo: E-205
+  nombre: Procedimiento de Gestion de Vulnerabilidades
+  categoria: procedimiento
+  familia_ens: op.exp
+  aplica_desde: media
+  version_actual: '1.0'
+  fuente_md: docs/spec/F2_1_PROCEDIMIENTOS_CRITICOS_E200_E218 (1).md
+  placeholders_requeridos:
+    cliente.razon_social:
+      description: Razon social de la entidad
+      required: true
+    cliente.nif:
+      description: NIF de la entidad
+      required: true
+    proyecto.fecha_aprobacion_inicial:
+      description: Fecha de aprobacion
+      required: true
+    responsables.responsable_seguridad.nombre:
+      description: Responsables > Responsable Seguridad > Nombre
+      required: true
+  is_active: true
+  stub_content: Gestion de vulnerabilidades. op.exp.
+- codigo: E-206
+  nombre: Procedimiento de Gestion de Parches
+  categoria: procedimiento
+  familia_ens: op.exp
+  aplica_desde: media
+  version_actual: '1.0'
+  fuente_md: docs/spec/F2_1_PROCEDIMIENTOS_CRITICOS_E200_E218 (1).md
+  placeholders_requeridos:
+    cliente.razon_social:
+      description: Razon social de la entidad
+      required: true
+    cliente.nif:
+      description: NIF de la entidad
+      required: true
+    proyecto.fecha_aprobacion_inicial:
+      description: Fecha de aprobacion
+      required: true
+    responsables.responsable_seguridad.nombre:
+      description: Responsables > Responsable Seguridad > Nombre
+      required: true
+  is_active: true
+  stub_content: Gestion de parches. op.exp.
+- codigo: E-207
+  nombre: Procedimiento de Copias de Seguridad
+  categoria: procedimiento
+  familia_ens: op.cont
+  aplica_desde: basica
+  version_actual: '1.0'
+  fuente_md: docs/spec/F2_1_PROCEDIMIENTOS_CRITICOS_E200_E218 (1).md
+  placeholders_requeridos:
+    cliente.razon_social:
+      description: Razon social de la entidad
+      required: true
+    cliente.nif:
+      description: NIF de la entidad
+      required: true
+    proyecto.fecha_aprobacion_inicial:
+      description: Fecha de aprobacion
+      required: true
+    responsables.responsable_seguridad.nombre:
+      description: Responsables > Responsable Seguridad > Nombre
+      required: true
+  is_active: true
+  stub_content: Copias de seguridad. op.cont.
+- codigo: E-208
+  nombre: Procedimiento de Restauracion
+  categoria: procedimiento
+  familia_ens: op.cont
+  aplica_desde: basica
+  version_actual: '1.0'
+  fuente_md: docs/spec/procedures/E208_PROCEDIMIENTO_RESTAURACION.md
+  placeholders_requeridos:
+    cliente.razon_social:
+      description: Razon social de la entidad
+      required: true
+    cliente.nif:
+      description: NIF de la entidad
+      required: true
+    proyecto.fecha_aprobacion_inicial:
+      description: Fecha de aprobacion
+      required: true
+    responsables.responsable_seguridad.nombre:
+      description: Responsables > Responsable Seguridad > Nombre
+      required: true
+  is_active: true
+  stub_content: Restauracion y pruebas periodicas. op.cont.3.
+- codigo: E-209
+  nombre: Procedimiento de Pruebas de Continuidad
+  categoria: procedimiento
+  familia_ens: op.cont
+  aplica_desde: basica
+  version_actual: '1.0'
+  fuente_md: docs/spec/CORRECCION_6A_11_PROCEDIMIENTOS_ALTA.md
+  placeholders_requeridos:
+    cliente.razon_social:
+      description: Razon social de la entidad
+      required: true
+    cliente.nif:
+      description: NIF de la entidad
+      required: true
+    proyecto.fecha_aprobacion_inicial:
+      description: Fecha de aprobacion
+      required: true
+    responsables.responsable_seguridad.nombre:
+      description: Responsables > Responsable Seguridad > Nombre
+      required: true
+  is_active: true
+  stub_content: Pruebas de continuidad. op.cont.
+- codigo: E-210
+  nombre: Procedimiento de Revision Periodica de Accesos
+  categoria: procedimiento
+  familia_ens: op.acc
+  aplica_desde: basica
+  version_actual: '1.0'
+  fuente_md: docs/spec/CORRECCION_6A_11_PROCEDIMIENTOS_ALTA.md
+  placeholders_requeridos:
+    cliente.razon_social:
+      description: Razon social de la entidad
+      required: true
+    cliente.nif:
+      description: NIF de la entidad
+      required: true
+    proyecto.fecha_aprobacion_inicial:
+      description: Fecha de aprobacion
+      required: true
+    responsables.responsable_seguridad.nombre:
+      description: Responsables > Responsable Seguridad > Nombre
+      required: true
+  is_active: true
+  stub_content: Revision periodica de accesos. op.acc.
+- codigo: E-211
+  nombre: Procedimiento de Gestion de Cuentas Privilegiadas
+  categoria: procedimiento
+  familia_ens: op.acc
+  aplica_desde: media
+  version_actual: '1.0'
+  fuente_md: docs/spec/CORRECCION_6A_11_PROCEDIMIENTOS_ALTA.md
+  placeholders_requeridos:
+    cliente.razon_social:
+      description: Razon social de la entidad
+      required: true
+    cliente.nif:
+      description: NIF de la entidad
+      required: true
+    proyecto.fecha_aprobacion_inicial:
+      description: Fecha de aprobacion
+      required: true
+    responsables.responsable_seguridad.nombre:
+      description: Responsables > Responsable Seguridad > Nombre
+      required: true
+  is_active: true
+  stub_content: PAM, break-glass, rotacion. op.acc.3, op.acc.4.
+- codigo: E-212
+  nombre: Procedimiento de Respuesta a Brechas RGPD
+  categoria: procedimiento
+  familia_ens: mp.info
+  aplica_desde: basica
+  version_actual: '1.0'
+  fuente_md: docs/spec/CORRECCION_6A_11_PROCEDIMIENTOS_ALTA.md
+  placeholders_requeridos:
+    cliente.razon_social:
+      description: Razon social de la entidad
+      required: true
+    cliente.nif:
+      description: NIF de la entidad
+      required: true
+    proyecto.fecha_aprobacion_inicial:
+      description: Fecha de aprobacion
+      required: true
+    responsables.responsable_seguridad.nombre:
+      description: Responsables > Responsable Seguridad > Nombre
+      required: true
+  is_active: true
+  stub_content: Brechas RGPD art. 33-34. Coordinacion DPO.
+- codigo: E-213
+  nombre: Procedimiento de Notificacion de Brechas a la AEPD
+  categoria: procedimiento
+  familia_ens: mp.info
+  aplica_desde: basica
+  version_actual: '1.0'
+  fuente_md: docs/spec/CORRECCION_6A_11_PROCEDIMIENTOS_ALTA.md
+  placeholders_requeridos:
+    cliente.razon_social:
+      description: Razon social de la entidad
+      required: true
+    cliente.nif:
+      description: NIF de la entidad
+      required: true
+    proyecto.fecha_aprobacion_inicial:
+      description: Fecha de aprobacion
+      required: true
+    responsables.responsable_seguridad.nombre:
+      description: Responsables > Responsable Seguridad > Nombre
+      required: true
+  is_active: true
+  stub_content: Notificacion AEPD. Formulario sede electronica, plazo 72h.
+- codigo: E-214
+  nombre: Procedimiento de Destruccion Segura de Informacion
+  categoria: procedimiento
+  familia_ens: mp.si
+  aplica_desde: media
+  version_actual: '1.0'
+  fuente_md: docs/spec/procedures/E214_PROCEDIMIENTO_DESTRUCCION_SEGURA.md
+  placeholders_requeridos:
+    cliente.razon_social:
+      description: Razon social de la entidad
+      required: true
+    cliente.nif:
+      description: NIF de la entidad
+      required: true
+    proyecto.fecha_aprobacion_inicial:
+      description: Fecha de aprobacion
+      required: true
+    responsables.responsable_seguridad.nombre:
+      description: Responsables > Responsable Seguridad > Nombre
+      required: true
+  is_active: true
+  stub_content: Destruccion segura. UNE-EN 15713. mp.si.5.
+- codigo: E-215
+  nombre: Procedimiento de Gestion de Soportes Extraibles
+  categoria: procedimiento
+  familia_ens: mp.si
+  aplica_desde: alta
+  version_actual: '1.0'
+  fuente_md: docs/spec/procedures/E215_PROCEDIMIENTO_GESTION_SOPORTES_EXTRAIBLES.md
+  placeholders_requeridos:
+    cliente.razon_social:
+      description: Razon social de la entidad
+      required: true
+    cliente.nif:
+      description: NIF de la entidad
+      required: true
+    proyecto.fecha_aprobacion_inicial:
+      description: Fecha de aprobacion
+      required: true
+    responsables.responsable_seguridad.nombre:
+      description: Responsables > Responsable Seguridad > Nombre
+      required: true
+  is_active: true
+  stub_content: Soportes extraibles. USB, discos. mp.si.
+- codigo: E-216
+  nombre: Procedimiento de Gestion de Proveedores
+  categoria: procedimiento
+  familia_ens: op.ext
+  aplica_desde: media
+  version_actual: '1.0'
+  fuente_md: docs/spec/procedures/E216_PROCEDIMIENTO_GESTION_OPERATIVA_PROVEEDORES.md
+  placeholders_requeridos:
+    cliente.razon_social:
+      description: Razon social de la entidad
+      required: true
+    cliente.nif:
+      description: NIF de la entidad
+      required: true
+    proyecto.fecha_aprobacion_inicial:
+      description: Fecha de aprobacion
+      required: true
+    responsables.responsable_seguridad.nombre:
+      description: Responsables > Responsable Seguridad > Nombre
+      required: true
+  is_active: true
+  stub_content: Gestion operativa de proveedores. op.ext.
+- codigo: E-217
+  nombre: Procedimiento de Evaluacion de Riesgos de Proveedores
+  categoria: procedimiento
+  familia_ens: op.ext
+  aplica_desde: media
+  version_actual: '1.0'
+  fuente_md: docs/spec/F2_1_PROCEDIMIENTOS_CRITICOS_E200_E218 (1).md
+  placeholders_requeridos:
+    cliente.razon_social:
+      description: Razon social de la entidad
+      required: true
+    cliente.nif:
+      description: NIF de la entidad
+      required: true
+    proyecto.fecha_aprobacion_inicial:
+      description: Fecha de aprobacion
+      required: true
+    responsables.responsable_seguridad.nombre:
+      description: Responsables > Responsable Seguridad > Nombre
+      required: true
+  is_active: true
+  stub_content: Evaluacion de riesgos de proveedores.
+- codigo: E-218
+  nombre: Procedimiento de Auditoria Interna
+  categoria: procedimiento
+  familia_ens: org
+  aplica_desde: basica
+  version_actual: '1.0'
+  fuente_md: docs/spec/procedures/E208_PROCEDIMIENTO_RESTAURACION.md
+  placeholders_requeridos:
+    cliente.razon_social:
+      description: Razon social de la entidad
+      required: true
+    cliente.nif:
+      description: NIF de la entidad
+      required: true
+    proyecto.fecha_aprobacion_inicial:
+      description: Fecha de aprobacion
+      required: true
+    responsables.responsable_seguridad.nombre:
+      description: Responsables > Responsable Seguridad > Nombre
+      required: true
+  is_active: true
+  stub_content: Auditoria interna del SGSI.
+- codigo: E-219
+  nombre: Procedimiento de Revision por la Direccion
+  categoria: procedimiento
+  familia_ens: org
+  aplica_desde: basica
+  version_actual: '1.0'
+  fuente_md: docs/spec/CORRECCION_6BC_16_PROCEDIMIENTOS_RESTANTES.md
+  placeholders_requeridos:
+    cliente.razon_social:
+      description: Razon social de la entidad
+      required: true
+    cliente.nif:
+      description: NIF de la entidad
+      required: true
+    proyecto.fecha_aprobacion_inicial:
+      description: Fecha de aprobacion
+      required: true
+    responsables.responsable_seguridad.nombre:
+      description: Responsables > Responsable Seguridad > Nombre
+      required: true
+  is_active: true
+  stub_content: Revision por la direccion. Management review anual.
+- codigo: E-220
+  nombre: Procedimiento de Gestion de No Conformidades
+  categoria: procedimiento
+  familia_ens: org
+  aplica_desde: basica
+  version_actual: '1.0'
+  fuente_md: docs/spec/CORRECCION_6BC_16_PROCEDIMIENTOS_RESTANTES.md
+  placeholders_requeridos:
+    cliente.razon_social:
+      description: Razon social de la entidad
+      required: true
+    cliente.nif:
+      description: NIF de la entidad
+      required: true
+    proyecto.fecha_aprobacion_inicial:
+      description: Fecha de aprobacion
+      required: true
+    responsables.responsable_seguridad.nombre:
+      description: Responsables > Responsable Seguridad > Nombre
+      required: true
+  is_active: true
+  stub_content: No conformidades. NC mayores/menores, PAC.
+- codigo: E-221
+  nombre: Procedimiento de Gestion Documental
+  categoria: procedimiento
+  familia_ens: org
+  aplica_desde: basica
+  version_actual: '1.0'
+  fuente_md: docs/spec/F2_1_PROCEDIMIENTOS_CRITICOS_E200_E218 (1).md
+  placeholders_requeridos:
+    cliente.razon_social:
+      description: Razon social de la entidad
+      required: true
+    cliente.nif:
+      description: NIF de la entidad
+      required: true
+    proyecto.fecha_aprobacion_inicial:
+      description: Fecha de aprobacion
+      required: true
+    responsables.responsable_seguridad.nombre:
+      description: Responsables > Responsable Seguridad > Nombre
+      required: true
+  is_active: true
+  stub_content: Gestion documental del SGSI.
+- codigo: E-222
+  nombre: Procedimiento de Gestion de Excepciones
+  categoria: procedimiento
+  familia_ens: org
+  aplica_desde: media
+  version_actual: '1.0'
+  fuente_md: docs/spec/procedures/E222_PROCEDIMIENTO_GESTION_EXCEPCIONES.md
+  placeholders_requeridos:
+    cliente.razon_social:
+      description: Razon social de la entidad
+      required: true
+    cliente.nif:
+      description: NIF de la entidad
+      required: true
+    proyecto.fecha_aprobacion_inicial:
+      description: Fecha de aprobacion
+      required: true
+    responsables.responsable_seguridad.nombre:
+      description: Responsables > Responsable Seguridad > Nombre
+      required: true
+  is_active: true
+  stub_content: Excepciones. Registro, autorizacion, vigencia.
+- codigo: E-223
+  nombre: Procedimiento de Revision de Logs
+  categoria: procedimiento
+  familia_ens: op.exp
+  aplica_desde: basica
+  version_actual: '1.0'
+  fuente_md: docs/spec/procedures/E223_PROCEDIMIENTO_REVISION_LOGS.md
+  placeholders_requeridos:
+    cliente.razon_social:
+      description: Razon social de la entidad
+      required: true
+    cliente.nif:
+      description: NIF de la entidad
+      required: true
+    proyecto.fecha_aprobacion_inicial:
+      description: Fecha de aprobacion
+      required: true
+    responsables.responsable_seguridad.nombre:
+      description: Responsables > Responsable Seguridad > Nombre
+      required: true
+  is_active: true
+  stub_content: Revision de logs. Que logs, quien revisa, frecuencia.
+- codigo: E-224
+  nombre: Procedimiento de Despliegue de Software
+  categoria: procedimiento
+  familia_ens: mp.sw
+  aplica_desde: media
+  version_actual: '1.0'
+  fuente_md: docs/spec/procedures/E224_PROCEDIMIENTO_DESPLIEGUE_SOFTWARE.md
+  placeholders_requeridos:
+    cliente.razon_social:
+      description: Razon social de la entidad
+      required: true
+    cliente.nif:
+      description: NIF de la entidad
+      required: true
+    proyecto.fecha_aprobacion_inicial:
+      description: Fecha de aprobacion
+      required: true
+    responsables.responsable_seguridad.nombre:
+      description: Responsables > Responsable Seguridad > Nombre
+      required: true
+  is_active: true
+  stub_content: Despliegue seguro. CI/CD, validacion pre-produccion.
+- codigo: E-225
+  nombre: Procedimiento de Pruebas Pre-Produccion
+  categoria: procedimiento
+  familia_ens: mp.sw
+  aplica_desde: media
+  version_actual: '1.0'
+  fuente_md: docs/spec/procedures/E225_PROCEDIMIENTO_PRUEBAS_PREPRODUCCION.md
+  placeholders_requeridos:
+    cliente.razon_social:
+      description: Razon social de la entidad
+      required: true
+    cliente.nif:
+      description: NIF de la entidad
+      required: true
+    proyecto.fecha_aprobacion_inicial:
+      description: Fecha de aprobacion
+      required: true
+    responsables.responsable_seguridad.nombre:
+      description: Responsables > Responsable Seguridad > Nombre
+      required: true
+  is_active: true
+  stub_content: Pruebas pre-produccion. Entornos staging.
+- codigo: E-226
+  nombre: Procedimiento de Teletrabajo
+  categoria: procedimiento
+  familia_ens: op.ext
+  aplica_desde: media
+  version_actual: '1.0'
+  fuente_md: docs/spec/procedures/E226_PROCEDIMIENTO_TELETRABAJO.md
+  placeholders_requeridos:
+    cliente.razon_social:
+      description: Razon social de la entidad
+      required: true
+    cliente.nif:
+      description: NIF de la entidad
+      required: true
+    proyecto.fecha_aprobacion_inicial:
+      description: Fecha de aprobacion
+      required: true
+    responsables.responsable_seguridad.nombre:
+      description: Responsables > Responsable Seguridad > Nombre
+      required: true
+  is_active: true
+  stub_content: Teletrabajo. VPN, MFA, equipos.
+- codigo: E-227
+  nombre: Procedimiento de Uso de Cloud
+  categoria: procedimiento
+  familia_ens: op.ext
+  aplica_desde: media
+  version_actual: '1.0'
+  fuente_md: docs/spec/procedures/E227_PROCEDIMIENTO_USO_CLOUD.md
+  placeholders_requeridos:
+    cliente.razon_social:
+      description: Razon social de la entidad
+      required: true
+    cliente.nif:
+      description: NIF de la entidad
+      required: true
+    proyecto.fecha_aprobacion_inicial:
+      description: Fecha de aprobacion
+      required: true
+    responsables.responsable_seguridad.nombre:
+      description: Responsables > Responsable Seguridad > Nombre
+      required: true
+  is_active: true
+  stub_content: Uso de cloud. Operativo de E-111.
+- codigo: E-228
+  nombre: Procedimiento de Respuesta ante Perdida de Dispositivos
+  categoria: procedimiento
+  familia_ens: mp.si
+  aplica_desde: basica
+  version_actual: '1.0'
+  fuente_md: docs/spec/procedures/E228_PROCEDIMIENTO_GESTION_DISPOSITIVOS_MOVILES.md
+  placeholders_requeridos:
+    cliente.razon_social:
+      description: Razon social de la entidad
+      required: true
+    cliente.nif:
+      description: NIF de la entidad
+      required: true
+    proyecto.fecha_aprobacion_inicial:
+      description: Fecha de aprobacion
+      required: true
+    responsables.responsable_seguridad.nombre:
+      description: Responsables > Responsable Seguridad > Nombre
+      required: true
+  is_active: true
+  stub_content: Respuesta ante perdida/robo de dispositivos.
+- codigo: E-229
+  nombre: Procedimiento de Visitas Externas
+  categoria: procedimiento
+  familia_ens: mp.if
+  aplica_desde: alta
+  version_actual: '1.0'
+  fuente_md: docs/spec/procedures/E229_PROCEDIMIENTO_MONITORIZACION_SEGURIDAD.md
+  placeholders_requeridos:
+    cliente.razon_social:
+      description: Razon social de la entidad
+      required: true
+    cliente.nif:
+      description: NIF de la entidad
+      required: true
+    proyecto.fecha_aprobacion_inicial:
+      description: Fecha de aprobacion
+      required: true
+    responsables.responsable_seguridad.nombre:
+      description: Responsables > Responsable Seguridad > Nombre
+      required: true
+  is_active: true
+  stub_content: Control de visitantes a CPD/oficinas.
+- codigo: E-230
+  nombre: Procedimiento de Categorizacion de Sistemas
+  categoria: procedimiento
+  familia_ens: org
+  aplica_desde: basica
+  version_actual: '1.0'
+  fuente_md: docs/spec/procedures/E230_PROCEDIMIENTO_BASTIONADO_SISTEMAS.md
+  placeholders_requeridos:
+    cliente.razon_social:
+      description: Razon social de la entidad
+      required: true
+    cliente.nif:
+      description: NIF de la entidad
+      required: true
+    proyecto.fecha_aprobacion_inicial:
+      description: Fecha de aprobacion
+      required: true
+    responsables.responsable_seguridad.nombre:
+      description: Responsables > Responsable Seguridad > Nombre
+      required: true
+  is_active: true
+  stub_content: Categorizacion de sistemas. Anexo I ENS. Motor 1.
+- codigo: E-231
+  nombre: Procedimiento de Gestion de Identidades y Accesos
+  categoria: procedimiento
+  familia_ens: op.acc
+  aplica_desde: basica
+  version_actual: '1.0'
+  fuente_md: docs/spec/F2_1_PROCEDIMIENTOS_CRITICOS_E200_E218 (1).md
+  placeholders_requeridos:
+    cliente.razon_social:
+      description: Razon social de la entidad
+      required: true
+    cliente.nif:
+      description: NIF de la entidad
+      required: true
+    proyecto.fecha_aprobacion_inicial:
+      description: Fecha de aprobacion
+      required: true
+    responsables.responsable_seguridad.nombre:
+      description: Responsables > Responsable Seguridad > Nombre
+      required: true
+  is_active: true
+  stub_content: Gestion de identidades y accesos.
+- codigo: E-232
+  nombre: Procedimiento de Gestion Criptografica
+  categoria: procedimiento
+  familia_ens: mp.info
+  aplica_desde: media
+  version_actual: '1.0'
+  fuente_md: docs/spec/procedures/E232_PROCEDIMIENTO_GESTION_CERTIFICADOS_DIGITALES.md
+  placeholders_requeridos:
+    cliente.razon_social:
+      description: Razon social de la entidad
+      required: true
+    cliente.nif:
+      description: NIF de la entidad
+      required: true
+    proyecto.fecha_aprobacion_inicial:
+      description: Fecha de aprobacion
+      required: true
+    responsables.responsable_seguridad.nombre:
+      description: Responsables > Responsable Seguridad > Nombre
+      required: true
+  is_active: true
+  stub_content: Gestion criptografica operativa. Inventario de claves.
+- codigo: E-233
+  nombre: Procedimiento de Notificacion a CCN-CERT (LUCIA)
+  categoria: procedimiento
+  familia_ens: op.exp
+  aplica_desde: media
+  version_actual: '1.0'
+  fuente_md: docs/spec/procedures/E233_PROCEDIMIENTO_SEGURIDAD_REDES_INALAMBRICAS.md
+  placeholders_requeridos:
+    cliente.razon_social:
+      description: Razon social de la entidad
+      required: true
+    cliente.nif:
+      description: NIF de la entidad
+      required: true
+    proyecto.fecha_aprobacion_inicial:
+      description: Fecha de aprobacion
+      required: true
+    responsables.responsable_seguridad.nombre:
+      description: Responsables > Responsable Seguridad > Nombre
+      required: true
+  is_active: true
+  stub_content: Notificacion LUCIA. Sector publico.
+- codigo: E-234
+  nombre: Procedimiento de Mejora Continua
+  categoria: procedimiento
+  familia_ens: org
+  aplica_desde: basica
+  version_actual: '1.0'
+  fuente_md: docs/spec/procedures/E234_PROCEDIMIENTO_GESTION_APIS.md
+  placeholders_requeridos:
+    cliente.razon_social:
+      description: Razon social de la entidad
+      required: true
+    cliente.nif:
+      description: NIF de la entidad
+      required: true
+    proyecto.fecha_aprobacion_inicial:
+      description: Fecha de aprobacion
+      required: true
+    responsables.responsable_seguridad.nombre:
+      description: Responsables > Responsable Seguridad > Nombre
+      required: true
+  is_active: true
+  stub_content: Mejora continua del SGSI. PDCA.
+- codigo: P-001
+  nombre: Propuesta Comercial Maestra de Servicios ENS
+  categoria: comercial
+  familia_ens: null
+  aplica_desde: null
+  version_actual: '1.0'
+  fuente_md: docs/spec/F3_1_PLANTILLAS_COMERCIALES_P001_C001_C003 (1).md
+  placeholders_requeridos:
+    cliente.razon_social:
+      description: Razon social de la entidad
+      required: true
+    cliente.nif:
+      description: NIF de la entidad
+      required: true
+    proyecto.fecha_aprobacion_inicial:
+      description: Fecha de aprobacion
+      required: false
+    cliente.persona_contacto.nombre:
+      description: Cliente > Persona Contacto > Nombre
+      required: true
+    cliente.persona_contacto.cargo:
+      description: Cliente > Persona Contacto > Cargo
+      required: true
+    propuesta.fecha_emision:
+      description: Propuesta > Fecha Emision
+      required: true
+    marcos.nif:
+      description: Marcos > Nif
+      required: true
+  is_active: true
+  stub_content: Propuesta comercial maestra.
+- codigo: C-001
+  nombre: Contrato de Prestacion de Servicios de Consultoria ENS
+  categoria: comercial
+  familia_ens: null
+  aplica_desde: null
+  version_actual: '1.0'
+  fuente_md: docs/spec/F3_1_PLANTILLAS_COMERCIALES_P001_C001_C003 (1).md
+  placeholders_requeridos:
+    cliente.razon_social:
+      description: Razon social de la entidad
+      required: true
+    cliente.nif:
+      description: NIF de la entidad
+      required: true
+    proyecto.fecha_aprobacion_inicial:
+      description: Fecha de aprobacion
+      required: false
+    cliente.persona_contacto.nombre:
+      description: Cliente > Persona Contacto > Nombre
+      required: true
+    cliente.persona_contacto.cargo:
+      description: Cliente > Persona Contacto > Cargo
+      required: true
+    contrato.fecha_firma:
+      description: Contrato > Fecha Firma
+      required: true
+    contrato.honorarios_eur:
+      description: Contrato > Honorarios Eur
+      required: true
+    marcos.nif:
+      description: Marcos > Nif
+      required: true
+  is_active: true
+  stub_content: Contrato consultoria ENS.
+- codigo: C-003
+  nombre: Contrato de Servicios de Mantenimiento Continuo (Retainer)
+  categoria: comercial
+  familia_ens: null
+  aplica_desde: null
+  version_actual: '1.0'
+  fuente_md: docs/spec/F3_1_PLANTILLAS_COMERCIALES_P001_C001_C003 (1).md
+  placeholders_requeridos:
+    cliente.razon_social:
+      description: Razon social de la entidad
+      required: true
+    cliente.nif:
+      description: NIF de la entidad
+      required: true
+    proyecto.fecha_aprobacion_inicial:
+      description: Fecha de aprobacion
+      required: false
+    cliente.persona_contacto.nombre:
+      description: Cliente > Persona Contacto > Nombre
+      required: true
+    cliente.persona_contacto.cargo:
+      description: Cliente > Persona Contacto > Cargo
+      required: true
+    contrato.fecha_firma:
+      description: Contrato > Fecha Firma
+      required: true
+    contrato.honorarios_eur:
+      description: Contrato > Honorarios Eur
+      required: true
+    marcos.nif:
+      description: Marcos > Nif
+      required: true
+  is_active: true
+  stub_content: Contrato mantenimiento retainer.
+- codigo: E-001
+  nombre: Informe de Adecuacion (Ficha Resumen Ejecutivo)
+  categoria: entregable
+  familia_ens: null
+  aplica_desde: null
+  version_actual: '1.0'
+  fuente_md: docs/spec/F3_2_PLANTILLAS_ENTREGABLES_E001_E040_E050_E400 (1).md
+  placeholders_requeridos:
+    cliente.razon_social:
+      description: Razon social de la entidad
+      required: true
+    cliente.nif:
+      description: NIF de la entidad
+      required: true
+    proyecto.fecha_aprobacion_inicial:
+      description: Fecha de aprobacion
+      required: true
+    cliente.domicilio_social:
+      description: Cliente > Domicilio Social
+      required: true
+  is_active: true
+  stub_content: Ficha resumen ejecutivo del proyecto ENS.
+- codigo: E-040
+  nombre: Acta de Arranque (Informe Final de Adecuacion)
+  categoria: entregable
+  familia_ens: null
+  aplica_desde: null
+  version_actual: '1.0'
+  fuente_md: docs/spec/F3_2_PLANTILLAS_ENTREGABLES_E001_E040_E050_E400 (1).md
+  placeholders_requeridos:
+    cliente.razon_social:
+      description: Razon social de la entidad
+      required: true
+    cliente.nif:
+      description: NIF de la entidad
+      required: true
+    proyecto.fecha_aprobacion_inicial:
+      description: Fecha de aprobacion
+      required: true
+    cliente.domicilio_social:
+      description: Cliente > Domicilio Social
+      required: true
+  is_active: true
+  stub_content: Informe final de adecuacion al ENS.
+- codigo: E-155
+  nombre: Documento de Alcance del SGSI
+  categoria: entregable
+  familia_ens: null
+  aplica_desde: null
+  version_actual: '1.0'
+  fuente_md: CCN-STIC-805_809_alcance_sgsi
+  placeholders_requeridos:
+    cliente.razon_social:
+      description: Razon social de la entidad
+      required: true
+    cliente.nif:
+      description: NIF de la entidad
+      required: true
+  is_active: true
+  stub_content: Documento de alcance del SGSI (CCN-STIC 805/809).
+- codigo: E-050
+  nombre: Informe de Avance (Auditoria Interna del SGSI)
+  categoria: entregable
+  familia_ens: null
+  aplica_desde: null
+  version_actual: '1.0'
+  fuente_md: docs/spec/F3_2_PLANTILLAS_ENTREGABLES_E001_E040_E050_E400 (1).md
+  placeholders_requeridos:
+    cliente.razon_social:
+      description: Razon social de la entidad
+      required: true
+    cliente.nif:
+      description: NIF de la entidad
+      required: true
+    proyecto.fecha_aprobacion_inicial:
+      description: Fecha de aprobacion
+      required: true
+    cliente.domicilio_social:
+      description: Cliente > Domicilio Social
+      required: true
+  is_active: true
+  stub_content: Informe de auditoria interna del SGSI.
+- codigo: E-702
+  nombre: Informe de Verificacion Tecnica (Basica/Media)
+  categoria: entregable
+  familia_ens: op.exp
+  aplica_desde: basica
+  version_actual: '1.0'
+  fuente_md: null
+  placeholders_requeridos:
+    cliente.razon_social:
+      description: Razon social de la entidad
+      required: true
+    run.fecha_emision:
+      description: Fecha de emision del informe
+      required: true
+    run.categoria_ens:
+      description: Categoria ENS del sistema (BASICO|MEDIO|ALTO)
+      required: true
+    score.score:
+      description: Puntuacion de seguridad 0-100
+      required: true
+    responsables.responsable_seguridad.nombre:
+      description: Nombre del RSEG del cliente
+      required: true
+  is_active: true
+  stub_content: Informe tecnico detallado de verificacion v5.1 para RSEG.
+- codigo: E-703
+  nombre: Resumen Ejecutivo de la Verificacion Tecnica
+  categoria: entregable
+  familia_ens: op.exp
+  aplica_desde: basica
+  version_actual: '1.0'
+  fuente_md: null
+  placeholders_requeridos:
+    cliente.razon_social:
+      description: Razon social de la entidad
+      required: true
+    run.fecha_emision:
+      description: Fecha de emision del informe
+      required: true
+    score.score:
+      description: Puntuacion de seguridad 0-100
+      required: true
+  is_active: true
+  stub_content: Resumen ejecutivo 2-3 paginas de la verificacion para Direccion.
+- codigo: E-704
+  nombre: Informe de Verificacion Red Team Externa (Alta)
+  categoria: entregable
+  familia_ens: op.exp
+  aplica_desde: alta
+  version_actual: '1.0'
+  fuente_md: null
+  placeholders_requeridos:
+    cliente.razon_social:
+      description: Razon social de la entidad
+      required: true
+    run.fecha_emision:
+      description: Fecha de emision del informe
+      required: true
+    handoff.pentester.name:
+      description: Nombre del pentester externo OSCP
+      required: true
+    handoff.pentester.certification:
+      description: Certificacion vigente del pentester (OSCP)
+      required: true
+    responsables.responsable_seguridad.nombre:
+      description: Nombre del RSEG del cliente
+      required: true
+  is_active: true
+  stub_content: Informe formal de Red Team externa para categoria Alta.
+- codigo: E-400
+  nombre: Plan de Adecuacion (Analisis de Impacto BIA)
+  categoria: entregable
+  familia_ens: null
+  aplica_desde: null
+  version_actual: '1.0'
+  fuente_md: docs/spec/F3_2_PLANTILLAS_ENTREGABLES_E001_E040_E050_E400 (1).md
+  placeholders_requeridos:
+    cliente.razon_social:
+      description: Razon social de la entidad
+      required: true
+    cliente.nif:
+      description: NIF de la entidad
+      required: true
+    proyecto.fecha_aprobacion_inicial:
+      description: Fecha de aprobacion
+      required: true
+    cliente.domicilio_social:
+      description: Cliente > Domicilio Social
+      required: true
+  is_active: true
+  stub_content: Analisis de impacto en el negocio (BIA).
+- codigo: E-090
+  nombre: Anexo de Medidas de Seguridad (Tabla Resumen)
+  categoria: entregable
+  familia_ens: null
+  aplica_desde: null
+  version_actual: '1.0'
+  fuente_md: null
+  is_active: true
+  stub_content: Tabla resumen de medidas de seguridad aplicables.
+  placeholders_requeridos:
+    cliente.razon_social:
+      description: Cliente > Razon Social
+      required: true
+    cliente.nif:
+      description: Cliente > Nif
+      required: true
+    cliente.domicilio_social:
+      description: Cliente > Domicilio Social
+      required: true
+    proyecto.fecha_aprobacion_inicial:
+      description: Proyecto > Fecha Aprobacion Inicial
+      required: true
+- codigo: E-AR-001
+  nombre: Informe de Analisis de Riesgos
+  categoria: entregable
+  familia_ens: null
+  aplica_desde: null
+  version_actual: '1.0'
+  fuente_md: null
+  is_active: true
+  stub_content: Informe de analisis de riesgos MAGERIT/ENS.
+  placeholders_requeridos:
+    cliente.razon_social:
+      description: Cliente > Razon Social
+      required: true
+    cliente.nif:
+      description: Cliente > Nif
+      required: true
+    cliente.domicilio_social:
+      description: Cliente > Domicilio Social
+      required: true
+    proyecto.fecha_aprobacion_inicial:
+      description: Proyecto > Fecha Aprobacion Inicial
+      required: true
+- codigo: E-PF-001
+  nombre: Plan de Formacion en Seguridad
+  categoria: entregable
+  familia_ens: mp.per
+  aplica_desde: basica
+  # L-6 · un autonomo/microempresa unipersonal no produce un plan de formacion de
+  # escala-equipo; la concienciacion (mp.per.3/4) se cubre con la tarea ligera
+  # ENR_AUT_03 del perfil autonomo (L-5). Se omite del catalogo cuando tamano=micro.
+  aplica_micro: false
+  version_actual: '1.0'
+  fuente_md: null
+  is_active: true
+  stub_content: Plan de formacion y concienciacion en seguridad.
+  placeholders_requeridos:
+    cliente.razon_social:
+      description: Cliente > Razon Social
+      required: true
+    cliente.nif:
+      description: Cliente > Nif
+      required: true
+    cliente.domicilio_social:
+      description: Cliente > Domicilio Social
+      required: true
+    proyecto.fecha_aprobacion_inicial:
+      description: Proyecto > Fecha Aprobacion Inicial
+      required: true
+- codigo: E-IT-001
+  nombre: Instruccion Tecnica de Hardening
+  categoria: instruccion_tecnica
+  familia_ens: op.exp
+  aplica_desde: media
+  version_actual: '1.0'
+  fuente_md: null
+  is_active: true
+  stub_content: Instruccion tecnica de hardening de sistemas.
+  placeholders_requeridos:
+    cliente.razon_social:
+      description: Cliente > Razon Social
+      required: true
+    cliente.nif:
+      description: Cliente > Nif
+      required: true
+- codigo: E-204-A
+  nombre: Anexo de Incidentes (Ficha de Incidente)
+  categoria: apendice_f
+  familia_ens: op.exp
+  aplica_desde: basica
+  version_actual: '1.0'
+  fuente_md: null
+  is_active: true
+  stub_content: Ficha de registro de incidentes de seguridad.
+  placeholders_requeridos:
+    cliente.razon_social:
+      description: Cliente > Razon Social
+      required: true
+    cliente.nif:
+      description: Cliente > Nif
+      required: true
+- codigo: F-001
+  nombre: Formulario de Alta de Usuario
+  categoria: registro
+  familia_ens: op.acc
+  aplica_desde: basica
+  version_actual: '1.0'
+  fuente_md: null
+  is_active: true
+  stub_content: Formulario de solicitud de alta de usuario.
+  placeholders_requeridos:
+    cliente.razon_social:
+      description: Cliente > Razon Social
+      required: true
+    cliente.nif:
+      description: Cliente > Nif
+      required: true
+- codigo: F-003
+  nombre: Formulario de Baja de Usuario
+  categoria: registro
+  familia_ens: op.acc
+  aplica_desde: basica
+  version_actual: '1.0'
+  fuente_md: null
+  is_active: true
+  stub_content: Formulario de solicitud de baja de usuario.
+  placeholders_requeridos:
+    cliente.razon_social:
+      description: Cliente > Razon Social
+      required: true
+    cliente.nif:
+      description: Cliente > Nif
+      required: true
+- codigo: F-005
+  nombre: Formulario de Solicitud de Cambio
+  categoria: registro
+  familia_ens: op.exp
+  aplica_desde: basica
+  version_actual: '1.0'
+  fuente_md: null
+  is_active: true
+  stub_content: Formulario de solicitud de cambio (RFC).
+  placeholders_requeridos:
+    cliente.razon_social:
+      description: Cliente > Razon Social
+      required: true
+    cliente.nif:
+      description: Cliente > Nif
+      required: true
+- codigo: F-006
+  nombre: Formulario de Excepcion de Seguridad
+  categoria: registro
+  familia_ens: org
+  aplica_desde: media
+  version_actual: '1.0'
+  fuente_md: null
+  is_active: true
+  stub_content: Formulario de solicitud de excepcion de seguridad.
+  placeholders_requeridos:
+    cliente.razon_social:
+      description: Cliente > Razon Social
+      required: true
+    cliente.nif:
+      description: Cliente > Nif
+      required: true
+- codigo: F-007
+  nombre: Formulario de Registro de Visitantes
+  categoria: registro
+  familia_ens: mp.if
+  aplica_desde: alta
+  version_actual: '1.0'
+  fuente_md: null
+  is_active: true
+  stub_content: Formulario de registro de visitantes.
+  placeholders_requeridos:
+    cliente.razon_social:
+      description: Cliente > Razon Social
+      required: true
+    cliente.nif:
+      description: Cliente > Nif
+      required: true
+- codigo: F-008
+  nombre: Formulario de Destruccion de Soportes
+  categoria: registro
+  familia_ens: mp.si
+  aplica_desde: media
+  version_actual: '1.0'
+  fuente_md: null
+  is_active: true
+  stub_content: Formulario de destruccion certificada de soportes.
+  placeholders_requeridos:
+    cliente.razon_social:
+      description: Cliente > Razon Social
+      required: true
+    cliente.nif:
+      description: Cliente > Nif
+      required: true

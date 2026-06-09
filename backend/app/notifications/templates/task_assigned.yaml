@@ -1,0 +1,42 @@
+subject_es: "Nueva tarea asignada · {{ project_name }}"
+cta_label_es: "Abrir tarea"
+html_body_es: |
+  <p>Hola {{ recipient_name }},</p>
+  <p>Te he asignado una nueva tarea en el proyecto
+  <strong>{{ project_name }}</strong>:</p>
+  <p style="background:#f4f4f4;padding:12px;border-left:4px solid #2563eb;">
+  <strong>{{ task_title }}</strong><br>
+  {{ task_description }}
+  </p>
+  {% if task_due_date %}
+  <p>📅 Fecha límite: <strong>{{ task_due_date }}</strong></p>
+  {% endif %}
+  <p>
+    <a href="{{ cta_url }}" style="background:#2563eb;color:#fff;padding:10px 20px;text-decoration:none;border-radius:4px;display:inline-block;">
+      Abrir tarea en el portal
+    </a>
+  </p>
+  <p>Un saludo,<br>
+  <strong>Marcos Mata</strong> · Consultor de Fulkro<br>
+  📞 +34 637 165 328 ·
+  <a href="mailto:marcosmata@fulkro.es">marcosmata@fulkro.es</a> ·
+  <a href="https://www.fulkro.es">www.fulkro.es</a></p>
+text_body_es: |
+  Hola {{ recipient_name }},
+
+  Te he asignado una nueva tarea en el proyecto {{ project_name }}:
+
+  {{ task_title }}
+  {{ task_description }}
+
+  {% if task_due_date %}
+  Fecha límite: {{ task_due_date }}
+  {% endif %}
+
+  Abrir en el portal: {{ cta_url }}
+
+  Un saludo,
+  Marcos Mata · Consultor de Fulkro
+  Tel: +34 637 165 328
+  Email: marcosmata@fulkro.es
+  Web: www.fulkro.es

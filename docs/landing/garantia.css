@@ -1,0 +1,316 @@
+/* Marcos Mata · landing garantía ENS · CSS3 puro · system fonts · mobile responsive
+   Fase 1.E E.3 (2026-05-27) · Marcos approve · NO external deps */
+
+:root {
+    --accent: #1E40AF;
+    --accent-light: #DBEAFE;
+    --accent-dark: #1E3A8A;
+    --text-dark: #0F172A;
+    --text-muted: #475569;
+    --bg-white: #FFFFFF;
+    --bg-light: #F8FAFC;
+    --border: #E2E8F0;
+    --success: #059669;
+    --max-width: 960px;
+    --radius: 8px;
+    --shadow: 0 4px 12px rgba(15, 23, 42, 0.08);
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+html { scroll-behavior: smooth; }
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+    font-size: 16px;
+    line-height: 1.6;
+    color: var(--text-dark);
+    background: var(--bg-white);
+}
+
+.container {
+    max-width: var(--max-width);
+    margin: 0 auto;
+    padding: 0 1.5rem;
+}
+
+a { color: var(--accent); text-decoration: none; }
+a:hover { text-decoration: underline; }
+
+h1, h2, h3 { color: var(--text-dark); font-weight: 700; line-height: 1.25; }
+h1 { font-size: 2.5rem; margin-bottom: 1rem; }
+h2 { font-size: 1.875rem; margin-bottom: 1.25rem; color: var(--accent); }
+h3 { font-size: 1.25rem; margin-bottom: 0.5rem; }
+
+p { margin-bottom: 1rem; color: var(--text-dark); }
+
+/* ──────────────────────────────── HERO ──────────────────────────────── */
+
+.hero {
+    background: linear-gradient(135deg, var(--accent) 0%, var(--accent-dark) 100%);
+    color: white;
+    padding: 4.5rem 0;
+    text-align: center;
+}
+
+.hero h1 {
+    color: white;
+    margin-bottom: 1.5rem;
+}
+
+.hero .accent {
+    color: #FCD34D;  /* amarillo subrayado · accent */
+    display: inline-block;
+}
+
+.hero .subtitle {
+    color: rgba(255, 255, 255, 0.92);
+    font-size: 1.125rem;
+    max-width: 640px;
+    margin: 0 auto 2rem;
+}
+
+.btn-primary {
+    display: inline-block;
+    background: white;
+    color: var(--accent);
+    padding: 1rem 2rem;
+    border-radius: var(--radius);
+    font-weight: 700;
+    font-size: 1.05rem;
+    box-shadow: var(--shadow);
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(15, 23, 42, 0.16);
+    text-decoration: none;
+}
+
+/* ──────────────────────────────── CTA BAR ──────────────────────────────── */
+
+.cta-bar {
+    background: var(--accent-light);
+    border-top: 3px solid var(--accent);
+    border-bottom: 1px solid var(--border);
+    padding: 0.875rem 0;
+    text-align: center;
+}
+
+.cta-bar p { margin: 0; color: var(--accent-dark); font-size: 0.95rem; }
+
+/* ──────────────────────────────── SECCIONES ──────────────────────────────── */
+
+section { padding: 4rem 0; }
+
+section h2 { text-align: center; margin-bottom: 2rem; }
+
+.seccion-1 { background: var(--bg-white); }
+.seccion-2 { background: var(--bg-light); }
+.seccion-3 { background: var(--bg-white); }
+.seccion-4 { background: var(--bg-light); }
+
+/* ──────────────────────────────── 3 COLUMNS ──────────────────────────────── */
+
+.cols-3 {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 2rem;
+    margin-bottom: 2.5rem;
+}
+
+.col {
+    background: var(--bg-white);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 2rem 1.5rem;
+    text-align: center;
+    box-shadow: var(--shadow);
+}
+
+.col .icono {
+    width: 60px; height: 60px;
+    background: var(--accent);
+    color: white;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.625rem; font-weight: 700;
+    margin: 0 auto 1.25rem;
+}
+
+.col h3 { color: var(--accent); margin-bottom: 0.75rem; }
+
+.col p { color: var(--text-muted); font-size: 0.95rem; }
+
+.claim-honest {
+    text-align: center;
+    font-size: 1.1rem;
+    color: var(--accent-dark);
+    background: var(--accent-light);
+    padding: 1.25rem 1.5rem;
+    border-radius: var(--radius);
+    margin-top: 1.5rem;
+}
+
+/* ──────────────────────────────── FAQ ──────────────────────────────── */
+
+.faq {
+    max-width: 760px;
+    margin: 0 auto;
+}
+
+.faq details {
+    background: var(--bg-white);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 1.25rem 1.5rem;
+    margin-bottom: 0.875rem;
+    box-shadow: 0 1px 3px rgba(15, 23, 42, 0.04);
+}
+
+.faq details[open] {
+    border-color: var(--accent);
+    box-shadow: var(--shadow);
+}
+
+.faq summary {
+    cursor: pointer;
+    font-weight: 700;
+    font-size: 1.05rem;
+    color: var(--text-dark);
+    padding-right: 1.5rem;
+    list-style: none;
+    position: relative;
+}
+
+.faq summary::-webkit-details-marker { display: none; }
+
+.faq summary::after {
+    content: "+";
+    position: absolute;
+    right: 0; top: -0.125rem;
+    font-size: 1.5rem;
+    color: var(--accent);
+    transition: transform 0.15s ease;
+}
+
+.faq details[open] summary::after { content: "−"; }
+
+.faq details p {
+    color: var(--text-muted);
+    margin-top: 0.875rem;
+    margin-bottom: 0;
+    font-size: 0.975rem;
+}
+
+/* ──────────────────────────────── TÉRMINOS ──────────────────────────────── */
+
+.terminos {
+    max-width: 760px;
+    margin: 0 auto;
+    background: var(--bg-light);
+    border-left: 4px solid var(--accent);
+    padding: 1.75rem 2rem;
+    border-radius: var(--radius);
+}
+
+.terminos ul {
+    margin: 0.5rem 0 1.25rem 1.5rem;
+}
+
+.terminos li {
+    color: var(--text-muted);
+    margin-bottom: 0.5rem;
+}
+
+.terminos .plazo {
+    background: white;
+    padding: 1rem 1.25rem;
+    border-radius: var(--radius);
+    margin-top: 1rem;
+    margin-bottom: 0;
+    color: var(--accent-dark);
+    border: 1px solid var(--accent-light);
+}
+
+/* ──────────────────────────────── CREDENCIALES ──────────────────────────────── */
+
+.credenciales {
+    max-width: 760px;
+    margin: 0 auto;
+    list-style: none;
+}
+
+.credenciales li {
+    background: var(--bg-white);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 1.25rem 1.5rem;
+    margin-bottom: 0.875rem;
+    color: var(--text-muted);
+}
+
+.credenciales li strong { color: var(--accent-dark); }
+
+.credenciales li em { color: var(--text-muted); font-style: italic; }
+
+/* ──────────────────────────────── CTA FINAL ──────────────────────────────── */
+
+.cta-final {
+    background: linear-gradient(135deg, var(--accent) 0%, var(--accent-dark) 100%);
+    color: white;
+    text-align: center;
+}
+
+.cta-final h2 { color: white; }
+
+.cta-final p { color: rgba(255, 255, 255, 0.95); max-width: 640px; margin: 1rem auto; }
+
+.cta-final .contacto { margin: 2rem 0 0.75rem; }
+
+.cta-final .phone { color: rgba(255, 255, 255, 0.85); font-size: 0.95rem; }
+
+/* ──────────────────────────────── FOOTER ──────────────────────────────── */
+
+footer {
+    background: var(--text-dark);
+    color: rgba(255, 255, 255, 0.7);
+    padding: 2.5rem 0;
+    text-align: center;
+    font-size: 0.875rem;
+}
+
+footer p { color: rgba(255, 255, 255, 0.7); margin-bottom: 0.5rem; }
+
+footer .legal a { color: rgba(255, 255, 255, 0.85); }
+
+/* ──────────────────────────────── RESPONSIVE ──────────────────────────────── */
+
+@media (max-width: 640px) {
+    h1 { font-size: 1.875rem; }
+    h2 { font-size: 1.5rem; }
+
+    .hero { padding: 3rem 0; }
+    .hero .subtitle { font-size: 1rem; }
+
+    section { padding: 2.5rem 0; }
+
+    .btn-primary { padding: 0.875rem 1.5rem; font-size: 1rem; }
+
+    .container { padding: 0 1rem; }
+
+    .cols-3 { gap: 1.25rem; }
+
+    .col { padding: 1.5rem 1.25rem; }
+
+    .terminos { padding: 1.5rem; }
+
+    .faq details { padding: 1rem 1.25rem; }
+    .faq summary { font-size: 0.975rem; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    * { animation: none !important; transition: none !important; }
+    html { scroll-behavior: auto; }
+}

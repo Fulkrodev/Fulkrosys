@@ -1,0 +1,122 @@
+# PCE-SSG — Perfil de Cumplimiento Específico Servicios de Seguridad Gestionados
+# Aplicable a prestadores SSG: SOC, MSSP, pentesting outsourced,
+# threat hunting, gestión vulnerabilidades managed.
+
+overlay_type: pce_ssg
+version: "1.0"
+ccn_stic: "896"
+applicability:
+  conditions:
+    - provider_type_in: ["mssp", "soc_provider", "pentest_provider", "threat_hunting"]
+  category_min: "MEDIA"
+  auto_detect_hints:
+    - "MSSP"
+    - "Managed Security Service Provider"
+    - "SOC outsourced"
+    - "SOC 24x7 gestionado"
+    - "pentesting service"
+
+maturity_levels:
+  - level: "L1_basico"
+    description: >
+      Servicios reactivos · 8x5 · capacidades básicas detección
+      con correlación SIEM open-source · runbooks documentados.
+  - level: "L2_intermedio"
+    description: >
+      Servicios proactivos · 24x7 · threat intel feeds suscritos ·
+      threat hunting trimestral · response automation parcial.
+  - level: "L3_avanzado"
+    description: >
+      MDR completo · threat intel propietaria + comunidad ·
+      hunting continuo · response automation extensiva ·
+      deception technology · adversary simulation.
+
+reinforces_ens:
+  - "op.exp.7"
+  - "op.exp.8"
+  - "op.exp.9"
+  - "op.exp.10"
+  - "op.mon.1"
+  - "op.mon.2"
+  - "op.mon.3"
+  - "mp.s.4"
+
+specific_measures:
+  - code: "ssg.acred.1"
+    title: "Acreditación CCN-STIC 896 (recomendable)"
+    justification: >
+      Prestador SSG con sello CCN-STIC 896 demuestra cumplimiento
+      requisitos calidad servicio + idoneidad personal técnico.
+    dimensions: [T]
+    category: "MEDIA"
+
+  - code: "ssg.team.1"
+    title: "Equipo certificado · CISSP/OSCP/GIAC mínimo 2 personas"
+    justification: >
+      Equipo con certificaciones reconocidas garantiza nivel técnico
+      adecuado · 2 personas para 24x7 + cobertura vacaciones.
+    dimensions: [T]
+    category: "MEDIA"
+
+  - code: "ssg.runbook.1"
+    title: "Runbooks playbooks por escenario incidente documentados"
+    justification: >
+      Playbooks específicos: phishing · malware · DDoS · data exfil ·
+      privilege escalation · ransomware · supply chain. Versionados.
+    dimensions: [T]
+    category: "MEDIA"
+
+  - code: "ssg.sla.1"
+    title: "SLA detección + contención formalizado"
+    justification: >
+      SLA medible y reportable mensualmente:
+      time-to-detect (TTD) · time-to-contain (TTC) ·
+      time-to-eradicate (TTE) por severidad incidente.
+    dimensions: [T, A]
+    category: "MEDIA"
+
+  - code: "ssg.tools.1"
+    title: "Catálogo herramientas con cláusula soberanía datos"
+    justification: >
+      SIEM · EDR · NDR · TIP · SOAR documentados con ubicación
+      datos (UE / España) y procedencia tecnología.
+    dimensions: [C, T]
+    category: "MEDIA"
+
+  - code: "ssg.training.1"
+    title: "Formación continua equipo (≥ 40h/año/persona)"
+    justification: >
+      Conferencias · cursos · CTFs · mantenimiento certificaciones.
+      Documentado per persona en plan anual.
+    dimensions: [T]
+    category: "MEDIA"
+
+  - code: "ssg.report.1"
+    title: "Reporte mensual + revisión trimestral cliente"
+    justification: >
+      Reporting estructurado: KPIs SLA · incidentes detectados ·
+      lecciones aprendidas · recomendaciones mejora postura.
+    dimensions: [T]
+    category: "MEDIA"
+
+  - code: "ssg.continuity.1"
+    title: "Plan continuidad servicio + traspaso ordenado"
+    justification: >
+      Si MSSP cesa servicio: plan transición ordenada al cliente o
+      siguiente proveedor · documentación · 90 días mínimo asistencia.
+    dimensions: [D, T]
+    category: "MEDIA"
+
+  - code: "ssg.audit.1"
+    title: "Auditoría anual interna + bienal externa proveedor"
+    justification: >
+      Auditoría interna anual del propio MSSP + auditoría externa
+      bienal por entidad acreditada (calidad servicio + tooling).
+    dimensions: [T]
+    category: "ALTA"
+
+cross_compliance_notes:
+  - "PCE-SSG aplica al PROVEEDOR del servicio · no al cliente."
+  - "Cliente que contrata MSSP debe verificar cumplimiento PCE-SSG del proveedor."
+  - "Alineado con CCN-STIC 896 (Servicios Seguridad Gestionados)."
+  - "Complementa CCN-STIC 823 (cláusulas terceros)."

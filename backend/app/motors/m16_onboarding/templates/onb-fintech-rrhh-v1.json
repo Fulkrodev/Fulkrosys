@@ -1,0 +1,226 @@
+{
+  "id": "onb-fintech-rrhh-v1",
+  "version": "1.0",
+  "sector": "fintech",
+  "role": "rrhh",
+  "nombre": "Onboarding RRHH - Fintech",
+  "descripcion": "Cuestionario de onboarding para el rol RRHH en una organizacion del sector Fintech. Recoge contexto estrategico, operativo y regulatorio necesario para arrancar el proyecto ENS.",
+  "tiempo_estimado_minutos": 38,
+  "language": "es",
+  "questions": [
+    {
+      "id": "q-empresa_nombre",
+      "type": "text",
+      "section": "identificacion",
+      "label": "Nombre comercial de la empresa",
+      "validation": {
+        "required": true,
+        "min_length": 2,
+        "max_length": 120
+      }
+    },
+    {
+      "id": "q-persona_contacto",
+      "type": "text",
+      "section": "identificacion",
+      "label": "Nombre de la persona que cumplimenta este cuestionario",
+      "validation": {
+        "required": true,
+        "min_length": 2,
+        "max_length": 120
+      }
+    },
+    {
+      "id": "q-cargo_contacto",
+      "type": "text",
+      "section": "identificacion",
+      "label": "Cargo de la persona de contacto",
+      "validation": {
+        "required": true,
+        "max_length": 120
+      }
+    },
+    {
+      "id": "q-email_contacto",
+      "type": "email",
+      "section": "identificacion",
+      "label": "Email de contacto",
+      "validation": {
+        "required": true
+      }
+    },
+    {
+      "id": "q-plantilla_total",
+      "type": "number",
+      "section": "personas",
+      "label": "Plantilla total actual",
+      "validation": {
+        "required": true,
+        "min_value": 0
+      }
+    },
+    {
+      "id": "q-teletrabajo",
+      "type": "single_select",
+      "section": "personas",
+      "label": "Porcentaje de empleados en teletrabajo",
+      "options": [
+        {
+          "value": "0",
+          "label": "0%"
+        },
+        {
+          "value": "1_20",
+          "label": "1-20%"
+        },
+        {
+          "value": "21_50",
+          "label": "21-50%"
+        },
+        {
+          "value": "mas_50",
+          "label": "Mas del 50%"
+        }
+      ],
+      "validation": {
+        "required": true
+      }
+    },
+    {
+      "id": "q-byod",
+      "type": "boolean",
+      "section": "personas",
+      "label": "Permitis dispositivos personales (BYOD)?",
+      "validation": {
+        "required": true
+      }
+    },
+    {
+      "id": "q-portal_empleado",
+      "type": "boolean",
+      "section": "personas",
+      "label": "Existe portal del empleado con datos personales online?",
+      "validation": {
+        "required": false
+      }
+    },
+    {
+      "id": "q-formacion_ciberseguridad",
+      "type": "single_select",
+      "section": "personas",
+      "label": "Formacion en ciberseguridad al personal",
+      "options": [
+        {
+          "value": "anual",
+          "label": "Anual obligatoria"
+        },
+        {
+          "value": "onboarding",
+          "label": "Solo en onboarding"
+        },
+        {
+          "value": "adhoc",
+          "label": "Ad-hoc cuando hay incidente"
+        },
+        {
+          "value": "ninguna",
+          "label": "Ninguna formal"
+        }
+      ],
+      "validation": {
+        "required": true
+      }
+    },
+    {
+      "id": "q-sindicatos",
+      "type": "boolean",
+      "section": "personas",
+      "label": "Tratais datos de afiliacion sindical (categoria especial RGPD)?",
+      "validation": {
+        "required": false
+      }
+    },
+    {
+      "id": "q-licencia_financiera",
+      "type": "single_select",
+      "section": "contexto_sectorial",
+      "label": "Disponeis de licencia financiera en vigor?",
+      "options": [
+        {
+          "value": "emi",
+          "label": "Entidad de Dinero Electronico"
+        },
+        {
+          "value": "pi",
+          "label": "Entidad de Pago"
+        },
+        {
+          "value": "entidad_credito",
+          "label": "Entidad de Credito"
+        },
+        {
+          "value": "no_regulado",
+          "label": "No requerimos licencia"
+        }
+      ],
+      "validation": {
+        "required": true
+      }
+    },
+    {
+      "id": "q-dora_aplica",
+      "type": "boolean",
+      "section": "contexto_sectorial",
+      "label": "Estais sujetos al Reglamento DORA?",
+      "tooltip": "DORA aplica desde enero 2025 a entidades financieras UE.",
+      "validation": {
+        "required": true
+      }
+    },
+    {
+      "id": "q-pci_dss",
+      "type": "boolean",
+      "section": "contexto_sectorial",
+      "label": "Procesais datos de tarjeta (PCI-DSS)?",
+      "validation": {
+        "required": true
+      }
+    },
+    {
+      "id": "q-volumen_transacciones",
+      "type": "single_select",
+      "section": "contexto_sectorial",
+      "label": "Volumen aproximado de transacciones procesadas al mes",
+      "options": [
+        {
+          "value": "menos_10k",
+          "label": "<10k"
+        },
+        {
+          "value": "10k_100k",
+          "label": "10k - 100k"
+        },
+        {
+          "value": "100k_1m",
+          "label": "100k - 1M"
+        },
+        {
+          "value": "mas_1m",
+          "label": ">1M"
+        }
+      ],
+      "validation": {
+        "required": true
+      }
+    },
+    {
+      "id": "q-kyc_aml",
+      "type": "boolean",
+      "section": "contexto_sectorial",
+      "label": "Aplicais procesos KYC y AML conforme a SEPBLAC?",
+      "validation": {
+        "required": true
+      }
+    }
+  ]
+}

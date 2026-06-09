@@ -1,0 +1,104 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+dist/
+build/
+.eggs/
+*.egg
+
+# Virtual environments
+.venv/
+venv/
+env/
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Environment
+.env
+.env.local
+.env.*.local
+# Production secrets · NEVER commit (Task B · generate-prod-secrets.sh output)
+.env.prod
+.env.prod.*
+# ...but the committeable template IS tracked:
+!.env.prod.template
+
+# Docker
+docker-compose.override.yml
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Secrets - NEVER commit
+*.key
+*.pem
+vault-token
+secrets/
+var/*
+# ...pero las plantillas DOCX maestras SÍ van versionadas (legitimas · tracked):
+!var/templates_docx/
+!var/templates_docx
+var/templates_docx/*
+!var/templates_docx/*.docx
+
+# Build artifacts
+frontend/static/css/output.css
+
+# Radar runtime CSVs (out/ contains audit + premium + sospechosos + renewals
+# CSV exports · large per-run · not for git history)
+out/*.csv
+# Fase 1.E E.2 · propuestas PDFs locales (Marcos genera per lead · NO VCS)
+out/propuestas/
+out/propuestas-*/
+node_modules/
+*.tsbuildinfo
+frontend/tsconfig.tsbuildinfo
+.next/
+frontend/.next/
+
+# Test coverage
+htmlcov/
+.coverage
+.pytest_cache/
+
+# Alembic
+*.pyc
+
+# Backup test artifacts
+backup_test_*/
+
+# Output Playwright dirty
+test-results/
+frontend/polish-report/
+frontend/polish-test-results/
+
+# Backups con timestamp
+*.bak-*
+backups/
+
+# Sub-lote 1.B.5.2 · corpus PDF local cache (no VCS · upload via MinIO)
+_incoming/
+
+# Sub-lote 1.B.8.A audit · archivos legacy noise architect/scripts auxiliares
+progress/jaymon_comparative_analysis.md
+progress/legal_audit_autocheck.json
+
+# Radar runs local logs (large per-run · not for git history)
+logs/
+
+# CCN raw snapshots (audit trail local · 3.6MB cada uno · no para git history)
+**/ccn/snapshots/
+data/ccn/
+.claude/
+out/
+
+# Cleanup 2026-06-08: artefactos generados (no VCS)
+frontend/tests/e2e/screenshots/
+docs/audits/screenshots/
+out/

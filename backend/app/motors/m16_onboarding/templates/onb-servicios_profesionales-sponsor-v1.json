@@ -1,0 +1,260 @@
+{
+  "id": "onb-servicios_profesionales-sponsor-v1",
+  "version": "1.0",
+  "sector": "servicios_profesionales",
+  "role": "sponsor",
+  "nombre": "Onboarding Sponsor — Servicios Profesionales",
+  "descripcion": "Onboarding para el sponsor ejecutivo del proyecto en un despacho, consultora o gestoria. Recoge contexto estrategico, expectativas del proyecto ENS y stakeholders criticos.",
+  "tiempo_estimado_minutos": 38,
+  "language": "es",
+  "questions": [
+    {
+      "id": "q-motivacion_ens",
+      "type": "single_select",
+      "section": "contexto_estrategico",
+      "label": "Cual es la motivacion principal del proyecto ENS?",
+      "tooltip": "El ENS puede emprenderse por obligacion legal, requisito de cliente, o decision estrategica.",
+      "options": [
+        {
+          "value": "obligacion_legal",
+          "label": "Obligacion legal directa"
+        },
+        {
+          "value": "licitacion_publica",
+          "label": "Licitacion publica"
+        },
+        {
+          "value": "requisito_cliente",
+          "label": "Requisito de un cliente concreto"
+        },
+        {
+          "value": "decision_estrategica",
+          "label": "Decision estrategica de madurez"
+        },
+        {
+          "value": "otros",
+          "label": "Otros"
+        }
+      ],
+      "validation": {
+        "required": true
+      }
+    },
+    {
+      "id": "q-categoria_objetivo",
+      "type": "single_select",
+      "section": "contexto_estrategico",
+      "label": "Que categoria ENS objetivo creeis que necesitais?",
+      "tooltip": "ENS define 3 categorias: Basica (B), Media (M) y Alta (A). Si no lo sabeis, seleccionad 'No lo se'.",
+      "options": [
+        {
+          "value": "basica",
+          "label": "Basica"
+        },
+        {
+          "value": "media",
+          "label": "Media"
+        },
+        {
+          "value": "alta",
+          "label": "Alta"
+        },
+        {
+          "value": "no_lo_se",
+          "label": "No lo se"
+        }
+      ],
+      "validation": {
+        "required": true
+      }
+    },
+    {
+      "id": "q-plazo_objetivo",
+      "type": "date",
+      "section": "contexto_estrategico",
+      "label": "Teneis una fecha objetivo de certificacion?",
+      "tooltip": "Una fecha firme cambia el ritmo del proyecto. Si es flexible, elegid una fecha estimada.",
+      "validation": {
+        "required": false
+      }
+    },
+    {
+      "id": "q-presupuesto_aprobado",
+      "type": "boolean",
+      "section": "contexto_estrategico",
+      "label": "Teneis presupuesto aprobado para el proyecto ENS completo?",
+      "tooltip": "Incluye honorarios, posibles contrataciones (pentesting, abogado TIC), y coste interno.",
+      "validation": {
+        "required": true
+      }
+    },
+    {
+      "id": "q-sponsor_ejecutivo",
+      "type": "text",
+      "section": "stakeholders",
+      "label": "Quien es el sponsor ejecutivo maximo del proyecto (nombre y rol)?",
+      "tooltip": "La persona con autoridad ultima para tomar decisiones de alcance, presupuesto y plazos.",
+      "example": "Ejemplo: 'Maria Lopez, Socia Directora'",
+      "validation": {
+        "required": true,
+        "min_length": 5,
+        "max_length": 200
+      }
+    },
+    {
+      "id": "q-proyectos_previos_seguridad",
+      "type": "multi_select",
+      "section": "madurez_previa",
+      "label": "Habeis realizado antes alguno de estos proyectos relacionados con seguridad?",
+      "tooltip": "La experiencia previa indica nivel de madurez.",
+      "options": [
+        {
+          "value": "iso27001",
+          "label": "ISO 27001"
+        },
+        {
+          "value": "rgpd_lopdgdd",
+          "label": "Adecuacion RGPD/LOPDGDD"
+        },
+        {
+          "value": "ens_previo",
+          "label": "ENS anterior (version antigua)"
+        },
+        {
+          "value": "pcidss",
+          "label": "PCI-DSS"
+        },
+        {
+          "value": "sin_experiencia",
+          "label": "Ninguno"
+        }
+      ],
+      "validation": {
+        "required": true
+      }
+    },
+    {
+      "id": "q-stakeholders_clave",
+      "type": "long_text",
+      "section": "stakeholders",
+      "label": "Indicad los stakeholders clave que debemos conocer desde el arranque (nombres, roles y por que son importantes)",
+      "tooltip": "Nos ayuda a identificar a quien dedicar tiempo en entrevistas en Fase 1.",
+      "validation": {
+        "required": true,
+        "min_length": 30,
+        "max_length": 3000
+      }
+    },
+    {
+      "id": "q-expectativa_tiempo_dedicacion",
+      "type": "single_select",
+      "section": "expectativas",
+      "label": "Cuanto tiempo podeis dedicar vosotros (sponsor) al proyecto semanalmente?",
+      "tooltip": "El sponsor suele dedicar 1-3h/semana en fases activas.",
+      "options": [
+        {
+          "value": "menos_1h",
+          "label": "Menos de 1 hora"
+        },
+        {
+          "value": "1_2h",
+          "label": "1-2 horas"
+        },
+        {
+          "value": "2_4h",
+          "label": "2-4 horas"
+        },
+        {
+          "value": "mas_4h",
+          "label": "Mas de 4 horas"
+        }
+      ],
+      "validation": {
+        "required": true
+      }
+    },
+    {
+      "id": "q-numero_expedientes_anio",
+      "type": "number",
+      "section": "contexto_sectorial",
+      "label": "Numero aproximado de expedientes activos al ano",
+      "validation": {
+        "required": false,
+        "min_value": 0
+      }
+    },
+    {
+      "id": "q-archivo_fisico",
+      "type": "boolean",
+      "section": "contexto_sectorial",
+      "label": "Mantenies archivo fisico de expedientes?",
+      "validation": {
+        "required": false
+      }
+    },
+    {
+      "id": "q-experiencia_previa_certificacion",
+      "type": "single_select",
+      "section": "contexto_estrategico",
+      "label": "Experiencia previa con certificaciones (ISO, ENS, SOC2)",
+      "options": [
+        {
+          "value": "ninguna",
+          "label": "Ninguna"
+        },
+        {
+          "value": "iso27001",
+          "label": "ISO 27001"
+        },
+        {
+          "value": "ens_anterior",
+          "label": "ENS anterior"
+        },
+        {
+          "value": "otras",
+          "label": "Otras"
+        }
+      ],
+      "validation": {
+        "required": false
+      }
+    },
+    {
+      "id": "q-comite_seguridad",
+      "type": "boolean",
+      "section": "contexto_estrategico",
+      "label": "Existe Comite de Seguridad formal con actas periodicas?",
+      "validation": {
+        "required": true
+      }
+    },
+    {
+      "id": "q-ambicion_recurrente",
+      "type": "boolean",
+      "section": "contexto_estrategico",
+      "label": "Buscan acompanamiento continuo (retainer) tras la certificacion?",
+      "validation": {
+        "required": false
+      }
+    },
+    {
+      "id": "q-numero_sedes",
+      "type": "number",
+      "section": "identificacion",
+      "label": "Numero de sedes fisicas en Espana",
+      "validation": {
+        "required": false,
+        "min_value": 0
+      }
+    },
+    {
+      "id": "q-actividad_internacional",
+      "type": "boolean",
+      "section": "identificacion",
+      "label": "Operais en otros paises ademas de Espana?",
+      "validation": {
+        "required": false
+      }
+    }
+  ]
+}

@@ -1,0 +1,39 @@
+subject_es: "Pago recibido · {{ project_name }} · siguiente fase desbloqueada"
+cta_label_es: "Ir al panel del proyecto"
+html_body_es: |
+  <p>Hola {{ recipient_name }},</p>
+  <p>He recibido la transferencia del hito
+  <strong>{{ milestone_name }}</strong>
+  ({{ amount_eur }} €) del proyecto
+  <strong>{{ project_name }}</strong>.</p>
+  <p>✅ La siguiente fase del proyecto está disponible en el portal.
+  Puedes continuar con las tareas pendientes cuando quieras.</p>
+  <p>
+    <a href="{{ cta_url }}" style="background:#16a34a;color:#fff;padding:10px 20px;text-decoration:none;border-radius:4px;display:inline-block;">
+      Ir al panel del proyecto
+    </a>
+  </p>
+  <p>Gracias por la confianza.</p>
+  <p>Un saludo,<br>
+  <strong>Marcos Mata</strong> · Consultor de Fulkro<br>
+  📞 +34 637 165 328 ·
+  <a href="mailto:marcosmata@fulkro.es">marcosmata@fulkro.es</a> ·
+  <a href="https://www.fulkro.es">www.fulkro.es</a></p>
+text_body_es: |
+  Hola {{ recipient_name }},
+
+  He recibido la transferencia del hito {{ milestone_name }}
+  ({{ amount_eur }} €) del proyecto {{ project_name }}.
+
+  La siguiente fase del proyecto está disponible en el portal.
+  Puedes continuar con las tareas pendientes cuando quieras.
+
+  Ir al panel: {{ cta_url }}
+
+  Gracias por la confianza.
+
+  Un saludo,
+  Marcos Mata · Consultor de Fulkro
+  Tel: +34 637 165 328
+  Email: marcosmata@fulkro.es
+  Web: www.fulkro.es

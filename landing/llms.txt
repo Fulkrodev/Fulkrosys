@@ -1,0 +1,28 @@
+# Fulkro
+
+> Fulkro implanta el Esquema Nacional de Seguridad (ENS, RD 311/2022) para pymes españolas que necesitan acreditar conformidad para licitar y ejecutar contratos del sector público. Una plataforma realiza el trabajo técnico de forma mayoritariamente automática y un experto humano valida y atestigua los dos puntos que la auditoría exige. El cliente queda listo para la auditoría ENAC en semanas, con un precio adaptado al nivel exigido (Básica, Media o Alta).
+
+## Qué es el ENS y a quién aplica
+- [Qué es el ENS y por qué te lo piden](https://fulkro.es/ens.html): definición del Esquema Nacional de Seguridad, marco RD 311/2022, por qué es requisito en la contratación pública y cómo afecta a la solvencia.
+- [Preguntas frecuentes sobre el ENS](https://fulkro.es/faq.html): respuestas directas sobre niveles, plazos, auditoría ENAC, pentest e ISO 27001.
+
+## Servicio y método
+- [Cómo funciona Fulkro](https://fulkro.es/como-funciona.html): de cero a listo para certificar — diagnóstico, plan a medida con precio adaptativo e implantación acompañada.
+- [La plataforma](https://fulkro.es/plataforma.html): qué hace la plataforma frente a una consultoría tradicional basada en documentos Word.
+- [Seguridad](https://fulkro.es/seguridad.html): test de intrusión para ENS Alto con metodología reconocida (PTES, OWASP WSTG, OSSTMM) y monitorización de nube en continuo.
+- [Soporte](https://fulkro.es/soporte.html): soporte con un experto real, no un bot.
+
+## Por qué Fulkro
+- [Ventajas](https://fulkro.es/ventajas.html): más adaptado y más rentable que la consultoría ENS tradicional.
+- [Comparativa](https://fulkro.es/comparativa.html): Fulkro frente a la consultoría ENS convencional.
+- [Sobre Fulkro](https://fulkro.es/nosotros.html): especialistas en ENS; quién está detrás.
+
+## Contacto
+- [Contacto](https://fulkro.es/contacto.html): diagnóstico gratuito. Email marcosmata@fulkro.es · Tel +34 637 165 328 · Madrid, España.
+
+## Niveles ENS y método (datos verificables)
+- ENS Básica: sistemas de impacto limitado.
+- ENS Media: el grueso de los contratos públicos relevantes; el nivel más demandado.
+- ENS Alta: información o servicios críticos; incluye test de intrusión con metodología PTES / OWASP WSTG / OSSTMM.
+- El trabajo técnico es mayoritariamente automático; el cliente solo autoriza el alcance y firma. En nivel Alto interviene además personal cualificado para la validación y atestación que exige la norma.
+- El valor de auditoría no es "detectar todo", sino producir un rastro de evidencia reproducible y trazable que supera la auditoría ENAC.

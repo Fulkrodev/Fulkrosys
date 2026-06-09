@@ -1,0 +1,330 @@
+{
+  "id": "onb-generico-ti_cto-v1",
+  "version": "1.0",
+  "sector": "generico",
+  "role": "ti_cto",
+  "nombre": "Onboarding Responsable TI/CTO — Generico",
+  "descripcion": "Onboarding para el responsable de TI o CTO en cualquier tipo de organizacion. Recoge identidad, cloud, tamano del equipo TI, MFA, SIEM, backup, endpoints, pentest, conectores OAuth y observaciones tecnicas.",
+  "tiempo_estimado_minutos": 38,
+  "language": "es",
+  "questions": [
+    {
+      "id": "q-proveedor_identidad",
+      "type": "single_select",
+      "section": "identidad",
+      "label": "Que plataforma de identidad y correo usais principalmente?",
+      "tooltip": "La identidad es el control mas critico del ENS. El proveedor determina que conectores OAuth pueden activarse para automatizar la recopilacion de evidencias.",
+      "options": [
+        {
+          "value": "microsoft_365",
+          "label": "Microsoft 365 / Entra ID"
+        },
+        {
+          "value": "google_workspace",
+          "label": "Google Workspace"
+        },
+        {
+          "value": "active_directory",
+          "label": "Active Directory on-premise"
+        },
+        {
+          "value": "otro",
+          "label": "Otro (LDAP, Okta, etc.)"
+        }
+      ],
+      "validation": {
+        "required": true
+      }
+    },
+    {
+      "id": "q-cloud_providers",
+      "type": "multi_select",
+      "section": "infraestructura",
+      "label": "Que proveedores cloud usais?",
+      "tooltip": "Cada cloud tiene sus propias medidas de seguridad aplicables en ENS (op.nub.*). El inventario de proveedores cloud es obligatorio en todas las categorias.",
+      "options": [
+        {
+          "value": "aws",
+          "label": "AWS"
+        },
+        {
+          "value": "azure",
+          "label": "Azure"
+        },
+        {
+          "value": "gcp",
+          "label": "Google Cloud Platform"
+        },
+        {
+          "value": "ovh_hetzner",
+          "label": "OVH / Hetzner / otros europeos"
+        },
+        {
+          "value": "on_prem_only",
+          "label": "Solo infraestructura propia (on-prem)"
+        }
+      ],
+      "validation": {
+        "required": true
+      }
+    },
+    {
+      "id": "q-tamano_equipo_ti",
+      "type": "number",
+      "section": "infraestructura",
+      "label": "Cuantas personas componen el equipo de TI/Sistemas?",
+      "tooltip": "El tamano del equipo TI determina que controles pueden implementarse in-house y cuales requieren apoyo externo o automatizacion.",
+      "validation": {
+        "required": true,
+        "min_value": 1,
+        "max_value": 500
+      }
+    },
+    {
+      "id": "q-mfa_universal",
+      "type": "single_select",
+      "section": "identidad",
+      "label": "El MFA esta habilitado de forma obligatoria para todos los usuarios?",
+      "tooltip": "MFA universal es requisito de ENS Medio y Alto (op.acc.6 R2). Es uno de los controles con mayor impacto en la reduccion de incidentes.",
+      "options": [
+        {
+          "value": "si_todos",
+          "label": "Si, para todos los usuarios"
+        },
+        {
+          "value": "solo_privilegiados",
+          "label": "Solo para usuarios privilegiados"
+        },
+        {
+          "value": "voluntario",
+          "label": "Voluntario (no obligatorio)"
+        },
+        {
+          "value": "no",
+          "label": "No esta habilitado"
+        }
+      ],
+      "validation": {
+        "required": true
+      }
+    },
+    {
+      "id": "q-siem_presente",
+      "type": "boolean",
+      "section": "monitorizacion",
+      "label": "Teneis SIEM o plataforma de gestion centralizada de logs?",
+      "tooltip": "La monitorizacion continua (op.mon.*) es obligatoria en ENS Medio y Alto. Un SIEM centraliza alertas y es evidencia directa de este control.",
+      "validation": {
+        "required": true
+      }
+    },
+    {
+      "id": "q-backup_estrategia",
+      "type": "single_select",
+      "section": "continuidad",
+      "label": "Como gestionais las copias de seguridad de sistemas criticos?",
+      "tooltip": "La regla 3-2-1 (3 copias, 2 soportes, 1 fuera) es el minimo para ENS (mp.info.9). Se requiere tambien verificacion periodica de restauracion.",
+      "options": [
+        {
+          "value": "cloud_automatico",
+          "label": "Backup cloud automatico"
+        },
+        {
+          "value": "software_dedicado",
+          "label": "Software dedicado (Veeam, Acronis, etc.)"
+        },
+        {
+          "value": "scripts_manuales",
+          "label": "Scripts/procesos manuales"
+        },
+        {
+          "value": "no_formal",
+          "label": "No tenemos proceso formal"
+        }
+      ],
+      "validation": {
+        "required": true
+      }
+    },
+    {
+      "id": "q-endpoints_managed",
+      "type": "single_select",
+      "section": "endpoints",
+      "label": "Gestionais los endpoints (portatiles, moviles) de forma centralizada?",
+      "tooltip": "MDM/UEM (Intune, Jamf) es la forma estandar de cumplir con op.exp.2, op.exp.3. Sin gestion centralizada, la superficie de ataque es dificilmente auditable.",
+      "options": [
+        {
+          "value": "si_mdm",
+          "label": "Si, con MDM/UEM (Intune, Jamf, etc.)"
+        },
+        {
+          "value": "solo_antivirus",
+          "label": "Solo antivirus centralizado"
+        },
+        {
+          "value": "no",
+          "label": "No, son gestionados por usuarios"
+        }
+      ],
+      "validation": {
+        "required": true
+      }
+    },
+    {
+      "id": "q-pentest_ultimo",
+      "type": "single_select",
+      "section": "seguridad_ofensiva",
+      "label": "Cuando fue el ultimo pentest externo o evaluacion de vulnerabilidades que hicisteis?",
+      "tooltip": "ENS Medio requiere pentest externo anual (mp.s.2). Es tambien evidencia clave para auditores externos.",
+      "options": [
+        {
+          "value": "ultimo_ano",
+          "label": "En el ultimo ano"
+        },
+        {
+          "value": "hace_1_3_anos",
+          "label": "Hace 1-3 anos"
+        },
+        {
+          "value": "mas_3_anos",
+          "label": "Hace mas de 3 anos"
+        },
+        {
+          "value": "nunca",
+          "label": "Nunca"
+        }
+      ],
+      "validation": {
+        "required": true
+      }
+    },
+    {
+      "id": "q-oauth_disponible",
+      "type": "multi_select",
+      "section": "integraciones",
+      "label": "Estariais dispuestos a conectar alguna de estas plataformas via OAuth read-only?",
+      "tooltip": "Los conectores OAuth permiten descubrir usuarios, estado de MFA, activos cloud y politicas de forma automatica, acelerando el proyecto y reduciendo trabajo manual.",
+      "options": [
+        {
+          "value": "m365_entra",
+          "label": "Microsoft 365 / Entra ID"
+        },
+        {
+          "value": "google_workspace",
+          "label": "Google Workspace"
+        },
+        {
+          "value": "aws",
+          "label": "AWS"
+        },
+        {
+          "value": "azure",
+          "label": "Azure"
+        },
+        {
+          "value": "github_gitlab",
+          "label": "GitHub / GitLab"
+        },
+        {
+          "value": "ninguno",
+          "label": "Prefiero no conectar"
+        }
+      ],
+      "validation": {
+        "required": true
+      }
+    },
+    {
+      "id": "q-observaciones_tecnicas",
+      "type": "long_text",
+      "section": "observaciones",
+      "label": "Hay alguna particularidad tecnica importante que debamos conocer desde el arranque?",
+      "tooltip": "Dependencias criticas, sistemas legacy, limitaciones de acceso, incidentes recientes o restricciones contractuales con proveedores.",
+      "validation": {
+        "required": false,
+        "max_length": 5000
+      }
+    },
+    {
+      "id": "q-obligaciones_legales",
+      "type": "multi_select",
+      "section": "contexto_sectorial",
+      "label": "Obligaciones legales conocidas que ya cumplis",
+      "options": [
+        {
+          "value": "rgpd",
+          "label": "RGPD"
+        },
+        {
+          "value": "lopdgdd",
+          "label": "LOPDGDD"
+        },
+        {
+          "value": "lssi",
+          "label": "LSSI-CE"
+        },
+        {
+          "value": "otros",
+          "label": "Otros"
+        },
+        {
+          "value": "ninguno",
+          "label": "Ninguno especifico"
+        }
+      ],
+      "validation": {
+        "required": true
+      }
+    },
+    {
+      "id": "q-cliente_sector_publico",
+      "type": "boolean",
+      "section": "contexto_sectorial",
+      "label": "Algun cliente vuestro es del sector publico?",
+      "validation": {
+        "required": true
+      }
+    },
+    {
+      "id": "q-equipo_seguridad_dedicado",
+      "type": "boolean",
+      "section": "contexto_sectorial",
+      "label": "Existe equipo o persona dedicada a seguridad de la informacion?",
+      "validation": {
+        "required": true
+      }
+    },
+    {
+      "id": "q-mfa_proveedores",
+      "type": "boolean",
+      "section": "infraestructura",
+      "label": "MFA obligatorio tambien para proveedores externos con acceso?",
+      "validation": {
+        "required": true
+      }
+    },
+    {
+      "id": "q-segregacion_red",
+      "type": "single_select",
+      "section": "infraestructura",
+      "label": "Segregacion de red corporativa",
+      "options": [
+        {
+          "value": "completa",
+          "label": "Completa (VLANs por zona)"
+        },
+        {
+          "value": "parcial",
+          "label": "Parcial"
+        },
+        {
+          "value": "ninguna",
+          "label": "Red plana"
+        }
+      ],
+      "validation": {
+        "required": true
+      }
+    }
+  ]
+}

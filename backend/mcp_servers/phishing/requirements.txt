@@ -1,0 +1,1 @@
+# Phishing server talks to Gophish via HTTP API only.

@@ -1,0 +1,33 @@
+# FULKRO — Caddy reverse proxy
+# Development config — switch to fulkro.es for production
+
+{
+    # Dev: disable HTTPS auto for localhost
+    auto_https off
+}
+
+:80 {
+    # Reverse proxy to FastAPI
+    reverse_proxy app:8000
+
+    # Static files
+    handle_path /static/* {
+        root * /app/frontend/static
+        file_server
+    }
+
+    # Security headers
+    header {
+        X-Content-Type-Options nosniff
+        X-Frame-Options DENY
+        X-XSS-Protection "1; mode=block"
+        Referrer-Policy strict-origin-when-cross-origin
+        -Server
+    }
+
+    # Logs
+    log {
+        output stdout
+        format json
+    }
+}

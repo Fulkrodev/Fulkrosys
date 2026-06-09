@@ -1,0 +1,61 @@
+{% extends "_email_base.mjml" %}
+
+{% block subject %}{{ tokens.BRAND_NAME }} · Solicitud de supresión completada{% endblock %}
+{% block preview %}Tombstone anonymize ejecutado · audit trail ENS preservado 7 años{% endblock %}
+{% block header_tag %}Art. 17 RGPD{% endblock %}
+
+{% block hero_badge %}
+  <span class="pill" style="background:{{ tokens.SEVERITY_LOW }};color:#ffffff;">Completada</span>
+{% endblock %}
+
+{% block hero %}
+  <mj-raw>
+    <div style="display:inline-block;margin:0 0 12px 0;padding:8px 14px;background:{{ tokens.OUTCOME_GREEN_BG }};border:1px solid #86efac;border-radius:9999px;font-size:12px;font-weight:600;color:{{ tokens.OUTCOME_GREEN_TEXT }};letter-spacing:0.02em;">
+      ✓ Solicitud procesada correctamente
+    </div>
+  </mj-raw>
+  <mj-text font-size="22px" font-weight="700" color="{{ tokens.TEXT_PRIMARY }}" padding-bottom="6px" line-height="1.3">
+    Tu solicitud de supresión ha sido completada
+  </mj-text>
+  <mj-text color="{{ tokens.TEXT_SECONDARY }}" font-size="13px">
+    Procesada el <strong style="color:{{ tokens.TEXT_PRIMARY }};">{{ request.processed_at.strftime("%Y-%m-%d %H:%M %Z") }}</strong> · Artículo 17 RGPD (UE 2016/679)
+  </mj-text>
+{% endblock %}
+
+{% block content %}
+  <mj-text color="{{ tokens.TEXT_PRIMARY }}" font-size="13px" line-height="1.55" padding-bottom="16px">
+    Estimado/a usuario/a, hemos eliminado o anonimizado tu información identificativa en {{ tokens.BRAND_NAME }} conforme a tu solicitud. A continuación te detallamos qué se ha eliminado y qué hemos preservado, junto con la base legal que justifica cada decisión.
+  </mj-text>
+
+  <mj-raw>
+    <div style="margin:0 0 14px 0;padding:14px 16px;background:{{ tokens.BG_SECTION_SUBTLE }};border:1px solid {{ tokens.BORDER_SUBTLE }};border-left:3px solid {{ tokens.SEVERITY_LOW }};border-radius:8px;">
+      <div class="card-title">Qué se ha eliminado</div>
+      <ul style="margin:6px 0 0 18px;color:{{ tokens.TEXT_SECONDARY }};font-size:13px;line-height:1.55;">
+        <li style="margin:2px 0;">Email de acceso · sustituido por un identificador anónimo.</li>
+        <li style="margin:2px 0;">Nombre completo · reemplazado por marcador genérico.</li>
+        <li style="margin:2px 0;">DNI y número de teléfono · borrados.</li>
+        <li style="margin:2px 0;">WhatsApp opt-in y verificaciones asociadas · borradas.</li>
+      </ul>
+    </div>
+
+    <div style="margin:0 0 14px 0;padding:14px 16px;background:#fffbeb;border:1px solid #fde68a;border-radius:8px;">
+      <div class="card-title" style="color:#7c2d12;">Qué se conserva (y por qué)</div>
+      <div class="muted" style="font-size:13px;margin-top:4px;line-height:1.55;color:#78350f;">
+        <p style="margin:0 0 8px 0;">El registro de auditoría (audit log) se conserva en forma anonimizada durante 7 años por exigencia del Esquema Nacional de Seguridad (RD 311/2022, art. 24.1) y el Art. 30.4 RGPD.</p>
+        <p style="margin:0;">La cadena de firmas electrónicas Ed25519 se mantiene íntegra (tu nombre sustituido por <span class="mono" style="background:#fde68a;padding:1px 5px;border-radius:3px;">[anonimizado]</span>) para preservar la validez jurídica de los documentos firmados.</p>
+      </div>
+    </div>
+
+    <div style="margin:0 0 14px 0;padding:14px 16px;background:{{ tokens.BG_SECTION_SUBTLE }};border:1px solid {{ tokens.BORDER_SUBTLE }};border-radius:8px;">
+      <div class="card-title">Si has cambiado de opinión</div>
+      <div class="muted" style="font-size:13px;margin-top:4px;line-height:1.55;">
+        La supresión es definitiva: no podemos restaurar los datos identificativos una vez completado el proceso. Si en el futuro vuelves a contratar nuestros servicios será necesario crear una cuenta nueva.
+      </div>
+    </div>
+  </mj-raw>
+
+  <mj-text color="{{ tokens.TEXT_MUTED }}" font-size="11px" padding-top="8px" line-height="1.5">
+    Referencia interna: <span class="mono">{{ request.id }}</span><br />
+    Solicitada el {{ request.requested_at.strftime("%Y-%m-%d") }} · Procesada por {{ request.processed_by }}
+  </mj-text>
+{% endblock %}

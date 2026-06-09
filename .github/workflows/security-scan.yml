@@ -1,0 +1,152 @@
+# Security Scan · Ejecutable 3 Phase 5.1 SUPER MEGA PROMPT re-architected.
+#
+# CI gate cumulative pre-piloto MEDIA cliente:
+#   - bandit · Python SAST (backend/app/) · gate HIGH severity = block merge
+#   - safety · Python dep vulnerabilities · gate CRITICAL = block
+#   - npm audit · Node dep vulnerabilities (frontend/) · gate critical = block
+#
+# OPS-052 audit-first Phase 5.0 reveal: NO bandit/safety/npm audit existing
+# en .github/workflows/ci.yml · greenfield wiring. Future-X identificado:
+# SAST MCP bandit_tool.py wire-in agent-driven scans (post-piloto).
+#
+# Triggered on:
+#   - push to main (verify clean state cumulative)
+#   - pull_request (PR gate · block merge si HIGH/CRITICAL findings)
+#   - schedule weekly (Monday 06:00 UTC · catch new CVE disclosures)
+#   - manual workflow_dispatch (Marcos on-demand)
+
+name: Security Scan
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'backend/**/*.py'
+      - 'frontend/package.json'
+      - 'frontend/package-lock.json'
+      - 'backend/pyproject.toml'
+      - '.github/workflows/security-scan.yml'
+  pull_request:
+    branches: [main]
+  schedule:
+    # Lunes 06:00 UTC · cumulative weekly catch new CVE disclosures
+    - cron: '0 6 * * 1'
+  workflow_dispatch:
+
+jobs:
+  bandit:
+    name: bandit · Python SAST
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Python 3.12
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install bandit
+        run: pip install 'bandit[toml]>=1.7.5'
+
+      - name: Run bandit · gate HIGH severity
+        # -ll = LOW level baseline · -lll = MEDIUM · gate HIGH = exit 1
+        # --severity-level high · --confidence-level high
+        # Excluded: __pycache__ + tests (test SQL injection patterns expected)
+        run: |
+          bandit -r backend/app/ \
+            --severity-level high \
+            --confidence-level high \
+            --exclude __pycache__,tests \
+            --format json \
+            --output bandit-report.json \
+            || (cat bandit-report.json && exit 1)
+
+      - name: Upload bandit report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: bandit-report
+          path: bandit-report.json
+          retention-days: 30
+
+  safety:
+    name: safety · Python dep vulnerabilities
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Python 3.12
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install safety + project deps
+        run: |
+          pip install safety
+          cd backend && pip install -e .
+
+      - name: Run safety check · gate CRITICAL CVEs
+        # safety scan --policy-file pyproject.toml respeta ignore rules
+        # si configured. Sin policy · TODOS los CVE registered.
+        # --exit-code 1 si findings · 0 si clean
+        run: |
+          safety check \
+            --json \
+            --output safety-report.json \
+            --continue-on-error \
+            || true
+          # Filter: solo CRITICAL severity = block
+          python3 -c "
+          import json, sys
+          with open('safety-report.json') as f:
+              report = json.load(f)
+          vulns = report.get('vulnerabilities', [])
+          critical = [v for v in vulns if v.get('severity', '').lower() == 'critical']
+          if critical:
+              print(f'CRITICAL CVEs found: {len(critical)}')
+              for v in critical:
+                  print(f\"  - {v.get('package_name')} {v.get('analyzed_version')}: {v.get('advisory', '')[:80]}\")
+              sys.exit(1)
+          print(f'Total vulns: {len(vulns)} (non-critical OK · Future-X demand-driven triage)')
+          "
+
+      - name: Upload safety report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: safety-report
+          path: safety-report.json
+          retention-days: 30
+
+  npm-audit:
+    name: npm audit · Node dep vulnerabilities
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Run npm audit · gate critical + high
+        run: |
+          cd frontend
+          # npm audit · --audit-level=high gates HIGH+CRITICAL
+          # --production omits devDependencies (focus runtime exposure)
+          npm audit \
+            --audit-level=high \
+            --production \
+            --json \
+            > npm-audit-report.json \
+            || (cat npm-audit-report.json && exit 1)
+
+      - name: Upload npm audit report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: npm-audit-report
+          path: frontend/npm-audit-report.json
+          retention-days: 30

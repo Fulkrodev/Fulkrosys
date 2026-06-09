@@ -1,0 +1,2741 @@
+version: '2.0'
+fecha: '2026-05-20'
+fuente:
+  titulo: 'Obligaciones legales clave para FULKRO · RGPD + LOPDGDD + NIS2 + DORA + AI Act · v2 EXPANDED 250'
+  autor: 'FULKRO architect (curado v2 EXPAND 50→250 · sub-atom 1.C.0.C v3.9)'
+  alcance: 'Obligaciones que un proveedor TIC sujeto a ENS debe cumplir en paralelo según sector y datos tratados. NO es asesoría jurídica - es mapping operativo para cross-compliance interno y A24.'
+  total_obligations: 250
+  distribucion:
+    RGPD: 80
+    LOPDGDD: 30
+    NIS2: 60
+    DORA: 50
+    AI_Act: 30
+  notas:
+    - 'NIS2 transpuesta parcialmente en España vía Ley Coordinación Ciberseguridad (en tramite). Artículos referenciados son Directiva (UE) 2022/2555.'
+    - 'DORA aplica solo a entidades financieras y sus proveedores TIC críticos.'
+    - 'AI Act aplica si cliente desarrolla o despliega sistemas IA - revisión obligatoria.'
+    - 'Cada obligación tiene vinculo_medida_ens orientativo · refinable per cliente.'
+    - 'v2 EXPAND 50→250 (20 May 2026): +60 RGPD +26 LOPDGDD +48 NIS2 +40 DORA +26 AI Act = 200 entries adicionales canónicas curadas (sub-atom 1.C.0.C v3.9 plan EXPAND approved R32 sostenido).'
+
+obligations:
+
+  # ========== RGPD · Reglamento (UE) 2016/679 ==========
+
+  - codigo: RGPD-ART-5
+    regulacion: RGPD
+    articulo: 'Art. 5'
+    titulo: 'Principios del tratamiento'
+    obligacion: 'Aplicar licitud, lealtad, transparencia, limitación de finalidad, minimización, exactitud, limitación de conservación, integridad/confidencialidad y responsabilidad proactiva.'
+    sector_aplica: [todos]
+    ens_categoria_aplica: [B, M, A]
+    evidencia_requerida: 'Política de protección de datos firmada + Registro Actividades Tratamiento (RAT)'
+    vinculo_medida_ens: [org.1, mp.info.1]
+
+  - codigo: RGPD-ART-6
+    regulacion: RGPD
+    articulo: 'Art. 6'
+    titulo: 'Bases legítimas del tratamiento'
+    obligacion: 'Documentar base jurídica de cada actividad (consentimiento, contrato, obligación legal, interés vital, interés público, interés legítimo).'
+    sector_aplica: [todos]
+    ens_categoria_aplica: [B, M, A]
+    evidencia_requerida: 'RAT con columna base jurídica por actividad'
+    vinculo_medida_ens: [mp.info.1]
+
+  - codigo: RGPD-ART-7
+    regulacion: RGPD
+    articulo: 'Art. 7'
+    titulo: 'Condiciones del consentimiento'
+    obligacion: 'Consentimiento libre, específico, informado, inequívoco, demostrable. Revocable en cualquier momento con misma facilidad que se otorgó.'
+    sector_aplica: [todos]
+    ens_categoria_aplica: [B, M, A]
+    evidencia_requerida: 'Logs de consentimiento con timestamp + versión política aceptada + mecanismo revocación funcional'
+    vinculo_medida_ens: [mp.info.1, op.acc.1]
+
+  - codigo: RGPD-ART-9
+    regulacion: RGPD
+    articulo: 'Art. 9'
+    titulo: 'Categorías especiales de datos'
+    obligacion: 'Prohibición general de tratar datos sensibles (salud, biométricos, origen racial, opiniones, etc.) salvo excepciones tasadas + medidas reforzadas.'
+    sector_aplica: [salud, RRHH, todos con datos especiales]
+    ens_categoria_aplica: [M, A]
+    evidencia_requerida: 'Identificación categorías especiales en RAT + EIPD obligatoria + cifrado refuerzo'
+    vinculo_medida_ens: [mp.info.3, mp.info.1, op.acc.5]
+
+  - codigo: RGPD-ART-12
+    regulacion: RGPD
+    articulo: 'Art. 12'
+    titulo: 'Información transparente al interesado'
+    obligacion: 'Información concisa, transparente, inteligible, lenguaje claro. Proporcionada por escrito o medio electrónico.'
+    sector_aplica: [todos]
+    ens_categoria_aplica: [B, M, A]
+    evidencia_requerida: 'Cláusulas informativas en formularios + política privacidad versionada + accesible sin login'
+    vinculo_medida_ens: [mp.info.1]
+
+  - codigo: RGPD-ART-13-14
+    regulacion: RGPD
+    articulo: 'Arts. 13-14'
+    titulo: 'Información a recoger y no recogida del interesado'
+    obligacion: 'Suministrar identidad responsable, DPO, finalidad, base legítima, destinatarios, transferencias, plazo conservación, derechos, AEPD.'
+    sector_aplica: [todos]
+    ens_categoria_aplica: [B, M, A]
+    evidencia_requerida: 'Cláusulas completas Art.13/14 en todos los puntos de recogida'
+    vinculo_medida_ens: [mp.info.1]
+
+  - codigo: RGPD-ART-15
+    regulacion: RGPD
+    articulo: 'Art. 15'
+    titulo: 'Derecho de acceso'
+    obligacion: 'Atender solicitudes de acceso del interesado en máx. 1 mes (prorrogable 2 más con justificación).'
+    sector_aplica: [todos]
+    ens_categoria_aplica: [B, M, A]
+    evidencia_requerida: 'Procedimiento documentado + log respuestas con timestamp + plantilla respuesta'
+    vinculo_medida_ens: [op.acc.1, mp.info.1]
+
+  - codigo: RGPD-ART-16-22
+    regulacion: RGPD
+    articulo: 'Arts. 16-22'
+    titulo: 'Derechos rectificación, supresión, oposición, limitación, portabilidad'
+    obligacion: 'Implementar procedimientos para los 7 derechos ARSULIPO en plazos legales.'
+    sector_aplica: [todos]
+    ens_categoria_aplica: [B, M, A]
+    evidencia_requerida: 'Procedimientos documentados + logs respuestas + canal habilitado (email/formulario)'
+    vinculo_medida_ens: [op.acc.1, mp.info.1]
+
+  - codigo: RGPD-ART-24
+    regulacion: RGPD
+    articulo: 'Art. 24'
+    titulo: 'Responsabilidad del responsable'
+    obligacion: 'Aplicar medidas técnicas y organizativas apropiadas para demostrar cumplimiento. Revisar y actualizar.'
+    sector_aplica: [todos]
+    ens_categoria_aplica: [B, M, A]
+    evidencia_requerida: 'Política seguridad LOPD + análisis riesgos + auditoría LOPD bienal'
+    vinculo_medida_ens: [org.1, org.3, op.pl.1]
+
+  - codigo: RGPD-ART-25
+    regulacion: RGPD
+    articulo: 'Art. 25'
+    titulo: 'Privacy by Design y by Default'
+    obligacion: 'Aplicar protección de datos desde el diseño y por defecto. Minimización aplicada por defecto sin acción del interesado.'
+    sector_aplica: [todos]
+    ens_categoria_aplica: [M, A]
+    evidencia_requerida: 'Documentación diseño sistemas + checklist PbD/PbD en proyectos + configuraciones por defecto restrictivas'
+    vinculo_medida_ens: [mp.sw.1, mp.sw.2, op.pl.2]
+
+  - codigo: RGPD-ART-28
+    regulacion: RGPD
+    articulo: 'Art. 28'
+    titulo: 'Encargados de tratamiento'
+    obligacion: 'Contrato escrito con encargados (objeto, duración, finalidad, tipo datos, obligaciones, autorizaciones subencargados, etc.).'
+    sector_aplica: [todos con proveedores]
+    ens_categoria_aplica: [B, M, A]
+    evidencia_requerida: 'Contratos de encargado firmados con todos los proveedores + revisión anual'
+    vinculo_medida_ens: [op.ext.1, op.ext.2]
+
+  - codigo: RGPD-ART-30
+    regulacion: RGPD
+    articulo: 'Art. 30'
+    titulo: 'Registro de Actividades del Tratamiento (RAT)'
+    obligacion: 'Mantener RAT actualizado con todas las actividades de tratamiento (excepción <250 empleados con riesgo bajo).'
+    sector_aplica: [todos]
+    ens_categoria_aplica: [B, M, A]
+    evidencia_requerida: 'RAT en formato electrónico + revisión anual + accesible para AEPD'
+    vinculo_medida_ens: [mp.info.1, org.3]
+
+  - codigo: RGPD-ART-32
+    regulacion: RGPD
+    articulo: 'Art. 32'
+    titulo: 'Seguridad del tratamiento'
+    obligacion: 'Aplicar medidas técnicas y organizativas para garantizar nivel de seguridad apropiado al riesgo (seudonimización, cifrado, resiliencia, restauración, evaluación periódica).'
+    sector_aplica: [todos]
+    ens_categoria_aplica: [B, M, A]
+    evidencia_requerida: 'Política seguridad + análisis riesgos LOPD + medidas técnicas implementadas y documentadas'
+    vinculo_medida_ens: [mp.info.3, op.cont.2, op.pl.1]
+
+  - codigo: RGPD-ART-33
+    regulacion: RGPD
+    articulo: 'Art. 33'
+    titulo: 'Notificación brecha a AEPD'
+    obligacion: 'Notificar brecha de seguridad a AEPD en máx. 72h desde conocimiento (si supone riesgo para derechos).'
+    sector_aplica: [todos]
+    ens_categoria_aplica: [B, M, A]
+    evidencia_requerida: 'Procedimiento gestión incidentes con plazo 72h + canal AEPD configurado + plantilla notificación'
+    vinculo_medida_ens: [op.exp.7]
+
+  - codigo: RGPD-ART-34
+    regulacion: RGPD
+    articulo: 'Art. 34'
+    titulo: 'Comunicación brecha a interesados'
+    obligacion: 'Comunicar a interesados sin dilación si la brecha entraña alto riesgo para derechos. Lenguaje claro.'
+    sector_aplica: [todos]
+    ens_categoria_aplica: [B, M, A]
+    evidencia_requerida: 'Plantilla comunicación + lista canales contacto interesados + criterios alto riesgo documentados'
+    vinculo_medida_ens: [op.exp.7]
+
+  - codigo: RGPD-ART-35
+    regulacion: RGPD
+    articulo: 'Art. 35'
+    titulo: 'Evaluación de Impacto en Protección de Datos (EIPD/DPIA)'
+    obligacion: 'EIPD obligatoria cuando tratamiento es probable que entrañe alto riesgo (nuevas tecnologías, evaluación sistemática, datos sensibles a gran escala, etc.).'
+    sector_aplica: [todos con tratamientos alto riesgo]
+    ens_categoria_aplica: [M, A]
+    evidencia_requerida: 'EIPD documentada por proyecto + revisión periódica + consulta previa AEPD si riesgo no mitigado'
+    vinculo_medida_ens: [op.pl.1, op.pl.2, mp.info.1]
+
+  - codigo: RGPD-ART-37
+    regulacion: RGPD
+    articulo: 'Art. 37'
+    titulo: 'Designación del Delegado de Protección de Datos (DPO)'
+    obligacion: 'Designar DPO si autoridad pública, tratamiento sistemático a gran escala, datos especiales a gran escala. Comunicar a AEPD.'
+    sector_aplica: [administracion publica, gran escala]
+    ens_categoria_aplica: [M, A]
+    evidencia_requerida: 'Designación DPO documentada + comunicación AEPD + contacto público accesible'
+    vinculo_medida_ens: [org.1, org.4]
+
+  - codigo: RGPD-ART-44-49
+    regulacion: RGPD
+    articulo: 'Arts. 44-49'
+    titulo: 'Transferencias internacionales'
+    obligacion: 'Transferir solo con garantías: decisión adecuación, CCT, BCR, excepción Art.49. Documentar.'
+    sector_aplica: [todos con proveedores fuera UE/EEE]
+    ens_categoria_aplica: [M, A]
+    evidencia_requerida: 'Mapa transferencias internacionales + CCT firmadas + análisis adecuación país'
+    vinculo_medida_ens: [op.ext.2, op.nub.1]
+
+  - codigo: RGPD-ART-77
+    regulacion: RGPD
+    articulo: 'Art. 77'
+    titulo: 'Derecho a reclamar a autoridad'
+    obligacion: 'Informar a interesados de su derecho a reclamar ante AEPD (en cláusulas Art.13/14).'
+    sector_aplica: [todos]
+    ens_categoria_aplica: [B, M, A]
+    evidencia_requerida: 'Referencia explícita AEPD en política de privacidad y cláusulas'
+    vinculo_medida_ens: [mp.info.1]
+
+  - codigo: RGPD-ART-83
+    regulacion: RGPD
+    articulo: 'Art. 83'
+    titulo: 'Régimen sancionador'
+    obligacion: 'Conocer marco sancionador: multas hasta 20M€ o 4% facturación global anual (la mayor). Mitigar mediante cumplimiento demostrable.'
+    sector_aplica: [todos]
+    ens_categoria_aplica: [B, M, A]
+    evidencia_requerida: 'Programa cumplimiento documentado + evidencia auditorías + plan respuesta requerimientos AEPD'
+    vinculo_medida_ens: [org.1, org.3]
+
+  # ─── v2 EXPAND RGPD +60 entries adicionales (2026-05-20) ───
+
+  - codigo: RGPD-ART-4
+    regulacion: RGPD
+    articulo: 'Art. 4'
+    titulo: 'Definiciones clave RGPD'
+    obligacion: 'Conocer y aplicar definiciones operativas: dato personal, tratamiento, responsable, encargado, destinatario, tercero, consentimiento, brecha, perfilado, seudonimización.'
+    sector_aplica: [todos]
+    ens_categoria_aplica: [B, M, A]
+    evidencia_requerida: 'Glosario interno + formación equipo + uso correcto terminología en políticas y RAT'
+    vinculo_medida_ens: [mp.per.3, mp.info.1]
+    fuente_url: 'https://eur-lex.europa.eu/legal-content/ES/TXT/?uri=CELEX:32016R0679'
+
+  - codigo: RGPD-ART-8
+    regulacion: RGPD
+    articulo: 'Art. 8'
+    titulo: 'Consentimiento menores servicios información'
+    obligacion: 'Consentimiento solo válido si menor tiene al menos 16 años (14 en España vía LOPDGDD). Verificar edad + recabar consentimiento parental si menor.'
+    sector_aplica: [educacion, edtech, gaming, social, todos B2C menores]
+    ens_categoria_aplica: [M, A]
+    evidencia_requerida: 'Mecanismo verificación edad + flujo consentimiento parental + política protección menores'
+    vinculo_medida_ens: [op.acc.1, mp.info.1]
+    fuente_url: 'https://eur-lex.europa.eu/legal-content/ES/TXT/?uri=CELEX:32016R0679#d1e1947-1-1'
+
+  - codigo: RGPD-ART-10
+    regulacion: RGPD
+    articulo: 'Art. 10'
+    titulo: 'Tratamiento datos condenas e infracciones penales'
+    obligacion: 'Tratamiento solo bajo control autoridad pública o autorización Derecho UE/EM con garantías adecuadas. Registro completo prohibido fuera autoridad pública.'
+    sector_aplica: [seguridad_privada, despachos_abogados, RRHH, administracion]
+    ens_categoria_aplica: [M, A]
+    evidencia_requerida: 'Análisis legitimación específica + restricción acceso + cifrado reforzado + log accesos'
+    vinculo_medida_ens: [mp.info.3, op.acc.5, op.exp.4]
+    fuente_url: 'https://eur-lex.europa.eu/legal-content/ES/TXT/?uri=CELEX:32016R0679'
+
+  - codigo: RGPD-ART-11
+    regulacion: RGPD
+    articulo: 'Art. 11'
+    titulo: 'Tratamiento que no requiere identificación'
+    obligacion: 'Si finalidad no requiere identificación, responsable no obligado a mantener/recabar/tratar info adicional para identificar interesado. Reduce alcance derechos.'
+    sector_aplica: [analytics, investigacion, estadistica]
+    ens_categoria_aplica: [B, M, A]
+    evidencia_requerida: 'Documentación finalidad anonimizada + procedimiento documentación irreversibilidad anonimización'
+    vinculo_medida_ens: [mp.info.6]
+    fuente_url: 'https://eur-lex.europa.eu/legal-content/ES/TXT/?uri=CELEX:32016R0679'
+
+  - codigo: RGPD-ART-17
+    regulacion: RGPD
+    articulo: 'Art. 17'
+    titulo: 'Derecho de supresión (derecho al olvido)'
+    obligacion: 'Atender solicitudes supresión sin dilación cuando: ya no necesarios, retira consentimiento, oposición, tratamiento ilícito, obligación legal, datos menores. Notificar a terceros.'
+    sector_aplica: [todos]
+    ens_categoria_aplica: [B, M, A]
+    evidencia_requerida: 'Procedimiento supresión + log peticiones + notificación a terceros documentada + plazos ≤1 mes'
+    vinculo_medida_ens: [op.acc.1, mp.info.6]
+    fuente_url: 'https://eur-lex.europa.eu/legal-content/ES/TXT/?uri=CELEX:32016R0679'
+
+  - codigo: RGPD-ART-18
+    regulacion: RGPD
+    articulo: 'Art. 18'
+    titulo: 'Derecho a la limitación del tratamiento'
+    obligacion: 'Permitir al interesado limitar tratamiento cuando: impugna exactitud, tratamiento ilícito, ya no necesarios pero interesado los necesita, oposición pendiente verificar.'
+    sector_aplica: [todos]
+    ens_categoria_aplica: [B, M, A]
+    evidencia_requerida: 'Procedimiento limitación técnica (flag/marcado) + plantilla respuesta + plazos respuesta'
+    vinculo_medida_ens: [mp.info.6, op.acc.1]
+    fuente_url: 'https://eur-lex.europa.eu/legal-content/ES/TXT/?uri=CELEX:32016R0679'
+
+  - codigo: RGPD-ART-19
+    regulacion: RGPD
+    articulo: 'Art. 19'
+    titulo: 'Obligación de notificación rectificación/supresión/limitación a destinatarios'
+    obligacion: 'Comunicar rectificación, supresión o limitación a cada destinatario al que se hayan comunicado los datos (salvo imposible o esfuerzo desproporcionado).'
+    sector_aplica: [todos con compartición datos]
+    ens_categoria_aplica: [B, M, A]
+    evidencia_requerida: 'Registro destinatarios por actividad + procedimiento notificación + log notificaciones'
+    vinculo_medida_ens: [op.ext.1, mp.info.6]
+    fuente_url: 'https://eur-lex.europa.eu/legal-content/ES/TXT/?uri=CELEX:32016R0679'
+
+  - codigo: RGPD-ART-20
+    regulacion: RGPD
+    articulo: 'Art. 20'
+    titulo: 'Derecho a la portabilidad de los datos'
+    obligacion: 'Permitir recibir datos en formato estructurado, uso común, lectura mecánica + transmitir a otro responsable sin impedimentos.'
+    sector_aplica: [todos con tratamiento automatizado + consentimiento/contrato]
+    ens_categoria_aplica: [B, M, A]
+    evidencia_requerida: 'API/export funcional formato estándar (JSON/CSV) + procedimiento + plazo ≤1 mes'
+    vinculo_medida_ens: [mp.info.2]
+    fuente_url: 'https://eur-lex.europa.eu/legal-content/ES/TXT/?uri=CELEX:32016R0679'
+
+  - codigo: RGPD-ART-21
+    regulacion: RGPD
+    articulo: 'Art. 21'
+    titulo: 'Derecho de oposición'
+    obligacion: 'Permitir oposición tratamiento basado en interés legítimo o público. Marketing directo: oposición incondicional. Investigación científica/histórica: salvo interés público.'
+    sector_aplica: [todos especialmente marketing]
+    ens_categoria_aplica: [B, M, A]
+    evidencia_requerida: 'Unsubscribe funcional 1-click + flag oposición persistente + procedimiento documentado'
+    vinculo_medida_ens: [op.acc.1, mp.info.6]
+    fuente_url: 'https://eur-lex.europa.eu/legal-content/ES/TXT/?uri=CELEX:32016R0679'
+
+  - codigo: RGPD-ART-22
+    regulacion: RGPD
+    articulo: 'Art. 22'
+    titulo: 'Decisiones individuales automatizadas, incluida la elaboración de perfiles'
+    obligacion: 'No someter a decisión basada únicamente en tratamiento automatizado con efectos jurídicos significativos. Excepciones: necesario contrato, autoriza Derecho UE/EM, consentimiento explícito.'
+    sector_aplica: [fintech, scoring, HR_automation, IA decisional]
+    ens_categoria_aplica: [M, A]
+    evidencia_requerida: 'Documentación lógica algoritmo + intervención humana garantizada + derecho impugnación + DPIA'
+    vinculo_medida_ens: [mp.sw.1, op.acc.1, op.pl.2]
+    fuente_url: 'https://eur-lex.europa.eu/legal-content/ES/TXT/?uri=CELEX:32016R0679'
+
+  - codigo: RGPD-ART-26
+    regulacion: RGPD
+    articulo: 'Art. 26'
+    titulo: 'Corresponsables del tratamiento'
+    obligacion: 'Acuerdo escrito entre corresponsables definiendo respectivas responsabilidades RGPD. Aspectos esenciales disponibles al interesado.'
+    sector_aplica: [todos con joint controllers]
+    ens_categoria_aplica: [B, M, A]
+    evidencia_requerida: 'Acuerdo corresponsabilidad firmado + resumen público accesible + revisión anual'
+    vinculo_medida_ens: [op.ext.1, mp.info.1]
+    fuente_url: 'https://eur-lex.europa.eu/legal-content/ES/TXT/?uri=CELEX:32016R0679'
+
+  - codigo: RGPD-ART-27
+    regulacion: RGPD
+    articulo: 'Art. 27'
+    titulo: 'Representante en la UE de responsables no establecidos'
+    obligacion: 'Responsables/encargados no establecidos en UE que tratan datos personas en UE deben designar representante UE por escrito (excepciones limitadas).'
+    sector_aplica: [extranjeros_no_UE_con_clientes_UE]
+    ens_categoria_aplica: [M, A]
+    evidencia_requerida: 'Designación representante UE documentada + datos contacto en política privacidad'
+    vinculo_medida_ens: [org.4]
+    fuente_url: 'https://eur-lex.europa.eu/legal-content/ES/TXT/?uri=CELEX:32016R0679'
+
+  - codigo: RGPD-ART-29
+    regulacion: RGPD
+    articulo: 'Art. 29'
+    titulo: 'Tratamiento bajo autoridad del responsable o encargado'
+    obligacion: 'Encargado y personas con acceso solo traten datos por instrucciones documentadas responsable (salvo obligación legal).'
+    sector_aplica: [todos con personal/encargados]
+    ens_categoria_aplica: [B, M, A]
+    evidencia_requerida: 'Instrucciones documentadas en contrato encargado + acuerdos confidencialidad personal'
+    vinculo_medida_ens: [op.ext.1, mp.per.1, mp.per.2]
+    fuente_url: 'https://eur-lex.europa.eu/legal-content/ES/TXT/?uri=CELEX:32016R0679'
+
+  - codigo: RGPD-ART-31
+    regulacion: RGPD
+    articulo: 'Art. 31'
+    titulo: 'Cooperación con la autoridad de control'
+    obligacion: 'Cooperar con AEPD cuando lo solicite en ejercicio funciones. Suministrar información requerida en plazo.'
+    sector_aplica: [todos]
+    ens_categoria_aplica: [B, M, A]
+    evidencia_requerida: 'Procedimiento respuesta requerimientos AEPD + canal designado + plazo respuesta ≤30 días'
+    vinculo_medida_ens: [org.3, org.4]
+    fuente_url: 'https://eur-lex.europa.eu/legal-content/ES/TXT/?uri=CELEX:32016R0679'
+
+  - codigo: RGPD-ART-36
+    regulacion: RGPD
+    articulo: 'Art. 36'
+    titulo: 'Consulta previa a la AEPD'
+    obligacion: 'Consultar AEPD antes tratamiento si DPIA indica riesgo alto no mitigado. AEPD responde en 8 semanas (prorrogable +6).'
+    sector_aplica: [tratamientos_alto_riesgo_no_mitigado]
+    ens_categoria_aplica: [M, A]
+    evidencia_requerida: 'Procedimiento consulta previa + DPIA completa + respuesta AEPD archivada'
+    vinculo_medida_ens: [op.pl.1, op.pl.2]
+    fuente_url: 'https://eur-lex.europa.eu/legal-content/ES/TXT/?uri=CELEX:32016R0679'
+
+  - codigo: RGPD-ART-38
+    regulacion: RGPD
+    articulo: 'Art. 38'
+    titulo: 'Posición del Delegado de Protección de Datos'
+    obligacion: 'DPO involucrado en todas cuestiones protección datos. Recursos necesarios. Independencia: no instrucciones, no destituible por funciones, reporta máximo nivel.'
+    sector_aplica: [empresas con DPO designado]
+    ens_categoria_aplica: [M, A]
+    evidencia_requerida: 'Documento independencia DPO + recursos asignados + acceso máximo nivel jerárquico'
+    vinculo_medida_ens: [org.4]
+    fuente_url: 'https://eur-lex.europa.eu/legal-content/ES/TXT/?uri=CELEX:32016R0679'
+
+  - codigo: RGPD-ART-39
+    regulacion: RGPD
+    articulo: 'Art. 39'
+    titulo: 'Funciones del Delegado de Protección de Datos'
+    obligacion: 'DPO: informar/asesorar, supervisar cumplimiento, asesorar DPIA, cooperar AEPD, actuar punto contacto. Considerar riesgos.'
+    sector_aplica: [empresas con DPO designado]
+    ens_categoria_aplica: [M, A]
+    evidencia_requerida: 'Plan trabajo anual DPO + informes periódicos + actas asesoramiento + log peticiones AEPD'
+    vinculo_medida_ens: [org.4, op.pl.1]
+    fuente_url: 'https://eur-lex.europa.eu/legal-content/ES/TXT/?uri=CELEX:32016R0679'
+
+  - codigo: RGPD-ART-40
+    regulacion: RGPD
+    articulo: 'Art. 40'
+    titulo: 'Códigos de conducta'
+    obligacion: 'Adhesión a códigos conducta aprobados puede demostrar cumplimiento. Asociaciones promotores responsables consulta interesados, terceros y autoridades.'
+    sector_aplica: [asociaciones sectoriales]
+    ens_categoria_aplica: [B, M, A]
+    evidencia_requerida: 'Adhesión documentada a código aprobado AEPD/EDPB + auditorías cumplimiento código'
+    vinculo_medida_ens: [org.1, org.3]
+    fuente_url: 'https://eur-lex.europa.eu/legal-content/ES/TXT/?uri=CELEX:32016R0679'
+
+  - codigo: RGPD-ART-42
+    regulacion: RGPD
+    articulo: 'Art. 42'
+    titulo: 'Certificación RGPD'
+    obligacion: 'Adhesión voluntaria a certificación aprobada por organismo certificación acreditado. Renovable cada 3 años máximo.'
+    sector_aplica: [voluntario todos]
+    ens_categoria_aplica: [M, A]
+    evidencia_requerida: 'Certificado vigente organismo acreditado ENAC/EDPB + auditoría cumplimiento + plan renovación'
+    vinculo_medida_ens: [org.3, op.pl.1]
+    fuente_url: 'https://eur-lex.europa.eu/legal-content/ES/TXT/?uri=CELEX:32016R0679'
+
+  - codigo: RGPD-ART-45
+    regulacion: RGPD
+    articulo: 'Art. 45'
+    titulo: 'Transferencias basadas en decisión de adecuación'
+    obligacion: 'Transferir a tercer país solo si Comisión Europea ha decidido nivel adecuado protección. Lista actualizada países adecuados.'
+    sector_aplica: [transferencias_internacionales]
+    ens_categoria_aplica: [M, A]
+    evidencia_requerida: 'Verificación lista países adecuados + revisión periódica (Comisión puede modificar) + RAT actualizado'
+    vinculo_medida_ens: [op.ext.2, op.nub.1]
+    fuente_url: 'https://commission.europa.eu/law/law-topic/data-protection/international-dimension-data-protection/adequacy-decisions_en'
+
+  - codigo: RGPD-ART-46
+    regulacion: RGPD
+    articulo: 'Art. 46'
+    titulo: 'Transferencias mediante garantías apropiadas'
+    obligacion: 'Sin decisión adecuación, transferir solo con garantías apropiadas: CCT, BCR, códigos conducta aprobados, mecanismos certificación aprobados.'
+    sector_aplica: [transferencias_internacionales]
+    ens_categoria_aplica: [M, A]
+    evidencia_requerida: 'CCT/BCR firmados + TIA (Transfer Impact Assessment Schrems II) + medidas adicionales si aplica'
+    vinculo_medida_ens: [op.ext.2, op.nub.1, mp.info.3]
+    fuente_url: 'https://eur-lex.europa.eu/legal-content/ES/TXT/?uri=CELEX:32016R0679'
+
+  - codigo: RGPD-ART-47
+    regulacion: RGPD
+    articulo: 'Art. 47'
+    titulo: 'Normas Corporativas Vinculantes (BCR)'
+    obligacion: 'Multinacionales pueden adoptar BCR aprobadas por AEPD para transferencias intragrupo. Vinculantes, ejecutables, contienen elementos esenciales.'
+    sector_aplica: [multinacionales_con_transferencias_intragrupo]
+    ens_categoria_aplica: [M, A]
+    evidencia_requerida: 'BCR aprobadas AEPD + procedimiento aplicación intragrupo + mecanismo reclamación + auditoría anual'
+    vinculo_medida_ens: [op.ext.2, op.nub.1]
+    fuente_url: 'https://www.aepd.es/preguntas-frecuentes/2-transferencias-internacionales/FAQ-12-que-son-normas-corporativas-vinculantes'
+
+  - codigo: RGPD-ART-49
+    regulacion: RGPD
+    articulo: 'Art. 49'
+    titulo: 'Excepciones para situaciones específicas (transferencias)'
+    obligacion: 'Sin decisión adecuación ni garantías, transferencias solo en casos excepcionales: consentimiento explícito informado, contrato interesado, interés público, defensa juicio.'
+    sector_aplica: [transferencias_internacionales_excepcionales]
+    ens_categoria_aplica: [M, A]
+    evidencia_requerida: 'Documentación caso excepcional + consentimiento explícito si aplica + comunicación AEPD si reiterada'
+    vinculo_medida_ens: [op.ext.2]
+    fuente_url: 'https://eur-lex.europa.eu/legal-content/ES/TXT/?uri=CELEX:32016R0679'
+
+  - codigo: RGPD-ART-58
+    regulacion: RGPD
+    articulo: 'Art. 58'
+    titulo: 'Poderes de la autoridad de control (AEPD)'
+    obligacion: 'AEPD tiene poderes investigación (auditorías, acceso instalaciones/datos), correctivos (advertencia, multas, prohibición tratamiento), autorización (códigos, BCR).'
+    sector_aplica: [todos]
+    ens_categoria_aplica: [B, M, A]
+    evidencia_requerida: 'Plan respuesta AEPD requerimientos + acceso facilitado documentación + canal cooperación'
+    vinculo_medida_ens: [org.3, org.4]
+    fuente_url: 'https://eur-lex.europa.eu/legal-content/ES/TXT/?uri=CELEX:32016R0679'
+
+  - codigo: RGPD-ART-79
+    regulacion: RGPD
+    articulo: 'Art. 79'
+    titulo: 'Derecho a recurso judicial efectivo contra responsable/encargado'
+    obligacion: 'Interesado puede ejercer acción judicial contra responsable/encargado en tribunales del Estado miembro de establecimiento o residencia interesado.'
+    sector_aplica: [todos]
+    ens_categoria_aplica: [B, M, A]
+    evidencia_requerida: 'Información clara en política privacidad sobre derecho judicial + canal contacto legal'
+    vinculo_medida_ens: [org.4, mp.info.1]
+    fuente_url: 'https://eur-lex.europa.eu/legal-content/ES/TXT/?uri=CELEX:32016R0679'
+
+  - codigo: RGPD-ART-82
+    regulacion: RGPD
+    articulo: 'Art. 82'
+    titulo: 'Derecho a indemnización por daños y perjuicios'
+    obligacion: 'Persona que sufra daño material o inmaterial por infracción RGPD puede exigir indemnización al responsable/encargado.'
+    sector_aplica: [todos]
+    ens_categoria_aplica: [B, M, A]
+    evidencia_requerida: 'Seguro responsabilidad civil RGPD + procedimiento gestión reclamaciones + reserva contable'
+    vinculo_medida_ens: [org.4, op.pl.1]
+    fuente_url: 'https://eur-lex.europa.eu/legal-content/ES/TXT/?uri=CELEX:32016R0679'
+
+  - codigo: RGPD-ART-88
+    regulacion: RGPD
+    articulo: 'Art. 88'
+    titulo: 'Tratamiento datos en el ámbito laboral'
+    obligacion: 'Tratamiento datos empleados conforme normas específicas: contratación, ejecución contrato, gestión RRHH, salud/seguridad, finalización contrato, ejercicio derechos.'
+    sector_aplica: [todos como empleadores]
+    ens_categoria_aplica: [B, M, A]
+    evidencia_requerida: 'Política tratamiento datos empleados firmada + cláusulas en contratos + información mediante incorporación'
+    vinculo_medida_ens: [mp.per.1, mp.per.2, mp.info.1]
+    fuente_url: 'https://eur-lex.europa.eu/legal-content/ES/TXT/?uri=CELEX:32016R0679'
+
+  - codigo: RGPD-ART-89
+    regulacion: RGPD
+    articulo: 'Art. 89'
+    titulo: 'Garantías archivo interés público, investigación científica/histórica, estadística'
+    obligacion: 'Tratamientos requieren garantías apropiadas: minimización, seudonimización, anonimización cuando posible. Excepciones derechos limitadas.'
+    sector_aplica: [investigacion, universidades, estadistica]
+    ens_categoria_aplica: [M, A]
+    evidencia_requerida: 'Procedimiento seudonimización + documentación minimización + criterios anonimización + comité ética'
+    vinculo_medida_ens: [mp.info.6, op.pl.2]
+    fuente_url: 'https://eur-lex.europa.eu/legal-content/ES/TXT/?uri=CELEX:32016R0679'
+
+  - codigo: RGPD-CEPD-GUIA-CONSENT-5-2020
+    regulacion: RGPD
+    articulo: 'Guía CEPD 5/2020'
+    titulo: 'Guía CEPD sobre consentimiento'
+    obligacion: 'Aplicar criterios CEPD: libre, específico, informado, inequívoco, granular, demostrable, revocable. NO casillas pre-marcadas. NO cookie walls.'
+    sector_aplica: [todos con consentimiento]
+    ens_categoria_aplica: [B, M, A]
+    evidencia_requerida: 'Diseño UI conforme CEPD + flujo consentimiento granular + revocación 1-click + logs consentimientos'
+    vinculo_medida_ens: [mp.info.1, op.acc.1]
+    fuente_url: 'https://edpb.europa.eu/our-work-tools/our-documents/guidelines/guidelines-052020-consent-under-regulation-2016679_es'
+
+  - codigo: RGPD-CEPD-GUIA-DPIA-WP248
+    regulacion: RGPD
+    articulo: 'Guía CEPD WP248'
+    titulo: 'Guía sobre Evaluación de Impacto en Protección de Datos (DPIA)'
+    obligacion: 'Aplicar metodología CEPD WP248: descripción tratamiento, evaluación necesidad/proporcionalidad, evaluación riesgos, medidas mitigación. 9 criterios alto riesgo.'
+    sector_aplica: [todos con tratamientos alto riesgo]
+    ens_categoria_aplica: [M, A]
+    evidencia_requerida: 'Plantilla DPIA WP248 cumplimentada por proyecto + revisión periódica + log proyectos DPIA realizadas'
+    vinculo_medida_ens: [op.pl.1, op.pl.2]
+    fuente_url: 'https://www.aepd.es/guias/guia-de-evaluacion-de-impacto-en-la-proteccion-de-datos.pdf'
+
+  - codigo: RGPD-CEPD-GUIA-BREACH-9-2022
+    regulacion: RGPD
+    articulo: 'Guía CEPD 9/2022'
+    titulo: 'Guía CEPD sobre notificación violaciones seguridad'
+    obligacion: 'Aplicar metodología CEPD: identificar tipo brecha (confidencialidad/integridad/disponibilidad), evaluar riesgo, notificar AEPD ≤72h si riesgo, comunicar interesados si alto riesgo.'
+    sector_aplica: [todos]
+    ens_categoria_aplica: [B, M, A]
+    evidencia_requerida: 'Procedimiento gestión brechas conforme CEPD + matriz evaluación riesgo + plantillas notificación + ejercicios anuales'
+    vinculo_medida_ens: [op.exp.7, op.mon.1]
+    fuente_url: 'https://edpb.europa.eu/our-work-tools/our-documents/guidelines/guidelines-92022-personal-data-breach-notification-under_es'
+
+  - codigo: RGPD-SCC-2021-914
+    regulacion: RGPD
+    articulo: 'Decisión 2021/914'
+    titulo: 'Cláusulas Contractuales Tipo (SCC) nuevas 2021'
+    obligacion: 'Para transferencias internacionales sin decisión adecuación: usar nuevas SCC adoptadas por Comisión 2021. Sustituyen anteriores (deadline 27/12/2022).'
+    sector_aplica: [transferencias_internacionales]
+    ens_categoria_aplica: [M, A]
+    evidencia_requerida: 'SCC 2021/914 firmadas + módulos correctos (C2C, C2P, P2P, P2C) + TIA Schrems II + medidas suplementarias'
+    vinculo_medida_ens: [op.ext.2, op.nub.1]
+    fuente_url: 'https://eur-lex.europa.eu/legal-content/ES/TXT/?uri=CELEX:32021D0914'
+
+  - codigo: RGPD-AEPD-GUIA-COOKIES-2023
+    regulacion: RGPD
+    articulo: 'Guía AEPD Cookies 2023'
+    titulo: 'Guía AEPD sobre uso de cookies'
+    obligacion: 'Aplicar criterios AEPD cookies: consentimiento previo (excepto necesarias), banner conforme (igualdad opciones, no muros, granular), info clara, revocación accesible. Cookies analíticas requieren consentimiento.'
+    sector_aplica: [todos con web]
+    ens_categoria_aplica: [B, M, A]
+    evidencia_requerida: 'Banner cookies conforme AEPD + inventario cookies + política cookies actualizada + log consentimientos'
+    vinculo_medida_ens: [mp.info.1, op.acc.1]
+    fuente_url: 'https://www.aepd.es/guias/guia-cookies.pdf'
+
+  - codigo: RGPD-AEPD-GUIA-IA-2022
+    regulacion: RGPD
+    articulo: 'Guía AEPD IA 2022'
+    titulo: 'Guía AEPD adecuación RGPD de tratamientos con IA'
+    obligacion: 'Aplicar criterios AEPD para sistemas IA: minimización, identificación finalidad, base legítima clara, evitar discriminación, explicabilidad, supervisión humana, derechos interesados.'
+    sector_aplica: [todos con IA]
+    ens_categoria_aplica: [M, A]
+    evidencia_requerida: 'DPIA específica IA + auditoría algoritmos + procedimiento explicabilidad + supervisión humana documentada'
+    vinculo_medida_ens: [mp.sw.1, op.pl.1, op.pl.2]
+    fuente_url: 'https://www.aepd.es/guias/adecuacion-rgpd-ia.pdf'
+
+  - codigo: RGPD-AEPD-GUIA-VIDEO
+    regulacion: RGPD
+    articulo: 'Guía AEPD Videovigilancia'
+    titulo: 'Guía AEPD videovigilancia con fines de seguridad'
+    obligacion: 'Aplicar criterios AEPD: cartel informativo visible, política accesible, conservación ≤1 mes (salvo incidentes), no zonas privadas (baños/vestuarios), acceso restringido.'
+    sector_aplica: [todos con CCTV]
+    ens_categoria_aplica: [B, M, A]
+    evidencia_requerida: 'Cartel videovigilancia conforme AEPD + política accesible + log accesos grabaciones + política conservación ≤1 mes'
+    vinculo_medida_ens: [mp.if.4, mp.info.6, op.acc.5]
+    fuente_url: 'https://www.aepd.es/guias/videovigilancia.pdf'
+
+  - codigo: RGPD-COOKIES-ANALYTICS-CONSENT
+    regulacion: RGPD
+    articulo: 'Doctrina AEPD/CEPD'
+    titulo: 'Consentimiento cookies analíticas'
+    obligacion: 'Cookies analíticas (Google Analytics, Hotjar, etc.) requieren consentimiento previo según AEPD/CEPD. Exención solo si first-party, sin perfilado, anónimas estrictas, finalidad meramente estadística.'
+    sector_aplica: [todos con analytics]
+    ens_categoria_aplica: [B, M, A]
+    evidencia_requerida: 'Configuración analytics tras consentimiento + Google Consent Mode v2 + bloqueo carga script pre-consent'
+    vinculo_medida_ens: [mp.info.1, op.acc.1]
+    fuente_url: 'https://www.aepd.es/guias/guia-cookies.pdf'
+
+  - codigo: RGPD-EMAIL-MARKETING-CONS
+    regulacion: RGPD
+    articulo: 'Art. 6 + LSSI Art. 21'
+    titulo: 'Consentimiento email marketing'
+    obligacion: 'Email marketing requiere consentimiento previo (LSSI Art.21 + RGPD), salvo soft opt-in clientes (mismo producto). Mecanismo unsubscribe en cada envío.'
+    sector_aplica: [todos con email marketing]
+    ens_categoria_aplica: [B, M, A]
+    evidencia_requerida: 'Doble opt-in documentado + unsubscribe 1-click en cada email + supresión lista en ≤24h'
+    vinculo_medida_ens: [mp.info.1, op.acc.1]
+    fuente_url: 'https://www.aepd.es/preguntas-frecuentes/AEPDsiTeOcupa/2-correo-electronico'
+
+  - codigo: RGPD-MENORES-14-ESPANA
+    regulacion: RGPD
+    articulo: 'LOPDGDD Art. 7'
+    titulo: 'Edad consentimiento menores España (14 años)'
+    obligacion: 'En España, menores ≥14 años pueden prestar consentimiento por sí mismos. Menores 14 años requieren consentimiento padres/tutores con verificación razonable.'
+    sector_aplica: [todos con servicios menores]
+    ens_categoria_aplica: [B, M, A]
+    evidencia_requerida: 'Verificación edad ≥14 + flujo consentimiento parental <14 + esfuerzos razonables verificación'
+    vinculo_medida_ens: [op.acc.1, mp.info.1]
+    fuente_url: 'https://www.boe.es/buscar/act.php?id=BOE-A-2018-16673'
+
+  - codigo: RGPD-CCTV-LABORAL
+    regulacion: RGPD
+    articulo: 'Art. 6 + LOPDGDD Art. 89'
+    titulo: 'Videovigilancia laboral'
+    obligacion: 'Videovigilancia laboral debe informarse expresamente a trabajadores + representantes. No zonas privadas. Finalidad seguridad/control no abusivo.'
+    sector_aplica: [todos empleadores con CCTV]
+    ens_categoria_aplica: [B, M, A]
+    evidencia_requerida: 'Comunicación expresa empleados + acta comité empresa + política uso grabaciones + cartel'
+    vinculo_medida_ens: [mp.if.4, mp.per.2]
+    fuente_url: 'https://www.aepd.es/guias/videovigilancia.pdf'
+
+  - codigo: RGPD-BIOMETRIC
+    regulacion: RGPD
+    articulo: 'Art. 9 + LOPDGDD'
+    titulo: 'Datos biométricos identificación unívoca'
+    obligacion: 'Datos biométricos para identificación unívoca (huellas, facial, iris) son datos sensibles Art.9. Tratamiento solo con base Art.9.2 + DPIA obligatoria.'
+    sector_aplica: [todos con biometría]
+    ens_categoria_aplica: [M, A]
+    evidencia_requerida: 'DPIA biometría + base Art.9.2 documentada + cifrado especial + acceso ultra-restringido'
+    vinculo_medida_ens: [mp.info.3, op.acc.5, mp.sw.1]
+    fuente_url: 'https://www.aepd.es/guias/guia-tratamientos-biometricos.pdf'
+
+  - codigo: RGPD-ENCRYPTION-AT-REST
+    regulacion: RGPD
+    articulo: 'Art. 32.1.a + CCN-STIC-807'
+    titulo: 'Cifrado de datos en reposo'
+    obligacion: 'Datos personales sensibles cifrados en reposo (BD, backups, ficheros). Algoritmos vigentes CCN-STIC-807 (AES-256 mínimo).'
+    sector_aplica: [todos especialmente sensibles]
+    ens_categoria_aplica: [M, A]
+    evidencia_requerida: 'TDE bases datos + cifrado backups + gestión claves HSM/KMS + auditoría algoritmos CCN-STIC'
+    vinculo_medida_ens: [mp.info.3, mp.si.2]
+    fuente_url: 'https://www.ccn-cert.cni.es/series-ccn-stic/800-guia-esquema-nacional-de-seguridad/518-ccn-stic-807-criptologia-de-empleo-en-el-ens.html'
+
+  - codigo: RGPD-ENCRYPTION-IN-TRANSIT
+    regulacion: RGPD
+    articulo: 'Art. 32.1.a'
+    titulo: 'Cifrado de datos en tránsito'
+    obligacion: 'Todas las transmisiones datos personales cifradas (TLS 1.2+, IPSec, VPN). HTTPS obligatorio en webs con datos personales.'
+    sector_aplica: [todos]
+    ens_categoria_aplica: [B, M, A]
+    evidencia_requerida: 'TLS 1.2+ configurado + auditoría Qualys SSL Labs A+ + HSTS + certificados válidos'
+    vinculo_medida_ens: [mp.com.2, op.mon.1]
+    fuente_url: 'https://www.ccn-cert.cni.es/series-ccn-stic/800-guia-esquema-nacional-de-seguridad/518-ccn-stic-807-criptologia-de-empleo-en-el-ens.html'
+
+  - codigo: RGPD-RAT-CONTENT-DETAIL
+    regulacion: RGPD
+    articulo: 'Art. 30.1'
+    titulo: 'Contenido detallado RAT responsable'
+    obligacion: 'RAT responsable debe incluir: identidad responsable/corresponsable/DPO, finalidades, categorías interesados/datos, destinatarios, transferencias internacionales, plazos supresión, descripción medidas técnicas/organizativas.'
+    sector_aplica: [todos]
+    ens_categoria_aplica: [B, M, A]
+    evidencia_requerida: 'RAT completo formato electrónico con 9 campos obligatorios + revisión semestral + accesible AEPD'
+    vinculo_medida_ens: [mp.info.1, org.3]
+    fuente_url: 'https://www.aepd.es/herramientas/registro-actividades-tratamiento'
+
+  - codigo: RGPD-DPO-REQUIREMENTS
+    regulacion: RGPD
+    articulo: 'Art. 37.5'
+    titulo: 'Requisitos profesionales DPO'
+    obligacion: 'DPO designado con cualidades profesionales (conocimiento experto RGPD, comprensión organización, capacidad asesoramiento). Puede ser empleado o externo (servicio).'
+    sector_aplica: [empresas con DPO obligatorio]
+    ens_categoria_aplica: [M, A]
+    evidencia_requerida: 'CV/certificaciones DPO + designación documentada + comunicación AEPD + contacto público + plan formación continua'
+    vinculo_medida_ens: [org.4, mp.per.3]
+    fuente_url: 'https://www.aepd.es/areas-de-actuacion/delegado-de-proteccion-de-datos'
+
+  - codigo: RGPD-BREACH-CRITERIA-RISK
+    regulacion: RGPD
+    articulo: 'Art. 33-34 + CEPD'
+    titulo: 'Criterios evaluación riesgo brecha'
+    obligacion: 'Aplicar criterios CEPD: tipo brecha, naturaleza datos, gravedad consecuencias, características interesados, número afectados, características responsable. Determina si notificar AEPD/interesados.'
+    sector_aplica: [todos]
+    ens_categoria_aplica: [B, M, A]
+    evidencia_requerida: 'Matriz criterios riesgo CEPD + plantilla evaluación + procedimiento decisión documentado + ejercicios anuales'
+    vinculo_medida_ens: [op.exp.7, op.mon.1]
+    fuente_url: 'https://edpb.europa.eu/our-work-tools/our-documents/guidelines/guidelines-92022-personal-data-breach-notification-under_es'
+
+  - codigo: RGPD-RETENTION-POLICY
+    regulacion: RGPD
+    articulo: 'Art. 5.1.e'
+    titulo: 'Política de retención y supresión'
+    obligacion: 'Definir plazos máximos conservación por categoría datos en base a finalidad. Supresión automática o anonimización al vencer plazo. Política documentada.'
+    sector_aplica: [todos]
+    ens_categoria_aplica: [B, M, A]
+    evidencia_requerida: 'Política retención per categoría + automatización supresión + log ejecuciones + revisión anual'
+    vinculo_medida_ens: [mp.info.6, op.exp.4]
+    fuente_url: 'https://www.aepd.es/guias/'
+
+  - codigo: RGPD-DATA-MINIMIZATION
+    regulacion: RGPD
+    articulo: 'Art. 5.1.c'
+    titulo: 'Minimización aplicada por defecto'
+    obligacion: 'Recoger solo datos adecuados, pertinentes y limitados a finalidad. Revisión periódica campos formularios + bases datos.'
+    sector_aplica: [todos]
+    ens_categoria_aplica: [B, M, A]
+    evidencia_requerida: 'Auditoría formularios anual + justificación cada campo en RAT + procedimiento revisión'
+    vinculo_medida_ens: [mp.info.6, op.pl.2]
+    fuente_url: 'https://eur-lex.europa.eu/legal-content/ES/TXT/?uri=CELEX:32016R0679'
+
+  - codigo: RGPD-AUDIT-INTERNO-ANUAL
+    regulacion: RGPD
+    articulo: 'Art. 24 + 32'
+    titulo: 'Auditoría interna RGPD anual'
+    obligacion: 'Auditoría interna anual cumplimiento RGPD: RAT vigente, DPIA actualizadas, contratos encargados, derechos interesados, brechas, formación.'
+    sector_aplica: [todos]
+    ens_categoria_aplica: [M, A]
+    evidencia_requerida: 'Plan auditoría anual + informes hallazgos + plan acción + seguimiento mejoras + presentación dirección'
+    vinculo_medida_ens: [op.pl.1, op.exp.4]
+    fuente_url: 'https://www.aepd.es/guias/'
+
+  - codigo: RGPD-LIA-LEGITIMATE-INTEREST
+    regulacion: RGPD
+    articulo: 'Art. 6.1.f'
+    titulo: 'Legitimate Interest Assessment (LIA)'
+    obligacion: 'Si base legítima es interés legítimo: documentar LIA con 3 tests (propósito, necesidad, equilibrio derechos interesado). Disponible si requiere AEPD/interesado.'
+    sector_aplica: [todos usando interés legítimo]
+    ens_categoria_aplica: [B, M, A]
+    evidencia_requerida: 'LIA documentada por tratamiento + revisión periódica + justificación 3 tests + información derechos interesado'
+    vinculo_medida_ens: [op.pl.1, mp.info.1]
+    fuente_url: 'https://ico.org.uk/for-organisations/uk-gdpr-guidance-and-resources/lawful-basis/a-guide-to-lawful-basis/legitimate-interests/'
+
+  - codigo: RGPD-TIA-TRANSFER-IMPACT
+    regulacion: RGPD
+    articulo: 'CEPD 1/2020 (Schrems II)'
+    titulo: 'Transfer Impact Assessment (TIA) post-Schrems II'
+    obligacion: 'Para transferencias internacionales sin decisión adecuación: TIA evaluando legislación país destino + medidas suplementarias necesarias.'
+    sector_aplica: [transferencias_internacionales]
+    ens_categoria_aplica: [M, A]
+    evidencia_requerida: 'TIA documentada por país/proveedor + medidas suplementarias técnicas (cifrado E2E) + revisión legislación'
+    vinculo_medida_ens: [op.ext.2, op.nub.1, mp.info.3]
+    fuente_url: 'https://edpb.europa.eu/our-work-tools/our-documents/recommendations/recommendations-012020-measures-supplement-transfer_es'
+
+  - codigo: RGPD-DPIA-TEMPLATE-9CRITERIOS
+    regulacion: RGPD
+    articulo: 'Art. 35 + CEPD WP248'
+    titulo: 'Criterios 9 WP248 alto riesgo (DPIA obligatoria)'
+    obligacion: 'DPIA obligatoria si tratamiento cumple 2+ de 9 criterios CEPD: evaluación/scoring, decisiones automatizadas, monitoreo sistemático, datos sensibles, gran escala, cruce datos, vulnerables, uso innovador, impide ejercicio derechos.'
+    sector_aplica: [todos]
+    ens_categoria_aplica: [M, A]
+    evidencia_requerida: 'Matriz 9 criterios aplicada por proyecto + decisión DPIA documentada + plantilla CEPD WP248 + revisión periódica'
+    vinculo_medida_ens: [op.pl.1, op.pl.2]
+    fuente_url: 'https://edpb.europa.eu/our-work-tools/our-documents/guidelines/guidelines-dpia_es'
+
+  - codigo: RGPD-AEPD-DPO-EXTERNO
+    regulacion: RGPD
+    articulo: 'Art. 37 + Guía AEPD'
+    titulo: 'DPO externo (servicio outsourcing)'
+    obligacion: 'DPO puede ser externo (contrato servicios). Mismos requisitos independencia, recursos, acceso. Contrato debe garantizar disponibilidad real y no conflicto interés.'
+    sector_aplica: [pymes_DPO_externalizado]
+    ens_categoria_aplica: [M, A]
+    evidencia_requerida: 'Contrato DPO externo + cláusulas independencia/disponibilidad + análisis conflicto interés + comunicación AEPD'
+    vinculo_medida_ens: [org.4, op.ext.1]
+    fuente_url: 'https://www.aepd.es/areas-de-actuacion/delegado-de-proteccion-de-datos'
+
+  - codigo: RGPD-SUBJECT-ACCESS-REQUEST
+    regulacion: RGPD
+    articulo: 'Art. 15 + LOPDGDD Art. 13'
+    titulo: 'Procedimiento Subject Access Request (SAR)'
+    obligacion: 'Procedimiento atender SAR: verificación identidad razonable, recopilación completa datos, formato accesible, plazo 1 mes (prórroga +2 si complejo justificado).'
+    sector_aplica: [todos]
+    ens_categoria_aplica: [B, M, A]
+    evidencia_requerida: 'Procedimiento SAR documentado + canal recepción + plantilla respuesta + log SAR con plazos + KPIs'
+    vinculo_medida_ens: [op.acc.1, mp.info.1]
+    fuente_url: 'https://www.aepd.es/preguntas-frecuentes/derechos-AEPDsiTeOcupa/3-derecho-de-acceso'
+
+  - codigo: RGPD-PRIVACY-NOTICE-COMPLETO
+    regulacion: RGPD
+    articulo: 'Art. 13-14'
+    titulo: 'Política privacidad completa (Privacy Notice)'
+    obligacion: 'Política privacidad incluir: identidad responsable+DPO, finalidades, base legítima, destinatarios, transferencias internacionales, plazos conservación, derechos, AEPD, fuente datos (si Art.14), decisiones automatizadas.'
+    sector_aplica: [todos]
+    ens_categoria_aplica: [B, M, A]
+    evidencia_requerida: 'Política privacidad completa accesible sin login + versionado + fecha actualización + checklist Art.13-14'
+    vinculo_medida_ens: [mp.info.1]
+    fuente_url: 'https://www.aepd.es/guias/transparencia-rgpd.pdf'
+
+  - codigo: RGPD-VENDOR-DUE-DILIGENCE
+    regulacion: RGPD
+    articulo: 'Art. 28 + 32'
+    titulo: 'Due diligence proveedores (Vendor Risk Management)'
+    obligacion: 'Antes contratar encargado: evaluar garantías suficientes (técnicas/organizativas), certificaciones, antecedentes brechas, sub-encargados, ubicación datos.'
+    sector_aplica: [todos con proveedores]
+    ens_categoria_aplica: [M, A]
+    evidencia_requerida: 'Checklist due diligence proveedor + scoring riesgo + contrato encargado + auditoría inicial + revisión anual'
+    vinculo_medida_ens: [op.ext.1, op.ext.2, op.ext.3]
+    fuente_url: 'https://www.aepd.es/guias/contratacion-encargado-tratamiento.pdf'
+
+  - codigo: RGPD-INCIDENT-RESPONSE-72H
+    regulacion: RGPD
+    articulo: 'Art. 33-34'
+    titulo: 'Plan respuesta incidentes 72h notificación AEPD'
+    obligacion: 'Plan incidentes con plazo 72h notificación AEPD: detección, contención, evaluación riesgo, decisión notificación, ejecución notificación, comunicación interesados si alto riesgo.'
+    sector_aplica: [todos]
+    ens_categoria_aplica: [B, M, A]
+    evidencia_requerida: 'Plan IR documentado + roles definidos + canal AEPD configurado + plantillas notificación + ejercicios trimestrales'
+    vinculo_medida_ens: [op.exp.7, op.mon.1, op.cont.4]
+    fuente_url: 'https://www.aepd.es/guias/notificacion-violaciones-seguridad.pdf'
+
+  - codigo: RGPD-PRIVACY-BY-DEFAULT-CONFIG
+    regulacion: RGPD
+    articulo: 'Art. 25.2'
+    titulo: 'Privacy by Default · configuraciones restrictivas'
+    obligacion: 'Por defecto: solo datos necesarios procesados (minimización), accesibilidad limitada (no público), conservación limitada. Aplicar a interfaces, formularios, APIs.'
+    sector_aplica: [todos especialmente SaaS B2C]
+    ens_categoria_aplica: [B, M, A]
+    evidencia_requerida: 'Configuraciones por defecto auditadas + checklist PbD + revisión semestral + tests automatizados'
+    vinculo_medida_ens: [mp.sw.1, mp.sw.2, op.pl.2]
+    fuente_url: 'https://edpb.europa.eu/our-work-tools/our-documents/guidelines/guidelines-42019-article-25-data-protection-design_es'
+
+  - codigo: RGPD-RECRUITMENT-DATA
+    regulacion: RGPD
+    articulo: 'Art. 6 + LOPDGDD Art. 91'
+    titulo: 'RGPD en procesos selección personal'
+    obligacion: 'Procesos selección: información clara base legítima, retención currículos limitada (≤2 años si interés legítimo futuras vacantes), supresión inmediata si rechazado y no consentimiento.'
+    sector_aplica: [todos empleadores]
+    ens_categoria_aplica: [B, M, A]
+    evidencia_requerida: 'Política privacidad selección + consentimiento explícito retención CV + supresión automatizada + log procesos'
+    vinculo_medida_ens: [mp.per.1, mp.info.6]
+    fuente_url: 'https://www.aepd.es/guias/proteccion-datos-relaciones-laborales.pdf'
+
+  - codigo: RGPD-PROFILING-SAFEGUARDS
+    regulacion: RGPD
+    articulo: 'Art. 22 + Art. 35'
+    titulo: 'Garantías profiling con efectos significativos'
+    obligacion: 'Profiling con efectos significativos (scoring, evaluación profesional): información clara lógica, intervención humana, derecho impugnación, DPIA obligatoria, revisión periódica algoritmo.'
+    sector_aplica: [fintech, HR, scoring, IA decisional]
+    ens_categoria_aplica: [M, A]
+    evidencia_requerida: 'Documentación algoritmo + DPIA + procedimiento intervención humana + canal impugnación + auditoría sesgo'
+    vinculo_medida_ens: [mp.sw.1, op.pl.2, op.acc.1]
+    fuente_url: 'https://edpb.europa.eu/our-work-tools/our-documents/guidelines/guidelines-automated-individual-decision-making-and_es'
+
+  - codigo: RGPD-PSEUDONYMIZATION
+    regulacion: RGPD
+    articulo: 'Art. 4.5 + Art. 32.1.a'
+    titulo: 'Seudonimización como medida técnica'
+    obligacion: 'Aplicar seudonimización (separación datos identificativos): tokenización, hashing, IDs sintéticos. Mantiene utilidad analítica reduciendo riesgo identificación.'
+    sector_aplica: [todos con analytics, ML, investigación]
+    ens_categoria_aplica: [M, A]
+    evidencia_requerida: 'Procedimiento seudonimización documentado + gestión separada clave correlación + cifrado clave + auditoría'
+    vinculo_medida_ens: [mp.info.6, mp.info.3]
+    fuente_url: 'https://edpb.europa.eu/our-work-tools/our-documents/topic/pseudonymisation_es'
+
+  # ========== LOPDGDD · LO 3/2018 (transposición/desarrollo español) ==========
+
+  - codigo: LOPDGDD-ART-32
+    regulacion: LOPDGDD
+    articulo: 'Art. 32'
+    titulo: 'Bloqueo de datos'
+    obligacion: 'Aplicar bloqueo tras supresión: datos identificados, no accesibles, conservados solo a disposición autoridades durante prescripción acciones.'
+    sector_aplica: [todos]
+    ens_categoria_aplica: [B, M, A]
+    evidencia_requerida: 'Procedimiento de bloqueo técnico (segregación lógica) + plazos prescripción documentados'
+    vinculo_medida_ens: [mp.info.6]
+
+  - codigo: LOPDGDD-ART-34
+    regulacion: LOPDGDD
+    articulo: 'Art. 34'
+    titulo: 'Designación DPO en España'
+    obligacion: 'DPO obligatorio en supuestos LOPDGDD: colegios profesionales, centros docentes, entidades RGPD Art.37 obligados, etc.'
+    sector_aplica: [educacion, sanidad, financiero, telecom, administracion]
+    ens_categoria_aplica: [M, A]
+    evidencia_requerida: 'Designación DPO con perfil profesional adecuado + comunicación AEPD'
+    vinculo_medida_ens: [org.1, org.4]
+
+  - codigo: LOPDGDD-DA-1
+    regulacion: LOPDGDD
+    articulo: 'Disp. Adicional 1ª'
+    titulo: 'Medidas de seguridad sector público (remisión ENS)'
+    obligacion: 'Sector público debe aplicar medidas seguridad conforme al ENS + medidas mínimas LOPDGDD.'
+    sector_aplica: [administracion publica]
+    ens_categoria_aplica: [B, M, A]
+    evidencia_requerida: 'Adecuación ENS + Política Seguridad LOPD compatible'
+    vinculo_medida_ens: [org.1, org.2, op.pl.1]
+
+  - codigo: LOPDGDD-DRECHOS-DIGITALES
+    regulacion: LOPDGDD
+    articulo: 'Título X'
+    titulo: 'Derechos digitales'
+    obligacion: 'Garantizar derechos digitales: neutralidad de Internet, acceso universal, seguridad digital, educación digital, protección menores, intimidad ámbito laboral, desconexión digital, intimidad dispositivos digitales, intimidad geolocalización, derecho al olvido en redes, rectificación en Internet, actualización en buscadores, testamento digital.'
+    sector_aplica: [todos especialmente empleadores]
+    ens_categoria_aplica: [M, A]
+    evidencia_requerida: 'Política de desconexión digital documentada + política uso dispositivos + procedimientos atención derechos digitales'
+    vinculo_medida_ens: [mp.per.1, mp.per.2]
+
+  # ─── v2 EXPAND LOPDGDD +26 entries adicionales (2026-05-20) ───
+
+  - codigo: LOPDGDD-ART-7
+    regulacion: LOPDGDD
+    articulo: 'Art. 7'
+    titulo: 'Consentimiento menores 14 años España'
+    obligacion: 'Menores ≥14 años pueden consentir por sí. Menores <14 años requieren consentimiento padres/tutores con esfuerzos verificación razonable.'
+    sector_aplica: [todos servicios menores]
+    ens_categoria_aplica: [B, M, A]
+    evidencia_requerida: 'Verificación edad 14 + flujo consent parental + esfuerzos verificación documentados'
+    vinculo_medida_ens: [op.acc.1, mp.info.1]
+    fuente_url: 'https://www.boe.es/buscar/act.php?id=BOE-A-2018-16673'
+
+  - codigo: LOPDGDD-ART-9
+    regulacion: LOPDGDD
+    articulo: 'Art. 9'
+    titulo: 'Categorías especiales tratamiento España'
+    obligacion: 'Refuerza Art. 9 RGPD: tratamiento datos especiales requiere medidas específicas + situaciones tasadas (salud pública, investigación, fines profesionales, etc.).'
+    sector_aplica: [salud, RRHH, despachos_profesionales]
+    ens_categoria_aplica: [M, A]
+    evidencia_requerida: 'Análisis legitimación específica + medidas adicionales seguridad + DPIA obligatoria'
+    vinculo_medida_ens: [mp.info.3, op.acc.5]
+    fuente_url: 'https://www.boe.es/buscar/act.php?id=BOE-A-2018-16673'
+
+  - codigo: LOPDGDD-ART-20
+    regulacion: LOPDGDD
+    articulo: 'Art. 20'
+    titulo: 'Tratamiento datos contactos personas físicas representantes empresas'
+    obligacion: 'Tratamiento datos contacto profesional (nombre, cargo, empresa, email/teléfono profesional) lícito por interés legítimo sin consentimiento.'
+    sector_aplica: [todos B2B]
+    ens_categoria_aplica: [B, M, A]
+    evidencia_requerida: 'Política B2B documentando interés legítimo + supresión a petición + información transparente'
+    vinculo_medida_ens: [mp.info.1, op.acc.1]
+    fuente_url: 'https://www.boe.es/buscar/act.php?id=BOE-A-2018-16673'
+
+  - codigo: LOPDGDD-ART-22
+    regulacion: LOPDGDD
+    articulo: 'Art. 22'
+    titulo: 'Tratamiento con fines de videovigilancia'
+    obligacion: 'Videovigilancia con fines seguridad: información mediante cartel + acceso restringido + conservación máx 1 mes + supresión automática + no zonas íntimas.'
+    sector_aplica: [todos con CCTV]
+    ens_categoria_aplica: [B, M, A]
+    evidencia_requerida: 'Cartel videovigilancia conforme AEPD + política conservación 1 mes + log accesos + procedimiento solicitudes derechos'
+    vinculo_medida_ens: [mp.if.4, mp.info.6, op.acc.5]
+    fuente_url: 'https://www.boe.es/buscar/act.php?id=BOE-A-2018-16673'
+
+  - codigo: LOPDGDD-ART-23
+    regulacion: LOPDGDD
+    articulo: 'Art. 23'
+    titulo: 'Sistemas información crediticia (ficheros solvencia)'
+    obligacion: 'Tratamiento datos deudas previo cumplimiento requisitos: deuda cierta, vencida, exigible, reclamada, importe mínimo, comunicación previa al deudor.'
+    sector_aplica: [financiero, sistemas_solvencia, recobro]
+    ens_categoria_aplica: [M, A]
+    evidencia_requerida: 'Procedimiento documentado + verificación 6 requisitos + comunicación previa + acreditación reclamación'
+    vinculo_medida_ens: [mp.info.1, op.exp.4]
+    fuente_url: 'https://www.boe.es/buscar/act.php?id=BOE-A-2018-16673'
+
+  - codigo: LOPDGDD-ART-24
+    regulacion: LOPDGDD
+    articulo: 'Art. 24'
+    titulo: 'Sistemas internos información denuncias (whistleblower)'
+    obligacion: 'Sistemas internos denuncias cumplen RGPD: información denunciante, confidencialidad identidad, datos solo durante investigación, plazo máximo 3 meses, supresión datos.'
+    sector_aplica: [empresas con canal denuncias Ley 2/2023]
+    ens_categoria_aplica: [M, A]
+    evidencia_requerida: 'Política canal denuncias + flujo confidencial + plazo conservación 3 meses + procedimiento supresión'
+    vinculo_medida_ens: [mp.info.6, mp.per.1, op.acc.5]
+    fuente_url: 'https://www.boe.es/buscar/act.php?id=BOE-A-2018-16673'
+
+  - codigo: LOPDGDD-ART-25
+    regulacion: LOPDGDD
+    articulo: 'Art. 25'
+    titulo: 'Tratamiento datos en función pública notarial y registral'
+    obligacion: 'Notarios/registradores aplican RGPD con especialidades: secreto profesional, archivo histórico, comunicaciones autoridades, derecho información.'
+    sector_aplica: [notarios, registradores]
+    ens_categoria_aplica: [M, A]
+    evidencia_requerida: 'Política función pública + secreto profesional + protocolo archivo + procedimiento comunicación autoridades'
+    vinculo_medida_ens: [mp.info.6, org.4]
+    fuente_url: 'https://www.boe.es/buscar/act.php?id=BOE-A-2018-16673'
+
+  - codigo: LOPDGDD-ART-31
+    regulacion: LOPDGDD
+    articulo: 'Art. 31'
+    titulo: 'Sistemas información crédito y solvencia · plazos'
+    obligacion: 'Datos deudas en ficheros solvencia conservados máximo 5 años desde vencimiento. Notificación inscripción al deudor en 30 días.'
+    sector_aplica: [financiero, sistemas_solvencia]
+    ens_categoria_aplica: [M, A]
+    evidencia_requerida: 'Política conservación 5 años + supresión automática + notificación 30 días documentada + log peticiones supresión'
+    vinculo_medida_ens: [mp.info.6, op.exp.4]
+    fuente_url: 'https://www.boe.es/buscar/act.php?id=BOE-A-2018-16673'
+
+  - codigo: LOPDGDD-ART-35
+    regulacion: LOPDGDD
+    articulo: 'Art. 35'
+    titulo: 'Cualificación profesional DPO'
+    obligacion: 'DPO designado con conocimientos especializados Derecho y práctica protección datos. Certificación voluntaria por esquemas reconocidos AEPD.'
+    sector_aplica: [empresas con DPO]
+    ens_categoria_aplica: [M, A]
+    evidencia_requerida: 'CV DPO + certificación AEPD (opcional pero recomendable) + plan formación continua + experiencia documentada'
+    vinculo_medida_ens: [org.4, mp.per.3]
+    fuente_url: 'https://www.aepd.es/areas-de-actuacion/delegado-de-proteccion-de-datos'
+
+  - codigo: LOPDGDD-ART-37
+    regulacion: LOPDGDD
+    articulo: 'Art. 37'
+    titulo: 'Independencia y reporting DPO'
+    obligacion: 'DPO reporta directamente máximo nivel jerárquico. No instrucciones ejercicio funciones. No destituible/sancionado por funciones. Conflicto interés evitado.'
+    sector_aplica: [empresas con DPO]
+    ens_categoria_aplica: [M, A]
+    evidencia_requerida: 'Documento independencia DPO + línea reporte directa + análisis conflictos interés + protección estatutaria'
+    vinculo_medida_ens: [org.4]
+    fuente_url: 'https://www.boe.es/buscar/act.php?id=BOE-A-2018-16673'
+
+  - codigo: LOPDGDD-ART-41
+    regulacion: LOPDGDD
+    articulo: 'Art. 41'
+    titulo: 'Inscripción DPO ante AEPD'
+    obligacion: 'Designación DPO debe comunicarse a AEPD en 10 días. Inscripción registro público AEPD. Actualización si cambios.'
+    sector_aplica: [empresas con DPO obligatorio]
+    ens_categoria_aplica: [M, A]
+    evidencia_requerida: 'Comunicación AEPD < 10 días + registro inscripción + procedimiento actualización cambios'
+    vinculo_medida_ens: [org.4]
+    fuente_url: 'https://www.aepd.es/sede-electronica/notificacion-dpd'
+
+  - codigo: LOPDGDD-ART-43
+    regulacion: LOPDGDD
+    articulo: 'Art. 43'
+    titulo: 'Intervención DPO casos infracciones'
+    obligacion: 'DPO comunica AEPD cuando responsable/encargado no atiende sus recomendaciones. Mediación previa entre responsable e interesado.'
+    sector_aplica: [empresas con DPO]
+    ens_categoria_aplica: [M, A]
+    evidencia_requerida: 'Procedimiento escalado DPO → AEPD + log recomendaciones + canal mediación interesado'
+    vinculo_medida_ens: [org.4, op.pl.1]
+    fuente_url: 'https://www.boe.es/buscar/act.php?id=BOE-A-2018-16673'
+
+  - codigo: LOPDGDD-ART-47
+    regulacion: LOPDGDD
+    articulo: 'Art. 47'
+    titulo: 'Reclamaciones ante AEPD'
+    obligacion: 'Interesados pueden reclamar ante AEPD si responsable/encargado no atiende derechos. AEPD resuelve en 3-9 meses según complejidad.'
+    sector_aplica: [todos]
+    ens_categoria_aplica: [B, M, A]
+    evidencia_requerida: 'Información en política privacidad sobre reclamación AEPD + procedimiento gestión reclamaciones internas + plazo respuesta 1 mes'
+    vinculo_medida_ens: [op.acc.1, mp.info.1]
+    fuente_url: 'https://sedeagpd.gob.es/sede-electronica-web/'
+
+  - codigo: LOPDGDD-ART-72
+    regulacion: LOPDGDD
+    articulo: 'Art. 72'
+    titulo: 'Infracciones muy graves'
+    obligacion: 'Sanciones hasta 20M€ o 4% facturación: tratamiento sin base, datos especiales sin Art.9, no atender derechos sistemáticamente, transferencias internacionales irregulares.'
+    sector_aplica: [todos]
+    ens_categoria_aplica: [B, M, A]
+    evidencia_requerida: 'Programa cumplimiento riguroso + auditoría anual + plan respuesta requerimientos AEPD'
+    vinculo_medida_ens: [org.1, org.3]
+    fuente_url: 'https://www.boe.es/buscar/act.php?id=BOE-A-2018-16673'
+
+  - codigo: LOPDGDD-ART-73
+    regulacion: LOPDGDD
+    articulo: 'Art. 73'
+    titulo: 'Infracciones graves'
+    obligacion: 'Sanciones hasta 10M€ o 2% facturación: no DPO obligado, RAT incompleto, no DPIA obligatoria, brechas no notificadas, no cláusulas Art.13/14.'
+    sector_aplica: [todos]
+    ens_categoria_aplica: [B, M, A]
+    evidencia_requerida: 'Checklist cumplimiento mensual + auditoría DPO + evidencias todas obligaciones operativas'
+    vinculo_medida_ens: [org.1, org.3]
+    fuente_url: 'https://www.boe.es/buscar/act.php?id=BOE-A-2018-16673'
+
+  - codigo: LOPDGDD-ART-74
+    regulacion: LOPDGDD
+    articulo: 'Art. 74'
+    titulo: 'Infracciones leves'
+    obligacion: 'Sanciones hasta 40k€: incumplimiento información Art.13/14, no respuesta derechos en plazo, falta cooperación menor AEPD.'
+    sector_aplica: [todos]
+    ens_categoria_aplica: [B, M, A]
+    evidencia_requerida: 'KPIs respuesta derechos + cláusulas RGPD actualizadas + canal cooperación AEPD'
+    vinculo_medida_ens: [op.acc.1, mp.info.1]
+    fuente_url: 'https://www.boe.es/buscar/act.php?id=BOE-A-2018-16673'
+
+  - codigo: LOPDGDD-ART-79
+    regulacion: LOPDGDD
+    articulo: 'Art. 79'
+    titulo: 'Derecho neutralidad Internet'
+    obligacion: 'Garantizar acceso neutro Internet sin discriminación servicios/usuarios por proveedores. ISPs no priorizan tráfico.'
+    sector_aplica: [ISP, telecom]
+    ens_categoria_aplica: [B, M, A]
+    evidencia_requerida: 'Política neutralidad red documentada + supervisión QoS + transparencia gestión tráfico'
+    vinculo_medida_ens: [mp.com.4, org.1]
+    fuente_url: 'https://www.boe.es/buscar/act.php?id=BOE-A-2018-16673'
+
+  - codigo: LOPDGDD-ART-83
+    regulacion: LOPDGDD
+    articulo: 'Art. 83'
+    titulo: 'Protección menores en Internet'
+    obligacion: 'Padres/tutores responsables uso menores Internet. Servicios deben implementar mecanismos verificación edad + control parental + supresión rápida contenido lesivo.'
+    sector_aplica: [edtech, social, gaming, todos B2C menores]
+    ens_categoria_aplica: [M, A]
+    evidencia_requerida: 'Verificación edad implementada + canal denuncia contenido + supresión <24h + control parental funcional'
+    vinculo_medida_ens: [op.acc.1, mp.info.1, mp.info.6]
+    fuente_url: 'https://www.boe.es/buscar/act.php?id=BOE-A-2018-16673'
+
+  - codigo: LOPDGDD-ART-87
+    regulacion: LOPDGDD
+    articulo: 'Art. 87'
+    titulo: 'Intimidad uso dispositivos digitales ámbito laboral'
+    obligacion: 'Empleador puede acceder a contenidos dispositivos para verificar cumplimiento obligaciones laborales + integridad dispositivos. Política previa + criterios de uso + información empleados.'
+    sector_aplica: [todos empleadores]
+    ens_categoria_aplica: [B, M, A]
+    evidencia_requerida: 'Política uso dispositivos firmada empleados + criterios acceso + procedimiento auditoría + información comité empresa'
+    vinculo_medida_ens: [mp.per.1, mp.per.2, mp.eq.4]
+    fuente_url: 'https://www.boe.es/buscar/act.php?id=BOE-A-2018-16673'
+
+  - codigo: LOPDGDD-ART-88
+    regulacion: LOPDGDD
+    articulo: 'Art. 88'
+    titulo: 'Derecho desconexión digital ámbito laboral'
+    obligacion: 'Trabajadores tienen derecho desconexión digital fuera jornada laboral. Política empresa con consulta representantes trabajadores. Especial protección con teletrabajo.'
+    sector_aplica: [todos empleadores]
+    ens_categoria_aplica: [B, M, A]
+    evidencia_requerida: 'Política desconexión digital negociada + canal denuncia incumplimiento + formación cargos mandos + KPIs respeto'
+    vinculo_medida_ens: [mp.per.1, mp.per.2]
+    fuente_url: 'https://www.boe.es/buscar/act.php?id=BOE-A-2018-16673'
+
+  - codigo: LOPDGDD-ART-89
+    regulacion: LOPDGDD
+    articulo: 'Art. 89'
+    titulo: 'Derecho a la intimidad frente videovigilancia laboral'
+    obligacion: 'Videovigilancia laboral solo si información expresa trabajadores + representantes + cartel. No zonas íntimas (vestuarios, baños). Solo acceso casos justificados.'
+    sector_aplica: [todos empleadores con CCTV]
+    ens_categoria_aplica: [B, M, A]
+    evidencia_requerida: 'Información comité empresa + cartel videovigilancia + política acceso restringido + log accesos justificados'
+    vinculo_medida_ens: [mp.if.4, mp.per.2]
+    fuente_url: 'https://www.boe.es/buscar/act.php?id=BOE-A-2018-16673'
+
+  - codigo: LOPDGDD-ART-90
+    regulacion: LOPDGDD
+    articulo: 'Art. 90'
+    titulo: 'Derecho a la intimidad frente geolocalización laboral'
+    obligacion: 'Geolocalización dispositivos trabajo solo finalidades laborales legítimas + información previa + criterios uso + horario trabajo (no fuera).'
+    sector_aplica: [logistica, transporte, comerciales, empleados móviles]
+    ens_categoria_aplica: [M, A]
+    evidencia_requerida: 'Política geolocalización + información expresa + desactivación fuera horario + acceso restringido + auditoría'
+    vinculo_medida_ens: [mp.eq.4, mp.per.2]
+    fuente_url: 'https://www.boe.es/buscar/act.php?id=BOE-A-2018-16673'
+
+  - codigo: LOPDGDD-ART-91
+    regulacion: LOPDGDD
+    articulo: 'Art. 91'
+    titulo: 'Derechos digitales en negociación colectiva'
+    obligacion: 'Convenios colectivos deben incluir derechos digitales empleados: desconexión, intimidad uso dispositivos, geolocalización, videovigilancia, registros biométricos.'
+    sector_aplica: [todos empleadores con convenio]
+    ens_categoria_aplica: [B, M, A]
+    evidencia_requerida: 'Convenio colectivo con cláusulas derechos digitales + procedimiento revisión + acta negociación'
+    vinculo_medida_ens: [mp.per.1, mp.per.2]
+    fuente_url: 'https://www.boe.es/buscar/act.php?id=BOE-A-2018-16673'
+
+  - codigo: LOPDGDD-ART-93
+    regulacion: LOPDGDD
+    articulo: 'Art. 93'
+    titulo: 'Educación digital'
+    obligacion: 'Sistema educativo garantiza educación digital responsable + uso seguro Internet + protección datos. Profesorado formado.'
+    sector_aplica: [educacion, edtech]
+    ens_categoria_aplica: [B, M, A]
+    evidencia_requerida: 'Plan formación digital + currículo derechos digitales + formación profesorado + materiales actualizados'
+    vinculo_medida_ens: [mp.per.3, mp.info.1]
+    fuente_url: 'https://www.boe.es/buscar/act.php?id=BOE-A-2018-16673'
+
+  - codigo: LOPDGDD-ART-94
+    regulacion: LOPDGDD
+    articulo: 'Art. 94'
+    titulo: 'Derecho rectificación información buscadores'
+    obligacion: 'Derecho a actualización información personal en buscadores. Buscadores deben atender solicitudes rectificación contenido inexacto/obsoleto.'
+    sector_aplica: [buscadores, indexadores, agregadores]
+    ens_categoria_aplica: [B, M, A]
+    evidencia_requerida: 'Formulario rectificación accesible + procedimiento + plazo respuesta 1 mes + log peticiones'
+    vinculo_medida_ens: [op.acc.1, mp.info.6]
+    fuente_url: 'https://www.boe.es/buscar/act.php?id=BOE-A-2018-16673'
+
+  - codigo: LOPDGDD-ART-96
+    regulacion: LOPDGDD
+    articulo: 'Art. 96'
+    titulo: 'Testamento digital'
+    obligacion: 'Personas legitimadas pueden disponer continuidad/cierre cuentas digitales fallecido + recuperación contenidos no sensibles familiares.'
+    sector_aplica: [redes_sociales, email_providers, plataformas_digitales]
+    ens_categoria_aplica: [B, M, A]
+    evidencia_requerida: 'Procedimiento testamento digital + verificación legitimación + plazo respuesta + supresión cuenta'
+    vinculo_medida_ens: [op.acc.1, mp.info.6]
+    fuente_url: 'https://www.boe.es/buscar/act.php?id=BOE-A-2018-16673'
+
+  # ========== NIS2 · Directiva (UE) 2022/2555 ==========
+
+  - codigo: NIS2-ART-20
+    regulacion: NIS2
+    articulo: 'Art. 20'
+    titulo: 'Gobernanza · alta dirección responsable'
+    obligacion: 'Órganos de dirección aprueban medidas de gestión de riesgos, supervisan implementación, son responsables del incumplimiento. Formación obligatoria.'
+    sector_aplica: [entidades_esenciales, entidades_importantes]
+    ens_categoria_aplica: [M, A]
+    evidencia_requerida: 'Acta del órgano de gobierno aprobando medidas + plan formación dirección + log asistencia'
+    vinculo_medida_ens: [org.1, org.2, mp.per.3]
+
+  - codigo: NIS2-ART-21
+    regulacion: NIS2
+    articulo: 'Art. 21'
+    titulo: 'Medidas de gestión de riesgos de ciberseguridad'
+    obligacion: 'Aplicar medidas técnicas, operativas y organizativas proporcionadas. Mínimos: análisis riesgos, gestión incidentes, continuidad, seguridad cadena suministro, seguridad adquisición/desarrollo, evaluación efectividad, higiene básica, criptografía, RRHH/control acceso/gestión activos, MFA/comunicaciones seguras.'
+    sector_aplica: [entidades_esenciales, entidades_importantes]
+    ens_categoria_aplica: [M, A]
+    evidencia_requerida: 'SGSI completo · cobertura los 10 dominios + auditoría externa anual'
+    vinculo_medida_ens: [op.pl.1, op.pl.2, op.exp.7, op.cont.1, op.ext.1, mp.per.3, mp.com.1, op.acc.5]
+
+  - codigo: NIS2-ART-23
+    regulacion: NIS2
+    articulo: 'Art. 23'
+    titulo: 'Notificación de incidentes significativos'
+    obligacion: 'Notificación temprana al CSIRT/autoridad: alerta inicial <24h, notificación detallada <72h, informe intermedio si solicitado, informe final <1 mes.'
+    sector_aplica: [entidades_esenciales, entidades_importantes]
+    ens_categoria_aplica: [M, A]
+    evidencia_requerida: 'Procedimiento gestión incidentes con plazos NIS2 + canal CCN-CERT/INCIBE-CERT configurado + plantillas'
+    vinculo_medida_ens: [op.exp.7, op.mon.1]
+
+  - codigo: NIS2-INCIDENTE-SIGNIFICATIVO
+    regulacion: NIS2
+    articulo: 'Art. 23.3'
+    titulo: 'Criterios incidente significativo'
+    obligacion: 'Definir y aplicar criterios: causar/poder causar perturbación operativa grave, pérdidas financieras, afectar terceros con daños materiales/inmateriales considerables.'
+    sector_aplica: [entidades_esenciales, entidades_importantes]
+    ens_categoria_aplica: [M, A]
+    evidencia_requerida: 'Matriz criterios incidente significativo aprobada + ejercicios anuales aplicación criterios'
+    vinculo_medida_ens: [op.exp.7]
+
+  - codigo: NIS2-CADENA-SUMINISTRO
+    regulacion: NIS2
+    articulo: 'Art. 21.2.d'
+    titulo: 'Seguridad cadena de suministro'
+    obligacion: 'Evaluar seguridad de proveedores, dependencias de servicios TIC, calidad/resiliencia productos/procesos proveedores.'
+    sector_aplica: [entidades_esenciales, entidades_importantes]
+    ens_categoria_aplica: [M, A]
+    evidencia_requerida: 'Mapa proveedores críticos + evaluación seguridad proveedores + cláusulas contractuales ciberseguridad'
+    vinculo_medida_ens: [op.ext.1, op.ext.2, op.ext.3]
+
+  - codigo: NIS2-CONTINUIDAD
+    regulacion: NIS2
+    articulo: 'Art. 21.2.c'
+    titulo: 'Continuidad de actividad y gestión de crisis'
+    obligacion: 'Mantener planes de continuidad, copias seguridad, recuperación tras desastres, gestión de crisis.'
+    sector_aplica: [entidades_esenciales, entidades_importantes]
+    ens_categoria_aplica: [M, A]
+    evidencia_requerida: 'BCP + DRP + BIA + ejercicios anuales + RTO/RPO documentados'
+    vinculo_medida_ens: [op.cont.1, op.cont.2, op.cont.3, op.cont.4]
+
+  - codigo: NIS2-CRIPTO
+    regulacion: NIS2
+    articulo: 'Art. 21.2.h'
+    titulo: 'Políticas y procedimientos sobre criptografía'
+    obligacion: 'Cuando proceda, políticas sobre uso de criptografía y cifrado de datos.'
+    sector_aplica: [entidades_esenciales, entidades_importantes]
+    ens_categoria_aplica: [M, A]
+    evidencia_requerida: 'Política criptográfica documentada + gestión claves + algoritmos vigentes CCN-STIC-807'
+    vinculo_medida_ens: [mp.com.2, mp.info.3]
+
+  - codigo: NIS2-MFA
+    regulacion: NIS2
+    articulo: 'Art. 21.2.j'
+    titulo: 'Autenticación multifactor y comunicaciones seguras'
+    obligacion: 'Aplicar MFA o autenticación continua + comunicaciones seguras de voz/vídeo/texto + sistemas comunicaciones emergencia.'
+    sector_aplica: [entidades_esenciales, entidades_importantes]
+    ens_categoria_aplica: [M, A]
+    evidencia_requerida: 'MFA implementado para accesos privilegiados y remotos + comunicaciones seguras documentadas'
+    vinculo_medida_ens: [op.acc.5, mp.com.1, mp.com.3]
+
+  - codigo: NIS2-FORMACION
+    regulacion: NIS2
+    articulo: 'Art. 20.2'
+    titulo: 'Formación ciberseguridad'
+    obligacion: 'Formación periódica al personal en ciberseguridad + formación específica órgano dirección.'
+    sector_aplica: [entidades_esenciales, entidades_importantes]
+    ens_categoria_aplica: [M, A]
+    evidencia_requerida: 'Plan formación anual + KPIs asistencia/comprensión + ejercicios phishing'
+    vinculo_medida_ens: [mp.per.3]
+
+  - codigo: NIS2-REGISTRO
+    regulacion: NIS2
+    articulo: 'Art. 27'
+    titulo: 'Registro entidades NIS2'
+    obligacion: 'Las entidades incluidas comunican a la autoridad competente datos básicos (denominación, sector, contactos, países servicios).'
+    sector_aplica: [entidades_esenciales, entidades_importantes]
+    ens_categoria_aplica: [M, A]
+    evidencia_requerida: 'Inscripción ante autoridad española (CCN/INCIBE/CNMC según sector) + actualizaciones anuales'
+    vinculo_medida_ens: [org.4]
+
+  - codigo: NIS2-SUPERVISION
+    regulacion: NIS2
+    articulo: 'Art. 32-33'
+    titulo: 'Supervisión y ejecución'
+    obligacion: 'Sujetos a auditorías, inspecciones in situ, solicitudes información, escaneo seguridad por autoridad.'
+    sector_aplica: [entidades_esenciales, entidades_importantes]
+    ens_categoria_aplica: [M, A]
+    evidencia_requerida: 'Documentación lista para auditoría: ROPA, política seguridad, registros incidentes, evidencias controles'
+    vinculo_medida_ens: [org.3, op.pl.1]
+
+  - codigo: NIS2-SANCIONES
+    regulacion: NIS2
+    articulo: 'Art. 34'
+    titulo: 'Régimen sancionador NIS2'
+    obligacion: 'Multas administrativas: hasta 10M€ o 2% facturación global (esenciales) / 7M€ o 1.4% (importantes). Suspensión actividad posible.'
+    sector_aplica: [entidades_esenciales, entidades_importantes]
+    ens_categoria_aplica: [M, A]
+    evidencia_requerida: 'Programa cumplimiento + evidencias actualizadas + plan respuesta requerimientos autoridad'
+    vinculo_medida_ens: [org.1, org.3]
+
+  # ─── v2 EXPAND NIS2 +48 entries adicionales (2026-05-20) ───
+
+  - codigo: NIS2-ART-1
+    regulacion: NIS2
+    articulo: 'Art. 1'
+    titulo: 'Objeto y ámbito aplicación'
+    obligacion: 'NIS2 establece medidas comunes alto nivel ciberseguridad UE para entidades esenciales/importantes. Sustituye NIS1 (Dir 2016/1148).'
+    sector_aplica: [entidades_esenciales, entidades_importantes]
+    ens_categoria_aplica: [M, A]
+    evidencia_requerida: 'Análisis aplicabilidad NIS2 documentado + clasificación entidad + comunicación autoridad'
+    vinculo_medida_ens: [org.1, org.4]
+    fuente_url: 'https://eur-lex.europa.eu/legal-content/ES/TXT/?uri=CELEX:32022L2555'
+
+  - codigo: NIS2-ART-2-ANEXO-I
+    regulacion: NIS2
+    articulo: 'Art. 2 + Anexo I'
+    titulo: 'Entidades esenciales · 11 sectores Anexo I'
+    obligacion: 'Aplicar a empresas medianas/grandes en sectores Anexo I: energía, transporte, banca, IMF, salud, agua potable, residuales, infraestructura digital, gestión TIC B2B, administración pública, espacio.'
+    sector_aplica: [energia, transporte, banca, IMF, salud, agua, infraestructura_digital, gestion_TIC, admin_publica, espacio]
+    ens_categoria_aplica: [M, A]
+    evidencia_requerida: 'Clasificación entidad esencial + comunicación autoridad nacional + ICCS + registro mantenido actualizado'
+    vinculo_medida_ens: [org.4, op.pl.1]
+    fuente_url: 'https://eur-lex.europa.eu/legal-content/ES/TXT/?uri=CELEX:32022L2555'
+
+  - codigo: NIS2-ART-2-ANEXO-II
+    regulacion: NIS2
+    articulo: 'Art. 2 + Anexo II'
+    titulo: 'Entidades importantes · 7 sectores Anexo II'
+    obligacion: 'Aplicar a empresas medianas/grandes sectores Anexo II: servicios postales, gestión residuos, industria química, alimentación, fabricación crítica, proveedores digitales, investigación.'
+    sector_aplica: [postales, residuos, quimica, alimentacion, fabricacion, digitales, investigacion]
+    ens_categoria_aplica: [M, A]
+    evidencia_requerida: 'Clasificación entidad importante + comunicación autoridad nacional + plan adecuación'
+    vinculo_medida_ens: [org.4, op.pl.1]
+    fuente_url: 'https://eur-lex.europa.eu/legal-content/ES/TXT/?uri=CELEX:32022L2555'
+
+  - codigo: NIS2-ART-3
+    regulacion: NIS2
+    articulo: 'Art. 3'
+    titulo: 'Definiciones NIS2'
+    obligacion: 'Aplicar definiciones operativas: entidad esencial/importante, incidente, casi-incidente, amenaza ciber, riesgo, vulnerabilidad, especificación técnica.'
+    sector_aplica: [entidades_NIS2]
+    ens_categoria_aplica: [M, A]
+    evidencia_requerida: 'Glosario NIS2 interno + formación equipo + consistencia terminología políticas internas'
+    vinculo_medida_ens: [mp.per.3, mp.info.1]
+    fuente_url: 'https://eur-lex.europa.eu/legal-content/ES/TXT/?uri=CELEX:32022L2555'
+
+  - codigo: NIS2-ART-7
+    regulacion: NIS2
+    articulo: 'Art. 7'
+    titulo: 'Estrategia Nacional Ciberseguridad'
+    obligacion: 'EE.MM. adoptan estrategia nacional ciberseguridad alineada NIS2: objetivos, gobernanza, recursos, métricas, evaluación periódica.'
+    sector_aplica: [administracion_publica_nacional]
+    ens_categoria_aplica: [M, A]
+    evidencia_requerida: 'Alineación estrategia entidad con estrategia nacional + revisión trianual + reporte cumplimiento'
+    vinculo_medida_ens: [org.1, op.pl.1]
+    fuente_url: 'https://eur-lex.europa.eu/legal-content/ES/TXT/?uri=CELEX:32022L2555'
+
+  - codigo: NIS2-ART-9-CSIRT
+    regulacion: NIS2
+    articulo: 'Art. 9'
+    titulo: 'Centro Respuesta Incidentes Seguridad (CSIRT)'
+    obligacion: 'EE.MM. designan ≥1 CSIRT por sector. En España: INCIBE-CERT (privado/sectores) + CCN-CERT (admin pública) + ESPDEF-CERT (defensa).'
+    sector_aplica: [todas entidades_NIS2]
+    ens_categoria_aplica: [M, A]
+    evidencia_requerida: 'Canal notificación CSIRT configurado por sector + procedimiento + plantillas comunicación'
+    vinculo_medida_ens: [op.exp.7, org.4]
+    fuente_url: 'https://www.incibe-cert.es/'
+
+  - codigo: NIS2-ART-11-CSIRT-FUNCIONES
+    regulacion: NIS2
+    articulo: 'Art. 11'
+    titulo: 'CSIRTs · funciones operativas'
+    obligacion: 'CSIRTs ofrecen: monitorización, alerta temprana, respuesta incidentes, análisis riesgo/incidentes, escaneo redes proactivo, intercambio información.'
+    sector_aplica: [entidades_NIS2]
+    ens_categoria_aplica: [M, A]
+    evidencia_requerida: 'Suscripción servicios CSIRT + canal alertas + procedimiento respuesta + log incidentes compartidos'
+    vinculo_medida_ens: [op.exp.7, op.mon.1]
+    fuente_url: 'https://www.incibe-cert.es/servicios'
+
+  - codigo: NIS2-ART-12-COOPERACION
+    regulacion: NIS2
+    articulo: 'Art. 12'
+    titulo: 'Cooperación nacional ciberseguridad'
+    obligacion: 'EE.MM. designan punto contacto único + autoridad competente + CSIRT(s) + autoridades sectoriales. Cooperación entre ellos.'
+    sector_aplica: [administracion_publica]
+    ens_categoria_aplica: [M, A]
+    evidencia_requerida: 'Mapa autoridades aplicables entidad + canales cooperación documentados + procedimiento escalado'
+    vinculo_medida_ens: [org.4, op.pl.1]
+    fuente_url: 'https://eur-lex.europa.eu/legal-content/ES/TXT/?uri=CELEX:32022L2555'
+
+  - codigo: NIS2-ART-13-GRUPO-COOPERACION
+    regulacion: NIS2
+    articulo: 'Art. 13'
+    titulo: 'Grupo de Cooperación UE'
+    obligacion: 'Grupo Cooperación NIS2 reúne autoridades EE.MM. + Comisión + ENISA. Intercambio buenas prácticas + estrategia común.'
+    sector_aplica: [autoridades_nacionales]
+    ens_categoria_aplica: [M, A]
+    evidencia_requerida: 'Participación canales nacionales en Grupo Cooperación + difusión buenas prácticas internas'
+    vinculo_medida_ens: [org.1]
+    fuente_url: 'https://digital-strategy.ec.europa.eu/en/policies/nis-cooperation-group'
+
+  - codigo: NIS2-ART-14-RED-CSIRT-UE
+    regulacion: NIS2
+    articulo: 'Art. 14'
+    titulo: 'Red CSIRTs UE'
+    obligacion: 'Red EU-CSIRT facilita cooperación operativa + intercambio info incidentes + soporte transfronterizo + ejercicios conjuntos.'
+    sector_aplica: [CSIRTs_nacionales]
+    ens_categoria_aplica: [M, A]
+    evidencia_requerida: 'Canal entidad → CSIRT nacional → Red EU-CSIRT + procedimiento incidentes transfronterizos'
+    vinculo_medida_ens: [op.exp.7, op.ext.4]
+    fuente_url: 'https://www.enisa.europa.eu/topics/csirts-in-europe/csirts-network'
+
+  - codigo: NIS2-ART-15-CYCLONE
+    regulacion: NIS2
+    articulo: 'Art. 15'
+    titulo: 'EU-CyCLONe · red ciberseguridad crisis'
+    obligacion: 'Red CyCLONe coordina gestión crisis ciberseguridad gran escala UE. Conecta autoridades nacionales en escenarios críticos.'
+    sector_aplica: [autoridades_crisis_nacionales]
+    ens_categoria_aplica: [M, A]
+    evidencia_requerida: 'Plan continuidad alineado coordinación CyCLONe + protocolo crisis nacionales + ejercicios anuales'
+    vinculo_medida_ens: [op.cont.1, op.cont.4]
+    fuente_url: 'https://www.enisa.europa.eu/topics/incident-response/cyclone'
+
+  - codigo: NIS2-ART-17-CRISIS-PLAN
+    regulacion: NIS2
+    articulo: 'Art. 17'
+    titulo: 'Plan nacional gestión crisis ciberseguridad'
+    obligacion: 'EE.MM. tienen plan nacional gestión crisis ciberseguridad. Entidades alinean con plan nacional (especialmente esenciales).'
+    sector_aplica: [entidades_esenciales]
+    ens_categoria_aplica: [M, A]
+    evidencia_requerida: 'BCP/DRP alineado plan nacional + protocolos escalado crisis + ejercicios anuales'
+    vinculo_medida_ens: [op.cont.1, op.cont.4]
+    fuente_url: 'https://eur-lex.europa.eu/legal-content/ES/TXT/?uri=CELEX:32022L2555'
+
+  - codigo: NIS2-ART-18-ENISA-INFORME
+    regulacion: NIS2
+    articulo: 'Art. 18'
+    titulo: 'Informe ENISA estado ciberseguridad UE bianual'
+    obligacion: 'ENISA publica informe bianual estado ciberseguridad UE. Entidades atienden requerimientos información para informe.'
+    sector_aplica: [entidades_NIS2]
+    ens_categoria_aplica: [M, A]
+    evidencia_requerida: 'Canal respuesta requerimientos ENISA + procedimiento atención + plazo respuesta'
+    vinculo_medida_ens: [org.4]
+    fuente_url: 'https://www.enisa.europa.eu/topics/cybersecurity-policy'
+
+  - codigo: NIS2-ART-21-2-A-RISK
+    regulacion: NIS2
+    articulo: 'Art. 21.2.a'
+    titulo: 'Análisis riesgos seguridad sistemas información'
+    obligacion: 'Políticas análisis riesgos + seguridad sistemas información. Metodología documentada + revisión periódica + integración decisiones.'
+    sector_aplica: [entidades_esenciales, entidades_importantes]
+    ens_categoria_aplica: [M, A]
+    evidencia_requerida: 'MAGERIT u OCTAVE/ISO27005 + análisis riesgos anual + matriz riesgos + plan tratamiento'
+    vinculo_medida_ens: [op.pl.1, op.pl.2]
+    fuente_url: 'https://eur-lex.europa.eu/legal-content/ES/TXT/?uri=CELEX:32022L2555'
+
+  - codigo: NIS2-ART-21-2-B-INCIDENT
+    regulacion: NIS2
+    articulo: 'Art. 21.2.b'
+    titulo: 'Gestión incidentes ciberseguridad'
+    obligacion: 'Procedimiento gestión incidentes completo: detección, análisis, contención, erradicación, recuperación, lecciones aprendidas, notificación.'
+    sector_aplica: [entidades_esenciales, entidades_importantes]
+    ens_categoria_aplica: [M, A]
+    evidencia_requerida: 'Procedimiento IR NIST-aligned + plantillas + roles + ejercicios trimestrales + métricas MTTD/MTTR'
+    vinculo_medida_ens: [op.exp.7, op.mon.1]
+    fuente_url: 'https://eur-lex.europa.eu/legal-content/ES/TXT/?uri=CELEX:32022L2555'
+
+  - codigo: NIS2-ART-21-2-E-DEV-SEC
+    regulacion: NIS2
+    articulo: 'Art. 21.2.e'
+    titulo: 'Seguridad adquisición/desarrollo/mantenimiento sistemas'
+    obligacion: 'Seguridad ciclo vida sistemas: especificación segura, desarrollo seguro (SAST/DAST/SCA), revisión código, pruebas penetración, mantenimiento parcheo.'
+    sector_aplica: [entidades_esenciales, entidades_importantes]
+    ens_categoria_aplica: [M, A]
+    evidencia_requerida: 'SDLC seguro + herramientas SAST/DAST/SCA + revisión código + tests penetración anuales + política parcheo'
+    vinculo_medida_ens: [mp.sw.1, mp.sw.2, op.exp.3]
+    fuente_url: 'https://eur-lex.europa.eu/legal-content/ES/TXT/?uri=CELEX:32022L2555'
+
+  - codigo: NIS2-ART-21-2-F-EFFICACY
+    regulacion: NIS2
+    articulo: 'Art. 21.2.f'
+    titulo: 'Evaluación eficacia medidas ciberseguridad'
+    obligacion: 'Métricas medir eficacia medidas: KPIs cobertura, incidentes detectados, tiempo respuesta, vulnerabilidades cerradas, formación. Revisión anual.'
+    sector_aplica: [entidades_esenciales, entidades_importantes]
+    ens_categoria_aplica: [M, A]
+    evidencia_requerida: 'KPIs ciberseguridad documentados + dashboard + revisión trimestral + informe anual dirección'
+    vinculo_medida_ens: [op.pl.3, op.mon.2]
+    fuente_url: 'https://eur-lex.europa.eu/legal-content/ES/TXT/?uri=CELEX:32022L2555'
+
+  - codigo: NIS2-ART-21-2-G-HIGIENE
+    regulacion: NIS2
+    articulo: 'Art. 21.2.g'
+    titulo: 'Prácticas básicas higiene + formación'
+    obligacion: 'Higiene ciberseguridad: política contraseñas, parcheo regular, antivirus, navegación segura, email phishing-aware. Formación periódica + simulacros.'
+    sector_aplica: [entidades_esenciales, entidades_importantes]
+    ens_categoria_aplica: [M, A]
+    evidencia_requerida: 'Política contraseñas + parcheo automatizado + EDR + filtrado email + formación anual + simulacros phishing trimestrales'
+    vinculo_medida_ens: [op.exp.3, op.exp.4, mp.per.3, mp.eq.4]
+    fuente_url: 'https://eur-lex.europa.eu/legal-content/ES/TXT/?uri=CELEX:32022L2555'
+
+  - codigo: NIS2-ART-21-2-I-IAM
+    regulacion: NIS2
+    articulo: 'Art. 21.2.i'
+    titulo: 'Seguridad RRHH, políticas control acceso, gestión activos'
+    obligacion: 'Personal con clearance proporcional, control acceso (least privilege, RBAC, JIT), inventario activos completo + clasificación.'
+    sector_aplica: [entidades_esenciales, entidades_importantes]
+    ens_categoria_aplica: [M, A]
+    evidencia_requerida: 'Política RRHH con clearance + IAM con RBAC/PAM + CMDB completo + clasificación información'
+    vinculo_medida_ens: [op.acc.1, op.acc.5, op.exp.1, mp.per.1]
+    fuente_url: 'https://eur-lex.europa.eu/legal-content/ES/TXT/?uri=CELEX:32022L2555'
+
+  - codigo: NIS2-ART-22-CADENA-COORD
+    regulacion: NIS2
+    articulo: 'Art. 22'
+    titulo: 'Análisis riesgo coordinado cadena suministro'
+    obligacion: 'Análisis riesgo cadena suministro coordinado UE para sectores específicos: telecomunicaciones, software crítico, cloud crítico.'
+    sector_aplica: [telecom, software_critico, cloud]
+    ens_categoria_aplica: [M, A]
+    evidencia_requerida: 'Análisis riesgo proveedores críticos + inventory + plan diversificación + ejercicios continuidad'
+    vinculo_medida_ens: [op.ext.1, op.ext.3]
+    fuente_url: 'https://eur-lex.europa.eu/legal-content/ES/TXT/?uri=CELEX:32022L2555'
+
+  - codigo: NIS2-ART-24-CERTIFICATION
+    regulacion: NIS2
+    articulo: 'Art. 24'
+    titulo: 'Productos/servicios certificados ciberseguridad'
+    obligacion: 'EE.MM. pueden requerir uso productos certificados (Cybersecurity Act). Aplicable cuando especialmente relevante: cloud, IoT, 5G.'
+    sector_aplica: [criticos_con_certificacion_obligatoria]
+    ens_categoria_aplica: [M, A]
+    evidencia_requerida: 'Inventario productos certificados + verificación certificaciones vigentes + plan migración productos no certificados'
+    vinculo_medida_ens: [op.ext.3, mp.si.1]
+    fuente_url: 'https://www.enisa.europa.eu/topics/standards/certification'
+
+  - codigo: NIS2-ART-25-STANDARDS
+    regulacion: NIS2
+    articulo: 'Art. 25'
+    titulo: 'Estandarización ciberseguridad'
+    obligacion: 'Promover uso normas europeas/internacionales: ISO 27001, ISO 27701, ENS, NIST CSF, IEC 62443 (industrial).'
+    sector_aplica: [entidades_NIS2]
+    ens_categoria_aplica: [M, A]
+    evidencia_requerida: 'SGSI alineado normas internacionales + roadmap certificaciones + auditorías terceros'
+    vinculo_medida_ens: [org.1, op.pl.1]
+    fuente_url: 'https://www.enisa.europa.eu/topics/standards'
+
+  - codigo: NIS2-ART-26-JURISDICTION
+    regulacion: NIS2
+    articulo: 'Art. 26'
+    titulo: 'Jurisdicción y territorialidad'
+    obligacion: 'Entidad sometida a NIS2 del EE.MM. donde establecida principalmente. Servicios DNS, cloud, datacenters: EE.MM. del establecimiento principal UE.'
+    sector_aplica: [entidades_multinacionales]
+    ens_categoria_aplica: [M, A]
+    evidencia_requerida: 'Determinación EE.MM. competente + designación representante UE si no establecida + comunicación autoridad'
+    vinculo_medida_ens: [org.4]
+    fuente_url: 'https://eur-lex.europa.eu/legal-content/ES/TXT/?uri=CELEX:32022L2555'
+
+  - codigo: NIS2-ART-27-2-UPDATE
+    regulacion: NIS2
+    articulo: 'Art. 27.2'
+    titulo: 'Actualización registro entidades'
+    obligacion: 'Notificar autoridad ≤2 semanas cualquier cambio datos registro (denominación, sectores, contactos, países servicios).'
+    sector_aplica: [entidades_NIS2]
+    ens_categoria_aplica: [M, A]
+    evidencia_requerida: 'Procedimiento actualización registro + plazo 2 semanas + log notificaciones autoridad'
+    vinculo_medida_ens: [org.4]
+    fuente_url: 'https://eur-lex.europa.eu/legal-content/ES/TXT/?uri=CELEX:32022L2555'
+
+  - codigo: NIS2-ART-27-3-CONTACT
+    regulacion: NIS2
+    articulo: 'Art. 27.3'
+    titulo: 'Punto de contacto único'
+    obligacion: 'Entidad designa punto contacto único para autoridad + CSIRT + Comisión. Disponible 24/7 para incidentes graves.'
+    sector_aplica: [entidades_esenciales, entidades_importantes]
+    ens_categoria_aplica: [M, A]
+    evidencia_requerida: 'Designación PCU + canal disponible 24/7 + backup + escalado + comunicación autoridades'
+    vinculo_medida_ens: [org.4, op.exp.7]
+    fuente_url: 'https://eur-lex.europa.eu/legal-content/ES/TXT/?uri=CELEX:32022L2555'
+
+  - codigo: NIS2-ART-28-DNS
+    regulacion: NIS2
+    articulo: 'Art. 28'
+    titulo: 'Bases datos registros DNS'
+    obligacion: 'Operadores DNS, registradores nombres dominio, registros TLD mantienen DB datos registro precisos + completos. Comunican a autoridades.'
+    sector_aplica: [DNS_operators, registrars]
+    ens_categoria_aplica: [M, A]
+    evidencia_requerida: 'DB registros DNS auditada + procedimiento verificación datos + canal autoridades + retención conforme'
+    vinculo_medida_ens: [op.exp.1, op.exp.4]
+    fuente_url: 'https://eur-lex.europa.eu/legal-content/ES/TXT/?uri=CELEX:32022L2555'
+
+  - codigo: NIS2-ART-29-INFO-SHARING
+    regulacion: NIS2
+    articulo: 'Art. 29'
+    titulo: 'Intercambio información ciberseguridad'
+    obligacion: 'Entidades pueden intercambiar info ciberseguridad relevante (TTPs, IOCs, vulnerabilidades) entre sí + con CSIRT, ISAC sectoriales.'
+    sector_aplica: [entidades_NIS2]
+    ens_categoria_aplica: [M, A]
+    evidencia_requerida: 'Adhesión ISAC sectorial + canal compartición TIPs + política compartición + plataforma MISP'
+    vinculo_medida_ens: [op.ext.4, op.mon.1]
+    fuente_url: 'https://www.enisa.europa.eu/topics/incident-response/cyber-information-sharing'
+
+  - codigo: NIS2-ART-30-VOLUNTARY
+    regulacion: NIS2
+    articulo: 'Art. 30'
+    titulo: 'Notificación voluntaria información'
+    obligacion: 'Cualquier entidad (incluso no NIS2) puede notificar voluntariamente incidentes/amenazas a CSIRT. Confidencialidad preservada.'
+    sector_aplica: [todos]
+    ens_categoria_aplica: [B, M, A]
+    evidencia_requerida: 'Canal notificación voluntaria documentado + decisión interna criterios voluntary disclosure'
+    vinculo_medida_ens: [op.exp.7, op.ext.4]
+    fuente_url: 'https://www.incibe-cert.es/notificacion-incidentes'
+
+  - codigo: NIS2-ART-31-OVERSIGHT
+    regulacion: NIS2
+    articulo: 'Art. 31'
+    titulo: 'Aspectos generales supervisión'
+    obligacion: 'Autoridades supervisan eficaz cumplimiento mediante: auditorías, inspecciones, requerimientos información, evaluaciones seguridad ex-post.'
+    sector_aplica: [entidades_esenciales, entidades_importantes]
+    ens_categoria_aplica: [M, A]
+    evidencia_requerida: 'Documentación lista para auditoría + procedimientos cooperación + plan respuesta requerimientos'
+    vinculo_medida_ens: [org.3, op.pl.1]
+    fuente_url: 'https://eur-lex.europa.eu/legal-content/ES/TXT/?uri=CELEX:32022L2555'
+
+  - codigo: NIS2-ART-32-3-INSITU
+    regulacion: NIS2
+    articulo: 'Art. 32.3'
+    titulo: 'Inspecciones in situ entidades esenciales'
+    obligacion: 'Esenciales sujetos inspección in situ por autoridad: notificación previa razonable (excepción riesgo inminente). Acceso instalaciones + sistemas + documentación.'
+    sector_aplica: [entidades_esenciales]
+    ens_categoria_aplica: [M, A]
+    evidencia_requerida: 'Protocolo recepción inspección + designación interlocutores + procedimiento acceso supervisado'
+    vinculo_medida_ens: [org.3]
+    fuente_url: 'https://eur-lex.europa.eu/legal-content/ES/TXT/?uri=CELEX:32022L2555'
+
+  - codigo: NIS2-ART-33-IMPORTANT
+    regulacion: NIS2
+    articulo: 'Art. 33'
+    titulo: 'Supervisión entidades importantes'
+    obligacion: 'Importantes sujetas supervisión ex-post (tras incidente o queja). Auditorías inspecciones solo razón fundada + información requerida.'
+    sector_aplica: [entidades_importantes]
+    ens_categoria_aplica: [M, A]
+    evidencia_requerida: 'Documentación accesible auditoría + procedimiento atención requerimientos + log eventos supervisión'
+    vinculo_medida_ens: [org.3]
+    fuente_url: 'https://eur-lex.europa.eu/legal-content/ES/TXT/?uri=CELEX:32022L2555'
+
+  - codigo: NIS2-ART-34-2-PERCENT
+    regulacion: NIS2
+    articulo: 'Art. 34.2'
+    titulo: 'Multas porcentaje facturación'
+    obligacion: 'Multas: esenciales hasta 10M€ o 2% facturación total anual (la mayor); importantes hasta 7M€ o 1.4%. Suspensión actividad subsidiaria.'
+    sector_aplica: [entidades_NIS2]
+    ens_categoria_aplica: [M, A]
+    evidencia_requerida: 'Análisis exposición + seguro responsabilidad ciber + reserva contable + plan respuesta sanciones'
+    vinculo_medida_ens: [org.1, org.3]
+    fuente_url: 'https://eur-lex.europa.eu/legal-content/ES/TXT/?uri=CELEX:32022L2555'
+
+  - codigo: NIS2-ART-35-RGPD-OVERLAP
+    regulacion: NIS2
+    articulo: 'Art. 35'
+    titulo: 'Coordinación con RGPD (autoridades) en infracciones que coincidan'
+    obligacion: 'Si infracción NIS2 también afecta RGPD: coordinación autoridad NIS2 (INCIBE/CCN/CNMC) ↔ AEPD. Una sola sanción coordinada.'
+    sector_aplica: [entidades_NIS2_con_datos_personales]
+    ens_categoria_aplica: [M, A]
+    evidencia_requerida: 'Plan respuesta unificado NIS2+RGPD + canal único notificación + DPO + CISO coordinados'
+    vinculo_medida_ens: [org.4, op.exp.7]
+    fuente_url: 'https://eur-lex.europa.eu/legal-content/ES/TXT/?uri=CELEX:32022L2555'
+
+  - codigo: NIS2-ART-36-CRITERIA
+    regulacion: NIS2
+    articulo: 'Art. 36'
+    titulo: 'Criterios graduación sanciones'
+    obligacion: 'Autoridad gradúa sanciones según: gravedad/duración, intencionalidad/negligencia, antecedentes, cooperación, beneficio obtenido, daños causados, medidas mitigación.'
+    sector_aplica: [entidades_NIS2]
+    ens_categoria_aplica: [M, A]
+    evidencia_requerida: 'Documentación buena fe + cooperación + medidas mitigación + plan corrección post-incidente'
+    vinculo_medida_ens: [org.3, op.pl.1]
+    fuente_url: 'https://eur-lex.europa.eu/legal-content/ES/TXT/?uri=CELEX:32022L2555'
+
+  - codigo: NIS2-ANEXO-I-1-ENERGIA
+    regulacion: NIS2
+    articulo: 'Anexo I sector 1'
+    titulo: 'Sector ENERGÍA (electricidad · gas · petróleo · hidrógeno · district heating)'
+    obligacion: 'Aplica medidas NIS2 reforzadas + comunicación incidentes específica sector energético. Coordinación con organismo regulador (CNMC).'
+    sector_aplica: [energia, electricidad, gas, petroleo, hidrogeno]
+    ens_categoria_aplica: [M, A]
+    evidencia_requerida: 'SGSI + comunicación CNMC + ejercicios continuidad anuales + protección SCADA/ICS'
+    vinculo_medida_ens: [org.4, op.cont.1, mp.com.1]
+    fuente_url: 'https://www.cnmc.es/'
+
+  - codigo: NIS2-ANEXO-I-2-TRANSPORTE
+    regulacion: NIS2
+    articulo: 'Anexo I sector 2'
+    titulo: 'Sector TRANSPORTE (aéreo · ferroviario · vías navegables · carretera)'
+    obligacion: 'Operadores transporte aplican NIS2: aeropuertos, compañías aéreas, gestores tráfico aéreo, ferrocarriles, gestores carreteras inteligentes, puertos.'
+    sector_aplica: [aeropuertos, aerolineas, ferrocarriles, ITS, puertos]
+    ens_categoria_aplica: [M, A]
+    evidencia_requerida: 'SGSI + plan continuidad + segregación OT/IT + comunicación INCIBE-CERT + ejercicios'
+    vinculo_medida_ens: [op.cont.1, mp.com.1, op.ext.3]
+    fuente_url: 'https://eur-lex.europa.eu/legal-content/ES/TXT/?uri=CELEX:32022L2555'
+
+  - codigo: NIS2-ANEXO-I-3-BANCA
+    regulacion: NIS2
+    articulo: 'Anexo I sector 3'
+    titulo: 'Sector BANCA · entidades crédito'
+    obligacion: 'Bancos aplican NIS2 + DORA (lex specialis financiero). Mayor solapamiento DORA → cumplir DORA satisface NIS2 mayormente.'
+    sector_aplica: [banca, entidades_credito]
+    ens_categoria_aplica: [M, A]
+    evidencia_requerida: 'Marco DORA implementado + comunicación Banco España + análisis solapamiento NIS2/DORA'
+    vinculo_medida_ens: [org.1, op.pl.1, op.exp.7]
+    fuente_url: 'https://www.bde.es/'
+
+  - codigo: NIS2-ANEXO-I-4-MERCADOS
+    regulacion: NIS2
+    articulo: 'Anexo I sector 4'
+    titulo: 'Sector infraestructuras MERCADOS FINANCIEROS'
+    obligacion: 'Plataformas trading, contrapartidas centrales, sistemas pagos: NIS2 + DORA. Resilencia operativa extrema.'
+    sector_aplica: [bolsas, CCP, sistemas_pago, IMF]
+    ens_categoria_aplica: [A]
+    evidencia_requerida: 'Marco resiliencia DORA Art.6 + tests TLPT cada 3 años + reportes CNMV/BdE'
+    vinculo_medida_ens: [op.cont.1, op.pl.3]
+    fuente_url: 'https://www.cnmv.es/'
+
+  - codigo: NIS2-ANEXO-I-5-SALUD
+    regulacion: NIS2
+    articulo: 'Anexo I sector 5'
+    titulo: 'Sector SALUD (hospitales · laboratorios · investigación)'
+    obligacion: 'Centros salud, laboratorios referencia, investigación médica, fabricantes productos sanitarios: NIS2 + datos sensibles Art.9 RGPD.'
+    sector_aplica: [hospitales, laboratorios, investigacion_medica, productos_sanitarios]
+    ens_categoria_aplica: [M, A]
+    evidencia_requerida: 'SGSI + DPIA Art.9 + segmentación equipos médicos + plan continuidad servicio paciente + formación clínica'
+    vinculo_medida_ens: [op.cont.1, mp.info.3, mp.eq.4]
+    fuente_url: 'https://eur-lex.europa.eu/legal-content/ES/TXT/?uri=CELEX:32022L2555'
+
+  - codigo: NIS2-ANEXO-I-6-AGUA
+    regulacion: NIS2
+    articulo: 'Anexo I sector 6'
+    titulo: 'Sector AGUA POTABLE'
+    obligacion: 'Suministradores agua potable aplican NIS2: protección SCADA/ICS + análisis riesgo + plan continuidad + comunicación Confederación Hidrográfica.'
+    sector_aplica: [agua_potable, suministro_municipal]
+    ens_categoria_aplica: [M, A]
+    evidencia_requerida: 'SGSI + protección SCADA + segregación OT/IT + plan emergencia + ejercicios anuales'
+    vinculo_medida_ens: [op.cont.1, mp.com.1]
+    fuente_url: 'https://eur-lex.europa.eu/legal-content/ES/TXT/?uri=CELEX:32022L2555'
+
+  - codigo: NIS2-ANEXO-I-7-RESIDUALES
+    regulacion: NIS2
+    articulo: 'Anexo I sector 7'
+    titulo: 'Sector AGUAS RESIDUALES'
+    obligacion: 'Gestores aguas residuales urbanas/industriales NIS2: protección infraestructura + ICS + plan continuidad ambiental.'
+    sector_aplica: [aguas_residuales]
+    ens_categoria_aplica: [M, A]
+    evidencia_requerida: 'SGSI + protección estaciones + segregación red corporativa/operacional + plan continuidad'
+    vinculo_medida_ens: [op.cont.1, mp.com.1]
+    fuente_url: 'https://eur-lex.europa.eu/legal-content/ES/TXT/?uri=CELEX:32022L2555'
+
+  - codigo: NIS2-ANEXO-I-8-DIGITAL
+    regulacion: NIS2
+    articulo: 'Anexo I sector 8'
+    titulo: 'Sector INFRAESTRUCTURA DIGITAL (IXP · DNS · TLD · cloud · datacenter · CDN)'
+    obligacion: 'IXPs, DNS, TLDs, proveedores cloud, datacenters, CDN, redes confianza electrónica, comunicaciones electrónicas: NIS2 esenciales.'
+    sector_aplica: [IXP, DNS, TLD, cloud, datacenter, CDN, telecomunicaciones]
+    ens_categoria_aplica: [M, A]
+    evidencia_requerida: 'SGSI + redundancia geográfica + plan continuidad + tests pen + comunicación CNMC/INCIBE'
+    vinculo_medida_ens: [op.cont.1, mp.com.1, op.ext.3]
+    fuente_url: 'https://eur-lex.europa.eu/legal-content/ES/TXT/?uri=CELEX:32022L2555'
+
+  - codigo: NIS2-ANEXO-I-9-ICT-B2B
+    regulacion: NIS2
+    articulo: 'Anexo I sector 9'
+    titulo: 'Sector GESTIÓN SERVICIOS TIC B2B (MSP · MSSP)'
+    obligacion: 'Managed Service Providers (MSP) y MSSP: NIS2 esenciales si servicios críticos. Responsabilidad cadena suministro reforzada.'
+    sector_aplica: [MSP, MSSP, consultores_TIC]
+    ens_categoria_aplica: [M, A]
+    evidencia_requerida: 'SGSI + análisis cadena suministro + cláusulas SLA con clientes + plan continuidad servicios'
+    vinculo_medida_ens: [org.1, op.ext.1, op.ext.3]
+    fuente_url: 'https://eur-lex.europa.eu/legal-content/ES/TXT/?uri=CELEX:32022L2555'
+
+  - codigo: NIS2-ANEXO-I-10-ADMIN-PUBLICA
+    regulacion: NIS2
+    articulo: 'Anexo I sector 10'
+    titulo: 'Sector ADMINISTRACIÓN PÚBLICA (central · regional)'
+    obligacion: 'Administración pública central + regional: NIS2 + ENS. CCN-CERT como CSIRT. ENS satisface mayoría requisitos NIS2.'
+    sector_aplica: [administracion_central, administracion_regional]
+    ens_categoria_aplica: [M, A]
+    evidencia_requerida: 'ENS conformidad + análisis solapamiento NIS2 + comunicación CCN-CERT + designación responsable seguridad'
+    vinculo_medida_ens: [org.1, org.3, op.pl.1]
+    fuente_url: 'https://www.ccn-cert.cni.es/'
+
+  - codigo: NIS2-ANEXO-II-1-POSTAL
+    regulacion: NIS2
+    articulo: 'Anexo II sector 1'
+    titulo: 'Sector SERVICIOS POSTALES Y MENSAJERÍA'
+    obligacion: 'Operadores postales/mensajería + couriers última milla: NIS2 importantes. Protección integridad envíos + datos clientes.'
+    sector_aplica: [correos, mensajeria, courier_ultima_milla]
+    ens_categoria_aplica: [M]
+    evidencia_requerida: 'SGSI + protección sistemas tracking + datos clientes + ejercicios continuidad'
+    vinculo_medida_ens: [op.cont.1, mp.info.3]
+    fuente_url: 'https://eur-lex.europa.eu/legal-content/ES/TXT/?uri=CELEX:32022L2555'
+
+  - codigo: NIS2-ANEXO-II-2-RESIDUOS
+    regulacion: NIS2
+    articulo: 'Anexo II sector 2'
+    titulo: 'Sector GESTIÓN RESIDUOS'
+    obligacion: 'Gestores residuos urbanos/industriales: NIS2 importantes. Protección infraestructura tratamiento + plantas energía residuos.'
+    sector_aplica: [residuos_urbanos, residuos_industriales]
+    ens_categoria_aplica: [M]
+    evidencia_requerida: 'SGSI + protección plantas + tracking residuos + plan continuidad'
+    vinculo_medida_ens: [op.cont.1, mp.com.1]
+    fuente_url: 'https://eur-lex.europa.eu/legal-content/ES/TXT/?uri=CELEX:32022L2555'
+
+  - codigo: NIS2-ANEXO-II-3-QUIMICA
+    regulacion: NIS2
+    articulo: 'Anexo II sector 3'
+    titulo: 'Sector INDUSTRIA QUÍMICA'
+    obligacion: 'Fabricantes productos químicos peligrosos: NIS2 importantes + SEVESO. Coordinación seguridad ciber + safety física.'
+    sector_aplica: [quimica, farmaceutica, SEVESO]
+    ens_categoria_aplica: [M]
+    evidencia_requerida: 'SGSI + integración safety/cyber + plan emergencia + protección ICS/SCADA + ejercicios'
+    vinculo_medida_ens: [op.cont.1, mp.com.1]
+    fuente_url: 'https://eur-lex.europa.eu/legal-content/ES/TXT/?uri=CELEX:32022L2555'
+
+  - codigo: NIS2-ANEXO-II-4-ALIMENTACION
+    regulacion: NIS2
+    articulo: 'Anexo II sector 4'
+    titulo: 'Sector PRODUCCIÓN/TRANSFORMACIÓN/DISTRIBUCIÓN ALIMENTOS'
+    obligacion: 'Empresas alimentarias mayoristas/cadena suministro: NIS2 importantes. Trazabilidad + seguridad ICS + plan continuidad cadena.'
+    sector_aplica: [alimentacion_mayorista, distribucion_alimentaria]
+    ens_categoria_aplica: [M]
+    evidencia_requerida: 'SGSI + trazabilidad + protección ICS + plan continuidad cadena + ejercicios'
+    vinculo_medida_ens: [op.cont.1, op.ext.3]
+    fuente_url: 'https://eur-lex.europa.eu/legal-content/ES/TXT/?uri=CELEX:32022L2555'
+
+  # ========== DORA · Reglamento (UE) 2022/2554 ==========
+
+  - codigo: DORA-ART-5
+    regulacion: DORA
+    articulo: 'Art. 5'
+    titulo: 'Gobernanza y organización'
+    obligacion: 'Órgano de dirección establece y aprueba marco gestión riesgo TIC, supervisión, asignación recursos. Formación anual obligatoria.'
+    sector_aplica: [entidades_financieras, proveedores_TIC_criticos_financiero]
+    ens_categoria_aplica: [M, A]
+    evidencia_requerida: 'Marco gestión riesgo TIC aprobado por consejo + plan formación anual + acta supervisión trimestral'
+    vinculo_medida_ens: [org.1, org.2]
+
+  - codigo: DORA-ART-6
+    regulacion: DORA
+    articulo: 'Art. 6'
+    titulo: 'Marco de gestión del riesgo TIC'
+    obligacion: 'Marco sólido y documentado con estrategia, políticas, procedimientos, protocolos, herramientas para proteger activos información/TIC.'
+    sector_aplica: [entidades_financieras]
+    ens_categoria_aplica: [M, A]
+    evidencia_requerida: 'Marco gestión riesgo TIC documentado + revisión anual + ajuste tras incidentes mayores'
+    vinculo_medida_ens: [op.pl.1, op.pl.2, org.1]
+
+  - codigo: DORA-ART-9
+    regulacion: DORA
+    articulo: 'Art. 9'
+    titulo: 'Protección y prevención'
+    obligacion: 'Monitorización continua, controles acceso, gestión activos, cifrado datos en tránsito y reposo, seguridad red, identidad.'
+    sector_aplica: [entidades_financieras]
+    ens_categoria_aplica: [M, A]
+    evidencia_requerida: 'SIEM operativo 24/7 + controles acceso documentados + cifrado documentado + segmentación red'
+    vinculo_medida_ens: [op.mon.1, op.acc.5, mp.com.2, mp.info.3]
+
+  - codigo: DORA-ART-15
+    regulacion: DORA
+    articulo: 'Art. 15'
+    titulo: 'Detección anomalías'
+    obligacion: 'Mecanismos para detectar prontamente actividad anómala, posibles incidentes y vulnerabilidades.'
+    sector_aplica: [entidades_financieras]
+    ens_categoria_aplica: [M, A]
+    evidencia_requerida: 'SIEM/SOC + alertas automáticas + procedimiento triage <15min'
+    vinculo_medida_ens: [op.mon.1, op.exp.7]
+
+  - codigo: DORA-ART-17
+    regulacion: DORA
+    articulo: 'Art. 17'
+    titulo: 'Gestión incidentes TIC'
+    obligacion: 'Proceso de gestión incidentes que minimice impacto y garantice resiliencia.'
+    sector_aplica: [entidades_financieras]
+    ens_categoria_aplica: [M, A]
+    evidencia_requerida: 'Procedimiento incidentes + clasificación severidad + log incidentes con causa raíz'
+    vinculo_medida_ens: [op.exp.7]
+
+  - codigo: DORA-ART-19
+    regulacion: DORA
+    articulo: 'Art. 19'
+    titulo: 'Notificación incidentes mayores TIC'
+    obligacion: 'Notificación inicial dentro de plazos a autoridad competente + informe intermedio + informe final.'
+    sector_aplica: [entidades_financieras]
+    ens_categoria_aplica: [M, A]
+    evidencia_requerida: 'Procedimiento notificación + plantillas + canal autoridad financiera (Banco España/CNMV) configurado'
+    vinculo_medida_ens: [op.exp.7]
+
+  - codigo: DORA-ART-24
+    regulacion: DORA
+    articulo: 'Art. 24'
+    titulo: 'Programa pruebas resiliencia operativa digital'
+    obligacion: 'Programa pruebas resiliencia integral: anuales + adicionales basadas en evaluación riesgos.'
+    sector_aplica: [entidades_financieras]
+    ens_categoria_aplica: [M, A]
+    evidencia_requerida: 'Plan pruebas anual + resultados + plan remediación + reporte autoridad'
+    vinculo_medida_ens: [op.pl.3, op.cont.4]
+
+  - codigo: DORA-ART-26
+    regulacion: DORA
+    articulo: 'Art. 26'
+    titulo: 'TLPT · Threat-Led Penetration Testing'
+    obligacion: 'TLPT cada 3 años para entidades significativas. Marco TIBER-EU recomendado.'
+    sector_aplica: [entidades_financieras_significativas]
+    ens_categoria_aplica: [A]
+    evidencia_requerida: 'Informe TLPT/TIBER-EU + plan remediación con plazos + supervisión BCE/BdE'
+    vinculo_medida_ens: [op.pl.3]
+
+  - codigo: DORA-ART-28
+    regulacion: DORA
+    articulo: 'Art. 28'
+    titulo: 'Gestión riesgo terceros TIC'
+    obligacion: 'Estrategia + política terceros TIC + registro proveedores TIC + monitorización continua.'
+    sector_aplica: [entidades_financieras]
+    ens_categoria_aplica: [M, A]
+    evidencia_requerida: 'Registro proveedores TIC + análisis dependencias críticas + evaluación riesgo anual proveedor'
+    vinculo_medida_ens: [op.ext.1, op.ext.2, op.ext.3]
+
+  - codigo: DORA-ART-30
+    regulacion: DORA
+    articulo: 'Art. 30'
+    titulo: 'Cláusulas contractuales clave terceros TIC'
+    obligacion: 'Contratos con proveedores TIC deben incluir cláusulas mínimas DORA (servicios, ubicaciones procesamiento, niveles servicio, derechos auditoría, terminación, cooperación supervisión).'
+    sector_aplica: [entidades_financieras]
+    ens_categoria_aplica: [M, A]
+    evidencia_requerida: 'Plantillas contractuales DORA + revisión contratos existentes + cláusulas auditoría/salida'
+    vinculo_medida_ens: [op.ext.1, op.ext.2]
+
+  # ─── v2 EXPAND DORA +40 entries adicionales (2026-05-20) ───
+
+  - codigo: DORA-ART-1
+    regulacion: DORA
+    articulo: 'Art. 1'
+    titulo: 'Objeto y ámbito DORA'
+    obligacion: 'DORA establece marco unificado resiliencia operativa digital entidades financieras UE + sus proveedores TIC críticos.'
+    sector_aplica: [entidades_financieras, proveedores_TIC_financieras]
+    ens_categoria_aplica: [M, A]
+    evidencia_requerida: 'Análisis aplicabilidad DORA documentado + clasificación entidad + comunicación supervisor'
+    vinculo_medida_ens: [org.1]
+    fuente_url: 'https://eur-lex.europa.eu/legal-content/ES/TXT/?uri=CELEX:32022R2554'
+
+  - codigo: DORA-ART-2
+    regulacion: DORA
+    articulo: 'Art. 2'
+    titulo: 'Ámbito subjetivo entidades financieras'
+    obligacion: 'DORA aplica a: bancos, aseguradoras, gestoras fondos, mercados, proveedores cripto, plataformas crowdfunding, depositarios, plus proveedores TIC críticos.'
+    sector_aplica: [bancos, aseguradoras, fondos, mercados, cripto, crowdfunding]
+    ens_categoria_aplica: [M, A]
+    evidencia_requerida: 'Análisis ámbito subjetivo + clasificación + plan transición DORA pre-enforcement (Ene 2025)'
+    vinculo_medida_ens: [org.4]
+    fuente_url: 'https://eur-lex.europa.eu/legal-content/ES/TXT/?uri=CELEX:32022R2554'
+
+  - codigo: DORA-ART-3
+    regulacion: DORA
+    articulo: 'Art. 3'
+    titulo: 'Definiciones DORA'
+    obligacion: 'Aplicar definiciones operativas: riesgo TIC, incidente TIC, incidente mayor, casi-incidente, ICT third-party services, función crítica, etc.'
+    sector_aplica: [entidades_financieras]
+    ens_categoria_aplica: [M, A]
+    evidencia_requerida: 'Glosario DORA interno + alineación políticas + formación equipo DORA'
+    vinculo_medida_ens: [mp.per.3, mp.info.1]
+    fuente_url: 'https://eur-lex.europa.eu/legal-content/ES/TXT/?uri=CELEX:32022R2554'
+
+  - codigo: DORA-ART-4
+    regulacion: DORA
+    articulo: 'Art. 4'
+    titulo: 'Principio proporcionalidad'
+    obligacion: 'Implementación DORA proporcional a: tamaño, naturaleza, perfil riesgo. Microempresas + entidades pequeñas marco simplificado Art.16.'
+    sector_aplica: [entidades_financieras]
+    ens_categoria_aplica: [M, A]
+    evidencia_requerida: 'Análisis proporcionalidad documentado + scoring riesgo + nivel implementación justificado'
+    vinculo_medida_ens: [op.pl.1]
+    fuente_url: 'https://eur-lex.europa.eu/legal-content/ES/TXT/?uri=CELEX:32022R2554'
+
+  - codigo: DORA-ART-7
+    regulacion: DORA
+    articulo: 'Art. 7'
+    titulo: 'Sistemas/protocolos/herramientas TIC'
+    obligacion: 'Sistemas TIC, protocolos, herramientas: fiables, capacidad suficiente, integridad alta, prevención pérdida datos, resilencia adecuada.'
+    sector_aplica: [entidades_financieras]
+    ens_categoria_aplica: [M, A]
+    evidencia_requerida: 'Inventario sistemas TIC + criterios fiabilidad + monitorización rendimiento + plan capacidad'
+    vinculo_medida_ens: [op.exp.1, op.cont.2, mp.com.1]
+    fuente_url: 'https://eur-lex.europa.eu/legal-content/ES/TXT/?uri=CELEX:32022R2554'
+
+  - codigo: DORA-ART-8
+    regulacion: DORA
+    articulo: 'Art. 8'
+    titulo: 'Identificación recursos TIC críticos'
+    obligacion: 'Identificar+documentar activos TIC, dependencias, conexiones. CMDB completo. Procesos de negocio mapeados a recursos TIC.'
+    sector_aplica: [entidades_financieras]
+    ens_categoria_aplica: [M, A]
+    evidencia_requerida: 'CMDB exhaustivo + mapeo procesos negocio ↔ TIC + criticidad clasificada + revisión anual'
+    vinculo_medida_ens: [op.exp.1, op.pl.1]
+    fuente_url: 'https://eur-lex.europa.eu/legal-content/ES/TXT/?uri=CELEX:32022R2554'
+
+  - codigo: DORA-ART-10
+    regulacion: DORA
+    articulo: 'Art. 10'
+    titulo: 'Detección anomalías base'
+    obligacion: 'Mecanismos detección anomalías incluyen: red, sistemas, aplicaciones. Alertas calibradas, false positives gestionados, escalado claro.'
+    sector_aplica: [entidades_financieras]
+    ens_categoria_aplica: [M, A]
+    evidencia_requerida: 'SIEM/SOAR operativo + reglas detección + dashboard + procedimiento escalado + tuning false positives'
+    vinculo_medida_ens: [op.mon.1, op.exp.7]
+    fuente_url: 'https://eur-lex.europa.eu/legal-content/ES/TXT/?uri=CELEX:32022R2554'
+
+  - codigo: DORA-ART-11
+    regulacion: DORA
+    articulo: 'Art. 11'
+    titulo: 'Continuidad operativa actividades'
+    obligacion: 'Política continuidad operativa: BIA, RTO/RPO, sitios alternativos, comunicación crisis, ejercicios anuales.'
+    sector_aplica: [entidades_financieras]
+    ens_categoria_aplica: [M, A]
+    evidencia_requerida: 'BIA actualizado + RTO/RPO documentados + DRP probado + ejercicios anuales + lessons learned'
+    vinculo_medida_ens: [op.cont.1, op.cont.2, op.cont.4]
+    fuente_url: 'https://eur-lex.europa.eu/legal-content/ES/TXT/?uri=CELEX:32022R2554'
+
+  - codigo: DORA-ART-12
+    regulacion: DORA
+    articulo: 'Art. 12'
+    titulo: 'Política copias seguridad y recuperación'
+    obligacion: 'Backups: política frecuencia, segregación entornos (3-2-1), pruebas restauración periódicas, cifrado, ubicación geográfica diversa.'
+    sector_aplica: [entidades_financieras]
+    ens_categoria_aplica: [M, A]
+    evidencia_requerida: 'Política backup 3-2-1 + tests restauración mensuales + cifrado + log ejecuciones + RPO cumplido'
+    vinculo_medida_ens: [op.cont.2, mp.info.3]
+    fuente_url: 'https://eur-lex.europa.eu/legal-content/ES/TXT/?uri=CELEX:32022R2554'
+
+  - codigo: DORA-ART-13
+    regulacion: DORA
+    articulo: 'Art. 13'
+    titulo: 'Aprendizaje y evolución'
+    obligacion: 'Post-incidente: análisis raíz, lecciones aprendidas, mejoras documentadas, formación basada en incidentes reales.'
+    sector_aplica: [entidades_financieras]
+    ens_categoria_aplica: [M, A]
+    evidencia_requerida: 'Post-mortem por incidente + acciones correctivas con responsables + integración formación + KPIs mejora'
+    vinculo_medida_ens: [op.exp.7, mp.per.3, op.pl.3]
+    fuente_url: 'https://eur-lex.europa.eu/legal-content/ES/TXT/?uri=CELEX:32022R2554'
+
+  - codigo: DORA-ART-14
+    regulacion: DORA
+    articulo: 'Art. 14'
+    titulo: 'Comunicación incidentes crisis'
+    obligacion: 'Plan comunicación incidentes: clientes, supervisor, contrapartes, mercado. Plantillas, portavoces designados, canales activos.'
+    sector_aplica: [entidades_financieras]
+    ens_categoria_aplica: [M, A]
+    evidencia_requerida: 'Plan comunicación crisis + plantillas + portavoces + canales redundantes + ejercicios anuales'
+    vinculo_medida_ens: [op.exp.7, mp.info.1]
+    fuente_url: 'https://eur-lex.europa.eu/legal-content/ES/TXT/?uri=CELEX:32022R2554'
+
+  - codigo: DORA-ART-16
+    regulacion: DORA
+    articulo: 'Art. 16'
+    titulo: 'Marco riesgo TIC simplificado microempresas'
+    obligacion: 'Microempresas+pequeñas: marco simplificado · enfoque proporcional. Funciones clave: gobernanza, análisis riesgo, gestión incidentes, continuidad.'
+    sector_aplica: [microentidades_financieras]
+    ens_categoria_aplica: [M]
+    evidencia_requerida: 'Marco simplificado documentado + 4 funciones clave + revisión bianual + checklist proporcionalidad'
+    vinculo_medida_ens: [op.pl.1, op.cont.1, op.exp.7]
+    fuente_url: 'https://eur-lex.europa.eu/legal-content/ES/TXT/?uri=CELEX:32022R2554'
+
+  - codigo: DORA-ART-18
+    regulacion: DORA
+    articulo: 'Art. 18'
+    titulo: 'Clasificación incidentes TIC mayor/no mayor'
+    obligacion: 'Clasificar incidentes según criterios: clientes afectados, duración, alcance geográfico, pérdidas, reputación, criticidad servicios.'
+    sector_aplica: [entidades_financieras]
+    ens_categoria_aplica: [M, A]
+    evidencia_requerida: 'Matriz clasificación 7 criterios + ejercicios anuales aplicación + log incidentes clasificados'
+    vinculo_medida_ens: [op.exp.7]
+    fuente_url: 'https://eur-lex.europa.eu/legal-content/ES/TXT/?uri=CELEX:32022R2554'
+
+  - codigo: DORA-ART-19-2
+    regulacion: DORA
+    articulo: 'Art. 19.2'
+    titulo: 'Tipos informes incidentes (3 fases)'
+    obligacion: '3 fases reporting incidente mayor: (1) notificación inicial ≤4h desde clasificación, (2) informe intermedio ≤72h, (3) informe final ≤1 mes.'
+    sector_aplica: [entidades_financieras]
+    ens_categoria_aplica: [M, A]
+    evidencia_requerida: 'Procedimiento 3 fases reporting + plantillas + canal supervisor + ejercicios + KPIs cumplimiento plazos'
+    vinculo_medida_ens: [op.exp.7]
+    fuente_url: 'https://eur-lex.europa.eu/legal-content/ES/TXT/?uri=CELEX:32022R2554'
+
+  - codigo: DORA-ART-20
+    regulacion: DORA
+    articulo: 'Art. 20'
+    titulo: 'Estandarización reporte incidentes UE'
+    obligacion: 'ESAs (EBA/ESMA/EIOPA) publican plantillas/formato estándar reporte. Entidades usan formato armonizado.'
+    sector_aplica: [entidades_financieras]
+    ens_categoria_aplica: [M, A]
+    evidencia_requerida: 'Plantillas ESA implementadas + integración herramienta reporting + tests formato + canal automatizado'
+    vinculo_medida_ens: [op.exp.7]
+    fuente_url: 'https://www.eba.europa.eu/'
+
+  - codigo: DORA-ART-21
+    regulacion: DORA
+    articulo: 'Art. 21'
+    titulo: 'Centralización reportes incidentes UE (ESA hub)'
+    obligacion: 'Comisión + ESAs publican informe anual incidentes TIC sectorial. Entidades atienden requerimientos información agregada.'
+    sector_aplica: [entidades_financieras]
+    ens_categoria_aplica: [M, A]
+    evidencia_requerida: 'Canal respuesta requerimientos ESA + datos agregados disponibles + procedimiento'
+    vinculo_medida_ens: [org.4]
+    fuente_url: 'https://www.eba.europa.eu/'
+
+  - codigo: DORA-ART-22
+    regulacion: DORA
+    articulo: 'Art. 22'
+    titulo: 'Feedback supervisor post-incidente'
+    obligacion: 'Supervisor proporciona feedback constructivo post-incidente: lecciones aprendidas, mejoras prácticas, recomendaciones específicas.'
+    sector_aplica: [entidades_financieras]
+    ens_categoria_aplica: [M, A]
+    evidencia_requerida: 'Recepción feedback supervisor + plan acción incorporando recomendaciones + seguimiento implementación'
+    vinculo_medida_ens: [op.exp.7, op.pl.3]
+    fuente_url: 'https://eur-lex.europa.eu/legal-content/ES/TXT/?uri=CELEX:32022R2554'
+
+  - codigo: DORA-ART-23
+    regulacion: DORA
+    articulo: 'Art. 23'
+    titulo: 'Amenaza cibernética significativa'
+    obligacion: 'Notificar voluntariamente amenazas ciber significativas (incluso si no se materializa incidente). Compartir IOCs, TTPs.'
+    sector_aplica: [entidades_financieras]
+    ens_categoria_aplica: [M, A]
+    evidencia_requerida: 'Procedimiento notificación voluntaria amenazas + canal supervisor + integración threat intel'
+    vinculo_medida_ens: [op.mon.1, op.ext.4]
+    fuente_url: 'https://eur-lex.europa.eu/legal-content/ES/TXT/?uri=CELEX:32022R2554'
+
+  - codigo: DORA-ART-25
+    regulacion: DORA
+    articulo: 'Art. 25'
+    titulo: 'Pruebas básicas resiliencia (vs avanzadas)'
+    obligacion: 'Tests básicos anuales: análisis vulnerabilidades, escaneo OS, análisis red, gestión vulnerabilidades, scan código fuente, pen tests, pruebas físicas seguridad.'
+    sector_aplica: [entidades_financieras]
+    ens_categoria_aplica: [M, A]
+    evidencia_requerida: 'Plan anual tests + resultados + plan remediación + KPIs cumplimiento + informe dirección'
+    vinculo_medida_ens: [op.pl.3, op.mon.2]
+    fuente_url: 'https://eur-lex.europa.eu/legal-content/ES/TXT/?uri=CELEX:32022R2554'
+
+  - codigo: DORA-ART-26-2-TIBER
+    regulacion: DORA
+    articulo: 'Art. 26.2'
+    titulo: 'Marco TLPT · TIBER-EU framework'
+    obligacion: 'TLPT alineado con TIBER-EU (Threat Intelligence-Based Ethical Red-teaming). Coordinación BCE/BdE. Threat intelligence + red team + purple team.'
+    sector_aplica: [entidades_financieras_significativas]
+    ens_categoria_aplica: [A]
+    evidencia_requerida: 'TLPT TIBER-EU contracted con vendor cualificado + threat intel + execution + reporting + supervisión BCE'
+    vinculo_medida_ens: [op.pl.3, op.ext.4]
+    fuente_url: 'https://www.ecb.europa.eu/paym/cyber-resilience/tiber-eu/'
+
+  - codigo: DORA-ART-27
+    regulacion: DORA
+    articulo: 'Art. 27'
+    titulo: 'Test penetración avanzada (red team)'
+    obligacion: 'Red team avanzado cada 3 años para sistemas críticos. Realista, basado threat intelligence, simulando APTs.'
+    sector_aplica: [entidades_financieras_significativas]
+    ens_categoria_aplica: [A]
+    evidencia_requerida: 'Red team report cada 3 años + threat intelligence aplicada + lessons learned + plan remediación'
+    vinculo_medida_ens: [op.pl.3]
+    fuente_url: 'https://eur-lex.europa.eu/legal-content/ES/TXT/?uri=CELEX:32022R2554'
+
+  - codigo: DORA-ART-29
+    regulacion: DORA
+    articulo: 'Art. 29'
+    titulo: 'Estrategia gestión TIC terceros'
+    obligacion: 'Estrategia gestión TIC terceros aprobada órgano gobierno: criterios contratación, perfil riesgo, concentración, exit strategy.'
+    sector_aplica: [entidades_financieras]
+    ens_categoria_aplica: [M, A]
+    evidencia_requerida: 'Estrategia TIC terceros aprobada consejo + criterios documentados + revisión anual + diversificación'
+    vinculo_medida_ens: [org.1, op.ext.1]
+    fuente_url: 'https://eur-lex.europa.eu/legal-content/ES/TXT/?uri=CELEX:32022R2554'
+
+  - codigo: DORA-ART-30-2-SAAS
+    regulacion: DORA
+    articulo: 'Art. 30.2'
+    titulo: 'Cláusulas contractuales SaaS críticos'
+    obligacion: 'Contratos SaaS críticos incluyen: descripción servicio detallada, ubicación procesamiento, niveles servicio, derechos auditoría, cooperación supervisor, exit, sub-encargados, brechas, terminación.'
+    sector_aplica: [entidades_financieras_con_SaaS_critico]
+    ens_categoria_aplica: [M, A]
+    evidencia_requerida: 'Plantilla contractual DORA + revisión contratos existentes + checklist cláusulas + plan migración no conformes'
+    vinculo_medida_ens: [op.ext.1, op.ext.2, op.nub.1]
+    fuente_url: 'https://eur-lex.europa.eu/legal-content/ES/TXT/?uri=CELEX:32022R2554'
+
+  - codigo: DORA-ART-31
+    regulacion: DORA
+    articulo: 'Art. 31'
+    titulo: 'Designación proveedores TIC críticos UE'
+    obligacion: 'ESAs designan proveedores TIC críticos (CTPP) basado en: criticidad sistémica, dependencias, sustituibilidad, número clientes financieros.'
+    sector_aplica: [proveedores_TIC_grandes]
+    ens_categoria_aplica: [A]
+    evidencia_requerida: 'Análisis auto-evaluación CTPP + cumplimiento obligaciones directas si designado + supervisión coordinador'
+    vinculo_medida_ens: [org.1, op.ext.3]
+    fuente_url: 'https://www.eba.europa.eu/regulation-and-policy/operational-resilience/dora'
+
+  - codigo: DORA-ART-32
+    regulacion: DORA
+    articulo: 'Art. 32'
+    titulo: 'Marco supervisión proveedores TIC críticos'
+    obligacion: 'CTPP designados sujetos supervisión directa ESA: auditorías, inspecciones, requerimientos, recomendaciones vinculantes.'
+    sector_aplica: [CTPP_designados]
+    ens_categoria_aplica: [A]
+    evidencia_requerida: 'Documentación lista supervisión ESA + designación lead overseer + plan cooperación + reporting periódico'
+    vinculo_medida_ens: [org.3, org.4]
+    fuente_url: 'https://eur-lex.europa.eu/legal-content/ES/TXT/?uri=CELEX:32022R2554'
+
+  - codigo: DORA-ART-33
+    regulacion: DORA
+    articulo: 'Art. 33'
+    titulo: 'Lead Overseer · coordinación supervisión'
+    obligacion: 'Cada CTPP tiene Lead Overseer (BCE para servicios cloud principales). Coordina todas las acciones supervisión.'
+    sector_aplica: [CTPP_designados]
+    ens_categoria_aplica: [A]
+    evidencia_requerida: 'Conocimiento Lead Overseer + canal coordinación + procedimiento atención solicitudes'
+    vinculo_medida_ens: [org.4]
+    fuente_url: 'https://www.ecb.europa.eu/'
+
+  - codigo: DORA-ART-34
+    regulacion: DORA
+    articulo: 'Art. 34'
+    titulo: 'Conjunto recursos Lead Overseer'
+    obligacion: 'Lead Overseer apoyado por Joint Examination Team (JET) con expertos ESAs + autoridades nacionales. Inspecciones in situ posibles.'
+    sector_aplica: [CTPP_designados]
+    ens_categoria_aplica: [A]
+    evidencia_requerida: 'Procedimiento recepción JET + designación interlocutores + acceso documentación + protocolo inspección'
+    vinculo_medida_ens: [org.3]
+    fuente_url: 'https://eur-lex.europa.eu/legal-content/ES/TXT/?uri=CELEX:32022R2554'
+
+  - codigo: DORA-ART-35
+    regulacion: DORA
+    articulo: 'Art. 35'
+    titulo: 'Solicitud información proveedor'
+    obligacion: 'Lead Overseer puede solicitar información proveedor: documentación, datos, evidencias. Plazo respuesta razonable definido.'
+    sector_aplica: [CTPP_designados]
+    ens_categoria_aplica: [A]
+    evidencia_requerida: 'Procedimiento atención requerimientos + responsable designado + plazo respuesta + log requerimientos'
+    vinculo_medida_ens: [org.3, org.4]
+    fuente_url: 'https://eur-lex.europa.eu/legal-content/ES/TXT/?uri=CELEX:32022R2554'
+
+  - codigo: DORA-ART-36
+    regulacion: DORA
+    articulo: 'Art. 36'
+    titulo: 'Investigación in situ proveedor'
+    obligacion: 'Lead Overseer puede realizar inspección in situ instalaciones CTPP. Acceso sistemas, documentación, personal. Notificación previa razonable.'
+    sector_aplica: [CTPP_designados]
+    ens_categoria_aplica: [A]
+    evidencia_requerida: 'Protocolo recepción inspección + designación interlocutores + acceso facilitado + colaboración documentada'
+    vinculo_medida_ens: [org.3]
+    fuente_url: 'https://eur-lex.europa.eu/legal-content/ES/TXT/?uri=CELEX:32022R2554'
+
+  - codigo: DORA-ART-37
+    regulacion: DORA
+    articulo: 'Art. 37'
+    titulo: 'Recomendaciones Lead Overseer'
+    obligacion: 'Lead Overseer emite recomendaciones vinculantes a CTPP: requerimientos mejora, plazos, sanciones por incumplimiento.'
+    sector_aplica: [CTPP_designados]
+    ens_categoria_aplica: [A]
+    evidencia_requerida: 'Recepción recomendaciones + plan acción + seguimiento implementación + reporting cumplimiento'
+    vinculo_medida_ens: [op.pl.3]
+    fuente_url: 'https://eur-lex.europa.eu/legal-content/ES/TXT/?uri=CELEX:32022R2554'
+
+  - codigo: DORA-ART-38
+    regulacion: DORA
+    articulo: 'Art. 38'
+    titulo: 'Cooperación supervisores'
+    obligacion: 'Lead Overseers cooperan entre sí + con autoridades nacionales. Intercambio información, decisiones coordinadas.'
+    sector_aplica: [autoridades_supervisoras]
+    ens_categoria_aplica: [A]
+    evidencia_requerida: 'Procedimiento atención requerimientos multi-autoridad + canal coordinado'
+    vinculo_medida_ens: [org.4]
+    fuente_url: 'https://eur-lex.europa.eu/legal-content/ES/TXT/?uri=CELEX:32022R2554'
+
+  - codigo: DORA-ART-39
+    regulacion: DORA
+    articulo: 'Art. 39'
+    titulo: 'Forum Oversight'
+    obligacion: 'Forum Oversight: foro consultivo coordinando supervisión CTPP. Reuniones periódicas, intercambio experiencias, armonización criterios.'
+    sector_aplica: [autoridades_supervisoras]
+    ens_categoria_aplica: [A]
+    evidencia_requerida: 'Conocimiento decisiones Forum + alineación criterios supervisión + actualización política interna'
+    vinculo_medida_ens: [org.1]
+    fuente_url: 'https://eur-lex.europa.eu/legal-content/ES/TXT/?uri=CELEX:32022R2554'
+
+  - codigo: DORA-ART-40
+    regulacion: DORA
+    articulo: 'Art. 40'
+    titulo: 'Coordinación supervisores nacionales'
+    obligacion: 'Lead Overseer coordina con autoridades nacionales (Banco España, CNMV, DGSFP) supervisión entidades financieras + proveedores TIC.'
+    sector_aplica: [autoridades_supervisoras]
+    ens_categoria_aplica: [A]
+    evidencia_requerida: 'Canal cooperación Banco España/CNMV/DGSFP + procedimiento información compartida'
+    vinculo_medida_ens: [org.4]
+    fuente_url: 'https://www.bde.es/'
+
+  - codigo: DORA-ART-41
+    regulacion: DORA
+    articulo: 'Art. 41'
+    titulo: 'Aplicación territorial CTPP'
+    obligacion: 'Aplicabilidad CTPP: establecidos en UE o establecidos fuera con servicios significativos UE. Designación representante UE si fuera UE.'
+    sector_aplica: [CTPP_extra_UE]
+    ens_categoria_aplica: [A]
+    evidencia_requerida: 'Análisis aplicabilidad territorial + designación representante UE si aplica + comunicación ESAs'
+    vinculo_medida_ens: [org.4]
+    fuente_url: 'https://eur-lex.europa.eu/legal-content/ES/TXT/?uri=CELEX:32022R2554'
+
+  - codigo: DORA-ART-42
+    regulacion: DORA
+    articulo: 'Art. 42'
+    titulo: 'Confidencialidad supervisión'
+    obligacion: 'Información compartida con supervisor sujeta secreto profesional. Solo divulgación a otros supervisores autorizados. Excepciones procesos penales.'
+    sector_aplica: [entidades_financieras, CTPP]
+    ens_categoria_aplica: [M, A]
+    evidencia_requerida: 'Procedimiento confidencialidad información supervisión + clasificación + acceso restringido + auditoría'
+    vinculo_medida_ens: [mp.info.3, mp.info.6]
+    fuente_url: 'https://eur-lex.europa.eu/legal-content/ES/TXT/?uri=CELEX:32022R2554'
+
+  - codigo: DORA-ART-43
+    regulacion: DORA
+    articulo: 'Art. 43'
+    titulo: 'Tarifas oversight CTPP'
+    obligacion: 'CTPP pagan tarifas supervisión a ESAs. Calculadas según costes reales supervisión + criterios establecidos.'
+    sector_aplica: [CTPP_designados]
+    ens_categoria_aplica: [A]
+    evidencia_requerida: 'Provisión presupuestaria tarifas supervisión + pago anual + contabilización'
+    vinculo_medida_ens: [org.1]
+    fuente_url: 'https://eur-lex.europa.eu/legal-content/ES/TXT/?uri=CELEX:32022R2554'
+
+  - codigo: DORA-ART-44
+    regulacion: DORA
+    articulo: 'Art. 44'
+    titulo: 'Evaluación marco DORA y revisión'
+    obligacion: 'Comisión evalúa marco DORA cada 5 años. Entidades atienden requerimientos información para evaluación.'
+    sector_aplica: [entidades_financieras]
+    ens_categoria_aplica: [M, A]
+    evidencia_requerida: 'Canal respuesta requerimientos Comisión + datos cumplimiento DORA + feedback constructivo'
+    vinculo_medida_ens: [org.4]
+    fuente_url: 'https://eur-lex.europa.eu/legal-content/ES/TXT/?uri=CELEX:32022R2554'
+
+  - codigo: DORA-ART-45
+    regulacion: DORA
+    articulo: 'Art. 45'
+    titulo: 'Intercambio información entre entidades financieras'
+    obligacion: 'Entidades pueden intercambiar info ciber-amenazas con otras entidades financieras. Marco confidencialidad protege información compartida.'
+    sector_aplica: [entidades_financieras]
+    ens_categoria_aplica: [M, A]
+    evidencia_requerida: 'Adhesión FS-ISAC u otro ISAC sectorial + procedimiento compartición + canal seguro'
+    vinculo_medida_ens: [op.ext.4]
+    fuente_url: 'https://www.fsisac.com/'
+
+  - codigo: DORA-ART-46
+    regulacion: DORA
+    articulo: 'Art. 46'
+    titulo: 'Autoridades competentes nacionales'
+    obligacion: 'EE.MM. designan autoridades competentes DORA. España: Banco España (banca), CNMV (mercados), DGSFP (seguros), AEPD (datos).'
+    sector_aplica: [entidades_financieras]
+    ens_categoria_aplica: [M, A]
+    evidencia_requerida: 'Mapeo autoridad competente por sector + canal comunicación + procedimiento dual reporting RGPD'
+    vinculo_medida_ens: [org.4]
+    fuente_url: 'https://www.bde.es/'
+
+  - codigo: DORA-ART-47
+    regulacion: DORA
+    articulo: 'Art. 47'
+    titulo: 'Cooperación UE/internacional'
+    obligacion: 'ESAs cooperan con autoridades terceros países en marco DORA. Acuerdos cooperación bilaterales/multilaterales.'
+    sector_aplica: [autoridades_supervisoras]
+    ens_categoria_aplica: [M, A]
+    evidencia_requerida: 'Conocimiento acuerdos cooperación internacional aplicables + procedimiento respuesta autoridades extranjeras'
+    vinculo_medida_ens: [org.4]
+    fuente_url: 'https://eur-lex.europa.eu/legal-content/ES/TXT/?uri=CELEX:32022R2554'
+
+  # ========== AI Act · Reglamento (UE) 2024/1689 ==========
+
+  - codigo: AIACT-ART-5
+    regulacion: AI_Act
+    articulo: 'Art. 5'
+    titulo: 'Prácticas IA prohibidas'
+    obligacion: 'No desplegar sistemas IA prohibidos: manipulación cognitiva conductual, vulnerabilidades grupos, social scoring, predictivos delitos por perfilado, scraping facial masivo, reconocimiento emociones laboral/educativo, biometría categorización sensible, identificación biométrica remota tiempo real espacios públicos (salvo excepciones).'
+    sector_aplica: [todos con sistemas IA]
+    ens_categoria_aplica: [M, A]
+    evidencia_requerida: 'Inventario sistemas IA + clasificación + análisis ante AI Act + cese sistemas prohibidos'
+    vinculo_medida_ens: [op.pl.1, org.1]
+
+  - codigo: AIACT-ART-9
+    regulacion: AI_Act
+    articulo: 'Art. 9'
+    titulo: 'Sistema gestión riesgos IA alto riesgo'
+    obligacion: 'Establecer, implantar, documentar y mantener sistema gestión riesgos durante todo el ciclo vida del sistema IA alto riesgo.'
+    sector_aplica: [proveedores IA alto riesgo]
+    ens_categoria_aplica: [M, A]
+    evidencia_requerida: 'Documentación gestión riesgos IA + revisión cíclica + pruebas pre-mercado + monitorización post-mercado'
+    vinculo_medida_ens: [op.pl.1, op.pl.2, mp.sw.1]
+
+  - codigo: AIACT-ART-50
+    regulacion: AI_Act
+    articulo: 'Art. 50'
+    titulo: 'Transparencia IA'
+    obligacion: 'Informar a personas físicas que interactúan con sistema IA (chatbot, generación contenido). Marcar contenido sintético/deepfake.'
+    sector_aplica: [todos con chatbots o IA generativa]
+    ens_categoria_aplica: [B, M, A]
+    evidencia_requerida: 'Aviso visible en chatbot/IA-front + marca contenido generado IA + política transparencia IA'
+    vinculo_medida_ens: [mp.info.1, mp.sw.1]
+
+  - codigo: AIACT-ART-99
+    regulacion: AI_Act
+    articulo: 'Art. 99'
+    titulo: 'Régimen sancionador AI Act'
+    obligacion: 'Sanciones: hasta 35M€ o 7% facturación (prohibiciones), 15M€ o 3% (alto riesgo), 7.5M€ o 1.5% (transparencia).'
+    sector_aplica: [todos con sistemas IA]
+    ens_categoria_aplica: [M, A]
+    evidencia_requerida: 'Programa cumplimiento AI Act + inventario actualizado + due diligence anual'
+    vinculo_medida_ens: [org.1, org.3]
+
+  # ─── v2 EXPAND AI Act +26 entries adicionales (2026-05-20) ───
+
+  - codigo: AIACT-ART-1
+    regulacion: AI_Act
+    articulo: 'Art. 1'
+    titulo: 'Objeto y ámbito AI Act'
+    obligacion: 'Marco común UE para sistemas IA con enfoque basado en riesgo: prohibidos, alto riesgo, riesgo limitado, riesgo mínimo. GPAI categoría separada.'
+    sector_aplica: [todos con sistemas IA]
+    ens_categoria_aplica: [B, M, A]
+    evidencia_requerida: 'Análisis aplicabilidad AI Act documentado + clasificación sistemas IA propios'
+    vinculo_medida_ens: [org.1, op.pl.1]
+    fuente_url: 'https://eur-lex.europa.eu/legal-content/ES/TXT/?uri=CELEX:32024R1689'
+
+  - codigo: AIACT-ART-3
+    regulacion: AI_Act
+    articulo: 'Art. 3'
+    titulo: 'Definiciones AI Act'
+    obligacion: 'Aplicar definiciones operativas: sistema IA, proveedor, desplegador, importador, distribuidor, usuario aguas abajo, GPAI, riesgo sistémico.'
+    sector_aplica: [todos con sistemas IA]
+    ens_categoria_aplica: [B, M, A]
+    evidencia_requerida: 'Glosario AI Act interno + clasificación rol (proveedor/desplegador) + formación equipo'
+    vinculo_medida_ens: [mp.per.3, mp.info.1]
+    fuente_url: 'https://eur-lex.europa.eu/legal-content/ES/TXT/?uri=CELEX:32024R1689'
+
+  - codigo: AIACT-ART-4
+    regulacion: AI_Act
+    articulo: 'Art. 4'
+    titulo: 'Alfabetización IA personal'
+    obligacion: 'Proveedores+desplegadores asegurar nivel suficiente alfabetización IA personal. Formación + comprensión consecuencias + uso responsable.'
+    sector_aplica: [todos con sistemas IA]
+    ens_categoria_aplica: [B, M, A]
+    evidencia_requerida: 'Plan formación alfabetización IA + KPIs participación + evaluación comprensión + actualización anual'
+    vinculo_medida_ens: [mp.per.3]
+    fuente_url: 'https://eur-lex.europa.eu/legal-content/ES/TXT/?uri=CELEX:32024R1689'
+
+  - codigo: AIACT-ART-6
+    regulacion: AI_Act
+    articulo: 'Art. 6'
+    titulo: 'Clasificación sistemas alto riesgo'
+    obligacion: 'Sistema alto riesgo si: (a) integrado producto regulado Anexo I (médico, vehículos, juguetes...), (b) listado Anexo III (biometría, infraestructura, educación, empleo, etc.).'
+    sector_aplica: [proveedores IA Anexo I/III]
+    ens_categoria_aplica: [M, A]
+    evidencia_requerida: 'Análisis clasificación contra Anexos I/III + decisión documentada + revisión periódica + designación responsable'
+    vinculo_medida_ens: [op.pl.1, op.pl.2]
+    fuente_url: 'https://eur-lex.europa.eu/legal-content/ES/TXT/?uri=CELEX:32024R1689'
+
+  - codigo: AIACT-ART-7
+    regulacion: AI_Act
+    articulo: 'Art. 7'
+    titulo: 'Modificación anexos alto riesgo'
+    obligacion: 'Comisión puede modificar Anexo III añadiendo nuevos casos uso alto riesgo. Monitorización cambios obligatoria proveedores.'
+    sector_aplica: [proveedores IA]
+    ens_categoria_aplica: [M, A]
+    evidencia_requerida: 'Procedimiento monitorización actualizaciones AI Act + alertas + plan ajuste sistemas'
+    vinculo_medida_ens: [op.pl.1]
+    fuente_url: 'https://eur-lex.europa.eu/legal-content/ES/TXT/?uri=CELEX:32024R1689'
+
+  - codigo: AIACT-ART-8
+    regulacion: AI_Act
+    articulo: 'Art. 8'
+    titulo: 'Cumplimiento requisitos alto riesgo'
+    obligacion: 'Sistemas alto riesgo cumplen requisitos Arts.9-15. Diseño desde inicio considerando estado arte. Sistema gestión riesgos integral.'
+    sector_aplica: [proveedores IA alto riesgo]
+    ens_categoria_aplica: [M, A]
+    evidencia_requerida: 'Checklist Arts.9-15 + documentación diseño + tests pre-mercado + plan mantenimiento'
+    vinculo_medida_ens: [op.pl.1, op.pl.2, mp.sw.1]
+    fuente_url: 'https://eur-lex.europa.eu/legal-content/ES/TXT/?uri=CELEX:32024R1689'
+
+  - codigo: AIACT-ART-10
+    regulacion: AI_Act
+    articulo: 'Art. 10'
+    titulo: 'Datos y gobernanza datos (alto riesgo)'
+    obligacion: 'Datasets entrenamiento/validación/test: relevantes, representativos, libres de errores, completos. Identificar/abordar sesgos. Documentación origen.'
+    sector_aplica: [proveedores IA alto riesgo]
+    ens_categoria_aplica: [M, A]
+    evidencia_requerida: 'Documentación datasets + análisis sesgos + procedimiento limpieza + auditoría datos + plan correcciones'
+    vinculo_medida_ens: [mp.info.6, mp.sw.1]
+    fuente_url: 'https://eur-lex.europa.eu/legal-content/ES/TXT/?uri=CELEX:32024R1689'
+
+  - codigo: AIACT-ART-11
+    regulacion: AI_Act
+    articulo: 'Art. 11'
+    titulo: 'Documentación técnica alto riesgo'
+    obligacion: 'Documentación técnica completa antes mercado: descripción sistema, datos, algoritmo, supervisión, rendimiento, riesgos, conformidad. Mantenida actualizada.'
+    sector_aplica: [proveedores IA alto riesgo]
+    ens_categoria_aplica: [M, A]
+    evidencia_requerida: 'Plantilla documentación técnica Anexo IV + versionado + revisión anual + disponible autoridades'
+    vinculo_medida_ens: [op.pl.1, op.exp.4]
+    fuente_url: 'https://eur-lex.europa.eu/legal-content/ES/TXT/?uri=CELEX:32024R1689'
+
+  - codigo: AIACT-ART-12
+    regulacion: AI_Act
+    articulo: 'Art. 12'
+    titulo: 'Conservación registros (logs)'
+    obligacion: 'Sistemas alto riesgo registran automáticamente eventos relevantes durante ciclo vida. Logs adecuados trazabilidad + supervisión post-mercado.'
+    sector_aplica: [proveedores IA alto riesgo]
+    ens_categoria_aplica: [M, A]
+    evidencia_requerida: 'Logging completo eventos + retención periodo proporcional + cifrado + acceso supervisión + análisis periódico'
+    vinculo_medida_ens: [op.exp.4, op.mon.1]
+    fuente_url: 'https://eur-lex.europa.eu/legal-content/ES/TXT/?uri=CELEX:32024R1689'
+
+  - codigo: AIACT-ART-13
+    regulacion: AI_Act
+    articulo: 'Art. 13'
+    titulo: 'Transparencia e información usuarios'
+    obligacion: 'Proveedores diseñan sistemas alto riesgo permitiendo desplegadores entender funcionamiento. Instrucciones uso completas + información sobre limitaciones.'
+    sector_aplica: [proveedores IA alto riesgo]
+    ens_categoria_aplica: [M, A]
+    evidencia_requerida: 'Documentación instrucciones uso + limitaciones documentadas + entrenamiento desplegadores + canal soporte'
+    vinculo_medida_ens: [mp.info.1, mp.sw.1]
+    fuente_url: 'https://eur-lex.europa.eu/legal-content/ES/TXT/?uri=CELEX:32024R1689'
+
+  - codigo: AIACT-ART-14
+    regulacion: AI_Act
+    articulo: 'Art. 14'
+    titulo: 'Supervisión humana (human oversight)'
+    obligacion: 'Sistemas alto riesgo diseñados con supervisión humana efectiva. Personas pueden: entender, monitorizar, interrumpir, anular decisiones IA.'
+    sector_aplica: [proveedores IA alto riesgo]
+    ens_categoria_aplica: [M, A]
+    evidencia_requerida: 'Mecanismos supervisión humana implementados + procedimiento override + formación supervisores + auditorías'
+    vinculo_medida_ens: [op.acc.1, op.pl.2]
+    fuente_url: 'https://eur-lex.europa.eu/legal-content/ES/TXT/?uri=CELEX:32024R1689'
+
+  - codigo: AIACT-ART-15
+    regulacion: AI_Act
+    articulo: 'Art. 15'
+    titulo: 'Precisión, robustez y ciberseguridad'
+    obligacion: 'Sistemas alto riesgo: precisión apropiada, robustez frente errores/inconsistencias/entornos adversos, ciberseguridad (resistencia ataques adversariales).'
+    sector_aplica: [proveedores IA alto riesgo]
+    ens_categoria_aplica: [M, A]
+    evidencia_requerida: 'Tests precisión + tests robustez + tests adversariales + métricas KPI + plan mejora continua'
+    vinculo_medida_ens: [mp.sw.1, mp.sw.2, op.exp.3]
+    fuente_url: 'https://eur-lex.europa.eu/legal-content/ES/TXT/?uri=CELEX:32024R1689'
+
+  - codigo: AIACT-ART-16
+    regulacion: AI_Act
+    articulo: 'Art. 16'
+    titulo: 'Obligaciones proveedores alto riesgo'
+    obligacion: 'Proveedores: cumplir Arts.9-15, sistema gestión calidad, conservar documentación, evaluación conformidad, marcado CE, registro UE, supervisión post-mercado.'
+    sector_aplica: [proveedores IA alto riesgo]
+    ens_categoria_aplica: [M, A]
+    evidencia_requerida: 'Checklist obligaciones proveedor + sistema gestión calidad ISO9001 alineado + marcado CE + registro UE'
+    vinculo_medida_ens: [org.1, op.pl.1]
+    fuente_url: 'https://eur-lex.europa.eu/legal-content/ES/TXT/?uri=CELEX:32024R1689'
+
+  - codigo: AIACT-ART-17
+    regulacion: AI_Act
+    articulo: 'Art. 17'
+    titulo: 'Sistema gestión calidad IA alto riesgo'
+    obligacion: 'Sistema gestión calidad documentado: políticas, estrategia conformidad, procedimientos, control configuración, gestión recursos, control datos.'
+    sector_aplica: [proveedores IA alto riesgo]
+    ens_categoria_aplica: [M, A]
+    evidencia_requerida: 'QMS documentado + procedimientos + revisión anual + integración ISO9001/ISO/IEC 42001'
+    vinculo_medida_ens: [org.1, op.pl.1]
+    fuente_url: 'https://eur-lex.europa.eu/legal-content/ES/TXT/?uri=CELEX:32024R1689'
+
+  - codigo: AIACT-ART-18
+    regulacion: AI_Act
+    articulo: 'Art. 18'
+    titulo: 'Documentación conservación 10 años'
+    obligacion: 'Proveedores conservan documentación técnica + sistema calidad + decisiones autoridades + declaración conformidad UE: mínimo 10 años después mercado.'
+    sector_aplica: [proveedores IA alto riesgo]
+    ens_categoria_aplica: [M, A]
+    evidencia_requerida: 'Repositorio documental + política conservación 10 años + backup + acceso autoridades + procedimiento eliminación post-período'
+    vinculo_medida_ens: [op.exp.4, mp.info.6]
+    fuente_url: 'https://eur-lex.europa.eu/legal-content/ES/TXT/?uri=CELEX:32024R1689'
+
+  - codigo: AIACT-ART-19
+    regulacion: AI_Act
+    articulo: 'Art. 19'
+    titulo: 'Registros generados automáticamente disponibles autoridades'
+    obligacion: 'Proveedores+desplegadores conservan logs Art.12 mínimo 6 meses post-acceso. Disponibles autoridades supervisoras + clientes finales si aplica.'
+    sector_aplica: [proveedores IA + desplegadores]
+    ens_categoria_aplica: [M, A]
+    evidencia_requerida: 'Política retención logs 6 meses mínimo + canal entrega autoridades + procedimiento extracción + integridad'
+    vinculo_medida_ens: [op.exp.4, op.mon.1]
+    fuente_url: 'https://eur-lex.europa.eu/legal-content/ES/TXT/?uri=CELEX:32024R1689'
+
+  - codigo: AIACT-ART-20
+    regulacion: AI_Act
+    articulo: 'Art. 20'
+    titulo: 'Acciones correctivas'
+    obligacion: 'Si sistema no conforme: retirada inmediata mercado, recuperación, información autoridades + desplegadores + cadena valor. Análisis raíz + corrección.'
+    sector_aplica: [proveedores IA alto riesgo]
+    ens_categoria_aplica: [M, A]
+    evidencia_requerida: 'Procedimiento recall + canal comunicación autoridades + plan acciones correctivas + KPIs cumplimiento'
+    vinculo_medida_ens: [op.exp.7, op.pl.3]
+    fuente_url: 'https://eur-lex.europa.eu/legal-content/ES/TXT/?uri=CELEX:32024R1689'
+
+  - codigo: AIACT-ART-21
+    regulacion: AI_Act
+    articulo: 'Art. 21'
+    titulo: 'Cooperación autoridades competentes'
+    obligacion: 'Proveedores cooperan con autoridades competentes (España: AESIA pendiente creación). Suministrar info, acceso documentación, facilitar inspecciones.'
+    sector_aplica: [proveedores IA]
+    ens_categoria_aplica: [M, A]
+    evidencia_requerida: 'Canal AESIA + procedimiento atención requerimientos + designación interlocutor + log peticiones'
+    vinculo_medida_ens: [org.3, org.4]
+    fuente_url: 'https://www.lamoncloa.gob.es/serviciosdeprensa/notasprensa/asuntos-economicos/Paginas/2023/220823-agencia-supervision-ia.aspx'
+
+  - codigo: AIACT-ART-22
+    regulacion: AI_Act
+    articulo: 'Art. 22'
+    titulo: 'Representantes autorizados (extra-UE)'
+    obligacion: 'Proveedores fuera UE designan representante autorizado UE por escrito. Representante cumple obligaciones administrativas + canal autoridades.'
+    sector_aplica: [proveedores_IA_extra_UE]
+    ens_categoria_aplica: [M, A]
+    evidencia_requerida: 'Designación representante UE documentada + poderes claros + comunicación AESIA + actualización si cambios'
+    vinculo_medida_ens: [org.4]
+    fuente_url: 'https://eur-lex.europa.eu/legal-content/ES/TXT/?uri=CELEX:32024R1689'
+
+  - codigo: AIACT-ART-26
+    regulacion: AI_Act
+    articulo: 'Art. 26'
+    titulo: 'Obligaciones desplegadores alto riesgo'
+    obligacion: 'Desplegadores: seguir instrucciones uso, supervisión humana implementada, monitorización funcionamiento, mantenimiento logs, informar incidentes, evaluación impacto.'
+    sector_aplica: [desplegadores IA alto riesgo]
+    ens_categoria_aplica: [M, A]
+    evidencia_requerida: 'Checklist obligaciones desplegador + responsable designado + procedimientos + ejercicios anuales'
+    vinculo_medida_ens: [op.pl.1, op.acc.1, mp.per.3]
+    fuente_url: 'https://eur-lex.europa.eu/legal-content/ES/TXT/?uri=CELEX:32024R1689'
+
+  - codigo: AIACT-ART-27
+    regulacion: AI_Act
+    articulo: 'Art. 27'
+    titulo: 'Evaluación impacto derechos fundamentales (FRIA)'
+    obligacion: 'Desplegadores sector público + entidades privadas servicios esenciales: FRIA antes desplegar IA alto riesgo. Análisis impacto derechos + medidas mitigación.'
+    sector_aplica: [administracion_publica, servicios_esenciales]
+    ens_categoria_aplica: [M, A]
+    evidencia_requerida: 'Metodología FRIA + plantilla cumplimentada + revisión periódica + plan mitigación + comunicación autoridades'
+    vinculo_medida_ens: [op.pl.1, op.pl.2, mp.info.1]
+    fuente_url: 'https://eur-lex.europa.eu/legal-content/ES/TXT/?uri=CELEX:32024R1689'
+
+  - codigo: AIACT-ART-43
+    regulacion: AI_Act
+    articulo: 'Art. 43'
+    titulo: 'Evaluación conformidad antes mercado'
+    obligacion: 'Sistemas alto riesgo: evaluación conformidad antes comercialización. Auto-evaluación (Anexo III mayoría) o tercero notificado (biometría, etc.).'
+    sector_aplica: [proveedores IA alto riesgo]
+    ens_categoria_aplica: [M, A]
+    evidencia_requerida: 'Procedimiento evaluación conformidad documentado + organismo notificado si aplica + certificado + marcado CE'
+    vinculo_medida_ens: [op.pl.1, org.3]
+    fuente_url: 'https://eur-lex.europa.eu/legal-content/ES/TXT/?uri=CELEX:32024R1689'
+
+  - codigo: AIACT-ART-49
+    regulacion: AI_Act
+    articulo: 'Art. 49'
+    titulo: 'Registro UE sistemas IA alto riesgo'
+    obligacion: 'Antes mercado: registrar sistema alto riesgo en BD UE pública. Información obligatoria: identidad proveedor, descripción sistema, casos uso.'
+    sector_aplica: [proveedores IA alto riesgo Anexo III]
+    ens_categoria_aplica: [M, A]
+    evidencia_requerida: 'Registro UE BD pública + actualización cambios + información transparente accesible'
+    vinculo_medida_ens: [org.4, mp.info.1]
+    fuente_url: 'https://eur-lex.europa.eu/legal-content/ES/TXT/?uri=CELEX:32024R1689'
+
+  - codigo: AIACT-ART-51
+    regulacion: AI_Act
+    articulo: 'Art. 51'
+    titulo: 'GPAI · modelos uso general'
+    obligacion: 'Proveedores GPAI (foundation models): documentación técnica, política respeto copyright, resumen entrenamiento, transparencia capacidades/limitaciones.'
+    sector_aplica: [proveedores_GPAI]
+    ens_categoria_aplica: [M, A]
+    evidencia_requerida: 'Documentación GPAI + política copyright + resumen training data + canal autoridades + actualización'
+    vinculo_medida_ens: [op.pl.1, mp.info.1]
+    fuente_url: 'https://eur-lex.europa.eu/legal-content/ES/TXT/?uri=CELEX:32024R1689'
+
+  - codigo: AIACT-ART-55
+    regulacion: AI_Act
+    articulo: 'Art. 55'
+    titulo: 'GPAI riesgo sistémico'
+    obligacion: 'GPAI con riesgo sistémico (>10^25 FLOPs entrenamiento o designados Comisión): evaluación riesgos, mitigación, cyber-seguridad reforzada, reporte incidentes.'
+    sector_aplica: [proveedores_GPAI_sistemicos]
+    ens_categoria_aplica: [A]
+    evidencia_requerida: 'Análisis riesgo sistémico + plan mitigación + red team + cybersecurity reforzado + reporting Comisión'
+    vinculo_medida_ens: [op.pl.1, op.pl.3, op.exp.7]
+    fuente_url: 'https://eur-lex.europa.eu/legal-content/ES/TXT/?uri=CELEX:32024R1689'
+
+  - codigo: AIACT-ART-52
+    regulacion: AI_Act
+    articulo: 'Art. 52'
+    titulo: 'Clasificación GPAI con riesgo sistémico'
+    obligacion: 'GPAI clasificado riesgo sistémico si: alta capacidad impacto (FLOPs > 10^25) o designado por Comisión basado en criterios establecidos. Notificar Comisión.'
+    sector_aplica: [proveedores_GPAI_grandes]
+    ens_categoria_aplica: [A]
+    evidencia_requerida: 'Análisis FLOPs entrenamiento + auto-evaluación + notificación Comisión si supera umbral + monitorización continua'
+    vinculo_medida_ens: [op.pl.1, org.4]
+    fuente_url: 'https://eur-lex.europa.eu/legal-content/ES/TXT/?uri=CELEX:32024R1689'

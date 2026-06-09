@@ -1,0 +1,299 @@
+version: '1.0'
+fecha: '2026-05-17'
+fuente:
+  titulo: 'Mapping ENS Anexo II RD 311/2022 -> CCN-STIC primarias'
+  autor: 'FULKRO architect (curado inicial pragmatico v1)'
+  normativa_base: 'RD 311/2022 Esquema Nacional de Seguridad'
+  notas:
+    - 'Cobertura inicial: 73 medidas Anexo II con minimo 1 guia CCN-STIC primaria cada una.'
+    - 'NO ingesta masiva corpus CCN-STIC (deferido post-piloto · plan v2 sec 8).'
+    - 'URLs especificas NO se inventan: solo URL base catalogo CCN-STIC.'
+    - 'Refinable per cliente piloto: cuando aparezca dolor real con guia X, anadir mapping detallado.'
+
+# Catalogo de guias CCN-STIC referenciadas en este mapping.
+# url_verified: false marca para auditoria futura · solo URL base catalogo.
+url_base_catalogo: 'https://www.ccn-cert.cni.es/series-ccn-stic.html'
+
+guias_ccn_referenciadas:
+  CCN-STIC-803:
+    nombre: 'Valoracion de los Sistemas'
+    url_verified: false
+  CCN-STIC-804:
+    nombre: 'Guia de Implantacion del ENS'
+    url_verified: false
+  CCN-STIC-805:
+    nombre: 'Politica de Seguridad'
+    url_verified: false
+  CCN-STIC-806:
+    nombre: 'Plan de Adecuacion'
+    url_verified: false
+  CCN-STIC-807:
+    nombre: 'Criptologia de empleo en el ENS'
+    url_verified: false
+  CCN-STIC-808:
+    nombre: 'Verificacion del cumplimiento de las medidas (Continuidad)'
+    url_verified: false
+  CCN-STIC-811:
+    nombre: 'Interconexion en el ENS'
+    url_verified: false
+  CCN-STIC-812:
+    nombre: 'Seguridad en servicios web'
+    url_verified: false
+  CCN-STIC-813:
+    nombre: 'Componentes certificados (CPSTIC)'
+    url_verified: false
+  CCN-STIC-815:
+    nombre: 'Metricas e Indicadores'
+    url_verified: false
+  CCN-STIC-817:
+    nombre: 'Gestion de ciberincidentes (LUCIA)'
+    url_verified: false
+  CCN-STIC-818:
+    nombre: 'Defensa en profundidad'
+    url_verified: false
+  CCN-STIC-819:
+    nombre: 'Servicios en la Nube'
+    url_verified: false
+  CCN-STIC-824:
+    nombre: 'Informe Nacional del Estado de Seguridad (INES)'
+    url_verified: false
+
+# bucket_mappings: el seed loader expande cada bucket a N filas (1 por par
+# medida x guia). measures: lista explicita de codigos medida (FK a
+# ens_measures.codigo).
+bucket_mappings:
+
+  - bucket: org_marco
+    descripcion: 'Marco organizativo (4 medidas org.*) -> politicas + implantacion'
+    measures: [org.1, org.2, org.3, org.4]
+    guias:
+      - guia_code: CCN-STIC-805
+        relevance: develops
+        section_ref: 'Politica de Seguridad'
+        prioridad: primaria
+      - guia_code: CCN-STIC-804
+        relevance: references
+        section_ref: 'Marco organizativo'
+        prioridad: complementaria
+
+  - bucket: op_pl_base
+    descripcion: 'Planificacion base (op.pl.1-4) -> Valoracion + Implantacion'
+    measures: [op.pl.1, op.pl.2, op.pl.3, op.pl.4]
+    guias:
+      - guia_code: CCN-STIC-803
+        relevance: develops
+        section_ref: 'Metodologia valoracion sistemas'
+        prioridad: primaria
+      - guia_code: CCN-STIC-804
+        relevance: references
+        section_ref: 'Marco operacional'
+        prioridad: complementaria
+
+  - bucket: op_pl_cpstic
+    descripcion: 'op.pl.5 Componentes certificados -> CPSTIC obligatorio MEDIA+'
+    measures: [op.pl.5]
+    guias:
+      - guia_code: CCN-STIC-813
+        relevance: develops
+        section_ref: 'Catalogo CPSTIC'
+        prioridad: primaria
+      - guia_code: CCN-STIC-803
+        relevance: references
+        section_ref: 'Valoracion componentes'
+        prioridad: complementaria
+
+  - bucket: op_acc
+    descripcion: 'Control de acceso (6 medidas op.acc.*) -> Implantacion + Defensa'
+    measures: [op.acc.1, op.acc.2, op.acc.3, op.acc.4, op.acc.5, op.acc.6]
+    guias:
+      - guia_code: CCN-STIC-804
+        relevance: develops
+        section_ref: 'Control de acceso'
+        prioridad: primaria
+      - guia_code: CCN-STIC-818
+        relevance: references
+        section_ref: 'Capas defensa identidad'
+        prioridad: complementaria
+
+  - bucket: op_exp_base
+    descripcion: 'Explotacion base (op.exp.1-6, 8, 9, 10) -> Defensa profundidad'
+    measures: [op.exp.1, op.exp.2, op.exp.3, op.exp.4, op.exp.5, op.exp.6, op.exp.8, op.exp.9, op.exp.10]
+    guias:
+      - guia_code: CCN-STIC-818
+        relevance: develops
+        section_ref: 'Defensa profundidad operacional'
+        prioridad: primaria
+      - guia_code: CCN-STIC-804
+        relevance: references
+        section_ref: 'Marco operacional'
+        prioridad: complementaria
+
+  - bucket: op_exp_incidentes
+    descripcion: 'op.exp.7 Gestion incidentes -> LUCIA obligatorio'
+    measures: [op.exp.7]
+    guias:
+      - guia_code: CCN-STIC-817
+        relevance: develops
+        section_ref: 'Gestion ciberincidentes (LUCIA)'
+        prioridad: primaria
+      - guia_code: CCN-STIC-818
+        relevance: references
+        section_ref: 'Defensa reactiva'
+        prioridad: complementaria
+
+  - bucket: op_ext
+    descripcion: 'Recursos externos (4 medidas op.ext.*) -> Implantacion + Interconexion'
+    measures: [op.ext.1, op.ext.2, op.ext.3, op.ext.4]
+    guias:
+      - guia_code: CCN-STIC-804
+        relevance: develops
+        section_ref: 'Servicios externos'
+        prioridad: primaria
+      - guia_code: CCN-STIC-811
+        relevance: references
+        section_ref: 'Interconexion'
+        prioridad: complementaria
+
+  - bucket: op_nub
+    descripcion: 'op.nub.1 Servicios en la nube -> Cloud'
+    measures: [op.nub.1]
+    guias:
+      - guia_code: CCN-STIC-819
+        relevance: develops
+        section_ref: 'Servicios en la Nube'
+        prioridad: primaria
+      - guia_code: CCN-STIC-804
+        relevance: references
+        section_ref: 'Marco operacional'
+        prioridad: complementaria
+
+  - bucket: op_cont
+    descripcion: 'Continuidad servicio (4 medidas op.cont.*) -> BCP'
+    measures: [op.cont.1, op.cont.2, op.cont.3, op.cont.4]
+    guias:
+      - guia_code: CCN-STIC-808
+        relevance: develops
+        section_ref: 'Continuidad y BCP/DRP'
+        prioridad: primaria
+
+  - bucket: op_mon_metricas
+    descripcion: 'op.mon.2 sistema metricas + op.mon.3 vigilancia -> Metricas'
+    measures: [op.mon.2, op.mon.3]
+    guias:
+      - guia_code: CCN-STIC-815
+        relevance: develops
+        section_ref: 'Metricas e Indicadores'
+        prioridad: primaria
+      - guia_code: CCN-STIC-818
+        relevance: references
+        section_ref: 'Monitorizacion defensiva'
+        prioridad: complementaria
+
+  - bucket: op_mon_ids
+    descripcion: 'op.mon.1 Deteccion intrusiones -> LUCIA + Defensa'
+    measures: [op.mon.1]
+    guias:
+      - guia_code: CCN-STIC-817
+        relevance: develops
+        section_ref: 'Deteccion intrusiones'
+        prioridad: primaria
+      - guia_code: CCN-STIC-818
+        relevance: references
+        section_ref: 'Sensores defensivos'
+        prioridad: complementaria
+
+  - bucket: mp_if
+    descripcion: 'Proteccion instalaciones (7 medidas mp.if.*) -> Implantacion'
+    measures: [mp.if.1, mp.if.2, mp.if.3, mp.if.4, mp.if.5, mp.if.6, mp.if.7]
+    guias:
+      - guia_code: CCN-STIC-804
+        relevance: develops
+        section_ref: 'Proteccion instalaciones'
+        prioridad: primaria
+
+  - bucket: mp_per
+    descripcion: 'Proteccion personal (4 medidas mp.per.*) -> Implantacion + Politica'
+    measures: [mp.per.1, mp.per.2, mp.per.3, mp.per.4]
+    guias:
+      - guia_code: CCN-STIC-804
+        relevance: develops
+        section_ref: 'Marco personal'
+        prioridad: primaria
+      - guia_code: CCN-STIC-805
+        relevance: references
+        section_ref: 'Deberes y formacion'
+        prioridad: complementaria
+
+  - bucket: mp_eq
+    descripcion: 'Proteccion equipos (4 medidas mp.eq.*) -> Defensa + Implantacion'
+    measures: [mp.eq.1, mp.eq.2, mp.eq.3, mp.eq.4]
+    guias:
+      - guia_code: CCN-STIC-818
+        relevance: develops
+        section_ref: 'Hardening equipos'
+        prioridad: primaria
+      - guia_code: CCN-STIC-804
+        relevance: references
+        section_ref: 'Equipos del marco operacional'
+        prioridad: complementaria
+
+  - bucket: mp_com
+    descripcion: 'Proteccion comunicaciones (4 medidas mp.com.*) -> Criptologia'
+    measures: [mp.com.1, mp.com.2, mp.com.3, mp.com.4]
+    guias:
+      - guia_code: CCN-STIC-807
+        relevance: develops
+        section_ref: 'Criptologia y proteccion comunicaciones'
+        prioridad: primaria
+      - guia_code: CCN-STIC-818
+        relevance: references
+        section_ref: 'Defensa perimetral'
+        prioridad: complementaria
+
+  - bucket: mp_si
+    descripcion: 'Proteccion soportes informacion (5 medidas mp.si.*) -> Criptologia + Defensa'
+    measures: [mp.si.1, mp.si.2, mp.si.3, mp.si.4, mp.si.5]
+    guias:
+      - guia_code: CCN-STIC-807
+        relevance: develops
+        section_ref: 'Cifrado en reposo y soportes'
+        prioridad: primaria
+      - guia_code: CCN-STIC-818
+        relevance: references
+        section_ref: 'Proteccion media'
+        prioridad: complementaria
+
+  - bucket: mp_sw
+    descripcion: 'Proteccion aplicaciones (2 medidas mp.sw.*) -> Servicios web'
+    measures: [mp.sw.1, mp.sw.2]
+    guias:
+      - guia_code: CCN-STIC-812
+        relevance: develops
+        section_ref: 'Desarrollo seguro y aceptacion'
+        prioridad: primaria
+
+  - bucket: mp_info
+    descripcion: 'Proteccion informacion (6 medidas mp.info.*) -> Criptologia + Implantacion'
+    measures: [mp.info.1, mp.info.2, mp.info.3, mp.info.4, mp.info.5, mp.info.6]
+    guias:
+      - guia_code: CCN-STIC-807
+        relevance: develops
+        section_ref: 'Cifrado, firma, sellos de tiempo'
+        prioridad: primaria
+      - guia_code: CCN-STIC-804
+        relevance: references
+        section_ref: 'Marco proteccion informacion'
+        prioridad: complementaria
+
+  - bucket: mp_s
+    descripcion: 'Proteccion servicios (4 medidas mp.s.*) -> Servicios web + Cloud'
+    measures: [mp.s.1, mp.s.2, mp.s.3, mp.s.4]
+    guias:
+      - guia_code: CCN-STIC-812
+        relevance: develops
+        section_ref: 'Servicios web seguros'
+        prioridad: primaria
+      - guia_code: CCN-STIC-819
+        relevance: references
+        section_ref: 'Servicios cloud'
+        prioridad: complementaria

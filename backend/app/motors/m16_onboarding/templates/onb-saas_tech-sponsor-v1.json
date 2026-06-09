@@ -1,0 +1,296 @@
+{
+  "id": "onb-saas_tech-sponsor-v1",
+  "version": "1.0",
+  "sector": "saas_tech",
+  "role": "sponsor",
+  "nombre": "Onboarding Sponsor — SaaS / Tech",
+  "descripcion": "Onboarding para el sponsor ejecutivo de una empresa SaaS o tecnologica. Recoge contexto estrategico, producto, clientes del sector publico y expectativas del proyecto ENS.",
+  "tiempo_estimado_minutos": 38,
+  "language": "es",
+  "questions": [
+    {
+      "id": "q-motivacion_ens",
+      "type": "single_select",
+      "section": "contexto_estrategico",
+      "label": "Cual es la motivacion principal para obtener la certificacion ENS?",
+      "tooltip": "ENS es obligatorio para proveedores de servicios a la Administracion Publica. Identificar la motivacion orienta el alcance y la urgencia del proyecto.",
+      "options": [
+        {
+          "value": "requisito_cliente_aapp",
+          "label": "Requisito de un cliente AAPP actual"
+        },
+        {
+          "value": "acceso_licitaciones",
+          "label": "Acceder a licitaciones publicas"
+        },
+        {
+          "value": "diferenciacion_comercial",
+          "label": "Diferenciacion comercial frente a competidores"
+        },
+        {
+          "value": "decision_estrategica",
+          "label": "Decision estrategica de madurez"
+        },
+        {
+          "value": "otros",
+          "label": "Otros"
+        }
+      ],
+      "validation": {
+        "required": true
+      }
+    },
+    {
+      "id": "q-descripcion_saas",
+      "type": "long_text",
+      "section": "contexto_estrategico",
+      "label": "Describid brevemente vuestro producto SaaS: que hace, a quien va dirigido y cual es el valor diferencial.",
+      "tooltip": "Entender el producto nos permite identificar datos y funcionalidades criticas que el ENS debe proteger.",
+      "validation": {
+        "required": true,
+        "min_length": 50,
+        "max_length": 2000
+      }
+    },
+    {
+      "id": "q-multi_tenant",
+      "type": "single_select",
+      "section": "arquitectura",
+      "label": "Vuestra plataforma es multi-tenant (varios clientes comparten infraestructura)?",
+      "tooltip": "El modelo multi-tenant tiene implicaciones directas en el aislamiento de datos y en el alcance ENS (mp.si.2, op.nub.1).",
+      "options": [
+        {
+          "value": "si_shared",
+          "label": "Si, infraestructura totalmente compartida"
+        },
+        {
+          "value": "si_esquema_separado",
+          "label": "Si, con esquemas/bases de datos separados por cliente"
+        },
+        {
+          "value": "si_instancia_separada",
+          "label": "Si, con instancias separadas por cliente"
+        },
+        {
+          "value": "no_single_tenant",
+          "label": "No, modelo single-tenant"
+        },
+        {
+          "value": "hibrido",
+          "label": "Hibrido segun tipo de cliente"
+        }
+      ],
+      "validation": {
+        "required": true
+      }
+    },
+    {
+      "id": "q-compliance_previo",
+      "type": "multi_select",
+      "section": "madurez_previa",
+      "label": "Habeis obtenido o estais en proceso de alguna de estas certificaciones o marcos de compliance?",
+      "tooltip": "SOC2 e ISO 27001 comparten controles con ENS. El trabajo previo reduce el esfuerzo total del proyecto.",
+      "options": [
+        {
+          "value": "iso27001",
+          "label": "ISO 27001"
+        },
+        {
+          "value": "soc2",
+          "label": "SOC 2 Type I/II"
+        },
+        {
+          "value": "rgpd_lopdgdd",
+          "label": "Adecuacion RGPD/LOPDGDD"
+        },
+        {
+          "value": "ens_previo",
+          "label": "ENS (version anterior)"
+        },
+        {
+          "value": "ninguno",
+          "label": "Ninguno"
+        }
+      ],
+      "validation": {
+        "required": true
+      }
+    },
+    {
+      "id": "q-clientes_sector_publico_pct",
+      "type": "single_select",
+      "section": "negocio",
+      "label": "Que porcentaje aproximado de vuestros clientes actuales o objetivo pertenece al sector publico?",
+      "tooltip": "El volumen de negocio publico determina la prioridad del proyecto ENS y el nivel de categoria a alcanzar.",
+      "options": [
+        {
+          "value": "menos_10",
+          "label": "Menos del 10%"
+        },
+        {
+          "value": "10_30",
+          "label": "Entre el 10% y el 30%"
+        },
+        {
+          "value": "30_60",
+          "label": "Entre el 30% y el 60%"
+        },
+        {
+          "value": "mas_60",
+          "label": "Mas del 60%"
+        },
+        {
+          "value": "solo_publico",
+          "label": "Exclusivamente sector publico"
+        }
+      ],
+      "validation": {
+        "required": true
+      }
+    },
+    {
+      "id": "q-plazo_objetivo",
+      "type": "date",
+      "section": "planificacion",
+      "label": "Teneis una fecha objetivo de certificacion?",
+      "tooltip": "Una fecha firme condiciona el ritmo del proyecto y los recursos necesarios. Si es flexible, indicad una estimacion.",
+      "validation": {
+        "required": false
+      }
+    },
+    {
+      "id": "q-presupuesto_aprobado",
+      "type": "boolean",
+      "section": "planificacion",
+      "label": "Teneis presupuesto aprobado para el proyecto ENS completo (consultoria, pentest, auditoria)?",
+      "tooltip": "Un presupuesto aprobado permite planificar con realismo. Incluye costes de terceros y dedicacion interna.",
+      "validation": {
+        "required": true
+      }
+    },
+    {
+      "id": "q-dedicacion_semanal",
+      "type": "single_select",
+      "section": "planificacion",
+      "label": "Cuanto tiempo podeis dedicar como sponsor al proyecto semanalmente?",
+      "tooltip": "El sponsor ejecutivo suele dedicar 1-3h semanales en fases activas para decisiones y seguimiento.",
+      "options": [
+        {
+          "value": "menos_1h",
+          "label": "Menos de 1 hora"
+        },
+        {
+          "value": "1_2h",
+          "label": "1-2 horas"
+        },
+        {
+          "value": "2_4h",
+          "label": "2-4 horas"
+        },
+        {
+          "value": "mas_4h",
+          "label": "Mas de 4 horas"
+        }
+      ],
+      "validation": {
+        "required": true
+      }
+    },
+    {
+      "id": "q-clientes_publicos",
+      "type": "boolean",
+      "section": "contexto_sectorial",
+      "label": "Teneis clientes del sector publico espanol?",
+      "validation": {
+        "required": true
+      }
+    },
+    {
+      "id": "q-soc_pentest_recientes",
+      "type": "single_select",
+      "section": "contexto_sectorial",
+      "label": "Habeis realizado pentest externo en los ultimos 12 meses?",
+      "options": [
+        {
+          "value": "si_sin_hallazgos_criticos",
+          "label": "Si, sin hallazgos criticos"
+        },
+        {
+          "value": "si_con_hallazgos",
+          "label": "Si, con hallazgos abiertos"
+        },
+        {
+          "value": "no",
+          "label": "No"
+        }
+      ],
+      "validation": {
+        "required": false
+      }
+    },
+    {
+      "id": "q-experiencia_previa_certificacion",
+      "type": "single_select",
+      "section": "contexto_estrategico",
+      "label": "Experiencia previa con certificaciones (ISO, ENS, SOC2)",
+      "options": [
+        {
+          "value": "ninguna",
+          "label": "Ninguna"
+        },
+        {
+          "value": "iso27001",
+          "label": "ISO 27001"
+        },
+        {
+          "value": "ens_anterior",
+          "label": "ENS anterior"
+        },
+        {
+          "value": "otras",
+          "label": "Otras"
+        }
+      ],
+      "validation": {
+        "required": false
+      }
+    },
+    {
+      "id": "q-comite_seguridad",
+      "type": "boolean",
+      "section": "contexto_estrategico",
+      "label": "Existe Comite de Seguridad formal con actas periodicas?",
+      "validation": {
+        "required": true
+      }
+    },
+    {
+      "id": "q-ambicion_recurrente",
+      "type": "boolean",
+      "section": "contexto_estrategico",
+      "label": "Buscan acompanamiento continuo (retainer) tras la certificacion?",
+      "validation": {
+        "required": false
+      }
+    },
+    {
+      "id": "q-numero_sedes",
+      "type": "number",
+      "section": "identificacion",
+      "label": "Numero de sedes fisicas en Espana",
+      "validation": {
+        "required": false,
+        "min_value": 0
+      }
+    },
+    {
+      "id": "q-actividad_internacional",
+      "type": "boolean",
+      "section": "identificacion",
+      "label": "Operais en otros paises ademas de Espana?",
+      "validation": {
+        "required": false
+      }
+    }
+  ]
+}

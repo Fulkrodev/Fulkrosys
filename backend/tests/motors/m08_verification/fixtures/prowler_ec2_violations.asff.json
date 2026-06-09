@@ -1,0 +1,55 @@
+{
+  "Findings": [
+    {
+      "SchemaVersion": "2018-10-08",
+      "Id": "prowler-ec2_securitygroup_allow_ingress_from_internet_to_ssh-123456789012-sg-open",
+      "ProductArn": "arn:aws:securityhub:eu-central-1::product/prowler/prowler",
+      "GeneratorId": "prowler-ec2_securitygroup_allow_ingress_from_internet_to_ssh",
+      "AwsAccountId": "123456789012",
+      "Types": ["Software and Configuration Checks/Industry and Regulatory Standards/CIS AWS Foundations Benchmark"],
+      "CreatedAt": "2026-04-24T08:20:00Z",
+      "UpdatedAt": "2026-04-24T08:20:00Z",
+      "Severity": {"Label": "CRITICAL"},
+      "Title": "Security group sg-fulkroOpen allows SSH (22) from 0.0.0.0/0",
+      "Description": "Unrestricted SSH ingress is a critical exposure.",
+      "Remediation": {"Recommendation": {"Text": "Restrict SSH ingress to admin bastion CIDR or VPN."}},
+      "Resources": [{"Type": "AwsEc2SecurityGroup", "Id": "arn:aws:ec2:eu-central-1:123456789012:security-group/sg-fulkroOpen", "Region": "eu-central-1"}],
+      "Compliance": {"Status": "FAILED", "RelatedRequirements": ["CIS-5.2"]},
+      "ProductFields": {"ProviderName": "prowler", "ProwlerCheckId": "ec2_securitygroup_allow_ingress_from_internet_to_ssh"}
+    },
+    {
+      "SchemaVersion": "2018-10-08",
+      "Id": "prowler-ec2_securitygroup_allow_ingress_from_internet_to_rdp-123456789012-sg-rdp",
+      "ProductArn": "arn:aws:securityhub:eu-central-1::product/prowler/prowler",
+      "GeneratorId": "prowler-ec2_securitygroup_allow_ingress_from_internet_to_rdp",
+      "AwsAccountId": "123456789012",
+      "Types": ["Software and Configuration Checks/Industry and Regulatory Standards/CIS AWS Foundations Benchmark"],
+      "CreatedAt": "2026-04-24T08:20:01Z",
+      "UpdatedAt": "2026-04-24T08:20:01Z",
+      "Severity": {"Label": "CRITICAL"},
+      "Title": "Security group sg-fulkroRDP allows RDP (3389) from 0.0.0.0/0",
+      "Description": "Unrestricted RDP ingress is a critical exposure.",
+      "Remediation": {"Recommendation": {"Text": "Restrict RDP ingress to admin bastion CIDR or VPN."}},
+      "Resources": [{"Type": "AwsEc2SecurityGroup", "Id": "arn:aws:ec2:eu-central-1:123456789012:security-group/sg-fulkroRDP", "Region": "eu-central-1"}],
+      "Compliance": {"Status": "FAILED", "RelatedRequirements": ["CIS-5.3"]},
+      "ProductFields": {"ProviderName": "prowler", "ProwlerCheckId": "ec2_securitygroup_allow_ingress_from_internet_to_rdp"}
+    },
+    {
+      "SchemaVersion": "2018-10-08",
+      "Id": "prowler-ec2_ebs_default_encryption-123456789012-eu-central-1",
+      "ProductArn": "arn:aws:securityhub:eu-central-1::product/prowler/prowler",
+      "GeneratorId": "prowler-ec2_ebs_default_encryption",
+      "AwsAccountId": "123456789012",
+      "Types": ["Software and Configuration Checks/Industry and Regulatory Standards/CIS AWS Foundations Benchmark"],
+      "CreatedAt": "2026-04-24T08:20:02Z",
+      "UpdatedAt": "2026-04-24T08:20:02Z",
+      "Severity": {"Label": "HIGH"},
+      "Title": "EBS default encryption is not enabled in region eu-central-1",
+      "Description": "All new EBS volumes must be encrypted by default.",
+      "Remediation": {"Recommendation": {"Text": "Enable EBS default encryption in EC2 account settings."}},
+      "Resources": [{"Type": "AwsEc2Region", "Id": "arn:aws:ec2:eu-central-1", "Region": "eu-central-1"}],
+      "Compliance": {"Status": "FAILED", "RelatedRequirements": ["CIS-2.2.1"]},
+      "ProductFields": {"ProviderName": "prowler", "ProwlerCheckId": "ec2_ebs_default_encryption"}
+    }
+  ]
+}

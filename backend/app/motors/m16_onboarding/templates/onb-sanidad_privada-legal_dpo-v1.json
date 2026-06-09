@@ -1,0 +1,190 @@
+{
+  "id": "onb-sanidad_privada-legal_dpo-v1",
+  "version": "1.0",
+  "sector": "sanidad_privada",
+  "role": "legal_dpo",
+  "nombre": "Onboarding Legal / DPO - Sanidad Privada",
+  "descripcion": "Cuestionario de onboarding para el rol Legal / DPO en una organizacion del sector Sanidad Privada. Recoge contexto estrategico, operativo y regulatorio necesario para arrancar el proyecto ENS.",
+  "tiempo_estimado_minutos": 38,
+  "language": "es",
+  "questions": [
+    {
+      "id": "q-empresa_nombre",
+      "type": "text",
+      "section": "identificacion",
+      "label": "Nombre comercial de la empresa",
+      "validation": {
+        "required": true,
+        "min_length": 2,
+        "max_length": 120
+      }
+    },
+    {
+      "id": "q-persona_contacto",
+      "type": "text",
+      "section": "identificacion",
+      "label": "Nombre de la persona que cumplimenta este cuestionario",
+      "validation": {
+        "required": true,
+        "min_length": 2,
+        "max_length": 120
+      }
+    },
+    {
+      "id": "q-cargo_contacto",
+      "type": "text",
+      "section": "identificacion",
+      "label": "Cargo de la persona de contacto",
+      "validation": {
+        "required": true,
+        "max_length": 120
+      }
+    },
+    {
+      "id": "q-email_contacto",
+      "type": "email",
+      "section": "identificacion",
+      "label": "Email de contacto",
+      "validation": {
+        "required": true
+      }
+    },
+    {
+      "id": "q-dpo_designado",
+      "type": "boolean",
+      "section": "compliance",
+      "label": "Teneis DPO designado y registrado en AEPD?",
+      "validation": {
+        "required": true
+      }
+    },
+    {
+      "id": "q-rat_actualizado",
+      "type": "boolean",
+      "section": "compliance",
+      "label": "Teneis RAT (Registro de Actividades de Tratamiento) actualizado?",
+      "validation": {
+        "required": true
+      }
+    },
+    {
+      "id": "q-eipd_realizadas",
+      "type": "boolean",
+      "section": "compliance",
+      "label": "Habeis realizado EIPD para tratamientos de alto riesgo?",
+      "validation": {
+        "required": false
+      }
+    },
+    {
+      "id": "q-transferencias_internacionales",
+      "type": "boolean",
+      "section": "compliance",
+      "label": "Realizais transferencias internacionales de datos fuera UE?",
+      "validation": {
+        "required": true
+      }
+    },
+    {
+      "id": "q-brechas_ultimo_ano",
+      "type": "single_select",
+      "section": "compliance",
+      "label": "Brechas de seguridad/datos notificadas en el ultimo ano?",
+      "options": [
+        {
+          "value": "ninguna",
+          "label": "Ninguna"
+        },
+        {
+          "value": "1_2",
+          "label": "1-2"
+        },
+        {
+          "value": "3_5",
+          "label": "3-5"
+        },
+        {
+          "value": "mas_5",
+          "label": "Mas de 5"
+        }
+      ],
+      "validation": {
+        "required": true
+      }
+    },
+    {
+      "id": "q-his_hce",
+      "type": "multi_select",
+      "section": "contexto_sectorial",
+      "label": "Que sistemas de historia clinica usais?",
+      "options": [
+        {
+          "value": "his_propio",
+          "label": "HIS propio"
+        },
+        {
+          "value": "his_saas",
+          "label": "HIS SaaS"
+        },
+        {
+          "value": "hce_integrada",
+          "label": "HCE integrada con AAPP"
+        },
+        {
+          "value": "papel_mixto",
+          "label": "Papel + digital"
+        }
+      ],
+      "validation": {
+        "required": true
+      }
+    },
+    {
+      "id": "q-datos_categoria_especial",
+      "type": "boolean",
+      "section": "contexto_sectorial",
+      "label": "Tratais datos de salud (categoria especial RGPD art. 9)?",
+      "tooltip": "Los datos de salud requieren medidas reforzadas (mp.info.1).",
+      "validation": {
+        "required": true
+      }
+    },
+    {
+      "id": "q-interop_hl7_fhir",
+      "type": "boolean",
+      "section": "contexto_sectorial",
+      "label": "Interoperais con otras plataformas via HL7/FHIR?",
+      "validation": {
+        "required": false
+      }
+    },
+    {
+      "id": "q-telemedicina",
+      "type": "boolean",
+      "section": "contexto_sectorial",
+      "label": "Ofreceis consultas telematicas (telemedicina)?",
+      "validation": {
+        "required": true
+      }
+    },
+    {
+      "id": "q-consentimiento_digital",
+      "type": "boolean",
+      "section": "contexto_sectorial",
+      "label": "Gestionais consentimiento informado en formato digital?",
+      "validation": {
+        "required": false
+      }
+    },
+    {
+      "id": "q-acreditaciones_sanitarias",
+      "type": "text",
+      "section": "contexto_sectorial",
+      "label": "Acreditaciones sanitarias en vigor (JCI, ISO 9001, etc.)",
+      "validation": {
+        "required": false,
+        "max_length": 200
+      }
+    }
+  ]
+}

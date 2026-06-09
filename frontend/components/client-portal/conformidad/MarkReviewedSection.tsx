@@ -1,0 +1,113 @@
+"use client";
+
+/**
+ * MarkReviewedSection · cliente confirma revisión + opcional concerns_note.
+ *
+ * SAN-E v3.MB-5.6.D · 2-step workflow review → authorize.
+ * Pattern atom 5.5.C sostenido.
+ */
+import { useState } from "react";
+import { CheckCircle2, Loader2, MessageSquare } from "lucide-react";
+
+
+interface Props {
+  reviewedAt: string | null;
+  concernsNote: string | null;
+  onMarkReviewed: (concernsNote?: string) => Promise<void>;
+}
+
+
+export function MarkReviewedSection({
+  reviewedAt,
+  concernsNote,
+  onMarkReviewed,
+}: Props) {
+  const [concerns, setConcerns] = useState(concernsNote ?? "");
+  const [submitting, setSubmitting] = useState(false);
+
+  const alreadyReviewed = reviewedAt !== null;
+
+  const handleSubmit = async () => {
+    setSubmitting(true);
+    try {
+      await onMarkReviewed(concerns.trim() || undefined);
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  if (alreadyReviewed) {
+    return (
+      <section className="rounded-lg border-2 border-fulkro-success/30 bg-fulkro-success/5 p-5 shadow-sm">
+        <div className="flex items-start gap-3">
+          <CheckCircle2 className="mt-0.5 h-5 w-5 flex-shrink-0 text-fulkro-success" />
+          <div className="min-w-0 flex-1">
+            <h2 className="text-base font-semibold text-fulkro-success">
+              Revisado
+            </h2>
+            <p className="mt-1 text-sm text-[color:var(--fulkro-muted)]">
+              Marcaste como revisado el{" "}
+              {new Date(reviewedAt).toLocaleString("es-ES")}. Ya puedes firmar
+              la conformidad abajo.
+            </p>
+            {concernsNote && (
+              <div className="mt-3 rounded-md border border-fulkro-warning/30 bg-fulkro-warning/10 px-3 py-2">
+                <p className="flex items-center gap-1 text-xs font-medium uppercase tracking-wide text-fulkro-warning">
+                  <MessageSquare className="h-3 w-3" />
+                  Tus preocupaciones
+                </p>
+                <p className="mt-1 text-sm text-[color:var(--fulkro-muted)]">
+                  {concernsNote}
+                </p>
+              </div>
+            )}
+          </div>
+        </div>
+      </section>
+    );
+  }
+
+  return (
+    <section className="rounded-lg border-2 border-fulkro-primary-700/30 bg-fulkro-primary-50 p-5 shadow-sm">
+      <h2 className="mb-2 text-lg font-semibold text-[color:var(--fulkro-title)]">
+        Confirma tu revisión
+      </h2>
+      <p className="mb-4 text-sm text-[color:var(--fulkro-muted)]">
+        Antes de firmar la conformidad, confirma que has revisado el estado de
+        preparación, el responsable de la declaración y el cronograma. Si
+        tienes preocupaciones, anótalas (no bloquean la firma · sólo informan
+        a Marcos).
+      </p>
+
+      <label
+        htmlFor="conformidad-concerns"
+        className="mb-1 block text-sm font-medium"
+      >
+        Preocupaciones o comentarios (opcional)
+      </label>
+      <textarea
+        id="conformidad-concerns"
+        value={concerns}
+        onChange={(e) => setConcerns(e.target.value)}
+        placeholder="Ej: Quiero confirmar fechas con Marcos antes de firmar..."
+        rows={3}
+        maxLength={4000}
+        className="mb-3 w-full rounded-md border bg-background px-3 py-2 text-sm focus:border-fulkro-primary-700 focus:outline-none focus:ring-1 focus:ring-fulkro-primary-700"
+      />
+
+      <button
+        type="button"
+        onClick={() => void handleSubmit()}
+        disabled={submitting}
+        className="inline-flex items-center gap-2 rounded-md bg-fulkro-primary-700 px-4 py-2 text-sm font-semibold text-white hover:bg-fulkro-primary-800 disabled:opacity-60"
+      >
+        {submitting ? (
+          <Loader2 className="h-4 w-4 animate-spin" />
+        ) : (
+          <CheckCircle2 className="h-4 w-4" />
+        )}
+        {submitting ? "Guardando…" : "Marcar como revisado"}
+      </button>
+    </section>
+  );
+}

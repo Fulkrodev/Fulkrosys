@@ -1,0 +1,38 @@
+subject_es: "[Alerta] Archivo en cuarentena · {{ project_name }}"
+cta_label_es: "Revisar cuarentena"
+html_body_es: |
+  <p>Hola Marcos,</p>
+  <p>El cliente subió un archivo que ClamAV detectó como infectado:</p>
+  <ul>
+    <li><strong>Archivo:</strong> {{ filename }}</li>
+    <li><strong>Proyecto:</strong> {{ project_name }}</li>
+    <li><strong>Amenaza detectada:</strong> {{ virus_name }}</li>
+    <li><strong>Fecha:</strong> {{ scanned_at_short }}</li>
+  </ul>
+  <p>El archivo está en <strong>cuarentena</strong> en
+  <code>var/quarantine/</code>. Cliente NO puede usarlo hasta tu
+  revisión.</p>
+  <p>Si es falso positivo, puedes <strong>liberar</strong> el archivo
+  desde el panel admin. Si es real, <strong>eliminar permanentemente</strong>.</p>
+  <p>
+    <a href="{{ cta_url }}" style="background:#dc2626;color:#fff;padding:10px 20px;text-decoration:none;border-radius:4px;display:inline-block;">
+      Revisar cuarentena
+    </a>
+  </p>
+  <p>ENS Anexo II mp.s.5 · trazabilidad mantenida.</p>
+text_body_es: |
+  Hola Marcos,
+
+  El cliente subió un archivo que ClamAV detectó como infectado:
+  - Archivo: {{ filename }}
+  - Proyecto: {{ project_name }}
+  - Amenaza: {{ virus_name }}
+  - Fecha: {{ scanned_at_short }}
+
+  El archivo está en cuarentena. Cliente NO puede usarlo hasta tu
+  revisión.
+
+  Liberar (falso positivo) o eliminar permanente desde el panel:
+  {{ cta_url }}
+
+  ENS Anexo II mp.s.5 · trazabilidad mantenida.

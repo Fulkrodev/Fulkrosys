@@ -1,0 +1,195 @@
+{
+  "id": "onb-energia-operaciones-v1",
+  "version": "1.0",
+  "sector": "energia",
+  "role": "operaciones",
+  "nombre": "Onboarding Operaciones - Energia",
+  "descripcion": "Cuestionario de onboarding para el rol Operaciones en una organizacion del sector Energia. Recoge contexto estrategico, operativo y regulatorio necesario para arrancar el proyecto ENS.",
+  "tiempo_estimado_minutos": 38,
+  "language": "es",
+  "questions": [
+    {
+      "id": "q-empresa_nombre",
+      "type": "text",
+      "section": "identificacion",
+      "label": "Nombre comercial de la empresa",
+      "validation": {
+        "required": true,
+        "min_length": 2,
+        "max_length": 120
+      }
+    },
+    {
+      "id": "q-persona_contacto",
+      "type": "text",
+      "section": "identificacion",
+      "label": "Nombre de la persona que cumplimenta este cuestionario",
+      "validation": {
+        "required": true,
+        "min_length": 2,
+        "max_length": 120
+      }
+    },
+    {
+      "id": "q-cargo_contacto",
+      "type": "text",
+      "section": "identificacion",
+      "label": "Cargo de la persona de contacto",
+      "validation": {
+        "required": true,
+        "max_length": 120
+      }
+    },
+    {
+      "id": "q-email_contacto",
+      "type": "email",
+      "section": "identificacion",
+      "label": "Email de contacto",
+      "validation": {
+        "required": true
+      }
+    },
+    {
+      "id": "q-procesos_core",
+      "type": "long_text",
+      "section": "procesos",
+      "label": "Cuales son los 3-5 procesos core del negocio?",
+      "validation": {
+        "required": true,
+        "max_length": 2000
+      }
+    },
+    {
+      "id": "q-sla_clientes",
+      "type": "boolean",
+      "section": "procesos",
+      "label": "Teneis SLAs comprometidos con clientes (disponibilidad, RTO)?",
+      "validation": {
+        "required": true
+      }
+    },
+    {
+      "id": "q-continuidad_plan",
+      "type": "single_select",
+      "section": "procesos",
+      "label": "Estado del plan de continuidad de negocio (BCP)",
+      "options": [
+        {
+          "value": "completo_probado",
+          "label": "Completo y probado"
+        },
+        {
+          "value": "completo_no_probado",
+          "label": "Completo, no probado"
+        },
+        {
+          "value": "parcial",
+          "label": "Parcial o desactualizado"
+        },
+        {
+          "value": "no_existe",
+          "label": "No existe formalmente"
+        }
+      ],
+      "validation": {
+        "required": true
+      }
+    },
+    {
+      "id": "q-proveedores_criticos",
+      "type": "number",
+      "section": "procesos",
+      "label": "Numero de proveedores criticos",
+      "validation": {
+        "required": true,
+        "min_value": 0
+      }
+    },
+    {
+      "id": "q-kpis_operativos",
+      "type": "boolean",
+      "section": "procesos",
+      "label": "Medis y revisais KPIs operativos periodicamente?",
+      "validation": {
+        "required": false
+      }
+    },
+    {
+      "id": "q-scada_ot",
+      "type": "boolean",
+      "section": "contexto_sectorial",
+      "label": "Operais sistemas SCADA/OT (generacion, distribucion, smart grid)?",
+      "validation": {
+        "required": true
+      }
+    },
+    {
+      "id": "q-pic_critico",
+      "type": "boolean",
+      "section": "contexto_sectorial",
+      "label": "Sois operador critico segun Ley 8/2011 o esencial NIS2 energia?",
+      "validation": {
+        "required": true
+      }
+    },
+    {
+      "id": "q-separacion_it_ot",
+      "type": "boolean",
+      "section": "contexto_sectorial",
+      "label": "Mantenies separacion logica/fisica entre IT corporativa y OT?",
+      "validation": {
+        "required": false
+      }
+    },
+    {
+      "id": "q-adms_dms_ems",
+      "type": "multi_select",
+      "section": "contexto_sectorial",
+      "label": "Que sistemas de gestion usais?",
+      "options": [
+        {
+          "value": "adms",
+          "label": "ADMS"
+        },
+        {
+          "value": "dms",
+          "label": "DMS"
+        },
+        {
+          "value": "ems",
+          "label": "EMS"
+        },
+        {
+          "value": "historian",
+          "label": "Historian"
+        },
+        {
+          "value": "ninguno",
+          "label": "Ninguno"
+        }
+      ],
+      "validation": {
+        "required": false
+      }
+    },
+    {
+      "id": "q-incidentes_operativos_anio",
+      "type": "number",
+      "section": "procesos",
+      "label": "Numero de incidentes operativos significativos al ano",
+      "validation": {
+        "required": false,
+        "min_value": 0
+      }
+    },
+    {
+      "id": "q-contratos_marco",
+      "type": "boolean",
+      "section": "procesos",
+      "label": "Existen contratos marco con clientes con clausulas de seguridad?",
+      "validation": {
+        "required": false
+      }
+    }
+  ]
+}

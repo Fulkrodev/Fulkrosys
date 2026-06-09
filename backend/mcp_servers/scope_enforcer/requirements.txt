@@ -1,0 +1,1 @@
+# Scope enforcer has no third-party runtime deps; listed for Docker build parity.

@@ -1,0 +1,1117 @@
+# ClientTask templates · 18 templates ADR-038 SAN-D MB-14.3
+# Cobertura: workflow_phase × categoría B/M/A + arquetipos PYME
+# Templates auto-generan tasks per project en transition workflow phase.
+#
+# Schema:
+#   id                       · canonical template_id (DB unique)
+#   phase                    · WorkflowPhase value (pre_venta..retainer_cierre)
+#   applicable_categories    · list ["BASICA","MEDIA","ALTA"] o "ALL"
+#   applicable_archetypes    · list lowercase enum o "ALL"
+#   title                    · texto humano UI
+#   description              · descripción larga
+#   cta_label                · botón texto
+#   cta_url                  · ruta cliente portal target
+#   expected_evidence_type   · evidence_type_id si pide upload (opcional)
+#   expected_evidence_count  · default 1 (opcional)
+#   priority                 · 0=lowest · más alto = más prominente UI
+#   estimated_days           · indicativo · days_to_due_date opcional
+
+version: "1.0.0"
+
+templates:
+  # ============================================================
+  # BÁSICA · 3 templates (autoevaluación 809)
+  # ============================================================
+
+  - id: PHASE3_BASICA_REVIEW_DIAGNOSIS
+    phase: diagnostico
+    applicable_categories: ["BASICA"]
+    applicable_archetypes: "ALL"
+    title: Revisar diagnóstico inicial CIDAT
+    description: >
+      Confirma con tu equipo que la categorización CIDAT inicial refleja
+      la realidad de tu organización. Si hay discrepancias · márcalas
+      en comentarios.
+    cta_label: Ir a diagnóstico
+    cta_url: /client-portal/workflow#diagnosis
+    priority: 5
+    estimated_days: 3
+
+  - id: PHASE5_BASICA_APPROVE_PDA
+    phase: adecuacion
+    applicable_categories: ["BASICA"]
+    applicable_archetypes: "ALL"
+    title: Aprobar Plan de Adecuación (Básica)
+    description: >
+      Revisa el Plan de Adecuación generado para tu nivel BÁSICA.
+      Firma o solicita cambios.
+    cta_label: Ver Plan
+    cta_url: /client-portal/files
+    priority: 9
+    estimated_days: 7
+
+  - id: PHASE9_BASICA_SIGN_AUTOEVALUACION
+    phase: conformidad
+    applicable_categories: ["BASICA"]
+    applicable_archetypes: "ALL"
+    title: Firmar autoevaluación CCN-STIC 809
+    description: >
+      Cuestionario de autoevaluación firmado por RSEG. Sin auditoría
+      externa · responsable interno declara conformidad.
+    cta_label: Ir a autoevaluación
+    cta_url: /client-portal/workflow#conformity
+    priority: 10
+    estimated_days: 5
+
+  # ============================================================
+  # MEDIA · 3 templates (auditor externo ENAC)
+  # ============================================================
+
+  - id: PHASE5_MEDIA_APPROVE_PDA
+    phase: adecuacion
+    applicable_categories: ["MEDIA"]
+    applicable_archetypes: "ALL"
+    title: Aprobar Plan de Adecuación (Media)
+    description: >
+      Plan con refuerzos R1 + medidas adicionales obligatorias para
+      categoría MEDIA. Revisa fechas + responsables.
+    cta_label: Ver Plan
+    cta_url: /client-portal/files
+    priority: 9
+    estimated_days: 7
+
+  - id: PHASE8_MEDIA_ASSIGN_AUDITOR_ENAC
+    phase: verificacion
+    applicable_categories: ["MEDIA", "ALTA"]
+    applicable_archetypes: "ALL"
+    title: Asignar auditor externo ENAC
+    description: >
+      Contacta y asigna auditor acreditado por ENAC. Necesario para
+      certificación MEDIA/ALTA. Marcos puede recomendar opciones.
+    cta_label: Ver auditores recomendados
+    cta_url: /client-portal/inbox
+    priority: 10
+    estimated_days: 14
+
+  - id: PHASE9_MEDIA_REVIEW_AUDIT_REPORT
+    phase: conformidad
+    applicable_categories: ["MEDIA", "ALTA"]
+    applicable_archetypes: "ALL"
+    title: Revisar informe auditoría externa
+    description: >
+      Auditor entregó informe final con hallazgos y observaciones.
+      Revisa y firma o solicita aclaraciones.
+    cta_label: Ver informe
+    cta_url: /client-portal/files
+    priority: 10
+    estimated_days: 5
+
+  # ============================================================
+  # ALTA · 5 templates (pentest CPSTIC + Red Team + crypto 807)
+  # ============================================================
+
+  - id: PHASE5_ALTA_APPROVE_PDA
+    phase: adecuacion
+    applicable_categories: ["ALTA"]
+    applicable_archetypes: "ALL"
+    title: Aprobar Plan de Adecuación (Alta)
+    description: >
+      Plan con refuerzos R2-R4 + criptografía 807 + productos CPSTIC.
+      Volumen significativo · revisa con CISO.
+    cta_label: Ver Plan
+    cta_url: /client-portal/files
+    priority: 9
+    estimated_days: 14
+
+  - id: PHASE8_ALTA_PENTEST_CPSTIC
+    phase: verificacion
+    applicable_categories: ["ALTA"]
+    applicable_archetypes: "ALL"
+    title: Contratar pentester acreditado CPSTIC
+    description: >
+      CCN-STIC 105/140 · pentest obligatorio Alta. Pentester debe
+      estar acreditado. Marcos recomienda 2-3 opciones.
+    cta_label: Ver pentesters
+    cta_url: /client-portal/workflow#pentest
+    expected_evidence_type: pentest_report
+    priority: 10
+    estimated_days: 21
+
+  - id: PHASE8_ALTA_RED_TEAM
+    phase: verificacion
+    applicable_categories: ["ALTA"]
+    applicable_archetypes: "ALL"
+    title: Programar ejercicio Red Team E-704
+    description: >
+      Red Team obligatorio nivel ALTA. Mínimo 5 jornadas · objetivo
+      adversarial real.
+    cta_label: Ver opciones Red Team
+    cta_url: /client-portal/workflow#red-team
+    priority: 8
+    estimated_days: 30
+
+  - id: PHASE6_ALTA_CRIPTOGRAFIA_807
+    phase: implantacion
+    applicable_categories: ["ALTA"]
+    applicable_archetypes: "ALL"
+    title: Documentar criptografía CCN-STIC 807
+    description: >
+      Algoritmos acreditados + gestión de claves + certificación
+      productos. Sube evidencias de configuración.
+    cta_label: Subir evidencias 807
+    cta_url: /client-portal/files
+    expected_evidence_type: criptografia_807
+    expected_evidence_count: 3
+    priority: 9
+    estimated_days: 14
+
+  - id: PHASE9_ALTA_REVIEW_AUDIT_REPORT
+    phase: conformidad
+    applicable_categories: ["ALTA"]
+    applicable_archetypes: "ALL"
+    title: Revisar dossier auditoría Alta completo
+    description: >
+      Dossier integral: pentest + Red Team + criptografía + auditor
+      ENAC + DdA + evidencias. Revisión final pre-conformidad.
+    cta_label: Ver dossier
+    cta_url: /client-portal/files
+    priority: 10
+    estimated_days: 7
+
+  # ============================================================
+  # ARCHETYPE-SPECIFIC · 4 templates
+  # ============================================================
+
+  - id: ARCHETYPE_SECTOR_SALUD_ART9_REVIEW
+    phase: implantacion
+    applicable_categories: "ALL"
+    applicable_archetypes: ["sector_salud"]
+    title: Revisar tratamiento datos art.9 RGPD
+    description: >
+      Datos categorías especiales (salud) · medidas reforzadas RGPD
+      art.9 + Ley 41/2002 historia clínica + DPIA obligatoria.
+      Confirma DPO designado + AEPD contacto.
+    cta_label: Revisar art.9
+    cta_url: /client-portal/workflow
+    priority: 8
+    estimated_days: 7
+
+  - id: ARCHETYPE_SAAS_ONLY_OP_EXT_CHECKLIST
+    phase: implantacion
+    applicable_categories: "ALL"
+    applicable_archetypes: ["saas_only"]
+    title: Checklist op.ext proveedores SaaS
+    description: >
+      SaaS-only · medidas reforzadas op.ext: SOC2 Type II + cláusulas
+      CCN-STIC 823 + plan salida + soberanía datos UE Schrems II.
+      Lista proveedores críticos.
+    cta_label: Subir checklist
+    cta_url: /client-portal/files
+    expected_evidence_type: op_ext_checklist
+    priority: 7
+    estimated_days: 10
+
+  - id: ARCHETYPE_DESARROLLADOR_AAPP_SDLC_REVIEW
+    phase: implantacion
+    applicable_categories: "ALL"
+    applicable_archetypes: ["desarrollador_aapp"]
+    title: Documentar SDLC seguro mp.sw + CRA
+    description: >
+      Cyber Resilience Act + mp.sw refuerzo R1 · SAST · DAST · SCA ·
+      code review · threat modeling · pentesting · SBOM. Documenta
+      pipeline seguro.
+    cta_label: Subir documentación SDLC
+    cta_url: /client-portal/files
+    expected_evidence_type: sdlc_documentation
+    priority: 8
+    estimated_days: 14
+
+  - id: ARCHETYPE_PROVEEDOR_FINANCIERO_DORA_DUAL
+    phase: adecuacion
+    applicable_categories: ["MEDIA", "ALTA"]
+    applicable_archetypes: ["proveedor_financiero"]
+    title: Documentar doble cumplimiento ENS + DORA
+    description: >
+      Doble compliance ENS + Reglamento DORA art.6+19. ICT risk
+      management framework + reportes incidentes major. Coordinación
+      con Banco de España.
+    cta_label: Ver requisitos DORA
+    cta_url: /client-portal/workflow
+    priority: 9
+    estimated_days: 21
+
+  # ============================================================
+  # GENERAL · 3 templates (onboarding · upload batches)
+  # ============================================================
+
+  - id: ONBOARDING_REVIEW_KICKOFF
+    phase: onboarding
+    applicable_categories: "ALL"
+    applicable_archetypes: "ALL"
+    title: Revisar acta de kickoff
+    description: >
+      Confirma acta sesión kickoff con Marcos. Roles asignados +
+      fecha objetivo certificación + alcance proyecto.
+    cta_label: Ver acta
+    cta_url: /client-portal/files
+    priority: 10
+    estimated_days: 3
+
+  - id: IMPLANTACION_UPLOAD_EVIDENCIAS_BATCH1
+    phase: implantacion
+    applicable_categories: "ALL"
+    applicable_archetypes: "ALL"
+    title: Subir evidencias batch 1 (medidas org · op)
+    description: >
+      Primer lote de evidencias: medidas organizacionales (org) +
+      operacionales (op). Mínimo 5 documentos.
+    cta_label: Subir evidencias
+    cta_url: /client-portal/files
+    expected_evidence_type: org_op_measures
+    expected_evidence_count: 5
+    priority: 6
+    estimated_days: 14
+
+  - id: IMPLANTACION_UPLOAD_EVIDENCIAS_BATCH2
+    phase: implantacion
+    applicable_categories: "ALL"
+    applicable_archetypes: "ALL"
+    title: Subir evidencias batch 2 (medidas mp · técnicas)
+    description: >
+      Segundo lote: medidas protección (mp) técnicas. Mínimo 5
+      documentos. Cubre mp.com + mp.sw + mp.if + mp.eq.
+    cta_label: Subir evidencias
+    cta_url: /client-portal/files
+    expected_evidence_type: mp_measures
+    expected_evidence_count: 5
+    priority: 6
+    estimated_days: 14
+
+  # ============================================================
+  # ENRICHED v3.8 · sub-atom 1.C.D.A · 30 templates canónicos
+  # Cubren matriz 19 dimensiones (Anexo L plan v3.8) · OPCIONAL.
+  # is_enriched=true · driver workflow hyper-adaptado por proyecto.
+  # ============================================================
+
+  # ---------- PRE_VENTA · 2 templates ----------
+
+  - id: ENR_PV_01_LEAD_QUALIFICATION_DEEP
+    phase: pre_venta
+    applicable_categories: "ALL"
+    applicable_archetypes: "ALL"
+    is_enriched: true
+    order_within_phase: 1
+    title: Cualificación profunda lead pre-contrato
+    description: Análisis comercial completo del lead pre-contract signing.
+    description_detailed_es: >
+      Marcos completa scoring 19 dimensiones del lead vía reunión exploratoria
+      (m_meetings) + research público + LinkedIn. Output: M10 temperature score
+      actualizado + criterios fit con perfil ideal (memoria 22 PILOTO).
+    rationale_es: >
+      Sin cualificación profunda · pipeline incluye leads cold sin probabilidad
+      cierre · waste de tiempo. Filtrar antes de invertir horas en propuesta.
+    cta_label: Cualificar lead
+    cta_url: /admin/leads
+    deliverable_codes: []
+    actors: [Marcos, lead_decisor]
+    completion_criteria_detailed:
+      - Scoring M10 actualizado (>=60 para continuar)
+      - Categoría target tentativa identificada (BÁSICA/MEDIA/ALTA)
+      - Decisor único confirmado (NO comité largo)
+      - Presupuesto >= tarifa categoría confirmado
+    estimated_days: 3
+    priority: 8
+
+  - id: ENR_PV_02_PROPOSAL_GENERATION
+    phase: pre_venta
+    applicable_categories: "ALL"
+    applicable_archetypes: "ALL"
+    is_enriched: true
+    order_within_phase: 2
+    title: Generar propuesta P-001 + tarifa
+    description: A19 redactor propuestas genera P-001 con tarifa adaptada.
+    description_detailed_es: >
+      Agente A19 toma input de cualificación lead + categoría target + extras
+      (multi-sector · multi-ubicación · madurez L0-L1 · sistemas adicionales) ·
+      genera P-001 con desglose tarifa + hitos pago.
+    rationale_es: >
+      Tarifa fija pre-acordada (BÁSICA 3.900€ · MEDIA 9.500€ · ALTA 25.000€+)
+      con extras objetivos · evita negociación tarifa cliente-by-cliente · brand
+      consistency Marcos consultor commodity-resistant.
+    cta_label: Generar P-001
+    cta_url: /admin/leads
+    deliverable_codes: [P-001]
+    actors: [Marcos, A19_redactor_propuestas]
+    prerequisite_template_ids: [ENR_PV_01_LEAD_QUALIFICATION_DEEP]
+    estimated_days: 2
+    priority: 9
+
+  # ---------- ONBOARDING · 3 templates ----------
+
+  - id: ENR_OB_01_KICKOFF_19DIMS
+    phase: onboarding
+    applicable_categories: "ALL"
+    applicable_archetypes: "ALL"
+    is_enriched: true
+    order_within_phase: 1
+    title: Kickoff cliente · capturar 19 dimensiones proyecto
+    description: Sesión kickoff Marcos + cliente PoC · completar wizard 19 dims.
+    description_detailed_es: >
+      Sesión inicial 1h Marcos + cliente PoC. Walkthrough portal cliente · 19
+      dimensiones del proyecto completadas via wizard `/admin/projects/[id]/
+      dimensiones/` (sub-atom 1.C.D.A.0 v3.8). Drives workflow adaptación.
+    rationale_es: >
+      Las 19 dimensiones (categoría · archetype · empleados · madurez · DORA ·
+      NIS2 · AI Act · etc) drive QUÉ sub-pasos aplican al proyecto. Sin captura
+      completa · workflow generic · NO adaptado.
+    cta_label: Completar 19 dimensiones
+    cta_url: /admin/projects/{project_id}/dimensiones
+    deliverable_codes: []
+    actors: [Marcos, cliente_PoC]
+    completion_criteria_detailed:
+      - dims_captured_count >= 16/19 (admin wizard)
+      - 5 dims primarias settled (categoría · archetype · empleados · madurez · urgencia)
+    tooltips_ens:
+      "Anexo L": "19 dimensiones plan FULKRO v3.8"
+    estimated_days: 1
+    priority: 10
+
+  - id: ENR_OB_02_COMITE_CONSTITUCION
+    phase: onboarding
+    applicable_categories: ["MEDIA", "ALTA"]
+    applicable_archetypes: "ALL"
+    is_enriched: true
+    order_within_phase: 2
+    title: Constituir Comité Seguridad Información
+    description: Acta constitución E-002 + asignación roles RSEG.
+    description_detailed_es: >
+      Cliente designa miembros Comité Seguridad Información · responsabilidades
+      ENS art.10. Generar acta E-002 desde plantilla · firma Ed25519.
+      MEDIA/ALTA · formal con responsables roles concretos. BÁSICA · informal
+      (omitido para BÁSICA).
+    rationale_es: >
+      Comité Seguridad es órgano governance ENS · obligatorio MEDIA/ALTA per
+      Anexo II org.1. Sin comité formal · auditor ENAC marca NO conformidad.
+    cta_label: Generar Acta E-002
+    cta_url: /client-portal/files
+    deliverable_codes: [E-002]
+    actors: [Marcos, CISO, decisor_cliente, RRHH]
+    completion_criteria_detailed:
+      - Acta E-002 firmada por todos los miembros
+      - Roles RACI asignados (RSEG · administrador sistema · usuarios)
+    estimated_days: 7
+    priority: 8
+
+  - id: ENR_OB_03_TI_BASICO_SIN_EQUIPO
+    phase: onboarding
+    applicable_categories: ["BASICA", "MEDIA"]
+    applicable_archetypes: "ALL"
+    applicable_size_ranges: [micro, pequeno]
+    is_enriched: true
+    order_within_phase: 3
+    title: Asignar responsable TI virtual (cliente sin equipo)
+    description: Cliente sin equipo TI · Marcos coordina responsable virtual.
+    description_detailed_es: >
+      Si cliente `equipo_ti_tamano = sin_equipo`: Marcos asume responsable TI
+      virtual coordinado con proveedor managed IT existente cliente. Pricing
+      con +30% urgencia si plazo <30 días.
+    rationale_es: >
+      Cliente sin equipo TI propio común en micro/pequeño · ENS requiere
+      responsable técnico designado. Marcos cubre rol virtual hasta cliente
+      hire/contract o post-piloto.
+    cta_label: Confirmar coordinación TI
+    cta_url: /client-portal/inbox
+    actors: [Marcos, proveedor_IT_cliente]
+    estimated_days: 2
+    priority: 7
+
+  # ---------- DIAGNOSTICO · 3 templates ----------
+
+  - id: ENR_DG_01_DICAT_CATEGORIZATION
+    phase: diagnostico
+    applicable_categories: "ALL"
+    applicable_archetypes: "ALL"
+    is_enriched: true
+    order_within_phase: 1
+    title: DICAT · Declaración Inicial de Categoría (E-012)
+    description: Completar wizard M01 valoración impacto DICAT.
+    description_detailed_es: >
+      Cliente completa wizard M01 categorización (5 dimensiones D·I·C·A·T
+      Confidencialidad · Integridad · Disponibilidad · Autenticidad · Trazabilidad).
+      Salida E-012 DICAT firmado por RSEG. Drives nivel ENS (BÁSICA/MEDIA/ALTA).
+    rationale_es: >
+      DICAT es PRIMER documento ENS · sin esto no se puede continuar workflow.
+      Define alcance + categoría que aplica TODOS los siguientes pasos.
+    cta_label: Completar DICAT
+    cta_url: /client-portal/workflow
+    deliverable_codes: [E-012]
+    actors: [Marcos, cliente_PoC, CISO]
+    completion_criteria_detailed:
+      - 5 valoraciones D·I·C·A·T completadas
+      - Categoría confirmada (BÁSICA/MEDIA/ALTA)
+      - E-012 PDF generado + firmado RSEG
+    estimated_days: 5
+    priority: 10
+
+  - id: ENR_DG_02_INVENTARIO_SISTEMAS
+    phase: diagnostico
+    applicable_categories: "ALL"
+    applicable_archetypes: "ALL"
+    is_enriched: true
+    order_within_phase: 2
+    title: Inventario sistemas + tipos de información
+    description: Listar sistemas + tipos información en alcance.
+    description_detailed_es: >
+      Cliente lista sistemas IT en alcance ENS (mínimo 1) + tipos información
+      tratados (datos personales · datos especiales · información clasificada).
+      Soporta filtro per archetype (saas_only · multi_cloud · etc).
+    rationale_es: >
+      Alcance preciso evita scope creep + over-implementation. Sistemas fuera
+      alcance NO requieren controles ENS aplicados.
+    cta_label: Listar sistemas
+    # #25 Ola 6 · era /admin/.../discovery (404 cliente) · el cliente aporta su
+    # inventario de sistemas/activos en /client-portal/magerit (form "¿faltan
+    # activos críticos?" → POST review). Tarea cliente real con destino accionable.
+    cta_url: /client-portal/magerit
+    deliverable_codes: []
+    actors: [cliente_PoC, responsable_TI_cliente]
+    estimated_days: 5
+    priority: 9
+    archetype_variants:
+      saas_only:
+        extra_focus: "Foco proveedores SaaS · op.ext.* refuerzo R1"
+        reference_norms: [SOC2, ISO27001]
+      multi_cloud:
+        extra_focus: "AWS + Azure + GCP · responsabilidad compartida"
+        reference_norms: [Schrems_II, CCN-STIC-823]
+
+  - id: ENR_DG_03_MAGERIT_ANALISIS_RIESGOS
+    phase: analisis_riesgos
+    applicable_categories: ["MEDIA", "ALTA"]
+    applicable_archetypes: "ALL"
+    is_enriched: true
+    order_within_phase: 1
+    title: MAGERIT v3 · análisis riesgos activos
+    description: M02 MAGERIT · analizar 98 safeguards + 57 threats.
+    description_detailed_es: >
+      M02 motor ejecuta análisis riesgos MAGERIT v3 · cliente revisa amenazas
+      identificadas + medidas existentes + GAPs cualitativos. Output: E-300
+      Análisis Riesgos con scoring numeric per activo.
+    rationale_es: >
+      MAGERIT obligatorio MEDIA/ALTA per Anexo II op.pl.1. ALTA requiere
+      versión refuerzos R2-R3 con threat modeling explícito.
+    cta_label: Revisar análisis MAGERIT
+    cta_url: /admin/projects/{project_id}/magerit
+    deliverable_codes: [E-300]
+    prerequisite_template_ids: [ENR_DG_01_DICAT_CATEGORIZATION, ENR_DG_02_INVENTARIO_SISTEMAS]
+    actors: [Marcos, A11_auditor_virtual, CISO]
+    completion_criteria_detailed:
+      - 98 safeguards MAP v3 evaluados aplicabilidad
+      - Top 10 amenazas identificadas + tratamiento decidido
+      - E-300 PDF generado + firmado
+    estimated_days: 14
+    priority: 9
+
+  # ---------- ADECUACION · 4 templates ----------
+
+  - id: ENR_AD_01_DDA_DECLARACION_APLICABILIDAD
+    phase: adecuacion
+    applicable_categories: "ALL"
+    applicable_archetypes: "ALL"
+    is_enriched: true
+    order_within_phase: 1
+    title: Declaración Aplicabilidad DdA (E-040)
+    description: M03 DdA · 73 medidas Anexo II marcadas aplicabilidad.
+    description_detailed_es: >
+      M03 motor presenta 73 medidas ENS Anexo II adaptadas per categoría
+      (BÁSICA ~35 · MEDIA ~55 · ALTA 73). Cliente marca aplicabilidad
+      (aplica/no_aplica). A31 enriquece justificaciones no_aplica narrativos
+      (auditor ENAC requiere esto).
+    rationale_es: >
+      DdA es DOCUMENTO CENTRAL ENS · auditor evalúa que cada medida no aplicable
+      esté JUSTIFICADA · justifications insuficientes = NO conformidad.
+    cta_label: Completar DdA
+    cta_url: /admin/projects/{project_id}/dda
+    deliverable_codes: [E-040]
+    prerequisite_template_ids: [ENR_DG_03_MAGERIT_ANALISIS_RIESGOS]
+    actors: [Marcos, A31_enriquecedor_dda, cliente_PoC, CISO]
+    completion_criteria_detailed:
+      - 100% medidas aplicables marcadas
+      - 100% medidas no_aplicables justificadas (A31 enriquece narrativos)
+      - E-040 PDF firmado RSEG
+    estimated_days: 10
+    priority: 10
+
+  - id: ENR_AD_02_PLAN_ADECUACION
+    phase: adecuacion
+    applicable_categories: "ALL"
+    applicable_archetypes: "ALL"
+    is_enriched: true
+    order_within_phase: 2
+    title: Plan de Adecuación E-050 con GAPs identificados
+    description: M04 Gap · identifica GAPs + acciones correctivas + timeline.
+    description_detailed_es: >
+      M04 Gap engine cruzd DdA aplicabilidad vs estado actual implementación ·
+      identifica GAPs (medidas aplicables NO implementadas). Cliente revisa +
+      aprueba Plan AdecuaciÃ³n E-050 con timeline + responsables per GAP.
+    rationale_es: >
+      Sin Plan AdecuaciÃ³n · GAPs quedan no abordados · auditorÃ­a externa marca
+      NO conformidades crÃ­ticas. Plan E-050 es roadmap pre-implementaciÃ³n.
+    cta_label: Aprobar Plan
+    cta_url: /admin/projects/{project_id}/gap
+    deliverable_codes: [E-050]
+    prerequisite_template_ids: [ENR_AD_01_DDA_DECLARACION_APLICABILIDAD]
+    actors: [Marcos, CISO, responsable_TI_cliente]
+    estimated_days: 7
+    priority: 9
+
+  - id: ENR_AD_03_DORA_FRAMEWORK_ICT
+    phase: adecuacion
+    applicable_categories: ["MEDIA", "ALTA"]
+    applicable_archetypes: "ALL"
+    is_enriched: true
+    order_within_phase: 3
+    requires_dora: true
+    title: Marco ICT risk management DORA art.6+19
+    description: Documentar marco gestión riesgos ICT DORA-compliant.
+    description_detailed_es: >
+      DORA (Reglamento UE 2022/2554) art.6 + art.19 · marco ICT risk management
+      proporcional + identificación funciones críticas + 6 dominios mínimos
+      (governance · risk identification · protección · detection · response
+      · learning).
+    rationale_es: >
+      DORA obligatorio entidades financieras + proveedores ICT críticos.
+      Documentar marco evita sanciones supervisor (Banco España · ESMA).
+      Crossover ENS Anexo II op.pl.* simplifica implementación.
+    cta_label: Documentar marco ICT
+    cta_url: /admin/projects/{project_id}/dossier
+    deliverable_codes: [DR-002]
+    actors: [Marcos, CISO, DPO, responsable_legal]
+    tooltips_ens:
+      "op.pl.1": "Planificación seguridad · crossover DORA art.6"
+      "op.pl.2": "Gestión riesgos · crossover DORA art.7"
+    estimated_days: 21
+    priority: 9
+    archetype_variants:
+      proveedor_financiero:
+        extra_focus: "TLPT (Threat-Led Penetration Testing) art.27 obligatorio"
+        reference_norms: [DORA_art_27, DORA_art_28]
+
+  - id: ENR_AD_04_DPIA_RGPD_DATOS_SENSIBLES
+    phase: adecuacion
+    applicable_categories: "ALL"
+    applicable_archetypes: "ALL"
+    is_enriched: true
+    order_within_phase: 4
+    requires_datos_sensibles: true
+    requires_dpo: true
+    title: DPIA RGPD art.35 · datos sensibles
+    description: Evaluación impacto protección datos · art.9 RGPD.
+    description_detailed_es: >
+      RGPD art.35 obliga DPIA si tratamiento entraña alto riesgo derechos
+      libertades. Procesar datos sensibles art.9 (salud · biométricos · etc)
+      activa obligación. DPO designado lidera DPIA.
+    rationale_es: >
+      Sin DPIA · AEPD impone sanción art.83.4 RGPD (hasta 10M€). DPIA bien
+      hecha es escudo legal + facilita ENS art.5 (LOPDGDD).
+    cta_label: Iniciar DPIA
+    cta_url: /admin/projects/{project_id}/aepd
+    deliverable_codes: []
+    actors: [DPO, Marcos, CISO, responsable_legal_cliente]
+    estimated_days: 21
+    priority: 8
+
+  # ---------- IMPLANTACION · 4 templates ----------
+
+  - id: ENR_IM_01_POLITICAS_FIRMADAS
+    phase: implantacion
+    applicable_categories: "ALL"
+    applicable_archetypes: "ALL"
+    is_enriched: true
+    order_within_phase: 1
+    title: Políticas firmadas (E-100..E-126 subset per categoría)
+    description: Firmar set políticas ENS adaptado per categoría.
+    description_detailed_es: >
+      Set políticas ENS · BÁSICA ~10 · MEDIA ~18 · ALTA 27 políticas (E-100..
+      E-126). Marcos genera via A4 redactor políticas · cliente revisa · firma
+      Ed25519 desde portal.
+    rationale_es: >
+      Políticas firmadas son evidence governance ENS · auditor verifica que
+      RSEG firmó políticas formal. NO políticas = NO conformidad inmediata.
+    cta_label: Firmar políticas
+    cta_url: /client-portal/files
+    deliverable_codes: ["E-100", "E-101", "E-102", "E-103", "E-104", "E-105"]
+    actors: [Marcos, A4_redactor_politicas, RSEG_cliente]
+    completion_criteria_detailed:
+      - "BÁSICA: 10 políticas firmadas mínimo"
+      - "MEDIA: 18 políticas firmadas"
+      - "ALTA: 27 políticas firmadas + refuerzos"
+    estimated_days: 14
+    priority: 9
+
+  - id: ENR_IM_02_PROCEDIMIENTOS_FIRMADOS
+    phase: implantacion
+    applicable_categories: "ALL"
+    applicable_archetypes: "ALL"
+    is_enriched: true
+    order_within_phase: 2
+    title: Procedimientos firmados (E-200..E-234 subset)
+    description: Firmar procedimientos operativos.
+    description_detailed_es: >
+      Set procedimientos · BÁSICA ~12 · MEDIA ~25 · ALTA 35. Procedimientos
+      operativos derivan de políticas (cómo se ejecuta lo declarado en
+      política). E-200 Gestión Incidentes · E-201 Cambios · etc.
+    rationale_es: >
+      Auditor verifica coherencia política → procedimiento → registro vivo
+      (chain of evidence). Procedimientos faltantes = chain broken.
+    cta_label: Firmar procedimientos
+    cta_url: /client-portal/files
+    deliverable_codes: ["E-200", "E-201", "E-202", "E-203"]
+    prerequisite_template_ids: [ENR_IM_01_POLITICAS_FIRMADAS]
+    actors: [Marcos, RSEG_cliente, responsable_TI_cliente]
+    estimated_days: 14
+    priority: 9
+
+  - id: ENR_IM_03_FORMACION_EMPLEADOS
+    phase: implantacion
+    applicable_categories: "ALL"
+    applicable_archetypes: "ALL"
+    is_enriched: true
+    order_within_phase: 3
+    title: Formación obligatoria empleados ENS (G1 + G2)
+    description: Curso formación awareness ENS para todos empleados.
+    description_detailed_es: >
+      G1 General · 1h online · 100% empleados · curso awareness ENS bases.
+      G2 Específica · 4h adicional · subset empleados con responsabilidad
+      ENS (mínimo 8 personas en MEDIA · 15 en ALTA). Asistencia >=80%
+      OBLIGATORIO certificación.
+    rationale_es: >
+      ENS Anexo II op.mp.5 + mp.per.4 · formación obligatoria. Auditor verifica
+      asistencia documentada via E-320 Asistencia Formación. <80% = NO conf.
+    cta_label: Coordinar formación
+    cta_url: /client-portal/workflow
+    deliverable_codes: ["E-500", "E-501", "E-502", "E-320"]
+    actors: [RRHH_cliente, Marcos, empleados]
+    completion_criteria_detailed:
+      - G1 completado por >=80% empleados
+      - G2 completado por subset responsables ENS
+      - E-320 Asistencia firmado/exportado
+    estimated_days: 30
+    priority: 7
+
+  - id: ENR_IM_04_AI_ACT_CONFORMITY
+    phase: implantacion
+    applicable_categories: ["MEDIA", "ALTA"]
+    applicable_archetypes: "ALL"
+    is_enriched: true
+    order_within_phase: 4
+    requires_ai_act: true
+    title: Conformity assessment AI Act sistema alto riesgo
+    description: AI Act art.6 + Anexo III · conformity assessment sistema IA.
+    description_detailed_es: >
+      AI Act (Reg UE 2024/1689) art.6 + Anexo III · sistemas IA alto riesgo
+      requieren conformity assessment + risk management + technical documentation
+      + transparency obligations + post-market monitoring.
+    rationale_es: >
+      AI Act sanciones art.99 hasta 35M€ o 7% turnover. Conformity assessment
+      previo a deployment obligatorio · evita sanción + permite uso UE.
+    cta_label: Documentar conformity
+    cta_url: /admin/projects/{project_id}/obligations
+    deliverable_codes: ["AI-002"]
+    actors: [Marcos, DPO, responsable_IA_cliente, responsable_legal]
+    estimated_days: 30
+    priority: 7
+
+  # ---------- DDA_FINAL · 2 templates ----------
+
+  - id: ENR_DF_01_DDA_FINAL_REVISION
+    phase: dda_final
+    applicable_categories: "ALL"
+    applicable_archetypes: "ALL"
+    is_enriched: true
+    order_within_phase: 1
+    title: Revisión final DdA · todas medidas implementadas
+    description: Auditoría interna DdA · medidas aplicables 100% implementadas.
+    description_detailed_es: >
+      Antes de auditoría externa · revisión interna DdA. Marcos + A11 auditor
+      virtual verifican que CADA medida aplicable tiene evidencia subida +
+      procedimiento + responsable asignado + tested. Marca GAPs urgentes.
+    rationale_es: >
+      Auditoría externa con DdA incompleto = waste 2.500-5.500€ + reputational
+      damage. Revisión interna pre-externa cuesta ~5h Marcos · ahorro 10x.
+    cta_label: Revisar DdA final
+    cta_url: /admin/projects/{project_id}/audit-dry-run
+    deliverable_codes: []
+    prerequisite_template_ids: [ENR_IM_01_POLITICAS_FIRMADAS, ENR_IM_02_PROCEDIMIENTOS_FIRMADOS]
+    actors: [Marcos, A11_auditor_virtual, CISO]
+    estimated_days: 5
+    priority: 10
+
+  - id: ENR_DF_02_DISCREPANCIAS_A21
+    phase: dda_final
+    applicable_categories: ["MEDIA", "ALTA"]
+    applicable_archetypes: "ALL"
+    is_enriched: true
+    order_within_phase: 2
+    title: A21 detector discrepancias cross-doc
+    description: Agente A21 cross-valida DdA vs MAGERIT vs E-XXX.
+    description_detailed_es: >
+      Agente A21 (1.D.A) ejecuta validación cross-doc · detecta inconsistencias
+      como "DdA marca op.acc.5 implementada pero E-304 muestra 0 entries control
+      accesos" · "E-100 firmada con fecha previa al Acta Constitución E-003".
+      Output: list[DiscrepancyFinding] · cliente resuelve antes audit.
+    rationale_es: >
+      A21 detecta findings que auditor humano ENAC encontraría · resolver pre-
+      audit ahorra reportes + improves NPS final. Diferenciador FULKRO vs
+      consultor commodity.
+    cta_label: Ejecutar A21
+    cta_url: /admin/projects/{project_id}/discrepancies
+    deliverable_codes: []
+    actors: [Marcos, A21_discrepancias]
+    estimated_days: 2
+    priority: 8
+
+  # ---------- VERIFICACION · 4 templates ----------
+
+  - id: ENR_VF_01_PENTEST_MCPS
+    phase: verificacion
+    applicable_categories: ["MEDIA", "ALTA"]
+    applicable_archetypes: "ALL"
+    is_enriched: true
+    order_within_phase: 1
+    title: Pentest verificación MCPs operativos
+    description: M08 + 4 MCPs (vulnscan · cloud · config · phishing) ejecutar.
+    description_detailed_es: >
+      MEDIA · scan básico (nuclei + CLARA ENS-MEDIA profile + prowler AWS).
+      ALTA · scan completo (nuclei + openvas + prowler + scoutsuite + CLARA
+      ALTA + GoPhish 25 empleados). Reportes PDF/DOCX + Evidence Vault attach.
+    rationale_es: >
+      ENS Anexo II mp.s.* verificación pentest obligatorio MEDIA/ALTA. Auditor
+      verifica scan ejecutado · findings clasificados · remediation plan.
+    cta_label: Lanzar pentest
+    cta_url: /admin/projects/{project_id}/mcps
+    deliverable_codes: ["E-700", "E-701", "E-702"]
+    actors: [Marcos, responsable_TI_cliente]
+    estimated_days: 14
+    priority: 9
+
+  - id: ENR_VF_02_REDTEAM_ALTA
+    phase: verificacion
+    applicable_categories: ["ALTA"]
+    applicable_archetypes: "ALL"
+    is_enriched: true
+    order_within_phase: 2
+    title: Ejercicio Red Team · ENS Anexo II refuerzos ALTA
+    description: M32 plantilla Red Team · ejercicio manual Marcos consultor.
+    description_detailed_es: >
+      Red Team ejercicio obligatorio ALTA · mínimo 5 jornadas · objetivos
+      adversariales reales (initial access · lateral movement · privilege
+      escalation · data exfiltration · persistence). Output E-704 reporte.
+    rationale_es: >
+      ALTA · Red Team obligatorio per refuerzo R3. Marcos ejecuta manual
+      (MCPs Red Team eliminados OpciÃ³n A · ROI rebuilt no justifica).
+    cta_label: Programar Red Team
+    cta_url: /admin/projects/{project_id}/red-team
+    deliverable_codes: ["E-704"]
+    actors: [Marcos, CISO]
+    estimated_days: 30
+    priority: 9
+
+  - id: ENR_VF_03_AUDITORIA_INTERNA
+    phase: verificacion
+    applicable_categories: "ALL"
+    applicable_archetypes: "ALL"
+    is_enriched: true
+    order_within_phase: 3
+    title: Auditoría interna previa (E-052)
+    description: Auditoría interna previa con A11 virtual auditor.
+    description_detailed_es: >
+      Auditoría interna previa con A11 · simula auditor externo ENAC · genera
+      reporte E-052 con findings + remediation. Cliente resuelve findings antes
+      de contratar auditor externo ENAC.
+    rationale_es: >
+      Auditor externo ENAC cuesta 2.500-5.500€ · sólo deberí­a encontrar
+      observaciones menores. Auditoría interna previa filtra crí­ticos.
+    cta_label: Iniciar auditoría interna
+    cta_url: /admin/projects/{project_id}/audit
+    deliverable_codes: ["E-052"]
+    actors: [Marcos, A11_auditor_virtual, CISO]
+    estimated_days: 10
+    priority: 8
+
+  - id: ENR_VF_04_DOSSIER_ENAC
+    phase: verificacion
+    applicable_categories: ["MEDIA", "ALTA"]
+    applicable_archetypes: "ALL"
+    is_enriched: true
+    order_within_phase: 4
+    title: Generar Dossier ENAC completo
+    description: M09 dossier generator · ZIP firmado Ed25519.
+    description_detailed_es: >
+      M09 audit_prep pipeline async · DdA + Plan adecuación + 73 medidas
+      + evidencias + pentest reports + actas + políticas. PDF maestro +
+      ZIP firmado Ed25519. ~30 min generación con SSE progress.
+    rationale_es: >
+      Dossier ENAC es package PRE-auditoría externa. Entidad acreditada ENAC
+      revisa offline · ahorra horas presenciales · improves audit success rate.
+    cta_label: Generar Dossier
+    cta_url: /admin/projects/{project_id}/dossier
+    deliverable_codes: ["E-052"]
+    prerequisite_template_ids:
+      - ENR_DF_01_DDA_FINAL_REVISION
+      - ENR_VF_01_PENTEST_MCPS
+      - ENR_VF_03_AUDITORIA_INTERNA
+    actors: [Marcos]
+    estimated_days: 3
+    priority: 10
+
+  # ---------- CONFORMIDAD · 3 templates ----------
+
+  - id: ENR_CF_01_DECLARACION_CONFORMIDAD
+    phase: conformidad
+    applicable_categories: "ALL"
+    applicable_archetypes: "ALL"
+    is_enriched: true
+    order_within_phase: 1
+    title: Declaración Conformidad E-041
+    description: M27 conformity · cliente firma E-041.
+    description_detailed_es: >
+      BÁSICA · Declaración Responsable firmada por RSEG (sin entidad acreditada).
+      MEDIA/ALTA · Certificación con entidad acreditada ENAC obligatoria.
+      ALTA · auditoría reforzada (auditor externo + entidad acreditada).
+    rationale_es: >
+      Sin Declaración Conformidad · proyecto NO completo. AAPP exige E-041 al
+      presentar oferta en concurso · sin esto · exclusión técnica inmediata.
+    cta_label: Firmar Declaración
+    cta_url: /client-portal/conformidad
+    deliverable_codes: ["E-041"]
+    prerequisite_template_ids: [ENR_VF_04_DOSSIER_ENAC]
+    actors: [Marcos, RSEG_cliente, decisor_cliente]
+    estimated_days: 7
+    priority: 10
+
+  - id: ENR_CF_02_PUBLICACION_DEUC
+    phase: conformidad
+    applicable_categories: "ALL"
+    applicable_archetypes: "ALL"
+    is_enriched: true
+    order_within_phase: 2
+    title: Publicar conformidad + DEUC update
+    description: Publicar E-041 portal cliente + actualizar DEUC clientes AAPP.
+    description_detailed_es: >
+      Conformidad publicada en portal cliente · DEUC (Declaración Europea Único
+      de Contratación) actualizada para presentar en próximos concursos AAPP.
+      Marcos coordina con responsable legal cliente.
+    rationale_es: >
+      Sin DEUC actualizado · cliente NO puede licitar nuevos concursos AAPP.
+      Conformidad sin uso comercial · waste.
+    cta_label: Actualizar DEUC
+    cta_url: /client-portal/conformidad
+    deliverable_codes: []
+    actors: [Marcos, responsable_legal_cliente, responsable_comercial_cliente]
+    estimated_days: 5
+    priority: 7
+
+  - id: ENR_CF_03_RETAINER_TRANSITION
+    phase: conformidad
+    applicable_categories: ["MEDIA", "ALTA"]
+    applicable_archetypes: "ALL"
+    is_enriched: true
+    order_within_phase: 3
+    title: Transición a Retainer R_STD/R_PLUS
+    description: M23 retainer activado mes 1 post-certificación.
+    description_detailed_es: >
+      Post-certificación · M23 retainer engine activa contrato mes 1.
+      BÁSICA→R_MICRO 150€ · MEDIA→R_STD 700€ · ALTA→R_PLUS 1.200€.
+      Marcos sesiones weekly + mensual review.
+    rationale_es: >
+      Retainer recurring revenue · sostiene cliente long-term + revenue
+      previsible. R_STD target piloto · feedback fundamental T1.
+    cta_label: Activar retainer
+    cta_url: /admin/projects/{project_id}/retainer
+    deliverable_codes: []
+    actors: [Marcos, decisor_cliente]
+    estimated_days: 7
+    priority: 8
+
+  # ---------- RETAINER_CIERRE · 2 templates ----------
+
+  - id: ENR_RC_01_RENOVACION_BIANUAL
+    phase: retainer_cierre
+    applicable_categories: "ALL"
+    applicable_archetypes: "ALL"
+    is_enriched: true
+    order_within_phase: 1
+    title: Renovación bianual ENS (M22 auto-trigger)
+    description: M22 lifecycle · 3 meses pre-trigger renovación.
+    description_detailed_es: >
+      ENS requiere renovación cada 2 años · M22 motor auto-trigger 3 meses
+      antes expiración. Cliente · revisar cambios scope + nueva auditoría
+      externa + dossier ENAC fresh.
+    rationale_es: >
+      ENS expirado · cliente perde certificación · NO puede licitar AAPP.
+      Renovación bianual estructural · ingreso recurrente para Marcos.
+    cta_label: Iniciar renovación
+    cta_url: /admin/projects/{project_id}/renewal
+    deliverable_codes: []
+    actors: [Marcos, A22_renewal, cliente]
+    estimated_days: 60
+    priority: 8
+
+  - id: ENR_RC_02_CLOSURE_GRACEFUL
+    phase: retainer_cierre
+    applicable_categories: "ALL"
+    applicable_archetypes: "ALL"
+    is_enriched: true
+    order_within_phase: 2
+    title: Cierre lifecycle proyecto (M25 grace 8 meses)
+    description: M25 closure · grace period 8 meses pre-archive.
+    description_detailed_es: >
+      Si cliente NO renueva post-bianual · M25 inicia grace period 8 meses.
+      Durante grace · datos preservados · cliente puede re-activar. Post-grace ·
+      archive completo (M25 graceful exit).
+    rationale_es: >
+      Grace period 8 meses · oportunidad re-engagement + GDPR-compliant data
+      retention. Algunos clientes vuelven post-pause.
+    cta_label: Configurar grace period
+    cta_url: /admin/projects/{project_id}/exit
+    deliverable_codes: []
+    actors: [Marcos, A25_closure]
+    estimated_days: 240
+    priority: 4
+
+  # ---------- 3 templates archetype-specific extra ----------
+
+  - id: ENR_FT_01_FINTECH_PAYMENT_GATEWAY
+    phase: implantacion
+    applicable_categories: ["MEDIA", "ALTA"]
+    applicable_archetypes: ["fintech", "proveedor_financiero"]
+    is_enriched: true
+    order_within_phase: 10
+    title: Hardening payment gateway · PCI-DSS overlay
+    description: Fintech · payment processing security overlay PCI-DSS.
+    description_detailed_es: >
+      Fintech con payment gateway · controles ENS + PCI-DSS overlay obligatorio.
+      Tokenization · encryption transit + at-rest · key management HSM ·
+      audit trail transactions immutable.
+    rationale_es: >
+      Fintech con payment · sanción PCI-DSS hasta $500k/mes brecha. ENS sin
+      PCI overlay insuficiente · audit ENAC verifica overlay.
+    cta_label: Documentar overlay
+    cta_url: /admin/projects/{project_id}/files
+    deliverable_codes: []
+    actors: [CISO, Marcos]
+    estimated_days: 21
+    priority: 8
+    archetype_variants:
+      fintech:
+        extra_focus: "Tokenization PCI-DSS req.3 · key management HSM"
+      proveedor_financiero:
+        extra_focus: "Vendor management financiero + due diligence anual"
+
+  - id: ENR_PB_01_SECTOR_PUBLICO_LCSP
+    phase: adecuacion
+    applicable_categories: "ALL"
+    applicable_archetypes: ["sector_publico_concesionario", "desarrollador_aapp"]
+    is_enriched: true
+    order_within_phase: 10
+    title: LCSP art.215 · subcontratistas obra pública
+    description: Sector público · gestión subcontratistas LCSP art.215.
+    description_detailed_es: >
+      Concesionario AAPP · obligaciones sub-contratistas obra pública (LCSP
+      art.215) · responsabilidad cadena. ENS Anexo II op.ext refuerzo R1 +
+      auditor verifica DPA RGPD + adenda DORA si aplica.
+    rationale_es: >
+      AAPP responsable last-mile · si sub-contratista breach · concesionario
+      responde. LCSP art.215 + ENS op.ext interlocked.
+    cta_label: Documentar cadena
+    cta_url: /admin/projects/{project_id}/providers
+    deliverable_codes: []
+    actors: [Marcos, responsable_legal_cliente]
+    estimated_days: 14
+    priority: 7
+
+  - id: ENR_ED_01_EDUCACION_PRIVADA_LOPDGDD
+    phase: implantacion
+    applicable_categories: "ALL"
+    applicable_archetypes: ["educacion_privada"]
+    is_enriched: true
+    order_within_phase: 10
+    title: Educación privada · LOPDGDD art.83-86 menores
+    description: Educación · menores · LOPDGDD art.83-86 derechos digitales.
+    description_detailed_es: >
+      Educación privada · datos menores requieren consentimiento explícito
+      tutor + derechos digitales LOPDGDD art.83-86 + protección entorno digital.
+      AEPD especial vigilancia sector.
+    rationale_es: >
+      AEPD sanciones educación · multas frecuentes. Documentar consentimientos
+      + procedimientos rectificación/oposición protegen contra reclamación.
+    cta_label: Documentar LOPDGDD
+    cta_url: /admin/projects/{project_id}/aepd
+    deliverable_codes: []
+    actors: [DPO, Marcos, dirección_académica]
+    estimated_days: 14
+    priority: 7
+
+  # ============================================================
+  # L-5 (FRENTE L) · Perfil AUTÓNOMO / microempresa (archetype
+  # autonomo_individual). Plantillas específicas del perfil individual ·
+  # soportan los 3 niveles · filtradas por applicable_archetypes + size micro.
+  # ============================================================
+
+  - id: ENR_AUT_01_ROLES_ART11
+    phase: diagnostico
+    applicable_categories: "ALL"
+    applicable_archetypes: ["autonomo_individual"]
+    applicable_size_ranges: ["micro"]
+    is_enriched: true
+    title: Acumulación de roles (autónomo · Art. 11)
+    description: >
+      Como autónomo/microempresa puedes acumular los roles de Responsable de
+      Seguridad y Responsable del Sistema en la misma persona, PERO debes
+      declararlo explícitamente con una justificación documentada del conflicto
+      de interés gestionado (Art. 11 RD 311/2022 · CCN-STIC 801 sec 5.1). No es
+      una simplificación automática.
+      ⚠️ No asumas que el auditor ENAC lo aceptará sin esa justificación escrita.
+      Tu copiloto te guía paso a paso.
+    cta_label: Documentar acumulación de roles
+    cta_url: /client-portal/workflow#roles
+    actors: [cliente, Marcos]
+    estimated_days: 3
+    priority: 8
+
+  - id: ENR_AUT_02_DECLARACION_PROPIA_BASICA
+    phase: conformidad
+    applicable_categories: ["BASICA"]
+    applicable_archetypes: ["autonomo_individual"]
+    applicable_size_ranges: ["micro"]
+    is_enriched: true
+    title: Firmar tu Declaración de Conformidad (autodeclaración)
+    description: >
+      En categoría BÁSICA cierras tu conformidad con la autoevaluación CCN-STIC
+      808 + la Declaración de Conformidad firmada por la Dirección (809) · sin
+      auditoría ENAC externa. Tu copiloto te lleva de la mano.
+    cta_label: Ir a mi conformidad
+    cta_url: /client-portal/conformidad
+    actors: [dirección, Marcos]
+    estimated_days: 5
+    priority: 7
+
+  - id: ENR_AUT_03_GATE_ALTA_BLOQUEANTE
+    phase: diagnostico
+    applicable_categories: ["ALTA"]
+    applicable_archetypes: ["autonomo_individual"]
+    applicable_size_ranges: ["micro"]
+    is_enriched: true
+    title: ⚠️ ENS ALTA como autónomo · revisión obligatoria
+    description: >
+      ENS categoría ALTA para una organización unipersonal/micro es anómalo:
+      varias medidas (op.acc.3 · op.cont.3 · mp.com.4) exigen infraestructura y
+      separación de funciones difíciles de cumplir en solitario, y el pentest
+      debe realizarlo un tercero EXTERNO INDEPENDIENTE. Antes de continuar,
+      Marcos revisa contigo la viabilidad y el alcance real.
+    cta_label: Revisar viabilidad ALTA con Marcos
+    cta_url: /client-portal/workflow#alta-gate
+    actors: [Marcos, dirección]
+    estimated_days: 2
+    priority: 10

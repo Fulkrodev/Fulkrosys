@@ -1,0 +1,61 @@
+{
+  "version": "1.0",
+  "fecha_calibracion": "2026-04-21",
+  "calibrado_por": "Marcos Mata Garcia, Consultor independiente en Esquema Nacional de Seguridad",
+  "metodologia": "Effort Estimator determinista (Apendice N) — calibracion sobre 11 proyectos ENS reales 2024-2026",
+  "alcance": "Horas de consultor para proyecto end-to-end ENS desde categorizacion hasta certificacion. Excluye: implementacion tecnica del cliente, formacion masiva (>20 personas), pentesting externo (subcontratado).",
+  "horas_base_por_categoria": {
+    "BASICA": 20,
+    "MEDIA": 65,
+    "ALTA": 125
+  },
+  "duracion_semanas_por_categoria": {
+    "BASICA": 18,
+    "MEDIA": 36,
+    "ALTA": 60
+  },
+  "tarifa_hora_eur_default": 95,
+  "factor_sector": {
+    "financiero":            {"factor": 1.30, "label": "Sector financiero / banca", "justificacion": "Reglamento DORA + PSD2 + criterios sectoriales del CCN; sistemas de alta disponibilidad; doble revision auditora habitual."},
+    "fintech":               {"factor": 1.30, "label": "Fintech", "justificacion": "DORA + PSD2 + interconexiones API criticas; equivalente a sector financiero."},
+    "salud":                 {"factor": 1.25, "label": "Salud / sanitario", "justificacion": "RGPD art.9 (datos categoria especial) + RD 1720/2007 + integracion HIS/HCE; auditoria sectorial periodica."},
+    "sanidad_privada":       {"factor": 1.25, "label": "Sanidad privada", "justificacion": "Equivalente a salud: dato sensible categoria especial + obligaciones autonomicas."},
+    "administracion_publica":{"factor": 1.20, "label": "Administracion publica", "justificacion": "Mayor exigencia documental, interlocutores politicos, intervencion previa, contratacion publica."},
+    "energia":               {"factor": 1.15, "label": "Energia / utilities", "justificacion": "NIS2 + sector critico Anexo I (suministro energia); convive ENS con esquemas IEC 62443."},
+    "industria":             {"factor": 1.10, "label": "Industria / fabricacion", "justificacion": "Separacion OT/IT y activos legacy; mayor esfuerzo en inventario tecnico."},
+    "logistica":             {"factor": 1.05, "label": "Logistica / transporte", "justificacion": "NIS2 sector importante + cadena de proveedores extensa."},
+    "educacion_privada":     {"factor": 1.00, "label": "Educacion privada", "justificacion": "Sector estandar; datos personales menores requieren atencion pero alcance acotado."},
+    "retail_ecommerce":      {"factor": 1.00, "label": "Retail / e-commerce", "justificacion": "Sector estandar; PCI-DSS suele cubrir parte del alcance tecnico."},
+    "servicios_profesionales":{"factor": 1.00, "label": "Servicios profesionales", "justificacion": "Sector estandar; tipico despacho/consultora."},
+    "saas_tech":             {"factor": 0.95, "label": "SaaS / tecnologico", "justificacion": "Equipo TI nativo; cultura cercana a controles; menor curva de aprendizaje."},
+    "generico":              {"factor": 1.00, "label": "Generico / sin clasificacion sectorial", "justificacion": "Factor neutro cuando no se ha tipificado el sector."}
+  },
+  "factor_madurez": {
+    "L1": {"factor": 1.30, "label": "Inicial — sin gobierno de seguridad previo", "justificacion": "Sin politicas formalizadas ni inventario de activos. Doble esfuerzo en concienciacion ejecutiva, levantamiento desde cero, sin evidencias historicas reutilizables."},
+    "L2": {"factor": 1.15, "label": "Basico — controles tecnicos sueltos", "justificacion": "Existen politicas parciales y herramientas tecnicas (antivirus, copias, MFA), sin marco coherente. Esfuerzo en consolidar y formalizar."},
+    "L3": {"factor": 1.00, "label": "Definido — SGSI parcial documentado", "justificacion": "Linea base de la metodologia. Cliente tipico con ISO 27001 parcial, ENS Basica previo o normativa sectorial similar."},
+    "L4": {"factor": 0.85, "label": "Gestionado — SGSI activo y revisado", "justificacion": "SGSI con revisiones regulares, comite operativo, evidencias periodicas. Reduccion en fase de levantamiento."},
+    "L5": {"factor": 0.75, "label": "Optimizado — mejora continua medible", "justificacion": "Maximo nivel CCN-STIC: KPIs, automatizacion de evidencias, revision continua. Solo gap-fixing especifico."}
+  },
+  "factor_size_empleados": {
+    "micro":      {"factor": 0.70, "max_empleados": 10,    "label": "Microempresa (<= 10 empleados)",         "justificacion": "Decisiones unipersonales, alcance pequeno, pocos sistemas."},
+    "pequena":    {"factor": 0.85, "max_empleados": 50,    "label": "Pequena (11-50)",                         "justificacion": "Estructura simple, comite reducido, alcance acotado."},
+    "mediana":    {"factor": 1.00, "max_empleados": 250,   "label": "Mediana (51-250)",                        "justificacion": "Linea base PYME espanola: estructura departamental clara."},
+    "grande":     {"factor": 1.30, "max_empleados": 1000,  "label": "Grande (251-1000)",                       "justificacion": "Multiples direcciones funcionales, comite ejecutivo, mayor coordinacion."},
+    "muy_grande": {"factor": 1.60, "max_empleados": null,  "label": "Muy grande (> 1000)",                     "justificacion": "Multinacional o multi-sede, gobierno corporativo complejo, multiples interlocutores."}
+  },
+  "factor_complejidad_tecnica": {
+    "baja":      {"factor": 0.80, "label": "Sistemas simples, monoliticos, on-prem", "justificacion": "Pocos sistemas, arquitectura clasica, perimetro definido."},
+    "media":     {"factor": 1.00, "label": "Mix on-prem + cloud + SaaS", "justificacion": "Linea base de la mayoria de PYMEs actuales."},
+    "alta":      {"factor": 1.30, "label": "Multi-cloud, microservicios, OT/IT, integraciones complejas", "justificacion": "Mayor superficie de ataque, mas controles tecnicos a verificar."},
+    "muy_alta":  {"factor": 1.60, "label": "Hibrida con OT critico, geo-distribuida o regulacion sumada", "justificacion": "Maximo esfuerzo: requiere especialistas adicionales y mayor tiempo de auditoria."}
+  },
+  "limites": {
+    "factor_combinado_max": 3.5,
+    "factor_combinado_min": 0.40,
+    "nota": "Si el factor combinado supera 3.5 o queda por debajo de 0.40, replantear la modalidad del proyecto antes de comprometer presupuesto."
+  },
+  "auto_clasificacion_size": {
+    "descripcion": "Si solo se conoce el numero de empleados, se mapea automaticamente al bucket correspondiente comparando contra max_empleados de cada bucket."
+  }
+}

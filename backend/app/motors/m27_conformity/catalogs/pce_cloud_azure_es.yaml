@@ -1,0 +1,103 @@
+# PCE Cloud Azure ES — Perfil de Cumplimiento Especifico Cloud Azure
+# Aplicable a proyectos ENS con cargas de trabajo en Microsoft Azure EU
+# (region Spain / West Europe). Versiona medidas extra al DdA base.
+
+overlay_type: cloud_azure_es
+version: "1.0"
+applicability:
+  conditions:
+    - client_uses_azure_tenant: true
+    - workloads_in_eu_region: true
+  category_min: "BASICA"
+  auto_detect_hints:
+    - "Azure AD"
+    - "Entra ID"
+    - "Microsoft 365"
+    - "AzureRM"
+    - "tenant.onmicrosoft.com"
+
+extra_measures:
+  - code: "op.pl.5.pce-az.1"
+    title: "Identity baseline: Conditional Access minimo"
+    justification: >
+      Requiere CA policies para (a) MFA en cuentas admin, (b) bloqueo
+      geografico de paises de alto riesgo, (c) device compliance para
+      acceso a Office 365. Documentar en dossier.
+    reference: "CCN-STIC 884 B, Microsoft Zero Trust"
+    dimensions: [A, I, C, D]
+    category: "BASICA"
+  - code: "op.exp.10.pce-az.1"
+    title: "Azure Defender for Cloud habilitado (tier Standard)"
+    justification: >
+      Cobertura para VMs, SQL, Storage, App Service, Containers.
+      Minimo plan Standard o superior.
+    dimensions: [D, I]
+    category: "MEDIA"
+  - code: "op.mon.2.pce-az.1"
+    title: "Log Analytics workspace centralizado con 180d retention"
+    justification: >
+      Agregar logs Azure Activity, AADNonInteractiveUserSignInLogs,
+      SignInLogs, AuditLogs. Retencion minima 180 dias.
+    dimensions: [T]
+    category: "BASICA"
+  - code: "mp.info.3.pce-az.1"
+    title: "Azure Information Protection / Purview clasificacion"
+    justification: >
+      Sensitivity labels + etiquetado automatico para informacion
+      con valoracion MEDIA/ALTA en C.
+    dimensions: [C]
+    category: "MEDIA"
+  - code: "op.cont.3.pce-az.1"
+    title: "Azure Backup + geo-replicacion en paired region EU"
+    justification: >
+      Recovery Services Vault con politicas LRS/GRS, pruebas de
+      restauracion trimestrales documentadas.
+    dimensions: [D]
+    category: "MEDIA"
+  - code: "mp.com.2.pce-az.1"
+    title: "Azure Firewall / NSG baseline con reglas deny-by-default"
+    dimensions: [C, I]
+    category: "MEDIA"
+  - code: "op.acc.5.pce-az.1"
+    title: "Privileged Identity Management (PIM) para roles Azure AD"
+    dimensions: [A, T]
+    category: "MEDIA"
+  - code: "mp.per.3.pce-az.1"
+    title: "Microsoft Defender for Endpoint en endpoints corporativos"
+    dimensions: [D, I]
+    category: "BASICA"
+  - code: "op.exp.3.pce-az.1"
+    title: "Azure Policy: Compliance con Azure Security Benchmark v3"
+    dimensions: [T]
+    category: "MEDIA"
+  - code: "op.exp.7.pce-az.1"
+    title: "Microsoft Sentinel o integrador SIEM con data connectors"
+    dimensions: [T, D]
+    category: "ALTA"
+  - code: "mp.info.9.pce-az.1"
+    title: "Azure Key Vault (HSM-backed) para claves y certificados"
+    dimensions: [C, I]
+    category: "MEDIA"
+  - code: "mp.sw.2.pce-az.1"
+    title: "Update Management for Azure VMs (patching automatizado)"
+    dimensions: [D, I]
+    category: "BASICA"
+  - code: "op.pl.2.pce-az.1"
+    title: "Evaluacion de servicios SaaS de terceros (ITGC Azure Marketplace)"
+    dimensions: [C, I, A]
+    category: "MEDIA"
+  - code: "op.ext.4.pce-az.1"
+    title: "DPA con Microsoft Ireland + anexos ENS y transferencias"
+    dimensions: [C]
+    category: "BASICA"
+  - code: "org.4.pce-az.1"
+    title: "Asignacion explicita de Subscription Owner / Contributor"
+    dimensions: [A, T]
+    category: "BASICA"
+
+compliance_checklist:
+  - "Evidencia E-041-az: snapshot Conditional Access policies"
+  - "Evidencia E-041-az: export Azure Policy compliance"
+  - "Evidencia E-041-az: log retention config screenshot"
+  - "Evidencia E-041-az: DPA firmado con Microsoft"
+  - "Evidencia E-041-az: PIM activation history last 90d"

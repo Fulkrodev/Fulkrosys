@@ -1,0 +1,21 @@
+{
+  "mcp_name": "apisec",
+  "version": "1.0",
+  "default_scope_fail_closed": {
+    "allowed_ips_cidr": [],
+    "allowed_domains": [],
+    "time_windows_cron": [],
+    "tools_whitelisted": []
+  },
+  "tools_available": [
+    "arjun",
+    "auth_bypass",
+    "graphql",
+    "kiterunner"
+  ],
+  "ens_categorias_aplica": [
+    "M",
+    "A"
+  ],
+  "notes": "Default scope is empty (fail-closed). Cliente debe autorizar explicitamente via /api/v1/projects/<id>/verification/scope antes de cada run."
+}

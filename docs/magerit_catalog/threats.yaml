@@ -1,0 +1,425 @@
+# MAGERIT v3 — Catálogo de amenazas
+# Fuente: Libro II "Catálogo de Elementos", Capítulo 5
+# 4 grupos: [N] Desastres naturales, [I] Origen industrial, [E] Errores, [A] Ataques
+# Dimensiones: D=Disponibilidad, I=Integridad, C=Confidencialidad, A=Autenticidad, T=Trazabilidad
+
+threat_groups:
+
+  # === [N] Desastres naturales === # Libro II, sec 5.1, p.25
+  - group: "N"
+    name: "Desastres naturales"
+    description: "Sucesos que pueden ocurrir sin intervención humana"
+    threats:
+      - code: "N.1"
+        name: "Fuego"
+        description: "Incendio: posibilidad de que el fuego acabe con recursos del sistema"
+        asset_types: [HW, SI, AUX, L, COM]  # Libro II, sec 5.1.1, p.25
+        dimensions: [D]
+        typical_frequency: "muy_baja"  # Libro II, sec 5.1.1
+
+      - code: "N.2"
+        name: "Daños por agua"
+        description: "Inundación: posibilidad de que el agua acabe con recursos del sistema"
+        asset_types: [HW, SI, AUX, L, COM]  # Libro II, sec 5.1.2, p.25
+        dimensions: [D]
+        typical_frequency: "baja"
+
+      - code: "N.*"
+        name: "Desastres naturales (otros)"
+        description: "Rayos, tormentas eléctricas, terremotos, erupciones volcánicas, etc."
+        asset_types: [HW, SI, AUX, L, COM]  # Libro II, sec 5.1.3, p.26
+        dimensions: [D]
+        typical_frequency: "muy_baja"
+
+  # === [I] De origen industrial === # Libro II, sec 5.2, p.26
+  - group: "I"
+    name: "De origen industrial"
+    description: "Sucesos derivados de la actividad humana de tipo industrial"
+    threats:
+      - code: "I.1"
+        name: "Fuego (origen industrial)"
+        description: "Incendio de origen industrial"
+        asset_types: [HW, SI, AUX, L, COM]  # Libro II, sec 5.2.1, p.26
+        dimensions: [D]
+        typical_frequency: "baja"
+
+      - code: "I.2"
+        name: "Daños por agua (origen industrial)"
+        description: "Escape de tuberías, inundación de cuarto técnico, etc."
+        asset_types: [HW, SI, AUX, L, COM]  # Libro II, sec 5.2.2, p.27
+        dimensions: [D]
+        typical_frequency: "baja"
+
+      - code: "I.*"
+        name: "Desastres industriales (otros)"
+        description: "Contaminación mecánica, electromagnética, averías de servicios"
+        asset_types: [HW, SI, AUX, L, COM]  # Libro II, sec 5.2.3-5.2.6, p.27-29
+        dimensions: [D]
+        typical_frequency: "media"
+
+      - code: "I.3"
+        name: "Contaminación mecánica"
+        description: "Vibraciones, polvo, suciedad"
+        asset_types: [HW, SI, AUX]  # Libro II, sec 5.2.3, p.28
+        dimensions: [D]
+        typical_frequency: "media"
+
+      - code: "I.4"
+        name: "Contaminación electromagnética"
+        description: "Interferencias de radio, campos magnéticos, luz UV"
+        asset_types: [HW, SI, COM]  # Libro II, sec 5.2.4, p.29
+        dimensions: [D]
+        typical_frequency: "baja"
+
+      - code: "I.5"
+        name: "Avería de origen físico o lógico"
+        description: "Fallos en equipos o en programas"
+        asset_types: [HW, SW, SI, COM]  # Libro II, sec 5.2.5, p.29
+        dimensions: [D]
+        typical_frequency: "media"
+
+      - code: "I.6"
+        name: "Corte del suministro eléctrico"
+        description: "Cese de alimentación de potencia"
+        asset_types: [HW, SI, AUX, COM]  # Libro II, sec 5.2.6, p.29
+        dimensions: [D]
+        typical_frequency: "media"
+
+      - code: "I.7"
+        name: "Condiciones inadecuadas de temperatura o humedad"
+        description: "Fallo en climatización del CPD o sala técnica"
+        asset_types: [HW, SI, AUX]  # Libro II, sec 5.2.7, p.30
+        dimensions: [D]
+        typical_frequency: "media"
+
+      - code: "I.8"
+        name: "Fallo de servicios de comunicaciones"
+        description: "Cese de la capacidad de transmitir datos"
+        asset_types: [COM]  # Libro II, sec 5.2.8, p.30
+        dimensions: [D]
+        typical_frequency: "media"
+
+      - code: "I.9"
+        name: "Interrupción de otros servicios esenciales"
+        description: "Otros servicios necesarios para el funcionamiento"
+        asset_types: [AUX]  # Libro II, sec 5.2.9, p.30
+        dimensions: [D]
+        typical_frequency: "baja"
+
+      - code: "I.10"
+        name: "Degradación de los soportes de almacenamiento"
+        description: "Envejecimiento de los medios de almacenamiento"
+        asset_types: [SI]  # Libro II, sec 5.2.10, p.31
+        dimensions: [D]
+        typical_frequency: "media"
+
+      - code: "I.11"
+        name: "Emanaciones electromagnéticas"
+        description: "Emisiones electromagnéticas que permiten interceptar información"
+        asset_types: [HW, COM]  # Libro II, sec 5.2.11, p.31
+        dimensions: [C]
+        typical_frequency: "baja"
+
+  # === [E] Errores y fallos no intencionados === # Libro II, sec 5.3, p.31
+  - group: "E"
+    name: "Errores y fallos no intencionados"
+    description: "Fallos no intencionados causados por personas"
+    threats:
+      - code: "E.1"
+        name: "Errores de los usuarios"
+        description: "Equivocaciones de personas al usar los servicios, datos, etc."
+        asset_types: [D, S, SW, SI]  # Libro II, sec 5.3.1, p.32
+        dimensions: [D, I, C, A, T]
+        typical_frequency: "alta"
+
+      - code: "E.2"
+        name: "Errores del administrador"
+        description: "Equivocaciones de personas con responsabilidad de instalación y operación"
+        asset_types: [D, S, SW, HW, COM]  # Libro II, sec 5.3.2, p.33
+        dimensions: [D, I, C, A, T]
+        typical_frequency: "media"
+
+      - code: "E.3"
+        name: "Errores de monitorización (log)"
+        description: "Inadecuado registro de actividades"
+        asset_types: [D, S, SW]  # Libro II, sec 5.3.3, p.34
+        dimensions: [I, T]
+        typical_frequency: "media"
+
+      - code: "E.4"
+        name: "Errores de configuración"
+        description: "Introducción de datos de configuración erróneos"
+        asset_types: [SW, HW, COM]  # Libro II, sec 5.3.4, p.34
+        dimensions: [D, I, C, A]
+        typical_frequency: "media"
+
+      - code: "E.7"
+        name: "Deficiencias en la organización"
+        description: "Falta de procedimientos, personal insuficiente, falta de segregación"
+        asset_types: [P]  # Libro II, sec 5.3.5, p.35
+        dimensions: [D, I, C, A, T]
+        typical_frequency: "media"
+
+      - code: "E.8"
+        name: "Difusión de software dañino"
+        description: "Propagación inocente de virus, troyanos, gusanos, etc."
+        asset_types: [SW]  # Libro II, sec 5.3.6, p.35
+        dimensions: [D, I, C, A, T]
+        typical_frequency: "media"
+
+      - code: "E.9"
+        name: "Errores de re-encaminamiento"
+        description: "Envío de información a destino equivocado"
+        asset_types: [COM, S]  # Libro II, sec 5.3.7, p.35
+        dimensions: [C]
+        typical_frequency: "baja"
+
+      - code: "E.10"
+        name: "Errores de secuencia"
+        description: "Alteración del orden de los mensajes transmitidos"
+        asset_types: [COM, S]  # Libro II, sec 5.3.8, p.36
+        dimensions: [I]
+        typical_frequency: "baja"
+
+      - code: "E.14"
+        name: "Escapes de información"
+        description: "Revelación no autorizada por descuido"
+        asset_types: [D, S, SW, COM]  # Libro II, sec 5.3.9, p.36
+        dimensions: [C]
+        typical_frequency: "media"
+
+      - code: "E.15"
+        name: "Alteración accidental de la información"
+        description: "Alteración no intencionada de la información"
+        asset_types: [D, S, SW, SI]  # Libro II, sec 5.3.10, p.36
+        dimensions: [I]
+        typical_frequency: "media"
+
+      - code: "E.18"
+        name: "Destrucción de la información"
+        description: "Pérdida accidental de datos"
+        asset_types: [D, S, SW, SI]  # Libro II, sec 5.3.11, p.37
+        dimensions: [D]
+        typical_frequency: "media"
+
+      - code: "E.19"
+        name: "Fugas de información"
+        description: "Revelación por indiscreción, publicación por error"
+        asset_types: [D, S, SW]  # Libro II, sec 5.3.12, p.37
+        dimensions: [C]
+        typical_frequency: "media"
+
+      - code: "E.20"
+        name: "Vulnerabilidades de los programas (software)"
+        description: "Defectos en el código que pueden ser explotados"
+        asset_types: [SW]  # Libro II, sec 5.3.13, p.37
+        dimensions: [D, I, C, A, T]
+        typical_frequency: "alta"
+
+      - code: "E.21"
+        name: "Errores de mantenimiento/actualización de programas"
+        description: "Defectos en la actualización o parcheado"
+        asset_types: [SW]  # Libro II, sec 5.3.14, p.38
+        dimensions: [D, I]
+        typical_frequency: "media"
+
+      - code: "E.23"
+        name: "Errores de mantenimiento/actualización de equipos"
+        description: "Defectos en mantenimiento del hardware"
+        asset_types: [HW, COM, AUX]  # Libro II, sec 5.3.15, p.38
+        dimensions: [D]
+        typical_frequency: "media"
+
+      - code: "E.24"
+        name: "Caída del sistema por agotamiento de recursos"
+        description: "Falta de capacidad, recursos insuficientes"
+        asset_types: [HW, SW, COM, S]  # Libro II, sec 5.3.16, p.38
+        dimensions: [D]
+        typical_frequency: "media"
+
+      - code: "E.25"
+        name: "Pérdida de equipos"
+        description: "Extravío de equipos portátiles o soportes"
+        asset_types: [HW, SI]  # Libro II, sec 5.3.17, p.39
+        dimensions: [D, C]
+        typical_frequency: "baja"
+
+      - code: "E.28"
+        name: "Indisponibilidad del personal"
+        description: "Ausencia accidental de personas clave"
+        asset_types: [P]  # Libro II, sec 5.3.18, p.39
+        dimensions: [D]
+        typical_frequency: "media"
+
+  # === [A] Ataques intencionados === # Libro II, sec 5.4, p.39
+  - group: "A"
+    name: "Ataques intencionados"
+    description: "Acciones deliberadas contra el sistema de información"
+    threats:
+      - code: "A.3"
+        name: "Manipulación de los registros de actividad (log)"
+        description: "Alteración intencionada de los logs del sistema"
+        asset_types: [D, S, SW]  # Libro II, sec 5.4.1, p.39
+        dimensions: [I, T]
+        typical_frequency: "media"
+
+      - code: "A.4"
+        name: "Manipulación de la configuración"
+        description: "Alteración intencionada de la configuración"
+        asset_types: [SW, HW, COM]  # Libro II, sec 5.4.2, p.40
+        dimensions: [D, I, C, A]
+        typical_frequency: "media"
+
+      - code: "A.5"
+        name: "Suplantación de la identidad del usuario"
+        description: "Cuando un atacante consigue hacerse pasar por un usuario autorizado"
+        asset_types: [D, S, SW, COM]  # Libro II, sec 5.4.3, p.40
+        dimensions: [C, A, I]
+        typical_frequency: "media"
+
+      - code: "A.6"
+        name: "Abuso de privilegios de acceso"
+        description: "Usuario autorizado que abusa de sus privilegios"
+        asset_types: [D, S, SW, HW, COM]  # Libro II, sec 5.4.4, p.41
+        dimensions: [D, I, C, A, T]
+        typical_frequency: "media"
+
+      - code: "A.7"
+        name: "Uso no previsto"
+        description: "Uso del sistema para fines no previstos"
+        asset_types: [S, SW, HW, COM, SI]  # Libro II, sec 5.4.5, p.41
+        dimensions: [D, I, C, A, T]
+        typical_frequency: "media"
+
+      - code: "A.8"
+        name: "Difusión de software dañino"
+        description: "Propagación intencionada de virus, troyanos, ransomware"
+        asset_types: [SW]  # Libro II, sec 5.4.6, p.42
+        dimensions: [D, I, C, A, T]
+        typical_frequency: "alta"
+
+      - code: "A.9"
+        name: "Re-encaminamiento de mensajes"
+        description: "Desvío intencionado de comunicaciones"
+        asset_types: [COM, S]  # Libro II, sec 5.4.7, p.42
+        dimensions: [C]
+        typical_frequency: "baja"
+
+      - code: "A.10"
+        name: "Alteración de secuencia"
+        description: "Alteración intencionada del orden de mensajes"
+        asset_types: [COM, S]  # Libro II, sec 5.4.8, p.42
+        dimensions: [I]
+        typical_frequency: "baja"
+
+      - code: "A.11"
+        name: "Acceso no autorizado"
+        description: "Acceso al sistema sin autorización"
+        asset_types: [D, S, SW, HW, COM, SI, AUX, L]  # Libro II, sec 5.4.9, p.43
+        dimensions: [C, I, A]
+        typical_frequency: "alta"
+
+      - code: "A.12"
+        name: "Análisis de tráfico"
+        description: "Interceptación pasiva de comunicaciones para deducir patrones"
+        asset_types: [COM]  # Libro II, sec 5.4.10, p.43
+        dimensions: [C]
+        typical_frequency: "media"
+
+      - code: "A.13"
+        name: "Repudio"
+        description: "Negación de actuaciones o compromisos adquiridos"
+        asset_types: [S, D]  # Libro II, sec 5.4.11, p.43
+        dimensions: [A, T]
+        typical_frequency: "baja"
+
+      - code: "A.14"
+        name: "Interceptación de información (escucha)"
+        description: "Acceso pasivo a información en tránsito"
+        asset_types: [COM]  # Libro II, sec 5.4.12, p.44
+        dimensions: [C]
+        typical_frequency: "media"
+
+      - code: "A.15"
+        name: "Modificación deliberada de la información"
+        description: "Alteración intencionada de datos"
+        asset_types: [D, S, SW, SI]  # Libro II, sec 5.4.13, p.44
+        dimensions: [I]
+        typical_frequency: "media"
+
+      - code: "A.18"
+        name: "Destrucción de la información"
+        description: "Eliminación intencionada de datos"
+        asset_types: [D, S, SW, SI]  # Libro II, sec 5.4.14, p.44
+        dimensions: [D]
+        typical_frequency: "media"
+
+      - code: "A.19"
+        name: "Divulgación de información"
+        description: "Revelación intencionada de información confidencial"
+        asset_types: [D, S, SW, SI]  # Libro II, sec 5.4.15, p.45
+        dimensions: [C]
+        typical_frequency: "media"
+
+      - code: "A.22"
+        name: "Manipulación de programas"
+        description: "Alteración intencionada de software"
+        asset_types: [SW]  # Libro II, sec 5.4.16, p.45
+        dimensions: [D, I, C, A, T]
+        typical_frequency: "baja"
+
+      - code: "A.23"
+        name: "Manipulación de equipos"
+        description: "Alteración intencionada de hardware"
+        asset_types: [HW]  # Libro II, sec 5.4.17, p.45
+        dimensions: [D, C]
+        typical_frequency: "baja"
+
+      - code: "A.24"
+        name: "Denegación de servicio (DoS)"
+        description: "Degradación o interrupción intencionada del servicio"
+        asset_types: [S, SW, HW, COM]  # Libro II, sec 5.4.18, p.46
+        dimensions: [D]
+        typical_frequency: "alta"
+
+      - code: "A.25"
+        name: "Robo"
+        description: "Sustracción de equipos o soportes"
+        asset_types: [HW, SI, AUX]  # Libro II, sec 5.4.19, p.46
+        dimensions: [D, C]
+        typical_frequency: "baja"
+
+      - code: "A.26"
+        name: "Ataque destructivo"
+        description: "Vandalismo, sabotaje, terrorismo"
+        asset_types: [HW, SI, AUX, L]  # Libro II, sec 5.4.20, p.46
+        dimensions: [D]
+        typical_frequency: "muy_baja"
+
+      - code: "A.27"
+        name: "Ocupación enemiga"
+        description: "Toma física de instalaciones"
+        asset_types: [L]  # Libro II, sec 5.4.21, p.47
+        dimensions: [D, I, C, A, T]
+        typical_frequency: "muy_baja"
+
+      - code: "A.28"
+        name: "Indisponibilidad del personal"
+        description: "Ausencia deliberada de personal (huelga, secuestro)"
+        asset_types: [P]  # Libro II, sec 5.4.22, p.47
+        dimensions: [D]
+        typical_frequency: "baja"
+
+      - code: "A.29"
+        name: "Extorsión"
+        description: "Presión a personas para que actúen de determinada manera (ransomware)"
+        asset_types: [P, S, D]  # Libro II, sec 5.4.23, p.47
+        dimensions: [D, I, C, A, T]
+        typical_frequency: "media"
+
+      - code: "A.30"
+        name: "Ingeniería social"
+        description: "Manipulación de personas para obtener acceso o información"
+        asset_types: [P]  # Libro II, sec 5.4.24, p.47
+        dimensions: [C, I, A]
+        typical_frequency: "alta"

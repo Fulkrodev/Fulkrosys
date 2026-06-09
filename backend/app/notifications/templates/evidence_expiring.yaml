@@ -1,0 +1,36 @@
+subject_es: "Evidencia próxima a expirar · {{ project_name }}"
+cta_label_es: "Renovar evidencia"
+html_body_es: |
+  <p>Hola {{ recipient_name }},</p>
+  <p>La evidencia <strong>{{ evidence_name }}</strong> del proyecto
+  <strong>{{ project_name }}</strong> expira en
+  <strong>{{ days_to_expire }} días</strong>
+  ({{ expiration_date }}).</p>
+  <p>Renovarla a tiempo evita gaps de cumplimiento ENS y mantiene
+  la evidencia trazable en auditoría.</p>
+  <p>
+    <a href="{{ cta_url }}" style="background:#dc2626;color:#fff;padding:10px 20px;text-decoration:none;border-radius:4px;display:inline-block;">
+      Renovar evidencia en el portal
+    </a>
+  </p>
+  <p>Un saludo,<br>
+  <strong>Marcos Mata</strong> · Consultor de Fulkro<br>
+  📞 +34 637 165 328 ·
+  <a href="mailto:marcosmata@fulkro.es">marcosmata@fulkro.es</a> ·
+  <a href="https://www.fulkro.es">www.fulkro.es</a></p>
+text_body_es: |
+  Hola {{ recipient_name }},
+
+  La evidencia "{{ evidence_name }}" del proyecto {{ project_name }}
+  expira en {{ days_to_expire }} días ({{ expiration_date }}).
+
+  Renovarla a tiempo evita gaps de cumplimiento ENS y mantiene la
+  evidencia trazable en auditoría.
+
+  Renovar en el portal: {{ cta_url }}
+
+  Un saludo,
+  Marcos Mata · Consultor de Fulkro
+  Tel: +34 637 165 328
+  Email: marcosmata@fulkro.es
+  Web: www.fulkro.es

@@ -1,0 +1,120 @@
+# PCE-NIS2 — Perfil de Cumplimiento Específico NIS2 sobre ENS
+# Aplicable a entidades esenciales / importantes NIS2 que también
+# deben cumplir ENS (sector público + entidades esenciales mixtas).
+
+overlay_type: pce_nis2
+version: "1.0"
+ccn_stic: "892"
+applicability:
+  conditions:
+    - nis2_status_in: ["essential", "important"]
+  category_min: "MEDIA"
+  auto_detect_hints:
+    - "operador esencial"
+    - "entidad esencial"
+    - "entidad importante NIS2"
+    - "infraestructura crítica"
+
+reinforces_ens:
+  - "op.ext.1"
+  - "op.ext.2"
+  - "op.ext.3"
+  - "op.ext.4"
+  - "op.exp.7"
+  - "op.exp.10"
+  - "mp.com.1"
+  - "mp.com.2"
+  - "mp.com.3"
+
+extra_measures:
+  - code: "nis2.gov.1"
+    title: "Marco gobernanza ciberseguridad alta dirección"
+    justification: >
+      NIS2 art. 20 exige aprobación y supervisión de medidas por
+      órgano de dirección con responsabilidad personal.
+    dimensions: [T]
+    category: "MEDIA"
+
+  - code: "nis2.gov.2"
+    title: "Formación específica órganos de dirección"
+    justification: >
+      Art. 20.2 NIS2: formación obligatoria para miembros órgano
+      dirección sobre ciberseguridad.
+    dimensions: [T]
+    category: "MEDIA"
+
+  - code: "nis2.notif.1"
+    title: "Notificación incidente significativo · alerta temprana 24h"
+    justification: >
+      Art. 23.4(a) NIS2: notificación CSIRT en ≤ 24h tras detección
+      de incidente significativo.
+    dimensions: [T, A]
+    category: "MEDIA"
+
+  - code: "nis2.notif.2"
+    title: "Notificación incidente · evaluación intermedia 72h"
+    justification: >
+      Art. 23.4(b) NIS2: notificación intermedia con evaluación
+      inicial de severidad e impacto en ≤ 72h.
+    dimensions: [T, A]
+    category: "MEDIA"
+
+  - code: "nis2.notif.3"
+    title: "Notificación incidente · informe final 1 mes"
+    justification: >
+      Art. 23.4(c) NIS2: informe final detallado con causas raíz
+      y medidas mitigadoras en ≤ 1 mes.
+    dimensions: [T, A]
+    category: "MEDIA"
+
+  - code: "nis2.supply.1"
+    title: "Evaluación riesgos cadena suministro reforzada"
+    justification: >
+      Art. 21.2(d) NIS2: evaluación específica calidad y prácticas
+      ciberseguridad proveedores directos + análisis criticidad.
+    dimensions: [C, I, A]
+    category: "MEDIA"
+
+  - code: "nis2.supply.2"
+    title: "Cláusulas obligatorias contractuales con proveedores"
+    justification: >
+      Cláusulas contractuales mínimas: notificación incidentes ·
+      derecho auditoría · medidas técnicas mínimas · plan salida.
+    dimensions: [T]
+    category: "MEDIA"
+
+  - code: "nis2.crypto.1"
+    title: "Política criptográfica reforzada y gestión claves"
+    justification: >
+      Art. 21.2(h) NIS2: cifrado y gestión criptografía conforme
+      mejores prácticas + algoritmos autorizados CCN.
+    dimensions: [C, I]
+    category: "MEDIA"
+
+  - code: "nis2.access.1"
+    title: "Política de control de acceso multifactor obligatoria"
+    justification: >
+      Art. 21.2(i) NIS2: MFA o sistemas autenticación continua
+      como mínimo para usuarios privilegiados y sistemas críticos.
+    dimensions: [C, A]
+    category: "MEDIA"
+
+  - code: "nis2.test.1"
+    title: "Pruebas seguridad continuas (TLPT recomendado entidades esenciales)"
+    justification: >
+      Pentesting + Threat-Led Penetration Testing recomendado para
+      operadores esenciales · análogo a TIBER-EU sector financiero.
+    dimensions: [C, I, A]
+    category: "ALTA"
+
+reinforce_thresholds:
+  notification_alert_max_hours: 24
+  notification_intermediate_max_hours: 72
+  notification_final_max_days: 30
+  supply_chain_review_min_per_year: 1
+  awareness_training_directors_min_per_year: 1
+
+cross_compliance_notes:
+  - "PCE-NIS2 NO sustituye ENS · es overlay reforzado."
+  - "Entidades dual ENS+NIS2 deben cumplir ambos · medidas más estrictas prevalecen."
+  - "Alineado con guía CCN-STIC 892 (Adaptación NIS2 al ENS)."
