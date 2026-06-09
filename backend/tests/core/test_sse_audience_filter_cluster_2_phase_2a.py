@@ -12,7 +12,6 @@ Cubre:
 """
 from __future__ import annotations
 
-import pytest
 
 from backend.app.core.sse_dispatcher import (
     ADMIN_EVENT_TYPES,

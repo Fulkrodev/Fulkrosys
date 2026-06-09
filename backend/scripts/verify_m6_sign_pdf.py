@@ -122,7 +122,7 @@ async def main() -> int:
     signature_hex = result.get("signature_ed25519")
 
     # --- GAP 2: Ed25519 signing ---
-    print(f"\nGAP 2 — Ed25519 firma técnica")
+    print("\nGAP 2 — Ed25519 firma técnica")
     print(f"  DOCX path:     {docx_path}")
     print(f"  DOCX size:     {docx_path.stat().st_size if docx_path.exists() else 'MISSING'}")
     docx_bytes = docx_path.read_bytes() if docx_path.exists() else b""
@@ -142,7 +142,7 @@ async def main() -> int:
         print(f"  signature OK:  {'OK ✅' if ok else 'INVALID ❌'}")
 
     # --- GAP 3: LibreOffice PDF conversion ---
-    print(f"\nGAP 3 — Conversión DOCX → PDF vía LibreOffice headless")
+    print("\nGAP 3 — Conversión DOCX → PDF vía LibreOffice headless")
     if pdf_path and pdf_path.exists():
         pdf_bytes = pdf_path.read_bytes()
         has_header = pdf_bytes[:5] == b"%PDF-"
@@ -151,8 +151,8 @@ async def main() -> int:
         print(f"  PDF header:    {'OK ✅' if has_header else 'INVALID ❌'} "
               f"({pdf_bytes[:8]!r})")
     else:
-        print(f"  PDF path:      MISSING")
-        print(f"  status:        ❌ FAILED")
+        print("  PDF path:      MISSING")
+        print("  status:        ❌ FAILED")
 
     return 0
 

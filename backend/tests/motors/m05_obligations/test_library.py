@@ -3,7 +3,6 @@
 Verifies JSON loading, Pydantic validation, template counts,
 dependency resolution, and query helpers.
 """
-from pathlib import Path
 from collections import Counter
 
 import pytest
@@ -18,11 +17,9 @@ from backend.app.motors.m05_obligations.library_loader import (
     resolve_dependencies,
     LibraryLoadError,
     TemplateNotFoundError,
-    CircularDependencyError,
     LIBRARY_PATH,
 )
 from backend.app.motors.m05_obligations.types import (
-    ObligationTemplate,
     ObligationsLibrary,
     CATEGORIES_VALID,
     EXECUTION_MODES_VALID,

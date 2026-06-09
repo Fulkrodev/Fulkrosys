@@ -9,23 +9,18 @@ para verificar la logica sin pasar por la capa HTTP.
 import hashlib
 import pytest
 from datetime import datetime, timedelta, timezone
-from uuid import uuid4
 
 from sqlalchemy import text
 
 from backend.app.database import set_tenant_context
 from backend.app.motors.m12_magic_link.service import (
     MagicLinkService,
-    MagicLinkError,
     MagicLinkNotFoundError,
     MagicLinkExpiredError,
     MagicLinkRevokedError,
     MagicLinkExhaustedError,
     MagicLinkInvalidOTPError,
     MagicLinkOTPBlockedError,
-    MagicLinkOTPRequired,
-    _hash_token,
-    _hash_otp,
     OTP_FAILURE_THRESHOLD,
 )
 from backend.app.motors.m12_magic_link.purposes import MagicLinkPurpose
@@ -34,7 +29,7 @@ from backend.app.motors.m12_magic_link.schemas import (
     MagicLinkConsumeRequest,
 )
 from backend.app.models.operations import MagicLink
-from backend.tests.conftest import setup_test_project, _admin_setup
+from backend.tests.conftest import setup_test_project
 
 BASE_URL = "https://test.fulkro.es"
 

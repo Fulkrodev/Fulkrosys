@@ -2,11 +2,9 @@
 from __future__ import annotations
 
 import io
-import os
 from datetime import UTC, datetime
 from pathlib import Path
 
-import pytest
 from reportlab.lib.pagesizes import A4
 from reportlab.pdfgen.canvas import Canvas
 

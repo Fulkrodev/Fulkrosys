@@ -47,7 +47,6 @@ from backend.app.admin_settings.service import (
     update_section,
 )
 from backend.app.models.admin import ADMIN_SETTINGS_ID, AdminSettings
-from backend.app.models.auth import User
 from backend.tests.conftest import _admin_setup
 
 

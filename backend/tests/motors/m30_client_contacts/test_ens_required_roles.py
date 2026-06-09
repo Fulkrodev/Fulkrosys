@@ -28,7 +28,6 @@ from backend.app.motors.m30_client_contacts.ens_required import (
 from backend.app.motors.m30_client_contacts.schemas import ClientContactCreate
 from backend.app.motors.m30_client_contacts.service import (
     ClientContactService,
-    ContactNotFoundError,
 )
 from backend.app.motors.m06_document_factory.stakeholders_helper import (
     validate_ens_required_roles_assigned,

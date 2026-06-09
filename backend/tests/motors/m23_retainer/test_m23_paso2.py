@@ -4,20 +4,18 @@ billing integration + health + renewal + material_change.
 from __future__ import annotations
 
 import uuid
-from datetime import date, datetime, timedelta, timezone
+from datetime import date, timedelta
 from decimal import Decimal
 
 import pytest
-from sqlalchemy import select, text as sa_text
+from sqlalchemy import text as sa_text
 
 from backend.app.database import set_tenant_context
 from backend.app.models.retainer import (
-    PricingCatalog, RetainerActivity, RetainerBillingEvent,
-    RetainerContract, RetainerDriftEvent, RetainerQuarterlyReport,
+    RetainerDriftEvent,
 )
 from backend.app.motors.m23_retainer import (
     agent_26, billing_integration, paso2_extensions,
-    retainer_service as rs_module,
 )
 from backend.app.motors.m23_retainer.agent_26 import (
     RetainerAlert, draft_client_email_offline, run_weekly_analysis,

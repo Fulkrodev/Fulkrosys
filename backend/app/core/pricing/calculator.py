@@ -357,7 +357,7 @@ class PricingCalculator:
             "discount_if_implantation": discount_if_implantation,
             "discount_window_days": QUICK_SCAN_DISCOUNT_WINDOW_DAYS,
             "description": (
-                f"Quick scan pre-auditoria ENS (1 semana)"
+                "Quick scan pre-auditoria ENS (1 semana)"
                 + (
                     f". Descontable 100% si contrata implantacion "
                     f"en los proximos {QUICK_SCAN_DISCOUNT_WINDOW_DAYS} dias"

@@ -5,7 +5,6 @@ is forced off) so the raise-path is exercised.
 """
 from __future__ import annotations
 
-import os
 import uuid
 
 import pytest

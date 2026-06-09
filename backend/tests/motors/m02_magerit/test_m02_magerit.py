@@ -4,7 +4,6 @@ Tests for Motor 2 — MAGERIT v3 Risk Engine.
 D.1: Catalogs, risk matrix, and helper functions.
 Every non-trivial test cites its source: Libro I/II/III section and page.
 """
-import math
 import pytest
 import yaml
 from pathlib import Path
@@ -652,12 +651,11 @@ Tests for Motor 2 — MAGERIT v3 Risk Engine.
 D.3: Intrinsic risk, effective risk, and treatment plan tests.
 Every non-trivial test cites its source: Libro I/III section and page.
 """
-import uuid
 import pytest
 from sqlalchemy import select
 
-from backend.app.motors.m02_magerit.service import MageritService, LEVEL_TO_INDEX, FREQUENCY_MAP
-from backend.app.motors.m02_magerit.models import MageritRiskCalculation, MageritTreatmentPlan
+from backend.app.motors.m02_magerit.service import FREQUENCY_MAP
+from backend.app.motors.m02_magerit.models import MageritRiskCalculation
 
 
 # ================================================================
@@ -1425,7 +1423,7 @@ class TestMapFrequencyToLevel:
         Fuente: service.py FREQUENCY_MAP + _map_frequency_to_level.
         """
         from backend.app.motors.m02_magerit.service import (
-            FREQUENCY_MAP, _map_frequency_to_level
+            _map_frequency_to_level
         )
         for level, freq in FREQUENCY_MAP.items():
             result = _map_frequency_to_level(freq)
@@ -1704,8 +1702,8 @@ class TestEffectiveQualitativeEdgeCases:
             f"obtenido {calcs[0].risk_level}"
         )
         assert calcs[0].risk_level != "MB", (
-            f"El riesgo NO debe bajar a MB: la tabla oficial preserva impacto M "
-            f"para activos MA con degradacion MB. Caracteristica MAGERIT, no bug."
+            "El riesgo NO debe bajar a MB: la tabla oficial preserva impacto M "
+            "para activos MA con degradacion MB. Caracteristica MAGERIT, no bug."
         )
 
     @pytest.mark.asyncio
@@ -1901,11 +1899,11 @@ class TestEdgeCasesAndQuantitative:
         # SUP must have a repercuted calc
         sup_calcs = [c for c in calcs if c.asset_id == sup.id]
         assert len(sup_calcs) > 0, (
-            f"SUP debe tener calculo repercutido (Libro III p.10), obtenido 0"
+            "SUP debe tener calculo repercutido (Libro III p.10), obtenido 0"
         )
         rep_calc = sup_calcs[0]
         assert rep_calc.risk_intrinsic_repercuted is not None, (
-            f"SUP calc debe tener risk_intrinsic_repercuted != None"
+            "SUP calc debe tener risk_intrinsic_repercuted != None"
         )
 
         # INF must have an accumulated calc
@@ -1998,7 +1996,7 @@ class TestEdgeCasesAndQuantitative:
             )
         )).scalars().all()
         assert calcs[0].risk_residual is not None, (
-            f"Q-E2E residual risk debe existir"
+            "Q-E2E residual risk debe existir"
         )
 
     @pytest.mark.asyncio
@@ -2064,7 +2062,7 @@ class TestEdgeCasesAndQuantitative:
         )).scalars().all()
         for c in calcs:
             assert c.risk_residual is not None, (
-                f"Todos los calcs deben tener residual tras pipeline completo"
+                "Todos los calcs deben tener residual tras pipeline completo"
             )
 
 

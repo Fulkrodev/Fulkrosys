@@ -374,8 +374,8 @@ def generate_declaration_docx(ctx: DistintivoContext) -> io.BytesIO:
 
     _add_heading(doc, "5. Distintivo de conformidad", 1)
     doc.add_paragraph(
-        f"Conforme a CCN-STIC 809, esta entidad publicará el distintivo "
-        f"de conformidad en su sede electrónica con la siguiente URL:"
+        "Conforme a CCN-STIC 809, esta entidad publicará el distintivo "
+        "de conformidad en su sede electrónica con la siguiente URL:"
     )
     p = doc.add_paragraph()
     p.add_run(ctx.public_badge_url).bold = True

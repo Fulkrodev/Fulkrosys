@@ -2,15 +2,13 @@
 from __future__ import annotations
 
 import uuid
-from datetime import date, datetime, timedelta, timezone
+from datetime import date, timedelta
 from decimal import Decimal
 
 import pytest
 from sqlalchemy import select, text
 
-from backend.app.auth.crypto import hash_password
 from backend.app.models.billing_milestones import RetainerHealthSignal
-from backend.app.models.client_portal import ClientUser
 from backend.app.models.retainer import RetainerContract
 from backend.app.retainer.churn_predictor import (
     ChurnSignals,
@@ -20,8 +18,6 @@ from backend.app.retainer.churn_predictor import (
 from backend.app.retainer.state_machine import (
     RetainerStateMachine,
     RetainerStateMachineError,
-    VALID_RETAINER_STATES,
-    VALID_TRANSITIONS,
 )
 from backend.app.retainer.tasks import scan_churn_risk_with_session
 from backend.tests.conftest import _admin_setup

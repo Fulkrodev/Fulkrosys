@@ -19,13 +19,12 @@ from sqlalchemy.exc import IntegrityError
 from backend.app.motors.m01_categorization.dimensions_schemas import (
     ProjectDimensionsRead,
     ProjectDimensionsUpdate,
-    compute_dims_captured,
 )
 from backend.app.motors.m01_categorization.dimensions_service import (
     DimensionsService,
     ProjectDimensionsServiceError,
 )
-from backend.tests.conftest import _admin_setup, setup_test_project
+from backend.tests.conftest import setup_test_project
 
 
 # ================================================================

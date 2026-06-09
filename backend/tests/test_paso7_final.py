@@ -7,13 +7,8 @@ from decimal import Decimal
 from pathlib import Path
 
 import pytest
-from sqlalchemy import select, text as sa_text
+from sqlalchemy import text as sa_text
 
-from backend.app.models.commercial_paso7 import (
-    CommercialDiscount,
-    RetainerReport,
-)
-from backend.app.models.core import Project
 from backend.app.motors.m12_magic_link.purposes import (
     MagicLinkPurpose,
     get_config,

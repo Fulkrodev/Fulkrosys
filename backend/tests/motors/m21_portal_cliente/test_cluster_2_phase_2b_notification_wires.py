@@ -24,7 +24,6 @@ from sqlalchemy import select, text
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from backend.app.models.client_notification import ClientNotification
-from backend.app.models.client_portal import ClientUser
 from backend.app.models.planning import ProjectPlan, WbsTask
 from backend.tests.conftest import _admin_setup, setup_test_project
 

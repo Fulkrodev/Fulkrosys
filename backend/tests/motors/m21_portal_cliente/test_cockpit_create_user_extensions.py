@@ -14,15 +14,13 @@ pytestmark = pytest.mark.skip(
 )
 
 import uuid
-from datetime import datetime, timezone
 
 import pytest
-from sqlalchemy import select, text
+from sqlalchemy import text
 
 from backend.app.motors.m21_portal_cliente.api import (
     _enqueue_client_user_invited,
 )
-from backend.app.models.client_portal import ClientUser
 from backend.app.models.notifications import NotificationEvent
 from backend.tests.conftest import _admin_setup
 

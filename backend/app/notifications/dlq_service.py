@@ -18,7 +18,6 @@ from __future__ import annotations
 import json
 import uuid
 from dataclasses import asdict, dataclass
-from datetime import datetime, timezone
 from typing import Optional
 
 from sqlalchemy import text as sa_text

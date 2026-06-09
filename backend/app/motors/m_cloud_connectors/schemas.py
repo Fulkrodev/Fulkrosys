@@ -14,10 +14,6 @@ from pydantic import BaseModel, ConfigDict, Field
 
 from backend.app.motors.m_cloud_connectors.models import (
     CloudConnectorProvider,
-    CloudConnectorStatus,
-    CloudGapSeverity,
-    CloudGapType,
-    CloudSyncJobStatus,
 )
 
 

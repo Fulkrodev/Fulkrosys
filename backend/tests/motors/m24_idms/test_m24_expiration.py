@@ -19,10 +19,8 @@ from backend.app.motors.m24_idms.idms_service import (
     DEFAULT_REVIEW_PERIOD_MONTHS,
     IDMSError,
     IDMSService,
-    STATUS_APPROVED,
     STATUS_ARCHIVED,
     STATUS_DEPRECATED,
-    STATUS_REVIEW,
 )
 from backend.tests.conftest import setup_test_project
 

@@ -434,7 +434,7 @@ def _render_weekly_md(
     summary: dict[str, int],
 ) -> str:
     lines = [
-        f"# FULKRO Compliance Status Report",
+        "# FULKRO Compliance Status Report",
         "",
         f"Período: **{period_start.date().isoformat()}** → **{period_end.date().isoformat()}**",
         "",

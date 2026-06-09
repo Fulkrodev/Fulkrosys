@@ -8,7 +8,6 @@ Cobertura:
 """
 from __future__ import annotations
 
-import pytest
 
 from backend.app.agents.copilot_stub_service import (
     AdminCopilotStubService,

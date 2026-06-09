@@ -31,7 +31,6 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from backend.app.auth.dependencies import require_owner
 from backend.app.database import get_db, set_tenant_context
 from backend.app.motors.m_cloud_connectors.diagnostic_gap_engine import (
-    DiagnosisReport,
     DiagnosticGapEngine,
 )
 from backend.app.motors.m_cloud_connectors.gap_rules import (

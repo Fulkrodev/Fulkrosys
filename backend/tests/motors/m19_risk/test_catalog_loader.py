@@ -3,7 +3,6 @@
 Verifies YAML loading, validation, risk counts by category,
 and error handling for missing/malformed catalogs.
 """
-from pathlib import Path
 from uuid import uuid4
 
 import pytest
@@ -17,7 +16,6 @@ from backend.app.motors.m19_risk.catalog_loader import (
     get_risk_by_codigo,
     catalog_to_project_risk_data,
     VALID_CATEGORIES,
-    CATALOG_PATH,
 )
 from backend.app.motors.m19_risk.exceptions import (
     CatalogNotFoundError,

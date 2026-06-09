@@ -20,7 +20,7 @@
 from __future__ import annotations
 
 import uuid
-from datetime import date, datetime
+from datetime import date
 
 import pytest
 from sqlalchemy.ext.asyncio import AsyncSession

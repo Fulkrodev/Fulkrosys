@@ -263,7 +263,7 @@ async def _notify_cliente_request_created(
                 type="evidence_request",
                 title=f"Aportar evidencia: {request_titulo}",
                 body=(
-                    f"Marcos te pide aportar un documento"
+                    "Marcos te pide aportar un documento"
                     + (f" para la medida {measure_code}" if measure_code else "")
                     + ". Cuando puedas, sube el archivo desde tu panel · sin prisa."
                 ),

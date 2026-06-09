@@ -20,7 +20,6 @@ import pytest
 
 from backend.app.motors.m07_evidence.ai_classifier_service import (
     CLASSIFIER_RULES,
-    ClassificationSuggestion,
     _compute_confidence,
     suggest_classification,
 )

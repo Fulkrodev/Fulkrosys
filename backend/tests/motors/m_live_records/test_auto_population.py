@@ -15,7 +15,7 @@ from datetime import date, datetime, timezone
 from unittest.mock import patch
 
 import pytest
-from sqlalchemy import select, text
+from sqlalchemy import select
 
 from backend.app.models.live_record import LiveRecord
 from backend.app.motors.m_live_records.auto_population import (

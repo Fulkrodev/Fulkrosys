@@ -10,10 +10,8 @@ from unittest.mock import MagicMock, patch
 import httpx
 import pytest
 import respx
-from sqlalchemy import text as sa_text
 
 from backend.app.config import get_settings
-from backend.app.models.onboarding import ConnectorConfig
 from backend.app.motors.m16_onboarding import oauth_service
 from backend.app.motors.m16_onboarding.token_encryption import (
     decrypt_credentials,

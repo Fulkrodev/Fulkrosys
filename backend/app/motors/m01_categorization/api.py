@@ -1,5 +1,4 @@
 """Motor 1 — Categorization Engine: REST API endpoints."""
-import json
 import logging
 import uuid
 

@@ -10,9 +10,8 @@ import uuid
 import pytest
 from sqlalchemy import text as sa_text
 
-from backend.app.database import set_tenant_context
 from backend.app.models.client_portal import (
-    ClientSession, ClientUser, ClientUserAudit,
+    ClientUser,
 )
 from backend.app.motors.m21_portal_cliente import auth_service
 from backend.app.motors.m21_portal_cliente.auth_service import AuthError

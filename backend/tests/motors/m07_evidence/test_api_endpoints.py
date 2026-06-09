@@ -5,16 +5,13 @@ with M05 obligations test_api_endpoints.py.
 """
 from __future__ import annotations
 
-import uuid
 import shutil
 from pathlib import Path
 
 import pytest
 
-from backend.tests.conftest import setup_test_project, _admin_setup
+from backend.tests.conftest import setup_test_project
 from backend.app.motors.m07_evidence.ingestion_service import _EVIDENCES_DIR
-from backend.app.motors.m07_evidence.ingestion_service import ingest_evidence
-from backend.app.motors.m07_evidence.ingestion_types import IngestionRequest
 from backend.app.motors.m07_evidence.signing import reset_cache_for_tests
 from backend.app.motors.m07_evidence.catalog_loader import reset_cache
 

@@ -9,7 +9,7 @@ import uuid
 
 import pytest
 
-from backend.tests.conftest import setup_test_project, _admin_setup
+from backend.tests.conftest import setup_test_project
 
 BASE = "/api/v1"
 

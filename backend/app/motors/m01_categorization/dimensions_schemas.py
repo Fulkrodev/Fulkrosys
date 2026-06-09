@@ -16,7 +16,6 @@ OPS-029 caso 9 formalizada: realidad empírica "3 existing + 16 nuevas"
 """
 from __future__ import annotations
 
-import uuid
 from typing import Literal
 
 from pydantic import BaseModel, ConfigDict, Field

@@ -355,7 +355,6 @@ async def m09_summary_endpoint(
             if last.dossier_generated_at else None
         ),
     }
-    return checklist_service.run_to_dict(run)
 
 
 @router.get("/projects/{project_id}/runs")

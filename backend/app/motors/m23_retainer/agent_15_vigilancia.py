@@ -381,7 +381,7 @@ class Agente15Vigilancia:
     ) -> str:
         lines = [
             "<html><body>",
-            f"<h2>Digest Vigilancia Normativa FULKRO</h2>",
+            "<h2>Digest Vigilancia Normativa FULKRO</h2>",
             f"<p>Fecha: {since.strftime('%Y-%m-%d')}</p>",
         ]
         for severity_level in ("critical", "high", "medium", "low"):

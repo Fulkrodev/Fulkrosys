@@ -1,5 +1,4 @@
 """Tests de connectors M16-C con mocks HTTP (respx). Zero real HTTP calls."""
-import uuid
 
 import httpx
 import pytest

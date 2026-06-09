@@ -1,7 +1,6 @@
 """M8 v5.1 — Tests de ENS mapper + MITRE mapper."""
 from __future__ import annotations
 
-import uuid
 
 import pytest
 

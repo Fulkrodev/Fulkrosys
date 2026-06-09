@@ -46,7 +46,6 @@ from backend.app.motors.m07_evidence.request_service import (
     cliente_mark_na,
     cliente_upload,
     create_request,
-    get_request,
     list_requests,
 )
 from sqlalchemy import text

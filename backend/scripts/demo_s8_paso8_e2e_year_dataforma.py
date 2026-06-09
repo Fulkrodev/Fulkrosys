@@ -17,13 +17,12 @@ import os
 import sys
 import uuid
 from datetime import date, datetime, timedelta, timezone
-from decimal import Decimal
 from pathlib import Path
 
 os.environ.setdefault("FULKRO_SKIP_WORKFLOW_GATES", "1")
 sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
 
-from sqlalchemy import select, text as sa_text
+from sqlalchemy import text as sa_text
 from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
 
 

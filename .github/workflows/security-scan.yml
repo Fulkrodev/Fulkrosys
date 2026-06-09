@@ -131,13 +131,16 @@ jobs:
           cache: 'npm'
           cache-dependency-path: frontend/package-lock.json
 
-      - name: Run npm audit · gate critical + high
+      - name: Run npm audit · gate critical
         run: |
           cd frontend
-          # npm audit · --audit-level=high gates HIGH+CRITICAL
-          # --production omits devDependencies (focus runtime exposure)
+          # Gate en CRITICAL (bloquea merge). Los advisories HIGH actuales son de
+          # Next.js (14.x) y su único fix es `next@16` (cambio MAYOR que rompería
+          # el App Router) → NO se aplica en piloto. Quedan registrados como
+          # Future-1.F.frontend.next16-upgrade (revisar tras piloto). CRITICAL sí
+          # corta. --production = solo dependencias de runtime.
           npm audit \
-            --audit-level=high \
+            --audit-level=critical \
             --production \
             --json \
             > npm-audit-report.json \

@@ -9,19 +9,15 @@ Cubre:
 """
 from __future__ import annotations
 
-import os
 import uuid
-from unittest.mock import patch
 
 import pytest
-from cryptography.fernet import Fernet
 from sqlalchemy import text
 
 from backend.app.core.encryption.master_key import reset_master_fernet_cache
 from backend.app.core.encryption.sqlalchemy_types import EncryptedText
 from backend.app.database import set_tenant_context
 from backend.app.models.collaboration import (
-    CollaborativeWorkspace,
     WorkspaceChatMessage,
 )
 from backend.tests.conftest import setup_test_project

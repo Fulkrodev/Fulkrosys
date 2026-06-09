@@ -13,9 +13,7 @@
 """
 from __future__ import annotations
 
-from datetime import datetime, timedelta, timezone
 from unittest.mock import AsyncMock, patch
-from uuid import uuid4
 
 import pytest
 from sqlalchemy import select
@@ -26,7 +24,6 @@ from backend.app.models.compliance_monitor import (
     ComplianceAlert,
     ComplianceCheck,
     SEVERITY_HIGH,
-    SEVERITY_MEDIUM,
     STATUS_GREEN,
     STATUS_RED,
     STATUS_YELLOW,

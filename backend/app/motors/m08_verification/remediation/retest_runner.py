@@ -307,7 +307,7 @@ async def run_retest(
     try:
         result, cmd_str, detail = await dispatcher(finding)
     except Exception as exc:  # pragma: no cover — red path
-        result, cmd_str, detail = "error", f"(dispatcher error)", str(exc)
+        result, cmd_str, detail = "error", "(dispatcher error)", str(exc)
 
     retest = RemediationRetest(
         id=uuid.uuid4(),

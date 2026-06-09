@@ -25,8 +25,6 @@ from backend.app.motors.m_cloud_connectors.models import (
     CloudGap,
     CloudGapSeverity,
     CloudGapType,
-    CloudRemediationActorType,
-    CloudRemediationApprovalLog,
     CloudRemediationApprovalStatus,
     CloudRemediationLogAction,
 )

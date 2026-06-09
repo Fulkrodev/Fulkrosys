@@ -11,9 +11,8 @@ import uuid
 from urllib.parse import parse_qs, urlparse
 
 import pytest
-from sqlalchemy import text
 
-from backend.tests.conftest import setup_test_project, _admin_setup
+from backend.tests.conftest import setup_test_project
 
 # Module-level skip · M16 client_flow magic_link legacy obsoleto post-bis3.
 pytestmark = pytest.mark.skip(

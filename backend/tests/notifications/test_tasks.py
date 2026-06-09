@@ -22,7 +22,6 @@ from backend.app.core.email.sender import EmailResult
 from backend.app.models.alerts import Alert
 from backend.app.models.client_portal import ClientUser
 from backend.app.models.notifications import NotificationEvent
-from backend.app.notifications import NotificationOrchestrator
 from backend.app.notifications.tasks import (
     redispatch_event_with_session,
     scan_client_inactivity_with_session,

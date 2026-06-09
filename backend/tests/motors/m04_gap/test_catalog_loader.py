@@ -11,7 +11,6 @@ from backend.app.motors.m04_gap.catalog_loader import (
     is_quick_win_for_categoria,
     get_catalog_version,
     get_total_medidas,
-    VALID_SEVERIDADES,
 )
 from backend.app.motors.m04_gap.exceptions import (
     SeverityCatalogNotFoundError,

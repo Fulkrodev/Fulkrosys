@@ -13,13 +13,12 @@ Refs: ADR-041 · CommercialWorkflowService · LeadService.
 from __future__ import annotations
 
 import uuid
-from datetime import datetime, timezone
 from decimal import Decimal
 
 import pytest
-from sqlalchemy import select, text
+from sqlalchemy import text
 
-from backend.app.models.commercial import Contract, Lead, Proposal
+from backend.app.models.commercial import Contract
 from backend.app.models.core import Client, Project
 from backend.app.models.client_portal import ClientUser
 from backend.app.motors.m13_commercial.services.commercial_workflow_service import (

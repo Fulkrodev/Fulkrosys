@@ -4,10 +4,9 @@ Post-MB-4.bis3 (ADR-020 v3 IMPLEMENTED FULLY): create_session NO genera
 magic_link · cliente accede /client-portal/onboarding directly (MB-4.3).
 Tests legacy que dependían del flow magic_link están skipped a nivel módulo.
 """
-import uuid
 
 import pytest
-from sqlalchemy import select, text
+from sqlalchemy import text
 
 from backend.tests.conftest import setup_test_project, _admin_setup
 

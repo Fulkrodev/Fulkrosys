@@ -1,7 +1,6 @@
 """Unit tests for M12 magic-link rich HTML email renderer."""
 from __future__ import annotations
 
-import re
 from datetime import datetime, timedelta, timezone
 
 import pytest

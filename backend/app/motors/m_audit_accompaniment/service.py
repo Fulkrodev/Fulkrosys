@@ -18,7 +18,6 @@ import json
 import logging
 import uuid
 from dataclasses import asdict, dataclass, field
-from datetime import datetime
 from typing import Optional
 
 from sqlalchemy import text as sa_text
@@ -31,7 +30,6 @@ from backend.app.motors.m_audit_accompaniment.state_machine import (
     ACCOMPANIMENT_CYCLE_COMPLETED,
     ACCOMPANIMENT_INVALID_TRANSITION,
     ACCOMPANIMENT_STATE_ADVANCED,
-    CATEGORY_BRANCH_BASICO,
     InvalidAccompanimentTransition,
     get_initial_state,
     get_transitions_for_branch,

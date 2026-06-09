@@ -1,6 +1,5 @@
 """Tests for Motor 6 signing module."""
 import pytest
-from pathlib import Path
 
 from backend.app.motors.m06_document_factory.signing import (
     hash_sha256,

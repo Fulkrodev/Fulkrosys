@@ -68,7 +68,7 @@ async def test_h51_onboarding_consume_publico_sin_auth(async_client: AsyncClient
     if response.status_code == 401:
         detail = response.json().get("detail", "")
         assert detail != "Authentication required", (
-            f"Endpoint /onboarding/consume bloqueado por global_dep - regresion H51"
+            "Endpoint /onboarding/consume bloqueado por global_dep - regresion H51"
         )
     else:
         # Business response (token invalido -> 401 business, 410, 422 etc.).

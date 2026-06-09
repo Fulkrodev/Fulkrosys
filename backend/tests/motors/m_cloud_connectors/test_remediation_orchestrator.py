@@ -13,10 +13,8 @@ Cubre:
 from __future__ import annotations
 
 import uuid
-from datetime import datetime, timezone
 
 import pytest
-from sqlalchemy import select, text
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from backend.app.motors.m_cloud_connectors.models import (
@@ -27,7 +25,6 @@ from backend.app.motors.m_cloud_connectors.models import (
     CloudGapType,
     CloudGapSeverity,
     CloudRemediationActorType,
-    CloudRemediationApprovalLog,
     CloudRemediationApprovalStatus,
     CloudRemediationLogAction,
 )

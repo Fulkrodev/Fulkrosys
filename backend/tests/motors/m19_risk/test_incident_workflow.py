@@ -17,7 +17,6 @@
 from __future__ import annotations
 
 import uuid
-from datetime import UTC, datetime
 
 import pytest
 from sqlalchemy import text as sa_text
@@ -28,8 +27,6 @@ from backend.app.motors.m19_risk.ccn_cert_decision_tree import (
     evaluate_routing,
 )
 from backend.app.motors.m19_risk.incident_workflow_service import (
-    IncidentAlreadyClosedError,
-    IncidentNotFoundError,
     IncidentWorkflowError,
     IncidentWorkflowService,
     InvalidReviewActionError,

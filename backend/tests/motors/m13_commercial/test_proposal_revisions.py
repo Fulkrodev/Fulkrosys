@@ -16,15 +16,14 @@ import uuid
 from decimal import Decimal
 
 import pytest
-from sqlalchemy import select, text
+from sqlalchemy import text
 
-from backend.app.models.commercial import Lead, Proposal
+from backend.app.models.commercial import Proposal
 from backend.app.motors.m13_commercial.proposal_service import (
     ProposalService,
     ProposalError,
 )
 from backend.app.motors.m13_commercial.services.lead_service import LeadService
-from backend.tests.conftest import _admin_setup
 
 
 # ====================== Helper: setup lead + proposal v1 ======================

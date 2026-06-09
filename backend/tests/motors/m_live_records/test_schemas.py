@@ -13,7 +13,6 @@ from backend.app.motors.m_live_records.schemas import (
     REGISTER_TYPE_BLOQUES,
     REGISTER_TYPE_LABELS,
     LiveRecordCreate,
-    LiveRecordRead,
     LiveRecordListResponse,
     LiveRecordUpdate,
     LiveRecordsDashboardBlock,

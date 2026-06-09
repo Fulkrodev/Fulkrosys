@@ -13,7 +13,7 @@ from __future__ import annotations
 import uuid
 
 import pytest
-from sqlalchemy import select, text as sa_text
+from sqlalchemy import text as sa_text
 
 from backend.app.motors.m12_magic_link.purposes import MagicLinkPurpose
 from backend.app.motors.m12_magic_link.schemas import MagicLinkGenerateRequest

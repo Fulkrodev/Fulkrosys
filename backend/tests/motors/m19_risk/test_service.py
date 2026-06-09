@@ -6,10 +6,8 @@ and dashboard. Patron consistente con M3 DdA Engine.
 import pytest
 from uuid import uuid4
 
-from sqlalchemy import text
 
 from backend.app.database import set_tenant_context
-from backend.app.models.planning import ProjectRisk
 from backend.app.motors.m19_risk.service import ProjectRiskService
 from backend.app.motors.m19_risk.exceptions import (
     ProjectRiskNotFoundError,
@@ -17,7 +15,7 @@ from backend.app.motors.m19_risk.exceptions import (
     ProjectRiskStateError,
     CatalogAlreadyInstantiatedError,
 )
-from backend.tests.conftest import setup_test_project, _admin_setup
+from backend.tests.conftest import setup_test_project
 
 
 # ================================================================

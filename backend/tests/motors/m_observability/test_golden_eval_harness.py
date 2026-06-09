@@ -11,13 +11,11 @@ from __future__ import annotations
 
 import json
 from pathlib import Path
-from typing import Any
 
 import pytest
 
 from backend.app.motors.m_observability.eval_runner import (
     DatasetEvalReport,
-    EntryEvalResult,
     _default_skeleton_evaluator,
     compute_regression_score,
     format_eval_report_json,
@@ -25,8 +23,6 @@ from backend.app.motors.m_observability.eval_runner import (
     run_eval,
 )
 from backend.app.motors.m_observability.golden_datasets_loader import (
-    GOLDEN_DATASETS_ROOT,
-    GoldenDataset,
     GoldenDatasetEntry,
     GoldenDatasetLoadError,
     GoldenExpectedOutput,

@@ -43,7 +43,6 @@ from backend.app.motors.m_audit_accompaniment.state_machine import (
     STATE_MA_ENAC_AUDIT_SCHEDULED,
     STATE_MA_INTERNAL_AUDIT_COMPLETED,
     STATE_MA_INTERNAL_AUDIT_SCHEDULED,
-    STATE_MA_NOT_STARTED,
     STATE_MA_PREPARATION,
     is_terminal_state,
     resolve_category_branch,

@@ -1,10 +1,8 @@
 """Tests para el subsistema de remediacion (Checkpoint 3)."""
 from __future__ import annotations
 
-import uuid
 from datetime import datetime, timedelta, timezone
 
-import pytest
 
 from backend.app.motors.m08_verification.remediation.guide_generator import (
     _deterministic_template,

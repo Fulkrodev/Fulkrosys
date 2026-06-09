@@ -5,7 +5,6 @@ Usa el mismo patron que test_agent_19.
 """
 from __future__ import annotations
 
-import json
 import os
 import uuid
 from decimal import Decimal
@@ -19,8 +18,6 @@ from backend.app.agents.agent_20_negociacion import (
     Agent20NegociadorContractual,
     REQUIRED_SECTIONS,
 )
-from backend.app.agents.validators import detect_unknowns_in_text
-from backend.app.core.pricing import PricingCalculator
 from backend.app.database import set_tenant_context
 from backend.app.motors.m13_commercial.proposal_service import ProposalService
 from backend.tests.conftest import _admin_setup

@@ -9,21 +9,16 @@ from uuid import uuid4
 from sqlalchemy import text
 
 from backend.app.database import set_tenant_context
-from backend.app.models.ens import DdaEntry
 from backend.app.motors.m03_dda.service import (
     DdaService,
-    DdaError,
-    DdaNotFoundError,
     DdaFrozenError,
     DdaEntryNotFoundError,
     DdaIncompleteForFreezeError,
 )
 from backend.app.motors.m03_dda.enums import (
     CategoriaSistema,
-    Aplicabilidad,
-    EstadoImplementacion,
 )
-from backend.tests.conftest import setup_test_project, _admin_setup
+from backend.tests.conftest import setup_test_project
 
 
 # ================================================================

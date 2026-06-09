@@ -21,7 +21,6 @@ import uuid
 import pytest
 from sqlalchemy import text
 
-from backend.app.models.copilot import CopilotConversation
 
 
 pytestmark = [pytest.mark.asyncio, pytest.mark.requires_db]
@@ -167,7 +166,6 @@ async def test_cross_client_no_leak_with_client_rls(async_client, db):
        · current_client_id = B → solo 1 row visible
        · NO context set → 0 rows (deny-by-default RLS)
     """
-    from backend.tests.conftest import _admin_setup
 
     client_a, project_a = await _create_client_project(db, cif_prefix="G")
     client_b, project_b = await _create_client_project(db, cif_prefix="H")

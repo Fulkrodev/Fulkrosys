@@ -16,7 +16,6 @@ from __future__ import annotations
 
 import uuid
 
-import pytest
 from sqlalchemy import text as sa_text
 
 from backend.app.motors.m12_magic_link.purposes import MagicLinkPurpose
@@ -25,7 +24,6 @@ from backend.app.motors.m12_magic_link.service import MagicLinkService
 from backend.app.motors.m09_audit_prep.audit_events import (
     AUDITOR_DOWNLOAD_AUDIT_LOG_CSV,
     AUDITOR_DOWNLOAD_DOCUMENTS_ZIP,
-    AUDITOR_DOWNLOAD_EVIDENCE_FILE,
     AUDITOR_EVENT_TYPES,
     auditor_namespace_prefix,
     is_auditor_event,

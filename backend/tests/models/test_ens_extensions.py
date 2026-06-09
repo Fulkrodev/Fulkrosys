@@ -1,5 +1,4 @@
 """Tests for ENS corpus extension tables."""
-import uuid
 
 import pytest
 

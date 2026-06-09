@@ -41,7 +41,7 @@ import os
 
 import pdfplumber
 import pypdf
-from sqlalchemy import delete, select
+from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
 
 from backend.app.corpus.rd311_embed import (
@@ -562,12 +562,12 @@ async def main_async(args) -> int:
         MANIFEST_PATH.write_text(json.dumps(manifest, indent=2, ensure_ascii=False))
         logger.info("Manifest escrito: %s", MANIFEST_PATH)
 
-    print(f"\n=== INGEST SUMMARY ===")
+    print("\n=== INGEST SUMMARY ===")
     print(f"  docs procesados: {len(selected)}")
     print(f"  total chunks:    {total_chunks}")
     print(f"  elapsed:         {elapsed:.1f}s")
     if args.dry_run:
-        print(f"  (DRY-RUN · sin INSERT)")
+        print("  (DRY-RUN · sin INSERT)")
     return 0
 
 

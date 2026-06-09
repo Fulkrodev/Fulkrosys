@@ -6,7 +6,6 @@ keeps a minimal smoke check that the M11 router is importable and exposes
 the expected endpoints, so the motor stays covered by the standard
 backend/tests/motors/m11_copiloto/ layout.
 """
-import pytest
 
 from backend.app.motors.m11_copiloto import api as m11_api
 

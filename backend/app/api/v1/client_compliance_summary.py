@@ -22,9 +22,9 @@ cliente portal single-project assumption sostained 1.E.2.bis).
 from __future__ import annotations
 
 from datetime import datetime, timezone
-from typing import Any, Literal
+from typing import Literal
 
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends
 from pydantic import BaseModel
 from sqlalchemy import text as sa_text
 from sqlalchemy.ext.asyncio import AsyncSession

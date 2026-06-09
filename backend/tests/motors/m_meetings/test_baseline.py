@@ -20,7 +20,6 @@ from __future__ import annotations
 import uuid
 
 import pytest
-from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from backend.app.motors.m_meetings.actions import dispatch_post_action
@@ -35,16 +34,13 @@ from backend.app.motors.m_meetings.service import (
     MeetingService,
     MeetingStateError,
 )
-from backend.app.motors.m30_client_contacts.models import (
-    ClientContactInteraction,
-)
 from backend.app.motors.m30_client_contacts.schemas import (
     ClientContactCreate,
 )
 from backend.app.motors.m30_client_contacts.service import (
     ClientContactService,
 )
-from backend.tests.conftest import _admin_setup, setup_test_project
+from backend.tests.conftest import setup_test_project
 
 
 async def _setup(db: AsyncSession) -> tuple[uuid.UUID, uuid.UUID]:

@@ -5,15 +5,11 @@ import uuid
 from datetime import datetime, timedelta, timezone
 
 import pytest
-from sqlalchemy import select, text
+from sqlalchemy import text
 
 from backend.app.motors.m21_portal_cliente.chat_service import (
     ChatError,
     ChatService,
-)
-from backend.app.motors.m21_portal_cliente.models_chat import (
-    ChatMessage,
-    ChatThread,
 )
 from backend.tests.conftest import _admin_setup
 

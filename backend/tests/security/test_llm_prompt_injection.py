@@ -16,10 +16,8 @@ Pure functional tests · NO DB · NO HTTP · solo sanitize_user_input() public A
 """
 from __future__ import annotations
 
-import pytest
 
 from backend.app.security.llm_prompt_injection_guard import (
-    SanitizationResult,
     Violation,
     format_violations_for_audit_log,
     sanitize_user_input,

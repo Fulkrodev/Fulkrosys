@@ -10,7 +10,6 @@ from sqlalchemy import text
 
 from backend.app.database import set_tenant_context
 from backend.app.models.document_factory import Template
-from backend.app.models.documents import Document
 from backend.app.motors.m06_document_factory.service import DocumentFactoryService
 from backend.app.motors.m06_document_factory.exceptions import (
     TemplateNotFoundError,

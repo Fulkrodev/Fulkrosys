@@ -14,7 +14,6 @@ import asyncio
 import os
 import sys
 import uuid
-from datetime import datetime, timezone
 from pathlib import Path
 
 os.environ.setdefault("FULKRO_SKIP_WORKFLOW_GATES", "1")
@@ -27,7 +26,6 @@ from sqlalchemy.orm import sessionmaker
 
 from backend.app.auth.crypto import decode_token
 from backend.app.config import get_settings
-from backend.app.database import set_tenant_context
 from backend.app.models.client_portal import ClientUser
 from backend.app.motors.m21_portal_cliente import auth_service
 from backend.app.motors.m21_portal_cliente.auth_service import (

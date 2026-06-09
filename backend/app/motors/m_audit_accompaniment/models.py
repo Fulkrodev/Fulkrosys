@@ -17,7 +17,7 @@ from sqlalchemy import BigInteger, ForeignKey, Index, String, Text
 from sqlalchemy.dialects.postgresql import JSONB, TIMESTAMP, UUID
 from sqlalchemy.orm import Mapped, mapped_column
 
-from backend.app.models.base import Base, FullMixin, TimestampMixin, UUIDPrimaryKeyMixin
+from backend.app.models.base import Base, FullMixin
 
 
 class AuditAccompanimentState(FullMixin, Base):

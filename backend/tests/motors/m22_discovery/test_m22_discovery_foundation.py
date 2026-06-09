@@ -6,7 +6,6 @@ orchestrator._default_fetcher) para no ejecutar llamadas HTTP reales.
 """
 from __future__ import annotations
 
-import uuid
 from datetime import datetime, timedelta, timezone
 
 import pytest
@@ -18,7 +17,6 @@ from backend.app.motors.m16_onboarding.connectors.base import (
 )
 from backend.app.motors.m22_discovery import (
     asset_discovery,
-    identity_discovery,
     orchestrator,
 )
 from backend.tests.conftest import setup_test_project

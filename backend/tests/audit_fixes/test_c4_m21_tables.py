@@ -1,7 +1,6 @@
 """Tests Sprint C4 — M21 tablas nucleares + M21→M2."""
 from __future__ import annotations
 
-import uuid
 import pytest
 
 from backend.app.models.diagnosis import BusinessProcess, LegalObligation, Stakeholder

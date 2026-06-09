@@ -25,7 +25,6 @@ import uuid
 from datetime import UTC, datetime, timedelta
 
 import pytest
-from cryptography.exceptions import InvalidSignature
 from cryptography.hazmat.primitives.asymmetric.ed25519 import Ed25519PublicKey
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession

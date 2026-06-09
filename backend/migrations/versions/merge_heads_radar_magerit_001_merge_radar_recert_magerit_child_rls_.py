@@ -16,8 +16,6 @@ Create Date: 2026-05-28 23:00:06.817243
 """
 from typing import Sequence, Union
 
-from alembic import op
-import sqlalchemy as sa
 
 
 revision: str = 'merge_heads_radar_magerit_001'

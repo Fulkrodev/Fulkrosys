@@ -1,5 +1,4 @@
 """Tests for M28 materiality engine + topology + APIs."""
-import uuid
 
 import pytest
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -10,7 +9,6 @@ from backend.app.motors.m28_change_governance.materiality_engine import (
 )
 from backend.app.motors.m28_change_governance.topology_service import (
     TOPOLOGY_LIBRARY,
-    get_pattern,
     list_patterns,
     recommend_pattern,
     requires_memo,

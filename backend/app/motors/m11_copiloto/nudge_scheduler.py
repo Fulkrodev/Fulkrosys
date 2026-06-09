@@ -27,12 +27,10 @@ import logging
 import uuid
 from dataclasses import asdict, dataclass
 from datetime import datetime, timedelta, timezone
-from typing import Literal
 
 from sqlalchemy import select, text
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from backend.app.models.client_notification import ClientNotification
 from backend.app.models.client_portal import ClientUser
 from backend.app.motors.m11_copiloto.workflow_state_scanner import (
     WorkflowScannerOptions,

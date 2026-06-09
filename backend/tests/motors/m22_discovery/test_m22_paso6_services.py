@@ -5,21 +5,16 @@ from __future__ import annotations
 import uuid
 
 import pytest
-from sqlalchemy import select, text as sa_text
+from sqlalchemy import text as sa_text
 
 from backend.app.database import set_tenant_context
 from backend.app.models.diagnosis import BusinessProcess, Stakeholder
 from backend.app.models.discovery import (
-    DataFlowDiagram,
-    DiscoveredConfiguration,
     DiscoveredDataStore,
-    DiscoveryAlert,
     DiscoveryRun,
-    VulnerabilityFinding,
 )
 from backend.app.models.onboarding import DiscoveredAsset, DiscoveredIdentity
 from backend.app.motors.m16_onboarding.connectors.base import DiscoveredAssetDTO
-from backend.app.motors.m02_magerit.models import MageritAnalysis, MageritAsset
 from backend.app.motors.m22_discovery import (
     paso6_asset_discoverer,
     paso6_config_detector,
@@ -29,7 +24,6 @@ from backend.app.motors.m22_discovery import (
     paso6_vuln_inventory,
 )
 from backend.app.motors.m22_discovery.paso6_aws_connector import (
-    CloudTrailStatus,
     RDSInstanceConfig,
     S3BucketConfig,
 )

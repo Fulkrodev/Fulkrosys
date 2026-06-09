@@ -2,13 +2,12 @@
 from __future__ import annotations
 
 import uuid
-from datetime import date, datetime, timedelta, timezone
+from datetime import datetime, timezone
 
 import pytest
 from sqlalchemy import select, text as sa_text
 
-from backend.app.models.documents import Evidence
-from backend.app.models.ens import DdaEntry, EnsMeasure, Obligation
+from backend.app.models.ens import DdaEntry, EnsMeasure
 from backend.app.motors.m08_verification.integrations.m3_dda_updater import (
     detect_dda_contradictions,
     get_findings_by_measure,

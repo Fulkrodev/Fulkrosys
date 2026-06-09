@@ -16,16 +16,14 @@ Refs: ADR-042 · MB-19.9.
 from __future__ import annotations
 
 import uuid
-from datetime import datetime, timezone
 
 import pytest
-from sqlalchemy import select, text
+from sqlalchemy import text
 
 from backend.app.motors.m12_magic_link.policy_enforcer import (
     MagicLinkPolicyEnforcer,
     ONE_SHOT_OR_LEGITIMATE_PURPOSES,
     DEPRECATED_SOFT_PURPOSES,
-    _DEPRECATION_REASONS,
 )
 from backend.app.motors.m12_magic_link.purposes import MagicLinkPurpose
 from backend.app.motors.m12_magic_link.models_migration_log import (

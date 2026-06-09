@@ -1,7 +1,6 @@
 """Tests para external handoff + findings ingester (Checkpoint 3)."""
 from __future__ import annotations
 
-import json
 
 import pytest
 

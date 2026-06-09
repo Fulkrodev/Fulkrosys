@@ -21,7 +21,6 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from backend.app.motors.m17_planning.pda_generator import (
     PDA_DOCUMENT_KIND,
-    PDA_TEMPLATE_VERSION,
     PdaContext,
     build_pda_context,
     generate_pda_docx,

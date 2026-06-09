@@ -28,7 +28,7 @@ from backend.app.motors.m05_obligations.personalization import (
     render_description_deterministic,
 )
 from backend.app.motors.m05_obligations.types import ObligationTemplate
-from backend.tests.conftest import _admin_setup, setup_test_project
+from backend.tests.conftest import setup_test_project
 
 
 # ── Helpers ────────────────────────────────────────────────────────────

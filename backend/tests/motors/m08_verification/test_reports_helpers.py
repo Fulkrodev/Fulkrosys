@@ -1,7 +1,6 @@
 """Tests para delta + heatmap + score (Checkpoint 3)."""
 from __future__ import annotations
 
-import pytest
 
 from backend.app.motors.m08_verification.reports.delta_report import (
     compute_delta,

@@ -26,15 +26,13 @@ El test SIEMPRE PASA salvo que el motor lance excepcion durante la ejecucion
 del pipeline. Su valor es documental, no de validacion de formulas (esa
 validacion ya esta cubierta por los 38 tests unitarios de D.1-D.3).
 """
-import os
-import uuid
 from datetime import datetime
 from pathlib import Path
 
 import pytest
 from sqlalchemy import select
 
-from backend.app.motors.m02_magerit.service import MageritService, LEVEL_TO_INDEX
+from backend.app.motors.m02_magerit.service import LEVEL_TO_INDEX
 from backend.app.motors.m02_magerit.models import MageritRiskCalculation
 
 
@@ -372,8 +370,8 @@ async def test_jaymon_case_comparative_analysis(analysis_factory):
         "# Analisis comparativo: FULKRO vs Jaymon Security",
         "",
         "## Resumen ejecutivo",
-        f"- **Caso analizado:** \"Soluciones Rapidas y Eficaces\" (PYME sector reformas)",
-        f"- **Fuente:** https://jaymonsecurity.es/analisis-riesgos-empresa/",
+        "- **Caso analizado:** \"Soluciones Rapidas y Eficaces\" (PYME sector reformas)",
+        "- **Fuente:** https://jaymonsecurity.es/analisis-riesgos-empresa/",
         f"- **Fecha del analisis:** {datetime.now().strftime('%Y-%m-%d')}",
         f"- **Activos analizados:** {len(JAYMON_ASSETS)} grupos",
         f"- **Amenazas evaluadas:** {len(set(t['threat_code'] for t in JAYMON_THREATS))} codigos distintos",
@@ -541,7 +539,7 @@ async def test_jaymon_case_comparative_analysis(analysis_factory):
 
     # Print summary for test output
     print(f"\n{'='*60}")
-    print(f"JAYMON COMPARATIVE ANALYSIS COMPLETE")
+    print("JAYMON COMPARATIVE ANALYSIS COMPLETE")
     print(f"Intrinsic calcs: {intrinsic_count}, Effective calcs: {effective_count}")
     print(f"Coherence: {coherence_pct:.0f}%")
     print(f"Key critical assets verified: {key_critical_codes}")

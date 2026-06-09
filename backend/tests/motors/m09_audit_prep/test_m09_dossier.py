@@ -16,7 +16,6 @@ from backend.app.motors.m08_verification.models import (
     VerificationFinding, VerificationRun,
 )
 from backend.app.motors.m09_audit_prep import (
-    checklist_service,
     coaching,
     dossier_generator,
     matriz_99,

@@ -2,12 +2,10 @@
 from __future__ import annotations
 
 import uuid
-from decimal import Decimal
 
 import pytest
-from sqlalchemy import select, text as sa_text
+from sqlalchemy import text as sa_text
 
-from backend.app.models.commercial import Contract, Invoice, Proposal
 from backend.app.motors.m13_commercial.proposal_service import ProposalService
 from backend.app.motors.m14_contracts.contract_service import ContractService
 from backend.app.motors.m15_billing.billing_service import BillingService

@@ -7,7 +7,6 @@ from datetime import datetime, timezone
 import pytest
 from sqlalchemy import text as sa_text
 
-from backend.app.database import set_tenant_context
 from backend.app.motors.m08_verification.models import (
     VerificationFinding, VerificationRun,
 )

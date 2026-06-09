@@ -22,11 +22,11 @@ traducidos · admin RECIBE technical detail.
 from __future__ import annotations
 
 import uuid
-from dataclasses import asdict, dataclass, field
+from dataclasses import dataclass, field
 from datetime import date, datetime, timezone
 from typing import Literal, Optional
 
-from sqlalchemy import or_, select, text
+from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from backend.app.models.documents import Document, Evidence

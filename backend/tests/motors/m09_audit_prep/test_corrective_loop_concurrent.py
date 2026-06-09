@@ -8,11 +8,9 @@ Verifica concurrent admin races protection:
 """
 from __future__ import annotations
 
-import asyncio
 import uuid
 
 import pytest
-from sqlalchemy import text as sa_text
 
 from backend.app.motors.m09_audit_prep.audit_log_integrity_checker import (
     check_audit_log_integrity,

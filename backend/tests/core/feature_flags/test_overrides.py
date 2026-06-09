@@ -16,7 +16,6 @@ import pytest
 from sqlalchemy import select, text
 from sqlalchemy.orm import selectinload
 
-from backend.app.core.feature_flags.models import FeatureFlagOverride
 from backend.app.core.feature_flags.service import (
     grant_override,
     list_overrides,

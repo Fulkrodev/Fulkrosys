@@ -354,7 +354,7 @@ async def _maybe_notify_stakeholders(
                 "Marcos confirmó que la solución funciona correctamente. "
                 "La alerta ha quedado resuelta. ¡Buen trabajo!"
             ),
-            target_url=f"/client-portal/cumplimiento",
+            target_url="/client-portal/cumplimiento",
             priority="normal",
             emitted_by_motor="m_cloud_connectors",
         )

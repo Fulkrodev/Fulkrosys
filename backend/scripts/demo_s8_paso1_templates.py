@@ -16,7 +16,7 @@ import re
 import sys
 import uuid
 import zipfile
-from datetime import date, datetime, timedelta, timezone
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
 os.environ.setdefault("FULKRO_SKIP_WORKFLOW_GATES", "1")

@@ -18,7 +18,6 @@ from backend.app.motors.m21_portal_cliente.task_templates_loader import (
     TaskTemplate,
     apply_archetype_variant,
     get_enriched_steps_for_project,
-    resolve_primary_actor,
 )
 
 

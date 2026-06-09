@@ -8,7 +8,6 @@ Cobertura:
 - list_active_global respeta limit + orden desc
 """
 import uuid
-from datetime import datetime, timezone
 
 import pytest
 

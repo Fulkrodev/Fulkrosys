@@ -4,7 +4,6 @@ Verifies that hybrid_search returns correct results with proper
 RRF scoring, filtering, and ranking.
 """
 import pytest
-from sqlalchemy.ext.asyncio import AsyncSession
 
 from backend.app.corpus.retrieval import (
     HybridResult,

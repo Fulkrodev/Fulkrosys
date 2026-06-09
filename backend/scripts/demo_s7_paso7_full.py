@@ -23,10 +23,8 @@ que representan la salida real de esos scanners.
 from __future__ import annotations
 
 import asyncio
-import json
 import os
 import re
-import signal
 import subprocess
 import sys
 import time
@@ -34,7 +32,6 @@ import uuid
 import zipfile
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
-from typing import Any
 
 os.environ.setdefault("FULKRO_SKIP_WORKFLOW_GATES", "1")
 sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
@@ -45,8 +42,7 @@ from sqlalchemy.orm import sessionmaker
 
 from backend.app.config import get_settings
 from backend.app.database import set_tenant_context
-from backend.app.models.audit_prep import AuditPreparationRun
-from backend.app.models.diagnosis import BusinessProcess, Stakeholder
+from backend.app.models.diagnosis import Stakeholder
 from backend.app.models.onboarding import DiscoveredAsset
 from backend.app.motors.m06_document_factory.service import (
     DocumentFactoryService,
@@ -58,9 +54,6 @@ from backend.app.motors.m08_verification.external.findings_ingester import (
 from backend.app.motors.m08_verification.external.handoff_builder import (
     build_handoff_package,
 )
-from backend.app.motors.m08_verification.fp_patterns.catalog import (
-    FALSE_POSITIVE_PATTERNS,
-)
 from backend.app.motors.m08_verification.fp_patterns.learner import (
     learn_from_finding, seed_catalog_to_db,
 )
@@ -70,16 +63,13 @@ from backend.app.motors.m08_verification.kill_switch import (
 )
 from backend.app.motors.m08_verification.mitre_mapper import MitreMapper
 from backend.app.motors.m08_verification.models import (
-    ExternalPentesterHandoff, VerificationFinding, VerificationRun,
-)
-from backend.app.motors.m08_verification.remediation.guide_generator import (
-    generate_guide,
+    VerificationFinding, VerificationRun,
 )
 from backend.app.motors.m08_verification.reports.delta_report import (
     compute_delta,
 )
 from backend.app.motors.m08_verification.reports.heatmap_generator import (
-    ENS_73_MEASURES, generate_heatmap, heatmap_summary,
+    generate_heatmap, heatmap_summary,
 )
 from backend.app.motors.m08_verification.reports.report_generator import (
     VerificationReportGenerator,
@@ -92,17 +82,11 @@ from backend.app.motors.m08_verification.zfp_engine import (
     ZfpFinding, compute_finding_hash, gate2_fp_filter,
     gate3_correlation, gate5_classify,
 )
-from backend.app.motors.m08_verification.integrations.m5_obligations import (
-    create_remediation_obligations,
-)
-from backend.app.motors.m08_verification.integrations.m7_evidence import (
-    backfill_evidence_for_run,
-)
 from backend.app.motors.m09_audit_prep import (
-    checklist_service, dossier_generator,
+    checklist_service,
 )
 from backend.app.motors.m09_audit_prep.dossier_generator import (
-    DOSSIER_STRUCTURE, generate_dossier,
+    generate_dossier,
 )
 from backend.app.motors.m12_magic_link.emails.renderer import (
     render_email_for_magic_link,

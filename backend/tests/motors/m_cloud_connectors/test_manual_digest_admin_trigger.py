@@ -17,7 +17,6 @@ from sqlalchemy import select, text
 
 from backend.app.models.audit_log import AuditLog
 from backend.app.motors.m_cloud_connectors import (
-    CloudDigestSnapshot,
     DigestProjectNotFoundError,
     generate_monthly_digest_for_project,
     get_latest_digest_for_project,

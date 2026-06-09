@@ -22,11 +22,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from backend.app.auth.dependencies import require_owner
 from backend.app.database import get_db
-from backend.app.motors.m09_audit_prep.audit_events import (
-    AUDITOR_EVENT_TYPES,
-)
 from backend.app.motors.m09_audit_prep.dda_evidence_gap_service import (
-    GapDetectionOptions,
     compute_dda_evidence_gaps,
     compute_medida_detail,
 )

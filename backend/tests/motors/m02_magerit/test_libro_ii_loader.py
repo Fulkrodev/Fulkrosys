@@ -1,7 +1,6 @@
 """Tests Libro II loader (ADR-037 SAN-D MB-15.2)."""
 from __future__ import annotations
 
-import pytest
 
 from backend.app.motors.m02_magerit.libro_ii_loader import (
     frequency_to_probability,

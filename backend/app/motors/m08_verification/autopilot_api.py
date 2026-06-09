@@ -26,7 +26,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from backend.app.auth.dependencies import require_owner
 from backend.app.database import get_db, set_tenant_context, async_session
 
-from .models import EvidenceRecord, VerificationFinding, VerificationRun
+from .models import EvidenceRecord, VerificationRun
 from .observability import build_enac_evidence_pack, compute_observability_metrics
 from .remediation.risk_acceptance import accept_risk, risk_acceptance_status
 from .service import FindingNotFoundError, VerificationService

@@ -18,7 +18,9 @@ from backend.app.motors.m05_obligations.types import ObligationTemplate
 logger = logging.getLogger(__name__)
 
 # Lenient Jinja2 environment: missing variables render as empty string.
-_jinja_env = Environment(undefined=Undefined)
+# nosec B701 · renderiza TEXTO de obligaciones ENS (no HTML) · autoescape=True
+# corromperia el texto (& -> &amp;) · datos de proyecto semi-confiables.
+_jinja_env = Environment(undefined=Undefined)  # nosec B701
 
 
 def _build_render_context(ctx: ProjectContext) -> dict:

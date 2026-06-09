@@ -11,15 +11,12 @@ Cubre:
 """
 from __future__ import annotations
 
-import asyncio
-from dataclasses import dataclass
-from unittest.mock import MagicMock, patch
+from unittest.mock import patch
 
 import pytest
 
 from backend.app.core.ai.llm_router import LLMResponse
 from backend.app.motors.m08_verification.llm_classifier import (
-    CONFIDENCE_THRESHOLD,
     _extract_json,
     classify_ens_measure_via_llm,
     classify_mitre_technique_via_llm,

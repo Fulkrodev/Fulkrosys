@@ -16,10 +16,8 @@ import uuid
 import zipfile
 from pathlib import Path
 
-import pytest
 
 from backend.app.motors.m06_document_factory.rectores_generator import (
-    RECTORES_TEMPLATE_VERSION,
     RectoresContext,
     generate_manual_sgsi_docx,
     generate_plan_director_docx,

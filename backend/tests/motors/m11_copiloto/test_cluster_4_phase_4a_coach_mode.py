@@ -16,9 +16,7 @@ sin LLM call).
 """
 from __future__ import annotations
 
-import uuid
 
-import pytest
 
 from backend.app.agents.agent_14_copiloto.service import _build_system_prompt
 from backend.app.agents.agent_14_copiloto.types import PageContext

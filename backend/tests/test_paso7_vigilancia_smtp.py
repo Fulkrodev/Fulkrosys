@@ -11,15 +11,14 @@ import pytest
 from sqlalchemy import select, text as sa_text
 
 from backend.app.core.email import (
-    EmailResult,
     EmailSender,
     get_email_sender,
     reset_email_sender,
 )
 from backend.app.core.email.sender import VALID_BACKENDS
-from backend.app.models.operations_paso7 import EmailLog, NormativaAlert
+from backend.app.models.operations_paso7 import EmailLog
 from backend.app.motors.m12_magic_link.purposes import (
-    MagicLinkPurpose, PURPOSE_CONFIG, get_config,
+    MagicLinkPurpose, get_config,
 )
 from backend.app.motors.m23_retainer.agent_15_vigilancia import (
     Agente15Vigilancia,

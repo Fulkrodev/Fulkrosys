@@ -21,7 +21,7 @@
 from __future__ import annotations
 
 import uuid
-from datetime import UTC, date, datetime
+from datetime import date
 
 import pytest
 from sqlalchemy import text as sa_text
@@ -29,7 +29,6 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from backend.app.motors.m23_retainer.retainer_checkin_service import (
     CheckinAlreadySignedError,
-    CheckinReportNotFoundError,
     InvalidReviewActionError,
     InvalidWorkflowTransitionError,
     NoActiveRetainerError,

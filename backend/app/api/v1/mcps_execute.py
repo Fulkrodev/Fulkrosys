@@ -31,7 +31,6 @@ from backend.app.motors.m08_verification.mcp_executor_service import (
     MCPExecutorError,
     get_mcp_executor,
     get_tool_descriptor,
-    list_all_tools,
 )
 
 

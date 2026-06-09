@@ -1,5 +1,4 @@
 """Tests for Motor 7 Ed25519 signing module."""
-import os
 import pytest
 
 from backend.app.motors.m07_evidence.signing import (
@@ -8,9 +7,6 @@ from backend.app.motors.m07_evidence.signing import (
     verify_signature,
     get_public_key_pem,
     reset_cache_for_tests,
-    _KEYS_DIR,
-    _PRIVATE_KEY_PATH,
-    _PUBLIC_KEY_PATH,
 )
 
 

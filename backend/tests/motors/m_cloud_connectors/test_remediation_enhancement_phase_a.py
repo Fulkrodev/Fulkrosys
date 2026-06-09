@@ -13,7 +13,6 @@ from __future__ import annotations
 import uuid
 
 import pytest
-from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from backend.app.motors.m_cloud_connectors.models import (
@@ -24,15 +23,12 @@ from backend.app.motors.m_cloud_connectors.models import (
     CloudGapSeverity,
     CloudGapType,
     CloudRemediationActorType,
-    CloudRemediationApprovalLog,
     CloudRemediationApprovalStatus,
     CloudRemediationFailureCategory,
     CloudRemediationLogAction,
 )
 from backend.app.motors.m_cloud_connectors.remediation_orchestrator import (
     CloudRemediationOrchestrator,
-    DuplicateLogError,
-    InvalidTransitionError,
     _ALLOWED_TRANSITIONS,
     _can_transition,
     compute_idempotency_key,

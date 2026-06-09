@@ -6,9 +6,8 @@ Uses httpx.AsyncClient with FastAPI app + shared DB session.
 import pytest
 from uuid import uuid4
 
-from sqlalchemy import text
 
-from backend.tests.conftest import setup_test_project, _admin_setup
+from backend.tests.conftest import setup_test_project
 
 BASE = "/api/v1"
 

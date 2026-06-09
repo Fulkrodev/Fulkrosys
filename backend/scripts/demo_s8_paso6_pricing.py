@@ -17,14 +17,13 @@ from pathlib import Path
 os.environ.setdefault("FULKRO_SKIP_WORKFLOW_GATES", "1")
 sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
 
-from sqlalchemy import select, text as sa_text
+from sqlalchemy import text as sa_text
 from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
 
 from backend.app.config import get_settings
 from backend.app.core.legal import is_aapp
 from backend.app.core.pricing import PricingCalculator
 from backend.app.database import set_tenant_context
-from backend.app.models.commercial import Contract, Invoice, Proposal
 
 
 RESULTS: list[tuple[str, bool, str]] = []

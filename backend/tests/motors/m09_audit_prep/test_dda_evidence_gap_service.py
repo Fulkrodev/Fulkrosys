@@ -21,7 +21,6 @@ import pytest
 from sqlalchemy import text as sa_text
 
 from backend.app.motors.m09_audit_prep.dda_evidence_gap_service import (
-    DdaEvidenceGapMatrix,
     GapDetectionOptions,
     GapSeverity,
     GapStatus,

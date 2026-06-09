@@ -13,14 +13,12 @@ Refs: ADR-041 · MB-19.16 cosecha B.
 from __future__ import annotations
 
 import uuid
-from datetime import datetime, timezone
 
 import pytest
-from sqlalchemy import select, text
+from sqlalchemy import text
 
 from backend.app.motors.m13_commercial.api import get_lead_detail
 from backend.app.motors.m13_commercial.services.lead_service import LeadService
-from backend.tests.conftest import _admin_setup
 
 
 # ====================== Helpers ======================

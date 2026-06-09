@@ -31,7 +31,6 @@ from backend.app.motors.m13_commercial.services.contract_signing_flow import (
     ContractNotFoundError,
 )
 from backend.app.motors.m13_commercial.services.lead_service import LeadService
-from backend.tests.conftest import _admin_setup
 
 
 # ====================== FIRMA_CONTRATO purpose enum ======================

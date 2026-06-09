@@ -16,7 +16,7 @@ import io
 import json
 import uuid
 import zipfile
-from datetime import datetime, timezone
+from datetime import datetime
 
 import pytest
 from sqlalchemy import text

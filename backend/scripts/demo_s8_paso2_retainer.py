@@ -17,21 +17,20 @@ import json
 import os
 import sys
 import uuid
-from datetime import date, datetime, timedelta, timezone
+from datetime import date, timedelta
 from pathlib import Path
 
 os.environ.setdefault("FULKRO_SKIP_WORKFLOW_GATES", "1")
 sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
 
-from sqlalchemy import select, text as sa_text
+from sqlalchemy import text as sa_text
 from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
 from sqlalchemy.orm import sessionmaker
 
 from backend.app.config import get_settings
 from backend.app.database import set_tenant_context
 from backend.app.models.retainer import (
-    PricingCatalog, RetainerActivity, RetainerBillingEvent,
-    RetainerContract, RetainerQuarterlyReport,
+    RetainerContract,
 )
 from backend.app.motors.m23_retainer import (
     agent_26, billing_integration, paso2_extensions,
@@ -294,7 +293,7 @@ async def main() -> int:
     print("\n" + "=" * 70)
     print(f"RESUMEN S8 PASO 2 · {pass_count}/{total_s} escenarios PASS")
     print("=" * 70)
-    print(f"  Retainer DataForma:")
+    print("  Retainer DataForma:")
     print(f"    · Tier final: R_PLUS ({new_price} EUR/mes)")
     print(f"    · Activities programadas: {total}")
     print(f"    · Factura recurrente emitida: {amount} EUR")

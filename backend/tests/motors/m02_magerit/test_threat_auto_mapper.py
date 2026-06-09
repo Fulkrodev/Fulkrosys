@@ -8,7 +8,6 @@ from sqlalchemy import select, text
 
 from backend.app.motors.m02_magerit.models import (
     MageritAnalysis,
-    MageritAsset,
     MageritThreatAssessment,
 )
 from backend.app.motors.m02_magerit.threat_auto_mapper import (

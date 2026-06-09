@@ -1469,7 +1469,7 @@ def run() -> int:
         if missing_strs:
             issues.append(f"missing strings: {missing_strs}")
         if validation["h1_count"] < 1:
-            issues.append(f"no H1 headings")
+            issues.append("no H1 headings")
         if not validation["has_ens_normative_ref"]:
             issues.append("no ENS/RD 311 reference")
 

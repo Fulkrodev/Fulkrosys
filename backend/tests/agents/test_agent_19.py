@@ -26,7 +26,6 @@ load_dotenv()
 
 from backend.app.agents.agent_19_propuestas import (
     Agent19Proposals,
-    Agent19ProposalError,
     REQUIRED_SECTIONS,
 )
 from backend.app.core.pricing import PricingCalculator

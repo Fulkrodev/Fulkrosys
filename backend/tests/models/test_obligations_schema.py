@@ -6,7 +6,6 @@ the obligations table with both original and new Motor 5 columns.
 import uuid
 
 import pytest
-from sqlalchemy import text
 
 from backend.app.models.ens import Obligation
 from backend.tests.conftest import _admin_setup, setup_test_project

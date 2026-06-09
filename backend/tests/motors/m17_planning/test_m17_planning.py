@@ -2,16 +2,13 @@
 from __future__ import annotations
 
 import io
-import uuid
-import zipfile
-from datetime import date, timedelta
+from datetime import date
 
 import pytest
 from openpyxl import load_workbook
 
 from backend.app.motors.m17_planning import (
     effort_estimator,
-    planning_service,
     wbs_catalog,
 )
 from backend.tests.conftest import setup_test_project

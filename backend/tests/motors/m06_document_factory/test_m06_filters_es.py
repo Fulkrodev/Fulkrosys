@@ -5,7 +5,6 @@ from datetime import date, datetime, timezone
 from decimal import Decimal
 
 import jinja2
-import pytest
 
 from backend.app.motors.m06_document_factory.filters import (
     ES_FILTERS,

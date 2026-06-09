@@ -17,7 +17,6 @@ Create Date: 2026-05-08
 from typing import Sequence, Union
 
 from alembic import op
-import sqlalchemy as sa
 
 
 revision: str = "e3a01a7b2c34"

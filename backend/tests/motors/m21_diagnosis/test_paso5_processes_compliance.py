@@ -5,12 +5,11 @@ from __future__ import annotations
 import uuid
 
 import pytest
-from sqlalchemy import select, text as sa_text
+from sqlalchemy import text as sa_text
 
 from backend.app.database import set_tenant_context
-from backend.app.models.diagnosis import BusinessProcess, LegalObligation
 from backend.app.motors.m21_diagnosis.cross_compliance_service import (
-    ALL_RULES, ComplianceContext, build_summary, context_from_hints,
+    ComplianceContext, context_from_hints,
     detect_obligations, persist_obligations,
 )
 from backend.app.motors.m21_diagnosis.m1_m2_feeds import (

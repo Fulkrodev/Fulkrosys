@@ -21,7 +21,6 @@ from __future__ import annotations
 import uuid
 
 import pytest
-from sqlalchemy import text
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from backend.app.motors.m11_copiloto.conversation_service import (

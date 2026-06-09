@@ -14,7 +14,7 @@ import uuid
 import pytest
 from sqlalchemy import select, text
 
-from backend.app.models.commercial import Lead, LeadStageHistory
+from backend.app.models.commercial import LeadStageHistory
 from backend.app.motors.m13_commercial.services.lead_service import (
     LeadService,
     InvalidTransitionError,

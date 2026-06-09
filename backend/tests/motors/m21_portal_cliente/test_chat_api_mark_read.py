@@ -16,7 +16,6 @@ from sqlalchemy import text
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from backend.app.motors.m21_portal_cliente.chat_service import ChatService
-from backend.app.motors.m21_portal_cliente.models_chat import ChatMessage
 from backend.tests.conftest import _admin_setup, setup_test_project
 
 

@@ -23,7 +23,6 @@ Create Date: 2026-05-18
 from typing import Sequence, Union
 
 from alembic import op
-import sqlalchemy as sa
 
 
 revision: str = "providers_extensions_1b71_001"

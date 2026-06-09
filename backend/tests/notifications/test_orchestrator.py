@@ -21,7 +21,7 @@ import pytest
 from sqlalchemy import select, text
 
 from backend.app.auth.crypto import hash_password
-from backend.app.core.email.sender import EmailResult, EmailSender
+from backend.app.core.email.sender import EmailResult
 from backend.app.core.sse_dispatcher import sse_dispatcher
 from backend.app.models.client_portal import ClientUser
 from backend.app.models.notifications import (

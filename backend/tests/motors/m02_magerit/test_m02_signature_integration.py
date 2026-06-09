@@ -143,7 +143,6 @@ class TestRequestE028Signature:
 
     @pytest.mark.asyncio
     async def test_persists_link_id(self, async_client, db):
-        from backend.app.motors.m02_magerit.models import MageritAnalysis
         analysis = await _seed_frozen_analysis(db)
         r = await async_client.post(
             f"/api/v1/magerit/analysis/{analysis.id}/report-e028/request-signature",

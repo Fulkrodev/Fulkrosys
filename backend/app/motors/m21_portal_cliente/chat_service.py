@@ -13,7 +13,6 @@ from __future__ import annotations
 
 import json as _json
 import logging
-import uuid as _uuid
 from datetime import datetime, timezone
 from typing import Optional
 from uuid import UUID
@@ -425,7 +424,7 @@ class ChatService:
                     "proyecto": project_name,
                     "preview": message.content[:120],
                     "link": (
-                        f"https://app.fulkro.com/client-portal/chat"
+                        "https://app.fulkro.com/client-portal/chat"
                     ),
                 },
             )

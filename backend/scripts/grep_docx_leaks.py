@@ -149,7 +149,7 @@ def main() -> int:
             for label, loc, snippet in other_hits:
                 print(f"  [{label}][{loc}] {snippet}")
 
-    print(f"\n=== TOTALS ===")
+    print("\n=== TOTALS ===")
     print(f"non-commercial scanned                  : {len(non_commercial)}")
     print(f"non-commercial files with visible leaks : {files_with_visible_hits}")
     print(f"non-commercial visible hits total       : {total_visible_hits}")

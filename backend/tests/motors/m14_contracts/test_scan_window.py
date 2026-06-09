@@ -10,14 +10,13 @@ Cubre SAN-B.MB-3.bis.3 (cierre TODO-M8-G3):
 from __future__ import annotations
 
 import uuid
-from datetime import date, datetime, timezone
+from datetime import datetime, timezone
 
 import pytest
 from pydantic import ValidationError
 from sqlalchemy import text
 
 from backend.app.database import set_tenant_context
-from backend.app.models.commercial import Contract
 from backend.app.motors.m08_verification.scheduler import is_in_scan_window
 from backend.app.motors.m08_verification.scope_deriver import (
     DEFAULT_SCAN_WINDOW,

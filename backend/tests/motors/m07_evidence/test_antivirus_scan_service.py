@@ -20,8 +20,6 @@
 """
 from __future__ import annotations
 
-import io
-import os
 import uuid
 from pathlib import Path
 from unittest.mock import MagicMock
@@ -33,10 +31,8 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from backend.app.motors.m07_evidence.antivirus_scan_service import (
     EICAR_TEST_STRING,
     ClamdConnectionError,
-    EvidenceNotFoundError,
     InvalidQuarantineActionError,
     SCAN_STATUS_VALUES,
-    ScanResult,
     admin_permanent_delete_quarantined,
     admin_release_quarantined,
     list_quarantined,

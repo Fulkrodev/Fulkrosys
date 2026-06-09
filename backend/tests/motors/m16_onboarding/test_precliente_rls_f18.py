@@ -23,7 +23,7 @@ import uuid
 import pytest
 from sqlalchemy import func, select, text
 
-from backend.app.models.onboarding import OnboardingResponse, OnboardingSession
+from backend.app.models.onboarding import OnboardingResponse
 from backend.app.motors.m12_magic_link.purposes import MagicLinkPurpose
 from backend.app.motors.m16_onboarding.client_service import (
     OnboardingAuthError,

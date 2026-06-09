@@ -16,7 +16,6 @@ import uuid
 from datetime import datetime, timezone
 
 import pytest
-from sqlalchemy import text
 
 from backend.app.database import set_tenant_context
 from backend.app.models.lifecycle import ProjectLifecycleEvent

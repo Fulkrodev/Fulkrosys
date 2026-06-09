@@ -13,7 +13,6 @@ configurado (.env via python-dotenv).
 from __future__ import annotations
 
 import os
-import uuid
 from unittest.mock import AsyncMock, patch
 
 import pytest

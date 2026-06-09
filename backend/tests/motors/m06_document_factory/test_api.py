@@ -5,7 +5,6 @@ Pattern consistent with M4 and M19 test_api.py.
 import pytest
 from uuid import uuid4
 
-from sqlalchemy import text
 
 from backend.tests.conftest import setup_test_project, _admin_setup
 

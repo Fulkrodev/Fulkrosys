@@ -564,17 +564,17 @@ class Agent12CoachClienteEvaluador(AgentBase):
             })
 
         template = (
-            f"Un CISO senior respondera a la pregunta del auditor citando: "
-            f"(1) el documento o politica formal aprobada que regula el "
-            f"proceso, con referencia normativa aplicable; (2) los sistemas "
-            f"concretos del alcance a los que aplica (dentro de los que "
-            f"menciono el cliente); (3) la frecuencia de revision y la "
-            f"evidencia disponible (log, acta, informe) que el auditor "
-            f"puede verificar en la reunion; (4) el responsable designado "
-            f"y la base legal o normativa de la medida. El ejemplo concreto "
-            f"debe incluir al menos una metrica operativa (numero, "
-            f"porcentaje, RTO/RPO) y el proceso de escalamiento en caso "
-            f"de incidente."
+            "Un CISO senior respondera a la pregunta del auditor citando: "
+            "(1) el documento o politica formal aprobada que regula el "
+            "proceso, con referencia normativa aplicable; (2) los sistemas "
+            "concretos del alcance a los que aplica (dentro de los que "
+            "menciono el cliente); (3) la frecuencia de revision y la "
+            "evidencia disponible (log, acta, informe) que el auditor "
+            "puede verificar en la reunion; (4) el responsable designado "
+            "y la base legal o normativa de la medida. El ejemplo concreto "
+            "debe incluir al menos una metrica operativa (numero, "
+            "porcentaje, RTO/RPO) y el proceso de escalamiento en caso "
+            "de incidente."
         )
         # Asegurar minimo 100 palabras
         while len(template.split()) < 105:

@@ -35,7 +35,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 from enum import Enum
-from typing import Any, Callable, Iterable
+from typing import Any, Callable
 
 from backend.app.motors.m_cloud_connectors.models import (
     CloudGapSeverity,

@@ -22,17 +22,13 @@ name: Admin + Cliente + Auditor Polish Empirical
 # Fails build if ANY axe critical/serious violation appears on these pages
 # (regression-proof) OR if any spec fails its 4 explicit criteria.
 
+# 2026-06-09 · E2E de accesibilidad (axe) · necesita secretos (FULKRO_AUTH_*),
+# build de frontend prod y BD provisionada. Se ejecuta ON-DEMAND
+# (workflow_dispatch) tras configurar Settings → Secrets en el repo. Hasta
+# entonces NO corre en cada push (evita rojos por config ausente).
+# Future-1.F.ci.polish-empirical-secrets para activarlo permanente.
 on:
-  pull_request:
-    branches: [main, fulkro-1.0, radar-v9]
-    paths:
-      - "frontend/**"
-      - ".github/workflows/admin-polish-empirical.yml"
-  push:
-    branches: [main, fulkro-1.0]
-    paths:
-      - "frontend/**"
-      - ".github/workflows/admin-polish-empirical.yml"
+  workflow_dispatch:
 
 jobs:
   polish-empirical:

@@ -23,7 +23,6 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from backend.app.core.workflow_phase import WorkflowPhase
 from backend.app.motors.m11_copiloto.workflow_state_scanner import (
     ActionHint,
-    Blocker,
     WorkflowScannerOptions,
     WorkflowState,
     _detect_blockers,

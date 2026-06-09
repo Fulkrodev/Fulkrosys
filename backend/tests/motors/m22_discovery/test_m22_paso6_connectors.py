@@ -7,18 +7,15 @@ import pytest
 
 from backend.app.motors.m22_discovery.paso6_aws_connector import (
     AWSDiscoveryResult,
-    AWSPaso6Connector,
 )
 from backend.app.motors.m22_discovery.paso6_demo_mocks import (
     EXPECTED_DATAFORMA_METRICS,
     build_aws_connector_dataforma,
     build_aws_fetcher,
     build_m365_connector_dataforma,
-    build_m365_fetcher,
 )
 from backend.app.motors.m22_discovery.paso6_m365_connector import (
     M365DiscoveryResult,
-    M365Paso6Connector,
     REQUIRED_SCOPES,
     authorization_url,
     needs_refresh,

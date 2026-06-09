@@ -21,7 +21,6 @@ from sqlalchemy import text
 
 from backend.app.models.client_portal import ClientUser  # noqa: F401 (RLS model reg)
 from backend.app.models.commercial import Contract
-from backend.app.models.core import Project
 from backend.app.motors.m05_signing.models import SigningIntent
 from backend.app.motors.m05_signing.service import SigningService
 from backend.app.motors.m13_commercial.services.commercial_workflow_service import (

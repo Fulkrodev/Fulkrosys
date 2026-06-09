@@ -33,8 +33,6 @@ from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
 from backend.app.config import get_settings
 from backend.app.database import set_tenant_context
 from backend.app.models.conformity_lifecycle import (
-    ConformityRouteRow,
-    MaterialChangeRow,
     PceOverlayRow,
 )
 from backend.app.motors.m27_conformity.adapters.clara_ingester import (

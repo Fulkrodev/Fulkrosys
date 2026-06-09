@@ -17,10 +17,9 @@ Cubre:
 """
 from __future__ import annotations
 
-import base64
 import hashlib
 import uuid
-from datetime import date, datetime, timedelta, timezone
+from datetime import datetime, timezone
 
 import pytest
 from openpyxl import load_workbook
@@ -28,17 +27,8 @@ from sqlalchemy import select, text as sa_text
 
 from backend.app.database import set_tenant_context
 from backend.app.models.conformity_lifecycle import (
-    BasicDeclarationRow,
-    ConformityRouteRow,
-    ConformitySubmissionRow,
     EffortEstimateRow,
     ExtraordinaryAuditRow,
-    MaterialChangeRow,
-    PceOverlayRow,
-    RecategorizationRow,
-    RenewalCampaignRow,
-    RoleExceptionMemoRow,
-    RoleTopologyRow,
 )
 from backend.app.motors.m27_conformity.adapters.clara_ingester import (
     CLARA_TO_ENS_MAP,

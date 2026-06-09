@@ -99,10 +99,6 @@ async def test_chat_threads_isolated_by_project_id_at_query_level(db):
         )
         # Mark first as closed para crear 2nd open
         if i < 2:
-            from backend.app.motors.m21_portal_cliente.models_chat import (
-                ChatThread,
-            )
-            from sqlalchemy import select
             existing = await service.get_or_create_thread(project_id=pa)
             existing.status = "closed"
             await db.flush()

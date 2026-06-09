@@ -180,9 +180,9 @@ async def validate_role_segregation(
                     )
                 else:
                     _consec = (
-                        f"En categoría BÁSICA la acumulación es admisible si se "
-                        f"documenta una medida compensatoria (revisión por "
-                        f"tercero independiente). CCN-STIC 801."
+                        "En categoría BÁSICA la acumulación es admisible si se "
+                        "documenta una medida compensatoria (revisión por "
+                        "tercero independiente). CCN-STIC 801."
                     )
                 violations.append(
                     RoleSegregationViolation(

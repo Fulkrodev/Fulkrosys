@@ -137,7 +137,7 @@ async def main() -> None:
     SessionLocal = async_sessionmaker(engine, expire_on_commit=False)
     async with SessionLocal() as session:
         result = await embed_rd311_chunks(session)
-        print(f"\n=== EMBED SUMMARY ===")
+        print("\n=== EMBED SUMMARY ===")
         for k, v in result.items():
             print(f"  {k}: {v}")
     await engine.dispose()

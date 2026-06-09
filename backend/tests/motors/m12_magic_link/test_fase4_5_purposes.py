@@ -12,24 +12,17 @@ Total: 28 tests · suite m12 esperada 55 + 28 = 83 passed.
 from __future__ import annotations
 
 from datetime import datetime, timezone
-from uuid import uuid4
 
 import pytest
 from sqlalchemy import select, text
 
 from backend.app.auth.dependencies import require_owner
-from backend.app.database import set_tenant_context
 from backend.app.models.operations import MagicLink
 from backend.app.motors.m12_magic_link.api import router as m12_router
 from backend.app.motors.m12_magic_link.emails.renderer import (
     render_email_for_magic_link,
 )
 from backend.app.motors.m12_magic_link.purposes import MagicLinkPurpose
-from backend.app.motors.m12_magic_link.schemas import MagicLinkGenerateRequest
-from backend.app.motors.m12_magic_link.service import (
-    MagicLinkNotFoundError,
-    MagicLinkService,
-)
 from backend.tests.conftest import setup_test_project
 
 

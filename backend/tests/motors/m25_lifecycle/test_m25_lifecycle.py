@@ -13,17 +13,15 @@ import uuid
 from datetime import date, timedelta
 
 import pytest
-from sqlalchemy import text
 
 from backend.app.database import set_tenant_context
 from backend.app.motors.m25_lifecycle.lifecycle_service import (
     ALL_STATES,
-    DEFAULT_RETENTION_YEARS,
     VALID_TRANSITIONS,
     LifecycleError,
     LifecycleService,
 )
-from backend.tests.conftest import _admin_setup, setup_test_project
+from backend.tests.conftest import setup_test_project
 
 
 BASE = "/api/v1/lifecycle"

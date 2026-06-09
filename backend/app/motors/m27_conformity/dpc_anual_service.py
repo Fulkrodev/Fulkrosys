@@ -442,7 +442,7 @@ class DpcAnualService:
         readiness = decl.readiness_snapshot_jsonb or {}
         canonical_parts: list[str] = [
             f"project_id:{decl.project_id}",
-            f"declaration_type:dpc_anual",
+            "declaration_type:dpc_anual",
             f"anniversary_year:{decl.anniversary_year}",
             f"conformidad_signature_id:{readiness.get('conformidad_signature_id', '')}",
             f"sla_bia_count:{readiness.get('sla_section', {}).get('bia_analyses_count', 0)}",

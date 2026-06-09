@@ -116,7 +116,7 @@ async def create_session(
         'otp': None,
         'expires_at': expires_at,
         'state': SessionState.CREATED,
-        'portal_url': f'/client-portal/onboarding',
+        'portal_url': '/client-portal/onboarding',
     }
 
 

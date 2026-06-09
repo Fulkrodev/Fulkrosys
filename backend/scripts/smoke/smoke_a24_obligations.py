@@ -109,8 +109,8 @@ def main() -> int:
 
     print(sep)
     print(f"\n=== SMOKE A24 · {len(PROFILES)} perfiles procesados ===")
-    print(f"  hardcoded A24 max global: 15 rows (5 RGPD + 3 NIS2 + 3 DORA + 1 cada PSD2/AI/ISO/ENI)")
-    print(f"  zero side effects · sin DB · puro detect + build_summary")
+    print("  hardcoded A24 max global: 15 rows (5 RGPD + 3 NIS2 + 3 DORA + 1 cada PSD2/AI/ISO/ENI)")
+    print("  zero side effects · sin DB · puro detect + build_summary")
     return 0
 
 

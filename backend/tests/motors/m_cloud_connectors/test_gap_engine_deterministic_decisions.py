@@ -9,17 +9,14 @@ Verifica:
 from __future__ import annotations
 
 import uuid
-from datetime import datetime, timezone
 from types import SimpleNamespace
 from typing import Any
 
-import pytest
 
 from backend.app.motors.m_cloud_connectors import (
     RULE_CATALOG,
     GapFinding,
     list_supported_measures,
-    rules_for_category,
 )
 from backend.app.motors.m_cloud_connectors.diagnostic_gap_engine import (
     DiagnosticGapEngine,

@@ -6,14 +6,10 @@ Tests use unique prefixes to isolate from seed data.
 import pytest
 from uuid import uuid4
 
-from sqlalchemy import text
 
 from backend.app.motors.m26_backup.service import BackupService
 from backend.app.motors.m26_backup.exceptions import (
     BackupJobNotFoundError,
-    RestoreTestNotFoundError,
-    DrDrillNotFoundError,
-    IntegrityVerificationNotFoundError,
 )
 
 

@@ -191,7 +191,9 @@ def render_docx(
         render_ctx = copy.deepcopy(context)
         _inject_brand(tpl, render_ctx, cliente_logo_path, consultor_logo_path)
         _default_firmas(render_ctx)
-        env = jinja2.Environment(undefined=_SilentUndefined)
+        # nosec B701 · render DOCX via docxtpl (no HTML) · el escaping XML lo
+        # gestiona docxtpl · autoescape=True corromperia el documento Word.
+        env = jinja2.Environment(undefined=_SilentUndefined)  # nosec B701
         register_es_filters(env)
         tpl.render(render_ctx, jinja_env=env)
         tpl.save(str(output_path))

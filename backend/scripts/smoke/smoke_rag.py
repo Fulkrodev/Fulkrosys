@@ -135,7 +135,7 @@ async def run() -> int:
 
     await engine.dispose()
 
-    print(f"\n=== SMOKE RAG SUMMARY ===")
+    print("\n=== SMOKE RAG SUMMARY ===")
     print(f"  passed: {passed}/{len(QUERIES)}")
     print(f"  failed: {failed}")
     return 0 if failed == 0 else 1

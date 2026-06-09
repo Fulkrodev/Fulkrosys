@@ -21,12 +21,9 @@ Al final imprime tabla de resultados y codigo de salida 0/1.
 from __future__ import annotations
 
 import asyncio
-import io
-import json
 import os
 import sys
 import uuid
-import zipfile
 from datetime import date, datetime, timedelta, timezone
 from pathlib import Path
 
@@ -35,21 +32,18 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
 
 from sqlalchemy import select, text as sa_text
 from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
-from sqlalchemy.orm import sessionmaker
 
 from backend.app.config import get_settings
 from backend.app.database import set_tenant_context
-from backend.app.models.core import Client, Project
+from backend.app.models.core import Project
 from backend.app.models.lifecycle import (
     ProjectArchivedBackup,
-    ProjectLifecycleEvent,
 )
 from backend.app.motors.m25_lifecycle.backup_builder import (
     verify_backup_signature,
 )
 from backend.app.motors.m25_lifecycle.lifecycle_paso4 import (
     LifecyclePaso4Service,
-    get_archived_backup,
     process_grace_period_checkpoints,
 )
 

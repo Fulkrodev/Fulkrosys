@@ -18,7 +18,7 @@
 from __future__ import annotations
 
 import uuid
-from datetime import UTC, datetime, timedelta
+from datetime import UTC, datetime
 
 import pytest
 from sqlalchemy import text as sa_text
@@ -28,7 +28,6 @@ from backend.app.motors.m27_conformity.dpc_anual_service import (
     ConformidadNotSignedError,
     DpcAlreadySignedError,
     DpcAnualService,
-    DpcDeclarationNotFoundError,
     InvalidReviewActionError,
 )
 from backend.tests.conftest import setup_test_project

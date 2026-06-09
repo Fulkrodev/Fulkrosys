@@ -4,9 +4,8 @@ from __future__ import annotations
 import uuid
 
 import pytest
-from sqlalchemy import select, text
+from sqlalchemy import text
 
-from backend.app.models.client_portal import ClientUserAudit
 from backend.app.motors.m21_portal_cliente.audit_log_service import (
     AuditLogService,
 )

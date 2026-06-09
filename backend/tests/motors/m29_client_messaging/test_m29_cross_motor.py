@@ -29,7 +29,6 @@ import pytest
 from sqlalchemy import text
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from backend.app.motors.m29_client_messaging.models import ClientMessage
 from backend.app.motors.m29_client_messaging.schemas import (
     AdminSendMessageBody,
     ClientSendMessageBody,
@@ -40,7 +39,6 @@ from backend.app.motors.m29_client_messaging.service import (
 from backend.app.motors.m30_client_contacts.schemas import ClientContactCreate
 from backend.app.motors.m30_client_contacts.service import (
     ClientContactService,
-    ContactNotFoundError,
 )
 from backend.tests.conftest import _admin_setup, setup_test_project
 

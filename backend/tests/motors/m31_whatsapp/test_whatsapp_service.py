@@ -1,6 +1,6 @@
 """Tests for WhatsAppService · opt-in + send/inbound + RGPD export · atom 8.1."""
 import uuid
-from datetime import datetime, timedelta, timezone
+from datetime import datetime, timezone
 
 import pytest
 from sqlalchemy import select, text

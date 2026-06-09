@@ -108,7 +108,7 @@ def _valid_sections(
             ),
             "hallazgos_clave": [
                 f"Madurez inicial {madurez} con {porcentaje}% conformidad.",
-                f"Familias criticas mp.s, op.exp y org.3.",
+                "Familias criticas mp.s, op.exp y org.3.",
                 f"Esfuerzo {horas} horas en {plazo} meses.",
             ],
             "decisiones_requeridas_direccion": [

@@ -8,13 +8,12 @@ Reuse make_client_user fixture (conftest.py) + admin totp_svc helpers.
 from __future__ import annotations
 
 import pytest
-from sqlalchemy import select, text
+from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from backend.app.auth import totp_svc
 from backend.app.models.client_portal import (
     ClientUserBackupCode,
-    ClientUserTotpSecret,
 )
 from backend.app.motors.m21_portal_cliente import mfa_service
 

@@ -7,7 +7,6 @@ import shutil
 from pathlib import Path
 
 import pytest
-from sqlalchemy import text
 
 from backend.tests.conftest import _admin_setup, setup_test_project
 from backend.app.motors.m07_evidence.verification_service import (

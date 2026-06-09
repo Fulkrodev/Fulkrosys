@@ -1,7 +1,7 @@
 """Tests Facturae 3.2.x + XAdES + FACe + Ley 3/2004 · SAN-C MB-11.3."""
 from __future__ import annotations
 
-from datetime import date, datetime, timezone
+from datetime import date
 from decimal import Decimal
 
 import pytest

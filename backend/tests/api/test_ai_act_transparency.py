@@ -15,13 +15,12 @@ from datetime import datetime, timezone
 from types import SimpleNamespace
 
 import pytest
-from sqlalchemy import text
 
 from backend.app.motors.m_observability.transparency_service import (
     _compute_retention_until,
     log_transparency_event,
 )
-from backend.tests.conftest import _admin_setup, setup_test_project
+from backend.tests.conftest import setup_test_project
 
 
 pytestmark = pytest.mark.asyncio

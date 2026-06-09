@@ -7,12 +7,9 @@ from pathlib import Path
 import pytest
 from sqlalchemy import select, text as sa_text
 
-from backend.app.models.core import Project
 from backend.app.motors.m02_magerit.models import (
     MageritAnalysis,
     MageritAsset,
-    MageritSafeguardDeployment,
-    MageritThreatAssessment,
 )
 from backend.app.motors.m02_magerit.pilar_importer import (
     PilarImportError,

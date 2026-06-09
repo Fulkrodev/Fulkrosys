@@ -8,14 +8,12 @@ import pytest
 
 from backend.app.core.pricing import (
     BASE_PRICES,
-    BOLSA_FLEX_TIERS,
     EXTRAS_IMPLANTACION_MEDIA,
     HITOS_BASICA,
     HITOS_MEDIA,
     HITOS_ALTA,
     PricingCalculator,
     PricingError,
-    QUICK_SCAN_PRICE,
     RETAINER_TIERS,
     SECTORES_REGULADOS,
     URGENCY_SURCHARGE_PCT,

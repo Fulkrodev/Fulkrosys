@@ -28,7 +28,6 @@ import uuid
 import pytest
 from sqlalchemy import text
 
-from backend.app.models.diagnosis import LegalObligation
 from backend.app.motors.m21_diagnosis.cross_compliance_service import (
     ComplianceContext,
     build_summary,

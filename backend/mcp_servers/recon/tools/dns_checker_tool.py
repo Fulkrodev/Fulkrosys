@@ -86,7 +86,7 @@ def _check_spf(domain: str, resolver) -> list[dict]:
             return [{
                 "title": "SPF record sin policy estricta",
                 "name": "DNS-SPF-WEAK",
-                "description": f"SPF presente pero sin ~all/-all · spoofing parcial",
+                "description": "SPF presente pero sin ~all/-all · spoofing parcial",
                 "severity": "medium",
             }]
     except Exception as exc:  # pragma: no cover
@@ -115,7 +115,7 @@ def _check_dmarc(domain: str, resolver) -> list[dict]:
             return [{
                 "title": "DMARC policy=none",
                 "name": "DNS-DMARC-MONITOR",
-                "description": f"DMARC en monitor mode (p=none) · sin enforcement",
+                "description": "DMARC en monitor mode (p=none) · sin enforcement",
                 "severity": "medium",
             }]
     except Exception:

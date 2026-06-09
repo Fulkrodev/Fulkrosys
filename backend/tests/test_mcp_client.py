@@ -1,7 +1,6 @@
 """Tests MCP client base — Sub-bloque 9.C."""
 from __future__ import annotations
 
-import os
 
 import pytest
 

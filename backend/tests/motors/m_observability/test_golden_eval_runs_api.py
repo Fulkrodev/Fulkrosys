@@ -10,9 +10,7 @@ Cubre:
 from __future__ import annotations
 
 import pytest
-from sqlalchemy import text
 
-from backend.tests.conftest import _admin_setup
 
 
 pytestmark = pytest.mark.asyncio

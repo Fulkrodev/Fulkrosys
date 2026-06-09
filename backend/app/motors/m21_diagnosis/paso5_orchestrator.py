@@ -159,7 +159,7 @@ def build_e090_context(
                 "con alcance preliminar basado en los procesos nucleares."
             ),
             (
-                f"Arrancar registro de actividades de tratamiento (Art. 30 RGPD) "
+                "Arrancar registro de actividades de tratamiento (Art. 30 RGPD) "
                 "antes de la auditoria interna pre-ENAC."
             ),
         ],

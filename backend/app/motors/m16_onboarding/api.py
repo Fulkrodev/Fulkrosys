@@ -2,7 +2,10 @@
 from __future__ import annotations
 
 import uuid
-from typing import Optional
+from typing import TYPE_CHECKING, Optional
+
+if TYPE_CHECKING:
+    from backend.app.models.onboarding import OnboardingSession
 
 from datetime import datetime, timezone
 

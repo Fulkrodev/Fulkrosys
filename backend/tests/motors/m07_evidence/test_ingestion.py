@@ -5,7 +5,6 @@ since the evidence table has project_isolation RLS policy.
 """
 import uuid
 import shutil
-from datetime import date
 from pathlib import Path
 
 import pytest
@@ -21,7 +20,6 @@ from backend.app.motors.m07_evidence.ingestion_types import (
     IngestionError,
 )
 from backend.app.motors.m07_evidence.signing import (
-    verify_signature,
     reset_cache_for_tests,
 )
 from backend.app.motors.m07_evidence.catalog_loader import reset_cache

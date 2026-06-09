@@ -20,7 +20,6 @@ from backend.app.agents.copilot_rate_limit import (
     ADMIN_CAPS,
     CLIENTE_CAPS,
     CopilotRateLimitExceeded,
-    RateLimitStatus,
     _config_for_tier,
     _start_of_day_utc,
     _start_of_month_utc,

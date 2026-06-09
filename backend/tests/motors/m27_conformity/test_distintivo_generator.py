@@ -17,7 +17,6 @@ import uuid
 import zipfile
 from pathlib import Path
 
-import pytest
 
 from backend.app.motors.m27_conformity.distintivo_generator import (
     DECLARATION_DOCUMENT_KIND,

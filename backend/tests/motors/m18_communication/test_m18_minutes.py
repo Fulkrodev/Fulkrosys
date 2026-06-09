@@ -14,10 +14,9 @@ Cubre:
 from __future__ import annotations
 
 import base64
-import re
 import uuid
 import zipfile
-from datetime import date, timedelta
+from datetime import date
 from io import BytesIO
 
 import pytest
@@ -25,7 +24,6 @@ import pytest
 from backend.app.database import set_tenant_context
 from backend.app.motors.m18_communication.minutes_service import (
     MinutesService,
-    MinutesStateError,
     MinutesValidationError,
 )
 from backend.tests.conftest import setup_test_project

@@ -30,7 +30,7 @@ from dotenv import load_dotenv
 
 load_dotenv(dotenv_path=Path("/home/usuario/fulkro/.env"))
 
-from sqlalchemy import select, text
+from sqlalchemy import text
 from sqlalchemy.ext.asyncio import async_sessionmaker, create_async_engine
 
 from backend.app.corpus.retrieval import hybrid_search

@@ -13,7 +13,6 @@ Refs: ADR-041 · m13_commercial/api.py mapping bidireccional.
 """
 from __future__ import annotations
 
-import uuid
 from typing import AsyncGenerator
 
 import pytest
@@ -26,7 +25,6 @@ from backend.app.motors.m13_commercial.api import (
     STAGE_TO_ESTADO_CONTACTO,
 )
 from backend.app.motors.m13_commercial.services.lead_service import LeadService
-from backend.tests.conftest import _admin_setup
 
 
 # ====================== Mapping bidireccional ======================

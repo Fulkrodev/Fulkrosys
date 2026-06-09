@@ -1,10 +1,8 @@
 """Tests del catalogo de plantillas M16."""
-import pytest
 
 from backend.app.motors.m16_onboarding.catalog_loader import (
     find_template_for,
     get_template_by_id,
-    list_available_roles_for_sector,
     list_available_sectors,
     load_all_templates,
 )

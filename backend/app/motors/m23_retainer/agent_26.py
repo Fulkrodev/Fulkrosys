@@ -279,11 +279,11 @@ def draft_client_email_offline(alert: RetainerAlert) -> dict[str, str]:
         "A26_RENEWAL_URGENT": {
             "subject": f"Re-certificacion ENS — preparacion ({alert.client_name})",
             "body": (
-                f"Estimado responsable de seguridad,\n\n"
-                f"Nos acercamos a la fecha de renovacion de la certificacion ENS. "
-                f"Es el momento de agendar al auditor externo y revisar el dossier "
-                f"de re-certificacion. Propongo llamada esta semana.\n\n"
-                f"Un saludo,\nMarcos"
+                "Estimado responsable de seguridad,\n\n"
+                "Nos acercamos a la fecha de renovacion de la certificacion ENS. "
+                "Es el momento de agendar al auditor externo y revisar el dossier "
+                "de re-certificacion. Propongo llamada esta semana.\n\n"
+                "Un saludo,\nMarcos"
             ),
         },
         "A26_UPGRADE_CANDIDATE": {

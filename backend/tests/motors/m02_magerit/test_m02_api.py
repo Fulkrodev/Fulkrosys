@@ -498,7 +498,7 @@ class TestMotor2ErrorBranches:
         assert "xml" in r.headers.get("content-type", "")
         # L577: SubElement(tp_el, "action", ...) should have generated elements
         assert "<action" in r.text, (
-            f"PILAR XML should contain <action> elements from treatment plan"
+            "PILAR XML should contain <action> elements from treatment plan"
         )
 
 
@@ -846,7 +846,6 @@ class TestMotor2ImportHTTP:
     @pytest.mark.asyncio
     async def test_import_atomic_rollback_on_error(self, async_client, db):
         """TEST CRITICAL: one bad row rolls back ALL rows (atomic)."""
-        from backend.tests.conftest import _admin_setup
 
         _, analysis_id = await _create_analysis(async_client, db)
         rows_with_error = [

@@ -114,7 +114,8 @@ def _stable_item_id(url: str) -> str:
     """Build a stable identifier from a guide URL · last segment + sha1[:8]."""
     path = urllib.parse.urlparse(url).path
     segment = path.rstrip("/").rsplit("/", 1)[-1] or "index"
-    digest = hashlib.sha1(url.encode("utf-8")).hexdigest()[:8]
+    # sha1 NO criptográfico: solo un id estable corto desde la URL (no seguridad).
+    digest = hashlib.sha1(url.encode("utf-8"), usedforsecurity=False).hexdigest()[:8]
     return f"{segment}-{digest}"
 
 

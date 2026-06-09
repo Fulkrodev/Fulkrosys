@@ -83,7 +83,23 @@ target-version = "py312"
 line-length = 120
 
 [tool.ruff.lint]
-select = ["E", "F", "I", "N", "W"]
+# 2026-06-09 · baseline de lint pragmático para una base grande nunca linteada.
+# Se ENFORZA el núcleo de pyflakes (bugs reales: imports/variables sin usar,
+# nombres indefinidos, f-strings rotas, redefiniciones) + warnings de whitespace.
+# Se deja fuera del gate el estilo no aplicado históricamente: E501 (longitud),
+# N (convenciones de nombres · requeriría renombrados masivos), I (orden de
+# imports · puro estilo, sin valor de corrección). Se podrán ir endureciendo.
+select = ["F", "W"]
+ignore = [
+    "F841",  # unused-variable: muchas son `x = await db.execute(...)` (efecto) · baseline
+]
+
+[tool.ruff.lint.per-file-ignores]
+# __init__.py reexporta símbolos (no son imports "sin usar").
+"**/__init__.py" = ["F401"]
+# Migraciones Alembic son artefactos generados · no se lintean a mano.
+# (glob relativo al dir del pyproject = backend/)
+"migrations/**" = ["F401", "W291", "W292", "W293"]
 
 [tool.pytest.ini_options]
 asyncio_mode = "auto"

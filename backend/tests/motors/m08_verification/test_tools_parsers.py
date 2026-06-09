@@ -8,7 +8,6 @@ from __future__ import annotations
 
 import json
 
-import pytest
 
 from backend.app.motors.m08_verification.tools.lynis_runner import LynisRunner
 from backend.app.motors.m08_verification.tools.nmap_runner import NmapRunner

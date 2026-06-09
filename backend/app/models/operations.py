@@ -7,7 +7,6 @@ from sqlalchemy.dialects.postgresql import ARRAY, UUID, JSONB, TIMESTAMP
 from sqlalchemy.orm import Mapped, mapped_column
 
 from sqlalchemy import Index
-from sqlalchemy.schema import ForeignKeyConstraint
 
 from backend.app.models.base import (
     Base,

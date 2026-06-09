@@ -3,7 +3,7 @@ from __future__ import annotations
 
 
 def test_c5_celery_app_importable():
-    from backend.app.core.celery_app import celery_app, get_beat_schedule, CELERY_AVAILABLE
+    from backend.app.core.celery_app import celery_app, get_beat_schedule
     assert celery_app is not None
     # Debe tener schedule (aunque sea stub)
     schedule = get_beat_schedule()

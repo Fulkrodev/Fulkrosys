@@ -7,26 +7,25 @@ import io
 import json
 import uuid
 import zipfile
-from datetime import date, datetime, timedelta, timezone
+from datetime import date, datetime, timezone
 
 import pytest
 from openpyxl import load_workbook
 from sqlalchemy import text as sa_text
 
 from backend.app.database import set_tenant_context
-from backend.app.models.documents import Document, Evidence
-from backend.app.models.ens import DdaEntry, EnsMeasure
+from backend.app.models.documents import Document
 from backend.app.motors.m08_verification.models import (
     VerificationFinding, VerificationRun,
 )
 from backend.app.motors.m09_audit_prep import (
-    checklist_service, dossier_generator, matriz_99,
+    matriz_99,
 )
 from backend.app.motors.m09_audit_prep.dossier_generator import (
     DOSSIER_STRUCTURE, DossierError, generate_dossier,
 )
 from backend.app.motors.m09_audit_prep.checklist_service import (
-    BLOCKING_THRESHOLD, REQUIRED_DELIVERABLES, require_complete_audit_prep,
+    REQUIRED_DELIVERABLES, require_complete_audit_prep,
 )
 from backend.app.motors.m09_audit_prep.internal_auditor import (
     QUESTION_BANK, build_e701_context, run_internal_audit,
@@ -619,7 +618,6 @@ class TestE701Polish:
     async def test_context_documentos_revisados_queries_project(
         self, async_client, db,
     ):
-        from backend.app.models.documents import Document
         _, project_id = await setup_test_project(db)
         pid = uuid.UUID(project_id)
         async with _admin_setup(db):

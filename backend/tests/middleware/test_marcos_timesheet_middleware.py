@@ -1,5 +1,4 @@
 """Unit tests for MarcosTimesheetMiddleware path matching · MB-7.bis closure."""
-import pytest
 
 from backend.app.middleware.marcos_timesheet_middleware import (
     _is_marcos,

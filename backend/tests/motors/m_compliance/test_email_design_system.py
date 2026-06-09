@@ -9,7 +9,6 @@ from __future__ import annotations
 from dataclasses import dataclass
 from datetime import datetime, timezone
 
-import pytest
 
 from backend.app.motors.m_compliance.email_design import brand_tokens
 from backend.app.motors.m_compliance.email_design.mjml_compiler import render_email
@@ -238,7 +237,6 @@ def test_logo_for_background_light_returns_black() -> None:
 
 def test_severity_medium_contrast_wcag_aa_compliant() -> None:
     """SEVERITY_MEDIUM #c2410c on white has 6.5:1 contrast (WCAG AA)."""
-    import re
 
     bg = brand_tokens.TOKENS.SEVERITY_MEDIUM.lstrip("#").lower()
     # Polish round 2 fixed #ea580c (4.4:1) → #c2410c (6.5:1).

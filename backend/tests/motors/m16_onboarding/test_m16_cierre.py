@@ -1,5 +1,4 @@
 """Tests for M16-CIERRE: connectors batch 2, expanded catalog, hardening."""
-import uuid
 from datetime import datetime, timedelta, timezone
 
 import httpx
@@ -7,13 +6,12 @@ import pytest
 import respx
 from sqlalchemy import text
 
-from backend.app.motors.m16_onboarding.catalog_loader import load_all_templates, reload_templates
-from backend.app.motors.m16_onboarding.connectors.base import ConnectorProvider
+from backend.app.motors.m16_onboarding.catalog_loader import reload_templates
 from backend.app.motors.m16_onboarding.connectors.google_workspace import GoogleWorkspaceConnector
 from backend.app.motors.m16_onboarding.connectors.aws_connector import AWSConnector
 from backend.app.motors.m16_onboarding.connectors.azure_connector import AzureConnector
 from backend.app.motors.m16_onboarding.connectors.registry import list_available_providers
-from backend.app.motors.m16_onboarding.enums import Sector, Role, SessionState
+from backend.app.motors.m16_onboarding.enums import Sector, Role
 from backend.tests.conftest import setup_test_project, _admin_setup
 
 BASE = "/api/v1/onboarding"

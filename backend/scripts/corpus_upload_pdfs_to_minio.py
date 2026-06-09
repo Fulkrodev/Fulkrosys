@@ -66,7 +66,7 @@ def main() -> int:
         print(f"[OK]   {entry.code} · {object_key} · {result.size} B")
         uploaded += 1
 
-    print(f"\n=== SUMMARY ===")
+    print("\n=== SUMMARY ===")
     print(f"  uploaded: {uploaded}")
     print(f"  skipped:  {skipped}")
     print(f"  failed:   {failed}")

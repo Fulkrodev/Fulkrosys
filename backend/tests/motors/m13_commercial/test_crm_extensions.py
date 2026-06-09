@@ -14,7 +14,6 @@ Refs: ADR-041 · sand_crm_lead_extensions migration.
 from __future__ import annotations
 
 import uuid
-from datetime import datetime, timezone
 
 import pytest
 from sqlalchemy import select, text

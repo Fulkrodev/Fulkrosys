@@ -10,7 +10,7 @@ Cubre:
 from __future__ import annotations
 
 import uuid
-from datetime import date, timedelta
+from datetime import date
 
 import pytest
 
@@ -348,7 +348,6 @@ async def test_count_tasks_resolves_via_project_plan_join(db):
 
     Reproduce el bug que requeria backfill manual en la demo.
     """
-    from datetime import date
     from backend.app.motors.m17_planning import planning_service
 
     _, project_id = await _setup_tenant(db)
@@ -397,7 +396,6 @@ async def test_count_tasks_resolves_via_project_plan_join(db):
 @pytest.mark.asyncio
 async def test_weekly_sponsor_counts_real_progress_no_backfill(db):
     """Status weekly_sponsor refleja avance real sin necesidad de backfill."""
-    from datetime import date
     from backend.app.motors.m17_planning import planning_service
 
     _, project_id = await _setup_tenant(db)

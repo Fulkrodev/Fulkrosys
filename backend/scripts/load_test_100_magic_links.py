@@ -171,7 +171,7 @@ async def main(count: int = 100) -> int:
     if len(errors) == 0 and total_elapsed < 60 and p95 < 2.5:
         print("LOAD TEST 100 MAGIC LINKS: ✅ PASS (target aceptable cumplido)")
         return 0
-    print(f"LOAD TEST 100 MAGIC LINKS: ⚠️  FALLA target aceptable")
+    print("LOAD TEST 100 MAGIC LINKS: ⚠️  FALLA target aceptable")
     print(f"  - errors: {len(errors)} (target 0)")
     print(f"  - total time: {total_elapsed:.2f}s (target <60s)")
     print(f"  - p95: {p95:.3f}s (target <2.5s)")

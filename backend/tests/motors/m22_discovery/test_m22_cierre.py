@@ -1,7 +1,6 @@
 """Tests M22-C Logs + DataFlow + Continuity + Report → CIERRE M22."""
 from __future__ import annotations
 
-import uuid
 from datetime import datetime, timedelta, timezone
 
 import pytest
@@ -11,7 +10,6 @@ from backend.app.motors.m22_discovery import (
     dataflow_service,
     log_assessment,
     orchestrator,
-    report_generator,
 )
 from backend.tests.conftest import setup_test_project
 

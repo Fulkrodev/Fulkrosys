@@ -15,11 +15,11 @@ ADR-025 28a aplicacion sostained · NO new tables · query existing models.
 from __future__ import annotations
 
 from datetime import datetime, timezone
-from typing import Any, Literal
+from typing import Literal
 
 from fastapi import APIRouter, Depends
 from pydantic import BaseModel
-from sqlalchemy import desc, select
+from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from backend.app.auth.dependencies import require_owner
@@ -27,7 +27,6 @@ from backend.app.database import get_db
 from backend.app.models.compliance_monitor import (
     STATUS_GREEN,
     STATUS_RED,
-    STATUS_UNKNOWN,
     STATUS_YELLOW,
     ComplianceCheck,
 )

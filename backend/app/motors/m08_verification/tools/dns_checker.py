@@ -9,7 +9,7 @@ from datetime import datetime, timezone
 
 try:
     import dns.resolver as _dns_resolver
-    import dns.dnssec as _dns_dnssec
+    import dns.dnssec as _dns_dnssec  # noqa: F401 · probe de disponibilidad dnssec
     HAS_DNSPYTHON = True
 except ImportError:  # pragma: no cover
     HAS_DNSPYTHON = False
@@ -119,7 +119,7 @@ class DnsChecker:
             if "p=none" in dmarc.lower():
                 findings.append(_dns_finding(
                     "DNS: DMARC con politica 'p=none' (solo monitorizacion)",
-                    f"DMARC publicado pero con p=none: no rechaza ni "
+                    "DMARC publicado pero con p=none: no rechaza ni "
                     "cuarentena. Subir a 'p=quarantine' o 'p=reject'.",
                     "medium", domain, "dmarc",
                 ))

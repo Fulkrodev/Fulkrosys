@@ -26,10 +26,9 @@ from backend.app.database import set_tenant_context
 from backend.app.models.core import Client, Project
 from backend.app.models.lifecycle import (
     ProjectArchivedBackup,
-    ProjectLifecycleEvent,
 )
 from backend.app.motors.m12_magic_link.purposes import (
-    MagicLinkPurpose, PURPOSE_CONFIG, get_config,
+    MagicLinkPurpose, get_config,
 )
 from backend.app.motors.m25_lifecycle.backup_builder import (
     build_and_sign_backup_zip,
@@ -37,11 +36,7 @@ from backend.app.motors.m25_lifecycle.backup_builder import (
 )
 from backend.app.motors.m25_lifecycle.lifecycle_paso4 import (
     BACKUP_DOWNLOAD_TTL_DAYS,
-    GRACE_BACKUP_DAY,
-    GRACE_DELETE_DAY,
     GRACE_PERIOD_DAYS_DEFAULT,
-    GRACE_RECONSIDERATION_DAY,
-    GRACE_WARNING_MARCOS_DAY,
     LifecyclePaso4Error,
     LifecyclePaso4Service,
     get_archived_backup,

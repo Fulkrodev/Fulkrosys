@@ -10,7 +10,6 @@ import io
 import uuid
 from datetime import date
 
-import pytest
 from openpyxl import load_workbook
 
 from backend.app.database import set_tenant_context

@@ -14,7 +14,6 @@ Refs: ADR-035 · MB-19.16 cosecha.
 from __future__ import annotations
 
 import uuid
-from datetime import datetime, timezone, timedelta
 
 import pytest
 from sqlalchemy import select, text

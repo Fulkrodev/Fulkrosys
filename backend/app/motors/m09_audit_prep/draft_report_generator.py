@@ -36,7 +36,6 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from backend.app.motors.m09_audit_prep.dda_evidence_gap_service import (
     DdaEvidenceGapMatrix,
     GapDetectionOptions,
-    GapStatus,
     compute_dda_evidence_gaps,
 )
 

@@ -300,7 +300,6 @@ async def smtp_test(
             SmtpConfig,
             parse_smtp_from,
         )
-        from backend.app.config import get_settings
 
         s = get_settings()
         from_name, from_email = parse_smtp_from(s.smtp_from)

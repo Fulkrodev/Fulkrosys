@@ -3,7 +3,6 @@ from __future__ import annotations
 
 import asyncio
 import os
-import signal
 import time
 import uuid
 from datetime import datetime, time as time_type, timedelta, timezone
@@ -13,13 +12,11 @@ import pytest
 from backend.app.database import set_tenant_context
 from backend.app.motors.m08_verification.kill_switch import (
     force_kill_run_processes,
-    kill_run_processes_now,
     register_subprocess,
     request_kill,
     tracked_subprocess,
     unregister_subprocess,
 )
-from backend.app.motors.m08_verification.models import VerificationRun
 from backend.app.motors.m08_verification.scheduler import (
     dispatch_due_runs,
     is_in_scan_window,

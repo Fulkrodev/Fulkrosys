@@ -13,7 +13,6 @@ from backend.app.billing.auto_billing import AutoBillingService
 from backend.app.billing.milestone_factory import MilestoneFactory
 from backend.app.models.billing_milestones import ContractMilestone
 from backend.app.models.client_portal import ClientUser
-from backend.app.models.commercial import Invoice
 from backend.tests.conftest import _admin_setup
 
 

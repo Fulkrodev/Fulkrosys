@@ -84,7 +84,7 @@ class ThreatAutoMapper:
         assets = list(assets)
 
         catalog = load_libro_ii()  # lru_cache
-        # noqa: catalog usage downstream via get_threats_for_asset_type
+        # catalog usage downstream via get_threats_for_asset_type
         _ = catalog
 
         created = 0

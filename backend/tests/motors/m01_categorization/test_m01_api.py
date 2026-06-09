@@ -684,7 +684,6 @@ class TestSystemUniquenessHTTP:
         La unicidad es (project_id, nombre), no global. Un cliente puede
         tener 'Servidor Documentacion' en sus proyectos A y B.
         """
-        from backend.tests.conftest import _admin_setup
 
         # Create first project + system
         _, project_id_a = await setup_test_project(db)

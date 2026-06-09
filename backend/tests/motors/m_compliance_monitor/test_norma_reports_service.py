@@ -1,14 +1,10 @@
 """ComplianceNormaReportsService tests (mini-atom 3)."""
 from __future__ import annotations
 
-from datetime import datetime, timezone
 
 import pytest
-from sqlalchemy import select, text
+from sqlalchemy import text
 
-from backend.app.models.compliance_norma_reports import (
-    FulkroComplianceNormaReport,
-)
 from backend.app.motors.m_compliance_monitor.norma_reports_service import (
     ComplianceNormaReportsService,
     NormaNotRegisteredError,

@@ -453,7 +453,7 @@ def main() -> int:
             sigblock_total += 1
         doc.save(str(f))
 
-    print(f"\n=== SUMMARY ===")
+    print("\n=== SUMMARY ===")
     print(f"leak replacements: {leak_total}")
     print(f"legacy FULKRO_* sentinels purged: {legacy_purged_total}")
     print(f"header+footer rewritten: {header_total}")

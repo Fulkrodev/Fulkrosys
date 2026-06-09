@@ -131,7 +131,6 @@ async def test_passed_with_cascade_retainer_offer_emits_notification(db):
     """Cluster 1 Phase 3 · result=passed + cascade_certify + cascade_retainer_offer
     todos True · backend auto-emite retainer offer notification post cert."""
     from sqlalchemy import select, text as sa_text
-    from backend.app.models.client_portal import ClientUser
     from backend.tests.conftest import _admin_setup
 
     project_id = await _setup_project(db)

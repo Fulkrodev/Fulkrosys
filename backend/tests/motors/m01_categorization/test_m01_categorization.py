@@ -6,7 +6,6 @@ Tests for Motor 1 — Categorization Engine.
 import pytest
 from backend.app.motors.m01_categorization.service import (
     Category,
-    CategorizationResult,
     ImpactLevel,
     compute_category,
     elevate_to_floor,

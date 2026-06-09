@@ -8,7 +8,6 @@ import logging
 from types import SimpleNamespace
 from unittest.mock import MagicMock, patch
 
-import pytest
 
 from backend.app.core.ai.llm_router import (
     LLMResponse,

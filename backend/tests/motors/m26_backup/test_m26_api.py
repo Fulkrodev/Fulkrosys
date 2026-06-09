@@ -3,7 +3,6 @@
 Platform-global endpoints (no RLS, no tenant context).
 """
 import pytest
-from uuid import uuid4
 
 BASE = "/api/v1/backup"
 

@@ -443,7 +443,7 @@ class AuditSimulatorService:
         if evaluacion == "no_conforme_menor":
             return (
                 f"Medida {measure_code}: evidencia parcial, caducada o documento faltante.",
-                f"Aportar evidencia vigente"
+                "Aportar evidencia vigente"
                 + (f" y documento {doc_esperado}" if doc_esperado else ""),
                 30,
             )

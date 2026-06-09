@@ -19,7 +19,6 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from backend.app.motors.m30_client_contacts.models import (
-    ClientContact,
     ClientContactInteraction,
 )
 from backend.app.motors.m30_client_contacts.schemas import ClientContactCreate
@@ -236,9 +235,6 @@ async def test_m14_contract_logs_signatory_interactions(
     'contract_signature' + source_motor='m14')."""
     from sqlalchemy import text
 
-    from backend.app.motors.m13_commercial.proposal_service import (
-        ProposalService,
-    )
     from backend.app.motors.m14_contracts.contract_service import (
         ContractService,
     )

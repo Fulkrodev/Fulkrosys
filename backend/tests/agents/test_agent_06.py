@@ -35,7 +35,6 @@ from backend.app.agents.agent_06_contratos import (
     _PROVIDER_ROLES,
     _REQUIRED_KEYS,
     _SEVERITIES,
-    _URGENCIES,
 )
 
 

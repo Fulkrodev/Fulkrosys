@@ -1,12 +1,11 @@
 """Tests M9-A: checklist pre-audit + cross-validation + cleanup + API."""
 from __future__ import annotations
 
-import json
 import uuid
 from datetime import date, datetime, timedelta, timezone
 
 import pytest
-from sqlalchemy import select, text as sa_text
+from sqlalchemy import select
 
 from backend.app.models.documents import Document, Evidence
 from backend.app.models.ens import DdaEntry, EnsMeasure
