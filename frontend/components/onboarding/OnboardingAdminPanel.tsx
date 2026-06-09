@@ -63,7 +63,7 @@ export function OnboardingAdminPanel({ projectId }: OnboardingAdminPanelProps) {
           </div>
           {activeSession ? (
             <Badge variant="info">
-              Session activa · {activeSession.progress_percentage.toFixed(0)}%
+              Session activa · {(activeSession.progress_percentage ?? 0).toFixed(0)}%
             </Badge>
           ) : null}
         </div>
@@ -79,7 +79,7 @@ export function OnboardingAdminPanel({ projectId }: OnboardingAdminPanelProps) {
           {progress ? (
             <Badge variant="info">
               <GraduationCap className="mr-1 size-3" />
-              {progress.por_estado.completed ?? 0}/{progress.total_assignments} LMS
+              {progress.por_estado?.completed ?? 0}/{progress.total_assignments ?? 0} LMS
             </Badge>
           ) : null}
         </div>
