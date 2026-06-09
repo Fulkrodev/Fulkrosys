@@ -278,23 +278,35 @@ export async function checkFocusVisibleIndicator(
     document.body.focus();
   });
   await page.keyboard.press("Tab");
-  await page.waitForTimeout(100);
 
-  return await page.evaluate(() => {
-    const el = document.activeElement as HTMLElement | null;
-    if (!el || el === document.body) {
-      return { hasIndicator: false };
-    }
-    const styles = window.getComputedStyle(el);
-    const outline = styles.outline;
-    const boxShadow = styles.boxShadow;
-    // Default browser outline is removed by Tailwind reset · we expect
-    // either custom outline OR box-shadow ring from focus-visible:ring-2.
-    const hasIndicator =
-      (outline !== "none" && outline !== "" && !outline.startsWith("0px")) ||
-      (boxShadow !== "none" && boxShadow !== "");
-    return { hasIndicator, outline, boxShadow };
-  });
+  // 2026-06-09 · anti-flaky CI: una única lectura a los 100ms daba falsos
+  // negativos en runners de 2 cores (estilos del ring aún computándose tras
+  // los 30 Tabs del tab-order · 3/85 páginas fallaban SOLO en CI con el mismo
+  // skip-link que pasa en local). Poll hasta 1s · MISMO estándar (el indicador
+  // debe aparecer · un bug real sigue fallando los 5 intentos).
+  let last: { hasIndicator: boolean; outline?: string; boxShadow?: string } = {
+    hasIndicator: false,
+  };
+  for (let attempt = 0; attempt < 5; attempt++) {
+    await page.waitForTimeout(attempt === 0 ? 100 : 225);
+    last = await page.evaluate(() => {
+      const el = document.activeElement as HTMLElement | null;
+      if (!el || el === document.body) {
+        return { hasIndicator: false };
+      }
+      const styles = window.getComputedStyle(el);
+      const outline = styles.outline;
+      const boxShadow = styles.boxShadow;
+      // Default browser outline is removed by Tailwind reset · we expect
+      // either custom outline OR box-shadow ring from focus-visible:ring-2.
+      const hasIndicator =
+        (outline !== "none" && outline !== "" && !outline.startsWith("0px")) ||
+        (boxShadow !== "none" && boxShadow !== "");
+      return { hasIndicator, outline, boxShadow };
+    });
+    if (last.hasIndicator) return last;
+  }
+  return last;
 }
 
 /**

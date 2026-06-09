@@ -174,11 +174,10 @@ export function InvoicesList({ projectId }: { projectId: string }) {
     },
     {
       id: "verifactu",
-      header: () => (
-        <span className="inline-flex items-center gap-1">
-          Verifactu <TooltipENS term="Verifactu" iconSize={12} />
-        </span>
-      ),
+      // WCAG nested-interactive: DataTable renderiza el header DENTRO del botón
+      // de ordenación · un TooltipENS (botón) anidado ahí crea controles
+      // interactivos anidados (mismo fix que AssetsTab discovery).
+      header: "Verifactu",
       cell: ({ row }) => <VerifactuBadge invoice={row.original} />,
     },
     {

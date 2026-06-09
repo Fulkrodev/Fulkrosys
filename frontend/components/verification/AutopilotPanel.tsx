@@ -443,7 +443,7 @@ function SeverityChip({
       aria-label={`${count} hallazgos de severidad ${label}`}
     >
       <span>{count}</span>
-      <span className="opacity-80">{label}</span>
+      <span>{label}</span>
     </span>
   );
 }
