@@ -135,12 +135,31 @@ _SCANNER_REQUIRED_TOOL: dict[str, str | None] = {
     "apisec": "nuclei",
     "sast": "semgrep",
 }
-_HARDWARE_BOUND: dict[str, str] = {
-    "wireless": "requiere adaptador WiFi en modo monitor — imposible en un VPS cloud",
-    "cracking": "requiere GPU dedicada (hashcat) — no disponible en este host",
-    "mobile": "requiere emulador/dispositivo Android — no disponible en este host",
-    "phishing": "requiere dominios + infra de envío dedicada (ofensivo) — engagement aparte",
-    "redteam": "requiere infra C2 dedicada (ofensivo) — engagement aparte",
+# Servicios de engagement ESPECIALIZADO (bajo demanda · infra/hardware dedicado).
+# NO son escaneo cloud automatizado ni placeholders: son un tier distinto que se
+# activa por engagement con su propia máquina/infra (y consentimiento explícito en
+# los ofensivos). Cada uno con su vía REAL de activación documentada.
+_DEDICATED_ENGAGEMENT: dict[str, dict[str, str]] = {
+    "wireless": {
+        "reason": "WiFi en modo monitor (antena física · prueba on-site presencial)",
+        "alternative": "engagement on-site con adaptador WiFi — por naturaleza NO es remoto",
+    },
+    "cracking": {
+        "reason": "cracking de hashes (hashcat · requiere GPU)",
+        "alternative": "box GPU on-demand levantada solo durante el engagement y destruida al cerrar",
+    },
+    "mobile": {
+        "reason": "análisis de apps móviles (emulador/dispositivo Android/iOS)",
+        "alternative": "device farm (BrowserStack / AWS Device Farm) o box dedicada por engagement",
+    },
+    "phishing": {
+        "reason": "campañas de phishing (dominios + infra de envío · ofensivo · requiere consentimiento explícito)",
+        "alternative": "GoPhish en VM dedicada + dominios del engagement",
+    },
+    "redteam": {
+        "reason": "adversary emulation / C2 (ofensivo · requiere reglas de enfrentamiento firmadas)",
+        "alternative": "infra C2 dedicada por engagement",
+    },
 }
 
 
@@ -148,13 +167,15 @@ def scanner_capability(server: str) -> dict[str, Any]:
     """Declara si un MCP scanner puede correr REAL en este host.
 
     Honesto y determinista. NUNCA finge un resultado:
-    - hardware/infra-bound → ``available=False`` con la razón física.
+    - on_demand_engagement → ``available=False`` (tier dedicado · NO cloud
+      automático) con su razón + vía de activación real.
     - tool-based → ``available=True`` solo si el binario está presente.
     """
-    if server in _HARDWARE_BOUND:
+    if server in _DEDICATED_ENGAGEMENT:
+        info = _DEDICATED_ENGAGEMENT[server]
         return {
-            "server": server, "available": False, "kind": "hardware_bound",
-            "reason": _HARDWARE_BOUND[server],
+            "server": server, "available": False, "kind": "on_demand_engagement",
+            "reason": info["reason"], "alternative": info["alternative"],
         }
     tool = _SCANNER_REQUIRED_TOOL.get(server)
     if tool is None:
