@@ -24,7 +24,7 @@ from backend.app.motors.m_compliance_monitor.service import (
 )
 
 
-shared_task = celery_app.shared_task
+shared_task = celery_app.task
 
 
 async def _run_batch(frequency: str) -> dict[str, Any]:

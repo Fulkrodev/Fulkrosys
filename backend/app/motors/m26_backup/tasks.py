@@ -10,7 +10,7 @@ from loguru import logger
 from backend.app.core.celery_app import celery_app
 
 # Alias compat con patrón original @shared_task
-shared_task = celery_app.shared_task
+shared_task = celery_app.task
 
 
 @shared_task(name="backup.run_pgbackrest_full")

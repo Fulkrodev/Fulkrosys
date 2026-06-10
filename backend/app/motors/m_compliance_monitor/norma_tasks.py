@@ -20,7 +20,7 @@ from backend.app.motors.m_compliance_monitor.norma_reports_service import (
 from backend.app.motors.m_compliance_monitor.normas import NormaRegistry
 
 
-shared_task = celery_app.shared_task
+shared_task = celery_app.task
 
 
 async def _generate_one(norma_key: str) -> dict[str, Any]:
