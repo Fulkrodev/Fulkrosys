@@ -72,12 +72,12 @@ jobs:
   safety:
     name: safety · Python dep vulnerabilities
     runs-on: ubuntu-latest
-    # 2026-06-09 · best-effort · NO bloqueante. Instalar TODAS las deps del
-    # backend en CI requiere libs de sistema (cairo/pango para pycairo) +
-    # descargas pesadas (fastembed). El gate DURO de seguridad es bandit (SAST
-    # HIGH/HIGH) + npm audit (critical). safety queda informativo (corre + sube
-    # report) sin tumbar el workflow por un install frágil.
-    continue-on-error: true
+    # 2026-06-10 · gate REAL (CRITICAL bloquea). El install necesita las dev
+    # libs de cairo (pycairo compila desde fuente) — las MISMAS que ya usan los
+    # jobs polish, donde `pip install -e backend[dev]` compila sin problemas. Con
+    # ellas el install es fiable, así que safety corre de verdad y sube report.
+    # El parser tolera cambios de formato de safety (solo CRITICAL tumba el job);
+    # bandit (SAST) + npm audit (critical) son gates paralelos.
     steps:
       - uses: actions/checkout@v4
 
@@ -88,6 +88,8 @@ jobs:
 
       - name: Install safety + project deps
         run: |
+          # pycairo (dep transitiva) compila desde fuente → necesita cairo dev libs
+          sudo apt-get update -qq && sudo apt-get install -y -qq libcairo2-dev pkg-config
           pip install safety
           cd backend && pip install -e .
 

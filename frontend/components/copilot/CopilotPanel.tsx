@@ -94,17 +94,16 @@ export function CopilotPanel() {
           side="right"
           className="flex h-dvh w-full flex-col gap-0 overflow-hidden p-0 sm:max-w-[480px]"
           style={{
-            backgroundColor: "var(--fulkro-surface-glass)",
+            backgroundColor: "#ffffff",
             borderColor: "var(--fulkro-surface-glass-border)",
-            backdropFilter: "blur(18px) saturate(140%)",
-            WebkitBackdropFilter: "blur(18px) saturate(140%)",
+            boxShadow: "-8px 0 28px rgba(15, 12, 41, 0.18)",
           }}
         >
           <SheetHeader
             className="flex-row items-start justify-between gap-2 border-b px-4 py-3 text-left"
             style={{
               borderColor: "var(--fulkro-surface-glass-border)",
-              backgroundColor: "var(--fulkro-surface-glass-strong)",
+              backgroundColor: "#f4f3fd",
             }}
           >
             <div className="min-w-0">
@@ -141,7 +140,7 @@ export function CopilotPanel() {
             className="space-y-2 border-t px-3 py-3"
             style={{
               borderColor: "var(--fulkro-surface-glass-border)",
-              backgroundColor: "var(--fulkro-surface-glass-strong)",
+              backgroundColor: "#f4f3fd",
             }}
           >
             <QuickActionButtons

@@ -546,6 +546,15 @@ def run_external_script(script_name: str, report: SeedReport) -> None:
 
 
 async def seed_fake_clients(engine, report: SeedReport) -> None:
+    # En PRODUCCIÓN no se siembran clientes ficticios: el sistema arranca
+    # vacío y el primer cliente real se da de alta desde el portal (guiado
+    # por el copiloto). Los fakes (DataForma + 2) son fixtures dev/test/CI.
+    if get_settings().is_production:
+        report.add(
+            "seed:seed_fake_clients.py", "skip",
+            "producción · sin clientes de demostración (alta real desde portal)",
+        )
+        return
     # Skip si ya hay 3+ clientes seed (evita FK violation al re-ejecutar)
     async with engine.connect() as conn:
         await conn.execute(sa_text("SET LOCAL ROLE fulkro"))
@@ -650,7 +659,9 @@ async def final_checks(engine, report: SeedReport) -> None:
             ("threats", 50),
             ("safeguards", 80),
             ("magerit_asset_types", 50),
-            ("clients", 3),
+            # En producción el sistema arranca SIN clientes (alta real desde
+            # el portal); en dev/test/CI se siembran 3 fakes (DataForma + 2).
+            ("clients", 0 if get_settings().is_production else 3),
             ("pricing_catalog", 10),
             # 84 = entradas del catalogo template_catalog_v1.yaml (M06).
             # Sin este seed la fabrica documental no genera nada (#10 B2).
