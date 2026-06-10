@@ -21,8 +21,6 @@
  * tiene Playwright, no framework de tests unitarios TS).
  */
 
-import { readLastUsedProjectIdFromStorage } from "@/lib/stores/active-project-store";
-
 import { isAdminRole, isClientRole } from "./roles";
 
 function getAllowedPaths(role: string): string[] {
@@ -46,10 +44,10 @@ function getAllowedPaths(role: string): string[] {
  */
 export function getDefaultPathForRole(role: string): string {
   if (isAdminRole(role)) {
-    const lastUsed = readLastUsedProjectIdFromStorage();
-    if (lastUsed) {
-      return `/admin/projects/${lastUsed}/dashboard`;
-    }
+    // GATE de producto (2026-06-10): el admin SIEMPRE aterriza en el selector
+    // de proyectos. Nada arranca hasta que elige EXPLÍCITAMENTE un proyecto.
+    // lastUsedProjectId se conserva solo como pista de orden en el selector
+    // (NO para auto-entrar · auto-redirect L3 retirado a propósito).
     return "/admin/projects";
   }
   if (isClientRole(role)) return "/client-portal/dashboard";

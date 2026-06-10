@@ -3,12 +3,10 @@
 import {
   ArrowRight,
   FolderOpen,
-  PlayCircle,
   Search,
   SortAsc,
 } from "lucide-react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import * as React from "react";
 
 import { ArchiveProjectButton } from "@/components/admin/projects/ArchiveProjectButton";
@@ -17,7 +15,6 @@ import { EditClientMetaModal } from "@/components/admin/projects/EditClientMetaM
 import { RAGDot } from "@/components/data/RAGBadge";
 import { DevHint } from "@/components/dev/DevHint";
 import { Badge } from "@/components/ui/badge";
-import { buttonVariants } from "@/components/ui/button";
 import {
   Card,
   CardContent,
@@ -32,8 +29,6 @@ import { useActiveProjectStore } from "@/lib/stores/active-project-store";
 import type { Client } from "@/lib/types";
 import { cn } from "@/lib/utils";
 
-const DEMO_PROJECT_ID = "sdl-demo";
-
 // Sub-atom Sesión 3B-1 Phase A.1 · sort mode for selector
 type SortMode = "name-asc" | "name-desc" | "sector" | "recent";
 
@@ -45,7 +40,6 @@ const SORT_OPTIONS: { value: SortMode; label: string }[] = [
 ];
 
 export default function ProjectsPage() {
-  const router = useRouter();
   const { data, isLoading } = useClients();
   const clients = React.useMemo(() => data ?? [], [data]);
   const lastUsedProjectId = useActiveProjectStore((s) => s.lastUsedProjectId);
@@ -53,18 +47,10 @@ export default function ProjectsPage() {
   const [sectorFilter, setSectorFilter] = React.useState<string>("");
   const [sortMode, setSortMode] = React.useState<SortMode>("recent");
 
-  // Sub-atom Sesión 3A Phase A.2 · single-project auto-redirect.
-  // If user has exactly 1 project and no search active, auto-redirect to
-  // /roadmap to skip the selector friction. R29 sostener · NO presión:
-  // user can always go back via "Cambiar proyecto" in sidebar.
-  React.useEffect(() => {
-    if (isLoading) return;
-    if (clients.length !== 1) return;
-    if (searchQuery.trim()) return;
-    const only = clients[0];
-    if (!only || !only.project_id) return; // CRITICAL #1 · navegar con project_id real
-    router.replace(`${ROUTES.projects}/${only.project_id}/roadmap`);
-  }, [isLoading, clients, searchQuery, router]);
+  // El selector es el GATE de entrada al sistema: nada arranca hasta que el
+  // admin elige EXPLÍCITAMENTE un proyecto (decisión de producto · 2026-06-10).
+  // Antes había un auto-redirect cuando existía un único proyecto; se retiró a
+  // propósito para que el flujo siempre pase por aquí y lo guíe el copiloto.
 
   // Sub-atom Sesión 3B-1 Phase A.1 · sectors available derived from clients.
   const availableSectors = React.useMemo(() => {
@@ -134,13 +120,6 @@ export default function ProjectsPage() {
           </p>
         </div>
         <div className="flex items-center gap-2">
-          <Link
-            href={`${ROUTES.projects}/${DEMO_PROJECT_ID}/summary`}
-            className={cn(buttonVariants({ variant: "outline", size: "md" }))}
-          >
-            <PlayCircle size={14} />
-            Abrir proyecto demo
-          </Link>
           <CreateProjectModal />
         </div>
       </header>
@@ -235,11 +214,10 @@ export default function ProjectsPage() {
               {clients.length === 0 ? (
                 <>
                   <p className="font-medium text-fulkro-ink-700">
-                    Crea tu primer proyecto ENS · te guiamos paso a paso.
+                    Crea tu primer proyecto ENS · el copiloto te guía paso a paso.
                   </p>
                   <p className="text-sm text-fulkro-ink-500">
-                    Mientras tanto, abre el proyecto demo para revisar la
-                    estructura completa.
+                    Pulsa «Crear proyecto» para empezar el alta del cliente.
                   </p>
                 </>
               ) : (
