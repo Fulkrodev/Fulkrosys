@@ -319,34 +319,13 @@ services:
     networks:
       - fulkro-net
 
-  # ─────────────────────── fastembed (embeddings · e5/bge) ───────────────────────
-  # El backend llama EMBEDDINGS_ENDPOINT (:8080) para vectorizar (pgvector RAG).
-  # NO existe imagen oficial única "fastembed server"; FULKRO usa un endpoint
-  # HTTP que sirve el modelo de embeddings_model (.env: BAAI/bge-m3).
-  #
-  # HONEST NOTE (Hetzner-only · placeholder):
-  #   La imagen de abajo (qdrant/fastembed) es un PLACEHOLDER. En Hetzner hay
-  #   que fijar la imagen real del micro-servicio de embeddings que FULKRO use
-  #   (p.ej. un contenedor propio con fastembed 0.4.2 + FastAPI sirviendo
-  #   /embed, o text-embeddings-inference de HuggingFace:
-  #     ghcr.io/huggingface/text-embeddings-inference:cpu-1.5
-  #     command: ["--model-id", "BAAI/bge-m3", "--port", "8080"]
-  #   Ajustar IMAGE + command al servidor real antes del deploy productivo.
-  fastembed:
-    image: ${FASTEMBED_IMAGE:-ghcr.io/huggingface/text-embeddings-inference:cpu-1.5}
-    restart: unless-stopped
-    # command/args dependen de la imagen final · ejemplo TEI:
-    command: ${FASTEMBED_ARGS:---model-id BAAI/bge-m3 --port 8080}
-    volumes:
-      - fastembeddata:/data
-    healthcheck:
-      test: ["CMD-SHELL", "curl -fsS http://localhost:8080/health || exit 1"]
-      interval: 30s
-      timeout: 10s
-      retries: 10
-      start_period: 120s
-    networks:
-      - fulkro-net
+  # ─────────────────────── embeddings (IN-PROCESS · sin contenedor) ──────────────
+  # NO hay servicio fastembed. El backend vectoriza IN-PROCESS con la librería
+  # Python `fastembed` (TextEmbedding · intfloat/multilingual-e5-large · ONNX/CPU ·
+  # ver backend/app/core/ai/embeddings.py · el modelo se descarga lazy a la caché
+  # del contenedor backend). El antiguo contenedor TEI (:8080) era un PLACEHOLDER
+  # que el código NO consumía (embeddings_endpoint vestigial) y crash-looping al
+  # bajar el modelo → eliminado (deploy 2026-06-10).
 
   # ─────────────────────── Caddy (reverse proxy · TLS) ───────────────────────
   # Caddyfile.prod monta · proxy a `app:8000` (alias del backend) + /static.
@@ -397,7 +376,6 @@ volumes:
   redisdata:
   miniodata:
   clamavdata:
-  fastembeddata:
   caddydata:
   caddyconfig:
   caddylogs:
