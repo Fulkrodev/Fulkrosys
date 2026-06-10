@@ -9,6 +9,12 @@ dependencies = [
     "sse-starlette>=3.4",
     "sqlalchemy[asyncio]>=2.0",
     "asyncpg>=0.29",
+    # Driver SINCRONO para Alembic. env.py convierte DATABASE_MIGRATE_URL
+    # (postgresql+asyncpg://) a postgresql:// → SQLAlchemy usa psycopg2 por
+    # defecto en las migraciones. El runtime de la app usa asyncpg; psycopg2
+    # SOLO lo necesita `alembic upgrade head` (servicio provision). Sin el, el
+    # provision de produccion falla con ModuleNotFoundError (deploy 2026-06-10).
+    "psycopg2-binary>=2.9",
     "alembic>=1.13",
     "pydantic[email]>=2.0",
     "pydantic-settings>=2.0",
