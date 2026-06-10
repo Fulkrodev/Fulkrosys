@@ -68,8 +68,8 @@ AGENT_REGISTRY = {
             "basico existen (24 LOC stub funcional). Potencial promocion "
             "futura a LLM real pleno: analizar pliegos PLACSP pre-venta "
             "para detectar requisitos ENS + encaje FULKRO (1-2h vs 1-2d "
-            "analisis manual). Valor comercial directo. M10 Radar detecta "
-            "leads pero no analiza pliegos completos. Implementar post-"
+            "analisis manual). Valor comercial directo. "
+            "Implementar post-"
             "Sesion 13 con primer cliente piloto y pliegos reales."
         ),
     },

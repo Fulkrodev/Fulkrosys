@@ -709,7 +709,7 @@ app.include_router(m14_contracts_router, prefix="/api/v1", tags=["Motor 14 - Con
 # FIRMA_CONTRATO). Flujo autoritativo: extiende m13 ContractSigningFlow.
 app.include_router(contract_signing_public_router, prefix="/api/v1")
 # BUG3 fix · CRM router (propuestas + pricing-models + pipeline leads). Marcos-only
-# (require_owner). Sin deps de radar. prefix interno /commercial → /api/v1/commercial/*.
+# (require_owner). Sin deps externas. prefix interno /commercial → /api/v1/commercial/*.
 app.include_router(m13_commercial_router, prefix="/api/v1", tags=["Motor 13 - Commercial"])
 app.include_router(m15_billing_router, prefix="/api/v1", tags=["Motor 15 - Billing"])
 app.include_router(m10_audit_sim_router, prefix="/api/v1", tags=["Motor 10 - Audit Simulation"])

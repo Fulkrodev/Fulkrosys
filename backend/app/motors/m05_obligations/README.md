@@ -50,9 +50,9 @@ N/A motor-specific · usa modelo `Obligation` (`backend/app/models/ens.py`). RLS
 
 ## ADRs referenced
 
-- ADR-013 · separación arquitectónica de portales (admin / radar / client)
+- ADR-013 · separación arquitectónica de portales (admin / client)
 - ADR-020 · tablas sessions separadas con cookie común + dual dispatcher
 
 ## Cement OPS
 
-Sibling de M05_signing (numbering anomaly intencional · pattern motor parallel M10_audit_sim/M10_ens_radar y M21_diagnosis/M21_portal_cliente).
+Sibling de M05_signing (numbering anomaly intencional · pattern motor parallel M21_diagnosis/M21_portal_cliente).

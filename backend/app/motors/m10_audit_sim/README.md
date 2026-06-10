@@ -1,6 +1,6 @@
 # Motor 10 · Audit Simulation Engine
 
-Auditor virtual ENAC que simula la auditoría real ANTES de la auditoría: evaluación determinista L0-L5 sobre las medidas del Anexo II ENS, anti-alucinación pura (búsquedas SQL reales contra M03/M06/M07/M08, NO LLM). Sibling de M10_ens_radar (numbering anomaly intencional · pattern motor parallel).
+Auditor virtual ENAC que simula la auditoría real ANTES de la auditoría: evaluación determinista L0-L5 sobre las medidas del Anexo II ENS, anti-alucinación pura (búsquedas SQL reales contra M03/M06/M07/M08, NO LLM).
 
 ## Funcionalidades
 
@@ -46,4 +46,4 @@ N/A motor-specific · usa modelo `AuditSimulationRun` (`backend/app/models/audit
 
 ## Cement OPS
 
-Sibling de M10_ens_radar (numbering anomaly intencional). Invariante anti-alucinación: NUNCA LLM-generated para evaluación L0-L5 · siempre query BD real (anti-alucinación cement institutional ENAC).
+Invariante anti-alucinación: NUNCA LLM-generated para evaluación L0-L5 · siempre query BD real (anti-alucinación cement institutional ENAC).

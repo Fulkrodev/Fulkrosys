@@ -46,7 +46,7 @@ NO RLS · platform-global · admin-only.
 
 ### Read-only · NO control LLM routing aquí
 
-Motor es **read-only sobre observability**. NO controla LLM routing (eso vive en `core/ai/llm_router.py`). NO controla cost caps (eso vive en M10_ens_radar `radar_settings` per cluster). Solo provee visibility para investigation + cost forecasting.
+Motor es **read-only sobre observability**. NO controla LLM routing (eso vive en `core/ai/llm_router.py`). NO controla cost caps. Solo provee visibility para investigation + cost forecasting.
 
 ### Anomaly detection rules deterministas
 
