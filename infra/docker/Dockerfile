@@ -57,6 +57,13 @@ RUN cd backend && uv pip install --system -e ".[dev]"
 # Copy application code
 COPY backend/ ./backend/
 COPY frontend/ ./frontend/
+# Catálogos de datos que leen el SEED (seed_all_fulkro: MAGERIT asset_types,
+# safeguards, threats, template_catalog, legal_obligations) y el RUNTIME
+# (copilot_personas_v1.yaml, lms_courses_v1.json, threats.yaml,
+# SYSTEM_KNOWLEDGE_BASE.md, CANONICAL_PRICING.md...). Sin docs/ en la imagen el
+# provision falla con FileNotFoundError docs/magerit_catalog/asset_types.yaml
+# (deploy 2026-06-10).
+COPY docs/ ./docs/
 
 # Verification: si alguna tool ligera falta, el build FALLA. ZAP y
 # openvas-scanner viven en fulkro-scanner (compose); aqui solo las
