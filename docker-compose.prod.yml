@@ -372,6 +372,7 @@ services:
       - "443:443/udp"   # HTTP/3 (h3)
     volumes:
       - ./infra/caddy/Caddyfile.prod:/etc/caddy/Caddyfile:ro
+      - ./landing:/srv/landing:ro
       - caddydata:/data
       - caddyconfig:/config
       - caddylogs:/var/log/caddy

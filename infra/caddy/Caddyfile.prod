@@ -1,31 +1,57 @@
-# FULKRO — Caddy reverse proxy · PRODUCCIÓN (auditoría 2026-06-07 · deploy-fix 2026-06-08)
-# Endurecido para Hetzner: TLS auto + HSTS + límite de body + headers de seguridad
-# + routing backend(/api/*)→app:8000 / resto→frontend:3000. rate-limit de borde
-# disponible vía imagen custom (ver nota). Sustituye fulkro.es por el dominio real.
+# FULKRO — Caddy reverse proxy · PRODUCCIÓN
+# Topología (2026-06-10):
+#   fulkro.es, www.fulkro.es  →  LANDING estático (14 páginas · /srv/landing)
+#   app.fulkro.es             →  PLATAFORMA (Next.js frontend + FastAPI /api/*)
+# TLS auto (Let's Encrypt) + HSTS + límite de body + headers de seguridad.
 #
-# NOTA rate_limit (DESACTIVADO por defecto · EXTRA1): el directivo `rate_limit`
-# NO es nativo de Caddy v2 · requiere compilar un binario custom con el módulo
-# mholt/caddy-ratelimit:
-#   xcaddy build --with github.com/mholt/caddy-ratelimit
-# La imagen `caddy:2` estándar (la del docker-compose.prod.yml) NO lo trae → con
-# el bloque activo, `caddy validate`/runtime FALLAN ("rate_limit is not a
-# registered directive"). Por eso el bloque queda COMENTADO: el stack arranca con
-# la imagen estándar y la app conserva BodySizeLimitMiddleware + cap LLM + límites
-# Celery como defensa en profundidad. Para activarlo: construir imagen custom con
-# xcaddy y DESCOMENTAR (a) `order rate_limit before basicauth` y (b) el bloque
-# `rate_limit { ... }` del sitio.
+# NOTA rate_limit (DESACTIVADO · EXTRA1): `rate_limit` NO es nativo de Caddy v2 ·
+# requiere imagen custom (xcaddy --with github.com/mholt/caddy-ratelimit). La
+# imagen caddy:2 estándar (la del docker-compose.prod.yml) NO lo trae → con el
+# bloque activo, `caddy validate`/runtime FALLAN. Queda comentado; la app conserva
+# BodySizeLimitMiddleware + cap LLM + límites Celery como defensa en profundidad.
 
 {
     email admin@fulkro.es
-    # auto_https ON (default) · Let's Encrypt para el dominio de abajo
+    # auto_https ON (default) · Let's Encrypt para los dominios de abajo
     servers {
-        # No revelar la versión de Caddy
         protocols h1 h2 h3
     }
     # order rate_limit before basicauth   # ← requiere imagen custom (ver cabecera)
 }
 
+# ════════════════════════════════════════════════════════════════════════════
+# LANDING · sitio comercial estático (dominio raíz + www)
+# ════════════════════════════════════════════════════════════════════════════
 fulkro.es, www.fulkro.es {
+    encode zstd gzip
+
+    root * /srv/landing
+    file_server
+
+    # Headers de seguridad + HSTS (2 años · includeSubDomains · preload)
+    header {
+        Strict-Transport-Security "max-age=63072000; includeSubDomains; preload"
+        X-Content-Type-Options nosniff
+        X-Frame-Options DENY
+        Referrer-Policy strict-origin-when-cross-origin
+        Permissions-Policy "geolocation=(), microphone=(), camera=(), payment=()"
+        -Server
+        -X-Powered-By
+    }
+
+    log {
+        output file /var/log/caddy/landing.access.log {
+            roll_size 50MB
+            roll_keep 10
+        }
+        format json
+    }
+}
+
+# ════════════════════════════════════════════════════════════════════════════
+# PLATAFORMA · el sistema entero (admin + cliente + auditor como rutas)
+# ════════════════════════════════════════════════════════════════════════════
+app.fulkro.es {
     encode zstd gzip
 
     # Límite de tamaño de cuerpo en el borde (complementa BodySizeLimitMiddleware app)
@@ -43,12 +69,10 @@ fulkro.es, www.fulkro.es {
     #     }
     # }
 
-    # ── Routing backend vs frontend (auditoría deploy · EXTRA1) ──────────────
+    # ── Routing backend vs frontend ──────────────────────────────────────────
     # En prod el backend (FastAPI/uvicorn · alias de red `app`) sólo sirve `/api/*`
-    # (/docs · /redoc · /openapi.json están deshabilitados en producción · ver
-    # backend/app/main.py _prod_docs_off). Todo lo demás lo sirve el frontend
-    # Next.js (servicio `frontend:3000`). Reglas explícitas para evitar el doble
-    # salto de Next /api/:path* → backend en las rutas de API y SSE.
+    # (/docs · /redoc · /openapi.json deshabilitados en prod · ver main.py
+    # _prod_docs_off). Todo lo demás lo sirve el frontend Next.js (frontend:3000).
 
     # API → backend directo (sin pasar por el rewrite de Next).
     handle /api/* {
@@ -64,7 +88,7 @@ fulkro.es, www.fulkro.es {
         reverse_proxy app:8000
     }
 
-    # Resto (UI, páginas, assets Next /_next/*, /client-portal, etc.) → frontend.
+    # Resto (UI, páginas, assets Next /_next/*, /client-portal, /admin, etc.).
     handle {
         reverse_proxy frontend:3000
     }
@@ -81,7 +105,7 @@ fulkro.es, www.fulkro.es {
     }
 
     log {
-        output file /var/log/caddy/fulkro.access.log {
+        output file /var/log/caddy/app.access.log {
             roll_size 50MB
             roll_keep 10
         }
