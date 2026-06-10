@@ -38,6 +38,7 @@ import asyncio
 import json
 import logging
 import os
+import shutil
 import sys
 from pathlib import Path
 from typing import Any
@@ -81,7 +82,7 @@ async def try_invoke_mcp_or_none(
         mcp_resp = await invoke_mcp(MCPInvocation(
             server=server, tool=tool, args=args, timeout_seconds=timeout_seconds,
         ))
-        if mcp_resp.get("_fallback"):
+        if mcp_resp.get("_fallback") or mcp_resp.get("_unavailable"):
             return None
         return mcp_resp
     except (MCPInvocationError, FileNotFoundError, OSError) as exc:
@@ -116,6 +117,58 @@ _KNOWN_SERVERS = {
     "cracking": _MCP_SERVERS_DIR / "cracking" / "server.py",
     "sast": _MCP_SERVERS_DIR / "sast" / "server.py",
 }
+
+
+# ── Matriz de capacidades por host (honesta · NUNCA finge un resultado) ──────
+# tool-based: el scanner corre REAL si su binario está presente (shutil.which).
+# hardware/infra-bound: NO ejecutables en un VPS cloud (requieren hardware
+# dedicado o infra ofensiva aparte). Se reportan con su razón física · jamás
+# producen un finding falso ni rompen el flujo (invoke_mcp corta limpio).
+_SCANNER_REQUIRED_TOOL: dict[str, str | None] = {
+    "scope_enforcer": None,   # Python puro · siempre disponible
+    "recon": "nmap",
+    "vulnscan": "nuclei",
+    "webpentest": "testssl.sh",   # ZAP profundo corre en contenedor aparte (perfil scanner)
+    "infra": "nmap",
+    "config": "lynis",
+    "cloud": "prowler",
+    "apisec": "nuclei",
+    "sast": "semgrep",
+}
+_HARDWARE_BOUND: dict[str, str] = {
+    "wireless": "requiere adaptador WiFi en modo monitor — imposible en un VPS cloud",
+    "cracking": "requiere GPU dedicada (hashcat) — no disponible en este host",
+    "mobile": "requiere emulador/dispositivo Android — no disponible en este host",
+    "phishing": "requiere dominios + infra de envío dedicada (ofensivo) — engagement aparte",
+    "redteam": "requiere infra C2 dedicada (ofensivo) — engagement aparte",
+}
+
+
+def scanner_capability(server: str) -> dict[str, Any]:
+    """Declara si un MCP scanner puede correr REAL en este host.
+
+    Honesto y determinista. NUNCA finge un resultado:
+    - hardware/infra-bound → ``available=False`` con la razón física.
+    - tool-based → ``available=True`` solo si el binario está presente.
+    """
+    if server in _HARDWARE_BOUND:
+        return {
+            "server": server, "available": False, "kind": "hardware_bound",
+            "reason": _HARDWARE_BOUND[server],
+        }
+    tool = _SCANNER_REQUIRED_TOOL.get(server)
+    if tool is None:
+        return {"server": server, "available": True, "kind": "builtin", "reason": ""}
+    present = shutil.which(tool) is not None
+    return {
+        "server": server, "available": present, "kind": "tool", "tool": tool,
+        "reason": "" if present else f"herramienta '{tool}' no instalada en este host",
+    }
+
+
+def scanner_capabilities() -> dict[str, dict[str, Any]]:
+    """Matriz completa de capacidades por scanner (para autopilot / report / UI)."""
+    return {s: scanner_capability(s) for s in _KNOWN_SERVERS}
 
 
 class MCPInvocationError(Exception):
@@ -180,6 +233,19 @@ async def invoke_mcp(invocation: MCPInvocation) -> dict[str, Any]:
             "server": invocation.server,
             "tool": invocation.tool,
             "reason": "USE_MCP_REAL=false (default)",
+        }
+
+    # Capacidad por host: si el scanner no puede correr REAL aquí (hardware/infra
+    # bound, o binario ausente), cortamos LIMPIO con su razón física · NUNCA se
+    # intenta un subprocess condenado ni se finge un resultado.
+    cap = scanner_capability(invocation.server)
+    if not cap["available"]:
+        return {
+            "_unavailable": True,
+            "server": invocation.server,
+            "tool": invocation.tool,
+            "kind": cap.get("kind"),
+            "reason": cap["reason"],
         }
 
     server_path = _resolve_server_path(invocation.server)
@@ -261,6 +327,8 @@ __all__ = [
     "MCPInvocation",
     "MCPInvocationError",
     "invoke_mcp",
+    "scanner_capabilities",
+    "scanner_capability",
     "try_invoke_mcp_or_none",
     "use_mcp_real",
 ]
