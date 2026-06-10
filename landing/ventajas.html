@@ -30,12 +30,13 @@
       "@id": "https://fulkro.es/#org",
       "name": "Fulkro",
       "url": "https://fulkro.es",
-      "description": "Implantación del Esquema Nacional de Seguridad (ENS, RD 311/2022) para pymes españolas que necesitan acreditar conformidad para licitar y ejecutar contratos del sector público. Una plataforma hace el trabajo pesado y un equipo de expertos lo revisa y valida.",
+      "description": "Implantación del Esquema Nacional de Seguridad (ENS, RD 311/2022) para pymes españolas que necesitan acreditar conformidad para licitar y ejecutar contratos del sector público. Una plataforma hace el trabajo pesado y un experto lo revisa y valida personalmente.",
       "email": "marcosmata@fulkro.es",
       "telephone": "+34637165328",
       "areaServed": { "@type": "Country", "name": "España" },
       "address": { "@type": "PostalAddress", "addressLocality": "Madrid", "addressCountry": "ES" },
       "sameAs": [ "https://www.linkedin.com/company/fulkro" ],
+      "founder": { "@type": "Person", "name": "Marcos Mata", "jobTitle": "Fundador y consultor ENS" },
       "knowsAbout": [
         "Esquema Nacional de Seguridad","ENS","RD 311/2022","CCN-STIC",
         "ciberseguridad","contratación pública","ISO 27001","test de intrusión"
@@ -65,7 +66,7 @@
   :root{
     --violet:#6C63FF; --violet-lt:#8B83FF; --violet-glow:#aba4ff; --indigo:#5b4fe6; --magenta:#c77dff; --rose:#e879f9; --cyan:#7dd3fc;
     --ink:#1a1a2e; --bg:#110b28; --card:rgba(32,25,60,.5); --card-solid:#1a1438;
-    --text:#FAFAF8; --text-dim:#b6b1da; --text-faint:#7a749c;
+    --text:#FAFAF8; --text-dim:#c1bce4; --text-faint:#7a749c;
     --line:rgba(139,131,255,.15); --line-strong:rgba(171,164,255,.32);
     --ok:#5eead4; --warn:#fbbf24; --bad:#fb7185;
     --maxw:1200px; --e:cubic-bezier(.16,1,.3,1);
@@ -77,15 +78,15 @@
     background:radial-gradient(1100px 800px at 80% 8%,rgba(199,125,255,.14),transparent 58%),radial-gradient(900px 700px at 10% 80%,rgba(125,211,252,.07),transparent 60%)}
 
   /* ===== ATMÓSFERA ===== */
-  .aurora{position:fixed;inset:-20%;z-index:0;pointer-events:none;filter:blur(85px);opacity:.78}
+  .aurora{position:fixed;inset:-20%;z-index:0;pointer-events:none;filter:blur(100px);opacity:.45}
   .aurora b{position:absolute;border-radius:50%;display:block}
-  .a1{width:48vw;height:48vw;left:50%;top:0;background:radial-gradient(circle,rgba(139,131,255,.62),transparent 64%);animation:drift1 26s ease-in-out infinite}
-  .a2{width:42vw;height:42vw;left:2%;top:46%;background:radial-gradient(circle,rgba(91,79,230,.52),transparent 64%);animation:drift2 32s ease-in-out infinite}
-  .a3{width:38vw;height:38vw;right:0;top:58%;background:radial-gradient(circle,rgba(232,121,249,.42),transparent 64%);animation:drift1 30s ease-in-out infinite reverse}
-  .a4{width:30vw;height:30vw;left:30%;top:30%;background:radial-gradient(circle,rgba(125,211,252,.28),transparent 64%);animation:drift2 38s ease-in-out infinite}
+  .a1{width:48vw;height:48vw;left:50%;top:0;background:radial-gradient(circle,rgba(139,131,255,.34),transparent 64%);animation:drift1 26s ease-in-out infinite}
+  .a2{width:42vw;height:42vw;left:2%;top:46%;background:radial-gradient(circle,rgba(91,79,230,.28),transparent 64%);animation:drift2 32s ease-in-out infinite}
+  .a3{width:38vw;height:38vw;right:0;top:58%;background:radial-gradient(circle,rgba(232,121,249,.24),transparent 64%);animation:drift1 30s ease-in-out infinite reverse}
+  .a4{width:30vw;height:30vw;left:30%;top:30%;background:radial-gradient(circle,rgba(125,211,252,.18),transparent 64%);animation:drift2 38s ease-in-out infinite}
   .grain{position:fixed;inset:0;z-index:1;pointer-events:none;opacity:.04;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")}
   .spot{position:fixed;width:640px;height:640px;border-radius:50%;pointer-events:none;z-index:2;
-    background:radial-gradient(circle,rgba(255,255,255,.16),rgba(199,180,255,.08) 36%,transparent 62%);transform:translate(-50%,-50%);mix-blend-mode:screen;opacity:0}
+    background:radial-gradient(circle,rgba(255,255,255,.09),rgba(199,180,255,.05) 36%,transparent 62%);transform:translate(-50%,-50%);mix-blend-mode:screen;opacity:0}
   @media(hover:hover) and (pointer:fine){.spot{opacity:1}}
   .wrap{position:relative;z-index:5;max-width:var(--maxw);margin:0 auto;padding:0 clamp(20px,5vw,28px)}
   a{color:inherit}
@@ -390,7 +391,7 @@
     .step{grid-template-columns:56px 1fr;gap:16px}.step .num{font-size:36px}
     .fieldrow{grid-template-columns:1fr}
     .ctas .btn{flex:1;justify-content:center}
-    .aurora{opacity:.6}
+    .aurora{opacity:.32}
   }
   @media(prefers-reduced-motion:reduce){*{animation-duration:.001ms!important}.reveal{opacity:1;transform:none;filter:none}.ico svg *{stroke-dashoffset:0!important}}
 
@@ -412,10 +413,10 @@
   /* —— campo de orbes con parallax —— */
   .orbfield{position:absolute;left:0;top:0;width:100%;height:100%;z-index:1;pointer-events:none;overflow:hidden}
   .orb{position:absolute;border-radius:50%;will-change:transform}
-  .orb.glow{filter:blur(3px)}
-  .orb.ringo{border:1px solid var(--line-strong);background:transparent;opacity:.45}
-  .orb.dot{opacity:.8}
-  @media(max-width:560px){.orbfield{opacity:.5}}
+  .orb.glow{filter:blur(4px);opacity:.55}
+  .orb.ringo{border:1px solid var(--line-strong);background:transparent;opacity:.26}
+  .orb.dot{opacity:.45}
+  @media(max-width:560px){.orbfield{opacity:.28}}
 
   /* —— brillo que sigue al cursor en las cards (lo inyecta el JS) —— */
   .gloss{position:absolute;inset:0;border-radius:inherit;pointer-events:none;z-index:0;opacity:0;transition:opacity .35s var(--e);
@@ -887,7 +888,7 @@
   .conn-desc,.dmuted,.dnote span{overflow-wrap:anywhere}
 
   /* Parallax visible en todo el scroll (páginas largas) */
-  .orbfield{position:fixed;opacity:.82}
+  .orbfield{position:fixed;opacity:.38}
 
   /* ===== Topbar en una sola línea ===== */
   .tb-in{gap:24px;flex-wrap:nowrap}
@@ -897,12 +898,12 @@
 
   /* ===== Fondo aurora: multicolor, vivo y distinto por página ===== */
   :root{--au1:139,131,255;--au2:91,79,230;--au3:232,121,249;--au4:125,211,252;--au5:199,125,255}
-  .aurora{opacity:.86;filter:blur(78px) saturate(132%)}
-  .a1{background:radial-gradient(circle,rgba(var(--au1),.72),transparent 64%);animation:drift1 23s ease-in-out infinite}
-  .a2{background:radial-gradient(circle,rgba(var(--au2),.6),transparent 64%);animation:drift2 31s ease-in-out infinite}
-  .a3{background:radial-gradient(circle,rgba(var(--au3),.62),transparent 64%);animation:drift3 26s ease-in-out infinite}
-  .a4{background:radial-gradient(circle,rgba(var(--au4),.5),transparent 64%);animation:drift1 35s ease-in-out infinite reverse}
-  .a5{position:absolute;display:block;border-radius:50%;width:36vw;height:36vw;left:58%;top:6%;background:radial-gradient(circle,rgba(var(--au5),.48),transparent 64%);animation:drift2 41s ease-in-out infinite reverse}
+  .aurora{opacity:.42;filter:blur(100px) saturate(106%)}
+  .a1{background:radial-gradient(circle,rgba(var(--au1),.38),transparent 64%);animation:drift1 23s ease-in-out infinite}
+  .a2{background:radial-gradient(circle,rgba(var(--au2),.3),transparent 64%);animation:drift2 31s ease-in-out infinite}
+  .a3{background:radial-gradient(circle,rgba(var(--au3),.32),transparent 64%);animation:drift3 26s ease-in-out infinite}
+  .a4{background:radial-gradient(circle,rgba(var(--au4),.26),transparent 64%);animation:drift1 35s ease-in-out infinite reverse}
+  .a5{position:absolute;display:block;border-radius:50%;width:36vw;height:36vw;left:58%;top:6%;background:radial-gradient(circle,rgba(var(--au5),.24),transparent 64%);animation:drift2 41s ease-in-out infinite reverse}
   @keyframes drift1{0%,100%{transform:translate(-50%,0) scale(1);opacity:.68}50%{transform:translate(-38%,10%) scale(1.24);opacity:1}}
   @keyframes drift2{0%,100%{transform:translate(0,0) scale(1);opacity:.62}50%{transform:translate(14%,-10%) scale(1.22);opacity:1}}
   @keyframes drift3{0%,100%{transform:translate(0,0) scale(1.06);opacity:.58}50%{transform:translate(-13%,-8%) scale(.9);opacity:1}}
@@ -910,13 +911,13 @@
   .thm-ventajas{--au1:199,125,255;--au2:232,121,249;--au3:139,131,255;--au4:217,70,239;--au5:91,79,230}
   .thm-seguridad{--au1:94,234,212;--au2:125,211,252;--au3:139,131,255;--au4:56,189,248;--au5:91,79,230}
   .thm-ens{--au1:91,79,230;--au2:139,131,255;--au3:125,211,252;--au4:99,102,241;--au5:56,189,248}
-  .thm-comparativa{--au1:251,191,36;--au2:232,121,249;--au3:139,131,255;--au4:199,125,255;--au5:91,79,230}
+  .thm-comparativa{--au1:232,121,249;--au2:232,121,249;--au3:139,131,255;--au4:199,125,255;--au5:91,79,230}
   .thm-faq{--au1:125,211,252;--au2:139,131,255;--au3:91,79,230;--au4:56,189,248;--au5:232,121,249}
   .thm-nosotros{--au1:232,121,249;--au2:199,125,255;--au3:139,131,255;--au4:217,70,239;--au5:125,211,252}
   .thm-contacto{--au1:125,211,252;--au2:91,79,230;--au3:139,131,255;--au4:56,189,248;--au5:94,234,212}
   .thm-comofunciona{--au1:139,131,255;--au2:199,125,255;--au3:125,211,252;--au4:232,121,249;--au5:91,79,230}
   .thm-soporte{--au1:125,211,252;--au2:139,131,255;--au3:94,234,212;--au4:56,189,248;--au5:91,79,230}
-  @media(max-width:560px){.aurora{filter:blur(60px) saturate(125%);opacity:.62}}
+  @media(max-width:560px){.aurora{filter:blur(80px) saturate(104%);opacity:.3}}
 
   /* ===== Cambios de color por página MÁS marcados + animación más intensa ===== */
   :root{--bg:#0f0a24}
@@ -1069,7 +1070,7 @@
           </table>
         </div>
       </div>
-      <p class="tagline reveal" style="margin-top:16px">Plazos del sector según consultoras especializadas (Audidat, Legitec, Delbion) · el alcance y el plazo finales dependen de tu punto de partida.</p>
+      <p class="tagline reveal" style="margin-top:16px">Plazos del sector según los plazos que publican las consultoras especializadas del sector · el alcance y el plazo finales dependen de tu punto de partida.</p>
     </div>
   </section>
 
@@ -1141,7 +1142,7 @@
         <rect class="bar" x="18" y="21" width="60" height="9" rx="4.5" fill="#1a1a2e"/>
         <circle cx="48" cy="26" r="5" fill="#6C63FF"/>
       </svg></span>fulkro</a>
-        <p>La plataforma que hace el trabajo pesado del Esquema Nacional de Seguridad y lo deja revisado por expertos, para las empresas que compiten por contratos públicos. De cero a certificado en semanas.</p>
+        <p>La plataforma que hace el trabajo pesado del Esquema Nacional de Seguridad y lo deja revisado por expertos, para las empresas que compiten por contratos públicos. Listo para la auditoría en semanas.</p>
         <p class="fcontact"><a href="mailto:marcosmata@fulkro.es">marcosmata@fulkro.es</a><br><a href="tel:+34637165328">+34 637 165 328</a></p>
         <a class="fsocial" href="https://www.linkedin.com/company/fulkro" target="_blank" rel="noopener" aria-label="Fulkro en LinkedIn"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M4.98 3.5a2.5 2.5 0 1 1 0 5 2.5 2.5 0 0 1 0-5zM3 9h4v12H3zM9 9h3.8v1.7h.05c.53-1 1.83-2.05 3.76-2.05C20.4 8.65 22 10.6 22 14v7h-4v-6.2c0-1.5-.03-3.4-2.08-3.4-2.08 0-2.4 1.62-2.4 3.3V21H9z"/></svg>Fulkro en LinkedIn</a>
       </div>
