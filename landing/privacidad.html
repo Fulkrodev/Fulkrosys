@@ -66,7 +66,7 @@
   :root{
     --violet:#6C63FF; --violet-lt:#8B83FF; --violet-glow:#aba4ff; --indigo:#5b4fe6; --magenta:#c77dff; --rose:#e879f9; --cyan:#7dd3fc;
     --ink:#1a1a2e; --bg:#110b28; --card:rgba(32,25,60,.5); --card-solid:#1a1438;
-    --text:#FAFAF8; --text-dim:#c1bce4; --text-faint:#7a749c;
+    --text:#FCFCFF; --text-dim:#E4E1F6; --text-faint:#ABA5CC;
     --line:rgba(139,131,255,.15); --line-strong:rgba(171,164,255,.32);
     --ok:#5eead4; --warn:#fbbf24; --bad:#fb7185;
     --maxw:1200px; --e:cubic-bezier(.16,1,.3,1);
@@ -968,12 +968,54 @@
   .cb-act.primary:hover{background:linear-gradient(135deg,rgba(108,99,255,.3),rgba(232,121,249,.18))}
 
 </style>
+<style id="cybg-style">
+/* ===== Fondo interiores · casi negro violeta grisáceo + cyber (v6) ===== */
+body{--bg:#050409}
+.aurora,.orbfield{display:none!important}
+
+.cybg{position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden}
+/* casi negro con tinte violeta grisáceo, muy muy oscuro */
+.cybg__base{position:absolute;inset:0;background:
+  radial-gradient(120% 80% at 50% -8%, rgba(118,108,200,.045), transparent 56%),
+  linear-gradient(180deg,#0c0a15 0%,#08060f 58%,#050409 100%)}
+/* cuadrícula: verticales un pelín más; horizontales igual (sutiles) */
+.cybg__grid{position:absolute;inset:-2px;background-image:
+  linear-gradient(rgba(150,142,255,.03) 1px,transparent 1px),
+  linear-gradient(90deg,rgba(150,142,255,.048) 1px,transparent 1px);
+  background-size:62px 62px;
+  -webkit-mask-image:radial-gradient(135% 95% at 50% 0%,#000 30%,transparent 86%);
+  mask-image:radial-gradient(135% 95% at 50% 0%,#000 30%,transparent 86%);
+  animation:cybgPan 48s linear infinite}
+.cybg__net{position:absolute;inset:0;width:100%;height:100%;opacity:.42;
+  -webkit-mask-image:radial-gradient(135% 100% at 50% 6%,#000 55%,rgba(0,0,0,.78) 100%);
+  mask-image:radial-gradient(135% 100% at 50% 6%,#000 55%,rgba(0,0,0,.78) 100%)}
+.cybg__crt{position:absolute;inset:0;mix-blend-mode:multiply;opacity:.4;
+  background:repeating-linear-gradient(to bottom,
+    rgba(0,0,0,0) 0, rgba(0,0,0,0) 2px, rgba(0,0,0,.4) 3px, rgba(0,0,0,.4) 3.5px);
+  background-size:100% 3.5px;
+  animation:cybgRoll 11s linear infinite, cybgFlick 5s ease-in-out infinite}
+.cybg__scan{position:absolute;left:0;right:0;height:24vh;top:-30vh;
+  background:linear-gradient(180deg,transparent 0%, rgba(185,178,255,.018) 38%,
+    rgba(206,200,255,.045) 50%, rgba(185,178,255,.018) 62%, transparent 100%);
+  box-shadow:0 0 24px rgba(185,178,255,.025);
+  animation:cybgScan 30s linear infinite}
+@keyframes cybgPan{from{background-position:0 0,0 0}to{background-position:62px 62px,62px 62px}}
+@keyframes cybgRoll{from{background-position:0 0}to{background-position:0 -7px}}
+@keyframes cybgFlick{0%,100%{opacity:.38}50%{opacity:.42}}
+@keyframes cybgScan{0%{top:-30vh;opacity:0}1%{opacity:1}13%{top:120vh;opacity:1}14%{opacity:0}100%{top:120vh;opacity:0}}
+.spot{background:radial-gradient(circle, rgba(178,170,255,.05),
+  rgba(150,142,255,.025) 38%, transparent 62%)!important; mix-blend-mode:screen}
+@media(prefers-reduced-motion:reduce){
+  .cybg__grid,.cybg__scan{animation:none}.cybg__net{display:none}.cybg__crt{animation:none}}
+@media(max-width:640px){.cybg__grid{background-size:46px 46px}.cybg__scan{display:none}.cybg__crt{opacity:.3}}
+</style>
 </head>
 <body class="thm-contacto">
 <svg class="gradref" aria-hidden="true"><defs>
   <linearGradient id="icoGrad" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#aba4ff"/><stop offset="1" stop-color="#e879f9"/></linearGradient>
 </defs></svg>
 <div class="scrollprog" id="scrollprog"></div>
+<div class="cybg" aria-hidden="true"><div class="cybg__base"></div><div class="cybg__grid"></div><canvas class="cybg__net" id="cybgNet"></canvas><div class="cybg__crt"></div><div class="cybg__scan"></div></div>
 <div class="aurora"><b class="a1"></b><b class="a2"></b><b class="a3"></b><b class="a4"></b><b class="a5"></b></div>
 <div class="grain"></div>
 <div class="spot" id="spot"></div>
@@ -1356,6 +1398,40 @@ if(lf){
 
 
 
+</script>
+<script id="cybg-net-js">
+(function(){
+  var c=document.getElementById('cybgNet'); if(!c||!c.getContext) return;
+  if(window.matchMedia&&matchMedia('(prefers-reduced-motion:reduce)').matches) return;
+  var x=c.getContext('2d'),w=0,h=0,dpr=1,nodes=[],raf=0,run=true;
+  function size(){
+    dpr=Math.min(2,window.devicePixelRatio||1);
+    w=c.clientWidth;h=c.clientHeight;
+    c.width=Math.max(1,w*dpr);c.height=Math.max(1,h*dpr);x.setTransform(dpr,0,0,dpr,0,0);
+    var t=Math.round((w*h)/26000); t=Math.max(15,Math.min(window.innerWidth<640?26:54,t));
+    nodes=[];for(var i=0;i<t;i++)nodes.push({x:Math.random()*w,y:Math.random()*h,vx:(Math.random()-.5)*.18,vy:(Math.random()-.5)*.18});
+  }
+  function frame(){
+    if(!run)return;
+    x.clearRect(0,0,w,h);
+    for(var i=0;i<nodes.length;i++){var n=nodes[i];n.x+=n.vx;n.y+=n.vy;if(n.x<0||n.x>w)n.vx*=-1;if(n.y<0||n.y>h)n.vy*=-1;}
+    x.shadowBlur=0;
+    /* líneas: más visibles */
+    for(var i=0;i<nodes.length;i++)for(var j=i+1;j<nodes.length;j++){
+      var a=nodes[i],b=nodes[j],dx=a.x-b.x,dy=a.y-b.y,d=dx*dx+dy*dy;
+      if(d<27225){var o=(1-d/27225)*.24;x.strokeStyle='rgba(154,146,255,'+o.toFixed(3)+')';x.lineWidth=1.1;x.beginPath();x.moveTo(a.x,a.y);x.lineTo(b.x,b.y);x.stroke();}
+    }
+    /* puntos: mismo tamaño, un pelín menos */
+    x.shadowColor='rgba(150,142,255,.5)';x.shadowBlur=4;x.fillStyle='rgba(190,183,255,.46)';
+    for(var i=0;i<nodes.length;i++){x.beginPath();x.arc(nodes[i].x,nodes[i].y,3,0,6.283);x.fill();}
+    x.shadowBlur=0;
+    raf=requestAnimationFrame(frame);
+  }
+  function start(){cancelAnimationFrame(raf);run=true;frame();}
+  size();start();
+  addEventListener('resize',size,{passive:true});
+  document.addEventListener('visibilitychange',function(){run=!document.hidden;if(run)start();else cancelAnimationFrame(raf);});
+})();
 </script>
 </body>
 </html>
