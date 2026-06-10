@@ -25,8 +25,19 @@
 fulkro.es, www.fulkro.es {
     encode zstd gzip
 
-    root * /srv/landing
-    file_server
+    # Formulario de contacto del landing → backend (mismo origen · sin CORS).
+    # header_up Host app.fulkro.es satisface el TrustedHostMiddleware del backend.
+    handle /api/v1/public/contact {
+        reverse_proxy app:8000 {
+            header_up Host app.fulkro.es
+        }
+    }
+
+    # Landing estático (todo lo demás).
+    handle {
+        root * /srv/landing
+        file_server
+    }
 
     # Headers de seguridad + HSTS (2 años · includeSubDomains · preload)
     header {

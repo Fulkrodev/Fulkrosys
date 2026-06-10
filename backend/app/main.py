@@ -12,6 +12,7 @@ from backend.app.middleware.marcos_timesheet_middleware import (
     MarcosTimesheetMiddleware,
 )
 from backend.app.api.v1.health import router as health_router
+from backend.app.api.v1.public_contact import router as public_contact_router
 from backend.app.api.v1.corpus import router as corpus_router
 from backend.app.api.v1.projects import router as projects_composer_router
 from backend.app.api.v1.audit_search import router as audit_search_router
@@ -410,6 +411,7 @@ async def _workflow_gate_handler(_request, exc: WorkflowGateError):  # noqa: ANN
 
 # Routers
 app.include_router(health_router, prefix="/api/v1", tags=["health"])
+app.include_router(public_contact_router, prefix="/api/v1", tags=["Public — Contacto landing"])
 app.include_router(corpus_router, prefix="/api/v1", tags=["Corpus & RAG"])
 app.include_router(projects_composer_router, prefix="/api/v1", tags=["Project Composer (FASE 9.B)"])
 app.include_router(audit_search_router, prefix="/api/v1", tags=["Audit Search (FASE 9.B)"])
