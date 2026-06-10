@@ -42,6 +42,21 @@ RUN pip install --no-cache-dir prowler-cloud==4.0.0 || \
     pip install --no-cache-dir prowler==3.13.0 || \
     echo "WARNING: Prowler install failed; container scanner alternativo en fulkro-scanner"
 
+# httpx + subfinder (Go binaries · ProjectDiscovery) — recon (httpx_scan está en
+# el plan BASICO del autopilot · subfinder en MEDIO/ALTO). Best-effort: si una
+# release falla, el build NO se rompe y scanner_capabilities() lo refleja honesto.
+RUN (curl -sfL https://github.com/projectdiscovery/httpx/releases/download/v1.6.9/httpx_1.6.9_linux_amd64.zip -o /tmp/httpx.zip \
+      && cd /tmp && python3 -c "import zipfile; zipfile.ZipFile('httpx.zip').extractall('/usr/local/bin/')" \
+      && chmod +x /usr/local/bin/httpx && rm -f /tmp/httpx.zip) \
+    || echo "WARNING: httpx install failed"
+RUN (curl -sfL https://github.com/projectdiscovery/subfinder/releases/download/v2.6.6/subfinder_2.6.6_linux_amd64.zip -o /tmp/subfinder.zip \
+      && cd /tmp && python3 -c "import zipfile; zipfile.ZipFile('subfinder.zip').extractall('/usr/local/bin/')" \
+      && chmod +x /usr/local/bin/subfinder && rm -f /tmp/subfinder.zip) \
+    || echo "WARNING: subfinder install failed"
+
+# semgrep (SAST · pip) — sast plan. Best-effort (fallback graceful).
+RUN pip install --no-cache-dir semgrep || echo "WARNING: semgrep install failed"
+
 # Install uv for fast dependency management
 RUN pip install uv
 
