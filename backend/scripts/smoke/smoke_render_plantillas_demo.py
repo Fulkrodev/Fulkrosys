@@ -1242,8 +1242,8 @@ CLIENTE_PILOTO_CONTEXT["comite_seguridad"] = {
 }
 # proyecto.categoria_ens ya estaba "BASICA" · sustituir a MEDIA para E-002/E-012/E-090
 CLIENTE_PILOTO_CONTEXT["proyecto"]["categoria_ens"] = "MEDIA"
-# responsables.responsable_sistema_informacion (E-002 RSI)
-CLIENTE_PILOTO_CONTEXT["responsables"]["responsable_sistema_informacion"] = {
+# responsables.responsable_sistema (E-002 RSIS · clave canónica m30)
+CLIENTE_PILOTO_CONTEXT["responsables"]["responsable_sistema"] = {
     "nombre": "Sara Tecnica Demo",
     "cargo": "Director TI",
     "dni": "00000001A",

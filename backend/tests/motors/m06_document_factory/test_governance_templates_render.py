@@ -66,7 +66,7 @@ def governance_context() -> dict:
                 "cargo": "CISO",
                 "dni": "23456789B",
             },
-            "responsable_sistema_informacion": {
+            "responsable_sistema": {
                 "nombre": "Javier Sanz Moreno",
                 "cargo": "Director de TI",
                 "dni": "34567890C",
@@ -363,7 +363,7 @@ def test_e003_renders_comite_composition_and_quorum_loop(tmp_path, governance_co
     assert "Trimestral" in text, "E-003 falta periodicidad reuniones"
     assert "Mayoria absoluta" in text, "E-003 falta quorum minimo"
     # 9 competencias (verificar al menos 3 referencias documentales clave)
-    competencias = ["E-100", "E-050", "E-400", "E-041", "E-222"]
+    competencias = ["E-100", "E-150", "E-400", "E-041", "E-222"]
     for c in competencias:
         assert c in text, f"E-003 falta referencia competencia: {c}"
     # Conservacion 10 anios actas
@@ -375,7 +375,7 @@ def test_e003_renders_comite_composition_and_quorum_loop(tmp_path, governance_co
 def test_e012_renders_dimensions_table_and_decision(tmp_path, governance_context):
     """E-012 con decision_categorizacion (5 dimensiones + nivel global MEDIA).
     Validacion: tabla 5 dimensiones + nivel global decision + metodologia +
-    referencia E-040 DA + referencia E-050."""
+    referencia E-040 DA + referencia E-150 (Plan de Adecuación)."""
     template_path = VAR_TEMPLATES / "E-012.docx"
     output_path = tmp_path / "E-012_semantic.docx"
     render_docx(template_path, governance_context, output_path)
@@ -391,7 +391,8 @@ def test_e012_renders_dimensions_table_and_decision(tmp_path, governance_context
     assert "RD 311/2022" in text, "E-012 falta RD 311/2022"
     assert "Anexo I" in text, "E-012 falta Anexo I categorizacion"
     assert "Anexo II" in text, "E-012 falta Anexo II 73 medidas"
-    assert "artículo 28" in text or "art. 28" in text, "E-012 falta art 28 RD 311/2022"
+    assert "artículo 40" in text, "E-012 falta art 40 RD 311/2022 (categorización)"
+    assert "artículo 28" in text, "E-012 falta art 28 RD 311/2022 (declaración de aplicabilidad)"
     assert "CCN-STIC 803" in text, "E-012 falta CCN-STIC 803"
     # 5 dimensiones C/I/D/A/T renderizadas
     dimensiones_labels = ["Confidencialidad", "Integridad", "Disponibilidad",
@@ -406,7 +407,7 @@ def test_e012_renders_dimensions_table_and_decision(tmp_path, governance_context
     assert "CCN-STIC 803" in text, "E-012 falta metodologia custom"
     # Referencias documentales
     assert "E-040" in text, "E-012 falta referencia E-040 DA"
-    assert "E-050" in text, "E-012 falta referencia E-050 Plan Adecuacion"
+    assert "E-150" in text, "E-012 falta referencia E-150 Plan de Adecuación"
     assert "E-042" in text, "E-012 falta referencia E-042 cambio material"
     # 73 medidas Anexo II detalladas
     assert "73 medidas" in text, "E-012 falta total 73 medidas"

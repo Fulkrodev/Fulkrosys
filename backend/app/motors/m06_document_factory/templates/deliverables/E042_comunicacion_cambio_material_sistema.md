@@ -84,7 +84,7 @@ e) {{ "Reapertura del expediente de **certificación** para emisión de nuevo ce
 | Cargo | Nombre | Firma | Fecha |
 |-------|--------|-------|-------|
 | Responsable de la Seguridad | {{ responsables.responsable_seguridad.nombre if responsables.responsable_seguridad else '[RS]' }} | _______________ | {{ fecha }} |
-| Responsable del Sistema de Información | {{ responsables.responsable_sistema_informacion.nombre if responsables.responsable_sistema_informacion else '[RSI]' }} | _______________ | {{ fecha }} |
+| Responsable del Sistema | {{ responsables.responsable_sistema.nombre if responsables.responsable_sistema else '[RSI]' }} | _______________ | {{ fecha }} |
 | Presidente del Comité de Seguridad | {{ comite_seguridad.presidente.nombre if comite_seguridad and comite_seguridad.presidente else '[Presidente]' }} | _______________ | {{ fecha }} |
 
 ## 7. REMISIÓN AL CCN-CERT

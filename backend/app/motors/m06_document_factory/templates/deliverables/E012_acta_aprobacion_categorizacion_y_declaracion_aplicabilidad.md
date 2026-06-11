@@ -28,7 +28,7 @@ norma_aplicable: "RD 311/2022 Anexo I (categorización) + Anexo II (DA) + CCN-ST
 
 ## 2. ANTECEDENTES
 
-Conforme al **artículo 28** del RD 311/2022 y al **Anexo I** del mismo, la categorización del sistema debe formalizarse mediante acta del órgano competente, sirviendo de base para la determinación de las medidas aplicables del Anexo II y para la elaboración de la **Declaración de Aplicabilidad (DA)**.
+Conforme al **artículo 40** del RD 311/2022 y a su **Anexo I**, la categorización del sistema debe formalizarse mediante acta del órgano competente, sirviendo de base para la determinación de las medidas aplicables del **Anexo II** y para la elaboración de la **Declaración de Aplicabilidad (DA)**, esta última conforme al **artículo 28** del mismo Real Decreto.
 
 El presente acta documenta la decisión adoptada tras el proceso de análisis de las cinco dimensiones de la seguridad (Confidencialidad, Integridad, Disponibilidad, Autenticidad, Trazabilidad) y el cálculo del nivel global del sistema.
 
@@ -75,7 +75,7 @@ La Declaración de Aplicabilidad detallada se documenta en el documento **E-040*
 
 a) Se aprueba la versión inicial de la Declaración de Aplicabilidad (DA, E-040).
 
-b) Se encomienda al Responsable de Seguridad la elaboración del Plan de Adecuación (E-050) en plazo de noventa (90) días naturales.
+b) Se encomienda al Responsable de Seguridad la elaboración del Plan de Adecuación (E-150) en plazo de noventa (90) días naturales.
 
 c) Se establece el ciclo de revisión periódica de la categorización: **anual ordinaria** + extraordinaria ante cambios materiales en el sistema (E-042).
 
@@ -103,10 +103,8 @@ c) Cambio normativo que altere los criterios del Anexo I del RD 311/2022.
 |-------|--------|-------|
 | Presidente del Comité | {{ comite_seguridad.presidente.nombre if comite_seguridad and comite_seguridad.presidente else '[Presidente]' }} | _______________ |
 | Responsable de la Seguridad | {{ responsables.responsable_seguridad.nombre if responsables.responsable_seguridad else '[RS]' }} | _______________ |
-| Responsable del Sistema de Información | {{ responsables.responsable_sistema_informacion.nombre if responsables.responsable_sistema_informacion else '[RSI]' }} | _______________ |
+| Responsable del Sistema | {{ responsables.responsable_sistema.nombre if responsables.responsable_sistema else '[RSI]' }} | _______________ |
 
 ---
 
 **Documento E-012 — Versión {{ proyecto.version_actual if proyecto.version_actual else '1.0' }} — Clasificación: INTERNA**
-
-*Documento generado por FULKRO · {{ fecha }}*

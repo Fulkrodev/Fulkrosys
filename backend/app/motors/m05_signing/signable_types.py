@@ -99,6 +99,8 @@ SIGNABLE_TYPE_LABELS: dict[SignableType, str] = {
 # vez de caer a ``document_generic`` (gap F-14-07/P10-F04). Fuente: catálogo m06.
 _ECODE_TO_SIGNABLE_TYPE: dict[str, SignableType] = {
     "E-002": "acta_nombramiento_roles",
+    "E-003": "acta_comite",
+    "E-012": "acta_comite",
     "E-150": "plan_adecuacion",
     "E-155": "documento_alcance",
 }
@@ -107,7 +109,7 @@ _ECODE_TO_SIGNABLE_TYPE: dict[str, SignableType] = {
 def signable_type_for_ecode(ecode: str | None) -> SignableType:
     """Devuelve el SignableType dedicado de un E-code de gobierno FASE 0.
 
-    Para E-002 / E-150 / E-155 retorna su tipo propio; para el resto
+    Para E-002 / E-003 / E-012 / E-150 / E-155 retorna su tipo propio; para el resto
     ``document_generic`` (escape hatch). El flujo de firma debe usar esto para
     no etiquetar documentos de gobierno como genéricos.
     """

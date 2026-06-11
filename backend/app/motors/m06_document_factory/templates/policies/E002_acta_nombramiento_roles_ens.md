@@ -17,9 +17,9 @@ norma_aplicable: "RD 311/2022 Anexo II · org.1 · org.2 + CCN-STIC 801 (Respons
 {% set rs_nombre = responsables.responsable_seguridad.nombre if responsables.responsable_seguridad else '[A DESIGNAR]' %}
 {% set rs_cargo = responsables.responsable_seguridad.cargo if responsables.responsable_seguridad else 'CISO' %}
 {% set rs_dni = responsables.responsable_seguridad.dni if responsables.responsable_seguridad else '[DNI]' %}
-{% set rsi_nombre = responsables.responsable_sistema_informacion.nombre if responsables.responsable_sistema_informacion else '[A DESIGNAR]' %}
-{% set rsi_cargo = responsables.responsable_sistema_informacion.cargo if responsables.responsable_sistema_informacion else 'Director TI' %}
-{% set rsi_dni = responsables.responsable_sistema_informacion.dni if responsables.responsable_sistema_informacion else '[DNI]' %}
+{% set rsi_nombre = responsables.responsable_sistema.nombre if responsables.responsable_sistema else '[A DESIGNAR]' %}
+{% set rsi_cargo = responsables.responsable_sistema.cargo if responsables.responsable_sistema else 'Director TI' %}
+{% set rsi_dni = responsables.responsable_sistema.dni if responsables.responsable_sistema else '[DNI]' %}
 {% set rserv_nombre = responsables.responsable_servicio.nombre if responsables.responsable_servicio else '[A DESIGNAR]' %}
 {% set rserv_cargo = responsables.responsable_servicio.cargo if responsables.responsable_servicio else 'Responsable de Servicio' %}
 {% set rserv_dni = responsables.responsable_servicio.dni if responsables.responsable_servicio else '[DNI]' %}
@@ -201,5 +201,3 @@ La renovación se revisará coincidiendo con la revisión de la conformidad ENS 
 ---
 
 **Documento E-002 — Versión {{ proyecto.version_actual if proyecto.version_actual else '1.0' }} — Clasificación: INTERNA**
-
-*Documento generado por FULKRO · plataforma de gestión de cumplimiento normativo · {{ fecha }}*

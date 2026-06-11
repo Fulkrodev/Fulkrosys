@@ -77,7 +77,7 @@ Corresponden al Comité de Seguridad de la Información:
 
 a) **Aprobación de políticas y normativas** de seguridad de la información (E-100 y subsiguientes).
 
-b) **Validación del Plan de Adecuación** al ENS (E-050) y de sus revisiones.
+b) **Validación del Plan de Adecuación** al ENS (E-150) y de sus revisiones.
 
 c) **Aprobación del Análisis de Riesgos** (E-400) y de sus actualizaciones.
 
@@ -105,7 +105,7 @@ d) Las actas son confidenciales · su distribución se limita a miembros del Com
 
 ## 8. PRIMERA REUNIÓN
 
-La primera reunión ordinaria del Comité tendrá lugar en el plazo máximo de **treinta (30) días naturales** desde la presente constitución. En la primera reunión se procederá a la aprobación inicial de la Política de Seguridad (E-100), del Plan de Adecuación (E-050) y del Análisis de Riesgos (E-400) consolidando el marco operativo del SGSI.
+La primera reunión ordinaria del Comité tendrá lugar en el plazo máximo de **treinta (30) días naturales** desde la presente constitución. En la primera reunión se procederá a la aprobación inicial de la Política de Seguridad (E-100), del Plan de Adecuación (E-150) y del Análisis de Riesgos (E-400) consolidando el marco operativo del SGSI.
 
 ## 9. VIGENCIA
 
@@ -124,5 +124,3 @@ El presente acta tiene vigencia indefinida hasta su revocación expresa por el �
 ---
 
 **Documento E-003 — Versión {{ proyecto.version_actual if proyecto.version_actual else '1.0' }} — Clasificación: INTERNA**
-
-*Documento generado por FULKRO · {{ fecha }}*
