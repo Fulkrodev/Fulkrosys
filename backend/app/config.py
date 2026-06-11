@@ -165,6 +165,17 @@ class Settings(BaseSettings):
     # Refs: SAN-B.MB-7.1 cierre TODO-MCP-G1 + TODO-FASE-13-MCPS-FULL-MIGRATION-001.
     use_mcp_real: bool = False
 
+    # M8 · provisión efímera de infra ofensiva on-demand (tier dedicado:
+    # cracking/phishing/redteam/mobile). mock-by-default: SIN token NO levanta
+    # nada (provision_box devuelve box simulada). Real: Hetzner Cloud API crea
+    # una box con cloud-init del tier y la DESTRUYE garantizado al cerrar.
+    # wireless queda fuera (físico on-site). Override env:
+    # OFFENSIVE_PROVISIONER_ENABLED / HETZNER_CLOUD_TOKEN.
+    offensive_provisioner_enabled: bool = False
+    hetzner_cloud_token: SecretStr = SecretStr("")
+    offensive_box_image: str = "ubuntu-24.04"
+    offensive_box_location: str = "nbg1"
+
     # Sub-atom 1.D.X.B v3.12 · production-safety guard m_cloud_connectors.
     # Cuando False (DEFAULT · prod-safe) · trigger_sync con m16_credentials=None
     # raises MockModeNotAllowedError. Solo establecer True para dev/test/piloto

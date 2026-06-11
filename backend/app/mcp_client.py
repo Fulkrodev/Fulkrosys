@@ -163,12 +163,29 @@ _DEDICATED_ENGAGEMENT: dict[str, dict[str, str]] = {
 }
 
 
+def _offensive_provisionable(server: str) -> bool:
+    """True si el provisioner ofensivo on-demand está configurado y el tier es
+    cloud-provisionable (wireless NO · es físico on-site). Chequea Settings sin
+    importar el módulo m08 (evita ciclo)."""
+    if server == "wireless":
+        return False
+    try:
+        from backend.app.config import get_settings
+        s = get_settings()
+        token = s.hetzner_cloud_token.get_secret_value()
+        return bool(getattr(s, "offensive_provisioner_enabled", False)) and bool(token)
+    except Exception:
+        return False
+
+
 def scanner_capability(server: str) -> dict[str, Any]:
     """Declara si un MCP scanner puede correr REAL en este host.
 
     Honesto y determinista. NUNCA finge un resultado:
     - on_demand_engagement → ``available=False`` (tier dedicado · NO cloud
-      automático) con su razón + vía de activación real.
+      automático) con su razón + vía de activación real. Si el provisioner
+      ofensivo está configurado, ``provisionable_on_demand=True`` (la box se
+      levanta y se destruye sola para el engagement autorizado).
     - tool-based → ``available=True`` solo si el binario está presente.
     """
     if server in _DEDICATED_ENGAGEMENT:
@@ -176,6 +193,7 @@ def scanner_capability(server: str) -> dict[str, Any]:
         return {
             "server": server, "available": False, "kind": "on_demand_engagement",
             "reason": info["reason"], "alternative": info["alternative"],
+            "provisionable_on_demand": _offensive_provisionable(server),
         }
     tool = _SCANNER_REQUIRED_TOOL.get(server)
     if tool is None:
