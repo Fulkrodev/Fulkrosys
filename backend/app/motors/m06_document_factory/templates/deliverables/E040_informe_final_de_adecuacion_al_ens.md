@@ -6,10 +6,10 @@
 ---
 codigo_documento: "E-040"
 titulo: "Informe Final de Adecuación al Esquema Nacional de Seguridad"
-version: "{{ informe.version | default('1.0') }}"
+version: "{{ informe.version }}"
 fecha: "{{ informe.fecha_emision }}"
 clasificacion: "CONFIDENCIAL — Cliente"
-elaborado_por: "Marcos Mata García — Consultor independiente en ENS"
+elaborado_por: "{{ firmas.elaborado.nombre }} · {{ firmas.elaborado.cargo }}"
 revisado_por: "{{ responsables.responsable_seguridad.nombre }}"
 aprobado_por: "{{ cliente.organo_aprobador_politicas }}"
 ---
@@ -18,7 +18,7 @@ aprobado_por: "{{ cliente.organo_aprobador_politicas }}"
 
 ## {{ cliente.razon_social }}
 
-**Documento E-040 · Versión {{ informe.version | default('1.0') }} · {{ informe.fecha_emision }}**
+**Documento E-040 · Versión {{ informe.version }} · {{ informe.fecha_emision }}**
 
 ---
 
@@ -42,29 +42,43 @@ El sistema de información objeto de la adecuación al ENS y de la futura certif
 
 ### 2.2 Servicios incluidos
 
+{% if proyecto.alcance.servicios %}
 {% for servicio in proyecto.alcance.servicios %}
 - {{ servicio }}
 {% endfor %}
+{% else %}
+_La relación nominal de los servicios incluidos en el alcance se define en el documento **E-155 (Documento de Alcance del SGSI)**._
+{% endif %}
 
 ### 2.3 Sistemas e infraestructura
 
+{% if proyecto.alcance.sistemas %}
 {% for sistema in proyecto.alcance.sistemas %}
 - {{ sistema }}
 {% endfor %}
+{% else %}
+_El inventario de sistemas e infraestructura del alcance se detalla en el **Anexo V (Inventario de Activos)** y en el documento **E-155**._
+{% endif %}
 
 ### 2.4 Sedes incluidas
 
-| Sede | Dirección | Tipo |
-|---|---|---|
+{% if proyecto.alcance.sedes %}
 {% for sede in proyecto.alcance.sedes %}
-| {{ sede.nombre }} | {{ sede.direccion }} | {{ sede.tipo }} |
+- **{{ sede.nombre }}** — {{ sede.direccion }} ({{ sede.tipo }})
 {% endfor %}
+{% else %}
+_Las sedes y ubicaciones (sedes físicas y regiones de servicios en la nube) incluidas en el alcance se relacionan en el documento **E-155**._
+{% endif %}
 
 ### 2.5 Exclusiones expresas
 
+{% if proyecto.alcance.exclusiones %}
 {% for exclusion in proyecto.alcance.exclusiones %}
 - {{ exclusion }}
 {% endfor %}
+{% else %}
+_No se han definido exclusiones expresas al alcance del sistema. Cualquier exclusión deberá documentarse y justificarse en el documento **E-155**._
+{% endif %}
 
 ---
 
@@ -74,11 +88,13 @@ El proyecto se ha ejecutado siguiendo una metodología alineada con las guías C
 
 Las fases ejecutadas han sido:
 
-| Fase | Descripción | Duración real | Estado |
-|---|---|---|---|
+{% if informe.fases %}
 {% for fase in informe.fases %}
-| {{ loop.index }}. {{ fase.nombre }} | {{ fase.descripcion }} | {{ fase.duracion_real }} sem. | {{ fase.estado }} |
+- **Fase {{ loop.index }}. {{ fase.nombre }}** — {{ fase.descripcion }} · duración real: {{ fase.duracion_real }} sem. · estado: {{ fase.estado }}
 {% endfor %}
+{% else %}
+_El cronograma y las fases ejecutadas del proyecto se detallan en el Plan de Adecuación (E-150) y en el Plan de Trabajo del proyecto._
+{% endif %}
 
 ---
 
@@ -108,10 +124,11 @@ Esta categoría ha sido formalmente aprobada por el Comité de Seguridad de {{ c
 
 ### 5.1 Metodología
 
-El análisis de riesgos se ha realizado conforme a la metodología **MAGERIT versión 3** del Consejo Superior de Administración Electrónica, siguiendo el procedimiento E-200 (Procedimiento de Análisis y Gestión de Riesgos) implantado en el SGSI.
+El análisis de riesgos se ha realizado conforme a la metodología **MAGERIT versión 3** del Consejo Superior de Administración Electrónica, siguiendo el procedimiento E-AR-001 (Procedimiento de Análisis y Gestión de Riesgos) implantado en el SGSI.
 
 ### 5.2 Inventario de activos
 
+{% if informe.activos.total %}
 Se han identificado e inventariado un total de **{{ informe.activos.total }} activos** distribuidos según la taxonomía MAGERIT v3:
 
 | Tipo de activo | Cantidad |
@@ -125,8 +142,13 @@ Se han identificado e inventariado un total de **{{ informe.activos.total }} act
 | Equipamiento auxiliar | {{ informe.activos.auxiliar }} |
 | Instalaciones | {{ informe.activos.instalaciones }} |
 | Personal | {{ informe.activos.personal }} |
+{% else %}
+_El inventario detallado de activos del sistema, clasificado según la taxonomía MAGERIT v3, se incorpora como **Anexo V (Inventario de Activos)** del presente informe._
+{% endif %}
 
 ### 5.3 Resumen del análisis de riesgos
+
+{% if informe.riesgos.pares_analizados %}
 
 | Concepto | Valor |
 |---|---|
@@ -136,9 +158,13 @@ Se han identificado e inventariado un total de **{{ informe.activos.total }} act
 | Riesgos residuales tras salvaguardas | {{ informe.riesgos.residuales }} |
 | Riesgos residuales por encima del umbral de aceptación | {{ informe.riesgos.por_encima_umbral }} |
 | Riesgos residuales aceptados formalmente | {{ informe.riesgos.aceptados }} |
+{% else %}
+_El detalle cuantitativo del análisis de riesgos (amenazas, riesgos intrínsecos y residuales) se incorpora como **Anexo I (Análisis de Riesgos completo)** del presente informe._
+{% endif %}
 
 ### 5.4 Plan de Tratamiento de Riesgos
 
+{% if informe.riesgos.acciones_plan %}
 El Plan de Tratamiento de Riesgos derivado del análisis incluye **{{ informe.riesgos.acciones_plan }} acciones**, distribuidas según la opción de tratamiento:
 
 | Opción | Acciones |
@@ -149,6 +175,9 @@ El Plan de Tratamiento de Riesgos derivado del análisis incluye **{{ informe.ri
 | Aceptar | {{ informe.riesgos.aceptar }} |
 
 A la fecha del presente informe, el **{{ informe.riesgos.porcentaje_completado }}%** de las acciones del Plan han sido completadas.
+{% else %}
+_El Plan de Tratamiento de Riesgos, con las acciones de tratamiento (mitigar, transferir, evitar o aceptar) y su grado de avance, se incorpora como **Anexo IV** del presente informe._
+{% endif %}
 
 El Análisis de Riesgos completo se incorpora como **Anexo I** del presente informe.
 
@@ -174,7 +203,9 @@ La Declaración de Aplicabilidad completa se incorpora como **Anexo II** del pre
 | Marco operacional / Control de acceso (op.acc) | {{ informe.cumplimiento.op_acc.aplicables }} | {{ informe.cumplimiento.op_acc.implantadas }} | {{ informe.cumplimiento.op_acc.porcentaje }}% |
 | Marco operacional / Explotación (op.exp) | {{ informe.cumplimiento.op_exp.aplicables }} | {{ informe.cumplimiento.op_exp.implantadas }} | {{ informe.cumplimiento.op_exp.porcentaje }}% |
 | Marco operacional / Servicios externos (op.ext) | {{ informe.cumplimiento.op_ext.aplicables }} | {{ informe.cumplimiento.op_ext.implantadas }} | {{ informe.cumplimiento.op_ext.porcentaje }}% |
+| Marco operacional / Servicios en la nube (op.nub) | {{ informe.cumplimiento.op_nub.aplicables }} | {{ informe.cumplimiento.op_nub.implantadas }} | {{ informe.cumplimiento.op_nub.porcentaje }}% |
 | Marco operacional / Continuidad (op.cont) | {{ informe.cumplimiento.op_cont.aplicables }} | {{ informe.cumplimiento.op_cont.implantadas }} | {{ informe.cumplimiento.op_cont.porcentaje }}% |
+| Marco operacional / Monitorización (op.mon) | {{ informe.cumplimiento.op_mon.aplicables }} | {{ informe.cumplimiento.op_mon.implantadas }} | {{ informe.cumplimiento.op_mon.porcentaje }}% |
 | Medidas de protección / Instalaciones (mp.if) | {{ informe.cumplimiento.mp_if.aplicables }} | {{ informe.cumplimiento.mp_if.implantadas }} | {{ informe.cumplimiento.mp_if.porcentaje }}% |
 | Medidas de protección / Personal (mp.per) | {{ informe.cumplimiento.mp_per.aplicables }} | {{ informe.cumplimiento.mp_per.implantadas }} | {{ informe.cumplimiento.mp_per.porcentaje }}% |
 | Medidas de protección / Equipos (mp.eq) | {{ informe.cumplimiento.mp_eq.aplicables }} | {{ informe.cumplimiento.mp_eq.implantadas }} | {{ informe.cumplimiento.mp_eq.porcentaje }}% |
@@ -193,40 +224,31 @@ Como resultado del proyecto, {{ cliente.razon_social }} dispone del siguiente cu
 
 ### 7.1 Políticas
 
-| Código | Título | Versión | Fecha aprobación |
-|---|---|---|---|
-| POL-100 | Política de Seguridad de la Información | {{ informe.politicas.pol100.version }} | {{ informe.politicas.pol100.fecha }} |
-| POL-101 | Roles, Responsabilidades y Autoridades de Seguridad | {{ informe.politicas.pol101.version }} | {{ informe.politicas.pol101.fecha }} |
-| POL-102 | Política de Control de Acceso | {{ informe.politicas.pol102.version }} | {{ informe.politicas.pol102.fecha }} |
-| POL-103 | Política de Gestión de Incidentes de Seguridad | {{ informe.politicas.pol103.version }} | {{ informe.politicas.pol103.fecha }} |
-| POL-104 | Política de Continuidad del Servicio | {{ informe.politicas.pol104.version }} | {{ informe.politicas.pol104.fecha }} |
-| POL-105 | Política de Cifrado y Gestión de Claves Criptográficas | {{ informe.politicas.pol105.version }} | {{ informe.politicas.pol105.fecha }} |
-| POL-106 | Política de Uso Aceptable de los Recursos | {{ informe.politicas.pol106.version }} | {{ informe.politicas.pol106.fecha }} |
-| POL-107 | Política de Seguridad en las Relaciones con Proveedores | {{ informe.politicas.pol107.version }} | {{ informe.politicas.pol107.fecha }} |
-| POL-108 | Política de Clasificación y Tratamiento de la Información | {{ informe.politicas.pol108.version }} | {{ informe.politicas.pol108.fecha }} |
+{% if informe.cuerpo_normativo.politicas %}
+{% for doc in informe.cuerpo_normativo.politicas %}
+- **{{ doc.codigo }}** — {{ doc.nombre }} (versión {{ doc.version }} · aprobada {{ doc.fecha }})
+{% endfor %}
+{% else %}
+_Las políticas del SGSI se incorporan, en su versión aprobada y firmada, como parte del **Anexo VI — Cuerpo normativo completo del SGSI**._
+{% endif %}
 
 ### 7.2 Procedimientos operativos
 
-| Código | Título | Versión |
-|---|---|---|
-| POL-200 | Procedimiento de Análisis y Gestión de Riesgos | {{ informe.procedimientos.pol200.version }} |
-| POL-203 | Procedimiento de Gestión de la Información Documentada | {{ informe.procedimientos.pol203.version }} |
-| POL-204 | Procedimiento de Gestión de Incidentes de Seguridad | {{ informe.procedimientos.pol204.version }} |
-| POL-205 | Procedimiento de Gestión de Cuentas y Accesos | {{ informe.procedimientos.pol205.version }} |
-| POL-206 | Procedimiento de Gestión de Cambios | {{ informe.procedimientos.pol206.version }} |
-| POL-207 | Procedimiento de Concienciación y Formación | {{ informe.procedimientos.pol207.version }} |
-| POL-210 | Procedimiento de Copias de Seguridad y Restauración | {{ informe.procedimientos.pol210.version }} |
-| POL-217 | Procedimiento de Evaluación de Proveedores | {{ informe.procedimientos.pol217.version }} |
-| POL-218 | Procedimiento de Gestión de Vulnerabilidades y Parches | {{ informe.procedimientos.pol218.version }} |
-| POL-219 | Procedimiento de Hardening y Configuración Segura | {{ informe.procedimientos.pol219.version }} |
-| POL-228 | Procedimiento de Recopilación y Custodia de Evidencias | {{ informe.procedimientos.pol228.version }} |
-| POL-234 | Procedimiento de Auditoría Interna del SGSI | {{ informe.procedimientos.pol234.version }} |
+{% if informe.cuerpo_normativo.procedimientos %}
+{% for doc in informe.cuerpo_normativo.procedimientos %}
+- **{{ doc.codigo }}** — {{ doc.nombre }} (versión {{ doc.version }})
+{% endfor %}
+{% else %}
+_Los procedimientos operativos del SGSI se incorporan, en su versión aprobada y firmada, como parte del **Anexo VI — Cuerpo normativo completo del SGSI**._
+{% endif %}
 
 ---
 
 ## 8. EVIDENCIAS RECOPILADAS
 
 Durante el proyecto se han recopilado y archivado las siguientes evidencias del cumplimiento de las medidas implantadas:
+
+{% if informe.evidencias.total %}
 
 | Tipo de evidencia | Cantidad |
 |---|---|
@@ -240,6 +262,9 @@ Durante el proyecto se han recopilado y archivado las siguientes evidencias del 
 | Cuestionarios de evaluación de proveedores | {{ informe.evidencias.proveedores }} |
 | Informes de pentesting / vulnerabilidades | {{ informe.evidencias.vulnerabilidades }} |
 | **TOTAL** | **{{ informe.evidencias.total }}** |
+{% else %}
+_El registro completo de las evidencias recopiladas durante el proyecto, con su tipología y trazabilidad, se incorpora como **Anexo VII (Registro de evidencias)** del presente informe._
+{% endif %}
 
 Todas las evidencias se conservan en el repositorio documental del SGSI, conforme al procedimiento E-203 y a los plazos de retención establecidos.
 
@@ -252,10 +277,8 @@ Todas las evidencias se conservan en el repositorio documental del SGSI, conform
 A la fecha del presente informe, los siguientes gaps residuales han sido identificados y aceptados formalmente por el Comité de Seguridad:
 
 {% if informe.gaps %}
-| # | Medida ENS | Descripción del gap | Riesgo asociado | Acción comprometida | Plazo |
-|---|---|---|---|---|---|
 {% for gap in informe.gaps %}
-| {{ loop.index }} | {{ gap.medida_ens }} | {{ gap.descripcion }} | {{ gap.riesgo }} | {{ gap.accion }} | {{ gap.plazo }} |
+- **{{ gap.medida_ens }}** — {{ gap.descripcion }} · riesgo asociado: {{ gap.riesgo }} · acción comprometida: {{ gap.accion }} · plazo: {{ gap.plazo }}
 {% endfor %}
 {% else %}
 _No se han identificado gaps residuales relevantes a la fecha del presente informe._
@@ -266,10 +289,8 @@ _No se han identificado gaps residuales relevantes a la fecha del presente infor
 {% if informe.excepciones %}
 Las siguientes excepciones han sido formalmente autorizadas por el Responsable de la Seguridad y, cuando ha procedido, por el Comité de Seguridad:
 
-| # | Norma o medida afectada | Justificación | Vigencia | Mitigación compensatoria |
-|---|---|---|---|---|
 {% for exc in informe.excepciones %}
-| {{ loop.index }} | {{ exc.norma }} | {{ exc.justificacion }} | {{ exc.vigencia }} | {{ exc.mitigacion }} |
+- **{{ exc.norma }}** — {{ exc.justificacion }} · vigencia: {{ exc.vigencia }} · mitigación compensatoria: {{ exc.mitigacion }}
 {% endfor %}
 {% else %}
 _No se han autorizado excepciones a la fecha del presente informe._
@@ -313,7 +334,7 @@ El nivel de cumplimiento global del **{{ informe.cumplimiento_global }}%** sobre
 
 ### 11.2 Recomendaciones para la auditoría externa
 
-a) **Iniciar formalmente el contacto con la entidad certificadora seleccionada** ({{ proyecto.entidad_certificadora }}) para la programación de la auditoría externa, con una antelación mínima de 6-8 semanas.
+a) **Iniciar formalmente el contacto con la entidad certificadora seleccionada** ({{ proyecto.entidad_certificadora }}) para la programación de la auditoría externa. Conviene contactar con antelación, dado que las entidades acreditadas por ENAC suelen tener listas de espera; el plazo habitual desde la solicitud hasta la realización de la auditoría es de **8-16 semanas**.
 
 b) **Mantener la operativa del SGSI estable** durante el periodo previo a la auditoría, evitando cambios significativos en las políticas, procedimientos o configuraciones que pudieran requerir nueva validación.
 
@@ -341,12 +362,9 @@ El consultor se compromete a acompañar a {{ cliente.razon_social }} durante la 
 
 ---
 
-**Elaborado por:** Marcos Mata García, Consultor independiente en Esquema Nacional de Seguridad
-**Revisado por:** {{ responsables.responsable_seguridad.nombre }} — {{ responsables.responsable_seguridad.cargo }}
-**Aprobado por:** {{ cliente.organo_aprobador_politicas }}
-**Fecha:** {{ informe.fecha_emision }}
+_Las aprobaciones y firmas de los intervinientes (elaboración, revisión y aprobación) se consignan en el bloque de firmas que figura al final del presente documento._
 
-**Documento E-040 · {{ cliente.razon_social }} · Versión {{ informe.version | default('1.0') }}**
+**Documento E-040 · {{ cliente.razon_social }} · Versión {{ informe.version }} · {{ informe.fecha_emision }}**
 
 ```
 
