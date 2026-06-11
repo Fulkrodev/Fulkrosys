@@ -99,11 +99,13 @@ c) Cambio normativo que altere los criterios del Anexo I del RD 311/2022.
 
 **Firmado en {{ cliente.poblacion if cliente.poblacion else '[POBLACIÓN]' }}, a {{ fecha }}.**
 
-| Cargo | Nombre | Firma |
-|-------|--------|-------|
-| Presidente del Comité | {{ comite_seguridad.presidente.nombre if comite_seguridad and comite_seguridad.presidente else '[Presidente]' }} | _______________ |
-| Responsable de la Seguridad | {{ responsables.responsable_seguridad.nombre if responsables.responsable_seguridad else '[RS]' }} | _______________ |
-| Responsable del Sistema | {{ responsables.responsable_sistema.nombre if responsables.responsable_sistema else '[RSI]' }} | _______________ |
+Conforme al **artículo 40.2 del RD 311/2022**, la categorización del sistema se aprueba mediante la **doble firma competente**: el **Responsable de la Información** determina y aprueba los niveles de las dimensiones que afectan a la información, y el **Responsable del Servicio** los de las dimensiones que afectan a los servicios. El **Responsable de la Seguridad** suscribe su conformidad sin carácter aprobatorio. El acta solo se considera **aprobada cuando constan las firmas del Responsable de la Información y del Responsable del Servicio**.
+
+| Rol ENS (art. 11) | Nombre | Carácter de la firma | Firma |
+|-------------------|--------|----------------------|-------|
+| Responsable de la Información | {{ responsables.responsable_informacion.nombre if responsables.responsable_informacion else '[A DESIGNAR]' }} | **Aprueba** (dimensiones de la información) | _______________ |
+| Responsable del Servicio | {{ responsables.responsable_servicio.nombre if responsables.responsable_servicio else '[A DESIGNAR]' }} | **Aprueba** (dimensiones de los servicios) | _______________ |
+| Responsable de la Seguridad | {{ responsables.responsable_seguridad.nombre if responsables.responsable_seguridad else '[A DESIGNAR]' }} | Conforme (no aprobador) | _______________ |
 
 ---
 
