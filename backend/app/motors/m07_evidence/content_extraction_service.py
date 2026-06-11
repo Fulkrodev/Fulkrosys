@@ -21,7 +21,6 @@ a ``MAX_CHARS`` para no inflar la BD ni el prompt del clasificador.
 """
 from __future__ import annotations
 
-import csv
 import io
 import logging
 from typing import Any
