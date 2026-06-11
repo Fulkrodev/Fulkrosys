@@ -1,6 +1,7 @@
 """Catálogo completo de preguntas de auditor ENAC por medida del Anexo II.
 
-Fuente: CCN-STIC 802 (Auditoría ENS) + CCN-STIC 808 Anexo III (checklist)
+Fuente: CCN-STIC 808 (Verificación del cumplimiento del ENS) + CCN-STIC 824
+(Informe del Estado de Seguridad) + Anexo III (lista de comprobación)
 + experiencia de auditores ENAC reales.
 
 Cada medida tiene:

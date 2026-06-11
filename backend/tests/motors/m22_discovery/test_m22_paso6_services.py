@@ -295,7 +295,7 @@ class TestConfigDetector:
             configs = await paso6_config_detector.detect_backup_config(
                 db, project_id, run_id, rds, ens_category="MEDIA",
             )
-        per_rds = [c for c in configs if c.control_id == "op.cont.3_rds_backup"]
+        per_rds = [c for c in configs if c.control_id == "mp.info.6_rds_backup"]
         assert len(per_rds) == 2
         gap = next(c for c in per_rds if "db-no-bkp" in c.sistema)
         assert gap.gap_severidad == "alta"

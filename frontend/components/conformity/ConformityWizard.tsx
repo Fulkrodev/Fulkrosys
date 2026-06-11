@@ -65,7 +65,7 @@ const CONFORMITY_STEPS: Step[] = [
   },
   {
     number: 3,
-    title: "Autoevaluación CCN-STIC 809",
+    title: "Autoevaluación CCN-STIC 808",
     description: "Cuestionario de autoevaluación firmado por RSEG",
     ctaPath: "/conformity",
     required_feature: "basica_autoevaluacion",

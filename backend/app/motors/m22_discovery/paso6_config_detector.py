@@ -46,7 +46,7 @@ logger = logging.getLogger(__name__)
 #   los niveles), general en MEDIA/ALTA.
 # - mp.info.3 (cifrado): at-rest obligatorio en MEDIA/ALTA.
 # - op.exp.8 (monitorizacion): logging habilitado y revisado en BASICA+.
-# - op.cont.3 (copias de seguridad): backups regulares con prueba periodica.
+# - mp.info.6 (copias de seguridad): backups regulares con prueba de restauracion.
 
 MFA_TARGET_PCT = {"BASICA": 60.0, "MEDIA": 90.0, "ALTA": 100.0}
 ENCRYPTION_TARGET_PCT = {"BASICA": 50.0, "MEDIA": 90.0, "ALTA": 100.0}
@@ -441,7 +441,7 @@ async def detect_backup_config(
             discovery_run_id=run_id,
             fuente_conector="aws",
             sistema=f"rds:{r.instance_id}",
-            control_id="op.cont.3_rds_backup",
+            control_id="mp.info.6_rds_backup",
             control_description=(
                 f"Retencion minima de backups RDS {target_days} dias (ENS {ens_category})."
             ),
@@ -453,7 +453,7 @@ async def detect_backup_config(
                 else ("media" if below else "info")
             ),
             herramienta_deteccion="m22_config_detector",
-            medidas_ens_afectadas=["op.cont.3"],
+            medidas_ens_afectadas=["mp.info.6"],
             raw_output={"instance_id": r.instance_id, "retention": r.backup_retention_period},
         )
         db.add(cfg)

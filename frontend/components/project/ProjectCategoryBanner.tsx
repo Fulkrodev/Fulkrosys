@@ -33,7 +33,7 @@ const CATEGORY_THEME: Record<EnsCategory, CategoryConfig> = {
     iconClass: "text-fulkro-success",
     badgeVariant: "secondary",
     description:
-      "Autoevaluación CCN-STIC 809 · sin auditoría externa obligatoria",
+      "Autoevaluación CCN-STIC 808 · sin auditoría externa obligatoria",
   },
   MEDIA: {
     borderClass: "border-l-fulkro-warning",

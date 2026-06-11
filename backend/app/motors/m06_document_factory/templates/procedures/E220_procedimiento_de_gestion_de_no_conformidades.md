@@ -61,39 +61,3 @@ Las NC Mayores no cerradas en plazo se escalan al Comité de Seguridad. Las NC M
 **Documento {{ proyecto.codigo_documento_base }}-220 — Versión {{ proyecto.version_actual }} — Clasificación: INTERNA**
 
 ```
-
----
-
-## RESUMEN DEL BLOQUE 6A
-
-### 9 procedimientos nuevos PRIORIDAD ALTA entregados
-
-| ID v2.1 | Título | Medidas/requisitos cubiertos |
-|---|---|---|
-| **E-200** | Alta de personal | mp.per.1, mp.per.2 |
-| **E-201** | Baja de personal | mp.per.1, revocación accesos |
-| **E-202** | Cambio de rol | op.acc.4, anti-privilege creep |
-| **E-206** | Aplicación de parches | op.exp.4 (parte parches) |
-| **E-209** | Pruebas de continuidad | op.cont.3 |
-| **E-210** | Revisión periódica de accesos | op.acc.4, cuentas huérfanas |
-| **E-211** | Gestión de cuentas privilegiadas | op.acc.3, op.acc.4, PAM |
-| **E-212** | Respuesta a brechas RGPD | RGPD art. 33-34 |
-| **E-213** | Notificación de brechas a la AEPD | RGPD art. 33, sede electrónica |
-| **E-219** | Revisión por la dirección | ISO 27001 cláusula 9.3 |
-| **E-220** | Gestión de no conformidades | ISO 27001 cláusula 10.1-10.2 |
-
-*(Son 11, no 9 — he metido 2 extra porque eran cortos y dependían de los anteriores.)*
-
-### Estado de los 35 procedimientos
-
-| Estado | Cantidad |
-|---|---|
-| ✅ Existentes (renumerados de F2) | 8 |
-| ✅ **Nuevos en este bloque 6A** | **11** |
-| 🔲 Pendientes (bloque 6B + 6C) | 16 |
-
-**Progreso: 19/35 procedimientos completos (54%).**
-
-### Siguiente: Bloques 6B y 6C — los 16 procedimientos restantes
-
-Si me dices "seguimos" arranco con el segundo lote.
