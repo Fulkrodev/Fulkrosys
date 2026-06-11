@@ -25,7 +25,7 @@ medidas_ens: ["mp.info.3", "mp.info.4", "mp.com.2"]
 
 Establecer las acciones operativas para gestionar el ciclo de vida completo de los certificados digitales X.509 utilizados por {{ cliente.razon_social }}, garantizando confidencialidad, autenticidad e integridad en las comunicaciones y operaciones que dependen de ellos, así como la disponibilidad continua mediante la prevención de caducidades.
 
-Este procedimiento desarrolla las medidas **mp.info.3 (cifrado), mp.info.4 (firma electrónica) y mp.com.2 (protección de la confidencialidad)** del Anexo II del Real Decreto 311/2022, alineado con la guía **CCN-STIC 807 (criptología en el ENS)** y con el Reglamento (UE) 910/2014 (eIDAS) en lo aplicable.
+Este procedimiento desarrolla las medidas **mp.info.3 (firma electrónica), mp.info.4 (sellos de tiempo) y mp.com.2 (protección de la confidencialidad)** del Anexo II del Real Decreto 311/2022, alineado con la guía **CCN-STIC 807 (criptología en el ENS)** y con el Reglamento (UE) 910/2014 (eIDAS) en lo aplicable.
 
 ## 2. ALCANCE
 

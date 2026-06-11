@@ -1,6 +1,6 @@
 # DOCUMENTO E-107 — POLÍTICA DE CIFRADO Y GESTIÓN DE CLAVES CRIPTOGRÁFICAS
 
-**Materializa las medidas mp.info.3 (Cifrado), mp.com.2 (Protección de la confidencialidad), mp.com.3 (Protección de la integridad y de la autenticidad) y mp.si.2 (Criptografía) del Anexo II del ENS**, así como los controles A.8.24 (Uso de la criptografía) y A.5.31 (Requisitos legales, estatutarios, reglamentarios y contractuales) de ISO/IEC 27001:2022. Es la política técnica que el auditor pide demostrar con configuraciones reales de TLS, algoritmos en uso e inventario de claves.
+**Materializa las medidas mp.si.2 (Criptografía), mp.com.2 (Protección de la confidencialidad), mp.com.3 (Protección de la integridad y de la autenticidad) y mp.info.3 (Firma electrónica) del Anexo II del ENS**, así como los controles A.8.24 (Uso de la criptografía) y A.5.31 (Requisitos legales, estatutarios, reglamentarios y contractuales) de ISO/IEC 27001:2022. Es la política técnica que el auditor pide demostrar con configuraciones reales de TLS, algoritmos en uso e inventario de claves.
 
 ```jinja
 ---
@@ -24,7 +24,7 @@ aprobado_por: "{{ cliente.organo_aprobador_politicas }}"
 
 El presente documento establece los principios, criterios técnicos y obligaciones aplicables al uso de mecanismos criptográficos en {{ cliente.razon_social }}, así como al ciclo de vida de las claves criptográficas asociadas, con la finalidad de garantizar la confidencialidad, integridad, autenticidad y trazabilidad de la información tratada y de las comunicaciones realizadas por los sistemas comprendidos en el alcance del SGSI.
 
-Esta Política da cumplimiento a las medidas **mp.info.3 (Cifrado de la información)**, **mp.com.2 (Protección de la confidencialidad de las comunicaciones)**, **mp.com.3 (Protección de la integridad y autenticidad)** y **mp.si.2 (Criptografía)** del Anexo II del Real Decreto 311/2022, y se desarrolla conforme a las recomendaciones técnicas del Centro Criptológico Nacional contenidas en la guía **CCN-STIC 807 (Criptología de empleo en el ENS)** y su Anexo 1 sobre Prestadores de Servicios de Confianza, así como en lo previsto por el Reglamento (UE) 910/2014 (eIDAS).
+Esta Política da cumplimiento a las medidas **mp.si.2 (Criptografía)**, **mp.com.2 (Protección de la confidencialidad de las comunicaciones)**, **mp.com.3 (Protección de la integridad y autenticidad)** y **mp.info.3 (Firma electrónica)** del Anexo II del Real Decreto 311/2022, y se desarrolla conforme a las recomendaciones técnicas del Centro Criptológico Nacional contenidas en la guía **CCN-STIC 807 (Criptología de empleo en el ENS)** y su Anexo 1 sobre Prestadores de Servicios de Confianza, así como en lo previsto por el Reglamento (UE) 910/2014 (eIDAS).
 
 ## 2. ÁMBITO DE APLICACIÓN
 

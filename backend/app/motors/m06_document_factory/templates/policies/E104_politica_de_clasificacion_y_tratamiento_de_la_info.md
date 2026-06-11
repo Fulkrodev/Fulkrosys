@@ -1,6 +1,6 @@
 # DOCUMENTO E-104 — POLÍTICA DE CLASIFICACIÓN Y TRATAMIENTO DE LA INFORMACIÓN
 
-**La política transversal a todas las demás.** Materializa las medidas mp.info.1 (Datos personales), mp.info.2 (Calificación de la información), mp.info.4 (Firma electrónica), mp.info.5 (Sellos de tiempo) y mp.info.6 (Limpieza de documentos) del Anexo II del ENS, así como los controles A.5.12, A.5.13, A.5.14 (Information classification, labelling, transfer) y A.8.10, A.8.12 (Information deletion, Data leakage prevention) de ISO/IEC 27001:2022. Sin clasificación correcta de la información, ninguna otra medida puede aplicarse de forma proporcionada.
+**La política transversal a todas las demás.** Materializa las medidas mp.info.1 (Datos personales), mp.info.2 (Calificación de la información), mp.info.3 (Firma electrónica), mp.info.4 (Sellos de tiempo) y mp.info.5 (Limpieza de documentos) del Anexo II del ENS, así como los controles A.5.12, A.5.13, A.5.14 (Information classification, labelling, transfer) y A.8.10, A.8.12 (Information deletion, Data leakage prevention) de ISO/IEC 27001:2022. Sin clasificación correcta de la información, ninguna otra medida puede aplicarse de forma proporcionada.
 
 ```jinja
 ---
@@ -24,7 +24,7 @@ aprobado_por: "{{ cliente.organo_aprobador_politicas }}"
 
 El presente documento establece los principios y reglas aplicables a la **clasificación de la información** tratada por {{ cliente.razon_social }}, así como los criterios y obligaciones para su **tratamiento, etiquetado, conservación, transmisión, almacenamiento y destrucción** a lo largo de todo su ciclo de vida, con la finalidad de garantizar que la información reciba en cada momento un nivel de protección proporcional a su valor, sensibilidad y criticidad.
 
-Esta Política da cumplimiento a las medidas **mp.info.1 (Datos personales)**, **mp.info.2 (Calificación de la información)**, **mp.info.4 (Firma electrónica)**, **mp.info.5 (Sellos de tiempo)** y **mp.info.6 (Limpieza de documentos)** del Anexo II del Real Decreto 311/2022, y se complementa con el Reglamento (UE) 2016/679 (RGPD), la Ley Orgánica 3/2018 (LOPDGDD) y, cuando proceda, el Reglamento (UE) 910/2014 (eIDAS).
+Esta Política da cumplimiento a las medidas **mp.info.1 (Datos personales)**, **mp.info.2 (Calificación de la información)**, **mp.info.3 (Firma electrónica)**, **mp.info.4 (Sellos de tiempo)** y **mp.info.5 (Limpieza de documentos)** del Anexo II del Real Decreto 311/2022, y se complementa con el Reglamento (UE) 2016/679 (RGPD), la Ley Orgánica 3/2018 (LOPDGDD) y, cuando proceda, el Reglamento (UE) 910/2014 (eIDAS).
 
 ## 2. ÁMBITO DE APLICACIÓN
 
@@ -201,7 +201,7 @@ Queda prohibido el almacenamiento de información clasificada como CONFIDENCIAL 
 
 ### 7.5 Limpieza de metadatos
 
-Antes de la difusión externa de un documento, especialmente cuando contenga información sensible, se procederá a la **limpieza de metadatos** que pudieran revelar información no destinada a la difusión, conforme a la medida mp.info.6 del Anexo II del ENS.
+Antes de la difusión externa de un documento, especialmente cuando contenga información sensible, se procederá a la **limpieza de metadatos** que pudieran revelar información no destinada a la difusión, conforme a la medida mp.info.5 (Limpieza de documentos) del Anexo II del ENS.
 
 ## 8. CONSERVACIÓN Y ARCHIVO
 

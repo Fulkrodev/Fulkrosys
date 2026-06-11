@@ -25,7 +25,7 @@ medidas_ens: ["org.4"]
 
 Establecer el cauce formal para tramitar excepciones —desviaciones temporales y autorizadas— a las políticas, procedimientos y configuraciones de seguridad del SGSI de {{ cliente.razon_social }}, garantizando que cualquier desviación está justificada, valorada en términos de riesgo, autorizada por el órgano competente, sometida a controles compensatorios y limitada en el tiempo.
 
-Este procedimiento desarrolla la medida **org.4 (proceso de autorización)** del Anexo II del Real Decreto 311/2022, conforme a las directrices de la guía CCN-STIC 802 sobre auditoría de la seguridad.
+Este procedimiento desarrolla la medida **org.4 (proceso de autorización)** del Anexo II del Real Decreto 311/2022, conforme a los requisitos del propio Anexo II y a la guía **CCN-STIC 804 (valoración de sistemas en el ENS)**.
 
 ## 2. ALCANCE
 
@@ -187,7 +187,7 @@ En caso de **emergencia operativa** (caída de servicio, incidente activo) que r
 Este procedimiento se revisa **anualmente** o cuando:
 
 - Cambien los umbrales de Apetito de Riesgo de la organización.
-- Se modifique la guía CCN-STIC 802 en lo relativo a org.4.
+- Se modifique el RD 311/2022 o la guía CCN-STIC 804 en lo relativo a org.4.
 - Se detecten patrones recurrentes que aconsejen modificar políticas en lugar de gestionar excepciones reiteradas.
 
 Responsabilidad: **Responsable de la Seguridad**, con aprobación del **Comité de Seguridad**.

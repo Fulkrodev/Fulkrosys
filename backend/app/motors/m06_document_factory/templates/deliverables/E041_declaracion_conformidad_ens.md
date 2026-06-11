@@ -55,7 +55,7 @@ A modo de resumen ejecutivo, el alcance incluye:
 
 a) Los sistemas de información operados por **{{ cliente.razon_social }}** para la prestación de los servicios objeto del SGSI.
 
-b) Las **73 medidas** del Anexo II del RD 311/2022 cuya aplicabilidad y estado se documenta en la Declaración de Aplicabilidad (E-040).
+b) Las medidas del Anexo II del RD 311/2022 aplicables a la categoría **{{ cat }}** del sistema (52 en categoría BÁSICA, 68 en MEDIA y 73 en ALTA), cuya aplicabilidad y estado se documenta en la Declaración de Aplicabilidad (E-040).
 
 c) Los activos identificados en el Análisis de Riesgos (E-400) según metodología MAGERIT v3.
 
@@ -67,13 +67,13 @@ a) Que el Sistema de Información descrito en la sección 4 cumple con los requi
 
 b) Que las medidas del Anexo II aplicables han sido **implantadas conforme al Plan de Adecuación (E-150)** y se mantienen operativas.
 
-c) Que el sistema ha sido sometido a la auditoría interna prevista (E-052 cuando proceda) y, {% if requiere_certif %}adicionalmente, a la auditoría de certificación por entidad acreditada{% else %}a las verificaciones operativas internas{% endif %}.
+c) Que el sistema ha sido sometido a la auditoría interna prevista (E-050 cuando proceda) y, {% if requiere_certif %}adicionalmente, a la auditoría de certificación por entidad acreditada{% else %}a las verificaciones operativas internas{% endif %}.
 
 d) Que el sistema dispone de los procesos documentados de **gestión de incidentes (E-204)**, **gestión de cambios (E-203)** y **continuidad (E-401)** necesarios para mantener el nivel de seguridad declarado.
 
 e) Que la Entidad se compromete a comunicar al Centro Criptológico Nacional (CCN) cualquier **cambio material** del sistema mediante el documento E-042.
 
-f) Que la presente Declaración se renovará periódicamente conforme al artículo 35 del RD 311/2022 mediante el documento E-043 (cada **{{ '2 años' if basica else '3 años' }}**).
+f) Que la presente Declaración se renovará periódicamente conforme al ciclo de revisión y auditoría periódica previsto en el Anexo III del RD 311/2022, mediante el documento E-043 (cada **{{ '2 años' if basica else '3 años' }}**).
 
 ## 6. PUBLICACIÓN Y REMISIÓN
 

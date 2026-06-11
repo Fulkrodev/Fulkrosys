@@ -27,7 +27,7 @@ Del Anexo II del RD 311/2022 (ENS) materializa:
 
 - **op.exp.7** — Gestión de incidentes (específicamente brechas con impacto en datos personales).
 - **mp.info.2** — Calificación de la información (datos personales como categoría reforzada).
-- **mp.info.3** — Cifrado de la información (control compensatorio relevante para mitigar impacto de brecha).
+- **mp.si.2** — Criptografía (cifrado de la información como control compensatorio relevante para mitigar el impacto de una brecha).
 
 Del marco de protección de datos materializa:
 

@@ -1,6 +1,6 @@
 # DOCUMENTO E-103 — POLÍTICA DE USO ACEPTABLE DE LOS RECURSOS
 
-**Es la política con mayor impacto operativo en el día a día del personal.** Materializa las medidas mp.eq.1 a mp.eq.4 (Protección de los equipos), mp.s.1 (Protección de los servicios) y org.4 (Proceso de autorización) del Anexo II del ENS, así como los controles A.5.10 (Uso aceptable de los activos), A.6.7 (Trabajo a distancia) y A.8.1 (Dispositivos de usuario final) de ISO/IEC 27001:2022. Es la política que **todo el personal debe firmar como parte de su contrato laboral o de su acuerdo de incorporación**.
+**Es la política con mayor impacto operativo en el día a día del personal.** Materializa las medidas mp.eq.1 a mp.eq.4 (Protección de los equipos), mp.s.1 (Protección del correo electrónico) y org.4 (Proceso de autorización) del Anexo II del ENS, así como los controles A.5.10 (Uso aceptable de los activos), A.6.7 (Trabajo a distancia) y A.8.1 (Dispositivos de usuario final) de ISO/IEC 27001:2022. Es la política que **todo el personal debe firmar como parte de su contrato laboral o de su acuerdo de incorporación**.
 
 ```jinja
 ---

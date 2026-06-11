@@ -244,7 +244,7 @@ La estructura operativa de la seguridad descansa sobre los cuatro roles previsto
 
 ## 8. GESTIÓN DE LOS DATOS PERSONALES
 
-Cuando los sistemas de información de la Entidad traten datos de carácter personal, se aplicarán las medidas de seguridad correspondientes al RGPD y a la LOPDGDD, de modo coordinado con las medidas del presente SGSI, conforme a lo dispuesto en el artículo 3 del ENS y en el documento {{ proyecto.codigo_documento_base }}-115 (Política de Privacidad y Protección de Datos Personales).
+Cuando los sistemas de información de la Entidad traten datos de carácter personal, se aplicarán las medidas de seguridad correspondientes al RGPD y a la LOPDGDD, de modo coordinado con las medidas del presente SGSI, conforme a lo dispuesto en el artículo 3 del ENS y en el documento {{ proyecto.codigo_documento_base }}-105 (Política de Privacidad y Protección de Datos Personales).
 
 La interlocución con la Agencia Española de Protección de Datos, así como las funciones propias del Delegado de Protección de Datos cuando este exista, corresponderán a {{ responsables.delegado_proteccion_datos.nombre }}, en su condición de {{ responsables.delegado_proteccion_datos.cargo }}.
 
