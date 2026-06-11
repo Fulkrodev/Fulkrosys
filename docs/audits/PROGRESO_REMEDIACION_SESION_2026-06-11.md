@@ -60,7 +60,13 @@
 - ⏳ **R05 E-155**: builder `build_e155_alcance_context` + modelo de scope mínimo (servicios.tipo finalista/instrumental, sedes.tipo sede_fisica/region_cloud, exclusiones) · quitar frontmatter BORRADOR · validación anti-placeholder · cablear dimensiones desde m01. Probable migración (tabla scope) → scratch DB.
 - ⏳ **R24-resto**: acta de decisión de adecuación de la Dirección (org.1) firmable autónoma (plantilla nueva + SignableType + paso en `fase0_governance.py`); coherencia `fecha_nombramiento` (decisión Marcos).
 
-## NEXT (orden): R03-backend → R05 → R24-resto → F3 (incl. E-050→E-150 sistémico en E-041/042/043/090/614/615) → F4 → F5 → F6 → 3 simulaciones Playwright + auditor + docs → deploy (OK Marcos)
+## DEPLOY 2 HECHO + VERIFICADO en servidor real (2026-06-11 ~22:46)
+
+- **`git push origin main`** → prod Hetzner = **`ff85a715`** (8 commits: R02 + F2.1 + R03 plantilla+backend + copilot-fix). CD ✅ + CI ✅ (GitHub Actions). **0 migraciones nuevas** (chain Alembic sin cambios · DB-safe).
+- **Verificado por SSH (no por el estado del CD)**: contenedores backend/frontend/celery/postgres recreados + **(healthy)**; `/api/v1/health → 200`; `_resolve_project_meta_scoped` presente en el código desplegado.
+- **BUG REAL de prod encontrado y arreglado durante la validación** (commit `ff85a715`): R09 (FASE 0, ya en prod) hizo `project_id` obligatorio para el cap cliente, pero `client_copilot_stub.py` + `m11/portal_api.py` no lo pasaban → **el copiloto del cliente daba 500 en prod**. Fix: resolver project_id server-side + guarda anti-500. La suite "pasaba" en CI porque los tests estaban stale/mal — se cazó contrastando el CÓDIGO real (lección: verificar comportamiento real, no solo verde). Suite completa: 6003 passed / 0 fail.
+
+## NEXT (orden): R05 → R24-resto → R03-wiring → F3 (incl. E-050→E-150 sistémico en E-041/042/043/090/614/615) → F4 → F5 → F6 → 3 simulaciones Playwright + auditor + docs → deploy
 
 ## PENDIENTE
 
