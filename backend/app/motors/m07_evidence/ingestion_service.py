@@ -115,6 +115,28 @@ async def ingest_evidence(
     else:
         fecha_caducidad = None
 
+    # 7.bis · LECTURA IA del documento que sube el cliente.
+    # Extrae el texto del fichero (PDF/Word/Excel/CSV/TXT · imagen y PDF
+    # escaneado por OCR best-effort) y sugiere la clasificación ENS a partir del
+    # CONTENIDO (no sólo del nombre). Best-effort: si falla, la evidencia se
+    # guarda igual (sin lectura) · nunca rompe la subida.
+    from .ai_classifier_service import suggest_classification
+    from .content_extraction_service import extract_text
+
+    extraction = extract_text(request.file_bytes, request.mime_type, request.file_name)
+    suggestion = suggest_classification(
+        request.file_name, content_preview=extraction.get("text") or None,
+    )
+    metadata_merged: dict = dict(request.metadata_extra or {})
+    metadata_merged["lectura_ia"] = {
+        "texto_extraido": (extraction["text"] or "")[:4000],
+        "chars": extraction["chars"],
+        "metodo": extraction["method"],
+        "ocr_usado": extraction["ocr_used"],
+        "ocr_disponible": extraction["ocr_available"],
+        "clasificacion_sugerida": suggestion.to_dict(),
+    }
+
     # 8. Persist Evidence row
     relative_path = f"var/evidences/{request.project_id}/{evidence_id}{ext}"
 
@@ -153,7 +175,7 @@ async def ingest_evidence(
             "fecha_evidencia": fecha_evidencia,
             "fecha_caducidad": fecha_caducidad,
             "firma_ed25519": signature.hex(),
-            "metadata_extra": json.dumps(request.metadata_extra) if request.metadata_extra else None,
+            "metadata_extra": json.dumps(metadata_merged) if metadata_merged else None,
             "evidence_type_id": request.evidence_type_id,
             "nombre_tipo": ev_type.nombre,
             "fichero_nombre_original": request.file_name,
