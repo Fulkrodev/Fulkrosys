@@ -7,6 +7,8 @@ from __future__ import annotations
 
 from typing import Any
 
+from backend.app.core.pricing.rules import RETAINER_TIERS, get_base_prices
+
 
 PRICING_CATALOG: list[dict[str, Any]] = [
     {
@@ -106,15 +108,60 @@ PRICING_CATALOG: list[dict[str, Any]] = [
 IVA_DEFAULT = 21.0
 
 
+# ── FUENTE ÚNICA DE PRECIOS (2026-06-11) ──────────────────────────────
+# El catálogo comercial NO tiene precios base propios: los DERIVA de la fuente
+# única (``rules.get_base_prices`` = pricing_config en runtime) para implantación
+# y de ``RETAINER_TIERS`` para retainer. Así, editar el precio en
+# /admin/settings/pricing se propaga también a este catálogo (antes media_hitos
+# tenía 22.000 "sombra" hardcoded · ahora imposible).
+_PROJECT_MODEL_CATEGORY = {
+    "basica_fijo": "BASICA",
+    "media_hitos": "MEDIA",
+    "alta_fases_exito": "ALTA",
+}
+_RETAINER_MODEL_TIER = {
+    "retainer_basico": "R_STD",
+    "retainer_premium": "R_PLUS",
+}
+
+
+def _refresh_model_from_single_source(model: dict) -> dict:
+    """Copia el modelo inyectando el precio base/mensual desde la fuente única.
+
+    NO muta el ``PRICING_CATALOG`` module-level (copia defensiva). Para modelos
+    de proyecto sobrescribe ``formula.base`` + ``rango_min``; para retainer
+    sobrescribe ``formula.mensual`` + ``rango_min``.
+    """
+    m = dict(model)
+    cat = _PROJECT_MODEL_CATEGORY.get(m["id"])
+    if cat:
+        base = float(get_base_prices().get(cat, m["formula"].get("base", 0)))
+        m["formula"] = {**m["formula"], "base": base}
+        m["rango_min"] = base
+        return m
+    tier = _RETAINER_MODEL_TIER.get(m["id"])
+    if tier and tier in RETAINER_TIERS:
+        mensual = float(RETAINER_TIERS[tier].cuota_mensual)
+        m["formula"] = {**m["formula"], "mensual": mensual}
+        m["rango_min"] = mensual
+    return m
+
+
 class PricingModelNotFoundError(ValueError):
     pass
 
 
 class PricingService:
-    """Calcula importes de propuestas desde modelos in-memory (Apéndice M)."""
+    """Calcula importes de propuestas desde modelos in-memory (Apéndice M).
+
+    Los precios base se derivan de la FUENTE ÚNICA (pricing_config → BASE_PRICES /
+    RETAINER_TIERS) en cada instanciación, de modo que reflejan el valor vigente
+    editado por Marcos sin precios "sombra" divergentes.
+    """
 
     def __init__(self):
-        self._by_id = {m["id"]: m for m in PRICING_CATALOG}
+        self._catalog = [_refresh_model_from_single_source(m) for m in PRICING_CATALOG]
+        self._by_id = {m["id"]: m for m in self._catalog}
 
     def get_model(self, model_id: str) -> dict:
         if model_id not in self._by_id:
@@ -123,10 +170,10 @@ class PricingService:
 
     def get_models_for_categoria(self, categoria: str) -> list[dict]:
         cat = (categoria or "").upper()
-        return [m for m in PRICING_CATALOG if cat in m["aplicable_categoria"]]
+        return [m for m in self._catalog if cat in m["aplicable_categoria"]]
 
     def list_all(self) -> list[dict]:
-        return list(PRICING_CATALOG)
+        return list(self._catalog)
 
     def calculate_price(
         self,

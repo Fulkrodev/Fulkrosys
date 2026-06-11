@@ -127,8 +127,8 @@ async def test_agent_19_context_builder_from_db(db):
     # Pricing deterministico Apendice M v2.2
     pricing = ctx["pricing"]
     assert pricing.categoria == "MEDIA"
-    # Base MEDIA = 9.500 EUR segun Apendice M
-    assert pricing.base == Decimal("9500.00")
+    # Base MEDIA = 10.700 EUR (fuente única · rules.BASE_PRICES)
+    assert pricing.base == Decimal("10700.00")
     # Hospital + sanidad -> sector regulado extra (MEDIA only)
     codes = {e.code for e in pricing.extras}
     assert "sector_regulado" in codes
@@ -169,9 +169,9 @@ async def test_agent_19_whitelist_detects_hallucinations(db):
     }
     known_amounts = agent._build_known_amounts(pricing, context)
     # Importes del pricing real que deben aparecer en known_amounts
-    # (base MEDIA 9500 + sanidad 2000 + multi-sede 1500 + +1 sistema 1200 = 14200)
-    assert Decimal("9500.00") in known_amounts
-    assert Decimal("14200.00") in known_amounts
+    # (base MEDIA 10700 + sanidad 2000 + multi-sede 1500 + +1 sistema 1200 = 15400)
+    assert Decimal("10700.00") in known_amounts
+    assert Decimal("15400.00") in known_amounts
     # Garantia MEDIA incluye el hito de 1.000 EUR — debe parsearse del texto
     assert Decimal("1000.00") in known_amounts
 

@@ -79,6 +79,6 @@ def test_l7_alta_no_discount_but_disclaimer():
 
 def test_l7_canonical_prices_untouched():
     # el descuento NO modifica el pricing canónico (additive)
-    assert BASE_PRICES_CANONICAL["BASICA"] == Decimal("3900.00")
-    assert BASE_PRICES_CANONICAL["MEDIA"] == Decimal("11500.00")
-    assert BASE_PRICES_CANONICAL["ALTA"] == Decimal("22000.00")
+    assert BASE_PRICES_CANONICAL["BASICA"] == Decimal("3200.00")
+    assert BASE_PRICES_CANONICAL["MEDIA"] == Decimal("10700.00")
+    assert BASE_PRICES_CANONICAL["ALTA"] == Decimal("22800.00")

@@ -83,6 +83,17 @@ async def set_pricing_config(
             ),
             {"v": dv, "by": updated_by, "c": c},
         )
+        # Propaga a la tabla-catálogo de implantación (M23) para que el precio
+        # editado en /admin/settings/pricing quede unificado en TODO el sistema
+        # (sin precios "sombra" en pricing_catalog).
+        await db.execute(
+            text(
+                "UPDATE pricing_catalog SET base_price = :v "
+                "WHERE category = 'implantacion' AND tier_code = :c "
+                "AND deleted_at IS NULL"
+            ),
+            {"v": dv, "c": c},
+        )
         applied[c] = dv
     from backend.app.core.pricing.rules import apply_pricing_overrides
     apply_pricing_overrides(applied)

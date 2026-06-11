@@ -6,7 +6,7 @@
 
 Plataforma de implantación ENS (RD 311/2022) para consultor autónomo (Marcos · matagarciamarcos@gmail.com). **Target**: empresas privadas que licitan a la AAPP en concursos públicos (AAPP = customer-of-customer, NUNCA customer directo · AMEND-012 sostenido empíricamente audit v4).
 
-**Mission pre-piloto**: PRIMER CLIENTE PILOTO PAGADOR · Categoría MEDIA · 9.500€ proyecto + R_STD 700€/mes retainer · FULKRO 1.0 BLOQUE 1 PERFECTO + tag `s1-bloque-perfecto` local.
+**Mission pre-piloto**: PRIMER CLIENTE PILOTO PAGADOR · Categoría MEDIA · 10.700€ proyecto + R_STD 700€/mes retainer · FULKRO 1.0 BLOQUE 1 PERFECTO + tag `s1-bloque-perfecto` local.
 
 **Estructura backend**: 41 directorios motores lifecycle + 1 utility transversal (m_observability) + m_cloud_connectors unified layer = **42 motors reales** bajo `backend/app/motors/m*/`. **31 IDs registry agentes** (taxonomía en `backend/app/agents/registry.py`). m24_idms = m_dms identidad definitiva (NO crear motor m_dms paralelo).
 
@@ -167,24 +167,21 @@ Los siguientes motores son infrastructure transversal y NO requieren frontend pr
 
 El subsistema ENS Radar (motor `m10_ens_radar`, frontend `(radar)`, scrapers, scoring, outreach, tablas radar y auth `ens_radar_owner`) fue **eliminado por completo** del producto el 2026-06-07 (migracion `drop_ens_radar_001`). El ciclo comercial (M13/M14: leads manuales, propuestas, contratos, firma) se mantiene intacto.
 
-## Pricing Canonical (2026-05-24 architect-validated)
+## Pricing Canonical (2026-06-11 · FUENTE ÚNICA unificada)
 
 **Reference**: [docs/pricing/CANONICAL_PRICING.md](docs/pricing/CANONICAL_PRICING.md)
 
-ENS implantación (proyecto fijo):
-- **Básica 3.900€** (ceiling sector complejo 4.500€) · 4-6 semanas · NO audit externo
-- **Media 11.500€** (ceiling 13.000€) · 8-10 semanas · audit ENAC obligatorio cliente
-- **Alta 22.000€** (ceiling 28.000€) · 12-16 semanas · SOC + DR + monit 24/7
+ENS implantación (proyecto fijo) · **un solo número por categoría en todo el sistema**:
+- **Básica 3.200€** (ceiling sector complejo 4.500€) · 4-6 semanas · NO audit externo
+- **Media 10.700€** (ceiling 13.000€) · 8-10 semanas · audit ENAC obligatorio cliente
+- **Alta 22.800€** (ceiling 28.000€) · 12-16 semanas · SOC + DR + monit 24/7
 
-Retainers post-cert (mensual):
-- **R_BÁSICO 700-900€/mes** post-Básica · vigilancia + reporte trimestral
-- **R_MEDIO 1.500-2.500€/mes** post-Media · CISO ext + vuln semanal
-- **R_ALTO 3.000-5.000€/mes** post-Alta · SOC + DR drills + audit annual
+Retainers post-cert (mensual · 5 tiers código `RETAINER_TIERS` = catálogo m23):
+- **R_MICRO 150€** · **R_LITE 300€** · **R_STD 700€** (base del negocio) · **R_PLUS 1.200€** · **R_CRITICAL 3.000€**
 
 **Excludes**: audit ENAC externo (cliente) · HW/SW licensing · hosting · pentest externo
 
-**Source-of-truth**: `backend/app/core/pricing/rules.py` BASE_PRICES_CANONICAL + BASE_PRICES_CEILING_CANONICAL
-**Legacy gap**: `BASE_PRICES` (rules.py) + `pricing_service.py` (m13) + `pricing_catalog_seed.py` (m23) tienen valores v2.1/v2.2 baseline · migration Future-1.E.pricing.migrate-{rules,m13,m23,tests}-canonical (~6-8h cumulative post-piloto)
+**Fuente única (2026-06-11)**: la tabla `pricing_config` (BD · editable en `/admin/settings/pricing`) es la fuente de verdad. Al arranque/edición propaga a `rules.BASE_PRICES` == `BASE_PRICES_CANONICAL`, al catálogo comercial m13 (deriva de `get_base_prices()` · ya NO hay 22.000 sombra) y a la tabla `pricing_catalog` (m23). **R_STD = 700€ en todo el sistema** (resuelta la divergencia 400 vs 700). Migración `unify_pricing_fiscal_rls_001`. Identidad fiscal del consultor (NIF) en `admin_settings.fiscal` editable en `/admin/settings/fiscal`.
 
 ## Convenciones técnicas
 

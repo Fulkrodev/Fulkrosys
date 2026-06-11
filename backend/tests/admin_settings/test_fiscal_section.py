@@ -81,6 +81,9 @@ async def test_update_section_fiscal_persists(db: AsyncSession, make_user):
 async def test_update_section_fiscal_writes_audit_log(db: AsyncSession, make_user):
     """El trigger tg_audit_admin_settings deja rastro al tocar fiscal (R6)."""
     await ensure_seeded(db)
+    # Parte de fiscal vacío para observar un cambio limpio (la migración
+    # unify_pricing_fiscal_rls_001 pre-puebla el NIF en el seed/build).
+    await _reset_fiscal_empty(db)
     owner = await make_user(role="owner", email="audit-fiscal@fulkro.test")
 
     await update_section(

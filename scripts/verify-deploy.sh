@@ -62,7 +62,7 @@ COMPOSE_FILE="${FULKRO_COMPOSE_FILE:-docker-compose.prod.yml}"
 ENV_FILE="${FULKRO_ENV_FILE:-.env.prod}"
 PG_SERVICE="${FULKRO_PG_SERVICE:-postgres}"
 MINIO_ALIAS="${FULKRO_MINIO_ALIAS:-local}"
-ALEMBIC_EXPECTED_HEAD="client_mfa_email_code_001"
+ALEMBIC_EXPECTED_HEAD="unify_pricing_fiscal_rls_001"
 
 PASS=0; FAIL=0; SKIP=0
 pass() { printf '  \033[32mPASS\033[0m  %-7s %s\n' "$1" "$2"; PASS=$((PASS+1)); }

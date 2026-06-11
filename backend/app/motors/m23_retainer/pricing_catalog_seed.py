@@ -79,11 +79,26 @@ PRICING_ENTRIES = [
             "incident_support_hour": 110.00,
         },
     },
+    {
+        "category": "retainer", "tier_code": "R_CRITICAL",
+        "name": "Retainer Critical (Alta · SOC + DR 24/7)",
+        "base_price": 3000.00, "billing_unit": "mensual",
+        "description": "Categoria ALTA / infraestructura critica. SOC + DR "
+                       "drills + comite mensual + pentest + auditoria anual. "
+                       "SLA 8h 24/7. Maximo nivel de acompanamiento.",
+        "extras_jsonb": {
+            "sector_regulado": 500.00,
+            "multi_ubicacion": 400.00,
+            "redteam_anual": 3500.00,
+            "formacion_extra_sesion": 250.00,
+            "incident_support_hour": 130.00,
+        },
+    },
     # ── Implantacion (proyecto fijo) ──
     {
         "category": "implantacion", "tier_code": "BASICA",
         "name": "Implantacion ENS Categoria Basica",
-        "base_price": 5500.00, "billing_unit": "proyecto_fijo",
+        "base_price": 3200.00, "billing_unit": "proyecto_fijo",
         "description": "Proyecto de adecuacion ENS Basica, "
                        "4-6 meses, todo-incluido.",
         "extras_jsonb": {
@@ -94,7 +109,7 @@ PRICING_ENTRIES = [
     {
         "category": "implantacion", "tier_code": "MEDIA",
         "name": "Implantacion ENS Categoria Media",
-        "base_price": 9500.00, "billing_unit": "proyecto_fijo",
+        "base_price": 10700.00, "billing_unit": "proyecto_fijo",
         "description": "Proyecto de adecuacion ENS Media, "
                        "8-10 meses, todo-incluido.",
         "extras_jsonb": {
@@ -105,7 +120,7 @@ PRICING_ENTRIES = [
     {
         "category": "implantacion", "tier_code": "ALTA",
         "name": "Implantacion ENS Categoria Alta",
-        "base_price": 17500.00, "billing_unit": "proyecto_fijo",
+        "base_price": 22800.00, "billing_unit": "proyecto_fijo",
         "description": "Proyecto de adecuacion ENS Alta, "
                        "10-14 meses, todo-incluido con red team.",
         "extras_jsonb": {

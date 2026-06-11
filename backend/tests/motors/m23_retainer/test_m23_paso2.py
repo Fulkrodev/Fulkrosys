@@ -118,7 +118,7 @@ class TestPricingCatalog:
         assert price == Decimal("1200.00")
 
     @pytest.mark.asyncio
-    async def test_implantacion_media_price_9500(self, db):
+    async def test_implantacion_media_price(self, db):
         await _ensure_pricing(db)
         async with _admin_setup(db):
             r = await db.execute(sa_text(
@@ -126,7 +126,7 @@ class TestPricingCatalog:
                 "WHERE category = 'implantacion' AND tier_code = 'MEDIA'"
             ))
             price = r.scalar()
-        assert float(price) == 9500.00
+        assert float(price) == 10700.00
 
 
 # ════════════════════════════════════════════════════════════════════

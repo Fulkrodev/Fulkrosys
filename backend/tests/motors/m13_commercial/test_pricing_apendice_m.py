@@ -46,40 +46,40 @@ async def _make_cliente_dict(is_aapp: bool = False, sector: str = "sanidad") -> 
 
 class TestProposalApendiceM:
     @pytest.mark.asyncio
-    async def test_media_sanidad_total_11500(self, db):
+    async def test_media_sanidad_total(self, db):
         lead_id = await _seed_lead(db)
         cliente = await _make_cliente_dict(is_aapp=False, sector="sanidad")
         p = await ProposalService().generate_proposal_apendice_m(
             db, lead_id=lead_id, categoria="MEDIA", cliente=cliente,
             sector="sanidad",
         )
-        assert p.importe_total == 11500.0
+        assert p.importe_total == 12700.0
         assert p.categoria_objetivo == "MEDIA"
         hitos = (p.hitos_pago or {}).get("hitos", [])
         assert len(hitos) == 5
-        assert sum(h["amount"] for h in hitos) == pytest.approx(11500.0)
+        assert sum(h["amount"] for h in hitos) == pytest.approx(12700.0)
 
     @pytest.mark.asyncio
-    async def test_basica_ayto_urgent_total_5070(self, db):
+    async def test_basica_ayto_urgent_total(self, db):
         lead_id = await _seed_lead(db, is_aapp=True)
         cliente = await _make_cliente_dict(is_aapp=True)
         p = await ProposalService().generate_proposal_apendice_m(
             db, lead_id=lead_id, categoria="BASICA", cliente=cliente,
             dias_hasta_plazo=28,
         )
-        assert p.importe_total == 5070.0
+        assert p.importe_total == 4160.0
         desglose = p.importe_desglose or {}
         assert desglose.get("urgent") is True
         assert desglose.get("is_aapp") is True
         assert desglose.get("payment_days") == 60
 
     @pytest.mark.asyncio
-    async def test_alta_total_25000(self, db):
+    async def test_alta_total(self, db):
         lead_id = await _seed_lead(db)
         p = await ProposalService().generate_proposal_apendice_m(
             db, lead_id=lead_id, categoria="ALTA",
         )
-        assert p.importe_total == 25000.0
+        assert p.importe_total == 22800.0
         hitos = (p.hitos_pago or {}).get("hitos", [])
         assert len(hitos) == 7
 
@@ -135,7 +135,7 @@ class TestContractApendiceM:
         assert params.get("apendice_m_version") == "v2.2"
         pricing = params.get("pricing", {})
         assert pricing.get("categoria") == "MEDIA"
-        assert pricing.get("total") == 11500.0
+        assert pricing.get("total") == 12700.0
         assert len(pricing.get("hitos", [])) == 5
 
     @pytest.mark.asyncio
@@ -215,8 +215,8 @@ class TestBillingApendiceM:
             db, contract_id=c.id, milestone_code="hito_1_firma",
             cliente=cliente,
         )
-        # Basica total 3900 × 30% = 1170
-        assert float(inv.base_imponible) == 1170.0
+        # Basica total 3200 × 30% = 960
+        assert float(inv.base_imponible) == 960.0
         assert inv.fecha_vencimiento is not None
 
     @pytest.mark.asyncio

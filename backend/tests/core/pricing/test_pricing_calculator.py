@@ -1,4 +1,9 @@
-"""Tests core/pricing Apendice M v2.2 — Paso 6."""
+"""Tests core/pricing Apendice M v2.2 — Paso 6.
+
+Precios base alineados a la FUENTE ÚNICA (BÁSICA 3.200 · MEDIA 10.700 · ALTA
+22.800) · retainer R_MICRO 150 / R_LITE 300 / R_STD 700 / R_PLUS 1.200 /
+R_CRITICAL 3.000. Ver backend/app/core/pricing/rules.py.
+"""
 from __future__ import annotations
 
 from datetime import date
@@ -32,19 +37,19 @@ def calc() -> PricingCalculator:
 
 
 class TestImplantacionBase:
-    def test_basica_base_3900(self, calc):
+    def test_basica_base(self, calc):
         r = calc.calculate_implantacion("BASICA")
-        assert r.total == Decimal("3900.00")
+        assert r.total == Decimal("3200.00")
         assert r.extras == []
 
-    def test_media_base_9500(self, calc):
+    def test_media_base(self, calc):
         r = calc.calculate_implantacion("MEDIA")
-        assert r.total == Decimal("9500.00")
+        assert r.total == Decimal("10700.00")
         assert r.extras == []
 
-    def test_alta_base_25000(self, calc):
+    def test_alta_base(self, calc):
         r = calc.calculate_implantacion("ALTA")
-        assert r.total == Decimal("25000.00")
+        assert r.total == Decimal("22800.00")
 
     def test_categoria_invalida_raises(self, calc):
         with pytest.raises(PricingError, match="categoria invalida"):
@@ -52,37 +57,37 @@ class TestImplantacionBase:
 
     def test_categoria_case_insensitive(self, calc):
         r = calc.calculate_implantacion("media")
-        assert r.total == Decimal("9500.00")
+        assert r.total == Decimal("10700.00")
 
 
 class TestMediaExtras:
     def test_sector_regulado_sanidad(self, calc):
         r = calc.calculate_implantacion("MEDIA", sector="sanidad")
-        assert r.total == Decimal("11500.00")
+        assert r.total == Decimal("12700.00")
         assert any(e.code == "sector_regulado" for e in r.extras)
 
     def test_sector_regulado_banca(self, calc):
         r = calc.calculate_implantacion("MEDIA", sector="banca")
-        assert r.total == Decimal("11500.00")
+        assert r.total == Decimal("12700.00")
 
     def test_sector_no_regulado(self, calc):
         r = calc.calculate_implantacion("MEDIA", sector="tecnologia")
-        assert r.total == Decimal("9500.00")
+        assert r.total == Decimal("10700.00")
 
     def test_multi_ubicacion_3_sedes(self, calc):
         r = calc.calculate_implantacion("MEDIA", sedes=3)
-        assert r.total == Decimal("11000.00")
+        assert r.total == Decimal("12200.00")
         assert any(e.code == "multi_ubicacion" for e in r.extras)
 
     def test_madurez_l0_l1(self, calc):
         r = calc.calculate_implantacion("MEDIA", madurez_pct=20)
-        assert r.total == Decimal("12000.00")
+        assert r.total == Decimal("13200.00")
         assert any(e.code == "madurez_l0_l1" for e in r.extras)
 
     def test_sistemas_adicionales_3(self, calc):
         r = calc.calculate_implantacion("MEDIA", sistemas_en_alcance=3)
-        # base 9500 + 2 sistemas adicionales × 1200 = 11900
-        assert r.total == Decimal("11900.00")
+        # base 10700 + 2 sistemas adicionales × 1200 = 13100
+        assert r.total == Decimal("13100.00")
 
     def test_all_extras_combined(self, calc):
         r = calc.calculate_implantacion(
@@ -92,15 +97,15 @@ class TestMediaExtras:
             madurez_pct=15,         # +2500
             sistemas_en_alcance=2,  # +1200
         )
-        # 9500 + 2000 + 1500 + 2500 + 1200 = 16700
-        assert r.total == Decimal("16700.00")
+        # 10700 + 2000 + 1500 + 2500 + 1200 = 17900
+        assert r.total == Decimal("17900.00")
 
     def test_basica_no_extras_applied(self, calc):
         r = calc.calculate_implantacion(
             "BASICA", sector="sanidad", sedes=3, madurez_pct=15,
         )
         # Extras no aplican a Basica segun Apendice M
-        assert r.total == Decimal("3900.00")
+        assert r.total == Decimal("3200.00")
         assert r.extras == []
 
 
@@ -117,11 +122,11 @@ class TestMilestones:
     def test_basica_hito_1_30_pct(self, calc):
         r = calc.calculate_implantacion("BASICA")
         assert r.hitos[0].pct == Decimal("0.30")
-        assert r.hitos[0].amount == Decimal("1170.00")  # 3900 × 0.30
+        assert r.hitos[0].amount == Decimal("960.00")  # 3200 × 0.30
 
     def test_basica_hito_2_40_pct(self, calc):
         r = calc.calculate_implantacion("BASICA")
-        assert r.hitos[1].amount == Decimal("1560.00")  # 3900 × 0.40
+        assert r.hitos[1].amount == Decimal("1280.00")  # 3200 × 0.40
 
     def test_basica_hitos_suman_total(self, calc):
         r = calc.calculate_implantacion("BASICA")
@@ -143,12 +148,12 @@ class TestMilestones:
     def test_media_hitos_suman_total_con_extras(self, calc):
         r = calc.calculate_implantacion("MEDIA", sector="sanidad")
         total = sum((h.amount for h in r.hitos), start=Decimal("0"))
-        assert total == r.total  # 11500
+        assert total == r.total  # 12700
 
     def test_media_ultimo_hito_11_pct_absorbe_redondeo(self, calc):
-        # 9500 × 0.11 = 1045.00 exacto
+        # 10700 × 0.11 = 1177.00 exacto
         r = calc.calculate_implantacion("MEDIA")
-        assert r.hitos[-1].amount == Decimal("1045.00")
+        assert r.hitos[-1].amount == Decimal("1177.00")
 
     def test_alta_tiene_7_hitos(self, calc):
         r = calc.calculate_implantacion("ALTA")
@@ -163,14 +168,14 @@ class TestMilestones:
 
     def test_calculate_milestone_amount_by_code(self, calc):
         h = calc.calculate_milestone_amount(
-            "BASICA", Decimal("3900.00"), "hito_1_firma",
+            "BASICA", Decimal("3200.00"), "hito_1_firma",
         )
-        assert h.amount == Decimal("1170.00")
+        assert h.amount == Decimal("960.00")
 
     def test_calculate_milestone_invalid_code_raises(self, calc):
         with pytest.raises(PricingError, match="milestone_code invalido"):
             calc.calculate_milestone_amount(
-                "BASICA", Decimal("3900.00"), "hito_99_fake",
+                "BASICA", Decimal("3200.00"), "hito_99_fake",
             )
 
 
@@ -196,20 +201,20 @@ class TestUrgencia:
 
     def test_apply_urgency_surcharge_30_pct(self, calc):
         result = calc.apply_urgency_surcharge(
-            Decimal("3900.00"), is_urgent=True,
+            Decimal("3200.00"), is_urgent=True,
         )
-        assert result == Decimal("5070.00")
+        assert result == Decimal("4160.00")
 
     def test_no_surcharge_if_not_urgent(self, calc):
         result = calc.apply_urgency_surcharge(
-            Decimal("3900.00"), is_urgent=False,
+            Decimal("3200.00"), is_urgent=False,
         )
-        assert result == Decimal("3900.00")
+        assert result == Decimal("3200.00")
 
     def test_implantacion_basica_urgente_integrated(self, calc):
         r = calc.calculate_implantacion("BASICA", dias_hasta_plazo=28)
-        assert r.urgency_surcharge == Decimal("1170.00")
-        assert r.total == Decimal("5070.00")
+        assert r.urgency_surcharge == Decimal("960.00")
+        assert r.total == Decimal("4160.00")
 
 
 # ══════════════════════════════════════════════════════════════════════
@@ -256,10 +261,10 @@ class TestBolsaFlex:
 
 
 class TestRetainer:
-    def test_r_std_400_eur(self, calc):
+    def test_r_std(self, calc):
         r = calc.calculate_retainer("R_STD")
-        assert r.cuota_mensual == Decimal("400.00")
-        assert r.total_mensual == Decimal("400.00")
+        assert r.cuota_mensual == Decimal("700.00")
+        assert r.total_mensual == Decimal("700.00")
 
     def test_r_plus_sla_24h(self, calc):
         r = calc.calculate_retainer("R_PLUS")
@@ -272,7 +277,7 @@ class TestRetainer:
     def test_sector_regulado_extra_r_plus(self, calc):
         r = calc.calculate_retainer("R_PLUS", sector_regulado=True)
         assert r.sector_regulado_extra == Decimal("300.00")
-        assert r.total_mensual == Decimal("1000.00")
+        assert r.total_mensual == Decimal("1500.00")
 
     def test_sector_regulado_no_extra_r_std(self, calc):
         # R_STD no tiene extra sector regulado

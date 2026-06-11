@@ -47,10 +47,10 @@ def test_pricing_catalog_has_5_models():
 def test_pricing_basica_fijo_base_without_extras():
     svc = PricingService()
     r = svc.calculate_price("basica_fijo", empleados=5, sistemas=1)
-    assert r["base"] == 6500
-    assert r["total"] == 6500
-    assert r["iva_importe"] == 1365.00
-    assert r["total_con_iva"] == 7865.00
+    assert r["base"] == 3200
+    assert r["total"] == 3200
+    assert r["iva_importe"] == 672.00
+    assert r["total_con_iva"] == 3872.00
     # hitos del modelo: 30/40/30
     assert len(r["hitos"]) == 3
     assert sum(h["pct"] for h in r["hitos"]) == 100
@@ -60,7 +60,7 @@ def test_pricing_basica_fijo_with_employee_extras():
     svc = PricingService()
     r = svc.calculate_price("basica_fijo", empleados=25, sistemas=3)
     # 15 empleados extra × 80 + 1 sistema extra × 600 = 1200 + 600 = 1800 extra
-    assert r["total"] == 6500 + 15 * 80 + 1 * 600
+    assert r["total"] == 3200 + 15 * 80 + 1 * 600
     assert any("empleados" in e["concepto"] for e in r["extras"])
 
 
@@ -70,8 +70,8 @@ def test_pricing_media_hitos_with_sector_regulado():
         "media_hitos", empleados=40, sistemas=4,
         ubicaciones=2, sector_regulado=True,
     )
-    # base 22000 + 15 empleados × 150 + 1 sistema × 1200 + 1 ubicacion × 1800 + 3000 sector
-    assert r["total"] == 22000 + 15 * 150 + 1200 + 1800 + 3000
+    # base 10700 + 15 empleados × 150 + 1 sistema × 1200 + 1 ubicacion × 1800 + 3000 sector
+    assert r["total"] == 10700 + 15 * 150 + 1200 + 1800 + 3000
     assert any("sector" in e["concepto"].lower() for e in r["extras"])
 
 
@@ -81,15 +81,15 @@ def test_pricing_alta_with_cpds():
         "alta_fases_exito", empleados=50, sistemas=5,
         ubicaciones=1, cpds=2,
     )
-    # base 48000 + 0 empleados (=50 threshold) + 0 sistemas (=5) + 2 cpds × 4500 = 9000
-    assert r["total"] == 48000 + 9000
+    # base 22800 + 0 empleados (=50 threshold) + 0 sistemas (=5) + 2 cpds × 4500 = 9000
+    assert r["total"] == 22800 + 9000
 
 
 def test_pricing_retainer_monthly_multi_month():
     svc = PricingService()
     r = svc.calculate_price("retainer_basico", sistemas=3, meses_retainer=6)
-    # 450/mes × 6 + 2 sistemas extras × 50 × 6 = 2700 + 600 = 3300
-    assert r["total"] == 3300
+    # 700/mes × 6 + 2 sistemas extras × 50 × 6 = 4200 + 600 = 4800
+    assert r["total"] == 4800
 
 
 def test_pricing_invalid_model_raises():

@@ -4,11 +4,18 @@ Separar reglas de calculo (calculator.py) para facilitar tests y
 reutilizacion. Todos los importes son ``Decimal`` para evitar errores
 de redondeo en facturacion fiscal.
 
-NOTA CANONICAL (2026-05-24): ver ``docs/pricing/CANONICAL_PRICING.md``
-architect-validated reflects nuevos valores MEDIA 11.500 / ALTA 22.000.
-Estos constants permanecen en v2.2 baseline (MEDIA 9.500 / ALTA 25.000)
-para preservar test suite + proposals existing. Migración programada en
-Future-1.E.pricing.migrate-rules-canonical (atomic update rules.py + tests).
+FUENTE ÚNICA DE PRECIOS (2026-06-11 · unificación): existe UN solo juego de
+precios de implantación en todo el sistema, los valores vigentes de Marcos
+(BÁSICA 3.200 · MEDIA 10.700 · ALTA 22.800). Estos constants son el default de
+código y coinciden EXACTAMENTE con:
+  - la tabla ``pricing_config`` (BD · editable desde /admin/settings/pricing),
+  - el catálogo comercial ``m13_commercial/pricing_service.py`` (deriva de aquí),
+  - el seed ``m23_retainer/pricing_catalog_seed.py``.
+Al arranque, ``repository.refresh_pricing_from_db`` recarga ``pricing_config``
+sobre estas constantes vía ``apply_pricing_overrides`` (mutación IN-PLACE), de
+modo que editar el precio en la UI lo propaga a TODOS los consumidores
+(calculator, catálogo m13, agents 19/20, propuesta, factura) sin tocar
+call-sites. No quedan precios "sombra" divergentes.
 """
 from __future__ import annotations
 
@@ -17,32 +24,24 @@ from typing import NamedTuple
 
 
 # ══════════════════════════════════════════════════════════════════════
-# Precios base por categoria ENS (v2.2 baseline · ver canonical doc)
+# Precios base por categoria ENS · FUENTE ÚNICA (2026-06-11)
 # ══════════════════════════════════════════════════════════════════════
-# Canonical architect-validated 2026-05-24: BASICA 3.900 · MEDIA 11.500 · ALTA 22.000
-# Ceiling sector complejo: BASICA 4.500 · MEDIA 13.000 · ALTA 28.000
-# Migración Future-1.E.pricing.migrate-rules-canonical
-
-
-# FIX P4-1: la FUENTE ÚNICA EDITABLE de precios es la tabla ``pricing_config``
-# (BD), seeded con los valores vigentes de Marcos (BÁSICA 3.200 · MEDIA 10.700 ·
-# ALTA 22.800) y editable desde /admin/settings/pricing. Al arranque,
-# ``repository.refresh_pricing_from_db`` carga esos valores en estas constantes
-# vía ``apply_pricing_overrides`` (mutación IN-PLACE) → en PRODUCCIÓN todos los
-# consumidores (calculator, agents 19/20, propuesta, factura) usan los precios de
-# la BD sin tocar sus call-sites. Estas constantes son el BASELINE de código /
-# fallback (lo que ve la suite de tests de la calculadora, que valida la lógica
-# contra una base fija sin cargar el override de BD).
+# Valores vigentes de Marcos · coinciden con pricing_config (BD), el catálogo
+# m13 (deriva de aquí) y el seed m23. ``BASE_PRICES`` == ``BASE_PRICES_CANONICAL``:
+# un solo número por categoría en todo el sistema. ``apply_pricing_overrides``
+# recarga pricing_config sobre estas constantes al arranque y tras cada edición
+# admin, propagando el cambio a todos los consumidores.
 BASE_PRICES: dict[str, Decimal] = {
-    "BASICA": Decimal("3900.00"),
-    "MEDIA": Decimal("9500.00"),
-    "ALTA": Decimal("25000.00"),
+    "BASICA": Decimal("3200.00"),
+    "MEDIA": Decimal("10700.00"),
+    "ALTA": Decimal("22800.00"),
 }
 
+# Alias canónico (mismos valores · preservado para call-sites existentes).
 BASE_PRICES_CANONICAL: dict[str, Decimal] = {
-    "BASICA": Decimal("3900.00"),
-    "MEDIA": Decimal("11500.00"),
-    "ALTA": Decimal("22000.00"),
+    "BASICA": Decimal("3200.00"),
+    "MEDIA": Decimal("10700.00"),
+    "ALTA": Decimal("22800.00"),
 }
 
 # Ceiling sector complejo (sanidad/finanzas/AAPP critica · multiplier 1.2-1.4x)
@@ -357,7 +356,7 @@ class RetainerTier(NamedTuple):
 RETAINER_TIERS: dict[str, RetainerTier] = {
     "R_MICRO": RetainerTier(
         code="R_MICRO",
-        cuota_mensual=Decimal("120.00"),
+        cuota_mensual=Decimal("150.00"),
         horas_mensuales=1,
         horas_anuales=12,
         sla_urgente="best effort",
@@ -366,7 +365,7 @@ RETAINER_TIERS: dict[str, RetainerTier] = {
     ),
     "R_LITE": RetainerTier(
         code="R_LITE",
-        cuota_mensual=Decimal("250.00"),
+        cuota_mensual=Decimal("300.00"),
         horas_mensuales=2,
         horas_anuales=25,
         sla_urgente="72 horas habiles",
@@ -375,7 +374,7 @@ RETAINER_TIERS: dict[str, RetainerTier] = {
     ),
     "R_STD": RetainerTier(
         code="R_STD",
-        cuota_mensual=Decimal("400.00"),
+        cuota_mensual=Decimal("700.00"),
         horas_mensuales=3,
         horas_anuales=40,
         sla_urgente="48 horas habiles",
@@ -384,7 +383,7 @@ RETAINER_TIERS: dict[str, RetainerTier] = {
     ),
     "R_PLUS": RetainerTier(
         code="R_PLUS",
-        cuota_mensual=Decimal("700.00"),
+        cuota_mensual=Decimal("1200.00"),
         horas_mensuales=6,
         horas_anuales=80,
         sla_urgente="24 horas habiles",
@@ -393,7 +392,7 @@ RETAINER_TIERS: dict[str, RetainerTier] = {
     ),
     "R_CRITICAL": RetainerTier(
         code="R_CRITICAL",
-        cuota_mensual=Decimal("1200.00"),
+        cuota_mensual=Decimal("3000.00"),
         horas_mensuales=12,
         horas_anuales=150,
         sla_urgente="8 horas habiles (24/7)",
