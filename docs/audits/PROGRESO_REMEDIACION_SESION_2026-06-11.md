@@ -29,16 +29,22 @@
 - **Gate validado antes del push**: `alembic upgrade head` sobre **BD vacía** (scratch como fulkro_migrate) aplica la cadena COMPLETA limpia → head `rls_canonical_policies_002`, **243 tablas**, 12 policies fail-closed. App importa (1131 rutas).
 - **PENDIENTE confirmar en BD viva de prod** (SSH bloqueado por clasificador · requiere aprobación explícita nombrando prod, no basta la regla `Bash(wsl.exe:*)`). Comando para que lo corra Marcos: `ssh fulkro 'cd /opt/fulkro && docker compose -f docker-compose.prod.yml --env-file .env.prod exec -T postgres psql -U fulkro_migrate -d fulkro -tAc "SELECT version_num FROM alembic_version"'` → debe dar `rls_canonical_policies_002`.
 
-## RETOMAR EN: FASE 1 · R02 (E-040 limpieza plantilla) — hallazgos precisos
+## HECHO (commit `0146eb7d`) · FASE 1 · R02 cierre real E-040
 
-Fichero: `backend/app/motors/m06_document_factory/templates/deliverables/E040_informe_final_de_adecuacion_al_ens.md`
-- **Valla ` ```jinja `** abre en **línea 5** y cierra al final (~línea 351) envolviendo TODO el cuerpo + el frontmatter `---...---` → quitar ambas vallas (Jinja2 puro).
-- **`elaborado_por: "Marcos Mata García — Consultor independiente en ENS"`** (dentro del frontmatter) hardcodeado → usar identidad Fulkro (`backend/app/fulkro_identity.py` · consultor) o un context var.
-- POL-1xx/POL-2xx inventados en el cuerpo SGSI → reemplazar por E-codes reales.
-- cita `procedimiento E-200` (análisis riesgos) → E-AR-001 / m02.
-- plazos ENAC "6-8 semanas" → rango honesto 8-16 sem.
-- **Refinar `riesgos.intrinsecos/residuales`** en `informe_final_generator.py` (best-effort dio 0): verificar columnas reales de `magerit_risk_calculation` (la tabla existe en `af85d71528af`; el COUNT dio 0 → o no hay filas para ese proyecto demo, o el join `analysis_id` no es la columna correcta — verificar esquema).
-- Tras editar: re-render-testear el E-040 (generar el DOCX real, no solo el context) para confirmar que no queda valla literal.
+**Scope ampliado a "cierre real"** (Marcos: el SoA debe renderizar completo o no sirve para ENAC). Hallazgos empíricos que CORRIGEN el briefing original de R02:
+- **El render usa el `.docx` COMPILADO, no el `.md`** (`rendering.py:186` `DocxTemplate`). El `.md` se compila a `.docx` con pandoc (`build_*_templates.py`), y `extract_jinja_body` **STRIPEA la valla ` ```jinja `** → la valla es delimitador REQUERIDO, **NO se quita** (el `.docx` no la renderiza literal · verificado empírico). El briefing "quitar valla" era erróneo.
+- **E-040 no estaba en ningún build script** → creado `backend/scripts/build_informe_final_template.py` (recompilador reproducible · pandoc `gfm-smart` + post-proceso `fix_docx_templates` solo a E-040.docx). Los `.docx` son **binarios trackeados en git** (sin rebuild CI).
+- **`magerit_risk_calculation` no estaba roto**: join `analysis_id`→`magerit_analysis.project_id` correcto; el COUNT dio 0 porque la tabla estaba VACÍA. Refinado intrínseco≠residual con columnas reales (`risk_residual`/`risk_level`) + `magerit_treatment_plan`.
+- **Mismatch de claves builder↔plantilla** (hallazgo nuevo): la categoría salía EN BLANCO (`proyecto.categoria_ens` vs `informe.categoria`); fases/gaps/excepciones a nivel raíz vs `informe.*`. Alineado el contrato completo.
+- **Loop-tables colapsan en pandoc** (defecto pre-existente, ver E-600): sedes/fases/cuerpo-normativo/gaps/excepciones → listas con bullets; tablas estáticas gateadas necesitan blank-line tras `{% if %}`.
+- **`default('1.0')`** rompía el render (smart-quotes de pandoc curvaban las comillas Jinja) → eliminado + `gfm-smart`.
+- Editado: cita E-200→E-AR-001, plazos 6-8→8-16 sem, autor→`fulkro_identity`, POL-1xx→cuerpo normativo data-driven (documents del proyecto), +op.nub/op.mon (16 familias).
+- **Render-test empírico** (`render_test_e040.py` demo + `--synth`): 0 jinja-literal, 0 pipes literales, Anexo II 73/73, sigblock único (duplicado corregido), autor "Marcos Mata · Consultor de Fulkro". 625 m06 + 262 m09/deliverables PASS · 0 regresión · ruff OK.
+- Gates `{% if/else %}` con nota honesta "se incorpora como Anexo X" cuando el motor de origen aún no tiene datos → nunca tabla en blanco/ceros.
+
+## RETOMAR EN: FASE 2 · R03 (doble firma E-012 RInfo+RServ)
+
+Siguiente: F2 gobierno firmable (R03 doble firma E-012 + freeze cripto · R05 E-155 emitible · R24 coherencia + acta decisión Dirección · R04 citas art.40 + signable). R03 requiere migración (tabla `acta_signatures`) → rol `fulkro_migrate` + validar sobre scratch DB antes de cualquier push. Ver PLAN_MAESTRO F2.
 
 ## PENDIENTE
 
