@@ -37,7 +37,7 @@
 - `alembic upgrade head` sobre **scratch DB limpia** como `fulkro_migrate`/owner = el chain completo aplica sin error (valida también mis migraciones end-to-end).
 - Arrancar backend + frontend; ejercitar flujos reales.
 
-**Parte 2 — 3 SIMULACIONES de cliente vía Playwright**, actuando COMO el cliente (Marcos = admin/main). Para cada nivel: seed de cliente/proyecto + recorrer el **flujo de implantación ENS ENTERO** del cliente (todas sus tareas, subir documentación donde toque → probar la lectura IA, firmar, etc.):
+**Parte 2 — 3 SIMULACIONES de cliente vía Playwright**, LO MÁS REALISTAS POSIBLES (lo más parecido a un caso real), **interactuando como LAS DOS PARTES** (admin = Marcos **y** cliente) en cada caso, **caso a caso, end-to-end, SIEMPRE por proyecto**, usando **TODOS los recursos** disponibles de admin y de cliente. Para cada nivel: seed de cliente/proyecto + recorrer el **flujo de implantación ENS ENTERO** del cliente (todas sus tareas, subir documentación donde toque → probar la lectura IA, firmar, etc.) Y todas las acciones del admin (categorizar, generar entregables, avanzar workflow, solicitar firmas, revisar evidencias, etc.):
 - **Cliente ENS BÁSICA** — flujo completo (autodeclaración 808/809).
 - **Cliente ENS MEDIA** — flujo completo (ruta ENAC) **EXCEPTO pentest externo OSCP**.
 - **Cliente ENS ALTA** — flujo completo **EXCEPTO pentest externo OSCP**.
