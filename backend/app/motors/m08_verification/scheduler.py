@@ -218,10 +218,10 @@ try:
     def task_dispatch_due_runs() -> dict:
         """Tarea Celery que invoca dispatch_due_runs sincronicamente."""
         import asyncio as _asyncio
-        from backend.app.database import async_session_factory
+        from backend.app.database import async_session
 
         async def _run():
-            async with async_session_factory() as db:
+            async with async_session() as db:
                 return await dispatch_due_runs(db)
 
         try:
@@ -239,13 +239,13 @@ try:
         manifest + coverage (autopilot/orchestrator.orchestrate_run).
         """
         import asyncio as _asyncio
-        from backend.app.database import async_session_factory
+        from backend.app.database import async_session
         from backend.app.motors.m08_verification.autopilot.orchestrator import (
             orchestrate_run,
         )
 
         async def _run():
-            async with async_session_factory() as db:
+            async with async_session() as db:
                 summary = await orchestrate_run(db, run_id)
                 await db.commit()
                 return summary
