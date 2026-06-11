@@ -1,6 +1,7 @@
 """M31 WhatsApp API · admin + cliente + webhook · atom 8.1."""
 from __future__ import annotations
 
+import hmac
 import uuid
 
 from fastapi import APIRouter, Depends, HTTPException, Request
@@ -9,6 +10,7 @@ from sqlalchemy import select, text
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from backend.app.auth.dependencies import require_owner
+from backend.app.config import get_settings
 from backend.app.database import get_db
 from backend.app.models.client_portal import ClientUser
 from backend.app.motors.m21_portal_cliente.api import get_current_client_user
@@ -313,11 +315,33 @@ async def portal_rgpd_export(
     }
 
 
-# ─── Webhook (no auth · signature verified) ─────────────────────────
+# ─── Webhook (auth por token compartido · fail-closed si hay secret) ─────────
 
 webhook_router = APIRouter(
     prefix="/webhooks/360dialog", tags=["webhooks - 360dialog"],
 )
+
+
+def _webhook_authorized(request: Request) -> bool:
+    """Verifica el token del webhook (anti-spoofing de mensajes entrantes).
+
+    Si ``dialog_360_webhook_secret`` está configurado, EXIGE un token coincidente
+    (query ``?token=`` o header ``X-Webhook-Token``) en tiempo constante. Sin
+    secret (dev/mock) devuelve True (verificación omitida).
+    Configura la URL en 360dialog como
+    ``https://<host>/api/v1/webhooks/360dialog?token=<secret>``.
+    """
+    try:
+        secret = get_settings().dialog_360_webhook_secret.get_secret_value()
+    except Exception:
+        secret = ""
+    if not secret:
+        return True
+    provided = (
+        request.query_params.get("token")
+        or request.headers.get("X-Webhook-Token", "")
+    )
+    return hmac.compare_digest(provided or "", secret)
 
 
 @webhook_router.post("")
@@ -325,7 +349,9 @@ async def webhook_360dialog(
     request: Request,
     db: AsyncSession = Depends(get_db),
 ) -> dict:
-    """360dialog webhook · inbound messages + delivery receipts."""
+    """360dialog webhook · inbound messages + delivery receipts (token-auth)."""
+    if not _webhook_authorized(request):
+        raise HTTPException(status_code=403, detail="invalid webhook token")
     payload = await request.json()
     client = get_default_client()
     event = client.parse_webhook(payload)

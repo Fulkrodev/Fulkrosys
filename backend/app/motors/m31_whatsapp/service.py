@@ -144,9 +144,20 @@ class WhatsAppService:
         user.whatsapp_otp_sent_at = now
         await db.flush()
 
-        # Send OTP via WA template (mock_mode default unless KYC done)
-        body = f"FULKRO · Tu código de verificación es {otp}. Válido 10 min."
-        result = await self._client.send_text(to=phone_e164, body=body)
+        # Primer contacto: WhatsApp exige una PLANTILLA aprobada para mensajes
+        # business-initiated (el texto libre se rechaza fuera de la ventana de
+        # 24h). Si hay plantilla configurada (dialog_360_otp_template · p.ej.
+        # plantilla de autenticación con {{1}}=código) la usamos; si no, caemos
+        # a texto (válido en mock/dev y dentro de la ventana de 24h).
+        from backend.app.config import get_settings
+        otp_template = getattr(get_settings(), "dialog_360_otp_template", "") or ""
+        if otp_template:
+            result = await self._client.send_template(
+                to=phone_e164, template_name=otp_template, lang="es", params=[otp],
+            )
+        else:
+            body = f"FULKRO · Tu código de verificación es {otp}. Válido 10 min."
+            result = await self._client.send_text(to=phone_e164, body=body)
         if not result.ok:
             return OptInInitiationResult(
                 client_user_id=str(client_user_id),

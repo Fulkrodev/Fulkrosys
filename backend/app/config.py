@@ -121,6 +121,11 @@ class Settings(BaseSettings):
     dialog_360_api_key: SecretStr = SecretStr("")
     dialog_360_phone_number_id: str = ""
     dialog_360_webhook_secret: SecretStr = SecretStr("")
+    # Plantilla aprobada para el OTP de opt-in (primer contacto · WhatsApp exige
+    # plantilla para mensajes business-initiated). Ej. plantilla de autenticación
+    # con {{1}}=código. Vacío → fallback a texto libre (solo válido en mock/dev
+    # o dentro de la ventana de 24h). Override env: DIALOG_360_OTP_TEMPLATE.
+    dialog_360_otp_template: str = ""
 
     # SAN-D MB-16.4 · email destino notificaciones admin generadas por
     # NotificationOrchestrator (ej. client_inactivity_admin) Y email de
