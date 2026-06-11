@@ -22,6 +22,24 @@
 - **FASE 0 · R07** (commit `383bdcc8`) helper central `backend/app/auth/tenant_scope.py::ensure_client_project_scope` (ownership project∈client + `set_tenant_context`, DRY del patrón duplicado en 11+ ficheros) + 3 tests PASS (`backend/tests/auth/test_tenant_scope_r07.py`). Con R06/R08 fail-closed, olvidar contexto ya NO fuga (0 filas); este helper evita el fallo silencioso. **FASE 0 (aislamiento) COMPLETA.**
 - **FASE 1 · R01** (commit `c8777b37`) `backend/app/motors/m06_document_factory/informe_final_generator.py::build_informe_final_context` — el SoA E-040 ya NO renderiza vacío. Agrega cumplimiento por familia (16 familias · m03 `dda_entries`+`ens_measures.familia`) + activos (m02 `magerit_assets.asset_type_code`) + riesgos + dimensiones + cliente. Endpoint `POST /projects/{id}/informe-final/generate` (DRY · `DocumentFactoryService`) con GATE 409 si DdA vacía. **Probado empírico (BD viva, proyecto real): 16/16 familias pobladas, total 73/73.** Núcleo verificado; enriquecimiento best-effort (nunca dato falso). PENDIENTE menor: `riesgos.intrinsecos/residuales` dio 0 (best-effort · verificar columnas `magerit_risk_calculation` en R02).
 
+## DEPLOY PARCIAL HECHO (FASE 0 + R01) — 2026-06-11 ~17:48
+
+- **`main` desplegado**: merge `4da8fe38` (8 commits) → `git push origin main` → CD Hetzner.
+- **3 workflows VERDE**: Deploy a Hetzner (CD) ✅ 1m7s · CI ✅ (tests, sin regresión) · Security Scan ✅.
+- **Gate validado antes del push**: `alembic upgrade head` sobre **BD vacía** (scratch como fulkro_migrate) aplica la cadena COMPLETA limpia → head `rls_canonical_policies_002`, **243 tablas**, 12 policies fail-closed. App importa (1131 rutas).
+- **PENDIENTE confirmar en BD viva de prod** (SSH bloqueado por clasificador · requiere aprobación explícita nombrando prod, no basta la regla `Bash(wsl.exe:*)`). Comando para que lo corra Marcos: `ssh fulkro 'cd /opt/fulkro && docker compose -f docker-compose.prod.yml --env-file .env.prod exec -T postgres psql -U fulkro_migrate -d fulkro -tAc "SELECT version_num FROM alembic_version"'` → debe dar `rls_canonical_policies_002`.
+
+## RETOMAR EN: FASE 1 · R02 (E-040 limpieza plantilla) — hallazgos precisos
+
+Fichero: `backend/app/motors/m06_document_factory/templates/deliverables/E040_informe_final_de_adecuacion_al_ens.md`
+- **Valla ` ```jinja `** abre en **línea 5** y cierra al final (~línea 351) envolviendo TODO el cuerpo + el frontmatter `---...---` → quitar ambas vallas (Jinja2 puro).
+- **`elaborado_por: "Marcos Mata García — Consultor independiente en ENS"`** (dentro del frontmatter) hardcodeado → usar identidad Fulkro (`backend/app/fulkro_identity.py` · consultor) o un context var.
+- POL-1xx/POL-2xx inventados en el cuerpo SGSI → reemplazar por E-codes reales.
+- cita `procedimiento E-200` (análisis riesgos) → E-AR-001 / m02.
+- plazos ENAC "6-8 semanas" → rango honesto 8-16 sem.
+- **Refinar `riesgos.intrinsecos/residuales`** en `informe_final_generator.py` (best-effort dio 0): verificar columnas reales de `magerit_risk_calculation` (la tabla existe en `af85d71528af`; el COUNT dio 0 → o no hay filas para ese proyecto demo, o el join `analysis_id` no es la columna correcta — verificar esquema).
+- Tras editar: re-render-testear el E-040 (generar el DOCX real, no solo el context) para confirmar que no queda valla literal.
+
 ## PENDIENTE
 
 - **FASE 0 · R07** — dependency central `require_client_project_scope` (resuelve proyecto activo + valida ownership client_user + `SET LOCAL` contexto en la transacción) + test de cobertura que falle si una ruta del pool cliente no la usa. Hoy el patrón `_ensure_project_belongs_to_client` + `set_tenant_context` está duplicado en 20+ ficheros. NO rewire masivo: pieza central + test que marca pendientes. (El agente de spec falló por corte de red.)
