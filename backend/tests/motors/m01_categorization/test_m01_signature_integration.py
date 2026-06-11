@@ -13,6 +13,11 @@ import uuid
 import pytest
 from sqlalchemy import text
 
+from backend.app.motors.m01_categorization.signature_integration import (
+    SignatureIntegrationError,
+    get_acta_double_signature_status,
+    request_acta_double_signature,
+)
 from backend.tests.conftest import setup_test_project
 
 
@@ -267,3 +272,129 @@ class TestActaSnapshotHash:
         assert "categorization_id" in scope
         assert len(scope["acta_snapshot_hash"]) == 64
         assert scope["recipient_name"] == "Ana Lopez"
+
+
+# ================================================================
+# R03 · DOBLE FIRMA competente del acta E-012 (RInfo + RServ · art. 40.2)
+# ================================================================
+
+async def _seed_double_signers(db, client_id, project_id):
+    """Siembra RInfo + RServ con client_user + contacto + role assignment."""
+    contacts = {}
+    for role_code, title in (
+        ("responsable_informacion", "Responsable de la Información"),
+        ("responsable_servicio", "Responsable del Servicio"),
+    ):
+        cu_id = uuid.uuid4()
+        cc_id = uuid.uuid4()
+        await db.execute(text(
+            "INSERT INTO client_users (id, client_id, email, password_hash) "
+            "VALUES (:id, :cid, :email, 'x')"
+        ), {"id": str(cu_id), "cid": str(client_id), "email": f"{role_code}@dob.test"})
+        await db.execute(text(
+            "INSERT INTO client_contacts "
+            "(id, client_id, full_name, email, role_title, role_category, client_user_id) "
+            "VALUES (:id, :cid, :n, :email, :t, 'operativo', :cu)"
+        ), {"id": str(cc_id), "cid": str(client_id), "n": f"Firmante {role_code}",
+            "email": f"{role_code}@dob.test", "t": title, "cu": str(cu_id)})
+        await db.execute(text(
+            "INSERT INTO project_role_assignments (id, project_id, role_code, contact_id) "
+            "VALUES (:id, :pid, :rc, :cc)"
+        ), {"id": str(uuid.uuid4()), "pid": str(project_id), "rc": role_code,
+            "cc": str(cc_id)})
+        contacts[role_code] = cc_id
+    await db.flush()
+    return contacts
+
+
+async def _seed_categorized_with_project(async_client, db):
+    """Como _seed_categorized_system pero devuelve (client_id, project_id, system_id)."""
+    client_id, project_id = await setup_test_project(db)
+    sys_resp = await async_client.post(
+        f"/api/v1/categorization/projects/{project_id}/systems",
+        json={"nombre": "SistemaDoble"},
+    )
+    system_id = sys_resp.json()["id"]
+    await async_client.post(
+        f"/api/v1/categorization/systems/{system_id}/information-types",
+        json={"items": [
+            {"nombre": "Datos", "valoracion_d": "MEDIO", "valoracion_i": "MEDIO",
+             "valoracion_c": "MEDIO", "valoracion_a": "MEDIO", "valoracion_t": "MEDIO"},
+        ]},
+    )
+    cat_resp = await async_client.post(
+        f"/api/v1/categorization/systems/{system_id}/categorize",
+        json={"aprobado_por": "Test"},
+    )
+    assert cat_resp.status_code in (200, 201), cat_resp.text
+    return client_id, project_id, uuid.UUID(system_id)
+
+
+class TestActaDoubleSignature:
+
+    @pytest.mark.asyncio
+    async def test_request_creates_two_intents(self, async_client, db):
+        client_id, project_id, system_id = await _seed_categorized_with_project(
+            async_client, db)
+        await _seed_double_signers(db, client_id, project_id)
+
+        res = await request_acta_double_signature(db, system_id)
+        assert set(res["signers"].keys()) == {
+            "responsable_informacion", "responsable_servicio"}
+        assert res["aprobada"] is False
+        assert len(res["acta_snapshot_hash"]) == 64
+
+        n = (await db.execute(text(
+            "SELECT count(*) FROM signing_intents WHERE signable_ref_id = :rid "
+            "AND signable_type = 'acta_comite'"
+        ), {"rid": str(res["categorization_id"])})).scalar_one()
+        assert n == 2
+
+    @pytest.mark.asyncio
+    async def test_request_is_idempotent(self, async_client, db):
+        client_id, project_id, system_id = await _seed_categorized_with_project(
+            async_client, db)
+        await _seed_double_signers(db, client_id, project_id)
+
+        r1 = await request_acta_double_signature(db, system_id)
+        r2 = await request_acta_double_signature(db, system_id)
+        assert all(v["reused"] for v in r2["signers"].values())
+        n = (await db.execute(text(
+            "SELECT count(*) FROM signing_intents WHERE signable_ref_id = :rid "
+            "AND signable_type = 'acta_comite'"
+        ), {"rid": str(r1["categorization_id"])})).scalar_one()
+        assert n == 2
+
+    @pytest.mark.asyncio
+    async def test_aprobada_gate_requires_both(self, async_client, db):
+        client_id, project_id, system_id = await _seed_categorized_with_project(
+            async_client, db)
+        await _seed_double_signers(db, client_id, project_id)
+        res = await request_acta_double_signature(db, system_id)
+        cat_id = res["categorization_id"]
+
+        assert (await get_acta_double_signature_status(
+            db, system_id))["aprobada"] is False
+
+        await db.execute(text(
+            "UPDATE signing_intents SET status='signed' WHERE signable_ref_id=:rid "
+            "AND intent_payload->>'role_code'='responsable_informacion'"
+        ), {"rid": str(cat_id)})
+        st1 = await get_acta_double_signature_status(db, system_id)
+        assert st1["responsable_informacion_firmado"] is True
+        assert st1["responsable_servicio_firmado"] is False
+        assert st1["aprobada"] is False
+
+        await db.execute(text(
+            "UPDATE signing_intents SET status='signed' WHERE signable_ref_id=:rid "
+            "AND intent_payload->>'role_code'='responsable_servicio'"
+        ), {"rid": str(cat_id)})
+        assert (await get_acta_double_signature_status(
+            db, system_id))["aprobada"] is True
+
+    @pytest.mark.asyncio
+    async def test_fails_without_competent_signers(self, async_client, db):
+        _, _, system_id = await _seed_categorized_with_project(async_client, db)
+        with pytest.raises(SignatureIntegrationError) as exc:
+            await request_acta_double_signature(db, system_id)
+        assert "doble firma" in str(exc.value).lower()
