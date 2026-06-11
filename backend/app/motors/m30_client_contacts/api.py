@@ -25,7 +25,7 @@ from fastapi.responses import PlainTextResponse
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from backend.app.auth.dependencies import require_owner
-from backend.app.database import get_db
+from backend.app.database import get_db, set_tenant_context
 from backend.app.motors.m30_client_contacts.schemas import (
     ClientContactCreate,
     ClientContactListItem,
@@ -40,10 +40,26 @@ from backend.app.motors.m30_client_contacts.service import (
 )
 
 
+async def _set_client_rls_context(
+    client_id: uuid.UUID,
+    db: AsyncSession = Depends(get_db),
+) -> None:
+    """Fija el contexto RLS del cliente (FASE 0 fix · client_contacts es
+    fail-closed ``tenant_isolation``).
+
+    Antes los endpoints admin de M30 corrían como ``fulkro_app`` SIN contexto →
+    la policy ``client_id = current_client_id() OR project_id =
+    current_project_id()`` rechazaba INSERT/UPDATE (WITH CHECK) → 500 en prod.
+    Como todo M30 está bajo ``/clients/{client_id}/contacts``, fijar
+    ``current_client_id`` desde el path basta (más estricto que escalar a
+    bypassrls: el contacto SIEMPRE queda atado al cliente del path)."""
+    await set_tenant_context(db, client_id=client_id)
+
+
 router = APIRouter(
     prefix="/clients/{client_id}/contacts",
     tags=["Motor 30 - Client Contacts"],
-    dependencies=[Depends(require_owner)],
+    dependencies=[Depends(require_owner), Depends(_set_client_rls_context)],
 )
 
 

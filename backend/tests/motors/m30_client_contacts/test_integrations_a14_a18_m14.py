@@ -42,6 +42,11 @@ async def _create_test_client(db: AsyncSession) -> uuid.UUID:
              "cif": cif},
         )
     await db.flush()
+    # FASE 0 fix · fijar contexto cliente (client_contacts fail-closed).
+    await db.execute(
+        text("SELECT set_config('app.current_client_id', :cid, true)"),
+        {"cid": str(client_id)},
+    )
     return client_id
 
 

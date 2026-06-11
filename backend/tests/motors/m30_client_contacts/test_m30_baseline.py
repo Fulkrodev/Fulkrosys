@@ -70,6 +70,13 @@ async def _create_test_client(db: AsyncSession) -> uuid.UUID:
             },
         )
     await db.flush()
+    # FASE 0 fix · client_contacts es fail-closed (tenant_isolation): fijar el
+    # contexto del cliente para que las operaciones del servicio pasen RLS,
+    # igual que hace el endpoint admin (dependency _set_client_rls_context).
+    await db.execute(
+        text("SELECT set_config('app.current_client_id', :cid, true)"),
+        {"cid": str(client_id)},
+    )
     return client_id
 
 
