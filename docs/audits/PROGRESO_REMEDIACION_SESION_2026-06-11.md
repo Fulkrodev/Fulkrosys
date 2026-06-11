@@ -42,9 +42,24 @@
 - **Render-test empírico** (`render_test_e040.py` demo + `--synth`): 0 jinja-literal, 0 pipes literales, Anexo II 73/73, sigblock único (duplicado corregido), autor "Marcos Mata · Consultor de Fulkro". 625 m06 + 262 m09/deliverables PASS · 0 regresión · ruff OK.
 - Gates `{% if/else %}` con nota honesta "se incorpora como Anexo X" cuando el motor de origen aún no tiene datos → nunca tabla en blanco/ceros.
 
-## RETOMAR EN: FASE 2 · R03 (doble firma E-012 RInfo+RServ)
+## FASE 2 EN CURSO · progreso (audit empírico hecho · 4 agentes read-only · `out/f2_audit.md`)
 
-Siguiente: F2 gobierno firmable (R03 doble firma E-012 + freeze cripto · R05 E-155 emitible · R24 coherencia + acta decisión Dirección · R04 citas art.40 + signable). R03 requiere migración (tabla `acta_signatures`) → rol `fulkro_migrate` + validar sobre scratch DB antes de cualquier push. Ver PLAN_MAESTRO F2.
+**Hallazgos clave F2** (verificados):
+- **Worktree canónico = `/home/usuario/fulkro` rama `main`** (head Alembic `rls_canonical_policies_002`, lo desplegado en prod). La divergencia con `fulkro-portales` es histórica (ya mergeado a main). BD live dev atrasada en `milestone_scheduled_date_28_001`.
+- **E-012 tiene 3 variantes incoherentes**: (A) plantilla m06 `.md` (la canónica/rica), (B) `backend/app/templates/acta_e012_provisional.docx` (la que renderizan los endpoints m01 `api.py:800/914`), (C) generador inline `m01/service.py:419-483 generate_acta_e012` (monofirma RSeg). El flujo de firma m01 (`signature_integration.py`) usa magic-link M12 `FIRMA_DOCUMENTO` (texto libre) → **monofirma**, NO usa m05.
+- **m05_signing**: `signing_intents`/`signing_events`(hash chain R6 inmutable, GRANT solo INSERT)/`signing_otp_codes`. `acta_comite` ya es SignableType (E-006/E-012). NO existe tabla de doble firma. Roles canónicos en `m30/roles_ens.py`: `responsable_informacion` (RI), `responsable_servicio` (RS), `responsable_seguridad` (RSEG), `responsable_sistema` (RSIS).
+- **E-155**: BORRADOR; 11 notas `⚠ REVISIÓN CONSULTOR` están en comentarios Jinja `{# #}` (NO renderizan); `alcance.*` (servicios/sedes/sistemas/exclusiones) SIN fuente de datos ni builder; sin modelo de scope estructurado; sin tipo finalista/instrumental.
+
+**HECHO F2** (commits en `main` local, sin push):
+- ✅ **F2.1 R04 + R24-parcial** (`33d8f905`): citas E-012 art.28→art.40 (categorización) + art.28 (DA); E-050→E-150 (Plan de Adecuación) en E-012/E-003; footer "generado por FULKRO" fuera del cuerpo en E-002/E-003/E-012; clave canónica `responsable_sistema_informacion`→`responsable_sistema` en E-002/E-012/E-042 (+ fixture + smoke); `_ECODE_TO_SIGNABLE_TYPE` registra E-003/E-012→acta_comite; recompilador genérico `rebuild_docx_templates.py` (gfm-smart). 625 m06 + 30 m05 PASS.
+- ✅ **R03 plantilla** (`6428959f`): bloque de firmas E-012 → RInfo+RServ APRUEBAN (art.40.2) + RSeg CONFORME (no aprobador). Auditor-visible.
+
+**PENDIENTE F2**:
+- ⏳ **R03 backend** (sin migración · reusar m05 dos-intents · evita complicar el drift de BD): (a) canonicalizar generación m01 a la plantilla m06 E-012 (deprecar variantes B `.docx provisional` y C `inline`); (b) flujo doble firma = 2 `signing_intents` `acta_comite` (signable_ref_type='categorization', mismo `document_hash_sha256`), uno por RInfo y uno por RServ, gate "aprobada" = ambos `status='signed'`; (c) helper `request_acta_double_signature` + `is_acta_approved` derivando estado. UI cliente + E2E en la fase de simulaciones.
+- ⏳ **R05 E-155**: builder `build_e155_alcance_context` + modelo de scope mínimo (servicios.tipo finalista/instrumental, sedes.tipo sede_fisica/region_cloud, exclusiones) · quitar frontmatter BORRADOR · validación anti-placeholder · cablear dimensiones desde m01. Probable migración (tabla scope) → scratch DB.
+- ⏳ **R24-resto**: acta de decisión de adecuación de la Dirección (org.1) firmable autónoma (plantilla nueva + SignableType + paso en `fase0_governance.py`); coherencia `fecha_nombramiento` (decisión Marcos).
+
+## NEXT (orden): R03-backend → R05 → R24-resto → F3 (incl. E-050→E-150 sistémico en E-041/042/043/090/614/615) → F4 → F5 → F6 → 3 simulaciones Playwright + auditor + docs → deploy (OK Marcos)
 
 ## PENDIENTE
 
