@@ -14,8 +14,10 @@ from backend.app.database import get_db, set_tenant_context
 from backend.app.models.core import (
     Categorization,
     InformationType,
+    ScopeExclusion,
     Service,
     System,
+    SystemSite,
 )
 from backend.app.motors.m01_categorization.service import (
     CategorizationService,
@@ -29,6 +31,11 @@ from backend.app.motors.m01_categorization.schemas import (
     InformationTypeOut,
     ServiceBatchRequest,
     ServiceOut,
+    ServiceTipoUpdate,
+    SiteBatchRequest,
+    SiteOut,
+    ExclusionBatchRequest,
+    ExclusionOut,
     CategorizeRequest,
     CategorizationOut,
     ActaE012Out,
@@ -233,6 +240,7 @@ async def load_services(
             valoracion_a=item.valoracion_a,
             valoracion_t=item.valoracion_t,
             justificacion=item.justificacion,
+            tipo=item.tipo,  # R05 · finalista/instrumental (alcance E-155)
         )
         db.add(svc)
         created.append(svc)
@@ -240,6 +248,140 @@ async def load_services(
     for svc in created:
         await db.refresh(svc)
     return created
+
+
+# ================================================================
+# SCOPE E-155 (R05) · tipo de servicio + sedes + exclusiones
+# ================================================================
+
+@router.patch(
+    "/systems/{system_id}/services/{service_id}/tipo",
+    response_model=ServiceOut,
+)
+async def set_service_tipo(
+    system_id: uuid.UUID,
+    service_id: uuid.UUID,
+    body: ServiceTipoUpdate,
+    db: AsyncSession = Depends(get_db),
+):
+    """R05 · fija el tipo (finalista/instrumental) de un servicio del alcance."""
+    await _get_system_with_rls(system_id, db)
+    svc = await db.get(Service, service_id)
+    if not svc or svc.system_id != system_id or svc.deleted_at is not None:
+        raise HTTPException(status_code=404, detail="Servicio no encontrado")
+    svc.tipo = body.tipo
+    await db.commit()
+    await db.refresh(svc)
+    return svc
+
+
+@router.post(
+    "/systems/{system_id}/sites",
+    response_model=list[SiteOut],
+    status_code=201,
+)
+async def load_sites(
+    system_id: uuid.UUID,
+    body: SiteBatchRequest,
+    db: AsyncSession = Depends(get_db),
+):
+    """R05 · cargar sedes/regiones cloud del alcance (E-155 §3.3).
+
+    Replace semantics: soft-delete de las sedes activas + insert del lote nuevo.
+    """
+    await _get_system_with_rls(system_id, db)
+    await db.execute(
+        text("UPDATE system_sites SET deleted_at = NOW() WHERE system_id = :sid AND deleted_at IS NULL"),
+        {"sid": str(system_id)},
+    )
+    created = []
+    for item in body.items:
+        site = SystemSite(
+            system_id=system_id,
+            nombre=item.nombre,
+            tipo=item.tipo,
+            direccion=item.direccion,
+            pais=item.pais,
+            descripcion=item.descripcion,
+        )
+        db.add(site)
+        created.append(site)
+    await db.commit()
+    for site in created:
+        await db.refresh(site)
+    return created
+
+
+@router.get(
+    "/systems/{system_id}/sites",
+    response_model=list[SiteOut],
+)
+async def list_sites(
+    system_id: uuid.UUID,
+    db: AsyncSession = Depends(get_db),
+):
+    """R05 · listar las sedes/regiones cloud del alcance de un sistema."""
+    await _get_system_with_rls(system_id, db)
+    result = await db.execute(
+        select(SystemSite).where(
+            SystemSite.system_id == system_id,
+            SystemSite.deleted_at.is_(None),
+        ).order_by(SystemSite.created_at.asc())
+    )
+    return result.scalars().all()
+
+
+@router.post(
+    "/systems/{system_id}/exclusions",
+    response_model=list[ExclusionOut],
+    status_code=201,
+)
+async def load_exclusions(
+    system_id: uuid.UUID,
+    body: ExclusionBatchRequest,
+    db: AsyncSession = Depends(get_db),
+):
+    """R05 · cargar exclusiones justificadas del alcance (E-155 §4).
+
+    Replace semantics: soft-delete de las exclusiones activas + insert del lote.
+    """
+    await _get_system_with_rls(system_id, db)
+    await db.execute(
+        text("UPDATE scope_exclusions SET deleted_at = NOW() WHERE system_id = :sid AND deleted_at IS NULL"),
+        {"sid": str(system_id)},
+    )
+    created = []
+    for item in body.items:
+        ex = ScopeExclusion(
+            system_id=system_id,
+            elemento=item.elemento,
+            justificacion=item.justificacion,
+        )
+        db.add(ex)
+        created.append(ex)
+    await db.commit()
+    for ex in created:
+        await db.refresh(ex)
+    return created
+
+
+@router.get(
+    "/systems/{system_id}/exclusions",
+    response_model=list[ExclusionOut],
+)
+async def list_exclusions(
+    system_id: uuid.UUID,
+    db: AsyncSession = Depends(get_db),
+):
+    """R05 · listar las exclusiones justificadas del alcance de un sistema."""
+    await _get_system_with_rls(system_id, db)
+    result = await db.execute(
+        select(ScopeExclusion).where(
+            ScopeExclusion.system_id == system_id,
+            ScopeExclusion.deleted_at.is_(None),
+        ).order_by(ScopeExclusion.created_at.asc())
+    )
+    return result.scalars().all()
 
 
 # ================================================================

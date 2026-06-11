@@ -149,11 +149,12 @@ class TestTemplateBodies:
             assert mod.TEMPLATE_TYPE == meta["type"]
 
 
-def test_e155_documento_alcance_present_and_flagged():
-    """F-14-05 (Ejecutable 8 Pasada 16): E-155 Documento de Alcance del SGSI
-    registrado (type deliverables), loadable, con estructura CCN-STIC 805/809 y
-    el wording normativo genérico MARCADO para revisión consultor (requisito
-    Marcos: no presentar contenido normativo inventado como definitivo)."""
+def test_e155_documento_alcance_present_and_emitible():
+    """R05: E-155 Documento de Alcance del SGSI registrado (type deliverables),
+    loadable, con estructura CCN-STIC 805/809/803 y EMITIBLE — ya NO es un
+    BORRADOR con placeholders 'REVISIÓN CONSULTOR'. El alcance estructurado
+    (servicios finalista/instrumental, sedes física/cloud, exclusiones,
+    dimensiones DICAT) lo agrega build_e155_alcance_context con su gate."""
     assert "E-155" in TEMPLATE_REGISTRY
     meta = TEMPLATE_REGISTRY["E-155"]
     assert meta["type"] == "deliverables", "E-155 NO debe ser policies (contadores tier)"
@@ -161,10 +162,13 @@ def test_e155_documento_alcance_present_and_flagged():
     assert mod.TEMPLATE_ID == "E-155"
     body = mod.TEMPLATE_BODY
     up = body.upper()
-    # Estructura CCN-STIC 805/809
+    # Estructura CCN-STIC 805/809 + 803 (servicios finalista/instrumental · R05)
     assert "ALCANCE DEL" in up
     assert "EXCLUSIONES" in up
     assert "CCN-STIC 805" in body and "CCN-STIC 809" in body
-    # Requisito Marcos: secciones normativas genéricas marcadas para su revisión
-    assert "REVISIÓN CONSULTOR" in body
-    assert "PENDIENTE REVISIÓN CONSULTOR" in body  # banner estado_revision
+    assert "CCN-STIC 803" in body
+    assert "finalista" in body and "instrumental" in body
+    # R05 · ya NO se auto-declara BORRADOR ni deja notas de revisión sin resolver
+    assert "REVISIÓN CONSULTOR" not in body
+    assert "BORRADOR" not in body
+    assert "estado_revision" not in body

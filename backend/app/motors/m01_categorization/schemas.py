@@ -10,6 +10,10 @@ from pydantic import BaseModel, ConfigDict, EmailStr, Field
 
 ImpactLevelType = Literal["BAJO", "MEDIO", "ALTO"]
 CategoryType = Literal["BASICA", "MEDIA", "ALTA"]
+# R05 (E-155 · CCN-STIC 803): servicio finalista (presta el fin del sistema) vs
+# instrumental (soporta a otros). Sede física vs región cloud (ubicación real).
+ServiceTipoType = Literal["finalista", "instrumental"]
+SiteTipoType = Literal["sede_fisica", "region_cloud"]
 
 
 # === SYSTEM ===
@@ -70,6 +74,8 @@ class ServiceIn(BaseModel):
     valoracion_a: ImpactLevelType = "BAJO"
     valoracion_t: ImpactLevelType = "BAJO"
     justificacion: str | None = None
+    # R05 · finalista | instrumental (alcance E-155 · CCN-STIC 803)
+    tipo: ServiceTipoType | None = None
 
 
 class ServiceOut(BaseModel):
@@ -81,12 +87,60 @@ class ServiceOut(BaseModel):
     valoracion_a: str | None
     valoracion_t: str | None
     justificacion: str | None
+    tipo: str | None = None
 
     model_config = ConfigDict(from_attributes=True)
 
 
 class ServiceBatchRequest(BaseModel):
     items: list[ServiceIn] = Field(..., min_length=1)
+
+
+class ServiceTipoUpdate(BaseModel):
+    """R05 · edición puntual del tipo de un servicio (editor de alcance)."""
+    tipo: ServiceTipoType | None = None
+
+
+# === SCOPE E-155 · SEDES (system_sites) + EXCLUSIONES (scope_exclusions) ===
+
+class SiteIn(BaseModel):
+    nombre: str = Field(..., min_length=1, max_length=255)
+    tipo: SiteTipoType | None = None
+    direccion: str | None = None
+    pais: str | None = Field(None, max_length=100)
+    descripcion: str | None = None
+
+
+class SiteOut(BaseModel):
+    id: uuid.UUID
+    nombre: str
+    tipo: str | None
+    direccion: str | None
+    pais: str | None
+    descripcion: str | None
+
+    model_config = ConfigDict(from_attributes=True)
+
+
+class SiteBatchRequest(BaseModel):
+    items: list[SiteIn] = Field(default_factory=list)
+
+
+class ExclusionIn(BaseModel):
+    elemento: str = Field(..., min_length=1, max_length=255)
+    justificacion: str | None = None
+
+
+class ExclusionOut(BaseModel):
+    id: uuid.UUID
+    elemento: str
+    justificacion: str | None
+
+    model_config = ConfigDict(from_attributes=True)
+
+
+class ExclusionBatchRequest(BaseModel):
+    items: list[ExclusionIn] = Field(default_factory=list)
 
 
 # === CATEGORIZATION ===

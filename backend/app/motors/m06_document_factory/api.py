@@ -209,6 +209,56 @@ async def generate_informe_final_endpoint(
         raise HTTPException(status_code=500, detail=str(e))
 
 
+@router.post("/projects/{project_id}/alcance-sgsi/generate")
+async def generate_alcance_sgsi_endpoint(
+    project_id: uuid.UUID,
+    db: AsyncSession = Depends(get_db),
+):
+    """Genera el E-155 Documento de Alcance del SGSI con scope estructurado (R05).
+
+    Antes el E-155 se auto-declaraba BORRADOR y el alcance (servicios/sistemas/
+    sedes/exclusiones) salía con texto placeholder. Aquí
+    ``build_e155_alcance_context`` agrega el alcance ESTRUCTURADO desde m01
+    (servicios finalista/instrumental + tipos de información) + ``system_sites``
+    (sedes físicas / regiones cloud) + ``scope_exclusions`` + dimensiones DICAT
+    reales. GATE 409: si el proyecto no tiene alcance definido, NO se emite.
+
+    ``enforce_gates=False``: el Documento de Alcance es upstream de la DdA (la
+    categorización y la Declaración de Aplicabilidad parten de él), por lo que NO
+    exige una DdA congelada (mismo criterio que ``fase0_bootstrap``).
+    """
+    from .alcance_generator import (
+        E155ScopeEmptyError,
+        build_e155_alcance_context,
+    )
+
+    await _set_project_rls(project_id, db)
+    try:
+        ctx = await build_e155_alcance_context(db, project_id)
+    except E155ScopeEmptyError as e:
+        raise HTTPException(status_code=409, detail=str(e))
+
+    svc = DocumentFactoryService(db)
+    try:
+        result = await svc.generate_document(
+            project_id=project_id,
+            template_codigo="E-155",
+            context=ctx,
+            generate_pdf=False,
+            sign=False,
+            enforce_gates=False,
+            generated_by="system",
+        )
+        await db.commit()
+        return result
+    except (TemplateNotFoundError, TemplateFileMissingError) as e:
+        raise HTTPException(status_code=404, detail=str(e))
+    except MissingPlaceholderError as e:
+        raise HTTPException(status_code=422, detail=str(e))
+    except RenderError as e:  # pragma: no cover
+        raise HTTPException(status_code=500, detail=str(e))
+
+
 @router.post(
     "/projects/{project_id}/documents/preview",
     response_model=RenderPreviewResponse,

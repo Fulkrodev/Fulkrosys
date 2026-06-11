@@ -5,6 +5,7 @@ from decimal import Decimal
 
 from sqlalchemy import (
     Boolean,
+    CheckConstraint,
     ForeignKey,
     String,
     Text,
@@ -184,6 +185,8 @@ class System(FullMixin, Base):
     information_types: Mapped[list["InformationType"]] = relationship(back_populates="system")
     services: Mapped[list["Service"]] = relationship(back_populates="system")
     categorizations: Mapped[list["Categorization"]] = relationship(back_populates="system")
+    sites: Mapped[list["SystemSite"]] = relationship(back_populates="system")
+    scope_exclusions: Mapped[list["ScopeExclusion"]] = relationship(back_populates="system")
 
 
 class InformationType(FullMixin, Base):
@@ -201,6 +204,15 @@ class InformationType(FullMixin, Base):
 
 class Service(FullMixin, Base):
     __tablename__ = "services"
+    __table_args__ = (
+        # R05 (E-155) · clasificación CCN-STIC 803: servicio finalista (presta el
+        # fin del sistema) vs instrumental (soporta a otros). Nullable: legacy +
+        # categorización inicial pueden no haberlo fijado todavía.
+        CheckConstraint(
+            "tipo IS NULL OR tipo IN ('finalista', 'instrumental')",
+            name="ck_services_tipo",
+        ),
+    )
     system_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("systems.id"), nullable=False)
     nombre: Mapped[str] = mapped_column(String(255), nullable=False)
     valoracion_d: Mapped[str | None] = mapped_column(String(10))
@@ -209,6 +221,8 @@ class Service(FullMixin, Base):
     valoracion_a: Mapped[str | None] = mapped_column(String(10))
     valoracion_t: Mapped[str | None] = mapped_column(String(10))
     justificacion: Mapped[str | None] = mapped_column(Text)
+    # R05 · finalista | instrumental (alcance E-155). Ver CheckConstraint arriba.
+    tipo: Mapped[str | None] = mapped_column(String(20))
     system: Mapped["System"] = relationship(back_populates="services")
 
 
@@ -225,3 +239,41 @@ class Categorization(FullMixin, Base):
         doc="FK logica (sin constraint) al magic_link de firma E-012. Re-integracion M1+M12.",
     )
     system: Mapped["System"] = relationship(back_populates="categorizations")
+
+
+class SystemSite(FullMixin, Base):
+    """Sede física o región cloud dentro del alcance del SGSI (R05 · E-155 §3.3).
+
+    Modelo estructurado de ubicaciones (CCN-STIC 805/803). ``tipo`` distingue
+    sede física (con dirección postal) de región cloud (proveedor/región). En
+    categoría ALTA se exigen ubicaciones reales (dirección + país). Aislamiento
+    RLS por proyecto vía el padre ``systems`` (mirror de ``services``).
+    """
+    __tablename__ = "system_sites"
+    __table_args__ = (
+        CheckConstraint(
+            "tipo IS NULL OR tipo IN ('sede_fisica', 'region_cloud')",
+            name="ck_system_sites_tipo",
+        ),
+    )
+    system_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("systems.id"), nullable=False)
+    nombre: Mapped[str] = mapped_column(String(255), nullable=False)
+    tipo: Mapped[str | None] = mapped_column(String(20))
+    direccion: Mapped[str | None] = mapped_column(Text)
+    pais: Mapped[str | None] = mapped_column(String(100))
+    descripcion: Mapped[str | None] = mapped_column(Text)
+    system: Mapped["System"] = relationship(back_populates="sites")
+
+
+class ScopeExclusion(FullMixin, Base):
+    """Exclusión justificada del alcance del SGSI (R05 · E-155 §4 · CCN-STIC 805).
+
+    Toda exclusión del alcance debe justificarse. Antes solo vivía como nombres
+    en ``contracts.alcance_snapshot``; aquí queda estructurada y editable.
+    Aislamiento RLS por proyecto vía el padre ``systems``.
+    """
+    __tablename__ = "scope_exclusions"
+    system_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("systems.id"), nullable=False)
+    elemento: Mapped[str] = mapped_column(String(255), nullable=False)
+    justificacion: Mapped[str | None] = mapped_column(Text)
+    system: Mapped["System"] = relationship(back_populates="scope_exclusions")

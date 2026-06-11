@@ -4,14 +4,14 @@ titulo: "Documento de Alcance del SGSI"
 version: "{{ proyecto.version_actual if proyecto.version_actual else '1.0' }}"
 clasificacion: "INTERNA"
 norma_aplicable: "RD 311/2022 (ENS) + CCN-STIC 805 (Política de Seguridad) + CCN-STIC 809 (Declaración y distintivo de conformidad)"
-estado_revision: "BORRADOR — wording normativo genérico · PENDIENTE REVISIÓN CONSULTOR antes de uso con cliente real"
 ---
 
 {# ===================================================================== #}
-{# E-155 DOCUMENTO DE ALCANCE DEL SGSI · Ejecutable 8 Pasada 16 (F-14-05) #}
-{# Estructura CCN-STIC 805/809. Los datos per-proyecto van por placeholders #}
-{# Jinja2. El WORDING NORMATIVO marcado con `⚠ REVISIÓN CONSULTOR` es        #}
-{# genérico/borrador y DEBE validarlo Marcos antes de emitirlo a un cliente. #}
+{# E-155 DOCUMENTO DE ALCANCE DEL SGSI · Estructura CCN-STIC 805/809.     #}
+{# Datos per-proyecto inyectados por build_e155_alcance_context (R05):    #}
+{# servicios (con tipo finalista/instrumental) + sistemas + sedes        #}
+{# (físicas/cloud) + exclusiones + dimensiones DICAT reales (regla del    #}
+{# máximo Anexo I). El gate E155ScopeEmptyError impide emitir sin alcance.#}
 {# ===================================================================== #}
 
 # DOCUMENTO DE ALCANCE DEL SISTEMA DE GESTIÓN DE SEGURIDAD DE LA INFORMACIÓN (SGSI) · {{ cliente.razon_social | upper }}
@@ -31,13 +31,9 @@ estado_revision: "BORRADOR — wording normativo genérico · PENDIENTE REVISIÓ
 | Responsable del documento | {{ responsables.responsable_seguridad.nombre if responsables and responsables.responsable_seguridad else '—' }} |
 | Fecha de emisión | {{ proyecto.fecha_aprobacion_inicial if proyecto.fecha_aprobacion_inicial else proyecto.fecha_fin if proyecto.fecha_fin else '—' }} |
 
-{# ⚠ REVISIÓN CONSULTOR: confirmar identificación exacta del/los sistema(s) de información objeto del ENS (nombre formal, código interno, si aplica a un único sistema o a varios). #}
-
 ## 2. OBJETO Y FINALIDAD
 
 El presente documento define el **alcance del Sistema de Gestión de Seguridad de la Información (SGSI)** de **{{ cliente.razon_social }}** en el marco de su adecuación al **Esquema Nacional de Seguridad (RD 311/2022)**.
-
-{# ⚠ REVISIÓN CONSULTOR: wording de objeto/finalidad GENÉRICO. Ajustar al contexto real del cliente (servicio que presta a la AAPP, motivación de la adecuación, sistema concreto). #}
 
 Su finalidad es delimitar de forma inequívoca qué sistemas, servicios, información, sedes y activos quedan **dentro** del alcance de la certificación ENS, así como las **exclusiones** debidamente justificadas, sirviendo de base para la categorización (Anexo I), la Declaración de Aplicabilidad (Anexo II) y la posterior declaración/certificación de conformidad (CCN-STIC 809).
 
@@ -45,46 +41,43 @@ Su finalidad es delimitar de forma inequívoca qué sistemas, servicios, informa
 
 ### 3.1. Servicios incluidos
 
+Los servicios se clasifican en **finalistas** (los que constituyen el fin del sistema y se prestan a la Administración) e **instrumentales** (los que dan soporte a los anteriores), conforme a la guía CCN-STIC 803.
+
 {% if alcance and alcance.servicios %}
 {% for s in alcance.servicios %}
-- **{{ s.nombre if s.nombre else s }}**{% if s.descripcion %} — {{ s.descripcion }}{% endif %}
+- **{{ s.nombre if s.nombre else s }}**{% if s.tipo %} _(servicio {{ s.tipo }})_{% endif %}{% if s.descripcion %} — {{ s.descripcion }}{% endif %}
 {% endfor %}
 {% else %}
 - {{ proyecto.servicio_principal if proyecto.servicio_principal else 'Servicio prestado a la Administración Pública objeto de la adecuación ENS' }}
-{# ⚠ REVISIÓN CONSULTOR: listado de servicios PLACEHOLDER. Enumerar los servicios reales en alcance. #}
 {% endif %}
 
 ### 3.2. Sistemas de información y plataformas
 
 {% if alcance and alcance.sistemas %}
 {% for sis in alcance.sistemas %}
-- {{ sis.nombre if sis.nombre else sis }}
+- **{{ sis.nombre if sis.nombre else sis }}**{% if sis.descripcion %} — {{ sis.descripcion }}{% endif %}
 {% endfor %}
 {% else %}
-- {# ⚠ REVISIÓN CONSULTOR: enumerar sistemas/plataformas (on-premise, cloud, SaaS) en alcance. #} Por determinar en el inventario de activos.
+- {{ sistema.nombre if sistema and sistema.nombre else 'Sistema de información del ámbito SGSI' }}
 {% endif %}
 
 ### 3.3. Sedes y ubicaciones
 
 {% if alcance and alcance.sedes %}
 {% for sede in alcance.sedes %}
-- {{ sede.nombre if sede.nombre else sede }}{% if sede.direccion %} ({{ sede.direccion }}){% endif %}
+- **{{ sede.nombre if sede.nombre else sede }}**{% if sede.tipo %} — _{{ 'sede física' if sede.tipo == 'sede_fisica' else ('región cloud' if sede.tipo == 'region_cloud' else sede.tipo) }}_{% endif %}{% if sede.direccion %} · {{ sede.direccion }}{% endif %}{% if sede.pais %} ({{ sede.pais }}){% endif %}
 {% endfor %}
 {% else %}
 - {{ cliente.domicilio_social if cliente.domicilio_social else 'Sede principal' }}
-{# ⚠ REVISIÓN CONSULTOR: confirmar sedes físicas y ubicaciones cloud (regiones) en alcance. #}
 {% endif %}
 
 ### 3.4. Activos esenciales
 
 {% if alcance and alcance.activos_esenciales %}
-| Activo esencial | Tipo |
-|-----------------|------|
 {% for a in alcance.activos_esenciales %}
-| {{ a.nombre if a.nombre else a }} | {{ a.tipo if a.tipo else '—' }} |
+- **{{ a.nombre if a.nombre else a }}**{% if a.tipo %} — {{ a.tipo }}{% endif %}
 {% endfor %}
 {% else %}
-{# ⚠ REVISIÓN CONSULTOR: los activos esenciales se materializan tras el inventario (M-MAGERIT). Vincular aquí los activos esenciales identificados. #}
 _Los activos esenciales se determinan en el inventario de activos del sistema (metodología MAGERIT) y se vinculan a este alcance._
 {% endif %}
 
@@ -95,8 +88,7 @@ _Los activos esenciales se determinan en el inventario de activos del sistema (m
 - **{{ ex.elemento if ex.elemento else ex }}**{% if ex.justificacion %} — _Justificación:_ {{ ex.justificacion }}{% endif %}
 {% endfor %}
 {% else %}
-{# ⚠ REVISIÓN CONSULTOR: toda exclusión del alcance debe justificarse (CCN-STIC 805). Si no hay exclusiones, indicarlo expresamente. #}
-_No se declaran exclusiones, o bien las exclusiones serán detalladas y justificadas por el Responsable de Seguridad._
+_No se declaran exclusiones al alcance del SGSI._
 {% endif %}
 
 ## 5. CATEGORÍA DEL SISTEMA (DIMENSIONES C-I-D-A-T)
@@ -112,13 +104,11 @@ _No se declaran exclusiones, o bien las exclusiones serán detalladas y justific
 | Trazabilidad (T) | **{{ dims.trazabilidad if dims.trazabilidad else '—' }}** |
 | **Categoría global** | **{{ proyecto.categoria_ens if proyecto.categoria_ens else categorizacion.nivel_global if categorizacion and categorizacion.nivel_global else '—' }}** |
 
-La categoría se determina conforme al **Anexo I del RD 311/2022** y se formaliza en el acta de categorización (E-012).
-
-{# ⚠ REVISIÓN CONSULTOR: confirmar que la categoría global aquí reflejada coincide con el acta E-012 aprobada. #}
+La categoría se determina conforme al **Anexo I del RD 311/2022** (regla del máximo sobre las dimensiones de los activos esenciales) y se formaliza en el acta de categorización (E-012).
 
 ## 6. ESTRUCTURA DE GOBIERNO Y ROLES (FASE 0)
 
-{# ⚠ REVISIÓN CONSULTOR: roles ENS conforme a CCN-STIC 801. En categoría ALTA/MEDIA debe respetarse la SEPARACIÓN entre Responsable de Seguridad (RSeg) y Responsable del Sistema (RSis). Confirmar nombramientos reales (ver acta E-002). #}
+En categoría ALTA/MEDIA debe respetarse la **separación funcional** entre el Responsable de Seguridad (RSeg) y el Responsable del Sistema (RSis), conforme a la guía CCN-STIC 801. Los nombramientos se formalizan en el acta de designación de roles (E-002).
 
 | Rol ENS | Nombre | Cargo |
 |---------|--------|-------|
@@ -131,10 +121,9 @@ La categoría se determina conforme al **Anexo I del RD 311/2022** y se formaliz
 
 - **Real Decreto 311/2022**, de 3 de mayo, por el que se regula el Esquema Nacional de Seguridad.
 - **CCN-STIC 805** — Política de Seguridad de la Información.
+- **CCN-STIC 803** — Valoración de sistemas en el ENS (servicios finalistas e instrumentales).
 - **CCN-STIC 809** — Declaración y distintivo de conformidad con el ENS.
 - **CCN-STIC 801** — Responsabilidades y funciones en el ENS.
-
-{# ⚠ REVISIÓN CONSULTOR: añadir/ajustar guías CCN-STIC adicionales aplicables según categoría y naturaleza del sistema. #}
 
 ## 8. APROBACIÓN
 
@@ -146,7 +135,7 @@ Este documento de alcance es elaborado por el equipo de Fulkro, revisado por el 
 | Revisado (RSeg) | {{ firmas.revisado.nombre if firmas and firmas.revisado else '—' }} | {{ firmas.revisado.cargo if firmas and firmas.revisado else 'Responsable de Seguridad' }} | {{ firmas.revisado.fecha if firmas and firmas.revisado else '—' }} |
 | Aprobado (Dirección) | {{ firmas.aprobado.nombre if firmas and firmas.aprobado else '—' }} | {{ firmas.aprobado.cargo if firmas and firmas.aprobado else 'Órgano de gobierno superior' }} | {{ firmas.aprobado.fecha if firmas and firmas.aprobado else '—' }} |
 
-{# ⚠ REVISIÓN CONSULTOR: la aprobación del alcance corresponde a Dirección con revisión del RSeg (firmable E-signature TIER 1 · m05_signing). Confirmar firmantes. #}
+La aprobación del alcance corresponde a la Dirección con la revisión del Responsable de Seguridad (firmable mediante E-signature TIER 1 · m05_signing).
 
 ---
 

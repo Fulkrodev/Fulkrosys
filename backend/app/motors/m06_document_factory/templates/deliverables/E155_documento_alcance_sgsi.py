@@ -1,12 +1,13 @@
 """Template E-155 — DOCUMENTO DE ALCANCE DEL SGSI.
 
 Entregable de gobierno FASE 0 (CCN-STIC 805/809) que delimita el alcance del
-SGSI: sistemas, servicios, sedes, activos esenciales y exclusiones justificadas.
-Ejecutable 8 Pasada 16 (F-14-05).
+SGSI: sistemas, servicios (finalistas/instrumentales), sedes (físicas/cloud),
+activos esenciales y exclusiones justificadas.
 
-NOTA: el wording normativo del cuerpo (.md) marcado con `⚠ REVISIÓN CONSULTOR`
-es un BORRADOR genérico y debe ser validado por el consultor antes de emitirse a
-un cliente real. Los datos per-proyecto se inyectan vía placeholders Jinja2.
+Los datos per-proyecto los agrega ``build_e155_alcance_context`` (R05) desde el
+dominio m01 (systems + services + information_types) y las tablas ``system_sites``
++ ``scope_exclusions``, con las dimensiones DICAT reales (regla del máximo). El
+gate ``E155ScopeEmptyError`` impide emitir un alcance sin definir.
 """
 from pathlib import Path
 
