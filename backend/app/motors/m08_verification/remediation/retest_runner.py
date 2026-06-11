@@ -18,12 +18,85 @@ from __future__ import annotations
 import uuid
 from datetime import datetime, timezone
 
+from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from backend.app.motors.m08_verification.finding_state_machine import (
+    STATE_EVENT_MAP, TERMINAL_STATES, FindingState, can_transition,
+)
 from backend.app.motors.m08_verification.models import (
-    RemediationRetest, VerificationFinding,
+    EvidenceRecord, RemediationRetest, VerificationFinding, VerificationRun,
 )
 from backend.app.motors.m08_verification.tools.base import RunnerNotInstalled
+
+
+# Cadena canónica de avance de finding_state (doc §6 · state machine).
+_FORWARD_CHAIN = (
+    FindingState.DETECTED, FindingState.TRIAGED, FindingState.VERIFIED,
+    FindingState.REPORTED, FindingState.IN_REMEDIATION, FindingState.RETESTED,
+    FindingState.CLOSED,
+)
+
+
+def _advance_finding_state_to(finding: VerificationFinding, target: str) -> list[str]:
+    """Avanza ``finding_state`` por la cadena canónica hasta ``target`` respetando
+    VALID_TRANSITIONS. NO mueve estados terminales (closed/false_positive/
+    risk_accepted). Devuelve los eventos canónicos de las transiciones aplicadas.
+    """
+    cur = finding.finding_state or FindingState.DETECTED
+    if cur in TERMINAL_STATES:
+        return []
+    try:
+        ci = _FORWARD_CHAIN.index(cur)
+        ti = _FORWARD_CHAIN.index(target)
+    except ValueError:
+        return []
+    if ti <= ci:
+        return []
+    events: list[str] = []
+    for i in range(ci, ti):
+        nxt = _FORWARD_CHAIN[i + 1]
+        if not can_transition(_FORWARD_CHAIN[i], nxt):
+            break
+        ev = STATE_EVENT_MAP.get(nxt)
+        if ev:
+            events.append(ev)
+    finding.finding_state = target
+    return events
+
+
+def _emit_retest_evidence(
+    db: AsyncSession,
+    finding: VerificationFinding,
+    retest: RemediationRetest,
+    run_manifest_hash: str | None,
+    *,
+    action: str,
+    triggered_by: str,
+    transitions: list[str] | None = None,
+) -> None:
+    """Evidencia R6 append-only de la verificación post-remediación · es lo que el
+    auditor ENAC certifica como cierre del bucle (mp.s.2)."""
+    db.add(EvidenceRecord(
+        project_id=finding.project_id,
+        client_id=None,
+        run_id=finding.run_id,
+        finding_id=finding.id,
+        run_manifest_hash=run_manifest_hash,
+        actor=triggered_by,
+        action=action,
+        component="m08:remediation.retest_runner",
+        output_hash=finding.finding_hash,
+        ens_relevance=finding.ens_primary_measure,
+        payload={
+            "result": retest.result,
+            "retest_type": retest.retest_type,
+            "retest_command": retest.retest_command,
+            "retest_id": str(retest.id),
+            "finding_state": finding.finding_state,
+            "transitions": transitions or [],
+        },
+    ))
 
 
 # ────────────────────────────────────────────────────────────────────
@@ -321,11 +394,41 @@ async def run_retest(
     )
     db.add(retest)
 
+    # Manifest del run (para enlazar la evidencia · nullable si aún no existe).
+    run_mh = None
+    try:
+        run_mh = (await db.execute(
+            select(VerificationRun.run_manifest_hash).where(
+                VerificationRun.id == finding.run_id,
+            )
+        )).scalar()
+    except Exception:  # pragma: no cover — run sin manifest
+        run_mh = None
+
     if result == "fixed":
         finding.status = "remediated"
         finding.remediated_at = datetime.now(timezone.utc)
         finding.remediated_verified = True
         finding.remediated_retest_run_id = retest.id
+        # Pista canónica (doc §6): el re-test determinista es el "desmentido
+        # activo" que cierra el bucle hasta CLOSED. + evidencia R6 inmutable.
+        transitions = _advance_finding_state_to(finding, FindingState.CLOSED)
+        _emit_retest_evidence(
+            db, finding, retest, run_mh, action="finding.remediation_verified",
+            triggered_by=triggered_by, transitions=transitions,
+        )
+    elif result == "still_present":
+        # Sigue presente: confirmado en remediación (NO cerrado).
+        transitions = _advance_finding_state_to(finding, FindingState.IN_REMEDIATION)
+        _emit_retest_evidence(
+            db, finding, retest, run_mh, action="finding.retest_still_present",
+            triggered_by=triggered_by, transitions=transitions,
+        )
+    else:  # error | inconclusive → queda traza, sin cambio de estado
+        _emit_retest_evidence(
+            db, finding, retest, run_mh, action="finding.retest_inconclusive",
+            triggered_by=triggered_by,
+        )
 
     await db.flush()
     return retest
