@@ -165,6 +165,50 @@ async def generate_document(
         raise HTTPException(status_code=500, detail=str(e))
 
 
+@router.post("/projects/{project_id}/informe-final/generate")
+async def generate_informe_final_endpoint(
+    project_id: uuid.UUID,
+    db: AsyncSession = Depends(get_db),
+):
+    """Genera el E-040 Informe Final de Adecuación / SoA con context auto-agregado (R01).
+
+    Antes el E-040 se generaba con context vacío → las tablas de cumplimiento del
+    Anexo II, activos, riesgos y dimensiones salían EN BLANCO (no auditable).
+    Aquí ``build_informe_final_context`` agrega cross-motor (m03 cumplimiento por
+    familia + m02 activos/riesgos + m01 dimensiones + m09 auditoría) y se inyecta
+    en el render. GATE: si la DdA no tiene medidas aplicables, NO se emite (409).
+    """
+    from .informe_final_generator import (
+        InformeFinalEmptyError,
+        build_informe_final_context,
+    )
+
+    await _set_project_rls(project_id, db)
+    try:
+        ctx = await build_informe_final_context(db, project_id)
+    except InformeFinalEmptyError as e:
+        raise HTTPException(status_code=409, detail=str(e))
+
+    svc = DocumentFactoryService(db)
+    try:
+        result = await svc.generate_document(
+            project_id=project_id,
+            template_codigo="E-040",
+            context=ctx,
+            generate_pdf=False,
+            sign=False,
+            generated_by="system",
+        )
+        await db.commit()
+        return result
+    except (TemplateNotFoundError, TemplateFileMissingError) as e:
+        raise HTTPException(status_code=404, detail=str(e))
+    except MissingPlaceholderError as e:
+        raise HTTPException(status_code=422, detail=str(e))
+    except RenderError as e:  # pragma: no cover
+        raise HTTPException(status_code=500, detail=str(e))
+
+
 @router.post(
     "/projects/{project_id}/documents/preview",
     response_model=RenderPreviewResponse,
