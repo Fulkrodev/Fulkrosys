@@ -728,6 +728,10 @@ async def admin_verify_chain_integrity(
     db: AsyncSession = Depends(get_db),
 ) -> ChainIntegrityResponse:
     """Admin verify entire project signing chain integrity · audit purpose."""
+    # signing_* es fail-CLOSED (RLS project-scoped · R06). Este endpoint admin
+    # (require_owner) verifica la cadena de un proyecto SIN fijar contexto de tenant,
+    # así que se eleva a BYPASSRLS para leer las filas (auditoría read-only).
+    await db.execute(sa_text("SET LOCAL ROLE fulkro_app_bypassrls"))
     result = await _service(db).verify_chain_integrity(project_id)
     return ChainIntegrityResponse(**result)
 
@@ -818,6 +822,9 @@ async def admin_verify_intent_signature(
 
     audit_log canonical event 'signature.verified' Sub-atom 5.A · best-effort.
     """
+    # signing_* fail-CLOSED (R06) · endpoint admin (require_owner) sin contexto de
+    # tenant → eleva a BYPASSRLS para resolver el intent por id (auditoría read-only).
+    await db.execute(sa_text("SET LOCAL ROLE fulkro_app_bypassrls"))
     try:
         intent = await _service(db)._get_intent_or_404(intent_id)
     except IntentNotFoundError as exc:

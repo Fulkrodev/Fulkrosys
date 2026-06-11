@@ -30,7 +30,7 @@ from typing import Any
 
 from fastapi import APIRouter, Depends, HTTPException, status
 from pydantic import BaseModel, Field
-from sqlalchemy import select
+from sqlalchemy import select, text
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from backend.app.database import get_db
@@ -267,6 +267,11 @@ async def portal_oauth_init(
         )
     await _verify_project_belongs_to_client_user(db, project_id, client_user)
 
+    # oauth_state_tokens es fail-CLOSED (RLS project-scoped). El state token es un
+    # bearer secreto single-use generado ANTES de fijar contexto de proyecto; se
+    # emite vía rol BYPASSRLS (autorización ya verificada arriba por cliente+proyecto).
+    await db.execute(text("SET LOCAL ROLE fulkro_app_bypassrls"))
+
     provider_cfg = oauth_service._provider_configs()[connector_type]
     state, code_challenge = await oauth_state_service.create_state(
         db,
@@ -306,6 +311,12 @@ async def portal_oauth_callback(
             detail="AWS no usa OAuth callback",
         )
     await _verify_project_belongs_to_client_user(db, project_id, client_user)
+
+    # oauth_state_tokens es fail-CLOSED (RLS project-scoped) y el callback corre SIN
+    # contexto de proyecto fijado (el state token ES quien lo resuelve). Se eleva a
+    # BYPASSRLS para el lookup/consume del token bearer (replay-guard via consumed_at +
+    # validación de scope client_user/project explícita más abajo).
+    await db.execute(text("SET LOCAL ROLE fulkro_app_bypassrls"))
 
     try:
         ctx = await oauth_state_service.validate_and_consume(db, payload.state)
