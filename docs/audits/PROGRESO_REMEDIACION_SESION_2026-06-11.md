@@ -5,8 +5,14 @@
 ## ⭐ HANDOFF — LEER PRIMERO (estado para retomar en sesión nueva · 2026-06-11 23:xx)
 
 ### Estado del servidor y del repo
-- **prod Hetzner = `main` = `af53e2cd`** · DESPLEGADO y VERIFICADO sano (backend/frontend/celery/postgres containers `Up (healthy)` · `/api/v1/health → 200`). **Local `main` == `origin/main` == prod** (sin commits por delante; todo lo hecho está pusheado y desplegado).
-- Working repo: `/home/usuario/fulkro` rama `main`. BD dev: container `fulkro-postgres-1` localhost:5433 (atrasada en `milestone_scheduled_date_28_001`). Stack docker arriba.
+- **prod Hetzner = `main` = `62990aec`** · DESPLEGADO y VERIFICADO sano (9 containers healthy · alembic head `fase0_rls_leak_fix_001` · `/api/v1/health`). **Local `main` == `origin/main` == prod**. (Antes `af53e2cd`; el `origin/main` LOCAL puede quedar STALE tras fetch sin cred → la verdad es `git ls-remote` con el PAT.)
+- Working repo: `/home/usuario/fulkro` rama `main`. BD dev/test: container `fulkro-postgres-1` localhost:5433. `fulkro_test` se reconstruye con `scripts/build_test_db.sh` (drop→init-roles→alembic head→seed). Stack docker arriba.
+
+### ⚠️ HALLAZGO CRÍTICO ESTA SESIÓN (2026-06-12) · P0 leak cross-tenant en prod — CERRADO + desplegado
+- **Cazado al traer `fulkro_test` (estaba STALE pre-FASE-0 en `unify_pricing_fiscal_rls_001`) al head real**: el "6003 passed" de la sesión anterior se midió contra un esquema SIN las migraciones FASE 0 → el endurecimiento RLS de R06/R08 nunca se probó. Al ponerlo al día: 24 fallos.
+- **Verificado empíricamente (conexión REAL `fulkro_app`)**: `fulkro_app` (rol runtime, NOSUPERUSER) veía filas de OTROS clientes en **7 tablas** (signing_intents/events/otp_codes, copilot_conversations/messages, email_log, oauth_state_tokens). Causa: `init-roles:100 GRANT fulkro_app_bypassrls TO fulkro_app` (necesario para SET LOCAL ROLE) → `fulkro_app` es MIEMBRO del rol bypass → las policies `*_admin_bypass USING(true) TO fulkro_app_bypassrls` de R06 aplican TAMBIÉN a `fulkro_app` (permisivas = OR) → ve todo.
+- **Fix desplegado (`f6f39f26`)**: migración `fase0_rls_leak_fix_001` DROP de las 7 `admin_bypass` (el rol bypass sigue saltando RLS por su ATRIBUTO, patrón canónico R08) + restaura `email_log` system-wide (`client_id IS NULL`). **Verificado en prod: 0 admin_bypass · email_log con IS NULL · aislamiento real.**
+- **Lección reforzada**: NUNCA medir verde de suite contra `fulkro_test` posiblemente stale → reconstruir con `build_test_db.sh` antes de confiar en el verde. Las policies `admin_bypass USING(true) TO <bypass-role>` son un ANTIPATRÓN cuando el rol runtime es miembro del bypass.
 
 ### HECHO + desplegado esta sesión (de 26 R-items: ~10 cerrados)
 - **R02** E-040/SoA cierre real (render verificado con .docx real · 0 huecos · 16 familias Anexo II) · **R01/R06/R07/R08/R09** ya estaban (FASE 0).
@@ -17,8 +23,12 @@
 - **BUG REAL de prod arreglado** (no era de la remediación): el **copiloto del cliente daba 500** (R09 hizo project_id obligatorio para tier cliente; `client_copilot_stub.py` + `m11/portal_api.py` no lo pasaban). Fix: resolver project_id server-side + guarda anti-500. **Lección clave: se cazó mirando el CÓDIGO/comportamiento real, no el verde de los tests (los tests estaban stale y daban por bueno el 500).**
 - Suite completa: **6003 passed / 0 fail**.
 
-### SIGUIENTE PASO (orden): R05 → R24-resto → R03-wiring → F3-resto → F4 → F5 → F6 → 3 simulaciones + auditor + docs
-- **R05** (E-155 emitible · NC_MAYOR): crear modelo de scope estructurado (servicios.tipo finalista/instrumental · sedes.tipo sede_fisica/region_cloud · exclusiones) + `build_e155_alcance_context` + cablear dimensiones m01 + quitar frontmatter BORRADOR + validación anti-placeholder. **Probable migración Alembic** → validar sobre BD scratch como `fulkro_migrate` ANTES de push. (Las 11 notas `⚠ REVISIÓN CONSULTOR` están en comentarios Jinja `{# #}` · NO renderizan.) Audit: `out/f2_audit.md` sección R05.
+### HECHO + desplegado 2026-06-12 (commits `b5442482` R05 + `f6f39f26` P0 + `62990aec` m30)
+- ✅ **R05** (E-155 emitible · NC_MAYOR) CERRADO: modelo de scope estructurado (`services.tipo` finalista/instrumental + tablas `system_sites` sede_fisica/region_cloud+dirección+país + `scope_exclusions`) · migración `e155_scope_model_001` (additive, RLS hija-vía-systems fail-closed, validada scratch + 0 drift) · builder `build_e155_alcance_context` (m06/`alcance_generator.py`) con dims DICAT reales + gate `E155ScopeEmptyError` · endpoint `POST /projects/{id}/alcance-sgsi/generate` (409 vacío, `enforce_gates=False`) · CRUD scope en m01 (`/categorization/systems/{id}/sites`+`/exclusions`+`/services/{id}/tipo`) · plantilla reescrita sin BORRADOR/sin 11 notas REVISIÓN CONSULTOR · docx recompilado · render-test 0 fugas Jinja · 9 tests + `test_template_registry` actualizado (era stale).
+- ✅ **P0 leak fix** (`fase0_rls_leak_fix_001`) + ✅ **m30 fix** (dependency `_set_client_rls_context`) — ver sección crítica arriba.
+- Suite **6011 passed / 0 fail** · CI verde · CD verde · prod verificado por SSH.
+
+### SIGUIENTE PASO (orden): R24-resto → R03-wiring → F3-resto → F4 → F5 → F6 → 3 simulaciones + auditor + docs
 - **R24-resto**: acta de decisión de adecuación de la Dirección (org.1) firmable autónoma (plantilla nueva + SignableType + paso en `m17_planning/fase0_governance.py`) + coherencia `fecha_nombramiento`.
 - **R03-wiring**: endpoints API que expongan el servicio de doble firma + **canonicalizar la generación** del acta (los endpoints m01 `api.py:800/914` renderizan `backend/app/templates/acta_e012_provisional.docx` = variante incorrecta; cambiar a `DocumentFactoryService.generate_document("E-012", ctx)` con la plantilla m06 ya corregida; deprecar variantes B y C `m01/service.py:419-483`). UI cliente firma vía portal m05 `/firmas-pendientes`.
 - **F3-resto**: R12 (citas mp.info E-104/107/119/103/100/232) · R16 (E-041 cross-refs) · R17 (E-808 rename "Revisión Anual" + UI `ConformityWizard.tsx:68`/`ProjectCategoryBanner.tsx:36` 809→808) · R18 (`m10_audit_sim/audit_questions.py` 802→808 + retención 6→12m op.exp.8) · R19 (E-222 citas 802→Anexo II) · R21 (`m22_discovery/paso6_config_detector.py` op.cont.3).
