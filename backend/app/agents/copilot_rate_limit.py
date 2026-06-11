@@ -119,7 +119,18 @@ async def get_rate_limit_status(
     por ``LLMInteractionLog.project_id`` → el cap es POR TENANT. Sin él, el cap
     del cliente sumaba el uso LLM de TODOS los proyectos (quota poisoning
     cross-tenant + fuga de coste). El tier admin (Marcos, único) sigue global.
+
+    R09 HARDENING (fail-closed): para ``tier == 'cliente'`` el ``project_id`` es
+    OBLIGATORIO. Antes era opcional también para el cliente, así que un futuro
+    call-site que olvidara pasarlo degradaba silenciosamente a agregado GLOBAL
+    (cap envenenable cross-tenant). Ahora se rechaza explícitamente. El tier
+    admin (single-user Marcos) conserva el agregado global y admite ``None``.
     """
+    if tier == "cliente" and project_id is None:
+        raise ValueError(
+            "project_id es obligatorio para el cap del tier 'cliente' "
+            "(R09 fail-closed · evita agregado LLM cross-tenant)"
+        )
     config = _config_for_tier(tier)
     now = now or datetime.now(timezone.utc)
     start_today = _start_of_day_utc(now)
