@@ -4,7 +4,7 @@ titulo: "Informe de Diagnóstico Inicial · GAP Analysis frente al ENS"
 version: "{{ proyecto.version_actual if proyecto.version_actual else '1.0' }}"
 clasificacion: "INTERNA"
 norma_aplicable: "RD 311/2022 Anexo II (73 medidas) + CCN-STIC 808 (verificación)"
-documento_destino: "Base para Plan de Adecuación (E-050) y Declaración de Aplicabilidad (E-040)"
+documento_destino: "Base para Plan de Adecuación (E-150) y Declaración de Aplicabilidad (E-040)"
 ---
 
 # INFORME DE DIAGNÓSTICO INICIAL · GAP ANALYSIS FRENTE AL ESQUEMA NACIONAL DE SEGURIDAD · {{ cliente.razon_social | upper }}
@@ -22,7 +22,7 @@ documento_destino: "Base para Plan de Adecuación (E-050) y Declaración de Apli
 
 ## 1. OBJETO
 
-El presente informe documenta el **diagnóstico inicial** del estado de cumplimiento de **{{ cliente.razon_social }}** frente al Esquema Nacional de Seguridad (ENS), realizado como paso previo a la elaboración del Plan de Adecuación (E-050) y de la Declaración de Aplicabilidad (E-040).
+El presente informe documenta el **diagnóstico inicial** del estado de cumplimiento de **{{ cliente.razon_social }}** frente al Esquema Nacional de Seguridad (ENS), realizado como paso previo a la elaboración del Plan de Adecuación (E-150) y de la Declaración de Aplicabilidad (E-040).
 
 El diagnóstico identifica los **gaps de cumplimiento** entre el estado actual y el estado objetivo definido por el Anexo II del RD 311/2022, atendiendo a la categoría **{{ proyecto.categoria_ens if proyecto.categoria_ens else 'MEDIA' }}** previamente aprobada (E-012).
 
@@ -35,7 +35,7 @@ El diagnóstico identifica los **gaps de cumplimiento** entre el estado actual y
 | Fecha de realización | **{{ fecha }}** |
 | Metodología | {{ metodologia }} |
 | Marco evaluativo | RD 311/2022 Anexo II + CCN-STIC 808 |
-| Estado documental | Anterior a Plan de Adecuación (E-050) |
+| Estado documental | Anterior a Plan de Adecuación (E-150) |
 
 ## 3. METODOLOGÍA
 
@@ -92,25 +92,25 @@ Cobertura aparente: medidas técnicas para proteger instalaciones, personal, equ
 ## 7. RECOMENDACIONES PRIORIZADAS
 
 {% if tiene_recom %}
-A continuación se relacionan las recomendaciones de máxima prioridad para la elaboración del Plan de Adecuación (E-050):
+A continuación se relacionan las recomendaciones de máxima prioridad para la elaboración del Plan de Adecuación (E-150):
 
 {% for r in diag.recomendaciones %}
 - {{ r }}
 {% endfor %}
 {% else %}
-*Las recomendaciones se desarrollarán en el documento Plan de Adecuación (E-050).*
+*Las recomendaciones se desarrollarán en el documento Plan de Adecuación (E-150).*
 {% endif %}
 
 ## 8. CONCLUSIONES Y SIGUIENTES PASOS
 
-a) Las medidas del Anexo II del RD 311/2022 presentan **gaps documentables** que requieren intervención formalizada mediante un **Plan de Adecuación** (E-050).
+a) Las medidas del Anexo II del RD 311/2022 presentan **gaps documentables** que requieren intervención formalizada mediante un **Plan de Adecuación** (E-150).
 
-b) La aprobación de la Declaración de Aplicabilidad (E-040) y del Plan de Adecuación (E-050) procederá conforme al cronograma definido en el acta de aprobación de la categorización (E-012, sección 7.b).
+b) La aprobación de la Declaración de Aplicabilidad (E-040) y del Plan de Adecuación (E-150) procederá conforme al cronograma definido en el acta de aprobación de la categorización (E-012, sección 7.b).
 
 c) Se recomienda al **Responsable de la Seguridad** elevar al Comité de Seguridad de la Información los siguientes documentos en orden:
 
 1. **Declaración de Aplicabilidad (E-040)** – plazo orientativo: 30 días.
-2. **Plan de Adecuación (E-050)** – plazo orientativo: 90 días.
+2. **Plan de Adecuación (E-150)** – plazo orientativo: 90 días.
 3. **Análisis de Riesgos (E-400)** – plazo orientativo: 120 días.
 4. **Auditoría interna previa** – plazo orientativo: 180 días.
 

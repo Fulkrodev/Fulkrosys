@@ -42,7 +42,7 @@ Conforme al **artículo 35** del RD 311/2022, la conformidad con el ENS se renue
 
 ## 3. REVISIÓN DEL PERIODO ANTERIOR
 
-Durante el periodo comprendido entre **{{ fecha_ant }}** y **{{ fecha_act }}**, la Entidad ha mantenido las medidas implantadas conforme al Plan de Adecuación (E-050) y ha gestionado los cambios materiales conforme al procedimiento E-042.
+Durante el periodo comprendido entre **{{ fecha_ant }}** y **{{ fecha_act }}**, la Entidad ha mantenido las medidas implantadas conforme al Plan de Adecuación (E-150) y ha gestionado los cambios materiales conforme al procedimiento E-042.
 
 ### 3.1 Principales cambios desde la revisión anterior
 
@@ -71,7 +71,7 @@ Los incidentes registrados durante el periodo se documentan en el Libro de Incid
 
 a) La **Declaración de Aplicabilidad (E-040)** ha sido revisada y actualizada para reflejar el estado actual de las medidas del Anexo II.
 
-b) El **Plan de Adecuación (E-050)** ha sido revisado y, cuando ha procedido, actualizado.
+b) El **Plan de Adecuación (E-150)** ha sido revisado y, cuando ha procedido, actualizado.
 
 c) El **Análisis de Riesgos (E-400)** ha sido revisado y actualizado conforme a los cambios identificados en sección 3.
 

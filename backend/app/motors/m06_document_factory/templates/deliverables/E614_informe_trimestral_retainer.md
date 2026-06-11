@@ -95,7 +95,7 @@ Los cambios marcados como **materiales** han sido documentados adicionalmente me
 
 ## 6. ACCIONES PREVISTAS PARA EL PRÓXIMO PERIODO
 
-a) **Mantenimiento ordinario** de las medidas del Anexo II del RD 311/2022 aplicables al sistema, conforme al Plan de Adecuación vigente (E-050).
+a) **Mantenimiento ordinario** de las medidas del Anexo II del RD 311/2022 aplicables al sistema, conforme al Plan de Adecuación vigente (E-150).
 
 b) **Revisión documental periódica** de las políticas y procedimientos del SGSI cuyo ciclo de revisión venza en el próximo trimestre.
 

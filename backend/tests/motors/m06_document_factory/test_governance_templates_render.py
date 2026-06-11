@@ -3,7 +3,7 @@
 Familia E-XXX gobierno SGSI · actas core + diagnostico GAP. Pertenecen al
 catalogo ENS principal (no son adyacencia normativa como W/LW/L). Naturaleza:
 politicas formales (E-002/003) + entregables internos (E-012/090) generados
-en fase inicial implantacion SGSI (pre Plan Adecuacion E-050).
+en fase inicial implantacion SGSI (pre Plan Adecuacion E-150).
 
 Norma aplicable: RD 311/2022 Anexo I (categorizacion) + Anexo II (73 medidas) +
 Guias CCN-STIC 801 (responsabilidades) + 803 (categorizacion) + 808 (verificacion).
@@ -483,7 +483,7 @@ def test_e090_renders_gap_hallazgos_loop_no_truncation(tmp_path, governance_cont
     )
     # Plazos siguientes pasos (verifica seccion 8c renderizada)
     assert "30 días" in text, "E-090 falta plazo 30 dias E-040"
-    assert "90 días" in text, "E-090 falta plazo 90 dias E-050"
+    assert "90 días" in text, "E-090 falta plazo 90 dias E-150"
     assert "120 días" in text, "E-090 falta plazo 120 dias E-400"
     assert "180 días" in text, "E-090 falta plazo 180 dias auditoria"
     # Validado por Comite renderizado DESPUES loops
@@ -528,7 +528,7 @@ def test_e041_renders_categoria_branch_and_normative_refs(tmp_path, governance_c
         "E-041 NO debe contener branch BASICA cuando categoria=MEDIA"
     )
     # 6 letras declaracion formal (a-f)
-    assert "Plan de Adecuación (E-050)" in text, "E-041 falta ref E-050 Plan Adecuacion"
+    assert "Plan de Adecuación (E-150)" in text, "E-041 falta ref E-150 Plan Adecuacion"
     assert "E-204" in text, "E-041 falta ref E-204 gestion incidentes"
     assert "E-203" in text, "E-041 falta ref E-203 gestion cambios"
     assert "E-401" in text, "E-041 falta ref E-401 continuidad"
@@ -536,7 +536,7 @@ def test_e041_renders_categoria_branch_and_normative_refs(tmp_path, governance_c
     assert "E-043" in text, "E-041 falta ref E-043 renovacion"
     # Branch periodicidad MEDIA · 3 anios (NO 2 anios BASICA)
     assert "3 años" in text, "E-041 falta periodicidad 3 anios (MEDIA/ALTA)"
-    # Anexos (E-040, E-050, E-003, E-002)
+    # Anexos (E-040, E-150, E-003, E-002)
     assert "E-040" in text, "E-041 falta Anexo I E-040"
     assert "E-002" in text, "E-041 falta Anexo IV E-002"
     assert "E-003" in text, "E-041 falta Anexo IV E-003"
@@ -594,7 +594,7 @@ def test_e042_renders_impacto_loop_and_recategorizacion_branch(tmp_path, governa
         "E-042 NO debe contener branch recat=True cuando False"
     )
     # 5 actuaciones previstas (a-e · refs E-040/050/400 + clientes + recertificacion MEDIA)
-    refs = ["E-040", "E-050", "E-400"]
+    refs = ["E-040", "E-150", "E-400"]
     for r in refs:
         assert r in text, f"E-042 falta referencia actuacion: {r}"
     # Branch recertificacion (cat=MEDIA · NO branch BASICA E-041)
@@ -659,7 +659,7 @@ def test_e043_renders_cambios_loop_no_truncation(tmp_path, governance_context):
         "E-043 falta branch externa (categoria MEDIA · NOT basica)"
     )
     # 4 validaciones seccion 4 (a-e · E-040/050/400 + ciclo bienal politicas + acta Comite)
-    val_refs = ["E-040", "E-050", "E-400"]
+    val_refs = ["E-040", "E-150", "E-400"]
     for r in val_refs:
         assert r in text, f"E-043 falta validacion sec 4: {r}"
 
@@ -740,7 +740,7 @@ def test_e614_renders_kpis_incidents_changes_loops_multi_entry(
     assert "ACCIONES PREVISTAS" in text or "Acciones previstas" in text, (
         "E-614 sec 6 truncada (multi-entry · LECCION-OPS-030 caso 4)"
     )
-    assert "E-050" in text, "E-614 falta ref E-050 Plan Adecuacion"
+    assert "E-150" in text, "E-614 falta ref E-150 Plan Adecuacion"
     assert "E-401" in text, "E-614 falta ref E-401 Continuidad"
     # Recomendaciones sec 7 + aprobacion sec 8
     assert "tier" in text.lower() and "R_STD" in text, (
@@ -808,8 +808,8 @@ def test_e615_renders_annual_summary_consolidation(tmp_path, governance_context)
     assert "2026-11-15" in text, "E-615 falta fecha auditoria interna"
     assert "2026-12-10" in text, "E-615 falta fecha verificacion externa"
 
-    # Sec 7 plan ano siguiente (6 letras · refs E-050/E-400/E-012)
-    assert "E-050" in text, "E-615 falta ref E-050"
+    # Sec 7 plan ano siguiente (6 letras · refs E-150/E-400/E-012)
+    assert "E-150" in text, "E-615 falta ref E-150"
     assert "E-400" in text, "E-615 falta ref E-400 Analisis Riesgos"
     assert "E-012" in text, "E-615 falta ref E-012 categorizacion"
 

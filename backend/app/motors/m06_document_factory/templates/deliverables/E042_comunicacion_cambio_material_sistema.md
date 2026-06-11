@@ -71,7 +71,7 @@ El cambio **no altera significativamente** las dimensiones del sistema. Se manti
 
 a) **Actualización de la Declaración de Aplicabilidad (E-040)** para reflejar las medidas afectadas.
 
-b) **Actualización del Plan de Adecuación (E-050)** si procede.
+b) **Actualización del Plan de Adecuación (E-150)** si procede.
 
 c) **Actualización del Análisis de Riesgos (E-400)** para incorporar el cambio en el modelo de amenazas.
 

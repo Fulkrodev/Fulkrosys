@@ -65,7 +65,7 @@ c) Los activos identificados en el Análisis de Riesgos (E-400) según metodolog
 
 a) Que el Sistema de Información descrito en la sección 4 cumple con los requisitos exigidos por el RD 311/2022 para la categoría **{{ cat }}**.
 
-b) Que las medidas del Anexo II aplicables han sido **implantadas conforme al Plan de Adecuación (E-050)** y se mantienen operativas.
+b) Que las medidas del Anexo II aplicables han sido **implantadas conforme al Plan de Adecuación (E-150)** y se mantienen operativas.
 
 c) Que el sistema ha sido sometido a la auditoría interna prevista (E-052 cuando proceda) y, {% if requiere_certif %}adicionalmente, a la auditoría de certificación por entidad acreditada{% else %}a las verificaciones operativas internas{% endif %}.
 
@@ -96,7 +96,7 @@ c) Cese o suspensión expresa por el órgano competente de la Entidad.
 ## 8. ANEXOS
 
 - **Anexo I:** Declaración de Aplicabilidad (E-040).
-- **Anexo II:** Plan de Adecuación (E-050).
+- **Anexo II:** Plan de Adecuación (E-150).
 - **Anexo III:** Última auditoría interna o {% if requiere_certif %}certificado emitido por entidad acreditada{% else %}verificaciones operativas internas{% endif %}.
 - **Anexo IV:** Acta de Constitución del Comité de Seguridad (E-003) y Acta de Nombramiento de Roles (E-002).
 

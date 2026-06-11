@@ -101,7 +101,7 @@ Los cambios marcados como **materiales** han sido notificados adicionalmente med
 
 ## 7. PLAN PARA EL AÑO SIGUIENTE
 
-a) **Continuidad de las medidas implantadas** conforme al Plan de Adecuación vigente (E-050) y a su actualización periódica.
+a) **Continuidad de las medidas implantadas** conforme al Plan de Adecuación vigente (E-150) y a su actualización periódica.
 
 b) **Programación de la auditoría interna anual** correspondiente al siguiente ejercicio, conforme al ciclo establecido por el Responsable de la Seguridad.
 
