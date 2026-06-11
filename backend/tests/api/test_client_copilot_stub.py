@@ -55,8 +55,9 @@ async def authed_client_user(async_client, db):
     from types import SimpleNamespace
 
     async def override():
-        # 1.D.G.I · rate limit usa user.id · retornamos namespace con id
-        return SimpleNamespace(id=uuid.uuid4())
+        # 1.D.G.I · rate limit usa user.id + user.client_id (resolución de proyecto
+        # R09 · sin proyecto en BD → cap omitido · proceede al stub).
+        return SimpleNamespace(id=uuid.uuid4(), client_id=uuid.uuid4())
 
     app.dependency_overrides[require_client_user] = override
     # Force stub fallback path para predictable assertions

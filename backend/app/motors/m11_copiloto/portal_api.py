@@ -65,6 +65,11 @@ async def _enforce_cliente_rate_limit(
     # contexto que reusa el call-site inmediatamente después · idempotente).
     project_id_str, _ = await _resolve_project_meta_scoped(db, user.client_id)
     project_id = uuid.UUID(project_id_str) if project_id_str else None
+    if project_id is None:
+        # R09 fail-closed: ``get_rate_limit_status`` exige project_id para el tier
+        # cliente. Sin proyecto activo no hay agregado por-tenant que aplicar → se
+        # omite el cap (evita 500 · no degrada cross-tenant: no hay nada que sumar).
+        return None
     try:
         status = await enforce_rate_limit_or_raise(
             db=db, user_id=user.id, tier="cliente", project_id=project_id,

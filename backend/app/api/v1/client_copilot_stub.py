@@ -146,17 +146,28 @@ async def client_copilot_chat(
     R1 sostenido: LLM SOLO conversacional · NO decisiones normativas
     (A21 determinista cubre detección discrepancias).
     """
-    # 1.D.G.I · Rate limit cliente · enforce antes LLM call
+    # 1.D.G.I · Rate limit cliente · enforce antes LLM call.
+    # R09 fail-closed: el cap del cliente es POR PROYECTO · ``get_rate_limit_status``
+    # EXIGE ``project_id`` para el tier cliente. Resolvemos el proyecto del cliente
+    # server-side (RLS-gated · _resolve_project_meta_scoped fija el contexto). Si el
+    # cliente no tiene proyecto activo, no hay agregado por-tenant que aplicar → se
+    # omite el cap (evita 500 · no degrada cross-tenant).
+    from backend.app.motors.m11_copiloto.portal_api import (
+        _resolve_project_meta_scoped,
+    )
     rate_status = None
-    try:
-        rate_status = await enforce_rate_limit_or_raise(
-            db=db, user_id=user.id, tier="cliente",
-        )
-    except CopilotRateLimitExceeded as exc:
-        raise HTTPException(
-            status_code=http_status.HTTP_429_TOO_MANY_REQUESTS,
-            detail=exc.status.blocked_reason or "Rate limit exceeded",
-        )
+    _pid_str, _ = await _resolve_project_meta_scoped(db, user.client_id)
+    if _pid_str:
+        try:
+            rate_status = await enforce_rate_limit_or_raise(
+                db=db, user_id=user.id, tier="cliente",
+                project_id=uuid.UUID(_pid_str),
+            )
+        except CopilotRateLimitExceeded as exc:
+            raise HTTPException(
+                status_code=http_status.HTTP_429_TOO_MANY_REQUESTS,
+                detail=exc.status.blocked_reason or "Rate limit exceeded",
+            )
 
     rate_warning = rate_status.warning_message if rate_status else None
     remaining_quota = (

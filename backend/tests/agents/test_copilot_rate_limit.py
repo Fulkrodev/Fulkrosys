@@ -101,7 +101,7 @@ def _build_db_mock(
 @pytest.mark.asyncio
 async def test_rate_limit_status_below_thresholds_clean():
     db = _build_db_mock(messages_count=10, tokens_output=1_000, monthly_cost=0.5)
-    status = await get_rate_limit_status(db, uuid.uuid4(), "cliente")
+    status = await get_rate_limit_status(db, uuid.uuid4(), "cliente", project_id=uuid.uuid4())
     assert status.soft_warn is False
     assert status.hard_blocked is False
     assert status.warning_message is None
@@ -112,7 +112,7 @@ async def test_rate_limit_status_below_thresholds_clean():
 @pytest.mark.asyncio
 async def test_rate_limit_status_soft_warn_80pct_messages():
     db = _build_db_mock(messages_count=82, tokens_output=1_000, monthly_cost=0.0)
-    status = await get_rate_limit_status(db, uuid.uuid4(), "cliente")
+    status = await get_rate_limit_status(db, uuid.uuid4(), "cliente", project_id=uuid.uuid4())
     assert status.soft_warn is True
     assert status.hard_blocked is False
     assert status.warning_message is not None
@@ -123,7 +123,7 @@ async def test_rate_limit_status_soft_warn_80pct_messages():
 @pytest.mark.asyncio
 async def test_rate_limit_status_hard_blocked_messages():
     db = _build_db_mock(messages_count=105, tokens_output=1_000, monthly_cost=0.0)
-    status = await get_rate_limit_status(db, uuid.uuid4(), "cliente")
+    status = await get_rate_limit_status(db, uuid.uuid4(), "cliente", project_id=uuid.uuid4())
     assert status.hard_blocked is True
     assert status.blocked_reason is not None
     assert "límite diario" in status.blocked_reason
@@ -133,7 +133,7 @@ async def test_rate_limit_status_hard_blocked_messages():
 @pytest.mark.asyncio
 async def test_rate_limit_status_hard_blocked_monthly_cost():
     db = _build_db_mock(messages_count=10, tokens_output=1_000, monthly_cost=7.0)
-    status = await get_rate_limit_status(db, uuid.uuid4(), "cliente")
+    status = await get_rate_limit_status(db, uuid.uuid4(), "cliente", project_id=uuid.uuid4())
     assert status.hard_blocked is True
     assert "mensual" in status.blocked_reason
 
@@ -153,7 +153,7 @@ async def test_rate_limit_status_admin_higher_caps():
 @pytest.mark.asyncio
 async def test_enforce_passes_below_cap():
     db = _build_db_mock(messages_count=10, monthly_cost=0.0)
-    status = await enforce_rate_limit_or_raise(db, uuid.uuid4(), "cliente")
+    status = await enforce_rate_limit_or_raise(db, uuid.uuid4(), "cliente", project_id=uuid.uuid4())
     assert status.hard_blocked is False
 
 
@@ -161,7 +161,7 @@ async def test_enforce_passes_below_cap():
 async def test_enforce_raises_when_hard_blocked():
     db = _build_db_mock(messages_count=200, monthly_cost=0.0)
     with pytest.raises(CopilotRateLimitExceeded) as exc:
-        await enforce_rate_limit_or_raise(db, uuid.uuid4(), "cliente")
+        await enforce_rate_limit_or_raise(db, uuid.uuid4(), "cliente", project_id=uuid.uuid4())
     assert exc.value.status.hard_blocked is True
     assert exc.value.status.blocked_reason is not None
 
@@ -169,12 +169,12 @@ async def test_enforce_raises_when_hard_blocked():
 # ===== Integración real-DB · el cap CUENTA las etiquetas REALES (fix 2026-06-07) =====
 
 
-def _llm_row(feature: str):
+def _llm_row(feature: str, project_id=None):
     from backend.app.models.knowledge import LLMInteractionLog
     return LLMInteractionLog(
         feature=feature, model="claude-test", prompt_hash="z" * 64,
         prompt_tokens=10, completion_tokens=100, total_tokens=110,
-        latency_ms=50, status="success",
+        latency_ms=50, status="success", project_id=project_id,
     )
 
 
@@ -183,13 +183,14 @@ async def test_cap_counts_real_feature_labels(db):
     """Antes del fix: feature_filter='copiloto_admin' no casaba con ninguna
     etiqueta real → messages_today=0 SIEMPRE → cap nunca saltaba. Ahora cuenta
     las etiquetas reales por tier y NO mezcla cliente/admin."""
+    pid = uuid.uuid4()
     db.add(_llm_row("copilot_admin_1d_b_2"))
     db.add(_llm_row("copilot_chat"))
-    db.add(_llm_row("copilot_cliente_1d_b_1"))
+    db.add(_llm_row("copilot_cliente_1d_b_1", project_id=pid))
     await db.flush()
 
     admin = await get_rate_limit_status(db, uuid.uuid4(), "admin")
-    cliente = await get_rate_limit_status(db, uuid.uuid4(), "cliente")
+    cliente = await get_rate_limit_status(db, uuid.uuid4(), "cliente", project_id=pid)
 
     # admin cuenta sus 2 etiquetas (admin_1d_b_2 + chat) · NO la del cliente
     assert admin.messages_today >= 2
