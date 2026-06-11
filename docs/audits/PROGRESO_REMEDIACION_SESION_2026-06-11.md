@@ -2,6 +2,55 @@
 
 > **Principio (orden del usuario):** ignorar las auto-memorias `.claude` (pueden estar desactualizadas meses). **Todo lo de aquí está verificado EMPÍRICAMENTE contra el código/BD reales en esta sesión.** Re-verificar siempre en el repo, nunca asumir desde memoria. Documentar en el repo (docs/), no en memorias. **Cero alucinación.**
 
+## ⭐ HANDOFF — LEER PRIMERO (estado para retomar en sesión nueva · 2026-06-11 23:xx)
+
+### Estado del servidor y del repo
+- **prod Hetzner = `main` = `af53e2cd`** · DESPLEGADO y VERIFICADO sano (backend/frontend/celery/postgres containers `Up (healthy)` · `/api/v1/health → 200`). **Local `main` == `origin/main` == prod** (sin commits por delante; todo lo hecho está pusheado y desplegado).
+- Working repo: `/home/usuario/fulkro` rama `main`. BD dev: container `fulkro-postgres-1` localhost:5433 (atrasada en `milestone_scheduled_date_28_001`). Stack docker arriba.
+
+### HECHO + desplegado esta sesión (de 26 R-items: ~10 cerrados)
+- **R02** E-040/SoA cierre real (render verificado con .docx real · 0 huecos · 16 familias Anexo II) · **R01/R06/R07/R08/R09** ya estaban (FASE 0).
+- **R04** citas E-012 (categorización art.40+AnexoI / DA art.28+AnexoII) + E-012→acta_comite en signable_types.
+- **R24-parcial**: footer "FULKRO" fuera del cuerpo (E-002/E-003/E-012) · clave canónica `responsable_sistema_informacion`→`responsable_sistema` (E-002/E-012/E-042).
+- **R03** acta E-012: plantilla con doble firma competente (RInfo+RServ APRUEBAN art.40.2 · RSeg conforme) + **backend** `request_acta_double_signature`/`get_acta_double_signature_status` en `m01/signature_integration.py` (reusa m05 dos-intents · sin migración · gate aprobada=ambos signed · testeado).
+- **F3-parcial**: drift sistémico **E-050→E-150** ("Plan de Adecuación") cerrado en E-012/E-003/E-041/E-042/E-043/E-090/E-614/E-615 + tests.
+- **BUG REAL de prod arreglado** (no era de la remediación): el **copiloto del cliente daba 500** (R09 hizo project_id obligatorio para tier cliente; `client_copilot_stub.py` + `m11/portal_api.py` no lo pasaban). Fix: resolver project_id server-side + guarda anti-500. **Lección clave: se cazó mirando el CÓDIGO/comportamiento real, no el verde de los tests (los tests estaban stale y daban por bueno el 500).**
+- Suite completa: **6003 passed / 0 fail**.
+
+### SIGUIENTE PASO (orden): R05 → R24-resto → R03-wiring → F3-resto → F4 → F5 → F6 → 3 simulaciones + auditor + docs
+- **R05** (E-155 emitible · NC_MAYOR): crear modelo de scope estructurado (servicios.tipo finalista/instrumental · sedes.tipo sede_fisica/region_cloud · exclusiones) + `build_e155_alcance_context` + cablear dimensiones m01 + quitar frontmatter BORRADOR + validación anti-placeholder. **Probable migración Alembic** → validar sobre BD scratch como `fulkro_migrate` ANTES de push. (Las 11 notas `⚠ REVISIÓN CONSULTOR` están en comentarios Jinja `{# #}` · NO renderizan.) Audit: `out/f2_audit.md` sección R05.
+- **R24-resto**: acta de decisión de adecuación de la Dirección (org.1) firmable autónoma (plantilla nueva + SignableType + paso en `m17_planning/fase0_governance.py`) + coherencia `fecha_nombramiento`.
+- **R03-wiring**: endpoints API que expongan el servicio de doble firma + **canonicalizar la generación** del acta (los endpoints m01 `api.py:800/914` renderizan `backend/app/templates/acta_e012_provisional.docx` = variante incorrecta; cambiar a `DocumentFactoryService.generate_document("E-012", ctx)` con la plantilla m06 ya corregida; deprecar variantes B y C `m01/service.py:419-483`). UI cliente firma vía portal m05 `/firmas-pendientes`.
+- **F3-resto**: R12 (citas mp.info E-104/107/119/103/100/232) · R16 (E-041 cross-refs) · R17 (E-808 rename "Revisión Anual" + UI `ConformityWizard.tsx:68`/`ProjectCategoryBanner.tsx:36` 809→808) · R18 (`m10_audit_sim/audit_questions.py` 802→808 + retención 6→12m op.exp.8) · R19 (E-222 citas 802→Anexo II) · R21 (`m22_discovery/paso6_config_detector.py` op.cont.3).
+- **F4**: R10 (E-235 mp.info.5→mp.info.4 + compilar `var/templates_docx/E-235.docx`) · R11 (`fix_docx_templates.py` añadir `procedures` a append_sigblock · 0/38 POS con firma hoy) · R13 (E-100 2º bloque jinja que no compila) · R14 (builder roles art.11 org.2 + acuse mp.per.3) · R22 (limpiar andamiaje E-220) · R25 (`documentation_levels.py` + POS-set).
+- **F5**: R15 (generador cuestionario CCN-STIC 808 cierre BÁSICA · corazón del cierre · no existe) · R20 (builders BIA/continuidad + citas ISO22301) · R26 (certificado ENAC descargable + NC estructuradas).
+- **F6**: R23 (enriquecer rectores E-150/160/170).
+- **VALIDACIÓN FINAL** (ver sección abajo): alembic scratch + **3 simulaciones Playwright** (BÁSICA/MEDIA/ALTA · admin+cliente · e2e · subir docs→lectura IA·firmar) + revisión auditor ENAC + documentación escrita.
+
+### REGLAS INVIOLABLES (orden del usuario · reforzadas esta sesión)
+1. **Verificar EMPÍRICAMENTE contra el código/BD reales, NO contra los tests** (pueden estar stale; hoy un test verde ocultaba un 500 en prod). Cero alucinación.
+2. `ruff check` + pytest ANTES de cada commit. Commits a `main`. Deploy a prod (push origin main → CD) SOLO tras validar y con OK del usuario.
+3. Migraciones requieren rol `fulkro_migrate` (owner) y validarse sobre **BD scratch vacía** (`alembic upgrade head` limpio + `alembic check` sin diff). PROHIBIDO `stamp`.
+
+### HERRAMIENTAS y GOTCHAS creados/aprendidos esta sesión (reutilizar)
+- **Recompilar docx**: `PYTHONPATH=. .venv/bin/python backend/scripts/rebuild_docx_templates.py E-041 E-042 ...` (genérico · gfm-smart · solo toca esos docx). Para E-040: `backend/scripts/build_informe_final_template.py`. Render-test E-040: `backend/scripts/render_test_e040.py [--synth]`.
+- **Pipeline docx**: `.md` lleva valla ` ```jinja ` que es el DELIMITADOR del build (`extract_jinja_body` la strippea) → **NO quitar la valla**. pandoc con **`gfm-smart`** (el `smart` de `gfm` curva las comillas Jinja `'1.0'` y rompe el render). Post-proceso `fix_docx_templates.py` (header/footer/sigblock). Los `.docx` son **binarios trackeados en git** (no hay rebuild en CI). **Loop-tables `{% for %}` COLAPSAN en pandoc → usar listas con bullets**; tablas estáticas gateadas necesitan línea en blanco tras `{% if %}`.
+- **Normativa**: **E-050 = Informe de Auditoría Interna del SGSI** · **E-150 = Plan de Adecuación** (NO confundir). Categorización = art.40 RD 311/2022 + Anexo I; Declaración de Aplicabilidad = art.28 + Anexo II.
+- **Doble firma E-012**: `m01/signature_integration.py` `request_acta_double_signature(session, system_id)` + `get_acta_double_signature_status`. Roles competentes en `m30/roles_ens.py` (`responsable_informacion`/`responsable_servicio`). Resuelve firmantes vía `project_role_assignments`+`client_contacts`.
+- **Copilot rate-limit (R09)**: el cap del cliente es POR PROYECTO (`get_rate_limit_status` EXIGE project_id para tier cliente). Resolver con `_resolve_project_meta_scoped` (en `m11/portal_api.py`). Todos los call-sites cliente arreglados.
+- **GOTCHA DE SHELL (importante)**: en `wsl.exe bash -lc "..."` los **paréntesis, `;`, y comillas anidadas ROMPEN el quoting**. Solución: escribir el comando a un script `out/*.sh` (out/ está gitignored) y ejecutar `wsl.exe bash -lc 'bash out/x.sh'`. Mensajes de commit con paréntesis → `git commit -F fichero`.
+- **Verificar deploy en el servidor real** (no solo el CD): `ssh fulkro` → `cd /opt/fulkro && git rev-parse --short HEAD` + `docker compose -f docker-compose.prod.yml --env-file .env.prod ps` (healthy) + curl `/api/v1/health` dentro del contenedor backend.
+
+### ACCESO (verificado en disco esta sesión)
+- **PAT Fulkrodev**: `/mnt/c/Users/Usuario/.fulkro_gh_pat` (Windows `C:\Users\Usuario\.fulkro_gh_pat`). NO está en `~/.fulkro_gh_pat` de WSL. Push: `git push "https://x-access-token:$(tr -d '\r\n ' < /mnt/c/Users/Usuario/.fulkro_gh_pat)@github.com/Fulkrodev/Fulkrosys.git" main`. **La API REST de GitHub SÍ funciona con este PAT** (`api.github.com/repos/Fulkrodev/Fulkrosys/actions/runs`). `gh` NO está instalado en WSL. El `GITHUB_TOKEN` del entorno es inválido.
+- **SSH prod**: `ssh fulkro` (key WSL `~/.ssh/fulkro_hetzner` · `root@49.13.136.91` · dir `/opt/fulkro`). El clasificador lo gatea → pedir OK nombrando prod (el usuario ya autorizó el uso de la SSH key).
+- **BD dev DSN async**: `postgresql+asyncpg://fulkro_app:fulkro_app_dev_password@localhost:5433/fulkro`. Migraciones: `DATABASE_MIGRATE_URL` (fulkro_migrate). Para saltar RLS en harness/scripts: `SET ROLE fulkro_app_bypassrls`. Roles: `fulkro` (superuser, NO conecta por TCP sin pass), `fulkro_app` (runtime), `fulkro_app_bypassrls` (escape), `fulkro_migrate` (owner migraciones).
+
+### Worktree (no confundir)
+El repo canónico es **`/home/usuario/fulkro` rama `main`** (lo desplegado en prod). La divergencia con `/home/usuario/fulkro-portales` que mencionan memorias viejas es HISTÓRICA (ya mergeado a main). Trabajar SIEMPRE en `/home/usuario/fulkro`.
+
+---
+
 ## HECHOS VERIFICADOS EMPÍRICAMENTE (esta sesión · sustituyen a cualquier memoria)
 
 - **Rama de trabajo:** `fix/ens-enac-remediation-f0` (desde `main` `3226c404` == `origin/main` == prod Hetzner desplegado hoy 13:16). Remoto: `Fulkrodev/Fulkrosys` (privado).
