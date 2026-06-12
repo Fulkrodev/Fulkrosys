@@ -32,9 +32,8 @@ Quedan fuera del alcance los procesos no críticos cuyo cese durante una disrupc
 
 A partir del BIA se han identificado los siguientes procesos críticos con sus objetivos de recuperación:
 
-| Proceso crítico | RTO objetivo | RPO objetivo | Criticidad | Descripción |
-|---|---|---|---|---|
-{% for proc in procesos_criticos %}| {{ proc.nombre }} | {{ proc.rto }} | {{ proc.rpo }} | {{ proc.criticidad }} | {{ proc.descripcion }} |
+{% for proc in procesos_criticos %}
+- **{{ proc.nombre }}** ({{ proc.criticidad }}) — RTO objetivo: {{ proc.rto }} · RPO objetivo: {{ proc.rpo }}. {{ proc.descripcion }}
 {% endfor %}
 
 **RTO** (Recovery Time Objective): tiempo máximo aceptable entre la disrupción y la recuperación operativa del proceso.
@@ -44,9 +43,8 @@ A partir del BIA se han identificado los siguientes procesos críticos con sus o
 
 Para cada proceso crítico identificado se ha definido al menos una estrategia de continuidad alineada con su RTO/RPO:
 
-| Proceso | Estrategia seleccionada | Coste estimado | Responsable implantación | Plazo |
-|---|---|---|---|---|
-{% for est in estrategias %}| {{ est.proceso }} | {{ est.estrategia }} | {{ est.coste_estimado }} | {{ est.responsable }} | {{ est.plazo }} |
+{% for est in estrategias %}
+- **{{ est.proceso }}** — Estrategia: {{ est.estrategia }} · Coste estimado: {{ est.coste_estimado }} · Responsable: {{ est.responsable }} · Plazo: {{ est.plazo }}
 {% endfor %}
 
 Las estrategias contempladas por la Entidad incluyen, según aplique:

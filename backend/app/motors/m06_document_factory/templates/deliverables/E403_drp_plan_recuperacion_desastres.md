@@ -39,11 +39,10 @@ El DRP cubre los siguientes activos del sistema:
 
 ## 4. RTO/RPO POR SISTEMA CRÍTICO
 
-Los objetivos técnicos de recuperación derivados del BIA se concretan en la siguiente matriz:
+Los objetivos técnicos de recuperación derivados del BIA se concretan para cada sistema crítico:
 
-| Sistema | Función | RTO técnico | RPO técnico | Mecanismo recuperación |
-|---|---|---|---|---|
-{% for sis in sistemas_criticos %}| {{ sis.nombre }} | {{ sis.funcion }} | {{ sis.rto }} | {{ sis.rpo }} | {{ sis.mecanismo }} |
+{% for sis in sistemas_criticos %}
+- **{{ sis.nombre }}** — Función: {{ sis.funcion }} · RTO técnico: {{ sis.rto }} · RPO técnico: {{ sis.rpo }} · Mecanismo de recuperación: {{ sis.mecanismo }}
 {% endfor %}
 
 ## 5. ARQUITECTURA DE RECUPERACIÓN

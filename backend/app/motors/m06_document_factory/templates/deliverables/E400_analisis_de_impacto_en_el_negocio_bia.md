@@ -72,10 +72,10 @@ El impacto de la interrupción de cada proceso se valora en escala cualitativa, 
 
 | Nivel | Descripción |
 |---|---|
-| **CRÍTICO** | Impacto irrecuperable o de muy difícil reparación. Pérdidas económicas superiores a {{ bia.umbral_critico_eur | default('500.000') }} €. Sanciones regulatorias graves. Daño reputacional severo. |
-| **ALTO** | Impacto significativo pero recuperable. Pérdidas económicas entre {{ bia.umbral_alto_eur | default('100.000') }} y {{ bia.umbral_critico_eur | default('500.000') }} €. Incumplimiento de obligaciones contractuales relevantes. |
-| **MEDIO** | Impacto moderado. Pérdidas económicas entre {{ bia.umbral_medio_eur | default('25.000') }} y {{ bia.umbral_alto_eur | default('100.000') }} €. Retrasos operativos relevantes. |
-| **BAJO** | Impacto menor. Pérdidas económicas inferiores a {{ bia.umbral_medio_eur | default('25.000') }} €. Sin afectación a clientes externos. |
+| **CRÍTICO** | Impacto irrecuperable o de muy difícil reparación. Pérdidas económicas superiores a 500.000 €. Sanciones regulatorias graves. Daño reputacional severo. |
+| **ALTO** | Impacto significativo pero recuperable. Pérdidas económicas entre 100.000 y 500.000 €. Incumplimiento de obligaciones contractuales relevantes. |
+| **MEDIO** | Impacto moderado. Pérdidas económicas entre 25.000 y 100.000 €. Retrasos operativos relevantes. |
+| **BAJO** | Impacto menor. Pérdidas económicas inferiores a 25.000 €. Sin afectación a clientes externos. |
 
 ### 3.3 Definiciones operativas
 
@@ -93,10 +93,8 @@ d) **MBCO (Minimum Business Continuity Objective):** nivel mínimo de servicio q
 
 Se han identificado los siguientes procesos críticos para la operación de {{ cliente.razon_social }}:
 
-| ID | Proceso | Área responsable | Criticidad global |
-|---|---|---|---|
 {% for proceso in bia.procesos %}
-| P-{{ '%03d' % loop.index }} | {{ proceso.nombre }} | {{ proceso.area }} | {{ proceso.criticidad }} |
+- **P-{{ '%03d' % loop.index }} · {{ proceso.nombre }}** — Área responsable: {{ proceso.area }} · Criticidad global: {{ proceso.criticidad }}
 {% endfor %}
 
 ---
@@ -126,25 +124,21 @@ Se han identificado los siguientes procesos críticos para la operación de {{ c
 - {{ dep }}
 {% endfor %}
 
-**Análisis temporal del impacto de interrupción:**
+**Análisis temporal del impacto de interrupción** (operativo · económico · reputacional · legal):
 
-| Tiempo de interrupción | Impacto operativo | Impacto económico estimado | Impacto reputacional | Impacto legal/regulatorio |
-|---|---|---|---|---|
-| 1 hora | {{ proceso.impacto.h1.operativo }} | {{ proceso.impacto.h1.economico }} | {{ proceso.impacto.h1.reputacional }} | {{ proceso.impacto.h1.legal }} |
-| 4 horas | {{ proceso.impacto.h4.operativo }} | {{ proceso.impacto.h4.economico }} | {{ proceso.impacto.h4.reputacional }} | {{ proceso.impacto.h4.legal }} |
-| 8 horas | {{ proceso.impacto.h8.operativo }} | {{ proceso.impacto.h8.economico }} | {{ proceso.impacto.h8.reputacional }} | {{ proceso.impacto.h8.legal }} |
-| 24 horas | {{ proceso.impacto.h24.operativo }} | {{ proceso.impacto.h24.economico }} | {{ proceso.impacto.h24.reputacional }} | {{ proceso.impacto.h24.legal }} |
-| 72 horas | {{ proceso.impacto.h72.operativo }} | {{ proceso.impacto.h72.economico }} | {{ proceso.impacto.h72.reputacional }} | {{ proceso.impacto.h72.legal }} |
-| 1 semana | {{ proceso.impacto.s1.operativo }} | {{ proceso.impacto.s1.economico }} | {{ proceso.impacto.s1.reputacional }} | {{ proceso.impacto.s1.legal }} |
+- **1 hora:** {{ proceso.impacto.h1.operativo }} · {{ proceso.impacto.h1.economico }} · {{ proceso.impacto.h1.reputacional }} · {{ proceso.impacto.h1.legal }}
+- **4 horas:** {{ proceso.impacto.h4.operativo }} · {{ proceso.impacto.h4.economico }} · {{ proceso.impacto.h4.reputacional }} · {{ proceso.impacto.h4.legal }}
+- **8 horas:** {{ proceso.impacto.h8.operativo }} · {{ proceso.impacto.h8.economico }} · {{ proceso.impacto.h8.reputacional }} · {{ proceso.impacto.h8.legal }}
+- **24 horas:** {{ proceso.impacto.h24.operativo }} · {{ proceso.impacto.h24.economico }} · {{ proceso.impacto.h24.reputacional }} · {{ proceso.impacto.h24.legal }}
+- **72 horas:** {{ proceso.impacto.h72.operativo }} · {{ proceso.impacto.h72.economico }} · {{ proceso.impacto.h72.reputacional }} · {{ proceso.impacto.h72.legal }}
+- **1 semana:** {{ proceso.impacto.s1.operativo }} · {{ proceso.impacto.s1.economico }} · {{ proceso.impacto.s1.reputacional }} · {{ proceso.impacto.s1.legal }}
 
 **Objetivos de recuperación:**
 
-| Métrica | Valor |
-|---|---|
-| **RTO (Tiempo objetivo de recuperación)** | **{{ proceso.rto }}** |
-| **RPO (Punto objetivo de recuperación)** | **{{ proceso.rpo }}** |
-| **MTPD (Periodo máximo tolerable)** | {{ proceso.mtpd }} |
-| **MBCO (Nivel mínimo de continuidad)** | {{ proceso.mbco }} |
+- **RTO (Tiempo objetivo de recuperación):** {{ proceso.rto }}
+- **RPO (Punto objetivo de recuperación):** {{ proceso.rpo }}
+- **MTPD (Periodo máximo tolerable):** {{ proceso.mtpd }}
+- **MBCO (Nivel mínimo de continuidad):** {{ proceso.mbco }}
 
 {% endfor %}
 
@@ -152,10 +146,8 @@ Se han identificado los siguientes procesos críticos para la operación de {{ c
 
 ## 6. RESUMEN CONSOLIDADO DE RTO Y RPO
 
-| Proceso | RTO | RPO | Criticidad |
-|---|---|---|---|
 {% for proceso in bia.procesos %}
-| {{ proceso.nombre }} | {{ proceso.rto }} | {{ proceso.rpo }} | {{ proceso.criticidad }} |
+- **{{ proceso.nombre }}** — RTO: {{ proceso.rto }} · RPO: {{ proceso.rpo }} · Criticidad: {{ proceso.criticidad }}
 {% endfor %}
 
 ---
@@ -164,34 +156,26 @@ Se han identificado los siguientes procesos críticos para la operación de {{ c
 
 ### 7.1 Personal clave
 
-| Rol | Procesos a los que da soporte | Suplencia identificada |
-|---|---|---|
 {% for persona in bia.personal_clave %}
-| {{ persona.rol }} | {{ persona.procesos }} | {{ persona.suplencia | default('Sin suplencia identificada') }} |
+- **{{ persona.rol }}** — Procesos: {{ persona.procesos }} · Suplencia: {{ persona.suplencia | default('Sin suplencia identificada') }}
 {% endfor %}
 
 ### 7.2 Infraestructura tecnológica crítica
 
-| Recurso | Procesos a los que da soporte | RTO requerido |
-|---|---|---|
 {% for infra in bia.infraestructura_critica %}
-| {{ infra.nombre }} | {{ infra.procesos }} | {{ infra.rto }} |
+- **{{ infra.nombre }}** — Procesos: {{ infra.procesos }} · RTO requerido: {{ infra.rto }}
 {% endfor %}
 
 ### 7.3 Aplicaciones críticas
 
-| Aplicación | Función | RTO requerido | RPO requerido |
-|---|---|---|---|
 {% for app in bia.aplicaciones_criticas %}
-| {{ app.nombre }} | {{ app.funcion }} | {{ app.rto }} | {{ app.rpo }} |
+- **{{ app.nombre }}** — Función: {{ app.funcion }} · RTO: {{ app.rto }} · RPO: {{ app.rpo }}
 {% endfor %}
 
 ### 7.4 Proveedores críticos
 
-| Proveedor | Servicio prestado | Procesos a los que da soporte | Plan B |
-|---|---|---|---|
 {% for prov in bia.proveedores_criticos %}
-| {{ prov.nombre }} | {{ prov.servicio }} | {{ prov.procesos }} | {{ prov.plan_b | default('Sin plan B identificado') }} |
+- **{{ prov.nombre }}** — Servicio: {{ prov.servicio }} · Procesos: {{ prov.procesos }} · Plan B: {{ prov.plan_b | default('Sin plan B identificado') }}
 {% endfor %}
 
 ---
@@ -200,10 +184,8 @@ Se han identificado los siguientes procesos críticos para la operación de {{ c
 
 Se han considerado los siguientes escenarios de disrupción para evaluar la respuesta del Plan de Continuidad:
 
-| ID | Escenario | Probabilidad estimada | Impacto previsto |
-|---|---|---|---|
 {% for esc in bia.escenarios %}
-| ESC-{{ '%03d' % loop.index }} | {{ esc.descripcion }} | {{ esc.probabilidad }} | {{ esc.impacto }} |
+- **ESC-{{ '%03d' % loop.index }}:** {{ esc.descripcion }} — Probabilidad: {{ esc.probabilidad }} · Impacto: {{ esc.impacto }}
 {% endfor %}
 
 ### 8.1 Escenarios prioritarios
@@ -267,10 +249,8 @@ Se han identificado los siguientes puntos únicos de fallo que requieren atenci�
 
 A partir del presente análisis, se identifican las siguientes inversiones prioritarias para reforzar la continuidad del servicio:
 
-| Inversión | Justificación | Coste estimado | Prioridad |
-|---|---|---|---|
 {% for inv in bia.inversiones_recomendadas %}
-| {{ inv.descripcion }} | {{ inv.justificacion }} | {{ inv.coste }} | {{ inv.prioridad }} |
+- **{{ inv.descripcion }}** — Justificación: {{ inv.justificacion }} · Coste estimado: {{ inv.coste }} · Prioridad: {{ inv.prioridad }}
 {% endfor %}
 
 ---

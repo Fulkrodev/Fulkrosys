@@ -214,6 +214,71 @@ async def generate_informe_final_endpoint(
         raise HTTPException(status_code=500, detail=str(e))
 
 
+async def _generate_with_context(
+    db: AsyncSession, project_id: uuid.UUID, template_codigo: str, ctx: dict,
+) -> dict:
+    """Helper DRY: render + persist de un entregable con context auto-agregado."""
+    await _set_project_rls(project_id, db)
+    svc = DocumentFactoryService(db)
+    try:
+        result = await svc.generate_document(
+            project_id=project_id, template_codigo=template_codigo,
+            context=ctx, generate_pdf=False, sign=False, generated_by="system",
+        )
+        await db.commit()
+        return result
+    except (TemplateNotFoundError, TemplateFileMissingError) as e:
+        raise HTTPException(status_code=404, detail=str(e))
+    except MissingPlaceholderError as e:
+        raise HTTPException(status_code=422, detail=str(e))
+    except RenderError as e:  # pragma: no cover
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@router.post("/projects/{project_id}/bia/generate")
+async def generate_bia_endpoint(
+    project_id: uuid.UUID,
+    db: AsyncSession = Depends(get_db),
+):
+    """Genera el E-400 BIA con RTO/RPO/procesos críticos reales (R20).
+
+    ``build_bia_context`` agrega procesos críticos + RTO/RPO desde
+    ``bia_analyses`` + el cuestionario ``cliente_continuidad_input`` + servicios
+    m01 (fallback) + sedes + proveedores. Antes las tablas RTO/RPO salían vacías.
+    """
+    from .continuity_generator import build_bia_context
+
+    await _set_project_rls(project_id, db)
+    ctx = await build_bia_context(db, project_id)
+    return await _generate_with_context(db, project_id, "E-400", ctx)
+
+
+@router.post("/projects/{project_id}/continuity-strategies/generate")
+async def generate_continuity_endpoint(
+    project_id: uuid.UUID,
+    db: AsyncSession = Depends(get_db),
+):
+    """Genera el E-401 Estrategias de Continuidad (procesos + estrategias por RTO · R20)."""
+    from .continuity_generator import build_continuity_context
+
+    await _set_project_rls(project_id, db)
+    ctx = await build_continuity_context(db, project_id)
+    return await _generate_with_context(db, project_id, "E-401", ctx)
+
+
+@router.post("/projects/{project_id}/drp/generate")
+async def generate_drp_endpoint(
+    project_id: uuid.UUID,
+    db: AsyncSession = Depends(get_db),
+):
+    """Genera el E-403 DRP (sistemas críticos + ubicaciones primario/secundario · R20)."""
+    from .continuity_generator import build_drp_context
+
+    await _set_project_rls(project_id, db)
+    ctx = await build_drp_context(db, project_id)
+    return await _generate_with_context(db, project_id, "E-403", ctx)
+
+
 @router.post("/projects/{project_id}/alcance-sgsi/generate")
 async def generate_alcance_sgsi_endpoint(
     project_id: uuid.UUID,

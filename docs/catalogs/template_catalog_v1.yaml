@@ -1940,7 +1940,7 @@ templates:
   is_active: true
   stub_content: Informe formal de Red Team externa para categoria Alta.
 - codigo: E-400
-  nombre: Plan de Adecuacion (Analisis de Impacto BIA)
+  nombre: Analisis de Impacto en el Negocio (BIA)
   categoria: entregable
   familia_ens: null
   aplica_desde: null
@@ -1961,6 +1961,50 @@ templates:
       required: true
   is_active: true
   stub_content: Analisis de impacto en el negocio (BIA).
+- codigo: E-401
+  nombre: Estrategias de Continuidad de Negocio (ISO 22301)
+  categoria: entregable
+  familia_ens: null
+  aplica_desde: null
+  version_actual: '1.0'
+  fuente_md: docs/spec/F3_2_PLANTILLAS_ENTREGABLES_E001_E040_E050_E400 (1).md
+  placeholders_requeridos:
+    cliente.razon_social:
+      description: Razon social de la entidad
+      required: true
+    cliente.nif:
+      description: NIF de la entidad
+      required: true
+    proyecto.fecha_aprobacion_inicial:
+      description: Fecha de aprobacion
+      required: true
+    cliente.domicilio_social:
+      description: Cliente > Domicilio Social
+      required: true
+  is_active: true
+  stub_content: Estrategias de continuidad de negocio (op.cont.2 + ISO 22301).
+- codigo: E-403
+  nombre: Plan de Recuperacion de Desastres TIC (DRP)
+  categoria: entregable
+  familia_ens: null
+  aplica_desde: null
+  version_actual: '1.0'
+  fuente_md: docs/spec/F3_2_PLANTILLAS_ENTREGABLES_E001_E040_E050_E400 (1).md
+  placeholders_requeridos:
+    cliente.razon_social:
+      description: Razon social de la entidad
+      required: true
+    cliente.nif:
+      description: NIF de la entidad
+      required: true
+    proyecto.fecha_aprobacion_inicial:
+      description: Fecha de aprobacion
+      required: true
+    cliente.domicilio_social:
+      description: Cliente > Domicilio Social
+      required: true
+  is_active: true
+  stub_content: Plan de recuperacion de desastres TIC (op.cont.3 + ISO 22301).
 - codigo: E-090
   nombre: Anexo de Medidas de Seguridad (Tabla Resumen)
   categoria: entregable
