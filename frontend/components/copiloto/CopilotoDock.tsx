@@ -99,6 +99,16 @@ export function CopilotoDock({ hideOnPaths = [] }: Props) {
     };
   }, [open]);
 
+  // feat/fulkro-100 · copiloto cliente ÚNICO: cualquier CTA del portal
+  // (p.ej. WorkflowFAQContextual) abre ESTE dock global vía evento, en vez de
+  // montar un segundo copiloto. Consolidación (Marcos: "el cliente solo uno").
+  useEffect(() => {
+    const handler = () => setOpen(true);
+    window.addEventListener("fulkro:open-cliente-copiloto", handler);
+    return () =>
+      window.removeEventListener("fulkro:open-cliente-copiloto", handler);
+  }, []);
+
   useEffect(() => {
     if (scrollRef.current) {
       scrollRef.current.scrollTop = scrollRef.current.scrollHeight;

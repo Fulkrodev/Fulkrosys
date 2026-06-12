@@ -30,7 +30,6 @@ import { useRouter } from "next/navigation";
 import { ClientNextActionCard } from "@/components/client-portal/workflow/ClientNextActionCard";
 import { ClientUnblockedBanner } from "@/components/client-portal/workflow/ClientUnblockedBanner";
 import { MarcosPreparaSection } from "@/components/client-portal/workflow/MarcosPreparaSection";
-import { CopilotoClienteBottomRight } from "@/components/copiloto-cliente/CopilotoClienteBottomRight";
 import { EmptyState } from "@/components/ui/empty-state";
 import { TooltipENS } from "@/components/ui/tooltip-ens";
 import { WorkflowFAQContextual } from "@/components/workflow-guide-client/WorkflowFAQContextual";
@@ -55,7 +54,6 @@ export default function ClientWorkflowPage() {
   const [loadError, setLoadError] = useState<LoadErrorVariant | null>(null);
   const [detailStep, setDetailStep] = useState<EnrichedStepState | null>(null);
   const [detailOpen, setDetailOpen] = useState(false);
-  const [copilotoOpen, setCopilotoOpen] = useState(false);
 
   const openDetail = (step: EnrichedStepState) => {
     setDetailStep(step);
@@ -236,7 +234,9 @@ export default function ClientWorkflowPage() {
           />
 
           <WorkflowFAQContextual
-            onOpenCopiloto={() => setCopilotoOpen(true)}
+            onOpenCopiloto={() =>
+              window.dispatchEvent(new Event("fulkro:open-cliente-copiloto"))
+            }
           />
 
           <WorkflowStepDetailDrawerClient
@@ -244,17 +244,6 @@ export default function ClientWorkflowPage() {
             projectId={projectId ?? undefined}
             open={detailOpen}
             onOpenChange={setDetailOpen}
-          />
-
-          <CopilotoClienteBottomRight
-            projectId={projectId}
-            currentStepTitle={guideQuery.data.current_step?.title ?? null}
-            currentStepTemplateId={
-              guideQuery.data.current_step?.template_id ?? null
-            }
-            faseActual={guideQuery.data.fase}
-            controlledOpen={copilotoOpen}
-            onControlledOpenChange={setCopilotoOpen}
           />
         </>
       ) : null}
