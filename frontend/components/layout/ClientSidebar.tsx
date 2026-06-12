@@ -53,6 +53,7 @@ import {
   Home,
   ShieldAlert,
   LayoutDashboard,
+  LifeBuoy,
   LogOut,
   MessageCircle,
   MessageSquare,
@@ -145,6 +146,13 @@ const CLIENT_NAV_SECTIONS: NavSection[] = [
         label: "DPC anual",
         href: "/client-portal/dpc-anual",
         icon: CalendarClock,
+      },
+      {
+        // feat/fulkro-100 · continuidad de negocio (BIA/DRP): el cliente aporta
+        // su tolerancia (RTO/RPO) y aprueba su Plan de Continuidad.
+        label: "Continuidad",
+        href: "/client-portal/continuidad",
+        icon: LifeBuoy,
       },
     ],
   },

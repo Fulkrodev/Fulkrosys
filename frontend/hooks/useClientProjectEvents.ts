@@ -114,6 +114,12 @@ export type AccompanimentEventType = "accompaniment.state.advanced";
  */
 export type DocumentEventType = "document.uploaded";
 
+/**
+ * feat/fulkro-100 (2026-06-12) · continuidad BIA/DRP draft listo para aprobar.
+ * Marcos prepara el borrador → el cliente lo recibe en realtime.
+ */
+export type ContinuidadEventType = "continuidad.draft_ready";
+
 export type ClientSseEventType =
   | "step_completed"
   | "step_unblocked"
