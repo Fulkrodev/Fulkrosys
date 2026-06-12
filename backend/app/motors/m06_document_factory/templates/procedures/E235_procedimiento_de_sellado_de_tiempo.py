@@ -1,6 +1,6 @@
-"""Template E-235 — PROCEDIMIENTO DE SELLADO DE TIEMPO (#37 mp.info.5).
+"""Template E-235 — PROCEDIMIENTO DE SELLADO DE TIEMPO (#37 mp.info.4).
 
-Materializa la medida mp.info.5 (Sellos de tiempo) del Anexo II del RD 311/2022,
+Materializa la medida mp.info.4 (Sellos de tiempo) del Anexo II del RD 311/2022,
 refuerzo exigible solo a categoria ALTA. Procedimiento documentado ahora; la TSA
 cualificada eIDAS / RFC 3161 se contrata e integra en el primer proyecto ALTA
 (ver Future-X sellado). Body cargado literal del .md (Jinja2 + docxtpl).
