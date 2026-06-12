@@ -18,6 +18,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Textarea } from "@/components/ui/textarea";
+import { SafeMarkdown } from "@/lib/client-messages/markdown";
 import {
   getNormaHistory,
   getNormaLatest,
@@ -98,9 +99,9 @@ export default function NormaDetailPage() {
               <CardTitle>Último reporte</CardTitle>
             </CardHeader>
             <CardContent>
-              <pre className="max-h-[480px] overflow-auto whitespace-pre-wrap rounded-md border border-fulkro-ink-200 bg-fulkro-ink-50 p-4 text-sm text-fulkro-ink-800">
-                {latest.data.report_md_content}
-              </pre>
+              <div className="max-h-[480px] overflow-auto rounded-md border border-fulkro-ink-200 bg-fulkro-ink-50 p-4 text-sm text-fulkro-ink-800">
+                <SafeMarkdown body={latest.data.report_md_content} />
+              </div>
               <div className="mt-4 flex flex-col gap-2">
                 {latest.data.reviewed_by_marcos_at ? (
                   <p className="inline-flex items-center gap-1 text-sm text-fulkro-ink-600">

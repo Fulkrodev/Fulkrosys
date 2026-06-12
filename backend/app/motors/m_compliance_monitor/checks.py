@@ -1,4 +1,4 @@
-"""19 named compliance checks (17 base atom 9.bis.6 + 2 atom 10.1 MB-10).
+"""21 named compliance checks (17 base atom 9.bis.6 + 2 atom 10.1 MB-10 + 2 ENS op.mon.1/op.acc.5).
 
 Atom 10.1 (MB-10) adds 2 checks honoring docs Block 1 commitments:
 - ``check_admin_actions_audit_logged`` (ENS art.24.1 + ISO 27001 A.8.20 ·

@@ -380,7 +380,7 @@ export default function ComplianceLandingPage() {
               className="inline-flex items-center gap-1 text-xs font-medium text-fulkro-info hover:underline"
               data-testid="fulkro-own-m04-gaps-link"
             >
-              Ver detalle 19 checks
+              Ver detalle 21 checks
               <ArrowRight className="h-3 w-3" />
             </Link>
           </article>
@@ -400,7 +400,7 @@ export default function ComplianceLandingPage() {
               </Badge>
             </header>
             <p className="mb-3 text-xs text-fulkro-ink-600">
-              Declaración de Aplicabilidad firmada Ed25519 sobre las 73 medidas
+              Declaración de Aplicabilidad firmada Ed25519 sobre las 68 medidas
               ENS Medio aplicadas a la plataforma propia.
             </p>
             <p
