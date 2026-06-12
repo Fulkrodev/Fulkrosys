@@ -27,6 +27,10 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 
+from backend.app.motors.m06_document_factory.template_registry import (
+    TEMPLATE_REGISTRY,
+)
+
 
 @dataclass(slots=True, frozen=True)
 class DocumentationLevel:
@@ -37,6 +41,27 @@ class DocumentationLevel:
     description: str
     approver_role: str
     template_codes: tuple[str, ...]
+
+
+# R25 · los codes de cada nivel se DERIVAN del registry (drift-proof) en vez de
+# listas hardcodeadas que se quedaban incompletas (LEVEL_3 listaba 14 de 39 POS).
+# Nivel 2 (normativas) = políticas E-1xx salvo la PSI (E-100 · nivel 1) y los
+# documentos rectores del SGSI (E-150/160/170/180 · planes/manual, no normativas
+# de personal). Nivel 3 (procedimientos) = TODOS los templates type=procedures.
+_RECTORES_SGSI = frozenset({"E-150", "E-160", "E-170", "E-180"})
+
+_NORMATIVAS_CODES: tuple[str, ...] = tuple(sorted(
+    code for code, meta in TEMPLATE_REGISTRY.items()
+    if meta.get("type") == "policies"
+    and code.startswith("E-1")
+    and code != "E-100"
+    and code not in _RECTORES_SGSI
+))
+
+_PROCEDURE_CODES: tuple[str, ...] = tuple(sorted(
+    code for code, meta in TEMPLATE_REGISTRY.items()
+    if meta.get("type") == "procedures"
+))
 
 
 # Mapping codes existentes M06 templates_registry.py → nivel canónico.
@@ -68,32 +93,10 @@ LEVEL_2_NORMATIVAS = DocumentationLevel(
         "generativa · BYOD · cifrado · etc."
     ),
     approver_role="Responsable Seguridad (RSEG)",
-    template_codes=(
-        "E-101",  # control de acceso
-        "E-102",  # contraseñas y autenticación
-        "E-103",  # uso aceptable de los recursos
-        "E-104",  # clasificación y tratamiento de la info
-        "E-105",  # tratamiento datos personales RGPD
-        "E-106",  # copias de seguridad
-        "E-107",  # cifrado y gestión claves
-        "E-108",  # gestión de incidentes
-        "E-109",  # continuidad del servicio
-        "E-110",  # teletrabajo y movilidad
-        "E-111",  # uso servicios cloud
-        "E-112",  # seguridad relaciones proveedores
-        "E-113",  # adquisición de tecnología
-        "E-114",  # desarrollo seguro SSDLC
-        "E-115",  # gestión de vulnerabilidades
-        "E-116",  # gestión de cambios
-        "E-117",  # gestión privilegios y PAM
-        "E-118",  # BYOD
-        "E-119",  # respuesta a brechas datos personales
-        "E-121",  # redes y comunicaciones
-        "E-123",  # seguridad física
-        "E-124",  # seguridad del personal
-        "E-125",  # mesa limpia y pantalla limpia
-        "E-126",  # borrado seguro y destrucción
-    ),
+    # R25 · derivado del registry (E-1xx normativas · excl. PSI E-100 y rectores
+    # E-150/160/170/180). Antes era una lista hardcodeada que omitía E-120/E-122/
+    # E-127 y se desincronizaba al añadir normativas.
+    template_codes=_NORMATIVAS_CODES,
 )
 
 LEVEL_3_PROCEDIMIENTOS = DocumentationLevel(
@@ -109,25 +112,10 @@ LEVEL_3_PROCEDIMIENTOS = DocumentationLevel(
         "revisión criptográfica (CCN-STIC 807)."
     ),
     approver_role="RSEG + RSIS",
-    template_codes=(
-        # Identificados desde M06 templates/procedures/ (E2xx)
-        "E-200",  # alta de personal
-        "E-201",  # baja de personal
-        "E-202",  # cambio de rol
-        "E-203",  # gestión de cambios
-        "E-204",  # gestión de incidentes
-        "E-204A",  # recopilación + custodia evidencias
-        "E-205",  # gestión vulnerabilidades + parches
-        "E-206",  # aplicación de parches
-        "E-207",  # copias de seguridad + restauración
-        "E-208",  # restauración
-        "E-209",  # pruebas continuidad
-        "E-210",  # revisión periódica accesos
-        "E-211",  # gestión cuentas privilegiadas
-        "E-212",  # respuesta a brechas RGPD
-        "E-213",  # notificación brechas a AEPD
-        # Otros procedures E2xx (lista completa derivada catalog_loader)
-    ),
+    # R25 · derivado del registry · TODOS los type=procedures (39 POS, incl.
+    # E-204-A, E-PF-001, E-IT-001). Antes listaba solo 14 (y con el code mal
+    # escrito "E-204A" en vez de "E-204-A") → omitía la mayoría de los POS.
+    template_codes=_PROCEDURE_CODES,
 )
 
 LEVEL_4_INSTRUCCIONES = DocumentationLevel(
@@ -177,4 +165,85 @@ def levels_summary() -> list[dict]:
             "template_count": len(lvl.template_codes),
         }
         for lvl in DOCUMENTATION_LEVELS
+    ]
+
+
+# ---------------------------------------------------------------------------
+# R25 · POS-set acumulativo por categoría ENS (BÁSICA ⊆ MEDIA ⊆ ALTA)
+# ---------------------------------------------------------------------------
+# Las categorías ENS son acumulativas: un sistema MEDIA exige todo lo de BÁSICA
+# más refuerzos, y ALTA todo lo de MEDIA más los suyos. Espeja el patrón ya
+# usado para las normativas en policy_signoff_service (POLICIES_BASICA/MEDIA/
+# ALTA). Curado (refinable como las políticas); las invariantes (monotonía +
+# ALTA == todos los POS + códigos válidos) están blindadas por test.
+
+# Refuerzos solo-ALTA (no aplican en MEDIA). E-235 = sellos de tiempo
+# (mp.info.4 · refuerzo solo-ALTA · ver remediación R10).
+_POS_ALTA_ONLY: frozenset[str] = frozenset({"E-235"})
+
+# Núcleo operativo exigible ya en BÁSICA (personal · incidentes+evidencias ·
+# vulnerabilidades+parches · copias+restauración · revisión de accesos · brechas
+# RGPD · destrucción y soportes · info documentada · auditoría interna · no
+# conformidades · concienciación/formación).
+_POS_BASICA: tuple[str, ...] = (
+    "E-200",    # alta de personal
+    "E-201",    # baja de personal
+    "E-204",    # gestión de incidentes
+    "E-204-A",  # recopilación + custodia de evidencias
+    "E-205",    # gestión de vulnerabilidades + parches
+    "E-206",    # aplicación de parches
+    "E-207",    # copias de seguridad + restauración
+    "E-208",    # restauración
+    "E-210",    # revisión periódica de accesos
+    "E-212",    # respuesta a brechas RGPD
+    "E-213",    # notificación de brechas a la AEPD
+    "E-214",    # destrucción segura
+    "E-215",    # gestión de soportes extraíbles
+    "E-218",    # auditoría interna del SGSI
+    "E-220",    # gestión de no conformidades
+    "E-221",    # gestión de la información documentada
+    "E-PF-001",  # concienciación y formación (mp.per.3/4)
+)
+
+
+def _basica_pos() -> tuple[str, ...]:
+    # Solo los que existen en el registry (defensivo ante renombrados).
+    present = set(_PROCEDURE_CODES)
+    return tuple(c for c in _POS_BASICA if c in present)
+
+
+# ALTA = todos los POS del registry. MEDIA = ALTA menos los refuerzos solo-ALTA.
+PROCEDURES_ALTA: tuple[str, ...] = _PROCEDURE_CODES
+PROCEDURES_MEDIA: tuple[str, ...] = tuple(
+    c for c in _PROCEDURE_CODES if c not in _POS_ALTA_ONLY
+)
+PROCEDURES_BASICA: tuple[str, ...] = _basica_pos()
+
+POS_BY_CATEGORIA: dict[str, tuple[str, ...]] = {
+    "BASICA": PROCEDURES_BASICA,
+    "MEDIA": PROCEDURES_MEDIA,
+    "ALTA": PROCEDURES_ALTA,
+}
+
+
+def procedures_for_categoria(categoria: str) -> tuple[str, ...]:
+    """POS (procedimientos) exigibles acumulativamente para la categoría ENS.
+
+    Devuelve el set ACUMULATIVO (BÁSICA ⊆ MEDIA ⊆ ALTA). ``categoria`` se
+    normaliza (mayúsculas/acentos). Categoría desconocida → set de BÁSICA
+    (conservador · nunca vacío).
+    """
+    key = (categoria or "").strip().upper().replace("Á", "A")
+    return POS_BY_CATEGORIA.get(key, PROCEDURES_BASICA)
+
+
+def pos_set_summary() -> list[dict]:
+    """Resumen serializable del POS-set acumulativo por categoría (frontend)."""
+    return [
+        {
+            "categoria": cat,
+            "pos_codes": list(codes),
+            "pos_count": len(codes),
+        }
+        for cat, codes in POS_BY_CATEGORIA.items()
     ]

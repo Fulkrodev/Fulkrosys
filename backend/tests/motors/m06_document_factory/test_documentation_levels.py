@@ -31,11 +31,19 @@ def test_level_2_normativas_contains_e1xx():
     assert "E-100" not in normativas.template_codes
 
 
-def test_level_3_procedimientos_contains_e2xx():
-    """Nivel 3 procedimientos · E-2xx series."""
+def test_level_3_procedimientos_complete():
+    """Nivel 3 procedimientos · E-2xx + POS separados (R25 drift-proof).
+
+    Tras R25 el Nivel 3 se deriva del registry (todos los type=procedures), lo
+    que incluye además de la serie E-2xx los POS separados de su .md padre en
+    R13 (E-PF-001 concienciación, E-IT-001 hardening · codes no-E2xx).
+    """
     procs = next(l for l in DOCUMENTATION_LEVELS if l.level == 3)
-    assert all(c.startswith("E-2") for c in procs.template_codes)
-    assert "E-204" in procs.template_codes  # gestión incidentes
+    assert "E-204" in procs.template_codes  # gestión incidentes (E-2xx)
+    assert "E-PF-001" in procs.template_codes  # split R13 · no es E-2xx
+    assert "E-IT-001" in procs.template_codes  # split R13 · no es E-2xx
+    # el grueso sigue siendo la serie E-2xx
+    assert sum(c.startswith("E-2") for c in procs.template_codes) >= 30
 
 
 def test_level_4_instrucciones_empty_per_cliente():
