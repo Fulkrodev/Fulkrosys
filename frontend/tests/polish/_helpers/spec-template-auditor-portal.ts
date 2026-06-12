@@ -59,10 +59,21 @@ export async function runAuditorPortalProbe(
     testInfo.skip(true, "AUDITOR_PORTAL_TOKEN env var required");
     return;
   }
+  const otp = process.env.AUDITOR_PORTAL_OTP;
   const targetUrl = `/auditor-portal/${token}/${config.subPath}`;
 
   await page.goto(targetUrl);
   await page.waitForLoadState("domcontentloaded");
+
+  // OTP step-up gate (feat/fulkro-100): si aparece el gate y tenemos el código,
+  // lo pasamos para llegar a la vista real. Robusto: si no hay gate, continúa.
+  const otpInput = page.getByTestId("auditor-otp-input");
+  if (otp && (await otpInput.isVisible().catch(() => false))) {
+    await otpInput.fill(otp);
+    await page.getByTestId("auditor-otp-submit").click();
+    await otpInput.waitFor({ state: "hidden", timeout: 8000 }).catch(() => {});
+  }
+
   await page.waitForLoadState("networkidle", { timeout: 5000 }).catch(() => {});
   await page.waitForTimeout(500);
 

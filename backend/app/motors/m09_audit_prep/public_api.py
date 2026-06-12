@@ -34,7 +34,8 @@ from datetime import datetime, timezone
 from typing import Any
 
 import jwt as pyjwt
-from fastapi import APIRouter, Depends, HTTPException, Request, status as http_status
+from fastapi import APIRouter, Body, Depends, HTTPException, Request, status as http_status
+from pydantic import BaseModel, Field
 from loguru import logger
 from sqlalchemy import select, text as sa_text
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -343,6 +344,8 @@ async def auditor_portal_metadata(
                 if ctx.magic_link.expira_at else None,
             "max_uses": ctx.magic_link.max_usos,
             "current_uses": ctx.magic_link.usos,
+            # feat/fulkro-100 · el frontend muestra el gate de OTP si True.
+            "otp_required": bool(ctx.magic_link.otp_hash),
         },
         "available_sections": [
             "summary", "dda", "magerit", "plan", "evidence",
@@ -354,16 +357,58 @@ async def auditor_portal_metadata(
     }
 
 
+class AuditorSessionStartRequest(BaseModel):
+    otp: str | None = Field(None, min_length=4, max_length=10)
+
+
 @router.post("/{token}/session")
 async def auditor_portal_session_start(
-    token: str, request: Request, db: AsyncSession = Depends(get_db),
+    token: str,
+    request: Request,
+    body: AuditorSessionStartRequest = Body(
+        default_factory=AuditorSessionStartRequest,
+    ),
+    db: AsyncSession = Depends(get_db),
 ) -> dict[str, Any]:
     """Emit auditor.session.start event + increment usos (formal session begin).
 
-    Llamado UNA VEZ desde frontend tras consume OTP en landing page · marca
-    session start formal · subsequent GETs en Phase 5 views peek-only.
+    Step-up OTP (feat/fulkro-100): si el magic-link exige OTP
+    (AUDITOR_PORTAL_ENAC · requires_otp=True), el auditor DEBE aportar el código
+    recibido por email para ARRANCAR la sesión (mirror m08 verify_auth_submit).
+    El frontend gatea la entrada al portal en este paso. Las vistas siguen
+    token-bounded (el token es el secreto fuerte · revocable · 14d · rate-limited);
+    el gate per-vista (cookie-proof) queda como Future-1.F.auditor-otp-per-view.
     """
     ctx = await _validate_token_peek(token, request, db)
+
+    # ── OTP step-up (si el link lo exige · mirror m08 verify_auth_submit) ──
+    if ctx.magic_link.otp_hash:
+        if not body.otp:
+            raise HTTPException(
+                status_code=http_status.HTTP_422_UNPROCESSABLE_ENTITY,
+                detail="Falta el código de acceso (OTP)",
+            )
+        from backend.app.motors.m12_magic_link.service import (
+            OTP_FAILURE_THRESHOLD,
+            _hash_otp,
+        )
+        if ctx.magic_link.otp_failures >= OTP_FAILURE_THRESHOLD:
+            raise HTTPException(
+                status_code=403,
+                detail="Código de acceso bloqueado tras varios intentos",
+            )
+        if _hash_otp(body.otp) != ctx.magic_link.otp_hash:
+            ctx.magic_link.otp_failures += 1
+            await _log_portal_access(
+                db, ctx, "auditor.session.otp_failed",
+                {"attempt": ctx.magic_link.otp_failures},
+            )
+            await db.commit()
+            raise HTTPException(
+                status_code=403, detail="Código de acceso inválido",
+            )
+        ctx.magic_link.otp_failures = 0
+
     # Increment usos (formal session start consumes 1 use)
     ctx.magic_link.usos = (ctx.magic_link.usos or 0) + 1
     await _log_portal_access(db, ctx, "auditor.session.start")

@@ -40,6 +40,8 @@ export interface AuditorPortalTokenMeta {
   expires_at: string | null;
   max_uses: number | null;
   current_uses: number;
+  /** feat/fulkro-100 · si True el frontend exige el código OTP antes de entrar. */
+  otp_required?: boolean;
 }
 
 export type AuditorPortalSection =
@@ -73,12 +75,17 @@ export async function getAuditorPortalMetadata(
   return api<AuditorPortalMetadata>(`${BASE}/${token}`);
 }
 
-/** Formal session start · consume 1 use · emit auditor.session.start. */
+/**
+ * Formal session start · consume 1 use · emit auditor.session.start.
+ * Step-up OTP (feat/fulkro-100): si el link exige OTP se aporta el código
+ * recibido por email; sin él (o incorrecto) el backend devuelve 422/403.
+ */
 export async function startAuditorPortalSession(
   token: string,
+  otp?: string,
 ): Promise<AuditorPortalSessionStart> {
   return api<AuditorPortalSessionStart>(`${BASE}/${token}/session`, {
-    json: {},
+    json: otp ? { otp } : {},
   });
 }
 

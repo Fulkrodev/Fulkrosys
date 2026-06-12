@@ -105,7 +105,8 @@ async def test_session_start_consumes_use_and_emits_event(async_client, db):
     await db.commit()
 
     r = await async_client.post(
-        f"/api/v1/public/auditor-portal/{resp.token}/session", json={},
+        f"/api/v1/public/auditor-portal/{resp.token}/session",
+        json={"otp": resp.otp},
     )
     assert r.status_code == 200, r.text
     body = r.json()
@@ -125,6 +126,46 @@ async def test_session_start_consumes_use_and_emits_event(async_client, db):
     assert rows[0] == "auditor.session.start"
     assert str(rows[1]) == project_id
     assert rows[2] is not None, "client_id debe poblarse para RLS isolation"
+
+
+async def test_session_without_otp_rejected(async_client, db):
+    """feat/fulkro-100 · /session SIN OTP en link AUDITOR_PORTAL_ENAC → 422."""
+    _, project_id = await setup_test_project(db)
+    resp = await _create_link(
+        db, project_id=project_id, purpose=MagicLinkPurpose.AUDITOR_PORTAL_ENAC,
+    )
+    await db.commit()
+    r = await async_client.post(
+        f"/api/v1/public/auditor-portal/{resp.token}/session", json={},
+    )
+    assert r.status_code == 422, r.text
+
+
+async def test_session_wrong_otp_rejected(async_client, db):
+    """feat/fulkro-100 · /session con OTP incorrecto → 403."""
+    _, project_id = await setup_test_project(db)
+    resp = await _create_link(
+        db, project_id=project_id, purpose=MagicLinkPurpose.AUDITOR_PORTAL_ENAC,
+    )
+    await db.commit()
+    wrong = "000000" if resp.otp != "000000" else "111111"
+    r = await async_client.post(
+        f"/api/v1/public/auditor-portal/{resp.token}/session",
+        json={"otp": wrong},
+    )
+    assert r.status_code == 403, r.text
+
+
+async def test_metadata_exposes_otp_required(async_client, db):
+    """feat/fulkro-100 · metadata expone otp_required=True para el gate frontend."""
+    _, project_id = await setup_test_project(db)
+    resp = await _create_link(
+        db, project_id=project_id, purpose=MagicLinkPurpose.AUDITOR_PORTAL_ENAC,
+    )
+    await db.commit()
+    r = await async_client.get(f"/api/v1/public/auditor-portal/{resp.token}")
+    assert r.status_code == 200, r.text
+    assert r.json()["token_meta"]["otp_required"] is True
 
 
 async def test_metadata_emits_audit_log_view_event(async_client, db):

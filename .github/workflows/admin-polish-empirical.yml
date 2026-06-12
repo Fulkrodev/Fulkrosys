@@ -422,9 +422,12 @@ jobs:
         run: |
           set -euo pipefail
           curl -fsS -X POST http://localhost:8000/api/v1/_dev/create-test-client > /dev/null
-          TOKEN=$(curl -fsS -X POST http://localhost:8000/api/v1/_dev/auditor-portal-token | python3 -c "import sys,json; print(json.load(sys.stdin)['token'])")
+          RESP=$(curl -fsS -X POST http://localhost:8000/api/v1/_dev/auditor-portal-token)
+          TOKEN=$(echo "$RESP" | python3 -c "import sys,json; print(json.load(sys.stdin)['token'])")
+          OTP=$(echo "$RESP" | python3 -c "import sys,json; print(json.load(sys.stdin).get('otp') or '')")
           echo "AUDITOR_PORTAL_TOKEN=${TOKEN}" >> "$GITHUB_ENV"
-          echo "auditor token minted (len $(echo -n $TOKEN | wc -c))"
+          echo "AUDITOR_PORTAL_OTP=${OTP}" >> "$GITHUB_ENV"
+          echo "auditor token minted (len $(echo -n $TOKEN | wc -c)) · otp $([ -n "$OTP" ] && echo present || echo none)"
 
       - name: Install frontend deps
         working-directory: frontend
