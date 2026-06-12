@@ -50,6 +50,8 @@ from backend.app.motors.m01_categorization.signature_integration import (
     SignatureIntegrationError,
     request_acta_signature,
     get_signature_status,
+    request_acta_double_signature,
+    get_acta_double_signature_status,
 )
 
 router = APIRouter(
@@ -849,7 +851,6 @@ async def get_acta_e012_pdf(
     para convertir a PDF. Pipeline reusable via core/pdf_renderer.py.
     """
     from fastapi.responses import Response as FastAPIResponse
-    from backend.app.core.pdf_renderer import PDFRenderer, PDFRenderError
 
     system = await _get_system_with_rls(system_id, db)
 
@@ -864,88 +865,42 @@ async def get_acta_e012_pdf(
     if not cat:
         raise HTTPException(status_code=404, detail="Sistema no categorizado. Ejecute categorize primero.")
 
-    # Re-compute to get dimension details
-    cat_svc = CategorizationService(db)
-    result = await cat_svc.compute_for_system(system_id)
-
-    # Load client + project names
-    proj_row = await db.execute(
-        text("SELECT nombre FROM projects WHERE id = :pid"),
-        {"pid": str(system.project_id)},
-    )
-    project_name = proj_row.scalar_one_or_none() or "Proyecto"
-
-    client_row = await db.execute(
-        text("SELECT c.nombre, c.cif FROM clients c JOIN projects p ON p.client_id = c.id WHERE p.id = :pid"),
-        {"pid": str(system.project_id)},
-    )
-    client_data = client_row.mappings().first()
-
-    # Load active info_types + services for context
-    info_types = (await db.execute(
-        select(InformationType).where(
-            InformationType.system_id == system_id,
-            InformationType.deleted_at.is_(None),
-        )
-    )).scalars().all()
-    services_list = (await db.execute(
-        select(Service).where(
-            Service.system_id == system_id,
-            Service.deleted_at.is_(None),
-        )
-    )).scalars().all()
-
-    from datetime import date
-    context = {
-        "fecha_acta": date.today().isoformat(),
-        "cliente_nombre": client_data["nombre"] if client_data else "",
-        "cliente_cif": client_data["cif"] if client_data else "",
-        "proyecto_nombre": project_name,
-        "sistema_nombre": system.nombre,
-        "sistema_descripcion": system.descripcion or "",
-        "information_types": [
-            {
-                "nombre": it.nombre,
-                "valoraciones": {
-                    "D": it.valoracion_d or "BAJO",
-                    "I": it.valoracion_i or "BAJO",
-                    "C": it.valoracion_c or "BAJO",
-                    "A": it.valoracion_a or "BAJO",
-                    "T": it.valoracion_t or "BAJO",
-                },
-            }
-            for it in info_types
-        ],
-        "services": [
-            {
-                "nombre": s.nombre,
-                "valoraciones": {
-                    "D": s.valoracion_d or "BAJO",
-                    "I": s.valoracion_i or "BAJO",
-                    "C": s.valoracion_c or "BAJO",
-                    "A": s.valoracion_a or "BAJO",
-                    "T": s.valoracion_t or "BAJO",
-                },
-            }
-            for s in services_list
-        ],
-        "resultado": {
-            dim: result.dimension_assessments[dim].value
-            for dim in ["D", "I", "C", "A", "T"]
-        },
-        "categoria_final": result.category.value,
-        "justificacion": result.justification,
-        "aprobado_por": cat.aprobado_por or "",
-    }
-
+    # R03-wiring · CANÓNICO: plantilla m06 E-012 (doble firma competente art.40.2
+    # RD 311/2022 · RInfo+RServ aprueban, RSeg conforme) + contexto m06 desde m01.
+    # Reemplaza la variante B (acta_e012_provisional.docx · firmantes incorrectos).
+    # Render por el pipeline m06 (render_docx aplica marca/firmas/filtros ES, que
+    # PDFRenderer estricto NO inyecta) → PDF vía convert_docx_to_pdf (LibreOffice).
+    import tempfile
     from pathlib import Path
-    template_path = Path(__file__).resolve().parents[2] / "templates" / "acta_e012_provisional.docx"
 
+    from backend.app.motors.m06_document_factory.acta_e012_generator import (
+        build_e012_context,
+    )
+    from backend.app.motors.m06_document_factory.rendering import (
+        convert_docx_to_pdf,
+        render_docx,
+    )
+
+    context, _ = await build_e012_context(db, system_id)
+    template_path = (
+        Path(__file__).resolve().parents[4] / "var" / "templates_docx" / "E-012.docx"
+    )
     try:
-        async with PDFRenderer() as renderer:
-            docx_bytes, pdf_bytes = await renderer.render(template_path, context)
-    except PDFRenderError as e:
-        raise HTTPException(status_code=500, detail=f"Error generando PDF: {e}")
+        with tempfile.TemporaryDirectory(prefix="fulkro_acta_e012_") as td:
+            tdp = Path(td)
+            docx_out = tdp / "acta_e012.docx"
+            render_docx(template_path, context, docx_out)
+            pdf_path = convert_docx_to_pdf(docx_out, tdp)
+            if pdf_path is None:
+                raise HTTPException(
+                    status_code=503,
+                    detail="Conversión a PDF no disponible (LibreOffice).",
+                )
+            pdf_bytes = pdf_path.read_bytes()
+    except HTTPException:
+        raise
+    except Exception as e:  # pragma: no cover — render/convert hard failure
+        raise HTTPException(status_code=500, detail=f"Error generando PDF del acta E-012: {e}")
 
     return FastAPIResponse(
         content=pdf_bytes,
@@ -967,7 +922,6 @@ async def get_acta_e012_docx(
 ):
     """Genera el Acta E-012 en formato DOCX para edicion por el responsable ENS."""
     from fastapi.responses import Response as FastAPIResponse
-    from backend.app.core.pdf_renderer import PDFRenderer, PDFRenderError
 
     system = await _get_system_with_rls(system_id, db)
 
@@ -981,85 +935,27 @@ async def get_acta_e012_docx(
     if not cat:
         raise HTTPException(status_code=404, detail="Sistema no categorizado. Ejecute categorize primero.")
 
-    cat_svc = CategorizationService(db)
-    result = await cat_svc.compute_for_system(system_id)
-
-    proj_row = await db.execute(
-        text("SELECT nombre FROM projects WHERE id = :pid"),
-        {"pid": str(system.project_id)},
-    )
-    project_name = proj_row.scalar_one_or_none() or "Proyecto"
-
-    client_row = await db.execute(
-        text("SELECT c.nombre, c.cif FROM clients c JOIN projects p ON p.client_id = c.id WHERE p.id = :pid"),
-        {"pid": str(system.project_id)},
-    )
-    client_data = client_row.mappings().first()
-
-    info_types = (await db.execute(
-        select(InformationType).where(
-            InformationType.system_id == system_id,
-            InformationType.deleted_at.is_(None),
-        )
-    )).scalars().all()
-    services_list = (await db.execute(
-        select(Service).where(
-            Service.system_id == system_id,
-            Service.deleted_at.is_(None),
-        )
-    )).scalars().all()
-
-    from datetime import date
-    context = {
-        "fecha_acta": date.today().isoformat(),
-        "cliente_nombre": client_data["nombre"] if client_data else "",
-        "cliente_cif": client_data["cif"] if client_data else "",
-        "proyecto_nombre": project_name,
-        "sistema_nombre": system.nombre,
-        "sistema_descripcion": system.descripcion or "",
-        "information_types": [
-            {
-                "nombre": it.nombre,
-                "valoraciones": {
-                    "D": it.valoracion_d or "BAJO",
-                    "I": it.valoracion_i or "BAJO",
-                    "C": it.valoracion_c or "BAJO",
-                    "A": it.valoracion_a or "BAJO",
-                    "T": it.valoracion_t or "BAJO",
-                },
-            }
-            for it in info_types
-        ],
-        "services": [
-            {
-                "nombre": s.nombre,
-                "valoraciones": {
-                    "D": s.valoracion_d or "BAJO",
-                    "I": s.valoracion_i or "BAJO",
-                    "C": s.valoracion_c or "BAJO",
-                    "A": s.valoracion_a or "BAJO",
-                    "T": s.valoracion_t or "BAJO",
-                },
-            }
-            for s in services_list
-        ],
-        "resultado": {
-            dim: result.dimension_assessments[dim].value
-            for dim in ["D", "I", "C", "A", "T"]
-        },
-        "categoria_final": result.category.value,
-        "justificacion": result.justification,
-        "aprobado_por": cat.aprobado_por or "",
-    }
-
+    # R03-wiring · CANÓNICO: plantilla m06 E-012 (doble firma art.40.2) + contexto
+    # m06 desde m01 · render por el pipeline m06 (marca/firmas/filtros ES).
+    import tempfile
     from pathlib import Path
-    template_path = Path(__file__).resolve().parents[2] / "templates" / "acta_e012_provisional.docx"
 
+    from backend.app.motors.m06_document_factory.acta_e012_generator import (
+        build_e012_context,
+    )
+    from backend.app.motors.m06_document_factory.rendering import render_docx
+
+    context, _ = await build_e012_context(db, system_id)
+    template_path = (
+        Path(__file__).resolve().parents[4] / "var" / "templates_docx" / "E-012.docx"
+    )
     try:
-        async with PDFRenderer() as renderer:
-            docx_bytes = await renderer.render_docx_only(template_path, context)
-    except PDFRenderError as e:
-        raise HTTPException(status_code=500, detail=f"Error generando DOCX: {e}")
+        with tempfile.TemporaryDirectory(prefix="fulkro_acta_e012_") as td:
+            docx_out = Path(td) / "acta_e012.docx"
+            render_docx(template_path, context, docx_out)
+            docx_bytes = docx_out.read_bytes()
+    except Exception as e:  # pragma: no cover — render hard failure
+        raise HTTPException(status_code=500, detail=f"Error generando DOCX del acta E-012: {e}")
 
     return FastAPIResponse(
         content=docx_bytes,
@@ -1251,6 +1147,54 @@ async def signature_status_endpoint(
             detail=str(exc),
         )
     return SignatureStatusResponse(**result)
+
+
+# ================================================================
+# R03 · DOBLE FIRMA COMPETENTE del Acta E-012 (art. 40.2 RD 311/2022)
+# RInfo + RServ APRUEBAN · RSeg conforme · acta aprobada solo con AMBAS.
+# ================================================================
+
+@router.post(
+    "/systems/{system_id}/acta-e012/request-double-signature",
+    tags=["Motor 1 - Categorization"],
+)
+async def request_double_signature_endpoint(
+    system_id: uuid.UUID,
+    db: AsyncSession = Depends(get_db),
+):
+    """Solicita la DOBLE firma competente del acta E-012 (R03).
+
+    Crea (idempotente) dos signing_intents m05 ``acta_comite`` —Responsable de la
+    Información y Responsable del Servicio— vinculados al mismo hash del acta. El
+    acta se considera aprobada SOLO cuando AMBOS firman (art. 40.2 RD 311/2022).
+    """
+    await _get_system_with_rls(system_id, db)
+    try:
+        result = await request_acta_double_signature(db, system_id)
+    except SignatureIntegrationError as exc:
+        raise HTTPException(status_code=422, detail=str(exc))
+    await db.commit()
+    return result
+
+
+@router.get(
+    "/systems/{system_id}/acta-e012/double-signature-status",
+    tags=["Motor 1 - Categorization"],
+)
+async def double_signature_status_endpoint(
+    system_id: uuid.UUID,
+    db: AsyncSession = Depends(get_db),
+):
+    """Estado de la doble firma del acta E-012 + gate ``aprobada`` (R03).
+
+    ``aprobada=True`` solo cuando los dos intents competentes (RInfo + RServ)
+    están firmados.
+    """
+    await _get_system_with_rls(system_id, db)
+    try:
+        return await get_acta_double_signature_status(db, system_id)
+    except SignatureIntegrationError as exc:
+        raise HTTPException(status_code=404, detail=str(exc))
 
 
 # ================================================================

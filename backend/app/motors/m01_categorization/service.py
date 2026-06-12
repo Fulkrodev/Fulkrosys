@@ -426,6 +426,12 @@ class CategorizationService:
         """
         Generate the categorization act (E-012) in Markdown format.
 
+        DEPRECATED (R03-wiring · variante C · monofirma): el acta E-012 CANÓNICA
+        se genera con la plantilla m06 (doble firma competente art. 40.2 RD
+        311/2022) vía los endpoints ``GET /systems/{id}/acta-e012.{pdf,docx}``
+        (build_e012_context + render_docx m06). Este markdown monofirma sólo se
+        conserva para previsualización JSON; NO usar como acta definitiva.
+
         The E-012 is a formal document that records the categorization
         decision per CCN-STIC 803.
         """

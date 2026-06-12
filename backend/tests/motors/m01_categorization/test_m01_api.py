@@ -1316,7 +1316,8 @@ class TestActaPDFHTTP:
 
     @pytest.mark.asyncio
     async def test_acta_pdf_contains_key_data(self, async_client, db):
-        """PDF contains system name, category, and RD 311/2022 reference."""
+        """PDF (plantilla m06 canónica · R03) contiene la DOBLE FIRMA competente
+        (art. 40.2 RD 311/2022), la categoría y la referencia normativa."""
         import pdfplumber
         import io
 
@@ -1331,8 +1332,13 @@ class TestActaPDFHTTP:
         full_text = " ".join(page.extract_text() or "" for page in pdf.pages)
         pdf.close()
 
-        assert "Sistema PDF Test" in full_text, (
-            f"PDF should contain system name. Text: {full_text[:200]}"
+        # R03 · el acta canónica m06 refleja la categorización (cliente + categoría
+        # + dimensiones + DOBLE FIRMA competente art.40.2), no el nombre del sistema
+        # (eso era la variante B `acta_e012_provisional.docx`, ya deprecada). Se
+        # asercia el marcador de la doble firma en la prosa (robusto en extracción
+        # PDF; las celdas de tabla pdfplumber las parte en líneas).
+        assert "40.2" in full_text and "doble firma" in full_text.lower(), (
+            f"PDF debe contener la doble firma competente (art.40.2). Text: {full_text[:300]}"
         )
         assert "ALTA" in full_text, (
             f"PDF should contain category ALTA. Text: {full_text[:200]}"
