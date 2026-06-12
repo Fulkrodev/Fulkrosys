@@ -113,7 +113,7 @@ Esta tabla constituye una guía general; la asignación específica de niveles a
 
 ### 5.1 Responsabilidad
 
-La clasificación inicial de la información corresponde al **Responsable de la Información** (rol del artículo 11 del ENS), conforme se desarrolla en el documento {{ proyecto.codigo_documento_base }}-ABSORB_INTO_E100, en coordinación con quien la haya generado o capturado.
+La clasificación inicial de la información corresponde al **Responsable de la Información** (rol del artículo 11 del ENS), conforme se desarrolla en el documento {{ proyecto.codigo_documento_base }}-100 (Anexo de Roles), en coordinación con quien la haya generado o capturado.
 
 ### 5.2 Criterios de decisión
 

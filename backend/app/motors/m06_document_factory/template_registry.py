@@ -604,6 +604,23 @@ TEMPLATE_REGISTRY: dict[str, dict[str, Any]] = {
         "title": "PROCEDIMIENTO DE COPIAS DE SEGURIDAD Y RESTAURACIÓN",
         "type": "procedures"
     },
+    # R13 · documentos separados de su .md padre (vivian como 2.o bloque ```jinja
+    # que el compilador descartaba en silencio): E-PF-001 (de E-203) + E-IT-001
+    # (de E-207). Procedimientos ENS reales que faltaban en el set emitible.
+    "E-PF-001": {
+        "body_path": "procedures/EPF001_procedimiento_concienciacion_formacion.md",
+        "module": "procedures.EPF001_procedimiento_concienciacion_formacion",
+        "source": "F2_2_PROCEDIMIENTOS_CRITICOS_E206_E234 (1).md",
+        "title": "PROCEDIMIENTO DE CONCIENCIACIÓN Y FORMACIÓN EN SEGURIDAD",
+        "type": "procedures"
+    },
+    "E-IT-001": {
+        "body_path": "procedures/EIT001_procedimiento_hardening_configuracion_segura.md",
+        "module": "procedures.EIT001_procedimiento_hardening_configuracion_segura",
+        "source": "F2_2_PROCEDIMIENTOS_CRITICOS_E206_E234 (1).md",
+        "title": "PROCEDIMIENTO DE HARDENING Y CONFIGURACIÓN SEGURA",
+        "type": "procedures"
+    },
     "E-208": {
         "body_path": "procedures/E208_procedimiento_de_restauracion.md",
         "module": "procedures.E208_procedimiento_de_restauracion",

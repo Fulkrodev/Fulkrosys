@@ -35,7 +35,7 @@ d) Existe trazabilidad completa de las versiones, aprobaciones y modificaciones.
 
 El presente procedimiento se aplica a toda la información documentada del SGSI, comprendiendo:
 
-a) **Documentación normativa:** la Política de Seguridad ({{ proyecto.codigo_documento_base }}-100), las políticas específicas (ABSORB_INTO_E100 a E-126), los procedimientos (E-AR-001 a E-2XX) y las instrucciones técnicas asociadas.
+a) **Documentación normativa:** la Política de Seguridad ({{ proyecto.codigo_documento_base }}-100), las políticas específicas (E-101 a E-126), los procedimientos (E-AR-001 a E-2XX) y las instrucciones técnicas asociadas.
 
 b) **Documentación de planificación:** Plan de Adecuación, Declaración de Aplicabilidad, Plan de Tratamiento de Riesgos, Plan de Continuidad.
 
@@ -50,7 +50,7 @@ A los efectos del presente procedimiento, la información documentada del SGSI s
 | Categoría | Codificación | Aprobador | Periodicidad de revisión |
 |---|---|---|---|
 | Política madre | {{ proyecto.codigo_documento_base }}-100 | {{ cliente.organo_aprobador_politicas }} | Anual |
-| Políticas específicas | {{ proyecto.codigo_documento_base }}-ABSORB_INTO_E100 a -126 | {{ cliente.organo_aprobador_politicas }} | Anual |
+| Políticas específicas | {{ proyecto.codigo_documento_base }}-101 a -126 | {{ cliente.organo_aprobador_politicas }} | Anual |
 | Procedimientos operativos | {{ proyecto.codigo_documento_base }}-AR-001 a -299 | Comité de Seguridad | Anual |
 | Instrucciones técnicas | {{ proyecto.codigo_documento_base }}-300 a -399 | Responsable de Seguridad | Semestral |
 | Plantillas y formularios | {{ proyecto.codigo_documento_base }}-400 a -499 | Responsable de Seguridad | Anual |

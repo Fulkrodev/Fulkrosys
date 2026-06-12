@@ -41,10 +41,21 @@ TEMPLATES = [
 
 
 JINJA_BLOCK = re.compile(r"```jinja\s*(.+?)```", re.DOTALL)
+_JINJA_OPEN = re.compile(r"^```jinja\s*$", re.MULTILINE)
 
 
 def extract_jinja_body(md_path: Path) -> str:
     text = md_path.read_text(encoding="utf-8")
+    n_blocks = len(_JINJA_OPEN.findall(text))
+    if n_blocks > 1:
+        # R13 · GUARDA: un .md con >1 valla ```jinja perdia en SILENCIO todo
+        # menos el primer bloque al compilar a .docx (search() devuelve solo el
+        # 1.o). Fallar ruidosamente en vez de descartar contenido: el 2.o
+        # documento debe separarse a su propia plantilla o fusionarse en el 1.o.
+        raise RuntimeError(
+            f"{md_path.name}: {n_blocks} bloques ```jinja. Separa el 2.o documento "
+            f"a su propia plantilla o fusionalo en el 1.o (remediacion R13)."
+        )
     m = JINJA_BLOCK.search(text)
     if not m:
         return text

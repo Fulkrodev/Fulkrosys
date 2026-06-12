@@ -25,7 +25,11 @@ from build_sgsi_core_templates import extract_jinja_body  # noqa: E402
 from fix_docx_templates import (  # noqa: E402
     HEADER_TITLES,
     LEAK_FIXES,
+    PROCEDURE_DOCX,
     SIGBLOCK_TEMPLATES,
+    SIGCOLS_DELIVERABLE,
+    SIGCOLS_PROCEDURE,
+    TEMPLATE_REGISTRY,
     _doc_has_sigblock,
     _purge_legacy_sentinels,
     append_sigblock,
@@ -40,7 +44,18 @@ DOCX_DIR = ROOT / "var" / "templates_docx"
 
 
 def _md_for(code: str) -> Path:
-    """Localiza el .md fuente de un E-code (por prefijo de fichero ENNN_*.md)."""
+    """Localiza el .md fuente de un E-code.
+
+    Prioriza el ``body_path`` canónico del registry (autoritativo · evita la
+    ambigüedad de las variantes sectoriales, p.ej. E-100 tiene 4 .md
+    ``E100_*`` y solo una es la canónica). Cae al glob por prefijo solo si el
+    code no está en el registry o su body_path no existe.
+    """
+    meta = TEMPLATE_REGISTRY.get(code)
+    if meta and meta.get("body_path"):
+        p = TEMPLATES_BASE / meta["body_path"]
+        if p.exists():
+            return p
     compact = code.replace("-", "")
     matches = sorted(TEMPLATES_BASE.glob(f"**/{compact}_*.md"))
     if not matches:
@@ -76,10 +91,14 @@ def rebuild(code: str) -> Path:
     _purge_legacy_sentinels(doc)
     is_commercial = code.startswith(("C-", "P-"))
     if not is_commercial:
-        build_header(doc, code, HEADER_TITLES.get(code, f"Documento {code}"))
+        title = HEADER_TITLES.get(code)
+        if title is None:
+            title = (TEMPLATE_REGISTRY.get(code) or {}).get("title") or f"Documento {code}"
+        build_header(doc, code, title)
         build_footer(doc, code)
     if fname in SIGBLOCK_TEMPLATES and not _doc_has_sigblock(doc):
-        append_sigblock(doc)
+        cols = SIGCOLS_PROCEDURE if fname in PROCEDURE_DOCX else SIGCOLS_DELIVERABLE
+        append_sigblock(doc, cols)
     doc.save(str(docx_out))
     print(f"[ok] {code} -> {docx_out} ({docx_out.stat().st_size} bytes · src {md.name})")
     return docx_out

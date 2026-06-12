@@ -165,13 +165,13 @@ De conformidad con el artículo 5 del ENS, la presente Política y el SGSI de la
 
 **5.5. Vigilancia continua y reevaluación periódica.** La Entidad establecerá mecanismos de vigilancia continua que permitan detectar cualquier actividad anómala y reaccionar ante ella, así como mecanismos de reevaluación periódica que permitan adaptar la estrategia de seguridad a las nuevas circunstancias.
 
-**5.6. Diferenciación de responsabilidades.** Las funciones y responsabilidades en materia de seguridad estarán claramente diferenciadas entre el responsable de la información, el responsable del servicio, el responsable de la seguridad y el responsable del sistema, conforme se establece en el documento {{ proyecto.codigo_documento_base }}-ABSORB_INTO_E100 (Roles, Responsabilidades y Autoridades de Seguridad).
+**5.6. Diferenciación de responsabilidades.** Las funciones y responsabilidades en materia de seguridad estarán claramente diferenciadas entre el responsable de la información, el responsable del servicio, el responsable de la seguridad y el responsable del sistema, conforme se establece en el Anexo de Roles del presente documento (Roles, Responsabilidades y Autoridades de Seguridad).
 
 ## 6. REQUISITOS MÍNIMOS DE SEGURIDAD
 
 En cumplimiento de los requisitos mínimos establecidos en el artículo 12 y siguientes del ENS, la Entidad garantizará el cumplimiento, al menos, de los siguientes requisitos:
 
-a) **Organización e implantación del proceso de seguridad**, mediante la formalización del Comité de Seguridad y la designación de los roles definidos en el documento {{ proyecto.codigo_documento_base }}-ABSORB_INTO_E100.
+a) **Organización e implantación del proceso de seguridad**, mediante la formalización del Comité de Seguridad y la designación de los roles definidos en el Anexo de Roles del presente documento.
 
 b) **Análisis y gestión de los riesgos**, mediante la aplicación sistemática de la metodología MAGERIT v3 y la elaboración del correspondiente Análisis de Riesgos, que se revisará al menos con carácter anual y siempre que se produzcan cambios significativos en el sistema.
 
@@ -233,7 +233,7 @@ g) Informar al órgano superior sobre el estado del SGSI con la periodicidad que
 
 ### 7.2 Roles operativos
 
-La estructura operativa de la seguridad descansa sobre los cuatro roles previstos en el artículo 11 del ENS, cuyo nombramiento, funciones y responsabilidades se desarrollan en el documento {{ proyecto.codigo_documento_base }}-ABSORB_INTO_E100.
+La estructura operativa de la seguridad descansa sobre los cuatro roles previstos en el artículo 11 del ENS, cuyo nombramiento, funciones y responsabilidades se desarrollan en el Anexo de Roles del presente documento.
 
 | Rol | Persona designada | Cargo |
 |---|---|---|
@@ -310,29 +310,11 @@ La presente Política entrará en vigor el día siguiente al de su aprobación p
 
 **Documento {{ proyecto.codigo_documento_base }}-100 — Versión {{ proyecto.version_actual }} — Clasificación: INTERNA**
 
-```
-
----
-
-# DOCUMENTO ABSORB_INTO_E100 — ROLES, RESPONSABILIDADES Y AUTORIDADES DE SEGURIDAD
-
-**Es el documento que materializa el artículo 11 del ENS** (segregación de funciones de los cuatro roles obligatorios). Sin esto el SGSI ENS está cojo y el auditor lo detecta en los primeros 5 minutos.
-
-```jinja
----
-codigo_documento: "{{ proyecto.codigo_documento_base }}-ABSORB_INTO_E100"
-titulo: "Roles, Responsabilidades y Autoridades de Seguridad"
-version: "{{ proyecto.version_actual }}"
-fecha_aprobacion: "{{ proyecto.fecha_aprobacion_inicial }}"
-fecha_proxima_revision: "{{ proyecto.proxima_revision }}"
-clasificacion: "INTERNA"
-propietario: "{{ responsables.responsable_seguridad.cargo }}"
-aprobado_por: "{{ cliente.organo_aprobador_politicas }}"
 ---
 
 # ROLES, RESPONSABILIDADES Y AUTORIDADES DE SEGURIDAD DE {{ cliente.razon_social | upper }}
 
-**Documento {{ proyecto.codigo_documento_base }}-ABSORB_INTO_E100 — Versión {{ proyecto.version_actual }}**
+**Documento {{ proyecto.codigo_documento_base }}-100 · Anexo de Roles — Versión {{ proyecto.version_actual }}**
 
 ---
 
@@ -354,7 +336,7 @@ De conformidad con el artículo 11 del ENS, en los sistemas de información en e
 
 Estos cuatro roles son **incompatibles entre sí**, en el sentido de que ninguna persona podrá acumular simultáneamente más de uno de ellos, salvo en aquellos casos excepcionales en los que la dimensión y complejidad de la Entidad lo justifiquen y se hayan adoptado las medidas compensatorias necesarias para garantizar la objetividad de las decisiones.
 
-{% if cliente.numero_empleados < 50 %}
+{% if (cliente.numero_empleados | default(50, true)) < 50 %}
 **Nota sobre dimensión de la Entidad:** dado que {{ cliente.razon_social }} cuenta con {{ cliente.numero_empleados }} empleados, la separación estricta de los cuatro roles podría exigir la asunción excepcional de más de un rol por la misma persona. En tal caso se aplicará el régimen excepcional descrito en el apartado 4.6.
 {% endif %}
 
@@ -472,7 +454,7 @@ El Delegado de Protección de Datos colaborará estrechamente con el Responsable
 
 ### 4.6 Régimen excepcional de acumulación de roles
 
-{% if cliente.numero_empleados < 50 %}
+{% if (cliente.numero_empleados | default(50, true)) < 50 %}
 Atendiendo a la dimensión actual de la Entidad ({{ cliente.numero_empleados }} empleados), y siempre con carácter excepcional y temporal, podrá autorizarse que una misma persona acumule simultáneamente más de uno de los roles descritos, con las siguientes limitaciones absolutas:
 
 a) **El Responsable de la Seguridad nunca podrá acumular el rol de Responsable del Sistema**, por exigencia expresa del artículo 11 del ENS y por la imposibilidad de auto-supervisarse.
@@ -485,7 +467,7 @@ d) La acumulación tendrá vigencia máxima de doce meses, transcurridos los cua
 
 e) Toda acumulación quedará registrada en el Registro de Excepciones gestionado por el Responsable de la Seguridad.
 {% else %}
-Atendiendo a la dimensión actual de la Entidad ({{ cliente.numero_empleados }} empleados), no se considera necesaria la acumulación excepcional de roles. Cada uno de los cuatro roles del artículo 11 del ENS recae en una persona distinta, garantizando la separación de funciones exigida por la normativa.
+Atendiendo a la dimensión actual de la Entidad ({{ cliente.numero_empleados | default('—', true) }} empleados), no se considera necesaria la acumulación excepcional de roles. Cada uno de los cuatro roles del artículo 11 del ENS recae en una persona distinta, garantizando la separación de funciones exigida por la normativa.
 {% endif %}
 
 ## 5. SUSTITUCIONES Y SUPLENCIAS
@@ -524,8 +506,5 @@ El presente documento ha sido aprobado por {{ cliente.organo_aprobador_politicas
 
 ---
 
-**Documento {{ proyecto.codigo_documento_base }}-ABSORB_INTO_E100 — Versión {{ proyecto.version_actual }} — Clasificación: INTERNA**
-
+**Documento {{ proyecto.codigo_documento_base }}-100 · Anexo de Roles — Versión {{ proyecto.version_actual }} — Clasificación: INTERNA**
 ```
-
----
