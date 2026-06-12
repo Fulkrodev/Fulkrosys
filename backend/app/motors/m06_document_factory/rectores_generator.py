@@ -53,6 +53,9 @@ class RectoresContext:
     sponsor_name: str = "(pendiente designación)"
     comite_chair: str = "(pendiente designación)"
     rseg_name: str = "(pendiente designación)"
+    # R23 · estimación de esfuerzo/coste por fase (effort × tarifa) para la tabla
+    # Capex/Opex del Plan Director. Cada dict: {phase, hours, cost}.
+    effort_rows: list[dict] = field(default_factory=list)
 
 
 async def build_rectores_context(
@@ -120,19 +123,40 @@ async def build_rectores_context(
             if role_cat == "miembro_comite_seguridad" and comite_chair.startswith("("):
                 comite_chair = full_name
 
-    # Activos esenciales (M22)
+    # Activos identificados (M22). NOTA: la columna ``es_esencial`` NO existe en
+    # magerit_assets (el filtro anterior abortaba la transacción → silenciaba el
+    # count Y rompía las queries siguientes). Se cuentan los activos del análisis.
     try:
         assets_row = await db.execute(
             sa_text(
                 "SELECT count(*) FROM magerit_assets a "
                 "JOIN magerit_analysis ma ON ma.id = a.analysis_id "
-                "WHERE ma.project_id = :pid AND COALESCE(a.es_esencial, false) = true"
+                "WHERE ma.project_id = :pid"
             ),
             {"pid": str(project_id)},
         )
         assets_essential_count = assets_row.scalar() or 0
     except Exception:
         assets_essential_count = 0
+
+    # R23 · estimación de esfuerzo/coste (effort × tarifa) para Capex/Opex.
+    effort_rows: list[dict] = []
+    try:
+        eff_row = await db.execute(
+            sa_text(
+                "SELECT phase, estimated_hours, estimated_cost "
+                "FROM effort_estimates WHERE project_id = :pid ORDER BY phase"
+            ),
+            {"pid": str(project_id)},
+        )
+        for phase, hours, cost in eff_row.fetchall():
+            effort_rows.append({
+                "phase": phase,
+                "hours": float(hours or 0),
+                "cost": float(cost or 0),
+            })
+    except Exception:
+        effort_rows = []
 
     return RectoresContext(
         project_id=project_id,
@@ -147,6 +171,7 @@ async def build_rectores_context(
         sponsor_name=sponsor_name,
         comite_chair=comite_chair,
         rseg_name=rseg_name,
+        effort_rows=effort_rows,
     )
 
 
@@ -236,10 +261,10 @@ def generate_manual_sgsi_docx(ctx: RectoresContext) -> io.BytesIO:
     hr[2].text = "Aprobación"
     hr[3].text = "Ejemplos"
     for level, tipo, approver, examples in [
-        ("1", "Política Seguridad", "Órgano superior", "E100 PSI"),
-        ("2", "Normativas", "RSEG", "E101-E126"),
-        ("3", "Procedimientos", "RSEG/RSIS", "E200-E2XX"),
-        ("4", "Instrucciones técnicas", "Técnicos", "Manuales operativos"),
+        ("1", "Política de Seguridad (PSI)", "Órgano superior", "E-100"),
+        ("2", "Normativas", "RSEG", "E-100..E-126"),
+        ("3", "Procedimientos", "RSEG / RSIS", "E-200..E-235"),
+        ("4", "Instrucciones técnicas", "Técnicos", "E-IT-001 + manuales operativos"),
     ]:
         cells = dtbl.add_row().cells
         cells[0].text = level
@@ -269,14 +294,33 @@ def generate_manual_sgsi_docx(ctx: RectoresContext) -> io.BytesIO:
     hr[1].text = "Nombre"
     hr[2].text = "Firma"
     hr[3].text = "Fecha"
-    for rol in ("Sponsor / Dirección", "Responsable Seguridad (RSEG)"):
+    for rol, nombre in (
+        ("Sponsor / Dirección", ctx.sponsor_name),
+        ("Responsable Seguridad (RSEG)", ctx.rseg_name),
+    ):
         row = sig.add_row().cells
         row[0].text = rol
+        row[1].text = nombre
+        row[3].text = ctx.today
 
     bio = io.BytesIO()
     doc.save(bio)
     bio.seek(0)
     return bio
+
+
+# R23 · etiquetas legibles de las fases de esfuerzo (effort_estimates.phase).
+_EFFORT_PHASE_LABELS: dict[str, str] = {
+    "categorizacion": "Categorización del sistema",
+    "dda": "Análisis de riesgos y Declaración de Aplicabilidad",
+    "implantacion": "Implantación de medidas de seguridad",
+    "audit": "Auditoría de conformidad",
+    "retainer_year": "Soporte y mantenimiento anual (retainer)",
+}
+
+
+def _eur(value: float) -> str:
+    return f"{value:,.0f} €".replace(",", ".")
 
 
 def generate_plan_director_docx(ctx: RectoresContext) -> io.BytesIO:
@@ -331,11 +375,48 @@ def generate_plan_director_docx(ctx: RectoresContext) -> io.BytesIO:
         cells[1].text = hito
         cells[2].text = kpi
 
-    _add_heading(doc, "3. Inversión planificada", 1)
-    doc.add_paragraph(
-        "Tabla Capex/Opex pendiente de cuantificación por la Dirección "
-        "tras evaluación detallada del PdA (E-150)."
-    )
+    _add_heading(doc, "3. Inversión planificada (Capex / Opex)", 1)
+    capex = [r for r in ctx.effort_rows if r["phase"] != "retainer_year"]
+    opex = [r for r in ctx.effort_rows if r["phase"] == "retainer_year"]
+    if ctx.effort_rows:
+        itbl = doc.add_table(rows=1, cols=4)
+        itbl.style = "Light Grid Accent 1"
+        hr = itbl.rows[0].cells
+        hr[0].text = "Tipo"
+        hr[1].text = "Concepto"
+        hr[2].text = "Esfuerzo (h)"
+        hr[3].text = "Coste estimado"
+        cap_total = 0.0
+        for r in capex:
+            cells = itbl.add_row().cells
+            cells[0].text = "Capex (inicial)"
+            cells[1].text = _EFFORT_PHASE_LABELS.get(r["phase"], r["phase"])
+            cells[2].text = f"{r['hours']:.0f}"
+            cells[3].text = _eur(r["cost"])
+            cap_total += r["cost"]
+        op_total = 0.0
+        for r in opex:
+            cells = itbl.add_row().cells
+            cells[0].text = "Opex (anual)"
+            cells[1].text = _EFFORT_PHASE_LABELS.get(r["phase"], r["phase"])
+            cells[2].text = f"{r['hours']:.0f}"
+            cells[3].text = f"{_eur(r['cost'])}/año"
+            op_total += r["cost"]
+        trow = itbl.add_row().cells
+        trow[0].text = "TOTAL"
+        trow[1].text = "Inversión inicial (Capex) + recurrente (Opex)"
+        trow[2].text = ""
+        trow[3].text = f"{_eur(cap_total)} + {_eur(op_total)}/año"
+        doc.add_paragraph(
+            "Las cifras se derivan de la estimación de esfuerzo del proyecto "
+            "(esfuerzo × tarifa). El detalle de medidas y su coste unitario se "
+            "desarrolla en el Plan de Adecuación (E-150)."
+        )
+    else:
+        doc.add_paragraph(
+            "Tabla Capex/Opex pendiente de cuantificación tras la estimación de "
+            "esfuerzo del proyecto, que se desarrolla en el Plan de Adecuación (E-150)."
+        )
 
     _add_heading(doc, "4. KPIs de seguimiento (CCN-STIC 815)", 1)
     doc.add_paragraph(
@@ -376,9 +457,15 @@ def generate_plan_director_docx(ctx: RectoresContext) -> io.BytesIO:
     hr[1].text = "Nombre"
     hr[2].text = "Firma"
     hr[3].text = "Fecha"
-    for rol in ("Sponsor ejecutivo", "Responsable Seguridad (RSEG)", "Director General"):
+    for rol, nombre in (
+        ("Sponsor ejecutivo", ctx.sponsor_name),
+        ("Responsable Seguridad (RSEG)", ctx.rseg_name),
+        ("Director General", ctx.sponsor_name),
+    ):
         row = sig.add_row().cells
         row[0].text = rol
+        row[1].text = nombre
+        row[3].text = ctx.today
 
     bio = io.BytesIO()
     doc.save(bio)
