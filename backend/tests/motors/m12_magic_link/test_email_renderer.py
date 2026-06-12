@@ -148,14 +148,13 @@ def test_all_purposes_render_without_error():
         sesion_fecha="2026-04-15",
     )
     for purpose in MagicLinkPurpose:
-        # Ejecutable 8 Pasada 16: AUDITOR_PORTAL_ENAC es legítimo pero de entrega OUT-OF-BAND
-        # (admin comparte link al auditor externo · sin template email) → renderiza ValueError
-        # igual que los deprecated v3.
+        # feat/fulkro-100: AUDITOR_PORTAL_ENAC AHORA tiene template de email
+        # (Marcos envía al auditor el enlace + código de acceso) → renderiza OK.
+        # Antes era entrega out-of-band (admin copiaba el link a mano).
         # DIAGNOSTICO_PRECLIENTE (Batch A): template de email pendiente Batch B
         # (envío real al lead vía outreach) · de momento sin template → ValueError.
         if (
             purpose in _DEPRECATED_V3_NO_EMAIL
-            or purpose == MagicLinkPurpose.AUDITOR_PORTAL_ENAC
             or purpose == MagicLinkPurpose.DIAGNOSTICO_PRECLIENTE
         ):
             with pytest.raises(ValueError, match="No email template for purpose"):

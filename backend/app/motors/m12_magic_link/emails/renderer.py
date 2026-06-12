@@ -514,6 +514,41 @@ _PURPOSE_EMAILS: dict[MagicLinkPurpose, PurposeEmailConfig] = {
         action_label="Revisar el informe",
     ),
 
+    # ── #37 Portal del auditor ENAC (acceso read-only al expediente) ──
+    # feat/fulkro-100 · sin esta entrada render_email_for_magic_link lanzaba
+    # ValueError → /generate-and-send devolvía email_sent=False (Marcos no podía
+    # enviar el enlace al auditor · tenía que copiarlo a mano).
+    MagicLinkPurpose.AUDITOR_PORTAL_ENAC: PurposeEmailConfig(
+        subject="Acceso al portal de auditoría ENAC — {cliente_razon}",
+        titulo=(
+            "Le damos acceso al portal de auditoría del Esquema Nacional "
+            "de Seguridad."
+        ),
+        que_hacer=(
+            "Revisar, en modo solo lectura, el expediente de conformidad ENS "
+            "del proyecto: Declaración de Aplicabilidad, análisis de riesgos "
+            "MAGERIT, plan de adecuación, evidencias por medida, registro de "
+            "actividad y dossier final. Puede dejar anotaciones y solicitar "
+            "aclaraciones desde el propio portal."
+        ),
+        por_que=(
+            "Este acceso da soporte a la auditoría de certificación conforme "
+            "a CCN-CERT IC-01/19 y CCN-STIC 122, permitiéndole consultar la "
+            "evidencia objetiva del cumplimiento del RD 311/2022 sin "
+            "necesidad de cuentas permanentes."
+        ),
+        cuando=(
+            "El enlace permanece activo durante 14 días. Le recomendamos "
+            "iniciar la revisión cuanto antes para no demorar el calendario "
+            "de la auditoría."
+        ),
+        action_label="Acceder al portal del auditor",
+        seguridad_nota=(
+            "Acceso de solo lectura, acotado a este proyecto y trazado en el "
+            "registro de actividad inmutable."
+        ),
+    ),
+
     # ── M25 Paso 4 — cierre honesto del proyecto ─────────────────────
     MagicLinkPurpose.OFERTA_RETAINER: PurposeEmailConfig(
         subject="Continuidad tras certificación — {proyecto_nombre}",
