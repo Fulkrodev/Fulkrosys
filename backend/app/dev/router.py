@@ -1640,9 +1640,12 @@ class SeedFullImplantationResponse(BaseModel):
 )
 async def seed_full_implantation(
     tier: str = Query(..., description="BASICA | MEDIA | ALTA"),
-    key: str = Query(
-        ...,
-        description="conformidad-basica | conformidad-media | conformidad-alta",
+    key: str | None = Query(
+        default=None,
+        description=(
+            "conformidad-basica | conformidad-media | conformidad-alta · "
+            "omitir = cliente/proyecto de test compartido (default E2E)"
+        ),
     ),
     db: AsyncSession = Depends(get_db),
 ) -> SeedFullImplantationResponse:
