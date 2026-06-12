@@ -15,7 +15,6 @@ from pathlib import Path
 import pytest
 from sqlalchemy import text as sa_text
 
-from backend.app.database import set_tenant_context
 from backend.app.motors.m12_magic_link.purposes import MagicLinkPurpose
 from backend.app.motors.m12_magic_link.schemas import MagicLinkGenerateRequest
 from backend.app.motors.m12_magic_link.service import MagicLinkService
@@ -25,12 +24,15 @@ from backend.tests.integration.test_sim_basica import (
     _seed,
 )
 
-_OUT = Path("/home/usuario/fulkro/out/sim_media")
+_OUT = Path(__file__).resolve().parents[3] / "out" / "sim_media"
 
 
 def _dump(name: str, text: str) -> None:
-    _OUT.mkdir(parents=True, exist_ok=True)
-    (_OUT / name).write_text(text, encoding="utf-8")
+    try:  # best-effort (CI · directorio puede no ser escribible)
+        _OUT.mkdir(parents=True, exist_ok=True)
+        (_OUT / name).write_text(text, encoding="utf-8")
+    except OSError:
+        pass
 
 
 @pytest.mark.asyncio

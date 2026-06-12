@@ -23,7 +23,7 @@ from sqlalchemy import text as sa_text
 from backend.app.database import set_tenant_context
 from backend.tests.conftest import _admin_setup, setup_test_project
 
-_OUT = Path("/home/usuario/fulkro/out/sim_basica")
+_OUT = Path(__file__).resolve().parents[3] / "out" / "sim_basica"
 _CAT = "BASICA"
 
 
@@ -50,8 +50,11 @@ def _docx_text_from_bio(bio: io.BytesIO) -> str:
 
 
 def _dump(name: str, text: str) -> None:
-    _OUT.mkdir(parents=True, exist_ok=True)
-    (_OUT / name).write_text(text, encoding="utf-8")
+    try:  # best-effort: artefacto de inspección, no debe romper el test (CI)
+        _OUT.mkdir(parents=True, exist_ok=True)
+        (_OUT / name).write_text(text, encoding="utf-8")
+    except OSError:
+        pass
 
 
 async def _seed(db, *, cat: str):
@@ -223,5 +226,3 @@ async def test_sim_basica_full_lifecycle(db, monkeypatch):
     log("## 6. Dossier de auditoría\n(pendiente de inspección · ver out/sim_basica/)\n")
 
     _dump("REPORT.md", "\n".join(report))
-    # Sanity final
-    assert (_OUT / "E-040_informe_final.txt").exists()

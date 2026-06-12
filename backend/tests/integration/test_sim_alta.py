@@ -16,12 +16,15 @@ from sqlalchemy import text as sa_text
 from backend.tests.conftest import _admin_setup
 from backend.tests.integration.test_sim_basica import _docx_text_from_path, _seed
 
-_OUT = Path("/home/usuario/fulkro/out/sim_alta")
+_OUT = Path(__file__).resolve().parents[3] / "out" / "sim_alta"
 
 
 def _dump(name: str, text: str) -> None:
-    _OUT.mkdir(parents=True, exist_ok=True)
-    (_OUT / name).write_text(text, encoding="utf-8")
+    try:  # best-effort (CI · directorio puede no ser escribible)
+        _OUT.mkdir(parents=True, exist_ok=True)
+        (_OUT / name).write_text(text, encoding="utf-8")
+    except OSError:
+        pass
 
 
 @pytest.mark.asyncio
