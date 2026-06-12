@@ -43,8 +43,21 @@ from docx.oxml import OxmlElement
 from docx.oxml.ns import qn
 from docx.shared import Cm, Pt, RGBColor
 
+from backend.app.motors.m06_document_factory.template_registry import (
+    TEMPLATE_REGISTRY,
+)
+
 ROOT = Path(__file__).resolve().parents[2]
 TEMPLATES_DIR = ROOT / "var" / "templates_docx"
+
+# R11 · POS (procedimientos operativos de seguridad) = todos los templates de
+# tipo "procedures" del registry. Derivado dinámicamente para no hardcodear la
+# lista (auto-mantenible cuando se añaden procedimientos).
+PROCEDURE_DOCX = {
+    f"{code}.docx"
+    for code, meta in TEMPLATE_REGISTRY.items()
+    if meta.get("type") == "procedures"
+}
 
 # New sentinels (no leak FULKRO inside XML).
 HEADER_V2_SENTINEL = "FX_HDR_V2"
@@ -319,10 +332,30 @@ def build_footer(doc: Document, code: str) -> None:
 # Signature block
 # ---------------------------------------------------------------------------
 
-SIGBLOCK_TEMPLATES = {
+# Entregables/informes: bloque de 3 columnas ELABORADO/REVISADO/APROBADO
+# (aprobado = órgano de gobierno superior).
+DELIVERABLE_SIGBLOCK = {
     "E-001.docx", "E-040.docx", "E-050.docx", "E-090.docx", "E-400.docx",
     "E-702.docx", "E-703.docx", "E-704.docx",
 }
+
+# R11 · POS firmables: bloque de 2 columnas ELABORADO (consultor) / APROBADO
+# (RSEG-RSIS) — los procedimientos los aprueba operativamente el Responsable de
+# Seguridad / del Sistema, no el órgano de gobierno (que aprueba las políticas).
+SIGBLOCK_TEMPLATES = DELIVERABLE_SIGBLOCK | PROCEDURE_DOCX
+
+# columnas del bloque de firma: (encabezado, rol en firmas.*). El rol "revisado"
+# de _default_firmas se materializa desde responsable_seguridad, por lo que sirve
+# como APROBADO de los POS sin plumbing de contexto adicional.
+SIGCOLS_DELIVERABLE = [
+    ("ELABORADO POR", "elaborado"),
+    ("REVISADO POR", "revisado"),
+    ("APROBADO POR", "aprobado"),
+]
+SIGCOLS_PROCEDURE = [
+    ("ELABORADO POR", "elaborado"),
+    ("APROBADO POR", "revisado"),
+]
 
 
 def _doc_has_sigblock(doc: Document) -> bool:
@@ -373,7 +406,7 @@ def _purge_legacy_sentinels(doc: Document) -> int:
     return removed
 
 
-def append_sigblock(doc: Document) -> None:
+def append_sigblock(doc: Document, columns: list[tuple[str, str]]) -> None:
     doc.add_paragraph()
     heading = doc.add_paragraph()
     _style_text(heading.add_run("APROBACIONES Y FIRMAS"), size=12, bold=True)
@@ -389,16 +422,15 @@ def append_sigblock(doc: Document) -> None:
         size=10,
     )
 
-    table = doc.add_table(rows=5, cols=3)
+    table = doc.add_table(rows=5, cols=len(columns))
     table.alignment = WD_TABLE_ALIGNMENT.CENTER
 
-    headers = ["ELABORADO POR", "REVISADO POR", "APROBADO POR"]
-    for cell, text in zip(table.rows[0].cells, headers):
+    for cell, (text, _role) in zip(table.rows[0].cells, columns):
         p = cell.paragraphs[0]
         p.alignment = WD_ALIGN_PARAGRAPH.CENTER
         _style_text(p.add_run(text), size=10, bold=True)
 
-    roles = ["elaborado", "revisado", "aprobado"]
+    roles = [role for _h, role in columns]
     labels = [("Nombre", "nombre"), ("Cargo", "cargo"), ("Fecha", "fecha"), ("Firma", "firma_marca")]
     for i, (label, field) in enumerate(labels, start=1):
         for j, role in enumerate(roles):
@@ -444,12 +476,23 @@ def main() -> int:
         is_commercial = f.stem.startswith(("C-", "P-"))
         if not is_commercial:
             code = f.stem
-            title = HEADER_TITLES.get(code, f"Documento {code}")
+            # R11 · evitar el header genérico "Documento E-XXX" en los POS:
+            # cae al título canónico del registry (auto-mantenible) antes que
+            # al placeholder. HEADER_TITLES sigue teniendo prioridad (curado).
+            title = HEADER_TITLES.get(code)
+            if title is None:
+                title = (TEMPLATE_REGISTRY.get(code) or {}).get(
+                    "title"
+                ) or f"Documento {code}"
             build_header(doc, code, title)
             build_footer(doc, code)
             header_total += 1
         if f.name in SIGBLOCK_TEMPLATES and not _doc_has_sigblock(doc):
-            append_sigblock(doc)
+            cols = (
+                SIGCOLS_PROCEDURE if f.name in PROCEDURE_DOCX
+                else SIGCOLS_DELIVERABLE
+            )
+            append_sigblock(doc, cols)
             sigblock_total += 1
         doc.save(str(f))
 
