@@ -29,6 +29,7 @@ from typing import Any
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from backend.app.fulkro_identity import FULKRO_AUTHOR_NAME, FULKRO_AUTHOR_ROLE
 from backend.app.models.documents import Document, Evidence
 from backend.app.motors.m08_verification.integrations.m9_audit_prep import (
     collect_findings_for_dossier, has_verification_run,
@@ -578,11 +579,11 @@ async def build_e701_context(
         "auditor_jefe": (
             responsables.get("consultor", {}).get("nombre")
             if isinstance(responsables, dict) else None
-        ) or "Marcos Mata García",
+        ) or FULKRO_AUTHOR_NAME,
         "equipo_auditor": (
             responsables.get("consultor", {}).get("nombre")
             if isinstance(responsables, dict) else None
-        ) or "Marcos Mata García (auditor único)",
+        ) or f"{FULKRO_AUTHOR_NAME} (auditor único)",
         "e700_ref": "n/a",
         "externa_fecha": "Por definir según disponibilidad ENAC",
     }
@@ -595,11 +596,11 @@ async def build_e701_context(
             "nombre": (
                 responsables.get("consultor", {}).get("nombre")
                 if isinstance(responsables, dict) else None
-            ) or "Marcos Mata García",
+            ) or FULKRO_AUTHOR_NAME,
             "cargo": (
                 responsables.get("consultor", {}).get("cargo")
                 if isinstance(responsables, dict) else None
-            ) or "Consultor independiente ENS",
+            ) or FULKRO_AUTHOR_ROLE,
             "fecha": today_iso,
             "firma_marca": "—",  # se rellena al firmar Ed25519
         },

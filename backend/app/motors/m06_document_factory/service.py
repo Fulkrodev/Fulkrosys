@@ -338,6 +338,17 @@ class DocumentFactoryService:
         from backend.app.core.branding import build_branding_pdf_context
         branding_extras = await build_branding_pdf_context(self.db, project_id)
         context = {**context, "branding": branding_extras.template_dict()}
+        # R14 · contexto de gobernanza org.2 (roles art.11 + comité + DPO +
+        # numero_empleados + proxima_revision) como BASE: rellena huecos para que
+        # E-002/E-003 y el anexo de roles de E-100 (R13) sean siempre rendibles,
+        # sin sobreescribir lo que el caller ya provee (deep-merge · caller gana).
+        # best-effort: build_governance_context NUNCA lanza.
+        from backend.app.motors.m06_document_factory.governance_context import (
+            build_governance_context,
+            merge_governance_base,
+        )
+        gov_ctx = await build_governance_context(self.db, project_id)
+        context = merge_governance_base(gov_ctx, context)
         # Discard logo_path from branding helper (M06 ya tiene su propio
         # _materialise_client_logo · evita duplicate temp file).
         if branding_extras.logo_path and branding_extras.logo_path.exists():
