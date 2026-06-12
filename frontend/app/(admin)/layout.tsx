@@ -6,6 +6,7 @@ import { usePathname } from "next/navigation";
 
 import { AuthGuard } from "@/components/auth/AuthGuard";
 import { OnboardingTourAdmin } from "@/components/admin/copilot/OnboardingTourAdmin";
+import { CopilotNextStepBanner } from "@/components/copilot/CopilotNextStepBanner";
 import { CopilotPanel } from "@/components/copilot/CopilotPanel";
 import { CommandPalette } from "@/components/layout/CommandPalette";
 import { Header } from "@/components/layout/Header";
@@ -84,6 +85,7 @@ export default function AppLayout({
 
         <div className="flex min-w-0 flex-1 flex-col bg-fulkro-ink-50">
           <Header onOpenMobileSidebar={() => setMobileSidebarOpen(true)} />
+          <CopilotNextStepBanner />
           <main
             id="main-content"
             tabIndex={-1}
