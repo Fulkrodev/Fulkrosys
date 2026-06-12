@@ -1858,6 +1858,47 @@ async def seed_full_implantation(
         extras_errors.append(f"distintivo: {exc}")
         await db.rollback()
 
+    # ── plan de adecuación (project_plans + wbs_tasks) → vista plan auditor ──
+    try:
+        await db.execute(text("SET LOCAL ROLE fulkro_app_bypassrls"))
+        await set_tenant_context(db, client_id=cid, project_id=pid)
+        has_plan = (await db.execute(text(
+            "SELECT count(*) FROM project_plans WHERE project_id=:p "
+            "AND deleted_at IS NULL"
+        ), {"p": str(pid)})).scalar()
+        if not int(has_plan or 0):
+            from datetime import date as _date, timedelta as _td
+            from backend.app.motors.m17_planning.planning_service import (
+                generate_plan,
+            )
+            await generate_plan(db, pid, tier, _date.today() - _td(days=30))
+            await db.execute(text(
+                "UPDATE project_plans SET estado='approved' WHERE project_id=:p"
+            ), {"p": str(pid)})
+        await db.commit()
+    except Exception as exc:  # noqa: BLE001
+        extras_errors.append(f"plan: {exc}")
+        await db.rollback()
+
+    # ── dossier run (audit_preparation_runs) → vista documents auditor ──
+    try:
+        await db.execute(text("SET LOCAL ROLE fulkro_app_bypassrls"))
+        await set_tenant_context(db, client_id=cid, project_id=pid)
+        has_run = (await db.execute(text(
+            "SELECT count(*) FROM audit_preparation_runs WHERE project_id=:p"
+        ), {"p": str(pid)})).scalar()
+        if not int(has_run or 0):
+            from datetime import datetime as _dt, timezone as _tz
+            from backend.app.models.audit_prep import AuditPreparationRun
+            db.add(AuditPreparationRun(
+                project_id=pid, categoria=tier, estado="dossier_generated",
+                dossier_generated_at=_dt.now(_tz.utc), readiness_score=95,
+            ))
+        await db.commit()
+    except Exception as exc:  # noqa: BLE001
+        extras_errors.append(f"dossier-run: {exc}")
+        await db.rollback()
+
     # ── counts finales ──
     await db.execute(text("SET LOCAL ROLE fulkro_app_bypassrls"))
     dda_aplic = (await db.execute(text(
