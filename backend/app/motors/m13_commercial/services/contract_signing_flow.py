@@ -496,6 +496,22 @@ class ContractSigningFlow:
             scope=scope,
         )
 
+        # Defensa RLS (defecto detectado en sim MEDIO E2E): cuando el proyecto
+        # del contrato YA estaba establecido, handle_contract_signed toma el path
+        # set_tenant_context(client_id=…) SIN project_id → current_project_id()
+        # queda sin fijar y la firma sobre signing_intents
+        # (RLS: project_id = current_project_id()) matchea 0 filas → StaleDataError.
+        # Re-fijamos explícitamente el contexto del intent antes de firmar.
+        from backend.app.database import set_tenant_context as _set_tenant_ctx
+
+        await _set_tenant_ctx(
+            self.db,
+            client_id=(
+                uuid.UUID(client_id) if isinstance(client_id, str) else client_id
+            ),
+            project_id=intent.project_id,
+        )
+
         # 3) Firma canvas Ed25519 + hash chain (m05 · sobre documento_sha256).
         event = await SigningService(self.db).sign_canvas(
             intent_id=intent.id,

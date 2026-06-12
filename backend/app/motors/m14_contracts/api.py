@@ -301,6 +301,11 @@ async def send_to_client(
     except (ContractSigningFlowError, ContractNotFoundError) as exc:
         raise HTTPException(status_code=400, detail=str(exc))
     await db.commit()
+    # Tras el commit se pierde el contexto RLS (`set_tenant_context` usa
+    # SET LOCAL · transaction-scoped) → re-leer el contrato sin re-establecerlo
+    # devuelve None bajo RLS y revienta al serializar (AttributeError NoneType).
+    # Defecto detectado en la simulación MEDIO E2E (envío de contrato al cliente).
+    await _set_project_rls(project_id, db)
     c = await svc.get_contract(db, contract_id)
     return {"contract": _serialize(c), "magic_link": link}
 

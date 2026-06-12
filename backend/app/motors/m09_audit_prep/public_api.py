@@ -580,9 +580,12 @@ async def auditor_portal_magerit(
     ]
 
     # Risks aggregated · count by severity
+    # magerit_threat_assessment NO tiene soft-delete (sin columna deleted_at) →
+    # filtrar por deleted_at reventaba la vista del auditor (500). Defecto real
+    # detectado en la sim full-cloth (auditor portal · vista MAGERIT).
     risk_counts_row = (await db.execute(sa_text(
         "SELECT count(*) FROM magerit_threat_assessment "
-        "WHERE analysis_id = :aid AND deleted_at IS NULL"
+        "WHERE analysis_id = :aid"
     ), {"aid": str(analysis_id)})).first()
 
     await db.commit()

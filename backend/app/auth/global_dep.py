@@ -115,6 +115,12 @@ WHITELIST_PREFIX: tuple[str, ...] = (
     # useMagicLinkStatus llama /by-token -> debe retornar 200/404, NUNCA 401.
     # Bug pre-existente desde 4.D similar a H49 (consume) y H51 (onboarding consume).
     "/api/v1/magic-links/by-token/",
+    # Sim MEDIO E2E fix: #43 firma de CONTRATO por magic-link público
+    # (/contract-signing/{preview,confirm}). La credencial es el token +
+    # OTP validados DENTRO del endpoint (ContractSigningFlow), NO una sesión.
+    # Defecto latente: fase_43 siempre saltaba → nunca se ejerció el confirm →
+    # un lead real firmando su contrato recibía 401 (auth global sin sesión).
+    "/api/v1/contract-signing/",
     # H54 fix continuacion: catalogo LMS individual /lms/courses/{codigo}.
     "/api/v1/onboarding/lms/courses/",
     "/docs/",                     # Swagger assets (CSS, JS)

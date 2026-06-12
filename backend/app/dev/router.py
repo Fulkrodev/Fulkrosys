@@ -374,6 +374,116 @@ async def set_test_project_category(
     )
 
 
+# ════════════════════════════════════════════════════════════════════
+# Sim MEDIO full-cloth · lever del arco comercial "de cero"
+# ════════════════════════════════════════════════════════════════════
+class SeedCommercialLeadResponse(BaseModel):
+    lead_id: str
+    project_id: str
+    client_id: str
+    empresa_nombre: str
+    empresa_cif: str
+    contacto_email: str
+    categoria_objetivo_ens: str
+
+
+@router.post(
+    "/seed-commercial-lead", response_model=SeedCommercialLeadResponse
+)
+async def seed_commercial_lead(
+    project_id: str | None = Query(
+        default=None,
+        description="Proyecto destino · si se omite usa el test project E2E",
+    ),
+    db: AsyncSession = Depends(get_db),
+) -> SeedCommercialLeadResponse:
+    """Crea un Lead ficticio realista (empresa privada que licita a la AAPP ·
+    categoría MEDIA) y enriquece la identidad del cliente de test
+    (razon_social/domicilio/contacto/sector · NUNCA el `cif`, que es la clave de
+    lookup de los demás levers) para que el arco comercial E2E
+    (propuesta → contrato → firma) sea 'de cero' y los entregables (contrato,
+    E-040, distintivo) lean con datos realistas.
+
+    No existe endpoint `POST /leads` (los leads venían del radar retirado): este
+    lever cubre el ÚNICO hueco de la cadena comercial. El resto (propuesta,
+    contrato, sign-marcos, send-client) se conduce vía la API real
+    `/commercial` + `/contracts`. Idempotent (dedup de lead por email+origen).
+    Env-gated non-production.
+    """
+    _require_non_production()
+    from backend.app.motors.m13_commercial.services.lead_service import (
+        LeadService,
+    )
+
+    await db.execute(text("SET LOCAL ROLE fulkro_app_bypassrls"))
+
+    test_client = (
+        await db.execute(select(Client).where(Client.cif == _TEST_CLIENT_CIF))
+    ).scalar_one_or_none()
+    if test_client is None:
+        raise HTTPException(
+            400, "Test client no existe · llamar /_dev/create-test-client primero",
+        )
+
+    if project_id:
+        target = (
+            await db.execute(
+                select(Project).where(Project.id == uuid.UUID(project_id))
+            )
+        ).scalar_one_or_none()
+    else:
+        target = (
+            await db.execute(
+                select(Project).where(
+                    Project.client_id == test_client.id,
+                    Project.nombre == _TEST_PROJECT_NOMBRE,
+                )
+            )
+        ).scalar_one_or_none()
+    if target is None:
+        raise HTTPException(
+            400, "Test project no existe · llamar /_dev/create-test-client primero",
+        )
+
+    # Identidad ficticia realista (NO el cif · es la clave de lookup).
+    empresa = "Innovación Digital del Guadalquivir, S.L."
+    test_client.nombre = empresa
+    if hasattr(test_client, "domicilio_fiscal"):
+        test_client.domicilio_fiscal = "C/ Luis Montoto 107, 41007 Sevilla"
+    if hasattr(test_client, "persona_contacto"):
+        test_client.persona_contacto = "Lucía Ramírez Cabrera"
+    if hasattr(test_client, "sector"):
+        test_client.sector = "Servicios tecnológicos · SaaS para la AAPP"
+    await db.flush()
+
+    lead = await LeadService(db).create_lead(
+        empresa_nombre=empresa,
+        contacto_email="lucia.ramirez@idguadalquivir.example",
+        empresa_cif=_TEST_CLIENT_CIF,
+        sector="Servicios tecnológicos · SaaS para la AAPP",
+        origen="manual",
+        contacto_telefono="+34 955 123 456",
+        contacto_position="Directora de Operaciones",
+        notas=(
+            "Lead ficticio E2E · empresa privada que licita a la AAPP · "
+            "requiere implantación y certificación ENS MEDIO para concursar."
+        ),
+        asignado_a="Marcos",
+        categoria_objetivo_ens="MEDIA",
+        estado_contacto="nuevo",
+    )
+    await db.commit()
+    return SeedCommercialLeadResponse(
+        lead_id=str(lead.id),
+        project_id=str(target.id),
+        client_id=str(test_client.id),
+        empresa_nombre=lead.empresa_nombre,
+        empresa_cif=_TEST_CLIENT_CIF,
+        contacto_email=lead.contacto_email or "",
+        categoria_objetivo_ens="MEDIA",
+    )
+
+
 class LoginAsMarcosResponse(BaseModel):
     user_id: str
     email: str
@@ -821,12 +931,17 @@ _RISKS_SEED: list[tuple[str, str, str, int, int, int, int, int]] = [
     response_model=SeedMageritAltaResponse,
 )
 async def seed_magerit_alta_data(
+    key: str | None = Query(
+        default=None,
+        description="Cliente dedicado por tier (mismo key que seed-dda-alta-project)",
+    ),
     db: AsyncSession = Depends(get_db),
 ) -> SeedMageritAltaResponse:
     """Seed MAGERIT data E2E · 8 assets + 12 risks + threat catalog · idempotent.
 
     Requires `seed-dda-alta-project` invocado previamente (reusa test project +
     cliente). Si MAGERIT analysis ya tiene >=8 assets · idempotent skip.
+    El parámetro ``key`` opera sobre el CLIENTE DEDICADO del tier (aislamiento).
 
     Flow:
     1. Get test client + project (debe existir via seed-dda-alta-project)
@@ -839,8 +954,9 @@ async def seed_magerit_alta_data(
 
     await db.execute(text("SET LOCAL ROLE fulkro_app_bypassrls"))
 
+    cif, _ue, project_nombre, _cn = _resolve_test_identity(key)
     test_client = (
-        await db.execute(select(Client).where(Client.cif == _TEST_CLIENT_CIF))
+        await db.execute(select(Client).where(Client.cif == cif))
     ).scalar_one_or_none()
     if test_client is None:
         raise HTTPException(
@@ -851,7 +967,7 @@ async def seed_magerit_alta_data(
     test_project = (await db.execute(
         select(Project).where(
             Project.client_id == test_client.id,
-            Project.nombre == _TEST_PROJECT_NOMBRE,
+            Project.nombre == project_nombre,
         )
     )).scalar_one_or_none()
     if test_project is None:
@@ -995,13 +1111,17 @@ class SeedPentestAuthResponse(BaseModel):
     response_model=SeedPentestAuthResponse,
 )
 async def seed_pentest_auth_data(
+    key: str | None = Query(
+        default=None,
+        description="Cliente dedicado por tier (mismo key que seed-dda-alta-project)",
+    ),
     db: AsyncSession = Depends(get_db),
 ) -> SeedPentestAuthResponse:
     """Seed pentest authorization E2E · VerificationRun realistic data · idempotent.
 
     Requires seed-dda-alta-project invocado previamente (reusa test project +
     cliente). Si VerificationRun ya existe con authorization_signed_at NOT NULL
-    · idempotent skip.
+    · idempotent skip. El parámetro ``key`` opera sobre el CLIENTE DEDICADO.
 
     Datos seed:
     - Scope: 2 targets staging + 3 exclusions + credentials_provided=True
@@ -1018,8 +1138,9 @@ async def seed_pentest_auth_data(
 
     await db.execute(text("SET LOCAL ROLE fulkro_app_bypassrls"))
 
+    cif, _ue, project_nombre, _cn = _resolve_test_identity(key)
     test_client = (
-        await db.execute(select(Client).where(Client.cif == _TEST_CLIENT_CIF))
+        await db.execute(select(Client).where(Client.cif == cif))
     ).scalar_one_or_none()
     if test_client is None:
         raise HTTPException(
@@ -1030,7 +1151,7 @@ async def seed_pentest_auth_data(
     test_project = (await db.execute(
         select(Project).where(
             Project.client_id == test_client.id,
-            Project.nombre == _TEST_PROJECT_NOMBRE,
+            Project.nombre == project_nombre,
         )
     )).scalar_one_or_none()
     if test_project is None:
@@ -1494,6 +1615,237 @@ async def seed_conformidad_ready_data(
             + (f" + {policies_count} policies" if tier == "ALTA" else "")
             + f" · declaration_type={decl_type}"
         ),
+    )
+
+
+# ════════════════════════════════════════════════════════════════════
+# Sim full-cloth · IMPLANTACIÓN ENS COMPLETA por tier (BÁSICA/MEDIA/ALTA)
+# ════════════════════════════════════════════════════════════════════
+class SeedFullImplantationResponse(BaseModel):
+    tier: str
+    project_id: str
+    client_id: str
+    dda_aplicables: int
+    evidence_count: int
+    magerit_assets: int
+    conformity_route_state: str
+    distintivo_document_id: str | None
+    e040_cumplimiento_global: float | None
+    extras_errors: list[str]
+    note: str
+
+
+@router.post(
+    "/seed-full-implantation", response_model=SeedFullImplantationResponse
+)
+async def seed_full_implantation(
+    tier: str = Query(..., description="BASICA | MEDIA | ALTA"),
+    key: str = Query(
+        ...,
+        description="conformidad-basica | conformidad-media | conformidad-alta",
+    ),
+    db: AsyncSession = Depends(get_db),
+) -> SeedFullImplantationResponse:
+    """Implantación ENS COMPLETA, firmada y correcta para un cliente+proyecto
+    DEDICADO por tier (BÁSICA 52 / MEDIA 68 / ALTA 73 medidas aplicables Anexo II
+    RD 311/2022), persistida en la BD dev: DdA tier-correcta + freeze, MAGERIT,
+    pentest (ALTA), evidencias + políticas + firmas, E-040, ruta de conformidad
+    CONFORMANT, distintivo E-049 + cert externo (MEDIA/ALTA). Así el admin UI, el
+    portal cliente y el portal auditor renderizan datos REALES y los entregables
+    son correctos. Reusa los seeds keyed + la cadena de servicios de
+    test_sim_media. Idempotente. Los pasos 'extra' van envueltos: si alguno falla
+    se reporta en extras_errors sin abortar el núcleo.
+    """
+    _require_non_production()
+    tier = tier.upper()
+    if tier not in ("BASICA", "MEDIA", "ALTA"):
+        raise HTTPException(400, "tier debe ser BASICA|MEDIA|ALTA")
+
+    from backend.app.motors.m03_dda.enums import CategoriaSistema
+    from backend.app.motors.m03_dda.service import DdaService
+
+    RSEG = "Beatriz Seguridad López"
+    extras_errors: list[str] = []
+    cif, user_email, project_nombre, client_nombre = _resolve_test_identity(key)
+
+    # ── STEP 1 · cliente + usuario + proyecto dedicado (categoría = tier) ──
+    await db.execute(text("SET LOCAL ROLE fulkro_app_bypassrls"))
+    client = (
+        await db.execute(select(Client).where(Client.cif == cif))
+    ).scalar_one_or_none()
+    if client is None:
+        client = Client(id=uuid.uuid4(), nombre=client_nombre, cif=cif)
+        db.add(client)
+        await db.flush()
+    user = (await db.execute(
+        select(ClientUser).where(
+            ClientUser.client_id == client.id, ClientUser.email == user_email,
+        )
+    )).scalar_one_or_none()
+    if user is None:
+        user = ClientUser(
+            id=uuid.uuid4(), client_id=client.id, email=user_email,
+            password_hash=hash_password(_TEST_USER_PASSWORD),
+            full_name="Test E2E User", must_change_password=False,
+        )
+        db.add(user)
+        await db.flush()
+    project = (await db.execute(
+        select(Project).where(
+            Project.client_id == client.id, Project.nombre == project_nombre,
+        )
+    )).scalar_one_or_none()
+    if project is None:
+        project = Project(
+            id=uuid.uuid4(), client_id=client.id, nombre=project_nombre,
+            categoria_objetivo=tier, estado="active", lifecycle_state="ACTIVE",
+        )
+        db.add(project)
+        await db.flush()
+    else:
+        project.categoria_objetivo = tier
+        await db.flush()
+    pid = project.id
+    cid = client.id  # capturar valor: commits posteriores expiran el ORM obj
+    await set_tenant_context(db, client_id=cid, project_id=pid)
+
+    # ── STEP 3 · DdA TIER-CORRECTA + FREEZE ──
+    existing = (await db.execute(text(
+        "SELECT count(*) FROM dda_entries WHERE project_id=:p AND deleted_at IS NULL"
+    ), {"p": str(pid)})).scalar()
+    if int(existing or 0) < 70:
+        await DdaService(db).generate_dda(
+            pid, CategoriaSistema[tier], responsable=RSEG, enforce_gates=False,
+        )
+    await db.execute(text(
+        "UPDATE dda_entries SET estado_implementacion='implantada', aprobado_por=:r, "
+        "fecha_aprobacion=current_date WHERE project_id=:p AND aplicabilidad <> 'no_aplica'"
+    ), {"r": RSEG, "p": str(pid)})
+    await db.commit()
+
+    # ── STEP 4 · MAGERIT (keyed) ──
+    try:
+        await seed_magerit_alta_data(key=key, db=db)
+    except Exception as exc:  # noqa: BLE001
+        extras_errors.append(f"magerit: {exc}")
+        await db.rollback()
+
+    # ── STEP 5 · pentest (solo ALTA) ──
+    if tier == "ALTA":
+        try:
+            await seed_pentest_auth_data(key=key, db=db)
+        except Exception as exc:  # noqa: BLE001
+            extras_errors.append(f"pentest: {exc}")
+            await db.rollback()
+
+    # ── STEP 6-9 · evidencias + políticas + firmas + declaración draft ──
+    try:
+        await seed_conformidad_ready_data(tier=tier, key=key, db=db)
+    except Exception as exc:  # noqa: BLE001
+        extras_errors.append(f"conformidad-ready: {exc}")
+        await db.rollback()
+
+    # ── EXTRAS · E-040 + ruta CONFORMANT + distintivo E-049 (+ cert ext) ──
+    await db.execute(text("SET LOCAL ROLE fulkro_app_bypassrls"))
+    await set_tenant_context(db, client_id=cid, project_id=pid)
+
+    e040_pct: float | None = None
+    try:
+        from backend.app.motors.m06_document_factory.service import (
+            DocumentFactoryService,
+        )
+        from backend.app.motors.m06_document_factory.informe_final_generator import (
+            build_informe_final_context,
+        )
+        svc = DocumentFactoryService(db)
+        await svc.load_template_metadata_from_catalog()
+        e040_ctx = await build_informe_final_context(db, pid)
+        e040_pct = float(e040_ctx["informe"]["cumplimiento_global"])
+        await svc.generate_document(
+            project_id=pid, template_codigo="E-040", context=e040_ctx,
+            generate_pdf=False, sign=False, generated_by="sim",
+        )
+        await db.commit()
+    except Exception as exc:  # noqa: BLE001
+        extras_errors.append(f"e040: {exc}")
+        await db.rollback()
+        await db.execute(text("SET LOCAL ROLE fulkro_app_bypassrls"))
+        await set_tenant_context(db, client_id=cid, project_id=pid)
+
+    # ruta de conformidad → CONFORMANT
+    try:
+        # el commit del E-040 resetea SET LOCAL ROLE → re-fijar bypassrls + tenant
+        await db.execute(text("SET LOCAL ROLE fulkro_app_bypassrls"))
+        await set_tenant_context(db, client_id=cid, project_id=pid)
+        from backend.app.models.conformity_lifecycle import ConformityRouteRow
+        route_type = "declaracion_basica" if tier == "BASICA" else "certificacion_enac"
+        existing_route = (await db.execute(
+            select(ConformityRouteRow)
+            .where(ConformityRouteRow.project_id == pid)
+            .order_by(ConformityRouteRow.created_at.desc())
+        )).scalars().first()
+        if existing_route is None or existing_route.status not in (
+            "CONFORMANT", "REGISTERED",
+        ):
+            db.add(ConformityRouteRow(
+                project_id=pid, route_type=route_type, status="CONFORMANT",
+            ))
+        await db.commit()
+    except Exception as exc:  # noqa: BLE001
+        extras_errors.append(f"conformity-route: {exc}")
+        await db.rollback()
+
+    # distintivo E-049 + REGISTERED (+ cert externo MEDIA/ALTA)
+    distintivo_id: str | None = None
+    try:
+        await db.execute(text("SET LOCAL ROLE fulkro_app_bypassrls"))
+        await set_tenant_context(db, client_id=cid, project_id=pid)
+        from backend.app.motors.m27_conformity.distintivo_persistence import (
+            attach_distintivo_on_registered, attach_external_certificate,
+        )
+        dist = await attach_distintivo_on_registered(db, pid, generated_by="sim")
+        distintivo_id = (
+            dist.get("distintivo_document_id") or dist.get("document_id")
+            if isinstance(dist, dict) else None
+        )
+        if tier in ("MEDIA", "ALTA"):
+            await attach_external_certificate(
+                db, pid, filename="cert_enac.pdf",
+                content=b"%PDF-1.5 certificado entidad de certificacion acreditada ENAC",
+                content_type="application/pdf",
+            )
+        await db.commit()
+    except Exception as exc:  # noqa: BLE001
+        extras_errors.append(f"distintivo: {exc}")
+        await db.rollback()
+
+    # ── counts finales ──
+    await db.execute(text("SET LOCAL ROLE fulkro_app_bypassrls"))
+    dda_aplic = (await db.execute(text(
+        "SELECT count(*) FROM dda_entries WHERE project_id=:p "
+        "AND aplicabilidad <> 'no_aplica' AND deleted_at IS NULL"
+    ), {"p": str(pid)})).scalar()
+    ev_count = (await db.execute(text(
+        "SELECT count(*) FROM evidence WHERE project_id=:p AND deleted_at IS NULL"
+    ), {"p": str(pid)})).scalar()
+    mag_count = (await db.execute(text(
+        "SELECT count(*) FROM magerit_assets a JOIN magerit_analysis an "
+        "ON a.analysis_id = an.id WHERE an.project_id=:p"
+    ), {"p": str(pid)})).scalar() or 0
+    route = (await db.execute(text(
+        "SELECT status FROM conformity_routes WHERE project_id=:p "
+        "ORDER BY created_at DESC LIMIT 1"
+    ), {"p": str(pid)})).scalar()
+
+    return SeedFullImplantationResponse(
+        tier=tier, project_id=str(pid), client_id=str(cid),
+        dda_aplicables=int(dda_aplic or 0), evidence_count=int(ev_count or 0),
+        magerit_assets=int(mag_count or 0),
+        conformity_route_state=str(route or "NONE"),
+        distintivo_document_id=distintivo_id,
+        e040_cumplimiento_global=e040_pct,
+        extras_errors=extras_errors,
+        note=f"Implantacion {tier} para '{project_nombre}' (cif {cif})",
     )
 
 
