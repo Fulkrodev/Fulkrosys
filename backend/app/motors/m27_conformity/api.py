@@ -21,7 +21,7 @@ from __future__ import annotations
 import uuid
 from datetime import date, datetime, timedelta, timezone
 
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, File, HTTPException, UploadFile, status
 from sqlalchemy import desc, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -1022,4 +1022,122 @@ async def admin_badge_svg(
             "X-Cert-Id": str(ctx.cert_id),
             "X-Public-URL": ctx.public_badge_url,
         },
+    )
+
+
+# ════════════════════════════════════════════════════════════════════
+# R26 · Distintivo de Conformidad (CCN-STIC 809) como Document descargable
+#       adjunto a REGISTERED + slot del certificado de entidad acreditada.
+# ════════════════════════════════════════════════════════════════════
+
+_MAX_CERT_BYTES = 25 * 1024 * 1024  # 25 MB tope para el certificado externo
+
+
+@router.post("/projects/{project_id}/distintivo/issue")
+async def issue_distintivo(
+    project_id: uuid.UUID,
+    db: AsyncSession = Depends(get_db),
+) -> dict:
+    """Emite el Distintivo de Conformidad (CCN-STIC 809) y lo adjunta a la ruta.
+
+    Requiere la conformidad confirmada (ruta en CONFORMANT o posterior); si está
+    en CONFORMANT la transiciona a REGISTERED. Idempotente. El distintivo es el
+    artefacto AUTOPUBLICABLE que genera FULKRO; NO es el «certificado» de la
+    entidad de certificación acreditada (ese se adjunta aparte, MEDIA/ALTA).
+    """
+    if await _set_project_rls(project_id, db) is None:
+        raise HTTPException(404, "Project not found")
+    from .distintivo_persistence import (
+        DistintivoIssueError,
+        attach_distintivo_on_registered,
+    )
+
+    try:
+        result = await attach_distintivo_on_registered(db, project_id)
+    except DistintivoIssueError as exc:
+        raise HTTPException(409, str(exc)) from exc
+    await db.commit()
+    return result
+
+
+@router.get("/projects/{project_id}/distintivo/download")
+async def download_distintivo(
+    project_id: uuid.UUID,
+    db: AsyncSession = Depends(get_db),
+):
+    """Descarga el Distintivo de Conformidad (CCN-STIC 809) en DOCX."""
+    from fastapi.responses import Response
+
+    if await _set_project_rls(project_id, db) is None:
+        raise HTTPException(404, "Project not found")
+    from .distintivo_persistence import read_distintivo_bytes
+
+    data, filename = await read_distintivo_bytes(db, project_id)
+    return Response(
+        content=data,
+        media_type=(
+            "application/vnd.openxmlformats-officedocument."
+            "wordprocessingml.document"
+        ),
+        headers={"Content-Disposition": f'attachment; filename="{filename}"'},
+    )
+
+
+@router.post("/projects/{project_id}/external-certificate")
+async def upload_external_certificate(
+    project_id: uuid.UUID,
+    file: UploadFile = File(...),
+    db: AsyncSession = Depends(get_db),
+) -> dict:
+    """Adjunta el CERTIFICADO de la entidad de certificación acreditada (MEDIA/ALTA).
+
+    FULKRO NUNCA emite este documento: es el certificado oficial de la entidad
+    acreditada. Solo se persiste como ``Document`` y se enlaza a la ruta. PDF.
+    """
+    if await _set_project_rls(project_id, db) is None:
+        raise HTTPException(404, "Project not found")
+    content = await file.read()
+    if len(content) > _MAX_CERT_BYTES:
+        raise HTTPException(413, "El certificado excede el tamaño máximo (25 MB).")
+    from .distintivo_persistence import (
+        DistintivoIssueError,
+        attach_external_certificate,
+    )
+
+    try:
+        result = await attach_external_certificate(
+            db, project_id,
+            filename=file.filename or "certificado.pdf",
+            content=content,
+            content_type=file.content_type,
+        )
+    except DistintivoIssueError as exc:
+        raise HTTPException(422, str(exc)) from exc
+    await db.commit()
+    return result
+
+
+@router.get("/projects/{project_id}/external-certificate/download")
+async def download_external_certificate(
+    project_id: uuid.UUID,
+    db: AsyncSession = Depends(get_db),
+):
+    """Descarga el certificado de la entidad acreditada (404 si no adjunto)."""
+    from fastapi.responses import Response
+
+    if await _set_project_rls(project_id, db) is None:
+        raise HTTPException(404, "Project not found")
+    from .distintivo_persistence import read_external_certificate_bytes
+
+    result = await read_external_certificate_bytes(db, project_id)
+    if result is None:
+        raise HTTPException(
+            404,
+            "No hay certificado de entidad acreditada adjunto para este proyecto.",
+        )
+    data, filename = result
+    return Response(
+        content=data,
+        media_type="application/pdf",
+        headers={"Content-Disposition": f'attachment; filename="{filename}"'},
     )

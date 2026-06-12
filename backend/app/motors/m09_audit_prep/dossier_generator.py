@@ -79,6 +79,11 @@ DELIVERABLE_TO_FOLDER: dict[str, str] = {
     "E-041": "01_GOBIERNO",
     "E-042": "01_GOBIERNO",
     "E-043": "01_GOBIERNO",
+    # R26 · artefactos de cierre de conformidad (corporate-level · 01_GOBIERNO):
+    # E-049 = Distintivo de Conformidad CCN-STIC 809 (generado por FULKRO) ·
+    # E-049-EXT = Certificado de la entidad de certificación acreditada (MEDIA/ALTA).
+    "E-049": "01_GOBIERNO",
+    "E-049-EXT": "01_GOBIERNO",
     "E-050": "03_ANALISIS_RIESGOS",
     "E-400": "10_PLAN_CONTINUIDAD",
     "E-500": "10_PLAN_CONTINUIDAD",
@@ -124,7 +129,7 @@ _DOSSIER_TOTAL_MB_BY_LEVEL: dict[str, int] = {
 #   técnico / pentest · E-049 = Distintivo de Conformidad CCN-STIC 809 (autopublicable;
 #   NO es el «certificado» de la entidad de certificación acreditada).
 _CANONICAL_DOSSIER_CODES: frozenset[str] = frozenset({
-    "E-040", "E-041", "E-808C", "E-808", "E-130", "E-131", "E-049",
+    "E-040", "E-041", "E-808C", "E-808", "E-130", "E-131", "E-049", "E-049-EXT",
 })
 # clasificaciones/tipos canónicos (defensa adicional si falta template_codigo).
 _CANONICAL_DOSSIER_TIPOS: frozenset[str] = frozenset({

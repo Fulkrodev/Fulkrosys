@@ -92,7 +92,8 @@ async def build_distintivo_context(
             "SELECT p.id, p.client_id, "
             "       COALESCE(c.nombre, 'Cliente') AS client_name, "
             "       COALESCE(c.cif, '') AS cif, "
-            "       COALESCE(p.nombre, 'Sistema') AS system_name "
+            "       COALESCE(p.nombre, 'Sistema') AS system_name, "
+            "       COALESCE(c.domicilio_fiscal, '') AS domicilio "
             "FROM projects p "
             "LEFT JOIN clients c ON c.id = p.client_id "
             "WHERE p.id = :pid"
@@ -106,6 +107,7 @@ async def build_distintivo_context(
     client_id = proj[1]
     client_name = str(proj[2])
     client_cif = str(proj[3] or "")
+    client_domicilio = str(proj[5] or "")
 
     # Categoría
     cat_row = await db.execute(
@@ -216,7 +218,7 @@ async def build_distintivo_context(
         cert_id=cert_id,
         client_name=client_name,
         client_cif=client_cif,
-        client_domicilio="",
+        client_domicilio=client_domicilio,
         system_name=str(proj[4]),
         system_category=str(system_category),
         today=today.isoformat(),
@@ -321,22 +323,62 @@ def generate_declaration_docx(ctx: DistintivoContext) -> io.BytesIO:
     sub_run.bold = True
     sub_run.font.size = Pt(13)
 
+    is_basica = (ctx.system_category or "").strip().upper() == "BASICA"
+
+    # Naturaleza del artefacto · regla de nomenclatura CCN-STIC 809 (R26): lo que
+    # FULKRO genera es el DISTINTIVO de conformidad (autopublicable). La palabra
+    # «certificado» queda reservada al documento de la entidad de certificación
+    # acreditada (MEDIA/ALTA), que NUNCA emite FULKRO.
+    disc = doc.add_paragraph()
+    disc.alignment = WD_ALIGN_PARAGRAPH.CENTER
+    if is_basica:
+        disc_text = (
+            "Distintivo de Conformidad con el ENS (CCN-STIC 809) · "
+            "Autoevaluación de categoría BÁSICA. La categoría BÁSICA se acredita "
+            "por autoevaluación, sin certificación por entidad acreditada."
+        )
+    else:
+        disc_text = (
+            "Distintivo de Conformidad con el ENS (CCN-STIC 809) · artefacto "
+            "autopublicable por la entidad. NO sustituye al certificado de "
+            "conformidad emitido por la entidad de certificación acreditada, que "
+            "es el documento de certificación oficial para las categorías "
+            "MEDIA y ALTA."
+        )
+    disc_run = disc.add_run(disc_text)
+    disc_run.italic = True
+    disc_run.font.size = Pt(9)
+
     doc.add_paragraph(
         f"Cliente: {ctx.client_name} ({ctx.client_cif})\n"
+        f"Domicilio fiscal: {ctx.client_domicilio or '(no informado)'}\n"
         f"Sistema: {ctx.system_name}\n"
-        f"Identificador certificado: {ctx.cert_id}\n"
+        f"Identificador del distintivo: {ctx.cert_id}\n"
         f"Fecha emisión: {ctx.today}\n"
         f"Vigencia: {DEFAULT_VALIDITY_YEARS} años (vencimiento {ctx.expiry_date})\n"
         f"Plantilla: {DECLARATION_DOCUMENT_KIND} v{DISTINTIVO_TEMPLATE_VERSION}"
     )
 
     _add_heading(doc, "1. Identificación de la entidad", 1)
-    doc.add_paragraph(
-        f"{ctx.client_name} ({ctx.client_cif}) declara haber cumplido los "
-        f"requisitos del Esquema Nacional de Seguridad (RD 311/2022) en la "
-        f"Categoría {ctx.system_category}, conforme al procedimiento de "
-        f"autoevaluación CCN-STIC 809."
-    )
+    if is_basica:
+        ident_text = (
+            f"{ctx.client_name} ({ctx.client_cif}), con domicilio fiscal en "
+            f"{ctx.client_domicilio or '(no informado)'}, declara haber cumplido "
+            f"los requisitos del Esquema Nacional de Seguridad (RD 311/2022) en la "
+            f"Categoría {ctx.system_category}, conforme al procedimiento de "
+            f"autoevaluación CCN-STIC 809."
+        )
+    else:
+        ident_text = (
+            f"{ctx.client_name} ({ctx.client_cif}), con domicilio fiscal en "
+            f"{ctx.client_domicilio or '(no informado)'}, ha completado la "
+            f"implantación del Esquema Nacional de Seguridad (RD 311/2022) en la "
+            f"Categoría {ctx.system_category}. La conformidad se verifica mediante "
+            f"auditoría de certificación por entidad de certificación acreditada "
+            f"(CCN-STIC 808); este distintivo (CCN-STIC 809) acompaña, y no "
+            f"sustituye, a dicho certificado."
+        )
+    doc.add_paragraph(ident_text)
 
     _add_heading(doc, "2. Sistema certificado y alcance", 1)
     doc.add_paragraph(

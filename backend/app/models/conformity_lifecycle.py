@@ -56,6 +56,18 @@ class ConformityRouteRow(UUIDPrimaryKeyMixin, Base):
     accepted_at: Mapped[datetime | None] = mapped_column(TIMESTAMP(timezone=True))
     expiration_date: Mapped[date | None] = mapped_column(Date)
     metadata_jsonb: Mapped[dict | None] = mapped_column(JSONB)
+    # R26 · al alcanzar REGISTERED se adjunta como Document descargable:
+    #  - distintivo_document_id  → DISTINTIVO de conformidad CCN-STIC 809 que
+    #    GENERA FULKRO (autopublicable · nº + vigencia 2 años).
+    #  - external_cert_document_id → CERTIFICADO emitido por la entidad de
+    #    certificación acreditada (MEDIA/ALTA · slot de adjunto · FULKRO NUNCA
+    #    lo emite; se persiste cuando la entidad lo entrega).
+    distintivo_document_id: Mapped[uuid.UUID | None] = mapped_column(
+        ForeignKey("documents.id", ondelete="SET NULL"), nullable=True,
+    )
+    external_cert_document_id: Mapped[uuid.UUID | None] = mapped_column(
+        ForeignKey("documents.id", ondelete="SET NULL"), nullable=True,
+    )
     created_at: Mapped[datetime] = mapped_column(
         TIMESTAMP(timezone=True),
         server_default=text("now()"),
