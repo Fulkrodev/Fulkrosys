@@ -1944,4 +1944,136 @@ async def portal_categorizacion(
     }
 
 
+# ════════════════════════════════════════════════════════════════════
+# Oferta de retainer post-certificación (in-portal · cookie) — defecto P0
+# El backend (offer_retainer) emitía notificación a /client-portal/retainer
+# pero la ruta + el endpoint NO existían (notificación a 404). Aquí se cubre.
+# ════════════════════════════════════════════════════════════════════
+_RETAINER_PRICING: dict[str, dict[str, Any]] = {
+    "R_MICRO": {"label": "Micro", "precio_mensual": 150,
+                "sla": "Soporte mensual · incidencias básicas"},
+    "R_LITE": {"label": "Lite", "precio_mensual": 300,
+               "sla": "Soporte mensual ampliado"},
+    "R_STD": {"label": "Estándar", "precio_mensual": 700,
+              "sla": "Comité trimestral · base del servicio (MEDIA)"},
+    "R_PLUS": {"label": "Plus", "precio_mensual": 1200,
+               "sla": "Soporte prioritario"},
+    "R_CRITICAL": {"label": "Crítico", "precio_mensual": 3000,
+                   "sla": "SOC + DR + monitorización 24/7"},
+}
+_TIER_RECOMMENDED: dict[str, list[str]] = {
+    "BASICA": ["R_MICRO", "R_LITE"],
+    "MEDIA": ["R_STD"],
+    "ALTA": ["R_PLUS", "R_CRITICAL"],
+}
+
+
+class RetainerOfferTier(BaseModel):
+    tier_code: str
+    label: str
+    precio_mensual: float
+    sla: str
+    recommended: bool
+
+
+class RetainerOfferResponse(BaseModel):
+    project_id: str
+    project_name: str
+    categoria: Optional[str]
+    certified_at: Optional[str]
+    lifecycle_state: Optional[str]
+    recommended_tiers: list[str]
+    tiers: list[RetainerOfferTier]
+
+
+@portal_router.get(
+    "/retainer-offer", response_model=RetainerOfferResponse,
+)
+async def get_retainer_offer(
+    user: ClientUser = Depends(get_current_client_user),
+    db: AsyncSession = Depends(get_db),
+) -> RetainerOfferResponse:
+    """Oferta de retainer post-certificación para el proyecto (único, R27) del
+    cliente logueado. 404 si aún no está CERTIFIED/RETAINER."""
+    await db.execute(
+        text("SELECT set_config('app.current_client_id', :c, true)"),
+        {"c": str(user.client_id)},
+    )
+    row = (await db.execute(text(
+        "SELECT id, nombre, categoria_objetivo, lifecycle_state, certified_at "
+        "FROM projects WHERE client_id=:c AND deleted_at IS NULL "
+        "ORDER BY (lifecycle_state IN ('CERTIFIED','RETAINER')) DESC, "
+        "created_at DESC LIMIT 1"
+    ), {"c": str(user.client_id)})).first()
+    if row is None:
+        raise HTTPException(status_code=404, detail="Proyecto no encontrado")
+    project_id, nombre, cat, state, certified_at = row
+    if state not in ("CERTIFIED", "RETAINER"):
+        raise HTTPException(
+            status_code=404,
+            detail="El proyecto aún no está certificado · sin oferta de retainer.",
+        )
+    recommended = _TIER_RECOMMENDED.get((cat or "").upper(), ["R_STD"])
+    tiers = [
+        RetainerOfferTier(
+            tier_code=k, label=v["label"],
+            precio_mensual=float(v["precio_mensual"]),
+            sla=v["sla"], recommended=(k in recommended),
+        )
+        for k, v in _RETAINER_PRICING.items()
+    ]
+    return RetainerOfferResponse(
+        project_id=str(project_id), project_name=nombre or "Tu proyecto ENS",
+        categoria=cat,
+        certified_at=certified_at.isoformat() if certified_at else None,
+        lifecycle_state=state, recommended_tiers=recommended, tiers=tiers,
+    )
+
+
+class RetainerDecisionIn(BaseModel):
+    decision: str = Field(..., description="accept | decline | thinking")
+    tier: Optional[str] = None
+
+
+@portal_router.post("/retainer-offer/{project_id}/decision")
+async def post_retainer_decision(
+    project_id: uuid.UUID,
+    body: RetainerDecisionIn,
+    user: ClientUser = Depends(get_current_client_user),
+    db: AsyncSession = Depends(get_db),
+) -> dict[str, Any]:
+    """El cliente acepta/rechaza la oferta (in-portal · cookie). accept → crea
+    retainer M23 + lifecycle_state=RETAINER. Reusa el servicio (el endpoint
+    admin /lifecycle/decision es require_owner · no accesible al cliente)."""
+    from backend.app.motors.m25_lifecycle.lifecycle_paso4 import (
+        LifecyclePaso4Error, LifecyclePaso4Service,
+    )
+    await db.execute(
+        text("SELECT set_config('app.current_client_id', :c, true)"),
+        {"c": str(user.client_id)},
+    )
+    owner = (await db.execute(
+        text("SELECT client_id FROM projects WHERE id=:p"), {"p": str(project_id)},
+    )).scalar()
+    if owner is None or str(owner) != str(user.client_id):
+        raise HTTPException(status_code=404, detail="Proyecto no encontrado")
+    await db.execute(
+        text("SELECT set_config('app.current_project_id', :p, true)"),
+        {"p": str(project_id)},
+    )
+    precio = (
+        float(_RETAINER_PRICING.get(body.tier or "", {}).get("precio_mensual", 0))
+        if body.decision == "accept" else 0.0
+    )
+    try:
+        result = await LifecyclePaso4Service().handle_retainer_decision(
+            db, project_id, decision=body.decision, tier=body.tier,
+            precio_mensual=precio, performed_by="cliente",
+        )
+    except LifecyclePaso4Error as exc:
+        raise HTTPException(status_code=400, detail=str(exc))
+    await db.commit()
+    return result
+
+
 __all__ = ["auth_router", "portal_router", "cockpit_router"]
