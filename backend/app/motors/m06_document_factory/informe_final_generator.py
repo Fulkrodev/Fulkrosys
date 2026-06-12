@@ -140,7 +140,8 @@ async def build_informe_final_context(
         sa_text(
             "SELECT p.client_id, COALESCE(c.nombre, 'Cliente') AS razon_social, "
             "  p.fecha_kickoff, p.fecha_objetivo_certificacion, p.certified_at, "
-            "  p.categoria_objetivo "
+            "  p.categoria_objetivo, COALESCE(c.cif,'') AS nif, "
+            "  COALESCE(c.domicilio_fiscal,'') AS domicilio "
             "FROM projects p LEFT JOIN clients c ON c.id = p.client_id "
             "WHERE p.id = :pid"
         ),
@@ -150,6 +151,8 @@ async def build_informe_final_context(
         raise InformeFinalEmptyError(f"Project {project_id} no existe")
     client_id = proj[0]
     razon_social = str(proj[1])
+    cliente_nif = str(proj[6] or "") or "(NIF pendiente)"
+    cliente_domicilio = str(proj[7] or "") or "(domicilio pendiente)"
     fecha_inicio = _iso(proj[2]) or "(pendiente)"
     fecha_fin = _iso(proj[4]) or _iso(proj[3]) or "(en curso)"
     categoria_objetivo = (str(proj[5]).upper() if proj[5] else None)
@@ -326,7 +329,8 @@ async def build_informe_final_context(
     try:
         trows = (await db.execute(
             sa_text(
-                "SELECT COALESCE(treatment,'') AS treatment, COALESCE(status,'') AS status "
+                "SELECT COALESCE(tp.treatment,'') AS treatment, "
+                "  COALESCE(tp.status,'') AS status "
                 "FROM magerit_treatment_plan tp "
                 "JOIN magerit_analysis ma ON ma.id = tp.analysis_id "
                 "WHERE ma.project_id = :pid AND tp.deleted_at IS NULL"
@@ -494,7 +498,10 @@ async def build_informe_final_context(
         logger.debug("E-040 contactos best-effort fallo", exc_info=True)
 
     return {
-        "cliente": {"razon_social": razon_social, "organo_aprobador_politicas": organo},
+        "cliente": {
+            "razon_social": razon_social, "organo_aprobador_politicas": organo,
+            "nif": cliente_nif, "domicilio_social": cliente_domicilio,
+        },
         "proyecto": proyecto,
         "responsables": {
             "responsable_seguridad": {"nombre": rseg_nombre, "cargo": rseg_cargo},
