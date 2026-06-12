@@ -507,19 +507,42 @@ def _build_governance_hint(
     )
 
 
+def _current_phase_pct(governance: Optional[dict]) -> int:
+    """% real de la fase en curso (Ola C · progreso real 0→100%).
+
+    Cuando hay datos de gobierno FASE 0 (``completed_steps``/``total_steps``)
+    devuelve el ratio REAL (clamp 1..99 · una fase en curso nunca es 0 ni 100).
+    Si no hay señal real (fases posteriores · rol cliente · gobierno completo)
+    cae al heurístico 50 — el refinamiento per-fase con conteos reales de cada
+    motor queda como Future-X (`workflow-scanner-percentage-refinement`).
+    """
+    if governance:
+        total = governance.get("total_steps", 0) or 0
+        completed = governance.get("completed_steps", 0) or 0
+        if total > 0:
+            return max(1, min(99, round(100 * completed / total)))
+    return 50
+
+
 async def _compute_phase_progress(
-    db: AsyncSession, project_id: uuid.UUID, current: WorkflowPhase,
+    db: AsyncSession,
+    project_id: uuid.UUID,
+    current: WorkflowPhase,
+    governance: Optional[dict] = None,
 ) -> list[PhaseProgress]:
     """Marca fases del lifecycle · completed antes de current · in_progress
     en current · not_started después.
 
-    Determinism: order canonical via WorkflowPhase.ordered().
+    Determinism: order canonical via WorkflowPhase.ordered(). El % de la fase
+    en curso es REAL cuando hay gobierno FASE 0 (ver `_current_phase_pct`).
     """
     ordered = WorkflowPhase.ordered()
     try:
         current_idx = ordered.index(current)
     except ValueError:
         current_idx = 0
+
+    current_pct = _current_phase_pct(governance)
 
     result: list[PhaseProgress] = []
     for i, phase in enumerate(ordered):
@@ -528,7 +551,7 @@ async def _compute_phase_progress(
             pct = 100
         elif i == current_idx:
             status = "in_progress"
-            pct = 50  # heuristic mid-phase · MoM refinement Future-X
+            pct = current_pct
         else:
             status = "not_started"
             pct = 0
@@ -829,7 +852,7 @@ async def compute_workflow_state(
     )
 
     phase_progress = (
-        await _compute_phase_progress(db, project_id, current)
+        await _compute_phase_progress(db, project_id, current, governance)
         if opts.include_phase_progress
         else []
     )

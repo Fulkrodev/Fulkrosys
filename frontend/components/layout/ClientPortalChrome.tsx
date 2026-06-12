@@ -9,6 +9,7 @@ import { ClientSidebar } from "@/components/layout/ClientSidebar";
 import { SupportAccessBanner } from "@/components/layout/SupportAccessBanner";
 import { ClientFooter } from "@/components/client-portal/footer/ClientFooter";
 import { CopilotoDock } from "@/components/copiloto/CopilotoDock";
+import { CoachNextStepStrip } from "@/components/client-portal/coach/CoachNextStepStrip";
 import { OnboardingTutorial } from "@/components/client-portal/tutorial/OnboardingTutorial";
 import { useClientProjectId } from "@/hooks/useClientProjectId";
 import { ClientBrandingProvider } from "@/lib/branding/ClientBrandingProvider";
@@ -66,6 +67,8 @@ export function ClientPortalChrome({ children }: { children: ReactNode }) {
                 tabIndex={-1}
                 className="flex-1 overflow-y-auto pb-16 md:pb-24 focus:outline-none"
               >
+                {/* Ola C · el copiloto guía al cliente en TODAS las páginas */}
+                <CoachStripMount />
                 {children}
                 <ClientFooter />
               </main>
@@ -96,4 +99,15 @@ function ClientProjectFeaturesGate({ children }: { children: ReactNode }) {
       {children}
     </ProjectFeaturesProvider>
   );
+}
+
+/**
+ * Ola C · monta la banda "tu siguiente paso" del copiloto en TODAS las páginas
+ * autenticadas del cliente. Resuelve projectId vía `useClientProjectId` (dedupe
+ * con el gate · misma query cacheada). El strip se auto-oculta (null) cuando no
+ * hay acción pendiente, así que no satura las páginas.
+ */
+function CoachStripMount() {
+  const { projectId } = useClientProjectId();
+  return <CoachNextStepStrip projectId={projectId ?? null} />;
 }

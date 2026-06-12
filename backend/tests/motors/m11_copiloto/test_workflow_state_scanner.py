@@ -25,6 +25,7 @@ from backend.app.motors.m11_copiloto.workflow_state_scanner import (
     ActionHint,
     WorkflowScannerOptions,
     WorkflowState,
+    _current_phase_pct,
     _detect_blockers,
     compute_workflow_state,
     top_action_for_role,
@@ -520,3 +521,27 @@ async def test_detect_blockers_governance_separacion_and_cadencia(
         b.motor == "m_meetings" and b.waiting_on == "admin"
         for b in cad_blockers
     )
+
+
+# ════════════════════════════════════════════════════════════════════
+# Ola C · progreso real de la fase en curso (sustituye heurístico 50)
+# ════════════════════════════════════════════════════════════════════
+
+
+def test_current_phase_pct_real_from_governance():
+    """Con gobierno FASE 0 → % REAL completed/total (no el plano 50)."""
+    assert _current_phase_pct({"completed_steps": 3, "total_steps": 4}) == 75
+    assert _current_phase_pct({"completed_steps": 1, "total_steps": 4}) == 25
+
+
+def test_current_phase_pct_clamps_1_to_99():
+    """Una fase en curso nunca es 0 ni 100 (clamp 1..99)."""
+    assert _current_phase_pct({"completed_steps": 0, "total_steps": 4}) == 1
+    assert _current_phase_pct({"completed_steps": 4, "total_steps": 4}) == 99
+
+
+def test_current_phase_pct_falls_back_to_heuristic():
+    """Sin señal real (None · total 0) → heurístico 50 honesto."""
+    assert _current_phase_pct(None) == 50
+    assert _current_phase_pct({"total_steps": 0}) == 50
+    assert _current_phase_pct({}) == 50
