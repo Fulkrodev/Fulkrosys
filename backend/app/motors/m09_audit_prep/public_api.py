@@ -135,7 +135,11 @@ async def _validate_token_peek(
         _check_rate_limit(token_hash, client_ip)
         raise HTTPException(status_code=403, detail="Invalid token")
 
-    _check_rate_limit(token_hash, client_ip)
+    # NO rate-limit en el path VÁLIDO: un auditor ENAC legítimo navega muchas
+    # vistas del dossier (cada carga = varias peeks) y a 10/60s recibía
+    # "Acceso no disponible · Rate limited" a media auditoría. El rate limit
+    # (`_failed_attempts`) solo debe frenar intentos con token INVÁLIDO (arriba).
+    # Defecto real detectado en la galería de la simulación full-cloth.
 
     try:
         purpose = MagicLinkPurpose(link.tipo_operacion)
