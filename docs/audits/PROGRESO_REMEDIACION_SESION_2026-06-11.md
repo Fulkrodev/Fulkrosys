@@ -28,9 +28,22 @@
 - ✅ **P0 leak fix** (`fase0_rls_leak_fix_001`) + ✅ **m30 fix** (dependency `_set_client_rls_context`) — ver sección crítica arriba.
 - Suite **6011 passed / 0 fail** · CI verde · CD verde · prod verificado por SSH.
 
-### SIGUIENTE PASO (orden): R24-resto → R03-wiring → F3-resto → F4 → F5 → F6 → 3 simulaciones + auditor + docs
-- **R24-resto**: acta de decisión de adecuación de la Dirección (org.1) firmable autónoma (plantilla nueva + SignableType + paso en `m17_planning/fase0_governance.py`) + coherencia `fecha_nombramiento`.
-- **R03-wiring**: endpoints API que expongan el servicio de doble firma + **canonicalizar la generación** del acta (los endpoints m01 `api.py:800/914` renderizan `backend/app/templates/acta_e012_provisional.docx` = variante incorrecta; cambiar a `DocumentFactoryService.generate_document("E-012", ctx)` con la plantilla m06 ya corregida; deprecar variantes B y C `m01/service.py:419-483`). UI cliente firma vía portal m05 `/firmas-pendientes`.
+### HECHO + desplegado 2026-06-12 · TANDA 2 (F3 entero + R03-wiring + R24 + F4·R10)
+Commits en prod: F3-citas `90a03aed` · F3-plantillas `eafb479b` · R03-wiring `14b15b89` · R24 `a496f851`. R10 commiteado local (pendiente push).
+- ✅ **F3 ENTERO**: citas/drift (R17 UI 809→808, R18 fuente 808/824, R21 backups→mp.info.6, R22 limpieza E-220) + plantillas (R12 mp.info numeración RD3/2010→311/2022 + cifrado→mp.si.2/firma + mp.s.1→correo en E-104/107/119/103/100/232; R16 E-041 73→52/68/73 + E-052→E-050 + art.35→Anexo III; R19 E-222 802→Anexo II/804). 8 docx recompilados.
+- ✅ **R03-wiring**: acta E-012 canónica con la plantilla m06 (doble firma art.40.2) · `build_e012_context` (m06/`acta_e012_generator.py`) · endpoints `acta-e012.pdf/.docx` repointados al pipeline m06 (render_docx, no PDFRenderer estricto) · 2 endpoints NEW `request-double-signature`/`double-signature-status` · variantes B (provisional.docx) y C (markdown monofirma) deprecadas.
+- ✅ **R24**: NEW acta **E-010** "Decisión de Adecuación de la Dirección" (org.1) firmable · SignableType `acta_decision_direccion` · paso `decision` en fase0_governance. (fecha_nombramiento independiente = refinamiento menor diferido.)
+- ✅ **F4·R10**: E-235 sellado emitible (mp.info.5→mp.info.4 · valla reestructurada: el cuerpo ya compila · E-235.docx creado · placeholders resueltos).
+- Suite **6014 passed / 0 fail** (cada item con gate full-suite antes de push).
+
+### SIGUIENTE PASO (orden): F4-resto → F5 → F6 → 3 simulaciones + auditor + docs
+**F4 pendiente (hallazgos empíricos para la próxima tanda):**
+- **R11** (firma 38 POS): 0/38 procedures tienen bloque de firma. `fix_docx_templates.py` aplica `append_sigblock` solo a `SIGBLOCK_TEMPLATES` (línea ~322); añadir los procedures a ese conjunto (ELABORADO=consultor / APROBADO=RSEG-RSIS con `{{ firmas.* }}`) + recompilar los 38 docx.
+- **R13** (E-100 2º bloque jinja): E-100 tiene **2 bloques ```jinja**; `JINJA_BLOCK = r"```jinja\s*(.+?)```"` (non-greedy) en `build_sgsi_core_templates.py:43` compila SOLO el 1º → el 2º (documento de roles art.11, "ABSORB_INTO_E100") se PIERDE. Crear código real E-100B (o Anexo I de E-100) + catalogarlo + arreglar las 3 refs `{{base}}-ABSORB_INTO_E100` en E-104 + el code en E-100. extract_jinja_body soporta solo 1 bloque → o se fusiona en el 1º o se separa E-100B a su propio fichero.
+- **R14** (builder org.2 + acuse mp.per.3): context builder server-side de roles art.11 + comité + DPO (fallback "(pendiente designación)") + modelo de acuse de recibo per-empleado (mp.per.3). Borrar "Marcos Mata García" legacy en `m09_audit_prep/internal_auditor.py:598,602`.
+- **R25** (documentation_levels): `documentation_levels.py` LEVEL_2/LEVEL_3 omiten POS + tracking POS-set acumulativo por categoría.
+**F5**: R15 (generador cuestionario CCN-STIC 808 cierre BÁSICA · corazón del cierre · NO existe) · R20 (builders BIA/RTO/RPO + citas ISO 22301) · R26 (certificado ENAC descargable + NC estructuradas).
+**F6**: R23 (enriquecer rectores E-150/160/170). **Luego**: 3 simulaciones (API-e2e admin+cliente) + revisión auditor + docs + deploy final.
 - **F3-resto**: R12 (citas mp.info E-104/107/119/103/100/232) · R16 (E-041 cross-refs) · R17 (E-808 rename "Revisión Anual" + UI `ConformityWizard.tsx:68`/`ProjectCategoryBanner.tsx:36` 809→808) · R18 (`m10_audit_sim/audit_questions.py` 802→808 + retención 6→12m op.exp.8) · R19 (E-222 citas 802→Anexo II) · R21 (`m22_discovery/paso6_config_detector.py` op.cont.3).
 - **F4**: R10 (E-235 mp.info.5→mp.info.4 + compilar `var/templates_docx/E-235.docx`) · R11 (`fix_docx_templates.py` añadir `procedures` a append_sigblock · 0/38 POS con firma hoy) · R13 (E-100 2º bloque jinja que no compila) · R14 (builder roles art.11 org.2 + acuse mp.per.3) · R22 (limpiar andamiaje E-220) · R25 (`documentation_levels.py` + POS-set).
 - **F5**: R15 (generador cuestionario CCN-STIC 808 cierre BÁSICA · corazón del cierre · no existe) · R20 (builders BIA/continuidad + citas ISO22301) · R26 (certificado ENAC descargable + NC estructuradas).
