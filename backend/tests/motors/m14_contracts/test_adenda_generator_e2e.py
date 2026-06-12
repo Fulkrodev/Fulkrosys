@@ -194,9 +194,12 @@ async def test_adenda_generator_only_ens_no_rgpd_nis2_blocks(db: AsyncSession):
 
     try:
         assert result.normativas_cubiertas == ["ENS"]
-        # Tamaño esperado menor que la version 3 bloques (que era ~16-18 KB)
-        assert 5000 < result.docx_size_bytes < 16000, (
-            f"E-604 solo-ENS esperado 5-16KB · obtenido {result.docx_size_bytes}B"
+        # Heurística de tamaño (la verificación semántica real es normativas_
+        # cubiertas + ausencia del bloque RGPD abajo). Ceiling subido a 18KB
+        # tras R11: el normalizador de plantillas añade header/footer canónico
+        # (~1-2KB) a E-604, que antes no lo tenía.
+        assert 5000 < result.docx_size_bytes < 18000, (
+            f"E-604 solo-ENS esperado 5-18KB · obtenido {result.docx_size_bytes}B"
         )
         # Verify DOCX en MinIO + descomprime y busca texto bloque RGPD ausente
         obj = get_minio_client().get_object(BUCKET_DOCUMENTS, result.minio_object_key)
