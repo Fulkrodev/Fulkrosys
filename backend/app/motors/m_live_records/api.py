@@ -14,7 +14,7 @@ from fastapi.responses import StreamingResponse
 from pydantic import ValidationError
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from backend.app.auth.dependencies import require_marcos_or_client
+from backend.app.auth.dependencies import require_marcos_or_client, require_owner
 from backend.app.database import get_db, set_tenant_context
 from backend.app.motors.m_live_records.constants import (
     COUNTS_PER_CATEGORY,
@@ -359,3 +359,48 @@ async def export_xlsx(
         ),
         headers={"Content-Disposition": f'attachment; filename="{filename}"'},
     )
+
+
+# ──────────────────────────────────────────────────────────────────────
+# R26 · promoción NC E-321/E-322 (JSONB) → proyección estructurada
+#       (audit_sessions + audit_findings). Admin-only (require_owner).
+# ──────────────────────────────────────────────────────────────────────
+
+
+@router.post(
+    "/nc/promote",
+    summary="Promueve NC E-321/E-322 a audit_sessions/audit_findings (idempotente)",
+)
+async def promote_nc(
+    project_id: uuid.UUID,
+    db: AsyncSession = Depends(get_db),
+    owner=Depends(require_owner),
+) -> dict:
+    """Deriva la proyección estructurada de las NC de auditoría externa.
+
+    El JSONB de ``live_records`` sigue siendo la fuente WORM; esto materializa
+    severidad + PAC + plazos consultables y valida PAC ≤90d (NC mayor) / APC
+    formal (MEDIA/ALTA). Idempotente.
+    """
+    await _set_project_context(db, project_id)
+    from backend.app.motors.m_live_records.nc_promotion import promote_audit_ncs
+
+    result = await promote_audit_ncs(db, project_id)
+    await db.commit()
+    return result
+
+
+@router.get(
+    "/nc/structured",
+    summary="Lista las NC estructuradas del proyecto (finding + auditoría)",
+)
+async def structured_nc(
+    project_id: uuid.UUID,
+    db: AsyncSession = Depends(get_db),
+    owner=Depends(require_owner),
+) -> dict:
+    await _set_project_context(db, project_id)
+    from backend.app.motors.m_live_records.nc_promotion import list_structured_ncs
+
+    items = await list_structured_ncs(db, project_id)
+    return {"project_id": str(project_id), "count": len(items), "items": items}

@@ -2,7 +2,7 @@
 import uuid
 from datetime import date
 
-from sqlalchemy import ForeignKey, String, Text
+from sqlalchemy import ForeignKey, Index, String, Text
 from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.orm import Mapped, mapped_column
 
@@ -38,6 +38,9 @@ class RemediationPlan(FullMixin, Base):
 
 class AuditSession(FullMixin, Base):
     __tablename__ = "audit_sessions"
+    __table_args__ = (
+        Index("ix_audit_sessions_project_codigo_externo", "project_id", "codigo_externo"),
+    )
     project_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("projects.id"), nullable=False)
     tipo: Mapped[str | None] = mapped_column(String(50))
     fecha_inicio: Mapped[date | None] = mapped_column()
@@ -46,12 +49,26 @@ class AuditSession(FullMixin, Base):
     alcance: Mapped[str | None] = mapped_column(Text)
     resultado: Mapped[str | None] = mapped_column(String(50))
     informe_path: Mapped[str | None] = mapped_column(String(500))
+    # R26 · clave de la auditoría externa de origen (E-321 codigo_auditoria_ext)
+    # para upsert idempotente de la proyección desde live_records.
+    codigo_externo: Mapped[str | None] = mapped_column(String(50))
 
 
 class AuditFinding(FullMixin, Base):
     __tablename__ = "audit_findings"
+    __table_args__ = (
+        Index("ix_audit_findings_session_codigo", "audit_session_id", "codigo_externo"),
+    )
     audit_session_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("audit_sessions.id"), nullable=False)
     severidad: Mapped[str | None] = mapped_column(String(20))
     medida_afectada: Mapped[str | None] = mapped_column(String(20))
     descripcion: Mapped[str | None] = mapped_column(Text)
     plan_remediacion_id: Mapped[uuid.UUID | None] = mapped_column(ForeignKey("remediation_plans.id"))
+    # R26 · proyección estructurada de la NC E-322 (severidad + PAC + plazos).
+    # El JSONB en live_records es la fuente WORM; estos campos son derivados.
+    codigo_externo: Mapped[str | None] = mapped_column(String(50))
+    estado: Mapped[str | None] = mapped_column(String(30))
+    accion_correctiva: Mapped[str | None] = mapped_column(Text)
+    responsable: Mapped[str | None] = mapped_column(String(255))
+    fecha_compromiso: Mapped[date | None] = mapped_column()
+    fecha_cierre: Mapped[date | None] = mapped_column()
