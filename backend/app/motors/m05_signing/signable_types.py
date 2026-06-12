@@ -9,7 +9,7 @@ from typing import Literal
 
 
 SignableType = Literal[
-    "dda",                       # DdA 73 medidas Anexo II (E-040)
+    "dda",                       # DdA/SoA · 73 medidas Anexo II · embebida como Anexo II del Informe Final E-040 (firma RSEG)
     "magerit_validation",        # MAGERIT activos validation
     "pentest_authorization",     # Autorización ventana pentest
     "conformidad_ens",           # Declaración Conformidad ENS final (E-041)
@@ -74,7 +74,7 @@ REQUIRES_STEP_UP_OTP: frozenset[SignableType] = frozenset({
 
 
 SIGNABLE_TYPE_LABELS: dict[SignableType, str] = {
-    "dda": "Declaración de Aplicabilidad (73 medidas Anexo II)",
+    "dda": "Declaración de Aplicabilidad (SoA · 73 medidas del Anexo II)",
     "magerit_validation": "Validación de activos MAGERIT",
     "pentest_authorization": "Autorización de pentest externo",
     "conformidad_ens": "Declaración de Conformidad ENS",

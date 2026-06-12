@@ -41,7 +41,7 @@ DOSSIER_STRUCTURE: list[dict] = [
     {"folder": "01_GOBIERNO", "description": "Roles, responsabilidades, organigrama, politica general"},
     {"folder": "02_CATEGORIZACION", "description": "Acta E-012 + justificacion categoria ENS"},
     {"folder": "03_ANALISIS_RIESGOS", "description": "Analisis de riesgos MAGERIT + plan de tratamiento"},
-    {"folder": "04_DECLARACION_APLICABILIDAD", "description": "DdA E-040 firmada por RSEG"},
+    {"folder": "04_DECLARACION_APLICABILIDAD", "description": "Informe Final de Adecuacion E-040 (incluye la Declaracion de Aplicabilidad / SoA como Anexo II) firmado por RSEG"},
     {"folder": "05_PLAN_ADECUACION", "description": "Plan de adecuacion E-020..E-030 + cronograma"},
     {"folder": "06_NORMATIVA", "description": "Politicas E-100..E-126 firmadas"},
     {"folder": "07_PROCEDIMIENTOS", "description": "Procedimientos E-200..E-234 + registros"},
@@ -114,9 +114,15 @@ _DOSSIER_TOTAL_MB_BY_LEVEL: dict[str, int] = {
 }
 
 # Artefactos CANÓNICOS por template_codigo · SIEMPRE en el dossier (sin tope).
-# E-040 = DdA (Declaración de Aplicabilidad = SoA) · E-041 = Declaración de
-# Conformidad ENS · E-808C = Declaración de Conformidad BÁSICA (cierre) ·
-# E-130/E-131 = informe técnico / pentest · E-049 = certificado/distintivo.
+# IDENTIDAD CANÓNICA E-040 (R26 · cementada): E-040 = INFORME FINAL DE ADECUACIÓN
+#   AL ENS · documento de síntesis firmado por RSEG que INCLUYE la Declaración de
+#   Aplicabilidad (SoA · 73 medidas del Anexo II) como su Anexo II. "DdA/SoA" es el
+#   ROL que cumple, NO un documento aparte: no existe un Document SoA independiente
+#   (la matriz vive en dda_entries de m03 y se firma como dda_snapshot_hash vía M03;
+#   el Document E-040 lo aprueba/firma el RSEG). · E-041 = Declaración de Conformidad
+#   ENS · E-808C = Declaración de Conformidad BÁSICA (cierre) · E-130/E-131 = informe
+#   técnico / pentest · E-049 = Distintivo de Conformidad CCN-STIC 809 (autopublicable;
+#   NO es el «certificado» de la entidad de certificación acreditada).
 _CANONICAL_DOSSIER_CODES: frozenset[str] = frozenset({
     "E-040", "E-041", "E-808C", "E-808", "E-130", "E-131", "E-049",
 })

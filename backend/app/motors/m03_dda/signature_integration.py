@@ -1,8 +1,14 @@
 """Re-integration M3 + M12 Magic Link Engine for DdA E-040 RSEG signing.
 
 Implements M3-G2. Allows requesting an eIDAS advanced electronic
-signature of the Declaracion de Aplicabilidad (E-040) from the
+signature of the Declaracion de Aplicabilidad (SoA) from the
 Responsable de Seguridad (RSEG) via magic link.
+
+IDENTIDAD CANÓNICA E-040 (R26): E-040 es el INFORME FINAL DE ADECUACIÓN
+AL ENS, cuyo Anexo II es la Declaración de Aplicabilidad / SoA. Lo que
+firma este flujo es el snapshot de la DdA (las 73 entradas congeladas,
+``dda_snapshot_hash``) por el RSEG; ese contenido es el Anexo II del
+Informe Final E-040. No existe un Document "SoA" independiente.
 
 Prerequisite: the DdA must be frozen (aprobado_por IS NOT NULL on
 all entries, set by POST /dda/projects/{id}/freeze).
