@@ -335,7 +335,6 @@ class RetainerService:
             "formacion_anual": 4.0,
             "reporte_trimestral": 2.0,
             "reporte_anual": 4.0,
-            "ines_anual": 2.0,
             "revision_topologia_roles": 2.0,
             "revision_overlay": 2.0,
         }

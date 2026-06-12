@@ -139,7 +139,7 @@ export const GLOSARIO_ENS = {
   // === A.12 · Adaptadores externos (5) ===
   CLARA: { label: "CLARA", definition: "Plataforma CCN-CERT para gestionar tus certificados ENS · su renovación · y el reporte de cumplimiento al CCN." },
   LUCIA: { label: "LUCIA", definition: "Federación CCN-CERT para reportar tu conformidad ENS al estado. Una vez certificado · mandas reporte aquí." },
-  INES: { label: "INES", definition: "Informe Nacional del Estado de la Seguridad · reporte anual obligatorio en MEDIA/ALTA. FULKRO te ayuda a generarlo." },
+  INES: { label: "INES", definition: "Informe Nacional del Estado de la Seguridad · reporte anual del estado de seguridad. Para proveedores PRIVADOS es voluntario (lo vinculante es la certificación ENS); FULKRO puede generarlo si tu organismo cliente lo solicita." },
   FACE: { label: "FACE", definition: "Punto General de Entrada de Facturas Electrónicas a AAPP. Si facturas a una administración pública · va por aquí en formato Facturae." },
   Facturae: { label: "Facturae", definition: "Formato XML español obligatorio para facturar a AAPP. Versión 3.2.x · firmado XAdES · FULKRO lo genera y firma automáticamente." },
   Verifactu: { label: "Verifactu", definition: "Sistema de la Agencia Tributaria que controla las facturas en tiempo real (obligatorio desde 2025). FULKRO genera tus facturas firmadas y las envía automáticamente · sin que tengas que hacer nada.", docLink: "https://sede.agenciatributaria.gob.es/verifactu" },

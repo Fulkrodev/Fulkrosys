@@ -283,7 +283,7 @@ def generate_manual_sgsi_docx(ctx: RectoresContext) -> io.BytesIO:
     doc.add_paragraph(
         "Ciclo PDCA: revisión dirección anual · auditorías internas · "
         "auditorías externas ENAC bienales (Media/Alta) · auditorías "
-        "extraordinarias en cambios sustanciales · INES anual."
+        "extraordinarias en cambios sustanciales."
     )
 
     _add_heading(doc, "Aprobación", 1)
@@ -368,7 +368,7 @@ def generate_plan_director_docx(ctx: RectoresContext) -> io.BytesIO:
     for year, hito, kpi in [
         (str(year_start), "Cierre primera certificación / declaración conformidad", "% medidas conformes ≥ 80%"),
         (str(year_start_plus_1), "Madurez CMM L3 familias prioritarias", "Madurez global ≥ L3"),
-        (str(year_end), "Auditoría externa renovación + INES anual", "NC mayores = 0"),
+        (str(year_end), "Auditoría externa renovación", "NC mayores = 0"),
     ]:
         cells = htbl.add_row().cells
         cells[0].text = year
@@ -422,7 +422,7 @@ def generate_plan_director_docx(ctx: RectoresContext) -> io.BytesIO:
     doc.add_paragraph(
         "Disponibilidad servicios críticos ≥ 99,5% · MTTR incidentes ≤ 4h · "
         "Cobertura concienciación 100% personal anual · Tasa cumplimiento "
-        "Anexo II ≥ 90% · Madurez CMM global ≥ L3 · INES anual completado."
+        "Anexo II ≥ 90% · Madurez CMM global ≥ L3."
     )
 
     _add_heading(doc, "5. Responsables alta dirección", 1)
