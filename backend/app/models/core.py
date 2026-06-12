@@ -277,3 +277,32 @@ class ScopeExclusion(FullMixin, Base):
     elemento: Mapped[str] = mapped_column(String(255), nullable=False)
     justificacion: Mapped[str | None] = mapped_column(Text)
     system: Mapped["System"] = relationship(back_populates="scope_exclusions")
+
+
+class PolicyAcknowledgment(FullMixin, Base):
+    """Acuse de recibo de normativa por empleado (R14 · mp.per.3 · PSI §11.b).
+
+    Evidencia que cada persona con acceso al sistema ha recibido y aceptado las
+    normativas de seguridad (uso aceptable, contraseñas, teletrabajo, etc.). El
+    auditor ENAC lo exige como prueba de la medida mp.per.3 (Concienciación) y
+    org.3. Project-scoped (RLS por ``project_id``/``client_id``) · lo administra
+    el consultor (registra/importa los acuses firmados por el personal del
+    cliente · identidad + fecha + versión del documento).
+    """
+    __tablename__ = "policy_acknowledgments"
+    project_id: Mapped[uuid.UUID] = mapped_column(
+        ForeignKey("projects.id"), nullable=False, index=True,
+    )
+    client_id: Mapped[uuid.UUID] = mapped_column(
+        ForeignKey("clients.id"), nullable=False, index=True,
+    )
+    documento_codigo: Mapped[str] = mapped_column(String(20), nullable=False)
+    documento_version: Mapped[str] = mapped_column(
+        String(20), nullable=False, server_default="1.0", default="1.0",
+    )
+    empleado_nombre: Mapped[str] = mapped_column(String(255), nullable=False)
+    empleado_identidad: Mapped[str | None] = mapped_column(String(255))
+    empleado_departamento: Mapped[str | None] = mapped_column(String(255))
+    fecha_acuse: Mapped[date] = mapped_column(Date, nullable=False)
+    medio: Mapped[str | None] = mapped_column(String(40))
+    notas: Mapped[str | None] = mapped_column(Text)

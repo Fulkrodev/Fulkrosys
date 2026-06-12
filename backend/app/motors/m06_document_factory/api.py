@@ -10,10 +10,11 @@ Consistent with M4 Gap Analysis and M19 Project Risks patterns.
 import uuid
 
 from fastapi import APIRouter, Depends, HTTPException, Query, status
-from sqlalchemy import text
+from sqlalchemy import func, select, text
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from backend.app.database import get_db, set_tenant_context
+from backend.app.models.core import PolicyAcknowledgment
 from backend.app.motors.m06_document_factory.schemas import (
     TemplateOut,
     DocumentOut,
@@ -22,6 +23,10 @@ from backend.app.motors.m06_document_factory.schemas import (
     RenderPreviewRequest,
     RenderPreviewResponse,
     DocumentFactoryDashboard,
+    PolicyAckIn,
+    PolicyAckOut,
+    PolicyAckSummary,
+    PolicyAckCoverageRow,
 )
 from backend.app.motors.m06_document_factory.service import DocumentFactoryService
 from backend.app.motors.m06_document_factory.exceptions import (
@@ -257,6 +262,116 @@ async def generate_alcance_sgsi_endpoint(
         raise HTTPException(status_code=422, detail=str(e))
     except RenderError as e:  # pragma: no cover
         raise HTTPException(status_code=500, detail=str(e))
+
+
+# ================================================================
+# R14 · Acuses de recibo de normativa (mp.per.3 · evidencia ENAC)
+# ================================================================
+
+@router.post(
+    "/projects/{project_id}/policy-acknowledgments",
+    response_model=PolicyAckOut,
+    status_code=status.HTTP_201_CREATED,
+)
+async def create_policy_acknowledgment(
+    project_id: uuid.UUID,
+    payload: PolicyAckIn,
+    db: AsyncSession = Depends(get_db),
+):
+    """Registra el acuse de recibo de una normativa por un empleado (mp.per.3).
+
+    Evidencia de concienciación del personal (PSI §11.b · org.3): identidad +
+    fecha + versión del documento. Lo administra el consultor (registra/importa
+    los acuses firmados por el personal del cliente).
+    """
+    await _set_project_rls(project_id, db)
+    client_id = (await db.execute(
+        text("SELECT get_project_owner(:pid)"), {"pid": str(project_id)}
+    )).scalar()
+    ack = PolicyAcknowledgment(
+        project_id=project_id,
+        client_id=client_id,
+        documento_codigo=payload.documento_codigo,
+        documento_version=payload.documento_version,
+        empleado_nombre=payload.empleado_nombre,
+        empleado_identidad=payload.empleado_identidad,
+        empleado_departamento=payload.empleado_departamento,
+        fecha_acuse=payload.fecha_acuse,
+        medio=payload.medio,
+        notas=payload.notas,
+    )
+    db.add(ack)
+    await db.commit()
+    await db.refresh(ack)
+    return ack
+
+
+@router.get(
+    "/projects/{project_id}/policy-acknowledgments",
+    response_model=list[PolicyAckOut],
+)
+async def list_policy_acknowledgments(
+    project_id: uuid.UUID,
+    documento_codigo: str | None = Query(None),
+    db: AsyncSession = Depends(get_db),
+):
+    """Lista los acuses de recibo del proyecto (opcionalmente por documento)."""
+    await _set_project_rls(project_id, db)
+    stmt = (
+        select(PolicyAcknowledgment)
+        .where(
+            PolicyAcknowledgment.project_id == project_id,
+            PolicyAcknowledgment.deleted_at.is_(None),
+        )
+        .order_by(PolicyAcknowledgment.fecha_acuse.desc())
+    )
+    if documento_codigo:
+        stmt = stmt.where(PolicyAcknowledgment.documento_codigo == documento_codigo)
+    rows = (await db.execute(stmt)).scalars().all()
+    return list(rows)
+
+
+@router.get(
+    "/projects/{project_id}/policy-acknowledgments/summary",
+    response_model=PolicyAckSummary,
+)
+async def policy_acknowledgments_summary(
+    project_id: uuid.UUID,
+    db: AsyncSession = Depends(get_db),
+):
+    """Cobertura de acuses por documento (cuántos empleados han acusado cada uno)."""
+    await _set_project_rls(project_id, db)
+    base = (
+        select(PolicyAcknowledgment)
+        .where(
+            PolicyAcknowledgment.project_id == project_id,
+            PolicyAcknowledgment.deleted_at.is_(None),
+        )
+        .subquery()
+    )
+    total = (await db.execute(select(func.count()).select_from(base))).scalar() or 0
+    distinct_emp = (await db.execute(
+        select(func.count(func.distinct(base.c.empleado_nombre)))
+    )).scalar() or 0
+    cov_rows = (await db.execute(
+        select(
+            base.c.documento_codigo,
+            base.c.documento_version,
+            func.count().label("acuses"),
+        )
+        .group_by(base.c.documento_codigo, base.c.documento_version)
+        .order_by(base.c.documento_codigo)
+    )).all()
+    return PolicyAckSummary(
+        total_acuses=total,
+        empleados_distintos=distinct_emp,
+        por_documento=[
+            PolicyAckCoverageRow(
+                documento_codigo=r[0], documento_version=r[1], acuses=r[2],
+            )
+            for r in cov_rows
+        ],
+    )
 
 
 @router.post(

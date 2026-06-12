@@ -2,7 +2,7 @@
 
 Pattern consistent with M4 and M19. Uses ConfigDict(from_attributes=True).
 """
-from datetime import datetime
+from datetime import date, datetime
 from typing import Any
 from uuid import UUID
 
@@ -139,3 +139,49 @@ class DocumentFactoryDashboard(BaseModel):
     templates_with_docx: int = 0
     latest_generation: datetime | None = None
     generated_at: datetime
+
+
+# ================================================================
+# R14 · Acuse de recibo de normativa (mp.per.3)
+# ================================================================
+
+
+class PolicyAckIn(BaseModel):
+    """Alta de un acuse de recibo de normativa por un empleado (mp.per.3)."""
+    documento_codigo: str = Field(..., max_length=20, description="p.ej. E-100, E-103")
+    documento_version: str = Field("1.0", max_length=20)
+    empleado_nombre: str = Field(..., max_length=255)
+    empleado_identidad: str | None = Field(None, max_length=255, description="email/DNI")
+    empleado_departamento: str | None = Field(None, max_length=255)
+    fecha_acuse: date
+    medio: str | None = Field(None, max_length=40, description="manuscrita/portal/email")
+    notas: str | None = None
+
+
+class PolicyAckOut(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    id: UUID
+    project_id: UUID
+    documento_codigo: str
+    documento_version: str
+    empleado_nombre: str
+    empleado_identidad: str | None = None
+    empleado_departamento: str | None = None
+    fecha_acuse: date
+    medio: str | None = None
+    notas: str | None = None
+    created_at: datetime
+
+
+class PolicyAckCoverageRow(BaseModel):
+    """Cobertura de acuses por documento (cuántos empleados lo han acusado)."""
+    documento_codigo: str
+    documento_version: str
+    acuses: int
+
+
+class PolicyAckSummary(BaseModel):
+    total_acuses: int = 0
+    empleados_distintos: int = 0
+    por_documento: list[PolicyAckCoverageRow] = Field(default_factory=list)
