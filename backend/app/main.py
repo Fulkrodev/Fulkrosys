@@ -133,6 +133,7 @@ from backend.app.motors.m27_conformity.portal_api import router as m27_conformid
 from backend.app.motors.m27_conformity.portal_api_dpc import router as m27_dpc_anual_portal_router
 from backend.app.motors.m19_risk.incident_portal_api import router as m19_incidents_portal_router
 from backend.app.motors.m23_retainer.retainer_checkin_portal_api import router as m23_retainer_checkin_router
+from backend.app.motors.m23_retainer.retainer_checkin_admin_api import router as m23_retainer_checkin_admin_router
 from backend.app.motors.m_meetings.actas_portal_api import router as m_meetings_actas_portal_router
 from backend.app.motors.m07_evidence.antivirus_admin_api import router as m07_antivirus_admin_router
 from backend.app.motors.m19_risk.incident_admin_api import router as m19_incident_admin_router
@@ -787,6 +788,10 @@ app.include_router(
 app.include_router(
     m23_retainer_checkin_router, prefix="/api/v1",
     tags=["Motor 23 - Retainer checkin cliente in-portal"],
+)
+app.include_router(
+    m23_retainer_checkin_admin_router, prefix="/api/v1",
+    tags=["Motor 23 - Retainer checkin admin curación"],
 )
 app.include_router(
     m_meetings_actas_portal_router, prefix="/api/v1",
