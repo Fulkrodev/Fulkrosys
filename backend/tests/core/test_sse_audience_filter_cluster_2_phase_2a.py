@@ -25,14 +25,16 @@ from backend.app.core.sse_dispatcher import (
 # ════════════════════════════════════════════════════════════════════
 
 
-def test_cliente_event_types_contains_20_events():
-    """CLIENTE_EVENT_TYPES cumulative 20 total.
+def test_cliente_event_types_contains_21_events():
+    """CLIENTE_EVENT_TYPES cumulative 21 total.
 
     Phase 2A added 12 new (post 5 pre-existing m01/m02 + workflow steps).
     Phase 2D added 1 new (`client_notification.created`). Ejecutable 8 Pasada 16
     added 4 (signing.* + accompaniment). Ola 3 #14 (2026-06-04) añade
     `phase_changed` (política nueva · cliente ve su progreso de fase). FIX P2-3
     (2026-06-09) añade `document.uploaded` (gestor documental compartido realtime).
+    feat/fulkro-100 (2026-06-12) añade `continuidad.draft_ready` (cliente recibe
+    el borrador BIA/DRP listo para aprobar).
     """
     expected = frozenset({
         # Workflow steps (5 pre-existing including m01/m02)
@@ -68,6 +70,8 @@ def test_cliente_event_types_contains_20_events():
         # FIX P2-3 (2026-06-09) · gestor documental compartido (documento nuevo
         # en el proyecto · cliente lo ve aparecer salvo si está marcado interno)
         "document.uploaded",
+        # feat/fulkro-100 (2026-06-12) · continuidad BIA/DRP draft listo
+        "continuidad.draft_ready",
     })
     assert CLIENTE_EVENT_TYPES == expected, (
         f"Diff: missing={expected - CLIENTE_EVENT_TYPES} "

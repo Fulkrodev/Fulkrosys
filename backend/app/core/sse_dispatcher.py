@@ -179,6 +179,13 @@ ADMIN_EVENT_TYPES: frozenset[str] = frozenset({
     # realtime cuando el cliente sube un documento (y viceversa · cross-actor
     # natural en un espacio documental por-proyecto compartido).
     "document.uploaded",
+    # Continuidad BIA/DRP (feat/fulkro-100 · 2026-06-12): el admin VE en
+    # realtime cuando el cliente rellena el cuestionario, aprueba o comenta un
+    # borrador BIA/DRP. Son SIEMPRE acciones del cliente → admin-facing
+    # (membresía basta · mismo patrón cross-actor que signing.signed).
+    "continuidad.questionnaire.submitted",
+    "continuidad.draft.approved",
+    "continuidad.draft.comment",
 })
 
 CLIENTE_EVENT_TYPES: frozenset[str] = frozenset({
@@ -231,6 +238,10 @@ CLIENTE_EVENT_TYPES: frozenset[str] = frozenset({
     # SIGUEN admin-internos (NO cliente-facing). Payload limpio: solo
     # {project_id, old_phase, new_phase} · sin metadata interna del consultor.
     "phase_changed",
+    # Continuidad BIA/DRP (feat/fulkro-100 · 2026-06-12): el cliente recibe en
+    # realtime cuando Marcos prepara un borrador BIA/DRP listo para aprobar
+    # (admin-origin · cliente-facing).
+    "continuidad.draft_ready",
 })
 
 # DISEÑO DE AUDIENCIAS (resuelto · Marcos 2026-05-31): admin y cliente son conjuntos

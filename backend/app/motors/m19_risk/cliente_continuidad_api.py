@@ -23,6 +23,7 @@ from pydantic import BaseModel, ConfigDict, Field
 from sqlalchemy import text
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from backend.app.core.sse_dispatcher import sse_dispatcher
 from backend.app.database import get_db
 from backend.app.models.client_portal import ClientUser
 from backend.app.motors.m19_risk.cliente_continuidad_service import (
@@ -188,6 +189,24 @@ async def _set_project_rls(
     )
 
 
+async def _emit_sse_best_effort(
+    *,
+    project_id: str,
+    event_type: str,
+    payload: dict,
+) -> None:
+    """SSE dispatch project channel · sync admin↔cliente · best-effort.
+
+    Se llama SIEMPRE DESPUÉS de ``db.commit()`` (nunca antes) para no emitir un
+    evento fantasma si la transacción hace rollback. Pattern #14. El evento es
+    cliente-origin → audiencia admin (ver ADMIN_EVENT_TYPES continuidad.*).
+    """
+    try:
+        await sse_dispatcher.dispatch(f"project:{project_id}", event_type, payload)
+    except Exception:  # pragma: no cover · best-effort
+        logger.warning("SSE dispatch %s failed (best-effort)", event_type)
+
+
 # ════════════════════════════════════════════════════════════════════
 # Endpoints cliente
 # ════════════════════════════════════════════════════════════════════
@@ -282,6 +301,13 @@ async def post_questionnaire(
     )
     await db.commit()
 
+    if body.completed:
+        await _emit_sse_best_effort(
+            project_id=project_id,
+            event_type="continuidad.questionnaire.submitted",
+            payload={"primary_actor": "cliente", "completed": True},
+        )
+
     return QuestionnaireResponse(
         id=row.id,
         project_id=row.project_id,
@@ -366,6 +392,16 @@ async def post_approve(
     )
     await db.commit()
 
+    await _emit_sse_best_effort(
+        project_id=project_id,
+        event_type="continuidad.draft.approved",
+        payload={
+            "primary_actor": "cliente",
+            "artifact_type": body.artifact_type,
+            "draft_id": str(draft_id),
+        },
+    )
+
     return ApprovalResponse(
         id=row.id,
         artifact_type=row.artifact_type,
@@ -415,6 +451,16 @@ async def post_comment(
         },
     )
     await db.commit()
+
+    await _emit_sse_best_effort(
+        project_id=project_id,
+        event_type="continuidad.draft.comment",
+        payload={
+            "primary_actor": "cliente",
+            "artifact_type": body.artifact_type,
+            "draft_id": str(draft_id),
+        },
+    )
 
     return ApprovalResponse(
         id=row.id,
