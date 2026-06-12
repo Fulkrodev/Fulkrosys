@@ -1,6 +1,6 @@
 name: Admin + Cliente + Auditor Polish Empirical
 
-# Sub-atom Sesión 3B-2B.3 · regression-proof permanent EXPANDED 80 pages.
+# Sub-atom Sesión 3B-2B.3 · regression-proof permanent · 75 specs admin (probe+p1+p2+p3).
 # Ejecutable 7 (2026-05-27) · consolidate Path A · adds cliente + auditor jobs.
 # 2026-06-09 · REESCRITO greenfield (el yml original nunca corrió en GitHub):
 #   - SIN secretos de repo: claves Ed25519 EFÍMERAS por run (openssl → GITHUB_ENV).
@@ -45,7 +45,7 @@ env:
 
 jobs:
   polish-empirical:
-    name: Admin Polish 80 pages (PROBE + P1 + P2 + P3)
+    name: Admin Polish 75 specs (PROBE + P1 + P2 + P3)
     runs-on: ubuntu-latest
     timeout-minutes: 60
     services:
