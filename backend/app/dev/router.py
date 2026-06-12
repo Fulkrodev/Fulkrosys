@@ -1745,6 +1745,45 @@ async def seed_full_implantation(
         extras_errors.append(f"conformidad-ready: {exc}")
         await db.rollback()
 
+    # ── COBERTURA evidencia↔medida ──
+    # El seed crea evidencias con measure_code NULL → el heatmap del auditor da
+    # 0% (parece NO implantado). Asignamos cada medida aplicable a una evidencia
+    # (scan_status='clean') y creamos extras hasta cubrir TODAS las aplicables →
+    # el auditor ve cobertura real ~100% (sistema implantado de verdad).
+    try:
+        await db.execute(text("SET LOCAL ROLE fulkro_app_bypassrls"))
+        await set_tenant_context(db, client_id=cid, project_id=pid)
+        applicable = [r[0] for r in (await db.execute(text(
+            "SELECT m.codigo FROM dda_entries e JOIN ens_measures m "
+            "ON m.id = e.measure_id WHERE e.project_id=:p "
+            "AND e.aplicabilidad <> 'no_aplica' AND e.deleted_at IS NULL "
+            "ORDER BY m.codigo"
+        ), {"p": str(pid)})).all()]
+        if applicable:
+            free_ev = [r[0] for r in (await db.execute(text(
+                "SELECT id FROM evidence WHERE project_id=:p AND deleted_at IS NULL "
+                "AND measure_code IS NULL"
+            ), {"p": str(pid)})).all()]
+            for i, eid in enumerate(free_ev):
+                await db.execute(text(
+                    "UPDATE evidence SET measure_code=:mc, scan_status='clean' "
+                    "WHERE id=:e"
+                ), {"mc": applicable[i % len(applicable)], "e": str(eid)})
+            covered = {r[0] for r in (await db.execute(text(
+                "SELECT DISTINCT measure_code FROM evidence WHERE project_id=:p "
+                "AND measure_code IS NOT NULL AND deleted_at IS NULL"
+            ), {"p": str(pid)})).all()}
+            for mc in applicable:
+                if mc not in covered:
+                    db.add(Evidence(
+                        id=uuid.uuid4(), project_id=pid, tipo="document",
+                        vigente=True, measure_code=mc, scan_status="clean",
+                    ))
+            await db.commit()
+    except Exception as exc:  # noqa: BLE001
+        extras_errors.append(f"evidence-coverage: {exc}")
+        await db.rollback()
+
     # ── EXTRAS · E-040 + ruta CONFORMANT + distintivo E-049 (+ cert ext) ──
     await db.execute(text("SET LOCAL ROLE fulkro_app_bypassrls"))
     await set_tenant_context(db, client_id=cid, project_id=pid)
