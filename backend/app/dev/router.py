@@ -1760,25 +1760,39 @@ async def seed_full_implantation(
             "ORDER BY m.codigo"
         ), {"p": str(pid)})).all()]
         if applicable:
+            # critical_high_requirement=3 (gap service): las medidas críticas
+            # (op.* / mp.*) exigen 3 evidencias para 'covered'. Garantizamos >=3
+            # por medida aplicable → cobertura 100% (system implantado perfecto).
+            target = 3
+            existing = {
+                r[0]: int(r[1]) for r in (await db.execute(text(
+                    "SELECT measure_code, count(*) FROM evidence WHERE project_id=:p "
+                    "AND measure_code IS NOT NULL AND deleted_at IS NULL "
+                    "GROUP BY measure_code"
+                ), {"p": str(pid)})).all()
+            }
+            needed: list[str] = []
+            for mc in applicable:
+                deficit = target - existing.get(mc, 0)
+                needed.extend([mc] * max(0, deficit))
             free_ev = [r[0] for r in (await db.execute(text(
                 "SELECT id FROM evidence WHERE project_id=:p AND deleted_at IS NULL "
                 "AND measure_code IS NULL"
             ), {"p": str(pid)})).all()]
-            for i, eid in enumerate(free_ev):
+            i = 0
+            for eid in free_ev:
+                if i >= len(needed):
+                    break
                 await db.execute(text(
                     "UPDATE evidence SET measure_code=:mc, scan_status='clean' "
                     "WHERE id=:e"
-                ), {"mc": applicable[i % len(applicable)], "e": str(eid)})
-            covered = {r[0] for r in (await db.execute(text(
-                "SELECT DISTINCT measure_code FROM evidence WHERE project_id=:p "
-                "AND measure_code IS NOT NULL AND deleted_at IS NULL"
-            ), {"p": str(pid)})).all()}
-            for mc in applicable:
-                if mc not in covered:
-                    db.add(Evidence(
-                        id=uuid.uuid4(), project_id=pid, tipo="document",
-                        vigente=True, measure_code=mc, scan_status="clean",
-                    ))
+                ), {"mc": needed[i], "e": str(eid)})
+                i += 1
+            for mc in needed[i:]:
+                db.add(Evidence(
+                    id=uuid.uuid4(), project_id=pid, tipo="document",
+                    vigente=True, measure_code=mc, scan_status="clean",
+                ))
             await db.commit()
     except Exception as exc:  # noqa: BLE001
         extras_errors.append(f"evidence-coverage: {exc}")
