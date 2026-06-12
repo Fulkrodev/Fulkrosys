@@ -12,7 +12,7 @@ Documento {{ proyecto.codigo_documento_base }}-406 — Versión {{ proyecto.vers
 
 El presente Informe de Pruebas de Continuidad ha sido elaborado por {{ responsables.consultor.nombre }} en su condición de {{ responsables.consultor.cargo }}, revisado por {{ responsables.responsable_seguridad.nombre }} ({{ responsables.responsable_seguridad.cargo }}) y aprobado por {{ cliente.organo_aprobador_politicas }} de {{ cliente.razon_social }}.
 
-Este Informe constituye evidencia auditable del cumplimiento de la medida **op.cont.4 Medios alternativos** del Anexo II del RD 311/2022 y de los requisitos de pruebas periódicas del SGSI conforme a UNE-ISO 22301:2020 Cláusula 8.5.
+Este Informe constituye evidencia auditable del cumplimiento de la medida **op.cont.3 Pruebas periódicas** del Anexo II del RD 311/2022 y de los requisitos de pruebas periódicas del SGSI conforme a UNE-ISO 22301:2020 Cláusula 8.5.
 
 ## 1. FICHA TÉCNICA DEL EJERCICIO
 

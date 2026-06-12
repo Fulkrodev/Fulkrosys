@@ -14,7 +14,7 @@ El presente Plan de Recuperación de Desastres TIC (DRP) ha sido elaborado por {
 
 ## 1. OBJETO
 
-El presente DRP define los procedimientos técnicos para la recuperación de los sistemas TIC del sistema {{ proyecto.sistema_principal }} tras una disrupción que comprometa su disponibilidad, en cumplimiento de la medida **op.cont.3 Pruebas periódicas** y **op.cont.2 Plan de continuidad** del Anexo II del Real Decreto 311/2022 y conforme a la guía CCN-STIC-808.
+El presente DRP define los procedimientos técnicos para la recuperación de los sistemas TIC del sistema {{ proyecto.sistema_principal }} tras una disrupción que comprometa su disponibilidad, en cumplimiento de la medida **op.cont.3 Pruebas periódicas** y **op.cont.2 Plan de continuidad** del Anexo II del Real Decreto 311/2022 y conforme a UNE-ISO 22301:2020 (gestión de la continuidad del negocio).
 
 El DRP es el componente técnico del Plan de Continuidad del Negocio (E-402 BCP) y se activa en coordinación con éste.
 

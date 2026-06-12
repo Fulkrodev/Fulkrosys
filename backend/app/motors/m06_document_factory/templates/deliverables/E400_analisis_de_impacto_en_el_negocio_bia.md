@@ -11,7 +11,7 @@ fecha: "{{ bia.fecha_emision }}"
 clasificacion: "CONFIDENCIAL — Cliente"
 elaborado_por: "{{ bia.elaborado_por }}"
 aprobado_por: "Comité de Seguridad"
-politica_madre: "POL-104"
+politica_madre: "POL-109"
 ---
 
 # ANÁLISIS DE IMPACTO EN EL NEGOCIO (BIA)
@@ -34,7 +34,7 @@ c) Establecer los **objetivos de tiempo de recuperación (RTO)** y **objetivos d
 
 d) Identificar las dependencias internas y externas que condicionan la continuidad.
 
-e) Proporcionar la base sobre la que construir el **Plan de Continuidad del Servicio** (PCS) descrito en la Política POL-104.
+e) Proporcionar la base sobre la que construir el **Plan de Continuidad del Servicio** (PCS) descrito en la Política POL-109.
 
 Este BIA da cumplimiento a la medida **op.cont.1 (Análisis de impacto)** del Anexo II del Real Decreto 311/2022 y se ha elaborado conforme a las directrices de la norma UNE-EN ISO 22301:2019 sobre Sistemas de Gestión de la Continuidad del Negocio.
 
@@ -283,7 +283,7 @@ El presente Análisis de Impacto en el Negocio ha sido elaborado por {{ bia.elab
 
 ### 11.2 Revisión periódica
 
-Conforme al apartado 4.2 de la Política POL-104, el presente BIA será objeto de revisión al menos con carácter **anual** y, con carácter extraordinario, cuando se produzcan cambios significativos en los servicios prestados, en la organización, en la infraestructura o en el contexto operativo de {{ cliente.razon_social }}.
+Conforme al apartado 4.2 de la Política POL-109, el presente BIA será objeto de revisión al menos con carácter **anual** y, con carácter extraordinario, cuando se produzcan cambios significativos en los servicios prestados, en la organización, en la infraestructura o en el contexto operativo de {{ cliente.razon_social }}.
 
 **Próxima revisión prevista:** {{ bia.proxima_revision }}
 

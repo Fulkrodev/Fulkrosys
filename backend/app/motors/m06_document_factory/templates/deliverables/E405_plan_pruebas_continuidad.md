@@ -16,7 +16,7 @@ El presente Plan de Pruebas de Continuidad ha sido elaborado por {{ responsables
 
 El presente Plan establece el calendario, los tipos, los criterios de éxito, los participantes y la documentación de los ejercicios de prueba que validan la eficacia del Plan de Continuidad del Negocio (E-402 BCP) y del Plan de Recuperación de Desastres TIC (E-403 DRP) de {{ cliente.razon_social }}, en cumplimiento de:
 
-- **Esquema Nacional de Seguridad** (RD 311/2022, medida **op.cont.4 Medios alternativos**, en su requerimiento de pruebas periódicas).
+- **Esquema Nacional de Seguridad** (RD 311/2022, medida **op.cont.3 Pruebas periódicas**, en su requerimiento de pruebas periódicas).
 - **UNE-ISO 22301:2020** Cláusula 8.5 (Ejercicios y pruebas).
 - **DORA Art. 24** (Programa de pruebas de resiliencia operativa digital) si aplica al sector financiero.
 - **NIS2** (Medidas de gestión de riesgos · pruebas periódicas).

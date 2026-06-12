@@ -18,7 +18,7 @@ El presente documento define las estrategias de continuidad de negocio de {{ cli
 
 - **Esquema Nacional de Seguridad** (Real Decreto 311/2022), Anexo II, medida **op.cont.1 Análisis de impacto** y **op.cont.2 Plan de continuidad**.
 - **UNE-ISO 22301:2020** Sistemas de gestión de la continuidad del negocio.
-- **CCN-STIC-808** Guía de continuidad de servicios bajo el ENS.
+- **UNE-ISO 22301:2020** Sistemas de gestión de la continuidad del negocio.
 
 Este documento se complementa con el Análisis de Impacto sobre el Negocio (E-400 BIA), el Plan de Continuidad del Negocio (E-402 BCP), el Plan de Recuperación de Desastres TIC (E-403 DRP) y el Plan de Pruebas (E-405).
 

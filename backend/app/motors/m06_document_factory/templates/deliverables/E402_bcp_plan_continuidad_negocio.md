@@ -19,7 +19,7 @@ El presente Plan establece las acciones que {{ cliente.razon_social }} debe ejec
 - Preservar la vida y la seguridad de las personas.
 - Restaurar los procesos críticos en los plazos definidos en el BIA E-400.
 - Limitar los impactos económicos, reputacionales, legales y operativos.
-- Cumplir las obligaciones del Esquema Nacional de Seguridad (RD 311/2022, medida **op.cont.2 Plan de Continuidad**) y normas concurrentes (UNE-ISO 22301:2020, CCN-STIC-808).
+- Cumplir las obligaciones del Esquema Nacional de Seguridad (RD 311/2022, medida **op.cont.2 Plan de Continuidad**) y normas concurrentes (UNE-ISO 22301:2020).
 
 ## 2. ALCANCE
 
