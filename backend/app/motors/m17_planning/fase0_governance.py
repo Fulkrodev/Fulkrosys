@@ -33,6 +33,9 @@ _ALL = ("BASICA", "MEDIA", "ALTA")
 _FASE0_STEPS: tuple[dict, ...] = (
     {"key": "kickoff", "label": "Reunión de arranque", "wbs": "WBS-001",
      "ecode": None, "categorias": _ALL},
+    # R24 · primer acto formal de la Dirección: decisión de adecuar al ENS (org.1).
+    {"key": "decision", "label": "Decisión de adecuación de la Dirección", "wbs": "WBS-001",
+     "ecode": "E-010", "categorias": _ALL},
     {"key": "alcance", "label": "Documento de Alcance del SGSI", "wbs": "WBS-002",
      "ecode": "E-155", "categorias": _ALL},
     {"key": "roles", "label": "Nombramiento de roles ENS", "wbs": "WBS-003",
@@ -43,7 +46,7 @@ _FASE0_STEPS: tuple[dict, ...] = (
      "ecode": "E-150", "categorias": _ALL},
 )
 
-_GOVERNANCE_ECODES = {"E-155", "E-002", "E-003", "E-150"}
+_GOVERNANCE_ECODES = {"E-010", "E-155", "E-002", "E-003", "E-150"}
 
 
 async def compute_fase0_governance_state(

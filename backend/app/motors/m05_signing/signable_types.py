@@ -28,6 +28,7 @@ SignableType = Literal[
     # F0-3 (Ejecutable 8 Pasada 16 · F-14-07/P10-F04): firmables de gobierno
     # FASE 0 con tipo dedicado (antes caían a document_generic).
     "acta_nombramiento_roles",   # E-002 Acta nombramiento roles ENS
+    "acta_decision_direccion",   # E-010 Acta decisión adecuación ENS (Dirección · R24)
     "plan_adecuacion",           # E-150 Plan de adecuación al ENS
     "documento_alcance",         # E-155 Documento de alcance del SGSI
     # #43 · contrato comercial C-001 firmado por el lead vía canvas Ed25519.
@@ -52,6 +53,7 @@ SIGNABLE_TYPES: tuple[SignableType, ...] = (
     "dpc_anual",
     "renewal",
     "acta_nombramiento_roles",
+    "acta_decision_direccion",
     "plan_adecuacion",
     "documento_alcance",
     "contrato_comercial",
@@ -87,6 +89,7 @@ SIGNABLE_TYPE_LABELS: dict[SignableType, str] = {
     "dpc_anual": "Declaración Protección Continuidad (DPC) anual",
     "renewal": "Renovación bianual ENS",
     "acta_nombramiento_roles": "Acta de Nombramiento de Roles ENS",
+    "acta_decision_direccion": "Acta de Decisión de Adecuación al ENS de la Dirección",
     "plan_adecuacion": "Plan de Adecuación al ENS",
     "documento_alcance": "Documento de Alcance del SGSI",
     "contrato_comercial": "Contrato comercial de servicios FULKRO",
@@ -99,6 +102,7 @@ SIGNABLE_TYPE_LABELS: dict[SignableType, str] = {
 # vez de caer a ``document_generic`` (gap F-14-07/P10-F04). Fuente: catálogo m06.
 _ECODE_TO_SIGNABLE_TYPE: dict[str, SignableType] = {
     "E-002": "acta_nombramiento_roles",
+    "E-010": "acta_decision_direccion",
     "E-003": "acta_comite",
     "E-012": "acta_comite",
     "E-150": "plan_adecuacion",

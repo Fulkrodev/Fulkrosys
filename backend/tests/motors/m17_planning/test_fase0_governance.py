@@ -56,13 +56,13 @@ async def test_fase0_empty_project_all_pending(db):
 async def test_fase0_basica_with_docs_progresses(db):
     _, project_id = await setup_test_project(db)
     await _set_categoria(db, project_id, "BASICA")
-    for ec in ("E-155", "E-002", "E-150"):
+    # R24 · BÁSICA = kickoff + decision(E-010) + alcance(E-155) + roles(E-002) + plan(E-150)
+    for ec in ("E-010", "E-155", "E-002", "E-150"):
         await _gen_doc(db, project_id, ec)
     st = await compute_fase0_governance_state(db, uuid.UUID(project_id))
     done = {s["key"] for s in st["steps"] if s["done"]}
-    # alcance(E-155) + roles(E-002) + plan(E-150) + kickoff (implícito por docs)
-    assert {"alcance", "roles", "plan", "kickoff"} <= done
-    assert st["fase0_completa"] is True  # BÁSICA: 4 pasos, todos done
+    assert {"decision", "alcance", "roles", "plan", "kickoff"} <= done
+    assert st["fase0_completa"] is True  # BÁSICA: 5 pasos, todos done
 
 
 @pytest.mark.asyncio

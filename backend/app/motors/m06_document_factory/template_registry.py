@@ -46,6 +46,15 @@ TEMPLATE_REGISTRY: dict[str, dict[str, Any]] = {
         "title": "ACTA DE CONSTITUCIÓN DEL COMITÉ DE SEGURIDAD DE LA INFORMACIÓN",
         "type": "policies"
     },
+    "E-010": {
+        # R24 · decisión formal y firmable de la Dirección de adecuar al ENS
+        # (org.1 · compromiso de la Dirección). FASE 0 · firmable acta_decision_direccion.
+        "body_path": "policies/E010_acta_decision_adecuacion_direccion.md",
+        "module": "policies.E010_acta_decision_adecuacion_direccion",
+        "source": "RD_311_2022_org1_compromiso_direccion",
+        "title": "ACTA DE DECISIÓN DE ADECUACIÓN AL ENS DE LA DIRECCIÓN",
+        "type": "policies"
+    },
     "E-012": {
         "body_path": "deliverables/E012_acta_aprobacion_categorizacion_y_declaracion_aplicabilidad.md",
         "module": "deliverables.E012_acta_aprobacion_categorizacion_y_declaracion_aplicabilidad",
