@@ -36,7 +36,61 @@ export interface BiaEntryCreate {
   minimum_resources?: Record<string, unknown>;
 }
 
+// feat/fulkro-100 Ola A · continuidad admin buzón (cierra el loop sync con el cliente)
+export interface ContinuidadQuestionnaire {
+  submitted_at: string;
+  updated_at: string;
+  procesos_criticos?: { nombre?: string; descripcion?: string }[] | null;
+  rto_horas_tolerancia?: number | null;
+  rpo_horas_tolerancia?: number | null;
+  impacto_diario_eur?: string | null;
+  activos_core?: { nombre?: string; tipo?: string }[] | null;
+  notas_cliente?: string | null;
+  completed: boolean;
+}
+
+export interface ContinuidadApproval {
+  id: string;
+  artifact_type: string;
+  draft_id?: string | null;
+  action: string;
+  comment_text?: string | null;
+  created_at: string;
+}
+
+export interface ContinuidadBuzon {
+  has_questionnaire: boolean;
+  questionnaire?: ContinuidadQuestionnaire | null;
+  approvals: ContinuidadApproval[];
+  pending_comments: number;
+}
+
+export interface NotifyDraftReadyBody {
+  artifact_type: "bia" | "drp";
+  draft_id?: string | null;
+  message?: string | null;
+}
+
 const BASE = "/api/v1/projects";
+const ADMIN_BASE = "/api/v1/admin/projects";
+
+export async function getContinuidadBuzon(
+  projectId: string,
+): Promise<ContinuidadBuzon> {
+  return api<ContinuidadBuzon>(
+    `${ADMIN_BASE}/${projectId}/continuidad/buzon`,
+  );
+}
+
+export async function notifyDraftReady(
+  projectId: string,
+  body: NotifyDraftReadyBody,
+): Promise<{ ok: boolean; event_type: string }> {
+  return api<{ ok: boolean; event_type: string }>(
+    `${ADMIN_BASE}/${projectId}/continuidad/notify-draft-ready`,
+    { method: "POST", body: JSON.stringify(body) },
+  );
+}
 
 export async function createBiaEntry(
   projectId: string,

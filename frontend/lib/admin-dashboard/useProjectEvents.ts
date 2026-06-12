@@ -45,6 +45,9 @@ interface UseProjectEventsOptions {
   onSigningDeclined?: (data: SigningEventData) => void;
   // FIX P2-3 · el admin ve en realtime el documento que el cliente comparte
   onDocumentUploaded?: () => void;
+  // feat/fulkro-100 Ola A · el admin ve en realtime cuando el cliente rellena el
+  // cuestionario de continuidad o aprueba/comenta un borrador BIA/DRP.
+  onContinuidadChanged?: () => void;
 }
 
 export function useProjectEvents({
@@ -56,6 +59,7 @@ export function useProjectEvents({
   onSigningSigned,
   onSigningDeclined,
   onDocumentUploaded,
+  onContinuidadChanged,
 }: UseProjectEventsOptions): void {
   const queryClient = useQueryClient();
 
@@ -150,6 +154,11 @@ export function useProjectEvents({
       onDocumentUploaded?.();
     };
 
+    // Ola A · buzón de continuidad · refresca cuando el cliente actúa
+    const handleContinuidadChanged = () => {
+      onContinuidadChanged?.();
+    };
+
     eventSource.addEventListener("readiness_changed", handleReadinessChanged);
     eventSource.addEventListener("phase_changed", handlePhaseChanged);
     eventSource.addEventListener("alert_new", handleAlertNew);
@@ -157,6 +166,18 @@ export function useProjectEvents({
     eventSource.addEventListener("signing.signed", handleSigningSigned);
     eventSource.addEventListener("signing.declined", handleSigningDeclined);
     eventSource.addEventListener("document.uploaded", handleDocumentUploaded);
+    eventSource.addEventListener(
+      "continuidad.questionnaire.submitted",
+      handleContinuidadChanged,
+    );
+    eventSource.addEventListener(
+      "continuidad.draft.approved",
+      handleContinuidadChanged,
+    );
+    eventSource.addEventListener(
+      "continuidad.draft.comment",
+      handleContinuidadChanged,
+    );
 
     eventSource.onerror = () => {
       // Browser auto-reconnects · just log
@@ -184,6 +205,18 @@ export function useProjectEvents({
         "document.uploaded",
         handleDocumentUploaded,
       );
+      eventSource.removeEventListener(
+        "continuidad.questionnaire.submitted",
+        handleContinuidadChanged,
+      );
+      eventSource.removeEventListener(
+        "continuidad.draft.approved",
+        handleContinuidadChanged,
+      );
+      eventSource.removeEventListener(
+        "continuidad.draft.comment",
+        handleContinuidadChanged,
+      );
       eventSource.close();
     };
   }, [
@@ -196,5 +229,6 @@ export function useProjectEvents({
     onSigningSigned,
     onSigningDeclined,
     onDocumentUploaded,
+    onContinuidadChanged,
   ]);
 }

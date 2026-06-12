@@ -18,6 +18,7 @@ from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel, ConfigDict, Field
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from backend.app.auth.dependencies import require_owner
 from backend.app.database import get_db
 from backend.app.models.core import Project
 from backend.app.motors.m19_risk.bia_service import (
@@ -26,7 +27,14 @@ from backend.app.motors.m19_risk.bia_service import (
     list_bia_entries,
 )
 
-router = APIRouter(prefix="/projects", tags=["M19 - BIA (MB-11.5)"])
+# feat/fulkro-100 Ola A · cierra el hueco auth: el BIA es operación de Marcos
+# (admin). Antes el router NO tenía dependencia → cualquiera podía escribir/leer
+# el BIA de cualquier proyecto sin login (IDOR). ADR-013 require_owner.
+router = APIRouter(
+    prefix="/projects",
+    tags=["M19 - BIA (MB-11.5)"],
+    dependencies=[Depends(require_owner)],
+)
 
 
 class BiaEntryCreate(BaseModel):

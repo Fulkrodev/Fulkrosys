@@ -87,11 +87,30 @@ async def test_summary_empty_project_returns_nones(db):
     }
 
 
+async def _login_owner(async_client) -> str:
+    """Login owner real · devuelve el CSRF token (triple-binding POST)."""
+    res = await async_client.post("/api/v1/_dev/login-as-marcos")
+    assert res.status_code == 200, res.text
+    return async_client.cookies.get("fulkro_csrf") or ""
+
+
+@pytest.mark.real_auth
+@pytest.mark.asyncio
+async def test_bia_endpoint_requires_owner(async_client):
+    """Ola A · sin login owner → 401/403 (cierre hueco auth bia_api · IDOR)."""
+    response = await async_client.get(
+        "/api/v1/projects/11111111-2222-3333-4444-555555555555/bia/summary",
+    )
+    assert response.status_code in (401, 403), response.text
+
+
+@pytest.mark.real_auth
 @pytest.mark.asyncio
 async def test_post_bia_entry_endpoint_returns_201(async_client, db):
     from backend.tests.conftest import setup_test_project
 
     _, project_id = await setup_test_project(db)
+    csrf = await _login_owner(async_client)
     response = await async_client.post(
         f"/api/v1/projects/{project_id}/bia/analyses",
         json={
@@ -100,20 +119,24 @@ async def test_post_bia_entry_endpoint_returns_201(async_client, db):
             "rpo_hours": 1,
             "daily_impact_eur": "2500.00",
         },
+        headers={"X-CSRF-Token": csrf},
     )
     assert response.status_code == 201, response.text
     data = response.json()
     assert data["service_name"] == "Servicio A"
 
 
+@pytest.mark.real_auth
 @pytest.mark.asyncio
 async def test_get_bia_summary_endpoint(async_client, db):
     from backend.tests.conftest import setup_test_project
 
     _, project_id = await setup_test_project(db)
+    csrf = await _login_owner(async_client)
     await async_client.post(
         f"/api/v1/projects/{project_id}/bia/analyses",
         json={"service_name": "S", "rto_hours": 6, "rpo_hours": 2},
+        headers={"X-CSRF-Token": csrf},
     )
     response = await async_client.get(f"/api/v1/projects/{project_id}/bia/summary")
     assert response.status_code == 200
@@ -122,8 +145,10 @@ async def test_get_bia_summary_endpoint(async_client, db):
     assert data["max_rto_hours"] == 6
 
 
+@pytest.mark.real_auth
 @pytest.mark.asyncio
 async def test_bia_unknown_project_returns_404(async_client):
+    await _login_owner(async_client)
     response = await async_client.get(
         "/api/v1/projects/aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee/bia/summary",
     )

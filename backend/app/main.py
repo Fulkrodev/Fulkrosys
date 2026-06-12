@@ -93,6 +93,10 @@ from backend.app.motors.m19_risk.bia_api import router as bia_router
 from backend.app.motors.m19_risk.cliente_continuidad_api import (
     router as cliente_continuidad_router,
 )
+# feat/fulkro-100 Ola A · continuidad admin buzón + notify draft ready
+from backend.app.motors.m19_risk.continuidad_admin_api import (
+    router as continuidad_admin_router,
+)
 # Sesión 3B-2B.8 CLUSTER 3 Phase 3A · Evidence request workflow state machine
 from backend.app.motors.m07_evidence.request_api import (
     router_admin as evidence_request_admin_router,
@@ -515,6 +519,11 @@ app.include_router(bia_router, prefix="/api/v1", tags=["M19 - BIA (MB-11.5)"])
 app.include_router(
     cliente_continuidad_router, prefix="/api/v1",
     tags=["Portal Cliente - Continuidad"],
+)
+# feat/fulkro-100 Ola A · continuidad admin buzón (require_owner) cierra el loop sync
+app.include_router(
+    continuidad_admin_router, prefix="/api/v1",
+    tags=["M19 - Continuidad (admin buzón)"],
 )
 # Sesión 3B-2B.8 CLUSTER 3 Phase 3A · Evidence request workflow state machine
 app.include_router(
