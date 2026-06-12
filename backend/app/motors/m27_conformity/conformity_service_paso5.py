@@ -283,6 +283,40 @@ class ConformityServicePaso5:
 
     # ── Basic Declaration (BASICA) ──────────────────────────────────
 
+    async def _validate_self_assessment_808(
+        self,
+        db: AsyncSession,
+        project_id: uuid.UUID,
+        report_id: uuid.UUID,
+    ) -> None:
+        """Valida la autoevaluación CCN-STIC 808 que respalda el cierre BÁSICA (R15).
+
+        Antes ``self_assessment_report_id`` era un UUID opcional sin comprobar.
+        Ahora debe apuntar a un ``documents`` REAL de ESTE proyecto que sea la
+        autoevaluación CCN-STIC 808 (plantilla E-808*). El generador del E-808 ya
+        existe (M10 Audit-Sim ``run_simulation`` + ``generate_report_docx`` →
+        Documento); aquí se valida la referencia (FK + tipo) en el gate de cierre.
+        """
+        row = (await db.execute(
+            text(
+                "SELECT template_codigo FROM documents "
+                "WHERE id = :rid AND project_id = :pid AND deleted_at IS NULL"
+            ),
+            {"rid": str(report_id), "pid": str(project_id)},
+        )).first()
+        if row is None:
+            raise ConformityError(
+                "self_assessment_report_id no corresponde a ningún documento de "
+                "este proyecto (genere la autoevaluación CCN-STIC 808 / E-808 "
+                "antes de cerrar BÁSICA)."
+            )
+        template_codigo = (row[0] or "")
+        if not template_codigo.upper().startswith("E-808"):
+            raise ConformityError(
+                f"self_assessment_report_id apunta a '{template_codigo or 'documento sin código'}', "
+                "no a la autoevaluación CCN-STIC 808 (se espera plantilla E-808)."
+            )
+
     async def process_basic_declaration(
         self,
         db: AsyncSession,
@@ -318,6 +352,15 @@ class ConformityServicePaso5:
                 "No se puede publicar/firmar la Declaración de Conformidad "
                 "BÁSICA sin la autoevaluación CCN-STIC 808 "
                 "(self_assessment_report_id es obligatorio para el cierre)."
+            )
+        # R15: si se aporta la autoevaluación 808, VALIDARLA contra la tabla
+        # `audit_simulation_runs` (antes era un UUID opcional sin comprobar).
+        # Debe ser una autoevaluación real, de ESTE proyecto, de categoría
+        # BÁSICA, FINALIZADA y sin no-conformidades MAYORES abiertas (no se puede
+        # autodeclarar conformidad con NC mayores pendientes · CCN-STIC 808).
+        if self_assessment_report_id is not None:
+            await self._validate_self_assessment_808(
+                db, project_id, self_assessment_report_id,
             )
 
         now = _now()
