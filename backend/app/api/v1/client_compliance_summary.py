@@ -159,108 +159,122 @@ async def _resolve_project_for_client(
     return str(project_row[0]) if project_row else None
 
 
+async def _safe_scalar(
+    db: AsyncSession, sql: str, params: dict, default: int = 0,
+) -> int:
+    """Run a COUNT/scalar query inside a SAVEPOINT (best-effort).
+
+    Bug auditoría 2026-06-12: un helper que tragaba la excepción con `except`
+    pero SIN rollback dejaba la transacción asyncpg en estado *aborted*; la
+    siguiente query (no envuelta) moría con `InFailedSQLTransactionError` y el
+    endpoint devolvía 500 (p.ej. `conformity_declarations` inexistente
+    envenenaba el COUNT de `cloud_gaps`). El SAVEPOINT aísla cada fallo: el
+    rollback afecta solo al savepoint y NUNCA a la transacción externa ni al
+    contexto RLS (`set_config(... , is_local=true)`).
+    """
+    try:
+        async with db.begin_nested():
+            row = await db.execute(sa_text(sql), params)
+            val = row.scalar()
+        return int(val) if val is not None else default
+    except Exception:  # noqa: BLE001 · tolerate schema variant / absence
+        return default
+
+
 async def _count_pending_remediations(
     db: AsyncSession, project_id: str,
 ) -> int:
-    row = await db.execute(
-        sa_text(
-            "SELECT COUNT(*) FROM cloud_gaps "
-            "WHERE project_id = :pid "
-            "  AND cliente_can_see = true "
-            "  AND approval_status = 'proposed_to_cliente' "
-            "  AND deleted_at IS NULL"
-        ),
+    return await _safe_scalar(
+        db,
+        "SELECT COUNT(*) FROM cloud_gaps "
+        "WHERE project_id = :pid "
+        "  AND cliente_can_see = true "
+        "  AND approval_status = 'proposed_to_cliente' "
+        "  AND deleted_at IS NULL",
         {"pid": project_id},
     )
-    return int(row.scalar() or 0)
 
 
 async def _count_pending_tasks(
     db: AsyncSession, project_id: str,
 ) -> int:
     """ClientTask pending (status pending OR in_progress · NO done)."""
-    row = await db.execute(
-        sa_text(
-            "SELECT COUNT(*) FROM client_tasks "
-            "WHERE project_id = :pid "
-            "  AND status IN ('pending', 'in_progress') "
-            "  AND deleted_at IS NULL"
-        ),
+    return await _safe_scalar(
+        db,
+        "SELECT COUNT(*) FROM client_tasks "
+        "WHERE project_id = :pid "
+        "  AND status IN ('pending', 'in_progress') "
+        "  AND deleted_at IS NULL",
         {"pid": project_id},
     )
-    return int(row.scalar() or 0)
 
 
 async def _count_critical_open_gaps(
     db: AsyncSession, project_id: str,
 ) -> int:
     """M04 gap findings critical/high open (best-effort · tolerates schema variant)."""
-    try:
-        row = await db.execute(
-            sa_text(
-                # Bug auditoría 2026-06-07: la columna es `severidad` (NO
-                # `severity`) → la query fallaba y el except devolvía 0 SIEMPRE
-                # (el cliente nunca veía temas críticos). Valores reales incl.
-                # critica/alta + variantes en inglés por compat.
-                "SELECT COUNT(*) FROM findings "
-                "WHERE project_id = :pid "
-                "  AND severidad IN ('critica', 'alta', 'critical', 'high') "
-                "  AND estado IN ('abierto', 'open', 'en_curso')"
-            ),
-            {"pid": project_id},
-        )
-        return int(row.scalar() or 0)
-    except Exception:  # noqa: BLE001 · tolerate schema absence in tests
-        return 0
+    # Bug auditoría 2026-06-07: la columna es `severidad` (NO `severity`).
+    # Valores reales incl. critica/alta + variantes en inglés por compat.
+    return await _safe_scalar(
+        db,
+        "SELECT COUNT(*) FROM findings "
+        "WHERE project_id = :pid "
+        "  AND severidad IN ('critica', 'alta', 'critical', 'high') "
+        "  AND estado IN ('abierto', 'open', 'en_curso')",
+        {"pid": project_id},
+    )
 
 
 async def _conformity_status_raw(
     db: AsyncSession, project_id: str,
 ) -> tuple[str, int]:
-    """M27 conformity readiness coarse status · best-effort."""
+    """M27 conformity readiness coarse status · best-effort.
+
+    Bug auditoría 2026-06-12: leía de `conformity_declarations` (tabla
+    INEXISTENTE) → el cliente nunca veía estado real y además envenenaba la
+    transacción (ver `_safe_scalar`). La tabla real es `conformity_routes`
+    (columna `status`: REGISTERED / SUBMITTED / ACCEPTED / ...). Se lee la
+    ruta más reciente del proyecto dentro de un SAVEPOINT.
+    """
+    estado = ""
     try:
-        row = await db.execute(
-            sa_text(
-                "SELECT estado_declaracion FROM conformity_declarations "
-                "WHERE project_id = :pid "
-                "ORDER BY created_at DESC LIMIT 1"
-            ),
-            {"pid": project_id},
-        )
-        hit = row.first()
+        async with db.begin_nested():
+            row = await db.execute(
+                sa_text(
+                    "SELECT status FROM conformity_routes "
+                    "WHERE project_id = :pid "
+                    "ORDER BY created_at DESC LIMIT 1"
+                ),
+                {"pid": project_id},
+            )
+            hit = row.first()
         if hit is None:
             return "unknown", 0
         estado = (hit[0] or "").lower()
-        if estado in ("firmada", "vigente", "aprobada"):
-            return "ok", 0
-        if estado in ("borrador", "pendiente"):
-            return "warning", 1
-        return "warning", 1
     except Exception:  # noqa: BLE001
         return "unknown", 0
+    # Estados "cerrados/al día": registrada / certificada / aceptada / vigente.
+    if any(k in estado for k in (
+        "regist", "cert", "vigente", "firmad", "aprob", "accept", "complet",
+    )):
+        return "ok", 0
+    # En curso → warning con 1 pendiente (borrador / pendiente / enviada...).
+    return "warning", 1
 
 
 async def _count_missing_evidences(
     db: AsyncSession, project_id: str,
 ) -> int:
     """Evidencias cliente_can_see missing (status pending OR rejected · best-effort)."""
-    try:
-        row = await db.execute(
-            sa_text(
-                # Bug auditoría 2026-06-07: la tabla es `evidence_requests` (NO
-                # `evidence_collection_requests`, inexistente) → la query fallaba
-                # y el except devolvía 0 SIEMPRE (el cliente nunca veía docs
-                # faltantes). Estados que exigen acción del cliente:
-                # pending_cliente (pendiente subir) + rejected (re-subir).
-                "SELECT COUNT(*) FROM evidence_requests "
-                "WHERE project_id = :pid "
-                "  AND status IN ('pending_cliente', 'rejected')"
-            ),
-            {"pid": project_id},
-        )
-        return int(row.scalar() or 0)
-    except Exception:  # noqa: BLE001
-        return 0
+    # Bug auditoría 2026-06-07: la tabla es `evidence_requests`. Estados que
+    # exigen acción del cliente: pending_cliente (subir) + rejected (re-subir).
+    return await _safe_scalar(
+        db,
+        "SELECT COUNT(*) FROM evidence_requests "
+        "WHERE project_id = :pid "
+        "  AND status IN ('pending_cliente', 'rejected')",
+        {"pid": project_id},
+    )
 
 
 # ──────────────────────────────────────────────────────────────────────
