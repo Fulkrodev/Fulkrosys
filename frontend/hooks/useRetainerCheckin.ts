@@ -14,6 +14,7 @@ import {
   listClientCheckins,
   reviewCheckin,
 } from "@/lib/api/retainer-checkin";
+import { useClientProjectEvents } from "@/hooks/useClientProjectEvents";
 import { ClientApiError, clientApi } from "@/lib/client-portal-api";
 
 interface UseRetainerCheckinResult {
@@ -98,6 +99,14 @@ export function useRetainerCheckin(): UseRetainerCheckinResult {
     setError(null);
     await fetchAll(projectId);
   }, [projectId, fetchAll]);
+
+  // Ola B · realtime: el cliente ve aparecer el check-in en cuanto Marcos lo
+  // envía (antes solo al recargar). Pattern #14 SSE → refetch.
+  useClientProjectEvents(projectId, {
+    onRetainerCheckinSent: () => {
+      void refetch();
+    },
+  });
 
   return {
     loading,

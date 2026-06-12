@@ -242,6 +242,10 @@ CLIENTE_EVENT_TYPES: frozenset[str] = frozenset({
     # realtime cuando Marcos prepara un borrador BIA/DRP listo para aprobar
     # (admin-origin · cliente-facing).
     "continuidad.draft_ready",
+    # Retainer check-in trimestral (feat/fulkro-100 Ola B · 2026-06-13): el
+    # cliente ve aparecer su informe trimestral al instante cuando Marcos lo
+    # envía (admin-origin · cliente-facing).
+    "retainer.checkin.sent",
 })
 
 # DISEÑO DE AUDIENCIAS (resuelto · Marcos 2026-05-31): admin y cliente son conjuntos

@@ -120,6 +120,12 @@ export type DocumentEventType = "document.uploaded";
  */
 export type ContinuidadEventType = "continuidad.draft_ready";
 
+/**
+ * feat/fulkro-100 Ola B (2026-06-13) · retainer check-in trimestral enviado.
+ * Marcos envía el informe → el cliente lo ve aparecer en realtime.
+ */
+export type RetainerCheckinEventType = "retainer.checkin.sent";
+
 export type ClientSseEventType =
   | "step_completed"
   | "step_unblocked"
@@ -133,6 +139,8 @@ export type ClientSseEventType =
   | PhaseChangedEventType
   | AccompanimentEventType
   | DocumentEventType
+  | ContinuidadEventType
+  | RetainerCheckinEventType
   | "heartbeat";
 
 export interface ClientSseEvent {
@@ -230,6 +238,9 @@ interface UseClientProjectEventsOptions {
   onPhaseChanged?: (event: ClientSseEvent) => void;
   // FIX P2-3 · gestor documental compartido (documento nuevo en el proyecto)
   onDocumentUploaded?: (event: ClientSseEvent) => void;
+  // feat/fulkro-100 · continuidad draft listo (Ola A) + retainer check-in (Ola B)
+  onContinuidadDraftReady?: (event: ClientSseEvent) => void;
+  onRetainerCheckinSent?: (event: ClientSseEvent) => void;
   invalidateQueries?: string[][];
 }
 
@@ -261,6 +272,8 @@ export function useClientProjectEvents(
     onSigningDeclined,
     onPhaseChanged,
     onDocumentUploaded,
+    onContinuidadDraftReady,
+    onRetainerCheckinSent,
     invalidateQueries = [],
   } = options;
   const queryClient = useQueryClient();
@@ -364,6 +377,14 @@ export function useClientProjectEvents(
             onPhaseChanged(evt);
           } else if (type === "document.uploaded" && onDocumentUploaded) {
             onDocumentUploaded(evt);
+          } else if (
+            type === "continuidad.draft_ready" && onContinuidadDraftReady
+          ) {
+            onContinuidadDraftReady(evt);
+          } else if (
+            type === "retainer.checkin.sent" && onRetainerCheckinSent
+          ) {
+            onRetainerCheckinSent(evt);
           }
 
           // Ejecutable 7.7 · auto-invalidate signing queries (DRY)
@@ -499,6 +520,17 @@ export function useClientProjectEvents(
     source.addEventListener(
       "document.uploaded",
       handleEvent("document.uploaded"),
+    );
+    // feat/fulkro-100 Ola A · continuidad draft listo (sin este listener el
+    // invalidateQueries del ContinuidadClienteView NUNCA se disparaba · bug).
+    source.addEventListener(
+      "continuidad.draft_ready",
+      handleEvent("continuidad.draft_ready"),
+    );
+    // feat/fulkro-100 Ola B · retainer check-in trimestral enviado.
+    source.addEventListener(
+      "retainer.checkin.sent",
+      handleEvent("retainer.checkin.sent"),
     );
 
     source.onerror = () => {

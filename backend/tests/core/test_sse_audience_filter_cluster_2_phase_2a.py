@@ -72,6 +72,8 @@ def test_cliente_event_types_contains_21_events():
         "document.uploaded",
         # feat/fulkro-100 (2026-06-12) · continuidad BIA/DRP draft listo
         "continuidad.draft_ready",
+        # feat/fulkro-100 Ola B (2026-06-13) · retainer check-in trimestral enviado
+        "retainer.checkin.sent",
     })
     assert CLIENTE_EVENT_TYPES == expected, (
         f"Diff: missing={expected - CLIENTE_EVENT_TYPES} "
@@ -268,6 +270,43 @@ def test_chat_message_new_admin_sender_REJECTED_admin():
     assert not event_matches_audience(
         "chat_message_new", "admin",
         {"thread_id": "abc", "sender_type": "admin"},
+    )
+
+
+# ════════════════════════════════════════════════════════════════════
+# feat/fulkro-100 · continuidad (Ola A) + retainer check-in (Ola B)
+# ════════════════════════════════════════════════════════════════════
+
+
+def test_continuidad_draft_ready_accepted_cliente():
+    """Ola A · admin deja borrador BIA/DRP listo → cliente lo recibe."""
+    assert event_matches_audience(
+        "continuidad.draft_ready", "cliente",
+        {"primary_actor": "admin", "artifact_type": "bia"},
+    )
+
+
+def test_continuidad_draft_ready_REJECTED_admin():
+    """Ola A · continuidad.draft_ready es admin-origin · NO se eco al admin."""
+    assert not event_matches_audience(
+        "continuidad.draft_ready", "admin",
+        {"primary_actor": "admin", "artifact_type": "bia"},
+    )
+
+
+def test_retainer_checkin_sent_accepted_cliente():
+    """Ola B · Marcos envía el check-in trimestral → cliente lo ve en realtime."""
+    assert event_matches_audience(
+        "retainer.checkin.sent", "cliente",
+        {"primary_actor": "admin", "report_id": "abc", "period_quarter": "2026Q1"},
+    )
+
+
+def test_retainer_checkin_sent_REJECTED_admin():
+    """Ola B · retainer.checkin.sent es admin-origin · NO se eco al admin."""
+    assert not event_matches_audience(
+        "retainer.checkin.sent", "admin",
+        {"primary_actor": "admin", "report_id": "abc"},
     )
 
 

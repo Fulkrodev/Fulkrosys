@@ -10,6 +10,7 @@ ADR-013 require_owner (pool admin). R23 project-scoped.
 """
 from __future__ import annotations
 
+import logging
 import uuid
 from typing import Optional
 
@@ -19,6 +20,7 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from backend.app.auth.dependencies import require_owner
+from backend.app.core.sse_dispatcher import sse_dispatcher
 from backend.app.database import get_db
 from backend.app.models.auth import User
 from backend.app.models.retainer import RetainerQuarterlyReport
@@ -28,6 +30,8 @@ from backend.app.motors.m23_retainer.retainer_checkin_service import (
     NoActiveRetainerError,
     RetainerCheckinService,
 )
+
+logger = logging.getLogger(__name__)
 
 router = APIRouter(
     prefix="/admin/retainer-checkin",
@@ -144,6 +148,23 @@ async def curate_report(
     except InvalidWorkflowTransitionError as exc:
         raise HTTPException(409, str(exc)) from exc
     await db.commit()
+
+    # Ola B · realtime: el cliente ve aparecer el check-in al instante en su
+    # portal (antes solo al refrescar). SSE SIEMPRE después del commit (Pattern
+    # #14 · admin-origin · cliente-facing).
+    try:
+        await sse_dispatcher.dispatch(
+            f"project:{r.project_id}",
+            "retainer.checkin.sent",
+            {
+                "primary_actor": "admin",
+                "report_id": str(r.id),
+                "period_quarter": r.period_quarter,
+            },
+        )
+    except Exception:  # pragma: no cover · best-effort
+        logger.warning("SSE retainer.checkin.sent dispatch failed (best-effort)")
+
     return _to_out(r)
 
 
