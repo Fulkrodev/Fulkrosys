@@ -112,7 +112,7 @@ export function RiskDashboard({ projectId }: { projectId: string }) {
               <Skeleton className="h-3 w-32" />
               <Skeleton className="h-8 w-full" />
             </div>
-            <div className="grid grid-cols-3 gap-2">
+            <div className="grid grid-cols-1 gap-2 sm:grid-cols-3">
               <Skeleton className="h-16" />
               <Skeleton className="h-16" />
               <Skeleton className="h-16" />
@@ -206,7 +206,7 @@ export function RiskDashboard({ projectId }: { projectId: string }) {
             <RiskLevelBars data={data.by_risk_level} total={data.total_risks} />
           </div>
 
-          <div className="grid grid-cols-3 gap-2">
+          <div className="grid grid-cols-1 gap-2 sm:grid-cols-3">
             <Stat
               label="Críticos abiertos"
               value={String(totalCritical)}

@@ -25,7 +25,7 @@ export function Kpi3MicroRow({
   proximoHitoDays,
 }: Kpi3MicroRowProps) {
   return (
-    <div className="grid grid-cols-3 gap-2">
+    <div className="grid grid-cols-1 gap-2 sm:grid-cols-3">
       <KpiCard
         icon={<Compass className="size-4" />}
         label="Dimensiones"

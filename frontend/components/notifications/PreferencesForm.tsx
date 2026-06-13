@@ -163,7 +163,7 @@ export function PreferencesForm({ preference, onSave }: PreferencesFormProps) {
           Durante este horario no recibirás emails. Usa formato 24h
           (ej. 22:00 → 08:00). Deja ambos campos vacíos para desactivar.
         </p>
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
           <div className="space-y-1">
             <Label htmlFor="dnd_start">Inicio (HH:MM)</Label>
             <Input

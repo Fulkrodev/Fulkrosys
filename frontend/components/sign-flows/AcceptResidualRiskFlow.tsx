@@ -56,7 +56,7 @@ export function AcceptResidualRiskFlow({
           </p>
         ) : null}
       </div>
-      <dl className="grid grid-cols-3 gap-3 text-xs">
+      <dl className="grid grid-cols-1 gap-3 sm:grid-cols-2 md:grid-cols-3 text-xs">
         <div>
           <dt className="text-fulkro-ink-500">Probabilidad</dt>
           <dd className="font-semibold text-fulkro-ink-700">

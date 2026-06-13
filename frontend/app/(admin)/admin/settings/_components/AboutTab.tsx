@@ -166,7 +166,7 @@ export function AboutTab({
                 </span>
               </div>
               <Progress value={about.corpus_completion_pct} />
-              <dl className="mt-2 grid grid-cols-2 gap-3 text-xs">
+              <dl className="mt-2 grid grid-cols-1 gap-3 sm:grid-cols-2 text-xs">
                 <div>
                   <dt className="text-fulkro-ink-500">Sources indexed</dt>
                   <dd className="font-mono">
@@ -190,7 +190,7 @@ export function AboutTab({
           <CardTitle>Tests + cobertura</CardTitle>
         </CardHeader>
         <CardContent>
-          <dl className="grid grid-cols-2 gap-4">
+          <dl className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <div>
               <dt className="text-xs uppercase tracking-wider text-fulkro-ink-500">
                 Suite passing

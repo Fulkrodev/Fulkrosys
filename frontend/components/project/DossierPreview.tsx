@@ -211,7 +211,7 @@ function SectionCounts({ data }: { data: DossierIndex }) {
   ];
 
   return (
-    <div className="grid grid-cols-3 gap-2 text-center text-xs">
+    <div className="grid grid-cols-1 gap-2 text-center sm:grid-cols-3 text-xs">
       {sections.map((s) => (
         <div
           key={s.key}

@@ -341,7 +341,7 @@ export default function ComplianceLandingPage() {
         </header>
 
         <div
-          className="grid gap-3 md:grid-cols-3"
+          className="grid gap-3 sm:grid-cols-2 md:grid-cols-3"
           data-testid="fulkro-own-ens-medio-grid"
         >
           {/* M04 gaps Fulkro propio · wired al monitor existing (19 checks
