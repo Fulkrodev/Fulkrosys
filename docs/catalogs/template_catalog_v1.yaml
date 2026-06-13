@@ -2503,3 +2503,156 @@ templates:
     cliente.nif:
       description: Cliente > Nif
       required: true
+- codigo: E-010
+  nombre: "Acta de Decisión de Adecuación al Ens de la Dirección"
+  categoria: politica
+  familia_ens: org
+  aplica_desde: null
+  version_actual: '1.0'
+  fuente_md: null
+  is_active: true
+  stub_content: "Acta de Decisión de Adecuación al Ens de la Dirección. Entregable del ciclo ENS (CCN-STIC / RD 311/2022)."
+- codigo: E-041
+  nombre: "Declaración de Conformidad con el Ens"
+  categoria: entregable
+  familia_ens: null
+  aplica_desde: null
+  version_actual: '1.0'
+  fuente_md: null
+  is_active: true
+  stub_content: "Declaración de Conformidad con el Ens. Entregable del ciclo ENS (CCN-STIC / RD 311/2022)."
+- codigo: E-042
+  nombre: "Comunicación de Cambio Material en el Sistema"
+  categoria: entregable
+  familia_ens: null
+  aplica_desde: null
+  version_actual: '1.0'
+  fuente_md: null
+  is_active: true
+  stub_content: "Comunicación de Cambio Material en el Sistema. Entregable del ciclo ENS (CCN-STIC / RD 311/2022)."
+- codigo: E-043
+  nombre: "Renovación Periódica de la Conformidad con el Ens"
+  categoria: entregable
+  familia_ens: null
+  aplica_desde: null
+  version_actual: '1.0'
+  fuente_md: null
+  is_active: true
+  stub_content: "Renovación Periódica de la Conformidad con el Ens. Entregable del ciclo ENS (CCN-STIC / RD 311/2022)."
+- codigo: E-127
+  nombre: "Política de Registro de Actividad: Retención y Sincronización Horaria"
+  categoria: politica
+  familia_ens: op.exp
+  aplica_desde: null
+  version_actual: '1.0'
+  fuente_md: null
+  is_active: true
+  stub_content: "Política de Registro de Actividad: Retención y Sincronización Horaria. Entregable del ciclo ENS (CCN-STIC / RD 311/2022)."
+- codigo: E-150
+  nombre: "Plan de Adecuación al Ens"
+  categoria: politica
+  familia_ens: op.pl
+  aplica_desde: null
+  version_actual: '1.0'
+  fuente_md: null
+  is_active: true
+  stub_content: "Plan de Adecuación al Ens. Entregable del ciclo ENS (CCN-STIC / RD 311/2022)."
+- codigo: E-160
+  nombre: "Manual del Sgsi"
+  categoria: politica
+  familia_ens: org
+  aplica_desde: null
+  version_actual: '1.0'
+  fuente_md: null
+  is_active: true
+  stub_content: "Manual del Sgsi. Entregable del ciclo ENS (CCN-STIC / RD 311/2022)."
+- codigo: E-170
+  nombre: "Plan Director de Seguridad (trianual)"
+  categoria: politica
+  familia_ens: op.pl
+  aplica_desde: null
+  version_actual: '1.0'
+  fuente_md: null
+  is_active: true
+  stub_content: "Plan Director de Seguridad (trianual). Entregable del ciclo ENS (CCN-STIC / RD 311/2022)."
+- codigo: E-180
+  nombre: "Declaración de Conformidad Sgsi (autoevaluación Básica Ccn-stic 809)"
+  categoria: politica
+  familia_ens: org
+  aplica_desde: null
+  version_actual: '1.0'
+  fuente_md: null
+  is_active: true
+  stub_content: "Declaración de Conformidad Sgsi (autoevaluación Básica Ccn-stic 809). Entregable del ciclo ENS (CCN-STIC / RD 311/2022)."
+- codigo: E-235
+  nombre: "Procedimiento de Sellado de Tiempo"
+  categoria: procedimiento
+  familia_ens: op.exp
+  aplica_desde: null
+  version_actual: '1.0'
+  fuente_md: null
+  is_active: true
+  stub_content: "Procedimiento de Sellado de Tiempo. Entregable del ciclo ENS (CCN-STIC / RD 311/2022)."
+- codigo: E-614
+  nombre: "Informe Trimestral de Retainer"
+  categoria: entregable
+  familia_ens: null
+  aplica_desde: null
+  version_actual: '1.0'
+  fuente_md: null
+  is_active: true
+  stub_content: "Informe Trimestral de Retainer. Entregable del ciclo ENS (CCN-STIC / RD 311/2022)."
+- codigo: E-615
+  nombre: "Informe Anual de Retainer"
+  categoria: entregable
+  familia_ens: null
+  aplica_desde: null
+  version_actual: '1.0'
+  fuente_md: null
+  is_active: true
+  stub_content: "Informe Anual de Retainer. Entregable del ciclo ENS (CCN-STIC / RD 311/2022)."
+- codigo: E-705
+  nombre: "Informe Formal de Campaña de Phishing"
+  categoria: entregable
+  familia_ens: null
+  aplica_desde: null
+  version_actual: '1.0'
+  fuente_md: null
+  is_active: true
+  stub_content: "Informe Formal de Campaña de Phishing. Entregable del ciclo ENS (CCN-STIC / RD 311/2022)."
+- codigo: E-706
+  nombre: "Informe de Ejercicio Tabletop de Gestión de Incidente"
+  categoria: entregable
+  familia_ens: null
+  aplica_desde: null
+  version_actual: '1.0'
+  fuente_md: null
+  is_active: true
+  stub_content: "Informe de Ejercicio Tabletop de Gestión de Incidente. Entregable del ciclo ENS (CCN-STIC / RD 311/2022)."
+- codigo: E-707
+  nombre: "Informe de Prueba de Restauración Desde Copia de Seguridad"
+  categoria: entregable
+  familia_ens: null
+  aplica_desde: null
+  version_actual: '1.0'
+  fuente_md: null
+  is_active: true
+  stub_content: "Informe de Prueba de Restauración Desde Copia de Seguridad. Entregable del ciclo ENS (CCN-STIC / RD 311/2022)."
+- codigo: E-708
+  nombre: "Informe de Auditoría Externa del Ens"
+  categoria: entregable
+  familia_ens: null
+  aplica_desde: null
+  version_actual: '1.0'
+  fuente_md: null
+  is_active: true
+  stub_content: "Informe de Auditoría Externa del Ens. Entregable del ciclo ENS (CCN-STIC / RD 311/2022)."
+- codigo: E-808
+  nombre: "Autoevaluación Anual de la Declaración de Aplicabilidad"
+  categoria: entregable
+  familia_ens: null
+  aplica_desde: null
+  version_actual: '1.0'
+  fuente_md: null
+  is_active: true
+  stub_content: "Autoevaluación Anual de la Declaración de Aplicabilidad. Entregable del ciclo ENS (CCN-STIC / RD 311/2022)."

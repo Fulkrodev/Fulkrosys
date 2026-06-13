@@ -48,7 +48,7 @@ Integrados con hallazgos internos previos: {{ run.total_findings }} totales ·
 | Nombre | {{ handoff.pentester.name }} |
 | Certificación vigente | {{ handoff.pentester.certification }} (válida en la fecha del ejercicio) |
 | Email de contacto | {{ handoff.pentester.email }} |
-| Empresa | {{ handoff.pentester.company | default('Profesional independiente') }} |
+| Empresa | {{ handoff.pentester.company \| default('Profesional independiente') }} |
 
 ### 2.2 Cronograma
 
@@ -56,8 +56,8 @@ Integrados con hallazgos internos previos: {{ run.total_findings }} totales ·
 |---|---|
 | Preparación del engagement (paquete de documentación entregado) | {{ handoff.handoff_date }} |
 | Kickoff de coordinación | {{ handoff.kickoff_scheduled_at }} |
-| Inicio de la ventana de ejecución | {{ handoff.execution_start | default(run.phase1_started_at) }} |
-| Fin de la ventana de ejecución | {{ handoff.execution_end | default(run.completed_at) }} |
+| Inicio de la ventana de ejecución | {{ handoff.execution_start \| default(run.phase1_started_at) }} |
+| Fin de la ventana de ejecución | {{ handoff.execution_end \| default(run.completed_at) }} |
 | Entrega del informe externo | {{ handoff.report_received_at }} |
 | Integración en sistema interno y emisión de E-704 | {{ run.fecha_emision }} |
 
@@ -86,7 +86,7 @@ Integrados con hallazgos internos previos: {{ run.total_findings }} totales ·
 - **Denegación de servicio:** no autorizada bajo ningún concepto.
 - **Ingeniería social a personal del cliente:** no autorizada salvo fases
   específicas previamente acordadas con el RSEG.
-- **Ventana horaria de ejecución:** {{ handoff.execution_window | default('L-V 09:00-18:00 CET') }}.
+- **Ventana horaria de ejecución:** {{ handoff.execution_window \| default('L-V 09:00-18:00 CET') }}.
 - **Contacto de emergencia:** {{ responsables.responsable_seguridad.nombre }}
   ({{ responsables.responsable_seguridad.email }}).
 
@@ -134,10 +134,10 @@ externos. La integración realiza:
 
 | Severidad | # findings externos | # findings internos previos | Total tras deduplicación |
 |---|---|---|---|
-| Crítica | {{ score.by_source.external.critical | default(0) }} | {{ score.by_source.internal.critical | default(0) }} | {{ score.critical }} |
-| Alta | {{ score.by_source.external.high | default(0) }} | {{ score.by_source.internal.high | default(0) }} | {{ score.high }} |
-| Media | {{ score.by_source.external.medium | default(0) }} | {{ score.by_source.internal.medium | default(0) }} | {{ score.medium }} |
-| Baja | {{ score.by_source.external.low | default(0) }} | {{ score.by_source.internal.low | default(0) }} | {{ score.low }} |
+| Crítica | {{ score.by_source.external.critical \| default(0) }} | {{ score.by_source.internal.critical \| default(0) }} | {{ score.critical }} |
+| Alta | {{ score.by_source.external.high \| default(0) }} | {{ score.by_source.internal.high \| default(0) }} | {{ score.high }} |
+| Media | {{ score.by_source.external.medium \| default(0) }} | {{ score.by_source.internal.medium \| default(0) }} | {{ score.medium }} |
+| Baja | {{ score.by_source.external.low \| default(0) }} | {{ score.by_source.internal.low \| default(0) }} | {{ score.low }} |
 
 ### 6.2 Mapeo al Anexo II del ENS
 
