@@ -25,8 +25,11 @@ from typing import Any
 from uuid import UUID
 
 from sqlalchemy import select
+from sqlalchemy import text as _sa_text
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
+
+from backend.app.database import set_tenant_context
 
 from backend.app.agents.agent_11_auditor_virtual import (
     Agent11AuditorVirtual,
@@ -80,6 +83,20 @@ class AuditDryRunService:
         self._m10 = AuditSimulatorService()
         self._a11 = Agent11AuditorVirtual()
 
+    async def _scope_to_project(self, project_id: UUID) -> None:
+        """FIX(RLS): resuelve owner vía get_project_owner (SECURITY DEFINER)
+        y fija tenant context antes de cualquier query RLS-protegida. La global
+        dep NO fija el contexto para admin → sin esto las filas projects /
+        audit_dry_run_results quedan ocultas bajo RLS (fulkro_app)."""
+        owner = (
+            await self.db.execute(
+                _sa_text("SELECT get_project_owner(:pid)"), {"pid": str(project_id)},
+            )
+        ).scalar()
+        if not owner:
+            raise ValueError(f"Project {project_id} not found")
+        await set_tenant_context(self.db, client_id=owner, project_id=project_id)
+
     async def execute_dry_run(
         self,
         project_id: UUID,
@@ -87,6 +104,9 @@ class AuditDryRunService:
     ) -> DryRunResult:
         """Pipeline completo · 30-90s típico (M10 batch + A11 LLM)."""
         start = time.time()
+
+        # FIX(RLS): fija tenant context antes del primer SELECT(Project)
+        await self._scope_to_project(project_id)
 
         stmt = (
             select(Project)
@@ -126,17 +146,28 @@ class AuditDryRunService:
             for f in findings if f.evaluacion == "no_conforme_menor"
         ]
         scores_familia = m10_run.scores_por_familia or {}
+        # FIX(dead-default): el histograma de madurez se leía de
+        # scores_familia["_total_LX"], claves que _scores_by_family NUNCA emite
+        # → el auditor A11 (LLM) veía SIEMPRE L5..L0 = 0/0/0/0/0/0. Se computa
+        # de los findings reales (nivel_madurez por medida evaluada).
+        _hist = {f"L{i}": 0 for i in range(6)}
+        for _f in findings:
+            if _f.evaluacion == "no_aplica":
+                continue
+            _lv = _f.nivel_madurez if _f.nivel_madurez in _hist else None
+            if _lv:
+                _hist[_lv] += 1
         m10_audit_result = {
             "score_conformidad": int(m10_run.score_global or 0),
             "categoria_ens": m10_run.categoria or categoria,
             "nc_mayores": nc_mayores,
             "nc_menores": nc_menores,
-            "preguntas_L5": int(scores_familia.get("_total_L5", 0)),
-            "preguntas_L4": int(scores_familia.get("_total_L4", 0)),
-            "preguntas_L3": int(scores_familia.get("_total_L3", 0)),
-            "preguntas_L2": int(scores_familia.get("_total_L2", 0)),
-            "preguntas_L1": int(scores_familia.get("_total_L1", 0)),
-            "preguntas_L0": int(scores_familia.get("_total_L0", 0)),
+            "preguntas_L5": _hist["L5"],
+            "preguntas_L4": _hist["L4"],
+            "preguntas_L3": _hist["L3"],
+            "preguntas_L2": _hist["L2"],
+            "preguntas_L1": _hist["L1"],
+            "preguntas_L0": _hist["L0"],
             "preguntas_respondidas_total": int(m10_run.measures_evaluated or 0),
         }
 
@@ -259,6 +290,9 @@ class AuditDryRunService:
 
     async def get_summary(self, project_id: UUID) -> DryRunSummary:
         """Resumen dashboard · histórico last 5."""
+        # FIX(RLS): fija tenant context antes del SELECT(audit_dry_run_results)
+        await self._scope_to_project(project_id)
+
         rows = (
             await self.db.execute(
                 select(AuditDryRunResult)
@@ -294,6 +328,9 @@ class AuditDryRunService:
     async def get_result(
         self, project_id: UUID, result_id: UUID,
     ) -> DryRunResult | None:
+        # FIX(RLS): fija tenant context antes del SELECT(audit_dry_run_results)
+        await self._scope_to_project(project_id)
+
         row = (
             await self.db.execute(
                 select(AuditDryRunResult)

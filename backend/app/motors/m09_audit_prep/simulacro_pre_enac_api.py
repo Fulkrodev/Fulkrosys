@@ -17,7 +17,7 @@ from sqlalchemy import text as sa_text
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from backend.app.auth.dependencies import require_owner
-from backend.app.database import get_db
+from backend.app.database import get_db, set_tenant_context
 from backend.app.motors.m09_audit_prep.simulacro_pre_enac_service import (
     SimulacroReport,
     run_simulacro_pre_enac,
@@ -25,6 +25,25 @@ from backend.app.motors.m09_audit_prep.simulacro_pre_enac_service import (
 
 
 router = APIRouter(tags=["Simulacro Pre-ENAC (Sesión 3B-2B.10)"])
+
+
+async def _scope_project(db: AsyncSession, project_id: UUID) -> None:
+    """Resolve project owner + set RLS tenant context (canonical admin pattern).
+
+    Sin esto, las consultas del orquestador corren bajo ``fulkro_app`` con RLS
+    pero sin ``app.current_project_id`` → la política filtra el proyecto → 404
+    "Project not found" (bug latente · ningún spec ejecutaba el simulacro).
+    Mismo patrón que m10_audit_sim (get_project_owner → set_tenant_context).
+    """
+    row = (await db.execute(
+        sa_text("SELECT get_project_owner(:pid)"), {"pid": str(project_id)},
+    )).first()
+    if row is None or row[0] is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"Project {project_id} not found",
+        )
+    await set_tenant_context(db, client_id=row[0], project_id=project_id)
 
 
 class SimulacroReportResponse(BaseModel):
@@ -56,6 +75,7 @@ async def execute_simulacro_pre_enac(
     current_user=Depends(require_owner),
 ) -> SimulacroReportResponse:
     """Execute simulacro Pre-ENAC orchestrator end-to-end."""
+    await _scope_project(db, project_id)
     try:
         report: SimulacroReport = await run_simulacro_pre_enac(
             db,
@@ -80,6 +100,7 @@ async def get_last_simulacro_report(
     current_user=Depends(require_owner),
 ) -> SimulacroReportResponse:
     """Retrieve last simulacro report metadata from audit_log · NO re-trigger."""
+    await _scope_project(db, project_id)
     row = (await db.execute(sa_text(
         "SELECT payload_new, timestamp FROM audit_log "
         "WHERE tabla = 'simulacro_pre_enac' "

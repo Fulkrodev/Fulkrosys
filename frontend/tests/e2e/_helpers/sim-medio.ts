@@ -318,16 +318,24 @@ export async function sendContractToClient(
 export async function drawSignature(page: Page, testId: string): Promise<void> {
   const canvas = page.getByTestId(testId);
   await expect(canvas).toBeVisible({ timeout: 10_000 });
+  await canvas.scrollIntoViewIfNeeded();
   const box = await canvas.boundingBox();
-  if (!box) throw new Error(`canvas ${testId} sin boundingBox`);
+  if (!box) throw new Error(`canvas no encontrado para dibujar: ${testId}`);
+  // FIX(test-fidelity 2): signature_pad (react-signature-canvas) escucha PointerEvents.
+  // El dispatchEvent SINTÉTICO (new PointerEvent) NO lo captura → el lienzo quedaba
+  // VACÍO (isEmpty()=true) y el submit mostraba "Por favor, firma con tu dedo/ratón".
+  // La forma FIABLE es la API REAL de ratón de Playwright (page.mouse.*), que conduce
+  // el pipeline de input de Chromium y genera PointerEvents TRUSTED que signature_pad sí ve.
   const cx = box.x + box.width / 2;
   const cy = box.y + box.height / 2;
-  await page.mouse.move(cx - 50, cy - 12);
+  await page.mouse.move(box.x + 25, cy);
   await page.mouse.down();
-  await page.mouse.move(cx - 10, cy + 18, { steps: 8 });
-  await page.mouse.move(cx + 30, cy - 14, { steps: 8 });
-  await page.mouse.move(cx + 55, cy + 10, { steps: 8 });
+  await page.mouse.move(cx - 20, cy - 25, { steps: 8 });
+  await page.mouse.move(cx + 20, cy + 25, { steps: 8 });
+  await page.mouse.move(box.x + box.width - 25, cy - 12, { steps: 8 });
+  await page.mouse.move(cx, cy + 30, { steps: 8 });
   await page.mouse.up();
+  await page.waitForTimeout(200);
 }
 
 // ───────────────────────── copilotos (LLM real) ────────────────────────
@@ -347,16 +355,24 @@ export async function askAdminCopilot(
     await page.goto(`/admin/projects/${projectId}/workflow`, {
       waitUntil: "domcontentloaded",
     });
-    const sidebar = page.getByTestId("copiloto-admin-sidebar");
-    await expect(sidebar).toBeVisible({ timeout: 15_000 });
-    const qa = page.getByRole("button", { name: /Qué hago ahora/i }).first();
-    if (await qa.isVisible().catch(() => false)) {
-      await qa.click();
-      await page
-        .getByTestId("copiloto-admin-entry-llm")
-        .first()
-        .waitFor({ state: "visible", timeout: 40_000 })
-        .catch(() => {});
+    // FIX(test-fidelity): el copiloto vive en el dock global (CopilotoDock ·
+    // testids copiloto-dock-toggle/open/input/send/messages), NO en un
+    // 'copiloto-admin-sidebar' (testid que no existe → la fase fallaba siempre).
+    const toggle = page
+      .getByTestId("copiloto-dock-toggle")
+      .or(page.getByTestId("copiloto-dock-open"))
+      .first();
+    if (await toggle.isVisible().catch(() => false)) {
+      await toggle.click().catch(() => {});
+      const input = page.getByTestId("copiloto-input");
+      if (await input.isVisible().catch(() => false)) {
+        await input.fill("¿Qué tengo que hacer ahora en este proyecto?");
+        await page.getByTestId("copiloto-send").click().catch(() => {});
+        await page
+          .getByTestId("copiloto-messages")
+          .waitFor({ state: "visible", timeout: 40_000 })
+          .catch(() => {});
+      }
     }
     await shot(page, n, label, "admin", "copiloto admin · ¿qué hago ahora?");
   } catch (err) {

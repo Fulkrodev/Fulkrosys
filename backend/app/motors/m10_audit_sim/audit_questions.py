@@ -37,7 +37,9 @@ AUDIT_QUESTIONS: dict[str, dict[str, Any]] = {
         "pregunta": "¿Existe una Política de Seguridad de la Información aprobada por el órgano superior competente? Muéstreme el documento firmado, el acta de aprobación y evidencia de su difusión al personal.",
         "criterio": "Documento de Política firmado por la dirección + acta de aprobación en Comité + registro de difusión con acuse de recibo",
         "evidencia_tipos": ["politica_seguridad", "acta_aprobacion", "registro_difusion"],
-        "documento_esperado": "E-001",
+        # FIX(REV-2): org.1 "Política de Seguridad" → E-100 (la Política), no E-001
+        # (= "Ficha resumen ejecutivo" · documento equivocado).
+        "documento_esperado": "E-100",
         "familia": "org",
         "nombre": "Política de Seguridad",
         "aplica": ["BASICA", "MEDIA", "ALTA"],
@@ -102,7 +104,9 @@ AUDIT_QUESTIONS: dict[str, dict[str, Any]] = {
         "pregunta": "¿La organización se ha dimensionado adecuadamente para la gestión de la seguridad? ¿Cuántas personas se dedican a seguridad?",
         "criterio": "Organigrama de seguridad + perfiles + dedicación documentada",
         "evidencia_tipos": ["dimensionamiento_seguridad"],
-        "documento_esperado": "E-005",
+        # FIX(catalog): E-005 no existe como plantilla → daba NC falsa. Sin doc
+        # dedicado para dimensionamiento → se evalúa por evidencia/criterio.
+        "documento_esperado": None,
         "familia": "op.pl",
         "nombre": "Dimensionamiento",
         "aplica": ["MEDIA", "ALTA"],
@@ -377,7 +381,9 @@ AUDIT_QUESTIONS: dict[str, dict[str, Any]] = {
         "pregunta": "¿Existe un procedimiento formal de caracterización del puesto de trabajo desde la perspectiva de seguridad?",
         "criterio": "Procedimiento + definición de perfiles + requisitos de seguridad asociados a cada puesto",
         "evidencia_tipos": ["caracterizacion_puesto", "perfiles_seguridad"],
-        "documento_esperado": "E-300",
+        # FIX(catalog): E-300 es un register-type de m_live_records, NO una
+        # plantilla Document → NC falsa. Se evalúa por evidencia/criterio.
+        "documento_esperado": None,
         "familia": "mp.per",
         "nombre": "Caracterización del puesto de trabajo",
         "aplica": ["BASICA", "MEDIA", "ALTA"],
@@ -386,7 +392,9 @@ AUDIT_QUESTIONS: dict[str, dict[str, Any]] = {
         "pregunta": "¿Todo el personal ha recibido formación específica en seguridad? Muéstreme los registros de formación.",
         "criterio": "Plan de formación + registros de asistencia + evaluación efectividad + recordatorios anuales",
         "evidencia_tipos": ["formacion_seguridad", "registro_asistencia"],
-        "documento_esperado": "E-301",
+        # FIX(catalog): E-301 es register-type m_live_records, no plantilla →
+        # NC falsa. Se evalúa por evidencia (formacion_seguridad/asistencia).
+        "documento_esperado": None,
         "familia": "mp.per",
         "nombre": "Formación",
         "aplica": ["BASICA", "MEDIA", "ALTA"],
@@ -395,7 +403,9 @@ AUDIT_QUESTIONS: dict[str, dict[str, Any]] = {
         "pregunta": "¿Existe un plan de concienciación en seguridad? ¿Con qué periodicidad se refresca?",
         "criterio": "Plan de concienciación + campañas periódicas + evidencia de difusión (emails, carteles, vídeos)",
         "evidencia_tipos": ["concienciacion_seguridad", "campanas"],
-        "documento_esperado": "E-302",
+        # FIX(catalog): E-302 es register-type m_live_records, no plantilla →
+        # NC falsa. Se evalúa por evidencia/criterio.
+        "documento_esperado": None,
         "familia": "mp.per",
         "nombre": "Concienciación",
         "aplica": ["MEDIA", "ALTA"],

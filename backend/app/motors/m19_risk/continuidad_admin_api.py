@@ -26,10 +26,9 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from backend.app.auth.dependencies import require_owner
 from backend.app.core.sse_dispatcher import sse_dispatcher
-from backend.app.database import get_db
+from backend.app.database import get_db, set_tenant_context
 from backend.app.models.auth import User
 from backend.app.models.cliente_continuidad import ClienteContinuidadApproval
-from backend.app.models.core import Project
 from backend.app.motors.m19_risk.cliente_continuidad_service import get_input
 
 logger = logging.getLogger(__name__)
@@ -100,18 +99,18 @@ async def _ensure_project_and_client(
     ``cliente_continuidad_*`` tengan RLS por tenant (defensivo · inocuo si el
     rol del runtime hace BYPASSRLS).
     """
-    project = await db.get(Project, project_id)
-    if project is None:
+    # FIX(RLS): resolve owner via get_project_owner (SECURITY DEFINER) BEFORE
+    # any RLS query — db.get(Project) here ran under fulkro_app RLS without
+    # app.current_project_id set yet → filtered out → spurious 404.
+    client_id = (
+        await db.execute(
+            text("SELECT get_project_owner(:pid)"), {"pid": str(project_id)}
+        )
+    ).scalar()
+    if not client_id:
         raise HTTPException(status_code=404, detail="Project not found")
-    client_id = str(project.client_id)
-    await db.execute(
-        text("SELECT set_config('app.current_project_id', :pid, true)"),
-        {"pid": str(project_id)},
-    )
-    await db.execute(
-        text("SELECT set_config('app.current_client_id', :cid, true)"),
-        {"cid": client_id},
-    )
+    client_id = str(client_id)
+    await set_tenant_context(db, client_id=client_id, project_id=project_id)
     return client_id
 
 

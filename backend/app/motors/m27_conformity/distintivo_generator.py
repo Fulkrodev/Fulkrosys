@@ -129,7 +129,7 @@ async def build_distintivo_context(
             "       count(*) FILTER (WHERE aplicabilidad = 'aplica'), "
             "       count(*) FILTER (WHERE aplicabilidad = 'aplica_con_refuerzos'), "
             "       count(*) FILTER (WHERE aplicabilidad = 'no_aplica'), "
-            "       count(*) FILTER (WHERE estado_implementacion = 'implementada') "
+            "       count(*) FILTER (WHERE estado_implementacion = 'implantada') "
             "FROM dda_entries WHERE project_id = :pid"
         ),
         {"pid": str(project_id)},

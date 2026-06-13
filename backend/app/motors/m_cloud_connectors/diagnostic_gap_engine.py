@@ -271,20 +271,26 @@ class DiagnosticGapEngine:
         LLM enrichment SOLO se ejecuta por petición explícita admin
         (endpoint dedicado o copilot interaction · NO en pipeline base).
         """
+        ev = finding.raw_evidence or {}
+        # FIX: construir UN solo dict de kwargs. Antes se hacía
+        # ``.format(**ev, n_privileged=..., n_total=..., pct_privileged=...)``;
+        # como el raw_evidence de op.acc.2 YA contiene n_privileged/n_total/
+        # pct_privileged, str.format() recibía el kwarg DUPLICADO →
+        # TypeError NO capturado (el except solo cubría KeyError/IndexError/
+        # ValueError) → CRASH de todo el pipeline de diagnóstico cloud al
+        # detectar exceso de usuarios privilegiados. Merge con override + se
+        # añade TypeError al fallback.
+        fmt_kwargs = {
+            **ev,
+            "n_users_no_mfa": ev.get("users_no_mfa_count", 0),
+            "n_privileged": ev.get("n_privileged", 0),
+            "n_total": ev.get("n_total", 0),
+            "pct_privileged": ev.get("pct_privileged", 0.0),
+            "n_storage_unencrypted": ev.get("storage_unencrypted_count", 0),
+            "n_public_buckets": ev.get("public_buckets_count", 0),
+        }
         try:
-            return finding.explanation_es_template.format(
-                **finding.raw_evidence,
-                n_users_no_mfa=finding.raw_evidence.get("users_no_mfa_count", 0),
-                n_privileged=finding.raw_evidence.get("n_privileged", 0),
-                n_total=finding.raw_evidence.get("n_total", 0),
-                pct_privileged=finding.raw_evidence.get("pct_privileged", 0.0),
-                n_storage_unencrypted=finding.raw_evidence.get(
-                    "storage_unencrypted_count", 0,
-                ),
-                n_public_buckets=finding.raw_evidence.get(
-                    "public_buckets_count", 0,
-                ),
-            )
-        except (KeyError, IndexError, ValueError):
+            return finding.explanation_es_template.format(**fmt_kwargs)
+        except (KeyError, IndexError, ValueError, TypeError):
             # Fallback al template sin formatear (no rompe pipeline)
             return finding.explanation_es_template

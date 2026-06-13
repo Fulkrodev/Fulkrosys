@@ -2203,3 +2203,303 @@ templates:
     cliente.nif:
       description: Cliente > Nif
       required: true
+- codigo: E-002
+  nombre: Acta de Nombramiento de Roles del Sistema (ENS)
+  categoria: politica
+  familia_ens: org
+  aplica_desde: basica
+  version_actual: '1.0'
+  fuente_md: null
+  is_active: true
+  placeholders_requeridos:
+    cliente.razon_social:
+      description: Cliente > Razon Social
+      required: true
+    cliente.nif:
+      description: Cliente > Nif
+      required: true
+- codigo: E-003
+  nombre: Acta de Constitucion del Comite de Seguridad de la Informacion
+  categoria: politica
+  familia_ens: org
+  aplica_desde: basica
+  version_actual: '1.0'
+  fuente_md: null
+  is_active: true
+  placeholders_requeridos:
+    cliente.razon_social:
+      description: Cliente > Razon Social
+      required: true
+    cliente.nif:
+      description: Cliente > Nif
+      required: true
+- codigo: E-500
+  nombre: Plan Anual de Formacion y Concienciacion en Seguridad
+  categoria: entregable
+  familia_ens: mp.per
+  aplica_desde: media
+  version_actual: '1.0'
+  fuente_md: null
+  is_active: true
+  placeholders_requeridos:
+    cliente.razon_social:
+      description: Cliente > Razon Social
+      required: true
+    cliente.nif:
+      description: Cliente > Nif
+      required: true
+- codigo: E-012
+  nombre: Acta De Aprobación De La Categorización Y Declaración De Aplicabilidad
+  categoria: entregable
+  familia_ens: org
+  aplica_desde: media
+  version_actual: '1.0'
+  fuente_md: null
+  is_active: true
+  placeholders_requeridos:
+    cliente.razon_social:
+      description: Cliente > Razon Social
+      required: true
+    cliente.nif:
+      description: Cliente > Nif
+      required: true
+- codigo: E-402
+  nombre: Plan De Continuidad Del Negocio (Bcp)
+  categoria: entregable
+  familia_ens: op.cont
+  aplica_desde: media
+  version_actual: '1.0'
+  fuente_md: null
+  is_active: true
+  placeholders_requeridos:
+    cliente.razon_social:
+      description: Cliente > Razon Social
+      required: true
+    cliente.nif:
+      description: Cliente > Nif
+      required: true
+- codigo: E-404
+  nombre: Plan De Comunicaciones En Crisis
+  categoria: entregable
+  familia_ens: op.cont
+  aplica_desde: media
+  version_actual: '1.0'
+  fuente_md: null
+  is_active: true
+  placeholders_requeridos:
+    cliente.razon_social:
+      description: Cliente > Razon Social
+      required: true
+    cliente.nif:
+      description: Cliente > Nif
+      required: true
+- codigo: E-405
+  nombre: Plan De Pruebas De Continuidad
+  categoria: entregable
+  familia_ens: op.cont
+  aplica_desde: media
+  version_actual: '1.0'
+  fuente_md: null
+  is_active: true
+  placeholders_requeridos:
+    cliente.razon_social:
+      description: Cliente > Razon Social
+      required: true
+    cliente.nif:
+      description: Cliente > Nif
+      required: true
+- codigo: E-406
+  nombre: Informe De Pruebas De Continuidad
+  categoria: entregable
+  familia_ens: op.cont
+  aplica_desde: media
+  version_actual: '1.0'
+  fuente_md: null
+  is_active: true
+  placeholders_requeridos:
+    cliente.razon_social:
+      description: Cliente > Razon Social
+      required: true
+    cliente.nif:
+      description: Cliente > Nif
+      required: true
+- codigo: E-501
+  nombre: Catálogo De Materiales De Formación
+  categoria: entregable
+  familia_ens: mp.per
+  aplica_desde: media
+  version_actual: '1.0'
+  fuente_md: null
+  is_active: true
+  placeholders_requeridos:
+    cliente.razon_social:
+      description: Cliente > Razon Social
+      required: true
+    cliente.nif:
+      description: Cliente > Nif
+      required: true
+- codigo: E-502
+  nombre: Registro De Asistencia Y Evaluación De La Formación
+  categoria: entregable
+  familia_ens: mp.per
+  aplica_desde: media
+  version_actual: '1.0'
+  fuente_md: null
+  is_active: true
+  placeholders_requeridos:
+    cliente.razon_social:
+      description: Cliente > Razon Social
+      required: true
+    cliente.nif:
+      description: Cliente > Nif
+      required: true
+- codigo: E-503
+  nombre: Informe De Simulacros De Phishing
+  categoria: entregable
+  familia_ens: mp.per
+  aplica_desde: media
+  version_actual: '1.0'
+  fuente_md: null
+  is_active: true
+  placeholders_requeridos:
+    cliente.razon_social:
+      description: Cliente > Razon Social
+      required: true
+    cliente.nif:
+      description: Cliente > Nif
+      required: true
+- codigo: E-504
+  nombre: Cuadro De Mando De Kpis Del Programa De Formación Y Concienciación
+  categoria: entregable
+  familia_ens: mp.per
+  aplica_desde: media
+  version_actual: '1.0'
+  fuente_md: null
+  is_active: true
+  placeholders_requeridos:
+    cliente.razon_social:
+      description: Cliente > Razon Social
+      required: true
+    cliente.nif:
+      description: Cliente > Nif
+      required: true
+- codigo: E-600
+  nombre: Inventario De Proveedores Ens
+  categoria: entregable
+  familia_ens: mp.eq
+  aplica_desde: media
+  version_actual: '1.0'
+  fuente_md: null
+  is_active: true
+  placeholders_requeridos:
+    cliente.razon_social:
+      description: Cliente > Razon Social
+      required: true
+    cliente.nif:
+      description: Cliente > Nif
+      required: true
+- codigo: E-601
+  nombre: Cuestionario De Evaluación Inicial Del Proveedor
+  categoria: entregable
+  familia_ens: mp.eq
+  aplica_desde: media
+  version_actual: '1.0'
+  fuente_md: null
+  is_active: true
+  placeholders_requeridos:
+    cliente.razon_social:
+      description: Cliente > Razon Social
+      required: true
+    cliente.nif:
+      description: Cliente > Nif
+      required: true
+- codigo: E-602
+  nombre: Informe De Evaluación De Proveedor
+  categoria: entregable
+  familia_ens: mp.eq
+  aplica_desde: media
+  version_actual: '1.0'
+  fuente_md: null
+  is_active: true
+  placeholders_requeridos:
+    cliente.razon_social:
+      description: Cliente > Razon Social
+      required: true
+    cliente.nif:
+      description: Cliente > Nif
+      required: true
+- codigo: E-603
+  nombre: Plan De Supervisión De Proveedor
+  categoria: entregable
+  familia_ens: mp.eq
+  aplica_desde: media
+  version_actual: '1.0'
+  fuente_md: null
+  is_active: true
+  placeholders_requeridos:
+    cliente.razon_social:
+      description: Cliente > Razon Social
+      required: true
+    cliente.nif:
+      description: Cliente > Nif
+      required: true
+- codigo: E-604
+  nombre: Adenda Contractual De Cumplimiento Ens / Rgpd / Nis2 / Dora
+  categoria: entregable
+  familia_ens: mp.eq
+  aplica_desde: media
+  version_actual: '1.0'
+  fuente_md: null
+  is_active: true
+  placeholders_requeridos:
+    cliente.razon_social:
+      description: Cliente > Razon Social
+      required: true
+    cliente.nif:
+      description: Cliente > Nif
+      required: true
+- codigo: E-700
+  nombre: Informe De Auditoría Interna Inicial Del Sgsi
+  categoria: entregable
+  familia_ens: op.mon
+  aplica_desde: media
+  version_actual: '1.0'
+  fuente_md: null
+  is_active: true
+  placeholders_requeridos:
+    cliente.razon_social:
+      description: Cliente > Razon Social
+      required: true
+    cliente.nif:
+      description: Cliente > Nif
+      required: true
+- codigo: E-701
+  nombre: Informe De Auditoría Interna Pre-Externa
+  categoria: entregable
+  familia_ens: op.mon
+  aplica_desde: media
+  version_actual: '1.0'
+  fuente_md: null
+  is_active: true
+  placeholders_requeridos:
+    cliente.razon_social:
+      description: Cliente > Razon Social
+      required: true
+    cliente.nif:
+      description: Cliente > Nif
+      required: true
+- codigo: E-709
+  nombre: Informe Ines Snapshot Anual Del Estado Del Ens
+  categoria: entregable
+  familia_ens: op.mon
+  aplica_desde: media
+  version_actual: '1.0'
+  fuente_md: null
+  is_active: true
+  placeholders_requeridos:
+    cliente.razon_social:
+      description: Cliente > Razon Social
+      required: true
+    cliente.nif:
+      description: Cliente > Nif
+      required: true

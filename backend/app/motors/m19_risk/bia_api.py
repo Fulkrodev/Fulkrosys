@@ -16,11 +16,11 @@ from typing import Optional
 
 from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel, ConfigDict, Field
+from sqlalchemy import text as _sa_text
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from backend.app.auth.dependencies import require_owner
-from backend.app.database import get_db
-from backend.app.models.core import Project
+from backend.app.database import get_db, set_tenant_context
 from backend.app.motors.m19_risk.bia_service import (
     aggregate_bia_summary,
     create_bia_entry,
@@ -65,9 +65,19 @@ class BiaSummaryResponse(BaseModel):
 
 
 async def _ensure_project_exists(db: AsyncSession, project_id: uuid.UUID) -> None:
-    project = await db.get(Project, project_id)
-    if project is None:
-        raise HTTPException(404, "Project not found")
+    # FIX(RLS): bia_analyses is RLS-protected, so a db.get(Project) under the
+    # fulkro_app role is itself RLS-filtered and returns None for a valid
+    # project before tenant context is set. Resolve the owner via the
+    # SECURITY DEFINER get_project_owner() and set tenant context so the
+    # subsequent bia_analyses queries see the project's rows.
+    _owner = (
+        await db.execute(
+            _sa_text("SELECT get_project_owner(:pid)"), {"pid": str(project_id)}
+        )
+    ).scalar()
+    if not _owner:
+        raise HTTPException(status_code=404, detail="Project not found")
+    await set_tenant_context(db, client_id=_owner, project_id=project_id)
 
 
 @router.post(

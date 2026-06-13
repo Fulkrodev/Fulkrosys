@@ -64,7 +64,7 @@ async def _get_or_create_ens_measure(db, codigo: str) -> uuid.UUID:
 async def _create_dda_entry(
     db, project_id: str, measure_code: str,
     aplicabilidad: str = "aplica",
-    estado_implementacion: str = "implantado",
+    estado_implementacion: str = "implantada",
 ) -> DdaEntry:
     m_id = await _get_or_create_ens_measure(db, measure_code)
     entry = DdaEntry(
@@ -224,7 +224,7 @@ class TestEvidenceFreshness:
     @pytest.mark.asyncio
     async def test_evidence_vigente(self, async_client, db):
         _, project_id = await setup_test_project(db)
-        await _create_dda_entry(db, project_id, "op.acc.5", "aplica", "implantado")
+        await _create_dda_entry(db, project_id, "op.acc.5", "aplica", "implantada")
         await _create_evidence(db, project_id, "op.acc.5")
         r = await async_client.post(
             f"{BASE}/projects/{project_id}/runs",
@@ -237,7 +237,7 @@ class TestEvidenceFreshness:
     @pytest.mark.asyncio
     async def test_evidence_caducada(self, async_client, db):
         _, project_id = await setup_test_project(db)
-        await _create_dda_entry(db, project_id, "op.acc.5", "aplica", "implantado")
+        await _create_dda_entry(db, project_id, "op.acc.5", "aplica", "implantada")
         await _create_evidence(
             db, project_id, "op.acc.5",
             fecha_caducidad=date.today() - timedelta(days=30),
@@ -252,7 +252,7 @@ class TestEvidenceFreshness:
     @pytest.mark.asyncio
     async def test_evidence_proxima_caducar_30d(self, async_client, db):
         _, project_id = await setup_test_project(db)
-        await _create_dda_entry(db, project_id, "mp.com.2", "aplica", "implantado")
+        await _create_dda_entry(db, project_id, "mp.com.2", "aplica", "implantada")
         await _create_evidence(
             db, project_id, "mp.com.2",
             fecha_caducidad=date.today() + timedelta(days=15),
@@ -267,7 +267,7 @@ class TestEvidenceFreshness:
     @pytest.mark.asyncio
     async def test_evidence_faltante(self, async_client, db):
         _, project_id = await setup_test_project(db)
-        await _create_dda_entry(db, project_id, "op.acc.6", "aplica", "implantado")
+        await _create_dda_entry(db, project_id, "op.acc.6", "aplica", "implantada")
         # NO creamos evidencia
         r = await async_client.post(
             f"{BASE}/projects/{project_id}/runs",
@@ -300,7 +300,7 @@ class TestCrossValidation:
     ):
         _, project_id = await setup_test_project(db)
         await _create_dda_entry(
-            db, project_id, "op.acc.5", "aplica", "implantado",
+            db, project_id, "op.acc.5", "aplica", "implantada",
         )
         # NO creamos evidencia
         r = await async_client.post(
@@ -317,7 +317,7 @@ class TestCrossValidation:
     async def test_dda_implantado_con_evidencia_ok(self, async_client, db):
         _, project_id = await setup_test_project(db)
         await _create_dda_entry(
-            db, project_id, "op.acc.5", "aplica", "implantado",
+            db, project_id, "op.acc.5", "aplica", "implantada",
         )
         await _create_evidence(db, project_id, "op.acc.5")
         r = await async_client.post(
@@ -334,7 +334,7 @@ class TestCrossValidation:
     ):
         _, project_id = await setup_test_project(db)
         await _create_dda_entry(
-            db, project_id, "mp.sw.1", "aplica", "en_proceso",
+            db, project_id, "mp.sw.1", "aplica", "parcial",
         )
         r = await async_client.post(
             f"{BASE}/projects/{project_id}/runs",
@@ -351,7 +351,7 @@ class TestCrossValidation:
     ):
         _, project_id = await setup_test_project(db)
         await _create_dda_entry(
-            db, project_id, "mp.sw.2", "aplica", "implantado",
+            db, project_id, "mp.sw.2", "aplica", "implantada",
         )
         await _create_evidence(db, project_id, "mp.sw.2")
         # Pero pentest encuentra un finding high confirmado
@@ -548,7 +548,7 @@ class TestAPI:
     async def test_api_contradictions_endpoint(self, async_client, db):
         _, project_id = await setup_test_project(db)
         await _create_dda_entry(
-            db, project_id, "op.acc.5", "aplica", "implantado",
+            db, project_id, "op.acc.5", "aplica", "implantada",
         )
         r = await async_client.post(
             f"{BASE}/projects/{project_id}/runs",

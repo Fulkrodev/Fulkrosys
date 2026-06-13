@@ -437,7 +437,7 @@ class EvidenceSuggestionsResponse(BaseModel):
 async def get_measure_status(
     project_id: uuid.UUID,
     codes: str = Query(
-        ..., description="Comma-separated ENS measure codes (e.g. op.acc.6,mp.info.3)",
+        ..., description="Comma-separated ENS measure codes (e.g. op.acc.6,mp.si.2)",
     ),
     db: AsyncSession = Depends(get_db),
 ) -> MeasureStatusResponse:

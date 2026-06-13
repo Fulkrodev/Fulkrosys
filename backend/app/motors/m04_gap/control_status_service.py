@@ -125,8 +125,13 @@ async def compute_control_status(
     now = datetime.now(timezone.utc)
 
     for doc in documents:
-        # Approval check: estado='approved' + approved_at NOT NULL
-        is_approved = doc.estado == "approved" and doc.approved_at is not None
+        # Approval check (FIX REV-3): documents.estado tiene DOS vocabularios —
+        # IDMS (approved) y Document Factory M06 (firmado/entregado). Un doc M06
+        # firmado/entregado con approved_at está aprobado aunque su estado no sea
+        # "approved" (antes no se contaba → infravaloraba conformidad).
+        is_approved = doc.approved_at is not None and (doc.estado or "").lower() in (
+            "approved", "firmado", "entregado",
+        )
         if is_approved:
             documents_approved_count += 1
 

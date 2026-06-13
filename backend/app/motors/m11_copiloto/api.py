@@ -902,7 +902,7 @@ async def get_project_summary(
     ctx = await _get_project_context(db, project_id)
     # Resumen determinista (no LLM)
     dda_total = ctx["dda"]["total"]
-    dda_impl = ctx["dda"]["by_estado"].get("implantado", 0)
+    dda_impl = ctx["dda"]["by_estado"].get("implantada", 0)
     pct = int(dda_impl / dda_total * 100) if dda_total else 0
 
     lines = [

@@ -489,8 +489,11 @@ def _build_executive_summary(
     evid = results.get("evidencias", {})
 
     vigentes = sum(1 for e in evidence if e["vigente"])
+    # FIX: collect_findings_for_dossier emite la clave "severity" (inglés), no
+    # "severidad" → critical_findings era SIEMPRE 0 y el resumen ejecutivo del
+    # dossier ENAC decía "(0 criticos)" ocultando hallazgos críticos al auditor.
     critical_findings = sum(
-        1 for f in findings if (f.get("severidad") or "").lower() in {"critical", "critica"}
+        1 for f in findings if (f.get("severity") or "").lower() in {"critical", "critica"}
     )
     decls = declarations or []
     signed_decls = sum(

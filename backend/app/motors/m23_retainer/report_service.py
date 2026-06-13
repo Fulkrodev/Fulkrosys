@@ -302,6 +302,21 @@ class ReportService:
             },
         )
 
+        # FIX(claim/impl): antes era un placeholder fijo 85.0 que se enviaba al
+        # cliente en el informe de retainer (KPI falso + RAG fabricado). Se
+        # computa del estado real de la DdA: implantadas / aplicables.
+        medidas_pct = 0.0
+        if project_id:
+            _mp = await self._safe_scalar(
+                db,
+                "SELECT COALESCE(ROUND(100.0 * "
+                "count(*) FILTER (WHERE estado_implementacion = 'implantada') / "
+                "NULLIF(count(*) FILTER (WHERE aplicabilidad <> 'no_aplica'), 0), 1), 0.0) "
+                "FROM dda_entries WHERE project_id = :pid AND deleted_at IS NULL",
+                {"pid": str(project_id)},
+            )
+            medidas_pct = float(_mp or 0.0)
+
         kpis = ReportKPIs(
             actividades_completadas=len([
                 a for a in actividades_list if a.get("estado") == "completada"
@@ -317,7 +332,7 @@ class ReportService:
                     if a.get("estado") == "completada"
                 ]) / max(1, len(actividades_list)), 1)
             ),
-            medidas_implementadas_pct=85.0,  # Placeholder estatico razonable
+            medidas_implementadas_pct=medidas_pct,  # FIX: real desde DdA (no placeholder)
         )
         rag = self._calc_rag(kpis)
 

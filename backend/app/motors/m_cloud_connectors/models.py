@@ -322,7 +322,7 @@ class CloudGap(FullMixin, Base):
     """critical · high · medium · low."""
 
     ens_measure_code: Mapped[str] = mapped_column(String(50), nullable=False)
-    """ENS Anexo II code (op.acc.5 · mp.if.4 · etc)."""
+    """ENS Anexo II code (op.acc.2 · mp.si.2 · etc)."""
 
     title: Mapped[str] = mapped_column(String(255), nullable=False)
     explanation_es: Mapped[str | None] = mapped_column(Text, nullable=True)

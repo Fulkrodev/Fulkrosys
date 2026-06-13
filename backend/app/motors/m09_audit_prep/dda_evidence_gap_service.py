@@ -302,10 +302,17 @@ def _classify_severity(
         return GapSeverity.LOW
 
     family_lower = (family or "").lower()
-    is_critical_family = family_lower in CRITICAL_SEVERITY_FAMILIES_HIGH
+    # FIX: `family` es el código de 2º nivel del Anexo II (op.acc, mp.s, org…),
+    # NUNCA el marco suelto. Comparar contra {"op","mp"} daba SIEMPRE False →
+    # toda medida MISSING fuera de los prefijos high-req se clasificaba MEDIUM
+    # (en vez de HIGH) y las PARTIAL LOW (en vez de MEDIUM) → high_partial/
+    # critical_missing infravalorados → NO se abrían bucles correctivos y GATE-7
+    # veía menos NC de las reales. Se compara sobre el marco (primer segmento).
+    marco = family_lower.split(".", 1)[0]
+    is_critical_family = marco in CRITICAL_SEVERITY_FAMILIES_HIGH
 
     if status == GapStatus.MISSING:
-        if is_high_req or (is_critical_family and family_lower == "mp"):
+        if is_high_req or (is_critical_family and marco == "mp"):
             return GapSeverity.CRITICAL
         if is_critical_family:
             return GapSeverity.HIGH

@@ -132,14 +132,14 @@ async def detect_dda_contradictions(
         if not v:
             continue
         estado = (entry.estado_implementacion or "").lower()
-        if estado == "implantado" and v.get("status") == "non_compliant":
+        if estado == "implantada" and v.get("status") == "non_compliant":
             contradictions.append({
                 "medida": codigo,
                 "dda_estado": entry.estado_implementacion,
                 "open_findings": v["open_findings"],
                 "worst_severity": v["worst_severity"],
                 "descripcion": (
-                    f"DdA declara 'implantado' pero hay {v['open_findings']}"
+                    f"DdA declara 'implantada' pero hay {v['open_findings']}"
                     f" hallazgo(s) abierto(s) en {codigo} "
                     f"(peor severidad: {v['worst_severity']})"
                 ),

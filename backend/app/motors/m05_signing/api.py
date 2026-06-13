@@ -128,21 +128,25 @@ async def _ensure_project_belongs_to_client(
     user: ClientUser,
 ) -> None:
     """Verify project_id pertenece al client_id del usuario portal · sets tenant context."""
-    from sqlalchemy import text as sa_text
-    row = await db.execute(
-        sa_text("SELECT client_id FROM projects WHERE id = :pid"),
-        {"pid": str(project_id)},
-    )
-    hit = row.first()
-    if hit is None:
+    # FIX(RLS): resolve owner vía get_project_owner (SECURITY DEFINER) ANTES de
+    # cualquier query sobre tabla RLS-protegida. El raw SELECT client_id FROM
+    # projects corría como fulkro_app (RLS) sin tenant context → 0 filas → 404
+    # espurio en proyecto válido. SECURITY DEFINER lee el owner saltando RLS.
+    owner = (
+        await db.execute(
+            sa_text("SELECT get_project_owner(:pid)"),
+            {"pid": str(project_id)},
+        )
+    ).scalar()
+    if not owner:
         raise HTTPException(status_code=404, detail="Project no existe")
-    if hit[0] != user.client_id:
+    if owner != user.client_id:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="Project no pertenece al cliente del usuario",
         )
     await set_tenant_context(
-        db, client_id=user.client_id, project_id=project_id,
+        db, client_id=owner, project_id=project_id,
     )
 
 

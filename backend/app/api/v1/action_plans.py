@@ -26,7 +26,7 @@ from sqlalchemy import text as sa_text
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from backend.app.auth.dependencies import require_owner
-from backend.app.database import get_db
+from backend.app.database import get_db, set_tenant_context
 
 
 router = APIRouter(
@@ -325,12 +325,14 @@ async def get_action_plans(
     Aggregates findings desde M04 gap + M09 audit_prep + A21 discrepancies ·
     sostiene Anexo K dimension 3 · cierra GAP 10 audit v4.
     """
-    # Verify project exists via simple lookup
-    project = (await db.execute(sa_text(
-        "SELECT 1 FROM projects WHERE id = :pid AND deleted_at IS NULL",
-    ), {"pid": str(project_id)})).first()
-    if not project:
-        raise HTTPException(404, "Project not found")
+    # FIX(RLS): resolve owner via SECURITY DEFINER + set tenant context BEFORE
+    # aggregate_action_plans queries RLS-protected findings/incidents tables.
+    _owner = (await db.execute(
+        sa_text("SELECT get_project_owner(:pid)"), {"pid": str(project_id)}
+    )).scalar()
+    if not _owner:
+        raise HTTPException(status_code=404, detail="Project not found")
+    await set_tenant_context(db, client_id=_owner, project_id=project_id)
 
     return await aggregate_action_plans(
         db, project_id,

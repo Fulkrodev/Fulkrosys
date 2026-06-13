@@ -9,10 +9,11 @@ from __future__ import annotations
 from uuid import UUID
 
 from fastapi import APIRouter, Depends, HTTPException, status
+from sqlalchemy import text as _sa_text
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from backend.app.auth.dependencies import require_owner
-from backend.app.database import get_db
+from backend.app.database import get_db, set_tenant_context
 from backend.app.models.auth import User
 from backend.app.motors.m18_communication.alert_schemas import AlertResponse
 from backend.app.motors.m18_communication.alert_service import AlertService
@@ -44,6 +45,13 @@ async def list_project_alerts(
     db: AsyncSession = Depends(get_db),
     _user: User = Depends(require_owner),
 ) -> list[AlertResponse]:
+    # FIX(RLS): resolve owner via SECURITY DEFINER + set tenant context before RLS query
+    _owner = (
+        await db.execute(_sa_text("SELECT get_project_owner(:pid)"), {"pid": str(project_id)})
+    ).scalar()
+    if not _owner:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Project not found")
+    await set_tenant_context(db, client_id=_owner, project_id=project_id)
     service = AlertService(db)
     alerts = await service.list_active_alerts(project_id)
     return [AlertResponse.model_validate(a) for a in alerts]

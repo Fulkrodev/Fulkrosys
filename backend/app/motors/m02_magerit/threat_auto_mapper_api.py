@@ -6,11 +6,12 @@ from __future__ import annotations
 
 from uuid import UUID
 
-from fastapi import APIRouter, Depends, Query
+from fastapi import APIRouter, Depends, HTTPException, Query
+from sqlalchemy import text as _sa_text
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from backend.app.auth.dependencies import require_owner
-from backend.app.database import get_db
+from backend.app.database import get_db, set_tenant_context
 from backend.app.motors.m02_magerit.threat_auto_mapper import (
     ThreatAutoMapper,
 )
@@ -36,6 +37,18 @@ async def trigger_auto_map(
     Returns:
         dict con `created`, `skipped`, `analysis_id`, `assets_processed`.
     """
+    # FIX(RLS): resolve owner via SECURITY DEFINER + set tenant context before
+    # the service touches RLS-protected tables (Project, magerit_assets).
+    _owner = (
+        await db.execute(
+            _sa_text("SELECT get_project_owner(:pid)"),
+            {"pid": str(project_id)},
+        )
+    ).scalar()
+    if not _owner:
+        raise HTTPException(status_code=404, detail="Project not found")
+    await set_tenant_context(db, client_id=_owner, project_id=project_id)
+
     service = ThreatAutoMapper(db)
     return await service.auto_map_threats_for_project(
         project_id=project_id,

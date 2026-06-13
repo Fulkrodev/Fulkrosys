@@ -330,8 +330,9 @@ async def test_run_simulation_no_aplica_via_dda(db):
 @pytest.mark.asyncio
 async def test_run_simulation_conforme_with_document_and_evidence(db):
     _, project_id = await _setup_tenant(db)
-    # org.1 tiene documento_esperado E-001
-    await _seed_document(db, project_id, "E-001")
+    # org.1 "Política de Seguridad" tiene documento_esperado E-100 (REV-2: antes E-001
+    # = "Ficha Resumen Ejecutivo", documento equivocado)
+    await _seed_document(db, project_id, "E-100")
     await _seed_evidence(db, project_id, "org.1", vigente=True, dias_atras=30)
 
     run = await AuditSimulatorService().run_simulation(
@@ -352,7 +353,7 @@ async def test_run_simulation_conforme_with_document_and_evidence(db):
 async def test_contradiction_dda_implantado_sin_evidencia(db):
     _, project_id = await _setup_tenant(db)
     await _seed_ens_measure(db, "op.acc.4", "op.acc")
-    await _seed_dda_entry(db, project_id, "op.acc.4", "aplica", estado_impl="implantado")
+    await _seed_dda_entry(db, project_id, "op.acc.4", "aplica", estado_impl="implantada")
     # NO seeds evidence → contradicción
 
     run = await AuditSimulatorService().run_simulation(

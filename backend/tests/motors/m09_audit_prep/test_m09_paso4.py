@@ -97,8 +97,10 @@ async def _create_verification_run_with_finding(
 class TestChecklistCatalog:
     def test_basica_catalog_complete(self):
         basica = REQUIRED_DELIVERABLES["BASICA"]
-        # Catalogo expandido: minimo 40 entregables
-        assert len(basica) >= 40
+        # Catalogo: minimo 25 entregables con plantilla REAL (fix audit
+        # 2026-06-13: se quitaron 13 codigos huerfanos E-005/E-006/E-020..E-030
+        # que no tenian plantilla y daban "missing" permanente).
+        assert len(basica) >= 25
         assert "E-012" in basica
         assert "E-040" in basica
         assert "E-050" in basica

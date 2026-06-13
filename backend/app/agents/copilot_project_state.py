@@ -182,7 +182,7 @@ async def _admin_numbers_block(
     dda = ctx.get("dda") or {}
     dda_total = dda.get("total") or 0
     if dda_total:
-        impl = (dda.get("by_estado") or {}).get("implantado", 0)
+        impl = (dda.get("by_estado") or {}).get("implantada", 0)
         pct = int(impl / dda_total * 100) if dda_total else 0
         out.append(
             f"- DdA: {dda_total} medidas · {impl} implantadas ({pct}%)",

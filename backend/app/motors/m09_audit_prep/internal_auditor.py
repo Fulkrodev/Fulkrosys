@@ -82,7 +82,9 @@ QUESTION_BANK: list[dict[str, Any]] = [
             "¿Se han asignado formalmente los roles de Responsable de la "
             "Informacion, del Servicio, de Seguridad y del Sistema?"
         ),
-        "check_kind": "document_exists", "code_required": "E-005",
+        # FIX(catalog): E-005 no tiene plantilla → Q-002 fallaba SIEMPRE (weight 3).
+        # El acta de nombramiento de roles ENS es E-002 (existe en el registry).
+        "check_kind": "document_exists", "code_required": "E-002",
     },
     {
         "code": "Q-003", "area": "categorizacion", "weight": 3,

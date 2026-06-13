@@ -220,8 +220,19 @@ async def run_simulacro_pre_enac(
         db, project_id, WorkflowScannerOptions(role_filter="admin"),
     )
 
+    # FIX(REV-4): el verify per-proyecto es O(filas audit_log del proyecto) en
+    # Python (sha256 por fila). En proyectos muy longevos (o el proyecto de test
+    # compartido, con miles de filas de muchas demos) el simulacro tardaba >200s.
+    # Se acota a una ventana reciente (últimas ~2000 entradas del proyecto): basta
+    # para una verificación de integridad pre-ENAC y el trigger R6 garantiza la
+    # continuidad del resto de la cadena. Cota segura · no cambia ok=True/False.
+    _INTEGRITY_WINDOW = 2000
+    _max_seq = (await db.execute(sa_text(
+        "SELECT max(seq) FROM audit_log WHERE project_id = :pid"
+    ), {"pid": str(project_id)})).scalar()
+    _since = max(0, int(_max_seq) - _INTEGRITY_WINDOW) if _max_seq else None
     integrity: IntegrityReport = await check_audit_log_integrity(
-        db, project_id=project_id,
+        db, project_id=project_id, since_seq=_since,
     )
 
     loops_opened: list[LoopState] = []

@@ -32,12 +32,15 @@ from backend.app.motors.m08_verification.integrations.m9_audit_prep import (
 # BASICA: 43 entregables minimos
 _BASICA_DELIVS: list[str] = [
     # Gobierno
-    "E-001", "E-002", "E-003", "E-005", "E-006",
+    # FIX(catalog): E-005/E-006 no tienen plantilla en TEMPLATE_REGISTRY →
+    # eran "missing" permanente que hundía el readiness_score. Eliminados.
+    "E-001", "E-002", "E-003",
     # Categorizacion
     "E-012",
     # Analisis de riesgos y DdA
-    "E-020", "E-021", "E-022", "E-023", "E-024", "E-025", "E-026",
-    "E-027", "E-028", "E-029", "E-030",
+    # FIX(catalog): E-020..E-030 son exports DdA por-medida, NO plantillas
+    # Document Factory → nunca podían ser un Document.template_codigo →
+    # 11 errores incerrables por proyecto. Eliminados del checklist.
     "E-040", "E-050",
     # Politicas esenciales
     "E-100", "E-101", "E-102", "E-103", "E-104", "E-105", "E-106",
@@ -58,7 +61,7 @@ _MEDIA_ADD: list[str] = [
     "E-214", "E-215", "E-216", "E-217", "E-219", "E-220",
     "E-401", "E-402", "E-403", "E-404", "E-405", "E-406",
     "E-501", "E-502", "E-503", "E-504",
-    "E-600", "E-601", "E-602", "E-603", "E-604", "E-605",
+    "E-600", "E-601", "E-602", "E-603", "E-604",  # FIX(catalog): E-605 sin plantilla
     "E-700", "E-701", "E-709",
 ]
 
@@ -82,7 +85,7 @@ REQUIRED_DELIVERABLES: dict[str, list[str]] = {
 # organo de aprobacion segun el tipo). Si falta firma el item baja a
 # 'warning' aunque el documento exista.
 REQUIRE_SIGNATURE: set[str] = {
-    "E-001", "E-005", "E-012", "E-040", "E-050",
+    "E-001", "E-012", "E-040", "E-050",  # FIX(catalog): E-005 sin plantilla
     # 27 politicas E-100..E-126
     *(f"E-{100 + i}" for i in range(27)),
     # Procedimientos criticos
@@ -500,13 +503,13 @@ async def cross_validate_dda_evidence(
         if apl == "no_aplica":
             continue  # no requiere evidencia
 
-        if est == "implantado" and not has_vigente:
+        if est == "implantada" and not has_vigente:
             contra = {
                 "medida": codigo,
                 "dda_estado": entry.estado_implementacion,
                 "evidencia_estado": "sin_evidencia_vigente",
                 "descripcion": (
-                    f"DdA dice 'implantado' pero no hay evidencia vigente "
+                    f"DdA dice 'implantada' pero no hay evidencia vigente "
                     f"en Evidence Vault para {codigo}"
                 ),
                 "severidad": "error",
@@ -514,27 +517,27 @@ async def cross_validate_dda_evidence(
             contradictions.append(contra)
             await _add_item(
                 db, run, "contradiccion", codigo,
-                "Contradiccion: implantado sin evidencia",
+                "Contradiccion: implantada sin evidencia",
                 "contradiction", "error",
                 detalle=contra["descripcion"],
                 accion_sugerida=(
                     "Aportar evidencia de la medida o corregir estado en DdA"
                 ),
             )
-        elif est == "en_proceso" and not has_vigente:
+        elif est == "parcial" and not has_vigente:
             contra = {
                 "medida": codigo,
                 "dda_estado": entry.estado_implementacion,
                 "evidencia_estado": "sin_evidencia",
                 "descripcion": (
-                    f"DdA dice 'en_proceso' sin evidencia aun para {codigo}"
+                    f"DdA dice 'parcial' sin evidencia aun para {codigo}"
                 ),
                 "severidad": "warning",
             }
             contradictions.append(contra)
             await _add_item(
                 db, run, "contradiccion", codigo,
-                "En proceso sin evidencia", "warning", "warning",
+                "Parcial sin evidencia", "warning", "warning",
                 detalle=contra["descripcion"],
             )
 
@@ -545,13 +548,13 @@ async def cross_validate_dda_evidence(
 
     for entry, codigo in entries:
         est = (entry.estado_implementacion or "").lower()
-        if est == "implantado" and codigo in pentest_by_measure:
+        if est == "implantada" and codigo in pentest_by_measure:
             contra = {
                 "medida": codigo,
                 "dda_estado": entry.estado_implementacion,
                 "evidencia_estado": "pentest_high_finding",
                 "descripcion": (
-                    f"DdA dice 'implantado' pero pentest detecto "
+                    f"DdA dice 'implantada' pero pentest detecto "
                     f"{pentest_by_measure[codigo]} hallazgo(s) "
                     f"high/critical en {codigo}"
                 ),

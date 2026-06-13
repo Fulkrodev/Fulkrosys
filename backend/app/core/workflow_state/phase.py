@@ -145,21 +145,23 @@ async def _derive_phase_cascade(
     if row.scalar():
         return WorkflowPhase.VERIFICACION
 
-    # DdA Final · todas DdA implementadas, sin en_proceso pendiente
+    # DdA Final · todas DdA implantadas, sin parcial pendiente
     # (SAN-C MB-11.1 · sub-fase separada de implantacion · pre-verificación)
     # ISSUE-W3: filtro temporal post-ultimo phase_changed event.
+    # FIX: enum canónico EstadoImplementacion = implantada/parcial (NO
+    # implementado/en_proceso · valores que NUNCA existieron en BD → ramas muertas).
     row = await session.execute(
         sa_text(
             "SELECT EXISTS ("
             "  SELECT 1 FROM dda_entries "
             "  WHERE project_id = :pid "
-            "    AND estado_implementacion = 'implementado' "
+            "    AND estado_implementacion = 'implantada' "
             "    AND deleted_at IS NULL "
             f"    AND created_at > {LAST_PHASE_CHANGE}"
             ") AND NOT EXISTS ("
             "  SELECT 1 FROM dda_entries "
             "  WHERE project_id = :pid "
-            "    AND estado_implementacion = 'en_proceso' "
+            "    AND estado_implementacion = 'parcial' "
             "    AND deleted_at IS NULL "
             f"    AND created_at > {LAST_PHASE_CHANGE}"
             ")"
@@ -176,14 +178,14 @@ async def _derive_phase_cascade(
     # measure_id huerfana hacia un schema que nunca se materializo). El
     # JOIN producia UndefinedTableError si CASCADE llegaba a esta rama.
     # Simplificado: dda_entries.project_id existe directo · sin JOIN.
-    # SAN-C MB-11.1: cascade discrimina 'en_proceso' (IMPLANTACION) vs
-    # 'implementado' all-done (DDA_FINAL · check anterior).
+    # SAN-C MB-11.1: cascade discrimina 'parcial' (IMPLANTACION) vs
+    # 'implantada' all-done (DDA_FINAL · check anterior).
     row = await session.execute(
         sa_text(
             "SELECT EXISTS ("
             "  SELECT 1 FROM dda_entries "
             "  WHERE project_id = :pid "
-            "    AND estado_implementacion = 'en_proceso' "
+            "    AND estado_implementacion = 'parcial' "
             "    AND deleted_at IS NULL "
             f"    AND created_at > {LAST_PHASE_CHANGE}"
             ")"

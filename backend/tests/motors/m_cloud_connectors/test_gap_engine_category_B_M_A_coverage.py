@@ -1,7 +1,7 @@
 """Tests gap engine · cobertura por categoría ENS BASICA/MEDIA/ALTA.
 
 Verifica:
-- BASICA aplica subset menor (sin op.acc.5 · sin op.exp.8 · sin op.cont.3)
+- BASICA aplica subset menor (sin op.acc.2 · sin op.exp.8 · sin mp.info.6 · sin mp.si.2)
 - MEDIA aplica subset intermedio
 - ALTA aplica todas las reglas del catalog
 - categoría None/desconocida → 0 reglas
@@ -21,13 +21,14 @@ from backend.app.motors.m_cloud_connectors.diagnostic_gap_engine import (
 def test_basica_subset():
     rules = rules_for_category("BASICA")
     codes = {r.ens_measure_code for r in rules}
-    # BASICA NO incluye: op.acc.5 · op.exp.8 · op.cont.3 (MEDIA/ALTA only)
-    assert "op.acc.5" not in codes
+    # BASICA NO incluye: op.acc.2 · op.exp.8 · mp.info.6 · mp.si.2 (MEDIA/ALTA only · RD 311/2022)
+    assert "op.acc.2" not in codes
     assert "op.exp.8" not in codes
-    assert "op.cont.3" not in codes
+    assert "mp.info.6" not in codes
+    assert "mp.si.2" not in codes
     # BASICA SI incluye estos nucleares cliente-piloto
     assert "op.acc.6" in codes
-    assert "mp.info.3" in codes
+    assert "mp.s.2" in codes
     assert "op.exp.1" in codes
     assert "org.1" in codes
 
@@ -35,9 +36,10 @@ def test_basica_subset():
 def test_media_includes_logging_and_privilege_rules():
     rules = rules_for_category("MEDIA")
     codes = {r.ens_measure_code for r in rules}
-    assert "op.acc.5" in codes
+    assert "op.acc.2" in codes
     assert "op.exp.8" in codes
-    assert "op.cont.3" in codes
+    assert "mp.info.6" in codes
+    assert "mp.si.2" in codes
 
 
 def test_alta_covers_all_catalog():

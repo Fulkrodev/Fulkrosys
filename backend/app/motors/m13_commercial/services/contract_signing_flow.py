@@ -206,6 +206,10 @@ class ContractSigningFlow:
                 "flow": "contract_signing",
                 "contract_id": str(contract_id),
                 "recipient_name": recipient_name,
+                # #43 · email del firmante propagado al scope para que la
+                # conversión #7 pueda crear el ClientUser persistente aunque el
+                # Client aún no tenga contacto_email fijado (lead B2B sin email).
+                "recipient_email": recipient_email,
             },
             custom_subject=custom_subject,
             custom_body_intro=custom_body_intro,
@@ -600,6 +604,12 @@ class ContractSigningFlow:
 
         client = await self.db.get(Client, client_id)
         email = (client.contacto_email or "").strip().lower() if client else ""
+        if not email:
+            # Fallback autoritativo: el email del firmante es aquel al que se
+            # envió el contrato (magic-link FIRMA_CONTRATO · scope.recipient_email).
+            # Cubre el lead/cliente B2B cuyo contacto_email aún no se ha fijado:
+            # sin esto, un cliente sin contacto_email NO podría firmar (#43).
+            email = (scope.get("recipient_email") or "").strip().lower()
         if not email:
             raise ContractSigningFlowError(
                 "Firmante sin email · no se puede crear ClientUser persistente "

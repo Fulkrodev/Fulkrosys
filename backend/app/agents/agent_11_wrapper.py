@@ -113,6 +113,7 @@ async def run_supplementary_audit_for_project(
             AuditSimulationFinding.measure_code,
             AuditSimulationFinding.measure_name,
             AuditSimulationFinding.evaluacion,
+            AuditSimulationFinding.nivel_madurez,
         ).where(
             AuditSimulationFinding.run_id == m10_run.id,
             AuditSimulationFinding.deleted_at.is_(None),
@@ -123,11 +124,16 @@ async def run_supplementary_audit_for_project(
     nc_menores: list[dict[str, str]] = []
     counts_l: dict[str, int] = {f"L{i}": 0 for i in range(6)}
     for r in findings_rows:
-        code, name, evaluacion = r[0], r[1], r[2]
+        code, name, evaluacion, nivel = r[0], r[1], r[2], r[3]
         if evaluacion == "no_conforme_mayor":
             nc_mayores.append({"codigo": code, "descripcion": name or code})
         elif evaluacion == "no_conforme_menor":
             nc_menores.append({"codigo": code, "descripcion": name or code})
+        # FIX(dead-default): poblar el histograma de madurez (counts_l se
+        # declaraba pero nunca se llenaba → preguntas_L* leían claves _total_LX
+        # inexistentes → siempre 0 en el input del auditor A11).
+        if evaluacion != "no_aplica" and nivel in counts_l:
+            counts_l[nivel] += 1
 
     # Project + Client context
     project = await db.get(Project, project_id)
@@ -142,12 +148,12 @@ async def run_supplementary_audit_for_project(
         "categoria_ens": m10_run.categoria or "MEDIA",
         "nc_mayores": nc_mayores,
         "nc_menores": nc_menores,
-        "preguntas_L5": int((m10_run.scores_por_familia or {}).get("_total_L5", 0)),
-        "preguntas_L4": int((m10_run.scores_por_familia or {}).get("_total_L4", 0)),
-        "preguntas_L3": int((m10_run.scores_por_familia or {}).get("_total_L3", 0)),
-        "preguntas_L2": int((m10_run.scores_por_familia or {}).get("_total_L2", 0)),
-        "preguntas_L1": int((m10_run.scores_por_familia or {}).get("_total_L1", 0)),
-        "preguntas_L0": int((m10_run.scores_por_familia or {}).get("_total_L0", 0)),
+        "preguntas_L5": counts_l["L5"],
+        "preguntas_L4": counts_l["L4"],
+        "preguntas_L3": counts_l["L3"],
+        "preguntas_L2": counts_l["L2"],
+        "preguntas_L1": counts_l["L1"],
+        "preguntas_L0": counts_l["L0"],
         "preguntas_respondidas_total": int(m10_run.measures_evaluated or 0),
     }
 

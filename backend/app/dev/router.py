@@ -1808,6 +1808,43 @@ async def seed_full_implantation(
     ), {"r": RSEG, "p": str(pid)})
     await db.commit()
 
+    # ── STEP 3b · firma E-040 DdA + acta de categorización E-012 ──
+    # FIX(audit 2026-06-13): el seed dejaba la DdA SIN firma de proyecto
+    # (dda_project_signatures vacío → el auditor la veía is_signed=False, Art.
+    # 28.2) y SIN acta de categorización (categorizations=0). Se completan para
+    # que el proyecto "100% implantado" sea genuinamente auditable.
+    try:
+        await db.execute(text("SET LOCAL ROLE fulkro_app_bypassrls"))
+        await set_tenant_context(db, client_id=cid, project_id=pid)
+        from datetime import date as _date
+        from backend.app.models.ens import DdaProjectSignature
+        from backend.app.models.core import System, Categorization
+        if not (await db.execute(text(
+            "SELECT 1 FROM dda_project_signatures WHERE project_id=:p"
+        ), {"p": str(pid)})).first():
+            db.add(DdaProjectSignature(project_id=pid, signature_magic_link_id=uuid.uuid4()))
+        sysrow = (await db.execute(
+            select(System).where(System.project_id == pid).limit(1)
+        )).scalar_one_or_none()
+        if sysrow is None:
+            sysrow = System(id=uuid.uuid4(), project_id=pid,
+                            nombre="Sistema de Información Corporativo")
+            db.add(sysrow)
+            await db.flush()
+        if not (await db.execute(text(
+            "SELECT 1 FROM categorizations WHERE system_id=:s"
+        ), {"s": str(sysrow.id)})).first():
+            db.add(Categorization(
+                id=uuid.uuid4(), system_id=sysrow.id, categoria_resultante=tier,
+                fecha_acta=_date.today(),
+                aprobado_por=RSEG, version=1, signature_magic_link_id=uuid.uuid4(),
+                input_snapshot={"regla": "maximo (Anexo I RD 311/2022)", "origen": "seed"},
+            ))
+        await db.commit()
+    except Exception as exc:  # noqa: BLE001
+        extras_errors.append(f"e040-categorizacion: {exc}")
+        await db.rollback()
+
     # ── STEP 4 · MAGERIT (keyed) ──
     try:
         await seed_magerit_alta_data(key=key, db=db)

@@ -18,7 +18,7 @@ from sqlalchemy import text
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from backend.app.auth.dependencies import require_owner
-from backend.app.database import get_db
+from backend.app.database import get_db, set_tenant_context
 from backend.app.models.auth import User
 from backend.app.motors.m19_risk.incident_workflow_service import (
     IncidentAlreadyClosedError,
@@ -228,6 +228,16 @@ async def report_incident(
     cablea: el alta nace en 'created' y, si severidad + lucia_enabled lo exigen,
     notifica automáticamente a LUCIA dejando rastro inmutable en audit_log.
     """
+    # FIX(RLS): create_incident hace SELECT ... FROM projects WHERE id (RLS-filtered →
+    # 404 con fulkro_app). Resolver el owner vía SECURITY DEFINER + fijar contexto
+    # tenant ANTES de la primera query a tabla protegida por RLS.
+    _owner = (await db.execute(
+        text("SELECT get_project_owner(:pid)"), {"pid": str(project_id)}
+    )).scalar()
+    if not _owner:
+        raise HTTPException(status_code=404, detail="Project no encontrado")
+    await set_tenant_context(db, client_id=_owner, project_id=project_id)
+
     service = IncidentWorkflowService(db)
     try:
         incident = await service.create_incident(

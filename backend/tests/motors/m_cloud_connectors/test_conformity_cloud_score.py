@@ -75,9 +75,9 @@ async def test_conformity_score_zero_connectors_returns_zero_no_crash(db):
     # 8 measures base RULE_CATALOG (project sin categoria_objetivo · full)
     assert score.measures_total_aplicable == 8
     assert score.score_percentage == 0.0
-    # Familia breakdown · 6 distinct: op.acc · op.exp · mp.s · mp.info · op.cont · org
+    # Familia breakdown · 6 distinct: op.acc · op.exp · mp.s · mp.si · mp.info · org
     familias = {b.familia for b in score.per_familia_breakdown}
-    assert familias == {"op.acc", "op.exp", "mp.s", "mp.info", "op.cont", "org"}
+    assert familias == {"op.acc", "op.exp", "mp.s", "mp.si", "mp.info", "org"}
     # All familia verified=0
     assert all(b.verified == 0 for b in score.per_familia_breakdown)
 
@@ -121,9 +121,9 @@ async def test_conformity_score_partial_coverage_mixed_status(db):
     assert score.measures_cloud_verified == 5
     assert score.score_percentage == pytest.approx(62.5, abs=0.1)
 
-    # Per familia: op.acc verified=1/2 (op.acc.5 verified · op.acc.6 missing)
+    # Per familia: op.acc verified=1/2 (op.acc.2 verified · op.acc.6 missing)
     op_acc = next(b for b in score.per_familia_breakdown if b.familia == "op.acc")
-    assert op_acc.total == 2  # op.acc.5 + op.acc.6
+    assert op_acc.total == 2  # op.acc.2 + op.acc.6
     assert op_acc.verified == 1
     # org familia: 1/1 (org.1 documental status NOT verified per logic)
     # Actually org.1 detect_documental_policy_missing emite gap "documental"
@@ -193,8 +193,8 @@ async def test_conformity_score_is_deterministic_no_llm_invoked(db):
 
 
 @pytest.mark.asyncio
-async def test_conformity_score_basica_category_filters_to_5_measures(db):
-    """Project BASICA · solo 5 measures aplicables (no op.acc.5/op.exp.8/op.cont.3)."""
+async def test_conformity_score_basica_category_filters_to_4_measures(db):
+    """Project BASICA · solo 4 measures aplicables (no op.acc.2/op.exp.8/mp.info.6/mp.si.2)."""
     _, project_id_str = await setup_test_project(db)
     pid = uuid.UUID(project_id_str)
 
@@ -207,6 +207,7 @@ async def test_conformity_score_basica_category_filters_to_5_measures(db):
 
     score = await get_conformity_cloud_score(db, project_id=pid)
 
-    # BASICA rules: op.acc.6 + op.exp.1 + mp.info.3 + mp.s.2 + org.1 = 5
-    assert score.measures_total_aplicable == 5
+    # BASICA rules: op.acc.6 + op.exp.1 + mp.s.2 + org.1 = 4
+    # (cifrado at-rest mp.si.2 es MEDIA/ALTA, no BÁSICA · RD 311/2022)
+    assert score.measures_total_aplicable == 4
     assert score.project_category == "BASICA"

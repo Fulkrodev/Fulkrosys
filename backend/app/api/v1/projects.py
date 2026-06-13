@@ -232,7 +232,11 @@ async def get_project_summary(
         select(sa_text("count(*)")).select_from(DdaEntry).where(
             DdaEntry.project_id == project_id,
             DdaEntry.deleted_at.is_(None),
-            DdaEntry.aplicabilidad == "aplicable",
+            # FIX: "aplicable" no es valor del enum Aplicabilidad (aplica |
+            # aplica_con_refuerzos | no_aplica | compensada) → la cuenta daba
+            # SIEMPRE 0 y dda_pendientes sobrecontaba. Aplicables = todo lo que
+            # no es no_aplica.
+            DdaEntry.aplicabilidad != "no_aplica",
         ),
     )).scalar() or 0
 

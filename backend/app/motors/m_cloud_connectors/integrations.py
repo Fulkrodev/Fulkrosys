@@ -29,7 +29,7 @@ from collections.abc import AsyncIterator
 from dataclasses import dataclass
 from typing import Any, Literal
 
-from sqlalchemy import and_, select
+from sqlalchemy import and_, case, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from backend.app.motors.m_cloud_connectors.gap_rules import (
@@ -109,7 +109,18 @@ async def get_measure_cloud_status(
     supported = set(list_supported_measures())
     is_cloud_detectable = measure_code in supported
 
-    # Lookup gap abierto para esta medida
+    # Lookup gap abierto para esta medida. NOTA: una misma medida puede tener
+    # VARIOS gaps abiertos (p.ej. op.exp.8 tiene 3 reglas · varios recursos sin
+    # logging → varios gaps). scalar_one_or_none() CRASHEABA (MultipleResultsFound
+    # → 500 en /cloud-conformity-score). Tomamos el MÁS SEVERO (critical>high>
+    # medium>low) y, a igualdad, el más reciente.
+    _sev_rank = case(
+        (CloudGap.severity == "critical", 0),
+        (CloudGap.severity == "high", 1),
+        (CloudGap.severity == "medium", 2),
+        (CloudGap.severity == "low", 3),
+        else_=4,
+    )
     gap_q = await db.execute(
         select(CloudGap).where(
             and_(
@@ -118,8 +129,10 @@ async def get_measure_cloud_status(
                 CloudGap.resolved_at.is_(None),
             ),
         )
+        .order_by(_sev_rank, CloudGap.created_at.desc())
+        .limit(1)
     )
-    open_gap = gap_q.scalar_one_or_none()
+    open_gap = gap_q.scalars().first()
 
     # Resources count vinculado a esta measure (heurístico simple por rule_id)
     resources_count = await _count_resources_for_measure(
@@ -179,10 +192,23 @@ async def get_measures_cloud_status_bulk(
                 CloudGap.ens_measure_code.in_(measure_codes),
             ),
         )
+        .order_by(
+            case(
+                (CloudGap.severity == "critical", 0),
+                (CloudGap.severity == "high", 1),
+                (CloudGap.severity == "medium", 2),
+                (CloudGap.severity == "low", 3),
+                else_=4,
+            ),
+            CloudGap.created_at.desc(),
+        )
     )
-    open_gaps: dict[str, CloudGap] = {
-        g.ens_measure_code: g for g in gap_q.scalars().all()
-    }
+    # Una medida puede tener VARIOS gaps abiertos (p.ej. op.exp.8 · 3 reglas).
+    # Orden por severidad asc → setdefault conserva el PRIMERO = el más severo
+    # (determinista · antes el dict-comp dejaba el último arbitrario).
+    open_gaps: dict[str, CloudGap] = {}
+    for g in gap_q.scalars().all():
+        open_gaps.setdefault(g.ens_measure_code, g)
 
     supported = set(list_supported_measures())
     out: dict[str, MeasureCloudStatus] = {}
@@ -276,12 +302,12 @@ async def iter_gaps_for_plan_actions(
 # (acoplado al rule catalog · mantener sync si añadimos nuevas reglas)
 _MEASURE_TO_RESOURCE_TYPES: dict[str, tuple[str, ...]] = {
     "op.acc.6": ("identity.user",),       # MFA users
-    "op.acc.5": ("identity.user",),       # Privilege
+    "op.acc.2": ("identity.user",),       # Privilegios mínimos (antes op.acc.5)
     "op.exp.1": ("asset.repo", "asset.bucket", "asset.storage", "asset.vm"),
-    "mp.info.3": ("asset.bucket", "asset.storage", "asset.volume"),
+    "mp.si.2": ("asset.bucket", "asset.storage", "asset.volume"),  # Cifrado at-rest (antes mp.info.3)
     "mp.s.2": ("asset.bucket", "asset.storage"),
     "op.exp.8": ("asset.bucket", "asset.storage", "asset.vm"),
-    "op.cont.3": ("asset.bucket", "asset.storage", "asset.volume", "asset.database"),
+    "mp.info.6": ("asset.bucket", "asset.storage", "asset.volume", "asset.database"),  # Backups (antes op.cont.3)
 }
 
 

@@ -142,7 +142,7 @@ class TestDdaUpdater:
                 project_id=uuid.UUID(project_id),
                 measure_id=m_id,
                 aplicabilidad="aplica",
-                estado_implementacion="implantado",
+                estado_implementacion="implantada",
             ))
             await db.flush()
         await _create_run_with_finding(

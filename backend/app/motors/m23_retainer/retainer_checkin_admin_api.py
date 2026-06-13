@@ -16,12 +16,12 @@ from typing import Optional
 
 from fastapi import APIRouter, Body, Depends, HTTPException
 from pydantic import BaseModel
-from sqlalchemy import select
+from sqlalchemy import select, text as _sa_text
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from backend.app.auth.dependencies import require_owner
 from backend.app.core.sse_dispatcher import sse_dispatcher
-from backend.app.database import get_db
+from backend.app.database import get_db, set_tenant_context
 from backend.app.models.auth import User
 from backend.app.models.retainer import RetainerQuarterlyReport
 from backend.app.motors.m23_retainer.retainer_checkin_service import (
@@ -91,6 +91,16 @@ async def list_reports(
     project_id: uuid.UUID, db: AsyncSession = Depends(get_db),
 ) -> list[CheckinReportOut]:
     """Lista los check-ins trimestrales de un proyecto (cualquier estado)."""
+    # FIX(RLS): resolver owner vía SECURITY DEFINER + set tenant context ANTES
+    # de la query (retainer_quarterly_reports tiene RLS · fulkro_app enforced).
+    _owner = (
+        await db.execute(
+            _sa_text("SELECT get_project_owner(:pid)"), {"pid": str(project_id)}
+        )
+    ).scalar()
+    if not _owner:
+        raise HTTPException(status_code=404, detail="Project not found")
+    await set_tenant_context(db, client_id=_owner, project_id=project_id)
     rows = (
         await db.execute(
             select(RetainerQuarterlyReport)
@@ -121,6 +131,16 @@ async def generate_report(
     db: AsyncSession = Depends(get_db),
 ) -> CheckinReportOut:
     """Genera (idempotente) el borrador del check-in trimestral."""
+    # FIX(RLS): resolver owner vía SECURITY DEFINER + set tenant context ANTES
+    # del service (lee/escribe retainer_quarterly_reports con RLS · fulkro_app).
+    _owner = (
+        await db.execute(
+            _sa_text("SELECT get_project_owner(:pid)"), {"pid": str(project_id)}
+        )
+    ).scalar()
+    if not _owner:
+        raise HTTPException(status_code=404, detail="Project not found")
+    await set_tenant_context(db, client_id=_owner, project_id=project_id)
     try:
         r = await RetainerCheckinService(db).generate_quarterly_report_draft(
             project_id, body.period_quarter,

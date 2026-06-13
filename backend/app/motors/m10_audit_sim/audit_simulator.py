@@ -165,17 +165,17 @@ class AuditSimulatorService:
         # 5) Contradicciones
         contradiccion = False
         contradiccion_detalle = None
-        if estado_impl == "implantado" and not evidencia_encontrada:
+        if estado_impl == "implantada" and not evidencia_encontrada:
             contradiccion = True
             contradiccion_detalle = (
-                "DdA declara 'implantado' pero no hay evidencia en Evidence Vault "
+                "DdA declara 'implantada' pero no hay evidencia en Evidence Vault "
                 f"para {measure_code}."
             )
-        elif pentest_finding and estado_impl == "implantado":
+        elif pentest_finding and estado_impl == "implantada":
             contradiccion = True
-            severidad = (pentest_finding.severidad or "").lower()
+            severidad = (pentest_finding.severity or "").lower()
             contradiccion_detalle = (
-                f"DdA declara 'implantado' pero pentest encontró hallazgo "
+                f"DdA declara 'implantada' pero pentest encontró hallazgo "
                 f"{severidad or 'relevante'} contra {measure_code}."
             )
 
@@ -402,9 +402,16 @@ class AuditSimulatorService:
                 "conformes": 0, "observaciones": 0,
                 "no_conformes_mayores": 0, "no_conformes_menores": 0,
                 "evaluadas": 0, "label": FAMILIA_LABEL.get(fam, fam),
+                "_nivel_sum": 0, "_nivel_n": 0,
             })
             entry["evaluadas"] += 1
             entry["score"] += puntos.get(f.evaluacion, 0)
+            if isinstance(f.nivel_madurez, str) and f.nivel_madurez.startswith("L"):
+                try:
+                    entry["_nivel_sum"] += int(f.nivel_madurez[1:])
+                    entry["_nivel_n"] += 1
+                except ValueError:
+                    pass
             if f.evaluacion == "conforme":
                 entry["conformes"] += 1
             elif f.evaluacion == "observacion":
@@ -416,6 +423,13 @@ class AuditSimulatorService:
         for fam, entry in result.items():
             if entry["evaluadas"]:
                 entry["score"] = round(entry["score"] / entry["evaluadas"])
+            # FIX: el nivel de madurez por familia quedaba SIEMPRE 'L0' (el
+            # default jamás se recalculaba). Se deriva como la media redondeada
+            # de los niveles de las medidas de la familia · mismo criterio que
+            # _global_maturity → coherencia familia↔global.
+            n = entry.pop("_nivel_n", 0)
+            s = entry.pop("_nivel_sum", 0)
+            entry["nivel"] = f"L{round(s / n)}" if n else "L0"
         return result
 
     @staticmethod

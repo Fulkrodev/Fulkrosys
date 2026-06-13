@@ -86,11 +86,12 @@ async def test_idempotent_rerun_updates_not_creates(db):
     await _seed_unencrypted_bucket(db, project_id=pid, encrypted=False)
 
     engine = DiagnosticGapEngine(db)
-    r1 = await engine.run_diagnosis(project_id=pid, category="BASICA")
-    r2 = await engine.run_diagnosis(project_id=pid, category="BASICA")
+    # MEDIA: cifrado en reposo (mp.si.2) aplica en MEDIA/ALTA, no en BÁSICA (RD 311/2022)
+    r1 = await engine.run_diagnosis(project_id=pid, category="MEDIA")
+    r2 = await engine.run_diagnosis(project_id=pid, category="MEDIA")
 
     assert r1.gaps_created >= 1
-    assert "mp.info.3" in r1.gap_codes
+    assert "mp.si.2" in r1.gap_codes
 
     # Segunda iteración: actualiza · NO recrea
     assert r2.gaps_created == 0
@@ -107,8 +108,9 @@ async def test_auto_resolve_when_finding_disappears(db):
     )
 
     engine = DiagnosticGapEngine(db)
-    r1 = await engine.run_diagnosis(project_id=pid, category="BASICA")
-    assert "mp.info.3" in r1.gap_codes
+    # MEDIA: cifrado en reposo (mp.si.2) aplica en MEDIA/ALTA, no en BÁSICA (RD 311/2022)
+    r1 = await engine.run_diagnosis(project_id=pid, category="MEDIA")
+    assert "mp.si.2" in r1.gap_codes
 
     # Cliente arregla · cifrado activado · re-sync mismo bucket
     await db.execute(
@@ -120,9 +122,9 @@ async def test_auto_resolve_when_finding_disappears(db):
     )
     await db.flush()
 
-    r2 = await engine.run_diagnosis(project_id=pid, category="BASICA")
-    # mp.info.3 ya NO emite finding
-    assert "mp.info.3" not in r2.gap_codes
+    r2 = await engine.run_diagnosis(project_id=pid, category="MEDIA")
+    # mp.si.2 ya NO emite finding
+    assert "mp.si.2" not in r2.gap_codes
     # Y debe haber 1 gap auto-resuelto
     assert r2.gaps_resolved >= 1
 

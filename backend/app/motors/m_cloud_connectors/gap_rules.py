@@ -11,16 +11,16 @@ Estructura: catalog de GapRule dataclasses · cada regla define:
   - default_title + default_suggested_action + default_explanation_es_template
 
 NUCLEARES (gap_severity_rules_v1.yaml): op.acc.6 · op.exp.1 · op.exp.4 · op.exp.7
-op.exp.8 · op.cont.1 · mp.info.3 · mp.per.3 · org.1 · op.pl.1.
+op.exp.8 · op.cont.1 · mp.si.2 · mp.per.3 · org.1 · op.pl.1.
 
 Coverage cloud-detectable focused MVP piloto:
   - op.acc.6 MFA usuarios sin · CRITICAL nuclear
-  - op.acc.5 privilegios excesivos · HIGH
+  - op.acc.2 privilegios excesivos · HIGH
   - op.exp.1 inventario sistemas detectado · MEDIUM (verde si OK)
   - op.exp.8 logging activado en cloud · HIGH
   - op.exp.8 retención logs ≥12m (#1) · HIGH · + sincronización NTP · MEDIUM
-  - mp.info.3 cifrado at-rest storage · CRITICAL nuclear
-  - op.cont.3 backup configurado · HIGH
+  - mp.si.2 cifrado at-rest storage · CRITICAL nuclear
+  - mp.info.6 backup configurado · HIGH
   - mp.s.2 buckets/storage públicos · CRITICAL
   - mp.com.2 separación de redes · MEDIUM
   - mp.eq.1 inventario equipos · MEDIUM (verde si discovery >0)
@@ -133,7 +133,7 @@ def detect_users_without_mfa(resources: list[Any]) -> list[GapFinding]:
 
 
 def detect_excess_privileged_users(resources: list[Any]) -> list[GapFinding]:
-    """op.acc.5 · HIGH · >20% privileged users sobre total = excess."""
+    """op.acc.2 · HIGH · >20% privileged users sobre total = excess."""
     identities = _filter_resources(resources, "identity.user")
     if len(identities) < 5:
         return []
@@ -147,12 +147,12 @@ def detect_excess_privileged_users(resources: list[Any]) -> list[GapFinding]:
     sample = [r.resource_name or r.resource_external_id for r in privileged[:5]]
     return [
         GapFinding(
-            ens_measure_code="op.acc.5",
+            ens_measure_code="op.acc.2",
             severity=CloudGapSeverity.HIGH.value,
             gap_type=CloudGapType.CONFIGURATION.value,
             title=(
                 f"{len(privileged)} usuarios privilegiados ({pct:.0%}) · "
-                "op.acc.5 excede umbral"
+                "op.acc.2 excede umbral"
             ),
             suggested_action=(
                 "Revisar y reducir el número de usuarios con privilegios "
@@ -161,7 +161,7 @@ def detect_excess_privileged_users(resources: list[Any]) -> list[GapFinding]:
             explanation_es_template=(
                 "Detectamos {n_privileged} usuarios con privilegios elevados "
                 "sobre {n_total} totales ({pct_privileged:.0%}). La medida "
-                "op.acc.5 exige principio de mínimo privilegio. Buena práctica: "
+                "op.acc.2 exige principio de mínimo privilegio. Buena práctica: "
                 "<10% de cuentas administrativas en empresas medianas."
             ),
             raw_evidence={
@@ -205,7 +205,7 @@ def detect_inventory_coverage(resources: list[Any]) -> list[GapFinding]:
 
 
 def detect_unencrypted_storage(resources: list[Any]) -> list[GapFinding]:
-    """mp.info.3 · CRITICAL nuclear · storage buckets sin cifrado at-rest."""
+    """mp.si.2 · CRITICAL nuclear · storage buckets sin cifrado at-rest."""
     storage = [
         r for r in resources
         if r.resource_type.startswith("asset.")
@@ -221,17 +221,17 @@ def detect_unencrypted_storage(resources: list[Any]) -> list[GapFinding]:
     sample = [r.resource_name or r.resource_external_id for r in unencrypted[:5]]
     return [
         GapFinding(
-            ens_measure_code="mp.info.3",
+            ens_measure_code="mp.si.2",
             severity=CloudGapSeverity.CRITICAL.value,
             gap_type=CloudGapType.STRUCTURAL.value,
-            title=f"{n} almacenamientos sin cifrado at-rest · mp.info.3 nuclear",
+            title=f"{n} almacenamientos sin cifrado at-rest · mp.si.2 nuclear",
             suggested_action=(
                 f"Activar cifrado en los {n} buckets/storage sin cifrar · "
                 "el ENS exige cifrado de datos sensibles en reposo."
             ),
             explanation_es_template=(
                 "Detectamos {n_storage_unencrypted} almacenamientos sin "
-                "cifrado en reposo. mp.info.3 es nuclear · datos sensibles "
+                "cifrado en reposo. mp.si.2 es nuclear · datos sensibles "
                 "sin cifrar = NC mayor inmediato en auditoría ENAC."
             ),
             raw_evidence={
@@ -418,7 +418,7 @@ def detect_ntp_not_synced(resources: list[Any]) -> list[GapFinding]:
 
 
 def detect_no_backup_strategy(resources: list[Any]) -> list[GapFinding]:
-    """op.cont.3 · HIGH · sin backup detectado para storage críticos."""
+    """mp.info.6 · HIGH · sin backup detectado para storage críticos."""
     storage = [
         r for r in resources
         if r.resource_type in {"asset.bucket", "asset.storage", "asset.volume", "asset.database"}
@@ -433,17 +433,17 @@ def detect_no_backup_strategy(resources: list[Any]) -> list[GapFinding]:
         return []
     return [
         GapFinding(
-            ens_measure_code="op.cont.3",
+            ens_measure_code="mp.info.6",
             severity=CloudGapSeverity.HIGH.value,
             gap_type=CloudGapType.STRUCTURAL.value,
-            title="Sin estrategia de backup detectada · op.cont.3",
+            title="Sin estrategia de backup detectada · mp.info.6",
             suggested_action=(
                 "Configurar copias de seguridad automáticas y verificar "
                 "restauración mensualmente."
             ),
             explanation_es_template=(
                 "No detectamos backups activos en almacenamientos cloud. "
-                "op.cont.3 exige copias y procedimiento de restauración · "
+                "mp.info.6 exige copias y procedimiento de restauración · "
                 "Marcos te ayuda a diseñar la política."
             ),
             raw_evidence={"backup_strategy_detected": False},
@@ -493,7 +493,7 @@ RULE_CATALOG: tuple[GapRule, ...] = (
     ),
     GapRule(
         rule_id="rule_excess_privileged",
-        ens_measure_code="op.acc.5",
+        ens_measure_code="op.acc.2",
         applies_to_categories=("MEDIA", "ALTA"),
         detector=detect_excess_privileged_users,
     ),
@@ -505,8 +505,11 @@ RULE_CATALOG: tuple[GapRule, ...] = (
     ),
     GapRule(
         rule_id="rule_unencrypted_storage",
-        ens_measure_code="mp.info.3",
-        applies_to_categories=("BASICA", "MEDIA", "ALTA"),
+        ens_measure_code="mp.si.2",
+        # FIX(REV-1): mp.si.2 "Criptografía" aplica a MEDIA/ALTA (no BÁSICA) según
+        # Anexo II RD 311/2022. Antes el cifrado at-rest se mapeaba a mp.info.3
+        # (= "Firma electrónica" · medida equivocada).
+        applies_to_categories=("MEDIA", "ALTA"),
         detector=detect_unencrypted_storage,
     ),
     GapRule(
@@ -535,7 +538,7 @@ RULE_CATALOG: tuple[GapRule, ...] = (
     ),
     GapRule(
         rule_id="rule_no_backup",
-        ens_measure_code="op.cont.3",
+        ens_measure_code="mp.info.6",
         applies_to_categories=("MEDIA", "ALTA"),
         detector=detect_no_backup_strategy,
     ),
@@ -578,7 +581,7 @@ CONNECTOR_PROVIDER_ENS_GUIDANCE: dict[str, dict[str, Any]] = {
         "display_name": "Microsoft 365 (incluye SharePoint)",
         "measures_detectable": [
             "op.acc.6",   # MFA users (Reports.Read.All)
-            "op.acc.5",   # Privileged users (RoleManagement.Read.Directory)
+            "op.acc.2",   # Privileged users (RoleManagement.Read.Directory)
             "op.exp.1",   # Inventory (devices + users + sites)
             "mp.s.2",     # SharePoint sites públicos
             "org.1",      # Política documental (siempre documental)
@@ -602,7 +605,7 @@ CONNECTOR_PROVIDER_ENS_GUIDANCE: dict[str, dict[str, Any]] = {
         "display_name": "Google Workspace (incluye Drive)",
         "measures_detectable": [
             "op.acc.6",   # MFA users (isEnrolledIn2Sv)
-            "op.acc.5",   # Privileged users (isAdmin)
+            "op.acc.2",   # Privileged users (isAdmin)
             "op.exp.1",   # Inventory (devices + users + drives)
             "mp.s.2",     # Shared drives sin restricción dominio
             "org.1",      # Política documental

@@ -328,11 +328,16 @@ async def _implantacion_items_done(
     if has_dda:
         done += 1
 
-    # Task 2 · DdA frozen (firma proyecto exists).
+    # Task 2 · DdA congelada/aprobada. FIX: el freeze canónico (freeze_dda /
+    # POST /dda/.../freeze) escribe dda_entries.aprobado_por; la tabla
+    # dda_project_signatures SOLO la escribe el flujo OPCIONAL de firma E-040
+    # (request_e040_signature) → leerla dejaba el progreso IMPLANTACION topado
+    # en 5/6 aunque la DdA estuviera congelada. Mismo criterio que portal_api.
     row = await session.execute(
         sa_text(
-            "SELECT EXISTS (SELECT 1 FROM dda_project_signatures "
-            "WHERE project_id = :pid)"
+            "SELECT EXISTS (SELECT 1 FROM dda_entries "
+            "WHERE project_id = :pid AND aprobado_por IS NOT NULL "
+            "AND deleted_at IS NULL)"
         ),
         pid,
     )
@@ -356,13 +361,13 @@ async def _implantacion_items_done(
     if row.scalar():
         done += 1
 
-    # Task 4 · controles implementados (M06) · dda_entries con
-    # estado_implementacion='implementado'.
+    # Task 4 · controles implantados (M06) · dda_entries con
+    # estado_implementacion='implantada' (enum canónico EstadoImplementacion).
     row = await session.execute(
         sa_text(
             "SELECT EXISTS (SELECT 1 FROM dda_entries "
             "WHERE project_id = :pid AND deleted_at IS NULL "
-            "  AND estado_implementacion = 'implementado')"
+            "  AND estado_implementacion = 'implantada')"
         ),
         pid,
     )

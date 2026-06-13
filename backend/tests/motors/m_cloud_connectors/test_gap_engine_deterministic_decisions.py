@@ -156,7 +156,7 @@ def test_detector_excess_privileged_above_threshold_emits():
     ]
     findings = detect_excess_privileged_users(resources)
     assert len(findings) == 1
-    assert findings[0].ens_measure_code == "op.acc.5"
+    assert findings[0].ens_measure_code == "op.acc.2"
     assert findings[0].severity == "high"
 
 
@@ -189,7 +189,7 @@ def test_detector_unencrypted_storage_emits_critical():
     findings = detect_unencrypted_storage(resources)
     assert len(findings) == 1
     assert findings[0].severity == "critical"
-    assert findings[0].ens_measure_code == "mp.info.3"
+    assert findings[0].ens_measure_code == "mp.si.2"
 
 
 def test_detector_public_buckets_emits_critical():
@@ -220,7 +220,7 @@ def test_detector_logging_no_gap_when_at_least_one_enabled():
 
 
 def test_detector_no_backup_when_no_storage_at_all_no_finding():
-    """Sin storage en el inventario · no se evalúa op.cont.3 desde cloud."""
+    """Sin storage en el inventario · no se evalúa mp.info.6 desde cloud."""
     resources = [_r(resource_type="identity.user", mfa_enabled=True)]
     assert detect_no_backup_strategy(resources) == []
 
@@ -231,7 +231,7 @@ def test_detector_no_backup_strategy_when_storage_without_backup():
     ]
     findings = detect_no_backup_strategy(resources)
     assert len(findings) == 1
-    assert findings[0].ens_measure_code == "op.cont.3"
+    assert findings[0].ens_measure_code == "mp.info.6"
 
 
 # ============================================================
@@ -281,7 +281,7 @@ def test_engine_render_explanation_fallback_on_missing_placeholder():
 def test_supported_measures_includes_nucleares():
     measures = list_supported_measures()
     assert "op.acc.6" in measures
-    assert "mp.info.3" in measures
+    assert "mp.si.2" in measures
     assert "op.exp.1" in measures
     assert "op.exp.8" in measures
     assert "org.1" in measures

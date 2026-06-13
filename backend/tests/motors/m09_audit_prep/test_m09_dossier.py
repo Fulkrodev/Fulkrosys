@@ -65,7 +65,7 @@ async def _get_or_create_ens_measure(db, codigo: str) -> uuid.UUID:
 async def _create_dda_entry(
     db, project_id: str, measure_code: str,
     aplicabilidad: str = "aplica",
-    estado_implementacion: str = "implantado",
+    estado_implementacion: str = "implantada",
 ) -> DdaEntry:
     m_id = await _get_or_create_ens_measure(db, measure_code)
     entry = DdaEntry(
@@ -241,7 +241,7 @@ class TestMatriz99:
         codes = {r["codigo"] for r in rows}
         assert "op.acc.5" in codes
         row_acc5 = next(r for r in rows if r["codigo"] == "op.acc.5")
-        assert row_acc5["estado_dda"] == "implantado"
+        assert row_acc5["estado_dda"] == "implantada"
         assert row_acc5["vigente"] == "Sí"
 
     @pytest.mark.asyncio

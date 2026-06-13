@@ -31,20 +31,30 @@ async def test_requires_owner_auth(async_client):
 
 
 @pytest.mark.asyncio
-async def test_list_empty_project_returns_empty(async_client):
+async def test_list_empty_project_returns_empty(async_client, db):
+    # FIX(audit 2026-06-13): tras el fix RLS (get_project_owner+set_tenant_context)
+    # un project_id inexistente devuelve 404 (correcto · coherente con el resto de
+    # endpoints scopeados). El caso "proyecto SIN reports → lista vacía" se prueba
+    # con un proyecto REAL.
+    from backend.tests.conftest import setup_test_project
     await _login(async_client)
+    _, project_id = await setup_test_project(db)
+    await db.commit()
     res = await async_client.get(
-        f"{_ADMIN}/projects/{uuid.uuid4()}/reports",
+        f"{_ADMIN}/projects/{project_id}/reports",
     )
     assert res.status_code == 200, res.text
     assert res.json() == []
 
 
 @pytest.mark.asyncio
-async def test_generate_without_active_retainer_400(async_client):
+async def test_generate_without_active_retainer_400(async_client, db):
+    from backend.tests.conftest import setup_test_project
     csrf = await _login(async_client)
+    _, project_id = await setup_test_project(db)
+    await db.commit()
     res = await async_client.post(
-        f"{_ADMIN}/projects/{uuid.uuid4()}/reports/generate",
+        f"{_ADMIN}/projects/{project_id}/reports/generate",
         json={},
         headers={"X-CSRF-Token": csrf},
     )

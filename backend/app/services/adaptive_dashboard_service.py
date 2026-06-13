@@ -138,7 +138,10 @@ async def _count_pending_dda_measures(
         text(
             "SELECT count(*) FROM dda_entries "
             "WHERE project_id = :pid AND deleted_at IS NULL "
-            "AND estado_implementacion IN ('pendiente', 'en_curso')"
+            # FIX: 'pendiente'/'en_curso' NO son valores de EstadoImplementacion
+            # (no_valorado|no_implantada|parcial|implantada|no_aplica) → la KPI
+            # daba SIEMPRE 0. Pendientes = aplicables aún no implantadas.
+            "AND estado_implementacion IN ('no_valorado', 'no_implantada', 'parcial')"
         ),
         {"pid": project_id},
     )).first()
@@ -164,7 +167,10 @@ async def _count_open_risks(db: AsyncSession, project_id: str) -> int:
         text(
             "SELECT count(*) FROM project_risks "
             "WHERE project_id = :pid AND deleted_at IS NULL "
-            "AND status IN ('open', 'in_progress', 'identified', 'pendiente')"
+            # FIX: el enum de ProjectRisk.status es español (identificado|
+            # monitorizado|materializado|cerrado) → los literales ingleses daban
+            # SIEMPRE 0. Riesgos abiertos = todo lo que no esté cerrado.
+            "AND status IN ('identificado', 'monitorizado', 'materializado')"
         ),
         {"pid": project_id},
     )).first()

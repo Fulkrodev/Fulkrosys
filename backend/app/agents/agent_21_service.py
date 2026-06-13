@@ -125,7 +125,7 @@ class DiscrepancyDetectorService:
             SELECT COUNT(*) FROM dda_entries
             WHERE project_id = :pid
               AND deleted_at IS NULL
-              AND aplicabilidad = 'aplicable'
+              AND aplicabilidad <> 'no_aplica'
             """,
         ), {"pid": str(project_id)})).scalar() or 0
 
@@ -161,7 +161,7 @@ class DiscrepancyDetectorService:
             SELECT COUNT(*) FROM dda_entries
             WHERE project_id = :pid
               AND deleted_at IS NULL
-              AND aplicabilidad = 'aplicable'
+              AND aplicabilidad <> 'no_aplica'
             """,
         ), {"pid": str(project_id)})).scalar() or 0
 
@@ -263,7 +263,7 @@ class DiscrepancyDetectorService:
             SELECT COUNT(*) FROM dda_entries
             WHERE project_id = :pid
               AND deleted_at IS NULL
-              AND aplicabilidad = 'aplicable'
+              AND aplicabilidad <> 'no_aplica'
             """,
         ), {"pid": str(project_id)})).scalar() or 0
 
@@ -273,7 +273,9 @@ class DiscrepancyDetectorService:
             WHERE project_id = :pid
               AND deleted_at IS NULL
               AND clasificacion IN ('politica', 'procedimiento')
-              AND estado = 'approved'
+              -- FIX(REV-3): doble vocabulario de estado (IDMS 'approved' vs M06
+              -- 'firmado'/'entregado') → contar ambos terminales como aprobado.
+              AND estado IN ('approved', 'firmado', 'entregado')
             """,
         ), {"pid": str(project_id)})).scalar() or 0
 

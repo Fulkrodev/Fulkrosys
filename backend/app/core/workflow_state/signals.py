@@ -273,7 +273,7 @@ async def _signal_dda_controls_implemented(
         sa_text(
             "SELECT EXISTS (SELECT 1 FROM dda_entries "
             "WHERE project_id = :pid AND deleted_at IS NULL "
-            "  AND estado_implementacion = 'implementado')"
+            "  AND estado_implementacion = 'implantada')"
         ),
         {"pid": str(project_id)},
     )

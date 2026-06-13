@@ -137,11 +137,48 @@ async def test_bulk_status_resolves_multiple_codes_one_query(db):
     await _seed_no_mfa_diagnostics(db, pid)
 
     bulk = await get_measures_cloud_status_bulk(
-        db, project_id=pid, measure_codes=["op.acc.6", "mp.info.3", "org.UNK"],
+        db, project_id=pid, measure_codes=["op.acc.6", "mp.si.2", "org.UNK"],
     )
     assert bulk["op.acc.6"].status == "missing"
-    assert bulk["mp.info.3"].status == "implemented"  # no gap emitted
+    assert bulk["mp.si.2"].status == "implemented"  # no gap emitted
     assert bulk["org.UNK"].status == "unknown"
+
+
+@pytest.mark.asyncio
+async def test_measure_status_multiple_open_gaps_returns_most_severe(db):
+    """Regresión (sim MEDIO E2E 2026-06-13): una misma medida puede tener VARIOS
+    gaps abiertos (p.ej. op.exp.8 · 3 reglas de logging · varios recursos). El
+    lookup per-measure usaba scalar_one_or_none() → MultipleResultsFound → 500
+    en /cloud-conformity-score. Debe devolver el MÁS SEVERO sin crashear (y bulk
+    igual · determinista, no el último arbitrario)."""
+    _, project_id_str = await setup_test_project(db)
+    pid = uuid.UUID(project_id_str)
+    for sev in ("medium", "critical", "low"):
+        await db.execute(
+            text(
+                "INSERT INTO cloud_gaps (id, project_id, gap_type, severity, "
+                "ens_measure_code, title, auto_fixable, cliente_can_see, "
+                "detected_at, created_at, updated_at, approval_status) VALUES "
+                "(gen_random_uuid(), :pid, 'structural', :sev, 'op.exp.8', "
+                "'Logging deshabilitado', false, true, now(), now(), now(), "
+                "'pending')"
+            ),
+            {"pid": str(pid), "sev": sev},
+        )
+    await db.flush()
+
+    # per-measure · NO crashea (antes MultipleResultsFound) · devuelve el más severo
+    s = await get_measure_cloud_status(db, project_id=pid, measure_code="op.exp.8")
+    assert s.has_open_gap is True
+    assert s.open_gap_severity == "critical"
+    assert s.status == "missing"
+
+    # bulk · determinista · también el más severo (critical, no medium/low)
+    bulk = await get_measures_cloud_status_bulk(
+        db, project_id=pid, measure_codes=["op.exp.8"],
+    )
+    assert bulk["op.exp.8"].has_open_gap is True
+    assert bulk["op.exp.8"].open_gap_severity == "critical"
 
 
 # ============================================================
@@ -257,10 +294,10 @@ async def test_iter_evidences_filter_by_resource_type_per_measure(db):
     ]
     assert all(s.resource_type == "identity.user" for s in items_mfa)
 
-    # mp.info.3 → solo storage types
+    # mp.si.2 → solo storage types
     items_crypto = [
         s async for s in iter_evidences_for_attach(
-            db, project_id=pid, measure_code="mp.info.3",
+            db, project_id=pid, measure_code="mp.si.2",
         )
     ]
     assert all(s.resource_type == "asset.bucket" for s in items_crypto)

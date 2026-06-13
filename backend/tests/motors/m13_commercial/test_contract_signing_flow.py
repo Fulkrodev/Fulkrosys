@@ -257,3 +257,59 @@ async def test_confirm_signing_corrupt_token_raises(db):
             signed_surname="Y",
         )
     assert "Magic-link" in str(exc_info.value)
+
+
+# ============== #43 · firmante sin contacto_email (regresión sim MEDIO E2E) =============
+
+@pytest.mark.asyncio
+async def test_resolve_signer_falls_back_to_scope_recipient_email(db):
+    """Regresión (sim MEDIO E2E 2026-06-13): si el Client NO tiene contacto_email
+    y la conversión #7 no devuelve client_user_id (proyecto ya convertido), el
+    firmante se resuelve desde el email del magic-link (scope.recipient_email).
+    Antes: ContractSigningFlowError 'Firmante sin email' → 400 → el cliente NO
+    podía firmar el contrato (bloqueaba onboarding de leads sin email de contacto)."""
+    await db.execute(text("SET LOCAL ROLE fulkro_app_bypassrls"))
+    client_id = uuid.uuid4()
+    await db.execute(
+        text(
+            "INSERT INTO clients (id, nombre, cif, contacto_email, created_at) "
+            "VALUES (:id, 'Sin Email SL', :cif, NULL, now())"
+        ),
+        {"id": str(client_id), "cif": f"B{uuid.uuid4().hex[:8].upper()}"},
+    )
+    await db.flush()
+
+    signer_id = await ContractSigningFlow(db)._resolve_or_create_signer(
+        client_id=client_id,
+        conversion_result={},  # sin client_user_id · proyecto ya convertido
+        scope={"recipient_email": "fallback@signco.es", "recipient_name": "Lucía Fallback"},
+    )
+    assert signer_id is not None
+    from backend.app.models.client_portal import ClientUser
+    cu = await db.get(ClientUser, signer_id)
+    assert cu is not None
+    assert cu.email == "fallback@signco.es"
+
+
+@pytest.mark.asyncio
+async def test_resolve_signer_raises_when_no_email_anywhere(db):
+    """Sin contacto_email del Client Y sin recipient_email en el scope · sigue
+    protegiendo con error claro (no crea un ClientUser sin email)."""
+    await db.execute(text("SET LOCAL ROLE fulkro_app_bypassrls"))
+    client_id = uuid.uuid4()
+    await db.execute(
+        text(
+            "INSERT INTO clients (id, nombre, cif, contacto_email, created_at) "
+            "VALUES (:id, 'Sin Email 2 SL', :cif, NULL, now())"
+        ),
+        {"id": str(client_id), "cif": f"B{uuid.uuid4().hex[:8].upper()}"},
+    )
+    await db.flush()
+
+    with pytest.raises(ContractSigningFlowError) as exc:
+        await ContractSigningFlow(db)._resolve_or_create_signer(
+            client_id=client_id,
+            conversion_result={},
+            scope={"recipient_name": "Sin Email"},
+        )
+    assert "Firmante sin email" in str(exc.value)
