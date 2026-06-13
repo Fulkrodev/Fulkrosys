@@ -8,7 +8,7 @@ el admin lo aplique a la entrada por la vía normal cuando proceda.
 from __future__ import annotations
 
 import uuid
-from datetime import date, datetime, timezone
+from datetime import datetime, timezone
 from typing import Optional
 
 from sqlalchemy import select
