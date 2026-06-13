@@ -143,7 +143,7 @@ export function CopilotChat({
           placeholder="Escribe a tu copiloto…"
           disabled={isStreaming}
           style={{
-            backgroundColor: "rgba(255, 255, 255, 0.65)",
+            backgroundColor: "#ffffff",
             borderColor: "var(--fulkro-surface-glass-border)",
           }}
           className="flex-1 rounded-md border px-3 py-2.5 text-base font-medium text-[color:var(--fulkro-body)] placeholder:text-[color:var(--fulkro-muted)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-fulkro-primary-700"
@@ -191,7 +191,7 @@ function MessageBubble({ message }: { message: CopilotMessage }) {
             <span
               className={cn(
                 "ml-1 inline-block h-3.5 w-1 translate-y-0.5 animate-pulse rounded-sm",
-                isUser ? "bg-white/70" : "bg-[color:var(--fulkro-subtitle)]",
+                isUser ? "bg-white" : "bg-[color:var(--fulkro-subtitle)]",
               )}
             />
           )}

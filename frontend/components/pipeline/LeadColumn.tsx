@@ -24,8 +24,8 @@ export function LeadColumn({
   });
 
   return (
-    <div className="flex min-w-0 flex-col rounded-md border border-fulkro-ink-300/50 bg-[color:var(--fulkro-surface-glass)]">
-      <div className="flex items-center justify-between rounded-t-md border-b border-fulkro-ink-300/50 bg-white/60 px-3 py-2 text-xs font-semibold uppercase tracking-wider text-fulkro-primary-700">
+    <div className="flex min-w-0 flex-col rounded-md border border-fulkro-ink-300 bg-white">
+      <div className="flex items-center justify-between rounded-t-md border-b border-fulkro-ink-300 bg-white px-3 py-2 text-xs font-semibold uppercase tracking-wider text-fulkro-primary-700">
         <span>{label}</span>
         <span className="rounded-full bg-fulkro-primary-700/10 px-2 py-0.5 font-mono text-[10px] text-fulkro-primary-700">
           {leads.length}

@@ -66,7 +66,7 @@ export default function ActasPage() {
 
       <div
         data-testid="subtype-filter-chips"
-        className="flex flex-nowrap gap-2 overflow-x-auto pb-1 -mx-1 px-1 sticky top-0 bg-white/95 backdrop-blur z-10"
+        className="flex flex-nowrap gap-2 overflow-x-auto pb-1 -mx-1 px-1 sticky top-0 bg-white z-10"
       >
         {FILTER_CHIPS.map((chip) => {
           const active = subtypeFilter === chip.value;

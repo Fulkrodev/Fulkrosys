@@ -87,7 +87,7 @@ export function CopilotNextStepBanner() {
           <Button
             size="sm"
             variant="outline"
-            className="h-7 bg-white/70"
+            className="h-7 bg-white"
             onClick={() => router.push(hint.target_url as string)}
             data-testid="copilot-banner-go"
           >

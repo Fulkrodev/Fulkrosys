@@ -187,8 +187,8 @@ function NotificationCard({
       className={cn(
         "rounded-lg border p-3 transition-colors",
         isRead
-          ? "border-fulkro-ink-100 bg-fulkro-canvas/40 opacity-70"
-          : "border-fulkro-primary-700/40 bg-white",
+          ? "border-fulkro-ink-100 bg-fulkro-canvas"
+          : "border-fulkro-primary-700 bg-white",
       )}
     >
       <div className="flex flex-wrap items-start justify-between gap-2">

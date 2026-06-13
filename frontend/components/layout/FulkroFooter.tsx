@@ -16,7 +16,7 @@ export function FulkroFooter() {
     <footer
       role="contentinfo"
       aria-label="Información de contacto Fulkro consultora"
-      className="border-t border-fulkro-ink-200/40 bg-white/60 py-3"
+      className="border-t border-fulkro-ink-200 bg-white py-3"
       data-testid="fulkro-footer"
     >
       <div className="mx-auto flex max-w-7xl flex-wrap items-center justify-center gap-x-4 gap-y-1 px-4 text-xs text-fulkro-ink-600">
