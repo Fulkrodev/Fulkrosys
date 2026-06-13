@@ -246,15 +246,18 @@ async def test_dispatch_runs_when_in_window(db):
         project_id=uuid.UUID(project_id), category="BASICO",
     )
     r.status = "scheduled"
-    r.scheduled_start = datetime.now(timezone.utc) - timedelta(minutes=5)
-    await db.flush()
-
-    # Ventana scan 22:00-06:00 UTC. Usamos "hoy 23:30 UTC" asi el
-    # cutoff se calcula relativo a hoy (no a una fecha hardcoded que
-    # quedaria antes que el scheduled_start del run).
+    # Ventana scan 22:00-06:00 UTC. Fijamos "hoy 23:30 UTC" como instante de
+    # evaluacion y anclamos el scheduled_start 5 min ANTES de ESE instante (no
+    # relativo al reloj real). Antes se mezclaba now()_real con night hardcoded:
+    # si la hora real caia entre ~23:30 y 23:59 UTC el run quedaba despues de
+    # `night` y `runs_found` era 0 → test flaky por hora del dia. Ahora es
+    # determinista a cualquier hora.
     night = datetime.now(timezone.utc).replace(
         hour=23, minute=30, second=0, microsecond=0,
     )
+    r.scheduled_start = night - timedelta(minutes=5)
+    await db.flush()
+
     res = await dispatch_due_runs(db, enforce_window=True, now=night)
     assert res["runs_found"] >= 1
     # dispatched puede ser 0 si Celery no esta listo, pero runs_found > 0
