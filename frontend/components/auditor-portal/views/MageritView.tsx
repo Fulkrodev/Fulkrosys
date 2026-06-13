@@ -82,7 +82,7 @@ function AssetCard({
       {asset.owner ? (
         <p className="text-[12px] text-fulkro-ink-500">Propietario: {asset.owner}</p>
       ) : null}
-      <div className="mt-2 grid grid-cols-5 gap-1 text-[11px]">
+      <div className="mt-2 grid grid-cols-2 gap-1 sm:grid-cols-3 md:grid-cols-5 text-[11px]">
         <div className="rounded bg-fulkro-ink-50 px-1.5 py-1 text-center">
           <p className="text-fulkro-ink-500">D</p>
           <p className="font-semibold text-fulkro-ink-900">
@@ -114,7 +114,7 @@ function AssetCard({
           </p>
         </div>
       </div>
-      <div className="mt-1 grid grid-cols-5 gap-1 text-[10px] text-fulkro-ink-500">
+      <div className="mt-1 grid grid-cols-2 gap-1 sm:grid-cols-3 md:grid-cols-5 text-[10px] text-fulkro-ink-500">
         <span className="text-center">acum D: {fmtAcc(asset.accumulated.d)}</span>
         <span className="text-center">acum I: {fmtAcc(asset.accumulated.i)}</span>
         <span className="text-center">acum C: {fmtAcc(asset.accumulated.c)}</span>

@@ -245,7 +245,7 @@ export function RiskRow({ risk, onReview }: Props) {
             <h4 className="mb-2 text-xs font-semibold uppercase tracking-wide text-[color:var(--fulkro-muted)]">
               Degradación por dimensión DICAT (% pérdida si materializa)
             </h4>
-            <div className="grid grid-cols-5 gap-2">
+            <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 md:grid-cols-5">
               <DegradationChip
                 letter="D"
                 label="Disponibilidad"

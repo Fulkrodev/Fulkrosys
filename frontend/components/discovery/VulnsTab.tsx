@@ -200,7 +200,7 @@ export function VulnsTab({ projectId }: VulnsTabProps) {
         <p className="mb-2 text-xs font-medium text-fulkro-ink-700">
           Heatmap severidad × estado
         </p>
-        <div className="grid grid-cols-5 gap-2 text-xs">
+        <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 md:grid-cols-5 text-xs">
           <div />
           {ESTADO_ORDER.map((e) => (
             <div key={e} className="text-center font-medium text-fulkro-ink-500">

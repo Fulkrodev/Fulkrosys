@@ -209,7 +209,7 @@ function MedidaDrawer({
           </Alert>
         ) : null}
 
-        <div className="grid grid-cols-2 gap-3 text-[12px]">
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 text-[12px]">
           <div>
             <p className="text-[10px] uppercase tracking-wider text-fulkro-ink-500">
               Evidencias aportadas

@@ -173,7 +173,7 @@ export function CheckinDetail({
             Actividades retainer
           </h3>
         </div>
-        <dl className="grid grid-cols-3 gap-3">
+        <dl className="grid grid-cols-1 gap-3 sm:grid-cols-2 md:grid-cols-3">
           <SummaryStat
             label="Completadas"
             value={checkin.activities_completed}

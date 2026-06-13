@@ -131,7 +131,7 @@ export function OperationsConsole() {
             <Archive size={14} /> Archivos lifecycle (M25)
           </CardTitle>
         </CardHeader>
-        <CardContent className="grid grid-cols-2 gap-2 text-xs">
+        <CardContent className="grid grid-cols-1 gap-2 sm:grid-cols-2 text-xs">
           <Stat
             label="Backups archivados"
             value={String(data.archivable_backups_count)}
@@ -247,7 +247,7 @@ function BackupHealthCard({
             Sin backups registrados todavía.
           </p>
         )}
-        <div className="grid grid-cols-4 gap-2 text-center text-xs">
+        <div className="grid grid-cols-2 gap-2 text-center sm:grid-cols-4 text-xs">
           <Stat label="Pending" value={String(counts.pending)} />
           <Stat label="Running" value={String(counts.running)} />
           <Stat
@@ -287,7 +287,7 @@ function RestoreTestCard({
             Sin restore tests todavía.
           </p>
         ) : (
-          <div className="grid grid-cols-2 gap-2 text-xs">
+          <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 text-xs">
             <Stat label="Tipo" value={last.test_type} />
             <Stat
               label="Estado"
