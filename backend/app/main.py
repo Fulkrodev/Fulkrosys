@@ -142,6 +142,10 @@ from backend.app.motors.m05_signing.api import (
     admin_router as m05_signing_admin_router,
     client_router as m05_signing_client_router,
 )
+# feat/fulkro-100 Ola D · sellado de tiempo RFC 3161 (admin)
+from backend.app.motors.m05_signing.timestamp_api import (
+    router as m05_timestamp_router,
+)
 from backend.app.motors.m03_dda.portal_api import router as m03_dda_portal_router
 from backend.app.motors.m02_magerit.portal_api import router as m02_magerit_portal_router
 from backend.app.motors.m08_verification.portal_api import router as m08_pentest_portal_router
@@ -792,6 +796,11 @@ app.include_router(
 app.include_router(
     m05_signing_admin_router, prefix="/api/v1",
     tags=["Motor 05 - In-portal signing (admin)"],
+)
+# feat/fulkro-100 Ola D · sellado de tiempo RFC 3161 (require_owner)
+app.include_router(
+    m05_timestamp_router, prefix="/api/v1",
+    tags=["Motor 5 - Firma · Sellado RFC 3161"],
 )
 app.include_router(
     m03_dda_portal_router, prefix="/api/v1",

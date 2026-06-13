@@ -31,6 +31,10 @@ dependencies = [
     "pyotp>=2.9",
     "passlib[bcrypt]>=1.7",
     "PyNaCl>=1.5",
+    # feat/fulkro-100 Ola D · sellado de tiempo RFC 3161 (módulo asn1crypto.tsp
+    # para TimeStampReq/Resp). Pure-python (sin C) · import lazy en
+    # core/timestamping → degradación honesta si ausente.
+    "asn1crypto>=1.5",
     # WebAuthn/FIDO2 (Yubikey · Marcos R4). El código importa `fido2`
     # (python-fido2 de Yubico, 2.x) en backend/app/auth/webauthn_svc.py.
     # NO es el paquete `py-webauthn` (que no pasa de 0.0.6 en PyPI).
