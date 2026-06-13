@@ -97,6 +97,10 @@ from backend.app.motors.m19_risk.cliente_continuidad_api import (
 from backend.app.motors.m19_risk.continuidad_admin_api import (
     router as continuidad_admin_router,
 )
+# feat/fulkro-100 Ola D · op.cont.3 registro de pruebas de continuidad
+from backend.app.motors.m19_risk.continuity_test_execution_api import (
+    router as continuity_test_router,
+)
 # Sesión 3B-2B.8 CLUSTER 3 Phase 3A · Evidence request workflow state machine
 from backend.app.motors.m07_evidence.request_api import (
     router_admin as evidence_request_admin_router,
@@ -524,6 +528,11 @@ app.include_router(
 app.include_router(
     continuidad_admin_router, prefix="/api/v1",
     tags=["M19 - Continuidad (admin buzón)"],
+)
+# feat/fulkro-100 Ola D · op.cont.3 registro de pruebas periódicas de continuidad
+app.include_router(
+    continuity_test_router, prefix="/api/v1",
+    tags=["M19 - Continuidad (op.cont.3 pruebas)"],
 )
 # Sesión 3B-2B.8 CLUSTER 3 Phase 3A · Evidence request workflow state machine
 app.include_router(
