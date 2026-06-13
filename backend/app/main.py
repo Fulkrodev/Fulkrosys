@@ -336,6 +336,11 @@ from backend.app.motors.m_cloud_connectors.remediation_api import (
     admin_router as cloud_remediation_admin_router,
     client_router as cloud_remediation_client_router,
 )
+# ADR-055 · motor de auto-remediación (cloud safe-auto + guarded autorizado)
+from backend.app.motors.m_remediation.api import (
+    admin_router as remediation_admin_router,
+    client_router as remediation_client_router,
+)
 from backend.app.api.v1.client_compliance_summary import (
     router as client_compliance_summary_router,
 )
@@ -951,6 +956,15 @@ app.include_router(
 app.include_router(
     cloud_remediation_client_router, prefix="/api/v1",
     tags=["Cloud Remediation (Bloque 3+5) - Cliente"],
+)
+# ADR-055 · Motor de auto-remediación (admin + cliente endpoints)
+app.include_router(
+    remediation_admin_router, prefix="/api/v1",
+    tags=["Remediación (ADR-055) - Admin"],
+)
+app.include_router(
+    remediation_client_router, prefix="/api/v1",
+    tags=["Remediación (ADR-055) - Cliente"],
 )
 # Bloque 4 · Cliente Compliance Summary aggregator
 app.include_router(
