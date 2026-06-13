@@ -26,9 +26,11 @@ import {
   useAuthorizeRemediationJob,
   useCreateRemediationJob,
   useExecuteRemediationJob,
+  useGrantWrite,
   useRemediationCatalog,
   useRemediationConnectors,
   useRemediationJobs,
+  useSetConnectorActivation,
 } from "@/hooks/useRemediationAdmin";
 import type {
   RemediationJob,
@@ -109,6 +111,8 @@ export function RemediationConsolePanel({ projectId }: { projectId: string }) {
           registro de auditoría (cadena hash R6).
         </AlertDescription>
       </Alert>
+
+      <ConnectorsActivation projectId={projectId} />
 
       <Card className="border-slate-200 bg-white">
         <CardHeader>
@@ -370,6 +374,121 @@ function CreateJobDialog({
         </DialogFooter>
       </DialogContent>
     </Dialog>
+  );
+}
+
+function ConnectorsActivation({ projectId }: { projectId: string }) {
+  const connectorsQ = useRemediationConnectors(projectId);
+  const setActivation = useSetConnectorActivation(projectId);
+  const grantWrite = useGrantWrite(projectId);
+  const connectors = connectorsQ.data ?? [];
+
+  if (connectorsQ.isLoading) return null;
+
+  return (
+    <Card className="border-slate-200 bg-white">
+      <CardHeader>
+        <CardTitle className="text-lg text-slate-900">Conectores cloud</CardTitle>
+        <CardDescription className="text-slate-600">
+          Activa la remediación por conector y elige la política. La escritura es
+          opt-in: el cliente concede los permisos en su plataforma.
+        </CardDescription>
+      </CardHeader>
+      <CardContent>
+        {connectors.length === 0 ? (
+          <p className="py-3 text-sm text-slate-500">
+            No hay conectores cloud en este proyecto. Conéctalos primero en
+            «Conexiones Cloud».
+          </p>
+        ) : (
+          <ul className="space-y-3">
+            {connectors.map((c) => (
+              <li
+                key={c.id}
+                className="rounded-lg border border-slate-200 bg-white p-4"
+              >
+                <div className="flex flex-wrap items-center justify-between gap-3">
+                  <div>
+                    <p className="font-semibold text-slate-900">{c.provider}</p>
+                    <p className="text-xs text-slate-500">{c.status}</p>
+                  </div>
+                  <Badge
+                    className={
+                      c.remediation_enabled
+                        ? "bg-emerald-600 text-white"
+                        : "bg-slate-400 text-white"
+                    }
+                  >
+                    {c.remediation_enabled ? "Activado" : "Desactivado"}
+                  </Badge>
+                </div>
+                <div className="mt-3 flex flex-wrap items-center gap-2">
+                  <select
+                    className="rounded-md border border-slate-300 bg-white px-2 py-1.5 text-sm text-slate-900"
+                    value={c.auto_remediation_policy ?? "off"}
+                    onChange={(e) =>
+                      setActivation.mutate(
+                        {
+                          connectorId: c.id,
+                          enabled: c.remediation_enabled ?? false,
+                          policy: e.target.value,
+                        },
+                        {
+                          onSuccess: () => toast.success("Política actualizada"),
+                          onError: (x) => toast.error(String(x)),
+                        },
+                      )
+                    }
+                  >
+                    <option value="off">Sin auto (solo plan)</option>
+                    <option value="safe_auto_only">Solo seguro automático</option>
+                    <option value="full">Seguro auto + riesgo autorizado</option>
+                  </select>
+                  <Button
+                    size="sm"
+                    variant={c.remediation_enabled ? "outline" : "primary"}
+                    disabled={setActivation.isPending}
+                    onClick={() =>
+                      setActivation.mutate(
+                        {
+                          connectorId: c.id,
+                          enabled: !c.remediation_enabled,
+                          policy: c.auto_remediation_policy ?? "full",
+                        },
+                        {
+                          onSuccess: () =>
+                            toast.success(
+                              c.remediation_enabled ? "Desactivado" : "Activado",
+                            ),
+                          onError: (x) => toast.error(String(x)),
+                        },
+                      )
+                    }
+                    data-testid="remediation-connector-toggle"
+                  >
+                    {c.remediation_enabled ? "Desactivar" : "Activar"}
+                  </Button>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    disabled={grantWrite.isPending}
+                    onClick={() =>
+                      grantWrite.mutate(c.id, {
+                        onSuccess: (r) => toast.success(r.instructions),
+                        onError: (x) => toast.error(String(x)),
+                      })
+                    }
+                    data-testid="remediation-grant-write"
+                  >
+                    Activar escritura
+                  </Button>
+                </div>
+              </li>
+            ))}
+          </ul>
+        )}
+      </CardContent>
+    </Card>
   );
 }
 

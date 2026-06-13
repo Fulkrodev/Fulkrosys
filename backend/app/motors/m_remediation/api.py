@@ -26,11 +26,15 @@ from sqlalchemy import text
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from backend.app.auth.dependencies import require_client_user, require_owner
+from backend.app.core.audit_writer import emit_audit_log
 from backend.app.database import get_db, set_tenant_context
+from backend.app.motors.m_cloud_connectors.models import CloudConnector
 from backend.app.motors.m_remediation.catalog import (
     ACTION_CATALOG,
+    actions_for_provider,
     get_action_spec,
 )
+from backend.app.motors.m_remediation.policy import AutoRemediationPolicy
 from backend.app.motors.m_remediation.models import RemediationJob
 from backend.app.motors.m_remediation.service import (
     AuthorizationRequiredError,
@@ -66,6 +70,14 @@ class CreateJobBody(BaseModel):
     target_ref: str | None = Field(default=None, max_length=255)
     params: dict | None = None
     dry_run: bool = False
+
+
+class ConnectorActivationBody(BaseModel):
+    enabled: bool
+    policy: str = Field(default="full")  # off | safe_auto_only | full
+
+
+_VALID_POLICIES = {p.value for p in AutoRemediationPolicy}
 
 
 # ── helpers ─────────────────────────────────────────────────────────────────
@@ -275,6 +287,126 @@ async def admin_execute_job(
         raise HTTPException(status_code=409, detail=str(exc))
     await db.commit()
     return _job_to_dict(job)
+
+
+# ── admin · activación por conector (botones) ────────────────────────────────
+
+
+def _connector_to_dict(c: CloudConnector) -> dict[str, Any]:
+    return {
+        "id": str(c.id),
+        "provider": c.provider,
+        "status": c.status,
+        "remediation_enabled": bool(c.remediation_enabled),
+        "auto_remediation_policy": c.auto_remediation_policy,
+        "granted_write_scopes": c.granted_write_scopes,
+    }
+
+
+@admin_router.get("/connectors", status_code=200)
+async def admin_list_connectors(
+    project_id: uuid.UUID,
+    db: AsyncSession = Depends(get_db),
+) -> dict[str, Any]:
+    """Conectores del proyecto + su estado de remediación (para los toggles)."""
+    await _set_project_context(db, project_id)
+    from sqlalchemy import select
+
+    res = await db.execute(
+        select(CloudConnector).where(
+            CloudConnector.project_id == project_id,
+            CloudConnector.deleted_at.is_(None),
+        )
+    )
+    return {"connectors": [_connector_to_dict(c) for c in res.scalars().all()]}
+
+
+@admin_router.patch("/connectors/{connector_id}/activation", status_code=200)
+async def admin_set_connector_activation(
+    project_id: uuid.UUID,
+    connector_id: uuid.UUID,
+    body: ConnectorActivationBody,
+    db: AsyncSession = Depends(get_db),
+) -> dict[str, Any]:
+    """Activa/desactiva la remediación de un conector + fija la política (botón)."""
+    await _set_project_context(db, project_id)
+    if body.policy not in _VALID_POLICIES:
+        raise HTTPException(status_code=400, detail=f"Política inválida: {body.policy}")
+    connector = await db.get(CloudConnector, connector_id)
+    if connector is None or connector.project_id != project_id:
+        raise HTTPException(status_code=404, detail="Conector no encontrado")
+    connector.remediation_enabled = body.enabled
+    connector.auto_remediation_policy = body.policy
+    await emit_audit_log(
+        db, tabla="cloud_connectors", registro_id=connector.id,
+        accion="remediation.connector.activation", project_id=project_id,
+        payload_new={"enabled": body.enabled, "policy": body.policy},
+    )
+    await db.commit()
+    return _connector_to_dict(connector)
+
+
+@admin_router.post("/connectors/{connector_id}/grant-write", status_code=200)
+async def admin_grant_write(
+    project_id: uuid.UUID,
+    connector_id: uuid.UUID,
+    db: AsyncSession = Depends(get_db),
+) -> dict[str, Any]:
+    """Registra el consentimiento de escritura del cliente + activa el conector.
+
+    Devuelve los scopes requeridos + las instrucciones de consentimiento del
+    proveedor. El admin del cliente debe conceder esos permisos en SU plataforma
+    (pantalla de consentimiento Microsoft/Google o policy IAM en AWS · OAuth lo
+    exige · no se puede auto-aprobar por nosotros).
+    """
+    await _set_project_context(db, project_id)
+    connector = await db.get(CloudConnector, connector_id)
+    if connector is None or connector.project_id != project_id:
+        raise HTTPException(status_code=404, detail="Conector no encontrado")
+
+    scopes = sorted({
+        s for action in actions_for_provider(connector.provider)
+        for s in action.requires_write_scopes
+    })
+    instructions = _CONSENT_INSTRUCTIONS.get(
+        connector.provider, "Conceda permisos de escritura acotados al proveedor.",
+    )
+    connector.granted_write_scopes = {"scopes": scopes, "granted": True}
+    connector.remediation_enabled = True
+    if connector.auto_remediation_policy in (None, "off"):
+        connector.auto_remediation_policy = AutoRemediationPolicy.FULL.value
+    await emit_audit_log(
+        db, tabla="cloud_connectors", registro_id=connector.id,
+        accion="remediation.connector.grant_write", project_id=project_id,
+        payload_new={"scopes": scopes, "provider": connector.provider},
+    )
+    await db.commit()
+    return {
+        "connector": _connector_to_dict(connector),
+        "required_scopes": scopes,
+        "instructions": instructions,
+    }
+
+
+_CONSENT_INSTRUCTIONS: dict[str, str] = {
+    "aws": (
+        "En la consola IAM del cliente, adjunta al rol que asume FULKRO una "
+        "policy con los permisos de escritura listados (S3/IAM/CloudTrail)."
+    ),
+    "microsoft_365": (
+        "El Global Admin del cliente debe conceder consentimiento de "
+        "administrador a la app de FULKRO para los permisos Graph listados "
+        "(Policy.ReadWrite.ConditionalAccess) en la pantalla oficial de Microsoft."
+    ),
+    "azure": (
+        "Asigna al Service Principal de FULKRO el rol con permisos de escritura "
+        "sobre los recursos (p.ej. Storage Account Contributor) en el portal Azure."
+    ),
+    "google_workspace": (
+        "En la consola de administración de Google, añade a la cuenta de servicio "
+        "de FULKRO la delegación de dominio para el scope de Drive listado."
+    ),
+}
 
 
 # ── cliente endpoints (READ + AUTORIZAR) ────────────────────────────────────

@@ -49,6 +49,15 @@ export interface RemediationConnectorOption {
   id: string;
   provider: string;
   status: string;
+  remediation_enabled?: boolean;
+  auto_remediation_policy?: string;
+  granted_write_scopes?: { scopes?: string[]; granted?: boolean } | null;
+}
+
+export interface GrantWriteResult {
+  connector: RemediationConnectorOption;
+  required_scopes: string[];
+  instructions: string;
 }
 
 const BASE = "/api/v1/admin/projects";
@@ -86,17 +95,30 @@ export const remediationAdminApi = {
       { method: "POST", json: {} },
     ),
 
-  // Reuse endpoint de conectores cloud existente (OPS-026) para el selector.
+  // Conectores con su estado de remediación (toggles de activación).
   listConnectors: async (
     projectId: string,
   ): Promise<RemediationConnectorOption[]> => {
-    const res = await api<{
-      items: Array<{ id: string; provider: string; status: string }>;
-    }>(`${BASE}/${projectId}/cloud-connectors`);
-    return (res.items ?? []).map((c) => ({
-      id: c.id,
-      provider: c.provider,
-      status: c.status,
-    }));
+    const res = await api<{ connectors: RemediationConnectorOption[] }>(
+      `${BASE}/${projectId}/remediation/connectors`,
+    );
+    return res.connectors ?? [];
   },
+
+  setActivation: (
+    projectId: string,
+    connectorId: string,
+    enabled: boolean,
+    policy: string,
+  ) =>
+    api<RemediationConnectorOption>(
+      `${BASE}/${projectId}/remediation/connectors/${connectorId}/activation`,
+      { method: "PATCH", json: { enabled, policy } },
+    ),
+
+  grantWrite: (projectId: string, connectorId: string) =>
+    api<GrantWriteResult>(
+      `${BASE}/${projectId}/remediation/connectors/${connectorId}/grant-write`,
+      { method: "POST", json: {} },
+    ),
 };

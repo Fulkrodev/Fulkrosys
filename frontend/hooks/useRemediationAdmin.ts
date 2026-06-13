@@ -65,3 +65,29 @@ export function useExecuteRemediationJob(projectId: string) {
     onSuccess: () => void invalidate(),
   });
 }
+
+function useInvalidateConnectors(projectId: string) {
+  const qc = useQueryClient();
+  return () =>
+    qc.invalidateQueries({ queryKey: [...KEY(projectId), "connectors"] });
+}
+
+export function useSetConnectorActivation(projectId: string) {
+  const invalidate = useInvalidateConnectors(projectId);
+  return useMutation({
+    mutationFn: (vars: { connectorId: string; enabled: boolean; policy: string }) =>
+      remediationAdminApi.setActivation(
+        projectId, vars.connectorId, vars.enabled, vars.policy,
+      ),
+    onSuccess: () => void invalidate(),
+  });
+}
+
+export function useGrantWrite(projectId: string) {
+  const invalidate = useInvalidateConnectors(projectId);
+  return useMutation({
+    mutationFn: (connectorId: string) =>
+      remediationAdminApi.grantWrite(projectId, connectorId),
+    onSuccess: () => void invalidate(),
+  });
+}

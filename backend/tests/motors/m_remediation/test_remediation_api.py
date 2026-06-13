@@ -227,3 +227,45 @@ async def test_cliente_rls_isolation_other_project(
         f"/api/v1/client-portal/remediation/jobs/{job_b.id}/authorize",
     )
     assert r.status_code == 404
+
+
+@pytest.mark.asyncio
+async def test_admin_connector_activation_and_grant_write(
+    authed_admin_client: AsyncClient, db: AsyncSession,
+) -> None:
+    _, pid = await setup_test_project(db)
+    project_uuid = uuid.UUID(pid)
+    connector = await _create_connector(db, project_uuid, policy="full")
+
+    # Listar conectores con su estado de remediación.
+    r = await authed_admin_client.get(
+        f"/api/v1/admin/projects/{pid}/remediation/connectors",
+    )
+    assert r.status_code == 200
+    assert len(r.json()["connectors"]) == 1
+
+    # Toggle desactivar (botón).
+    r2 = await authed_admin_client.patch(
+        f"/api/v1/admin/projects/{pid}/remediation/connectors/{connector.id}/activation",
+        json={"enabled": False, "policy": "safe_auto_only"},
+    )
+    assert r2.status_code == 200
+    assert r2.json()["remediation_enabled"] is False
+    assert r2.json()["auto_remediation_policy"] == "safe_auto_only"
+
+    # Política inválida → 400.
+    r3 = await authed_admin_client.patch(
+        f"/api/v1/admin/projects/{pid}/remediation/connectors/{connector.id}/activation",
+        json={"enabled": True, "policy": "nope"},
+    )
+    assert r3.status_code == 400
+
+    # Grant-write → activa + devuelve scopes + instrucciones.
+    r4 = await authed_admin_client.post(
+        f"/api/v1/admin/projects/{pid}/remediation/connectors/{connector.id}/grant-write",
+    )
+    assert r4.status_code == 200
+    body = r4.json()
+    assert body["connector"]["remediation_enabled"] is True
+    assert isinstance(body["required_scopes"], list)
+    assert body["instructions"]
