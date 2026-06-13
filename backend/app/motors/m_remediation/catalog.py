@@ -215,6 +215,56 @@ ACTION_CATALOG: dict[str, RemediationActionSpec] = {
         ),
         requires_write_scopes=("Policy.ReadWrite.ConditionalAccess",),
     ),
+    # ── Cloud · Azure (ARM storage) ─────────────────────────────────────
+    "azure_storage_disable_public_blob": RemediationActionSpec(
+        action_type="azure_storage_disable_public_blob",
+        tier=RemediationTier.SAFE_AUTO,
+        reversible=True,
+        provider="azure",
+        title_es="Desactivar acceso público a blobs",
+        ens_measures=("mp.s.2", "op.acc.4"),
+        target_kind="asset.storage_account",
+        desired_assertion="public_blob_disabled",
+        cliente_blurb=(
+            "Cerramos el acceso público a un almacén de Azure que estaba "
+            "abierto. Tu equipo sigue accediendo igual."
+        ),
+        blast_radius_max=1,
+        requires_write_scopes=("Microsoft.Storage/storageAccounts/write",),
+    ),
+    "azure_storage_require_https": RemediationActionSpec(
+        action_type="azure_storage_require_https",
+        tier=RemediationTier.SAFE_AUTO,
+        reversible=True,
+        provider="azure",
+        title_es="Exigir HTTPS en el almacenamiento",
+        ens_measures=("mp.com.2", "mp.s.8"),
+        target_kind="asset.storage_account",
+        desired_assertion="https_required",
+        cliente_blurb=(
+            "Forzamos que el almacenamiento solo se use cifrado (HTTPS). No "
+            "afecta al uso normal."
+        ),
+        blast_radius_max=1,
+        requires_write_scopes=("Microsoft.Storage/storageAccounts/write",),
+    ),
+    # ── Cloud · Google Workspace (Drive) ────────────────────────────────
+    "google_drive_restrict_external": RemediationActionSpec(
+        action_type="google_drive_restrict_external",
+        tier=RemediationTier.GUARDED,
+        reversible=True,
+        provider="google_workspace",
+        title_es="Restringir compartición externa de unidad compartida",
+        ens_measures=("mp.s.2", "mp.info.3"),
+        target_kind="asset.shared_drive",
+        desired_assertion="external_sharing_restricted",
+        cliente_blurb=(
+            "Limitamos una unidad compartida para que solo se comparta dentro "
+            "de tu organización. Lo coordinamos contigo antes de aplicarlo."
+        ),
+        blast_radius_max=1,
+        requires_write_scopes=("https://www.googleapis.com/auth/drive",),
+    ),
     # ── Cloud · BLOCKED (nunca auto) ────────────────────────────────────
     "delete_public_resource": RemediationActionSpec(
         action_type="delete_public_resource",
