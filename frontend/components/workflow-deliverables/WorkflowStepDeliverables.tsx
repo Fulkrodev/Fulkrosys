@@ -66,7 +66,7 @@ function StatusIcon({ status }: { status: DeliverableState["status"] }) {
   }
   return (
     <FileText
-      className="size-4 text-foreground/40"
+      className="size-4 text-foreground/70"
       strokeWidth={2.3}
       aria-hidden
     />
@@ -186,7 +186,7 @@ export function WorkflowStepDeliverables({
                 </a>
               ) : (
                 <span
-                  className="text-xs italic text-foreground/45"
+                  className="text-xs italic text-foreground/70"
                   aria-label={statusLabel(d.status, tone)}
                 >
                   {statusLabel(d.status, tone)}

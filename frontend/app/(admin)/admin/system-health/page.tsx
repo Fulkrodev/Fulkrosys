@@ -70,7 +70,7 @@ function StatusIcon({ status }: { status: HealthIndicator }) {
   if (status === "ok") return <CheckCircle2 className="h-4 w-4 text-emerald-700" />;
   if (status === "warning") return <AlertCircle className="h-4 w-4 text-amber-600" />;
   if (status === "critical") return <AlertCircle className="h-4 w-4 text-rose-600" />;
-  return <HelpCircle className="h-4 w-4 text-slate-400" />;
+  return <HelpCircle className="h-4 w-4 text-slate-600" />;
 }
 
 function formatDateShort(iso: string | null): string {

@@ -45,7 +45,7 @@ export function ProjectRowCompact({
         <span className="text-xs text-foreground/70 tabular-nums w-10 text-right">
           {card.progress_pct}%
         </span>
-        <ChevronRight className="size-3.5 text-foreground/40" />
+        <ChevronRight className="size-3.5 text-foreground/70" />
       </div>
     </Link>
   );

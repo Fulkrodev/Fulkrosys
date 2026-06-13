@@ -75,7 +75,7 @@ export function TransparencyLogCard({ days = 180 }: { days?: number }) {
 
       {!loading && !error && total > 0 && (
         <div
-          className="overflow-hidden rounded-md border border-slate-100"
+          className="overflow-x-auto rounded-md border border-slate-100"
           data-testid="transparency-list"
         >
           <table className="min-w-full divide-y divide-slate-100 text-sm">

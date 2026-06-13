@@ -193,7 +193,7 @@ export function WorkflowStepDetailDrawerEnriched({
                         <FolderOpen className="size-3.5 text-foreground/70" />
                         <span className="text-sm font-medium">{code}</span>
                       </div>
-                      <span className="text-xs italic text-foreground/40">
+                      <span className="text-xs italic text-foreground/70">
                         projectId requerido
                       </span>
                     </li>

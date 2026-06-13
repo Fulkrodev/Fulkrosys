@@ -162,7 +162,7 @@ export function NotificationsBell() {
 
       {open && (
         <div
-          className="absolute right-0 top-12 z-40 max-h-[500px] w-[360px] overflow-hidden rounded-xl border border-fulkro-surface-glass-border bg-white shadow-2xl"
+          className="absolute right-0 top-12 z-40 max-h-[500px] w-[360px] max-w-[calc(100vw-1rem)] overflow-hidden rounded-xl border border-fulkro-surface-glass-border bg-white shadow-2xl"
           data-testid="notifications-dropdown"
         >
           <header className="flex items-center justify-between border-b border-fulkro-surface-glass-border px-4 py-3">

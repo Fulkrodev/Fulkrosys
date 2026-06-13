@@ -115,7 +115,7 @@ export function MeasureLensesPanel({
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 text-xs">
         {/* Lente 1 · conformidad declarada (SoA) */}
         <div className="rounded border bg-background px-2 py-1.5">
-          <div className="text-[9px] uppercase tracking-wide text-foreground/45">
+          <div className="text-[9px] uppercase tracking-wide text-foreground/70">
             Declarado (SoA)
           </div>
           <div className="text-[12px] font-medium" data-testid="lens-estado">
@@ -125,15 +125,15 @@ export function MeasureLensesPanel({
 
         {/* Lente 2 · semáforo de evidencia (#20) */}
         <div className="rounded border bg-background px-2 py-1.5">
-          <div className="text-[9px] uppercase tracking-wide text-foreground/45">
+          <div className="text-[9px] uppercase tracking-wide text-foreground/70">
             Evidencia (#20)
           </div>
           {loading ? (
-            <div className="flex items-center gap-1 text-[11px] text-foreground/45">
+            <div className="flex items-center gap-1 text-[11px] text-foreground/70">
               <Loader2 className="size-3 animate-spin" /> …
             </div>
           ) : error ? (
-            <div className="text-[11px] text-foreground/45">No disponible</div>
+            <div className="text-[11px] text-foreground/70">No disponible</div>
           ) : sem ? (
             <span
               className={`inline-flex items-center rounded border px-1.5 py-0.5 text-[11px] font-medium ${sem.cls}`}
@@ -143,32 +143,32 @@ export function MeasureLensesPanel({
               {sem.label}
             </span>
           ) : (
-            <div className="text-[11px] text-foreground/45">—</div>
+            <div className="text-[11px] text-foreground/70">—</div>
           )}
         </div>
 
         {/* Lente 3 · madurez CMM derivada (#21) */}
         <div className="rounded border bg-background px-2 py-1.5">
-          <div className="text-[9px] uppercase tracking-wide text-foreground/45">
+          <div className="text-[9px] uppercase tracking-wide text-foreground/70">
             Madurez (CMM)
           </div>
           {loading ? (
-            <div className="flex items-center gap-1 text-[11px] text-foreground/45">
+            <div className="flex items-center gap-1 text-[11px] text-foreground/70">
               <Loader2 className="size-3 animate-spin" /> …
             </div>
           ) : error ? (
-            <div className="text-[11px] text-foreground/45">No disponible</div>
+            <div className="text-[11px] text-foreground/70">No disponible</div>
           ) : cmm && cmm.cmm_level ? (
             <div className="text-[12px] font-medium" data-testid="lens-cmm">
               {cmm.cmm_level} · {cmm.cmm_label}
               {cmm.target_level && (
-                <span className="ml-1 text-[10px] font-normal text-foreground/45">
+                <span className="ml-1 text-[10px] font-normal text-foreground/70">
                   (objetivo {cmm.target_level})
                 </span>
               )}
             </div>
           ) : (
-            <div className="text-[11px] text-foreground/45">No aplica</div>
+            <div className="text-[11px] text-foreground/70">No aplica</div>
           )}
         </div>
       </div>

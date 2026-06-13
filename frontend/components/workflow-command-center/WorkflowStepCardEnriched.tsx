@@ -93,7 +93,7 @@ export function WorkflowStepCardEnriched({
               ) : isAhora ? (
                 <CircleDot className="size-4 text-primary animate-pulse" />
               ) : (
-                <CircleDot className="size-3.5 text-foreground/40" />
+                <CircleDot className="size-3.5 text-foreground/70" />
               )}
               <h4
                 className={
@@ -198,7 +198,7 @@ export function WorkflowStepCardEnriched({
                       key={idx}
                       className="flex gap-2 text-xs text-foreground/80"
                     >
-                      <span className="text-foreground/30">○</span>
+                      <span className="text-foreground/70">○</span>
                       <span>{c}</span>
                     </li>
                   ))}

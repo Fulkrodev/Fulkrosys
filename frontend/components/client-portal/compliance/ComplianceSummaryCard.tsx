@@ -43,7 +43,7 @@ function statusIcon(status: HealthIndicator) {
   if (status === "critical") {
     return <AlertCircle className="h-5 w-5 text-rose-600" />;
   }
-  return <HelpCircle className="h-5 w-5 text-slate-400" />;
+  return <HelpCircle className="h-5 w-5 text-slate-600" />;
 }
 
 export function ComplianceSummaryCard({ area }: ComplianceSummaryCardProps) {
