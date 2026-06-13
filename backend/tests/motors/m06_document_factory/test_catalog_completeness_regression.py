@@ -61,3 +61,18 @@ def test_catalog_entregables_have_docx_built():
         and not (_DOCX_DIR / f"{t['codigo']}.docx").exists()
     ]
     assert not missing, f"Entregables del catálogo sin DOCX en var/templates_docx/: {sorted(missing)}"
+
+
+def test_audit_questions_documento_esperado_valid():
+    """Regresión (bug-hunt 2026-06-14): cada documento_esperado del simulador M10
+    debe ser None o un código de plantilla REAL del catálogo. Antes varias medidas
+    apuntaban a plantillas de medida ajena (op.exp.2→E-210, op.cont.1→E-500, etc.)
+    → el simulador daba falsos conformes/NC y guiaba mal al cliente."""
+    from backend.app.motors.m10_audit_sim.audit_questions import AUDIT_QUESTIONS
+    cat = _catalog_codes()
+    bad = {
+        code: q.get("documento_esperado")
+        for code, q in AUDIT_QUESTIONS.items()
+        if q.get("documento_esperado") and q["documento_esperado"] not in cat
+    }
+    assert not bad, f"documento_esperado apunta a plantillas inexistentes en el catálogo: {bad}"

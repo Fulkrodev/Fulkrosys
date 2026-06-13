@@ -15,9 +15,19 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from backend.app.agents.base import AgentBase
 from backend.app.agents.registry import AGENT_REGISTRY, get_agent_info, list_agents
+from backend.app.auth.dependencies import require_owner
 from backend.app.database import get_db
 
-router = APIRouter(prefix="/api/v1/agents", tags=["agents"])
+# FIX seguridad (bug-hunt 2026-06-14): los 13 agentes IA son admin-only (ADR-013/
+# ADR-020 · A2/A4/A6/A11/A17/A18/A27/A31 invocan LLM real). El gate global solo
+# AUTENTICA (admite también el pool cliente); sin require_owner a nivel de router
+# un client_user autenticado podía invocar agentes admin (abuso de coste LLM).
+# El copiloto cliente (A14) se expone aparte vía m11_copiloto/portal_api con
+# require_client_user, así que esto NO lo afecta.
+router = APIRouter(
+    prefix="/api/v1/agents", tags=["agents"],
+    dependencies=[Depends(require_owner)],
+)
 
 
 _AGENT_CLASSES: dict[int, str] = {

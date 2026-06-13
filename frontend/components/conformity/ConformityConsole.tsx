@@ -111,18 +111,39 @@ function backendStatusToUi(state: string | undefined): UiSubmissionState {
   }
 }
 
+// FIX (bug-hunt 2026-06-14): el backend devuelve el RouteState CANÓNICO
+// (route_machine.py: ROUTE_PENDING/ROUTE_LOCKED/DECLARATION_IN_PROGRESS/…),
+// no las 6 etiquetas de UI. Antes cualquier valor canónico caía a "DRAFT" →
+// el stepper se quedaba siempre en "Borrador". Mapeo explícito backend→UI.
+const ROUTE_STATE_TO_UI: Record<string, UiState> = {
+  ROUTE_PENDING: "DRAFT",
+  ROUTE_LOCKED: "LOCKED",
+  DECLARATION_IN_PROGRESS: "PREPARING",
+  CERTIFICATION_IN_PROGRESS: "PREPARING",
+  READY_FOR_DECLARATION: "PREPARING",
+  READY_FOR_AUDITOR: "PREPARING",
+  UNDER_REVIEW: "SUBMITTED",
+  OBSERVED: "AUDITED",
+  CORRECTION_REQUIRED: "AUDITED",
+  CONFORMANT: "CONFORMANT",
+  REGISTERED: "CONFORMANT",
+  ACTIVE: "CONFORMANT",
+  RENEWAL_DUE: "CONFORMANT",
+  RENEWAL_PENDING: "CONFORMANT",
+  EXPIRED: "CONFORMANT",
+  SUSPENDED: "CONFORMANT",
+};
+
 function safeRouteState(state: string | undefined): UiState {
+  if (!state) return "DRAFT";
+  // valores ya en formato UI (retrocompat) o el mapeo canónico
   if (
-    state === "LOCKED" ||
-    state === "PREPARING" ||
-    state === "SUBMITTED" ||
-    state === "AUDITED" ||
-    state === "CONFORMANT" ||
-    state === "DRAFT"
+    state === "LOCKED" || state === "PREPARING" || state === "SUBMITTED" ||
+    state === "AUDITED" || state === "CONFORMANT" || state === "DRAFT"
   ) {
     return state as UiState;
   }
-  return "DRAFT";
+  return ROUTE_STATE_TO_UI[state] ?? "DRAFT";
 }
 
 function dateDiffDays(target: string | null): number {

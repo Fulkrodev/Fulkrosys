@@ -58,6 +58,17 @@ export interface TimelineResponse {
 }
 
 const STATUS_COLOR: Record<string, string> = {
+  // FIX (bug-hunt 2026-06-14): el WBS del backend guarda el estado en ESPAÑOL
+  // (planning_service VALID_TASK_STATUS: por_hacer/en_curso/bloqueada/
+  // en_revision/hecha/descartada). Antes las claves eran inglesas → ninguna
+  // casaba y TODAS las barras salían grises (fallback) en admin y cliente.
+  hecha: "fill-emerald-500",
+  en_curso: "fill-blue-500",
+  en_revision: "fill-amber-500",
+  por_hacer: "fill-fulkro-ink-300",
+  bloqueada: "fill-red-500",
+  descartada: "fill-fulkro-ink-300",
+  // retrocompat (por si algún composer emite inglés)
   completed: "fill-emerald-500",
   in_progress: "fill-blue-500",
   pending: "fill-fulkro-ink-300",

@@ -113,13 +113,22 @@ async def build_governance_context(
     proyecto: dict = {}
     try:
         prow = (await db.execute(sa_text(
-            "SELECT p.client_id, COALESCE(c.numero_empleados, NULL) AS n_emp "
+            "SELECT p.client_id, COALESCE(c.numero_empleados, NULL) AS n_emp, "
+            "  p.categoria_objetivo AS categoria "
             "FROM projects p LEFT JOIN clients c ON c.id = p.client_id "
             "WHERE p.id = :pid"
         ), {"pid": str(project_id)})).first()
         client_id = prow[0] if prow else None
         if prow and prow[1] is not None:
             cliente["numero_empleados"] = int(prow[1])
+        # FIX (bug-hunt 2026-06-14): inyectar categoria_ens en el contexto BASE.
+        # Varios templates (E-041 conformidad, E-002/E-003/E-010/E-042/E-043/E-090…)
+        # hacen `{% set cat = proyecto.categoria_ens if ... else 'MEDIA' %}`; sin
+        # este campo, un proyecto BÁSICA emitía E-041 declarando cert ENAC (debe
+        # ser autodeclaración art.33.2). merge_governance_base es caller-wins, así
+        # que un context explícito sigue prevaleciendo.
+        if prow and prow[2]:
+            proyecto["categoria_ens"] = str(prow[2]).strip().upper()
     except Exception:
         logger.debug("R14 governance: project/client best-effort fallo", exc_info=True)
         client_id = None

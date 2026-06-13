@@ -13,7 +13,7 @@ norma_aplicable: "RD 311/2022 Art. 35 + CCN-STIC 809"
 ---
 
 {% set ren = renovacion if renovacion else {} %}
-{% set period = ren.periodicidad_anios if ren and ren.periodicidad_anios else 3 %}
+{% set period = ren.periodicidad_anios if ren and ren.periodicidad_anios else 2 %}
 {% set period_str = period ~ ' años después de la actual' %}
 {% set fecha_ant = ren.fecha_renovacion_anterior if ren and ren.fecha_renovacion_anterior else '[fecha anterior]' %}
 {% set fecha_act = ren.fecha_proxima_renovacion if ren and ren.fecha_proxima_renovacion else '[fecha actual]' %}
@@ -28,7 +28,7 @@ norma_aplicable: "RD 311/2022 Art. 35 + CCN-STIC 809"
 |-------|-------|
 | Entidad | **{{ cliente.razon_social }}** · NIF {{ cliente.nif }} |
 | Categoría ENS | **{{ cat }}** |
-| Periodicidad de renovación | **{{ period }} años** ({{ '2 años categoría Básica' if basica else '3 años categorías Media/Alta' }}) |
+| Periodicidad de renovación | **{{ period }} años** (ciclo bienal ENS · art. 31 RD 311/2022 + CCN-STIC 809) |
 | Renovación anterior | {{ fecha_ant }} |
 | Renovación actual | **{{ fecha_act }}** |
 | Próxima renovación prevista | {{ fecha_sig }} |
@@ -38,7 +38,7 @@ norma_aplicable: "RD 311/2022 Art. 35 + CCN-STIC 809"
 Conforme al **artículo 35** del RD 311/2022, la conformidad con el ENS se renueva periódicamente con la siguiente cadencia:
 
 - Categoría **Básica:** cada **2 años**, mediante autoevaluación documentada.
-- Categorías **Media** y **Alta:** cada **3 años**, mediante auditoría por entidad acreditada conforme al Anexo III.
+- Categorías **Media** y **Alta:** cada **2 años**, mediante auditoría por entidad acreditada conforme al **artículo 31** del RD 311/2022.
 
 ## 3. REVISIÓN DEL PERIODO ANTERIOR
 

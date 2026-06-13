@@ -73,7 +73,7 @@ d) Que el sistema dispone de los procesos documentados de **gestión de incident
 
 e) Que la Entidad se compromete a comunicar al Centro Criptológico Nacional (CCN) cualquier **cambio material** del sistema mediante el documento E-042.
 
-f) Que la presente Declaración se renovará periódicamente conforme al ciclo de revisión y auditoría periódica previsto en el Anexo III del RD 311/2022, mediante el documento E-043 (cada **{{ '2 años' if basica else '3 años' }}**).
+f) Que la presente Declaración se renovará periódicamente conforme al ciclo de revisión y auditoría periódica previsto en el artículo 31 del RD 311/2022 y la CCN-STIC 809, mediante el documento E-043 (**cada 2 años**).
 
 ## 6. PUBLICACIÓN Y REMISIÓN
 

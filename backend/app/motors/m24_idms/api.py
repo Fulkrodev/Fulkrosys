@@ -558,24 +558,6 @@ def _serialize_folder(f):
     }
 
 
-def _serialize_document(d):
-    return {
-        "id": str(d.id),
-        "project_id": str(d.project_id),
-        "nombre": d.nombre,
-        "tipo": d.tipo,
-        "template_codigo": d.template_codigo,
-        "folder_id": str(d.folder_id) if d.folder_id else None,
-        "content_hash": d.content_hash,
-        "file_size_bytes": d.file_size_bytes,
-        "storage_path": d.storage_path,
-        "clasificacion": d.clasificacion,
-        "estado": d.estado,
-        "version_actual": d.version_actual,
-        "created_at": d.created_at.isoformat() if d.created_at else None,
-    }
-
-
 def _serialize_tag(t):
     return {
         "id": str(t.id),
@@ -607,6 +589,13 @@ def _serialize_document(d) -> dict:
         "folder_id": str(d.folder_id) if d.folder_id else None,
         "nombre": d.nombre,
         "tipo": d.tipo,
+        # FIX (bug-hunt 2026-06-14): estos 3 campos los perdía el serializador
+        # porque había DOS def _serialize_document y la 2ª (esta) los omitía →
+        # el gestor documental admin mostraba en blanco el código E-XXX, la
+        # versión y la ruta. El frontend (lib/api/idms.ts) los declara/consume.
+        "template_codigo": d.template_codigo,
+        "storage_path": d.storage_path,
+        "version_actual": d.version_actual,
         "clasificacion": d.clasificacion,
         "estado": d.estado,
         "approved_by_user_id": (

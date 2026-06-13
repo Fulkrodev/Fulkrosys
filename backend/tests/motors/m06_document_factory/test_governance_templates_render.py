@@ -534,8 +534,8 @@ def test_e041_renders_categoria_branch_and_normative_refs(tmp_path, governance_c
     assert "E-401" in text, "E-041 falta ref E-401 continuidad"
     assert "E-042" in text, "E-041 falta ref E-042 cambio material"
     assert "E-043" in text, "E-041 falta ref E-043 renovacion"
-    # Branch periodicidad MEDIA · 3 anios (NO 2 anios BASICA)
-    assert "3 años" in text, "E-041 falta periodicidad 3 anios (MEDIA/ALTA)"
+    # FIX (bug-hunt 2026-06-14): ciclo bienal ENS (art. 31 · 2 años), NO 3 (ISO)
+    assert "2 años" in text, "E-041 falta periodicidad bienal (ENS art. 31 · 2 años)"
     # Anexos (E-040, E-150, E-003, E-002)
     assert "E-040" in text, "E-041 falta Anexo I E-040"
     assert "E-002" in text, "E-041 falta Anexo IV E-002"
@@ -629,9 +629,9 @@ def test_e043_renders_cambios_loop_no_truncation(tmp_path, governance_context):
         "E-043 falta art 35"
     )
     # CCN-STIC 809 sta solo en frontmatter (norma_aplicable YAML) · no en body
-    # Categoria MEDIA branch · 3 anios + auditoria externa
+    # FIX (bug-hunt 2026-06-14): ciclo bienal ENS (art. 31 · 2 años) + auditoria externa
     assert "MEDIA" in text, "E-043 falta categoria MEDIA"
-    assert "3 años" in text, "E-043 falta periodicidad 3 anios"
+    assert "2 años" in text, "E-043 falta periodicidad bienal (ENS art. 31 · 2 años)"
     assert "auditoría por entidad acreditada" in text or "entidad acreditada" in text, (
         "E-043 falta auditoria externa branch MEDIA/ALTA"
     )
