@@ -56,6 +56,8 @@ from backend.app.motors.m30_client_contacts.models import *  # noqa: F401, F403
 # sin migración) + m_cloud_connectors para autogenerate/check.
 from backend.app.motors.m30_client_contacts.department_models import *  # noqa: F401, F403
 from backend.app.motors.m_cloud_connectors.models import *  # noqa: F401, F403
+# ADR-055 · motor de auto-remediación (remediation_jobs · remediation_snapshots).
+from backend.app.motors.m_remediation.models import *  # noqa: F401, F403
 from backend.app.motors.m_audit_accompaniment.models import *  # noqa: F401, F403
 from backend.app.motors.m29_client_messaging.models import *  # noqa: F401, F403
 # SAN-E v3.MB-7.0 drift cleanup · 6 motor models antes no importados

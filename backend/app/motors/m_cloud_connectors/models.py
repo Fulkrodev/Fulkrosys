@@ -215,6 +215,19 @@ class CloudConnector(FullMixin, Base):
     )
     metadata_extra: Mapped[dict | None] = mapped_column(JSONB, nullable=True)
 
+    # ADR-055 · auto-remediación opt-in (carve-out controlado de ADR-014).
+    # Default OFF: read-only sigue siendo el comportamiento de fábrica.
+    remediation_enabled: Mapped[bool] = mapped_column(
+        default=False, server_default=text("false"), nullable=False,
+    )
+    """Capa 2 del kill-switch · el cliente concedió scopes de escritura."""
+    auto_remediation_policy: Mapped[str] = mapped_column(
+        String(20), default="off", server_default=text("'off'"), nullable=False,
+    )
+    """off · safe_auto_only · full (AutoRemediationPolicy)."""
+    granted_write_scopes: Mapped[dict | None] = mapped_column(JSONB, nullable=True)
+    """Scopes de escritura concedidos por el cliente (auditoría del consentimiento)."""
+
 
 # ==================================================================
 # CloudResource · recursos detectados
