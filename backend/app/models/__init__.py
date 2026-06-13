@@ -86,6 +86,8 @@ from backend.app.models.awareness import *  # noqa: F401, F403
 from backend.app.models.cliente_continuidad import *  # noqa: F401, F403
 # feat/fulkro-100 Ola D · op.cont.3 registro de pruebas periódicas de continuidad
 from backend.app.models.continuity_test_execution import *  # noqa: F401, F403
+# feat/fulkro-100 Ola D · medidas compensatorias tipadas (RD 311/2022 Art. 8)
+from backend.app.models.compensatory_control import *  # noqa: F401, F403
 # Sesión 3B-2B.8 CLUSTER 3 Phase 3A · Evidence request workflow state machine
 from backend.app.models.evidence_request import *  # noqa: F401, F403
 # SAN-C MB-11.2 · AEPD notifications RGPD art.33-34.

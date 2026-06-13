@@ -7,6 +7,10 @@ class Aplicabilidad(str, Enum):
     APLICA = "aplica"
     APLICA_CON_REFUERZOS = "aplica_con_refuerzos"
     NO_APLICA = "no_aplica"
+    # feat/fulkro-100 Ola D · RD 311/2022 Art. 8: una medida que no se aplica
+    # tal cual puede sustituirse por una medida COMPENSATORIA de seguridad
+    # equivalente aprobada por la Dirección (ver compensatory_controls).
+    COMPENSADA = "compensada"
 
 
 class EstadoImplementacion(str, Enum):

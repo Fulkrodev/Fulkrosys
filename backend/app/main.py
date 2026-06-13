@@ -123,6 +123,10 @@ from backend.app.motors.m15_billing.invoices_aapp_api import router as invoices_
 from backend.app.motors.m02_magerit.pilar_import_api import router as pilar_import_router
 from backend.app.motors.m12_magic_link.api import router as magic_link_router
 from backend.app.motors.m03_dda.api import router as dda_router
+# feat/fulkro-100 Ola D · medidas compensatorias tipadas (RD 311/2022 Art. 8)
+from backend.app.motors.m03_dda.compensatory_api import (
+    router as dda_compensatory_router,
+)
 from backend.app.motors.m19_risk.api import router as risk_router
 from backend.app.motors.m04_gap.api import router as gap_router
 from backend.app.motors.m06_document_factory.api import router as doc_factory_router
@@ -568,6 +572,11 @@ app.include_router(invoices_aapp_router, prefix="/api/v1", tags=["M15 - AAPP Bil
 app.include_router(pilar_import_router, prefix="/api/v1", tags=["M02 - PILAR XML import (MB-11.4)"])
 app.include_router(magic_link_router, prefix="/api/v1", tags=["Motor 12 - Magic Links"])
 app.include_router(dda_router, prefix="/api/v1", tags=["Motor 3 - DdA Engine"])
+# feat/fulkro-100 Ola D · compensatorias tipadas (require_owner · Art. 8)
+app.include_router(
+    dda_compensatory_router, prefix="/api/v1",
+    tags=["Motor 3 - DdA · Compensatorias (Art. 8)"],
+)
 app.include_router(risk_router, prefix="/api/v1", tags=["Motor 19 - Project Risks"])
 app.include_router(gap_router, prefix="/api/v1", tags=["Motor 4 - Gap Analysis"])
 app.include_router(doc_factory_router, prefix="/api/v1", tags=["Motor 6 - Document Factory"])
