@@ -17,6 +17,7 @@ import { ShieldCheck } from "lucide-react";
 
 import { ApprovalModal } from "@/components/client-portal/remediations/ApprovalModal";
 import { RemediationCard } from "@/components/client-portal/remediations/RemediationCard";
+import { RemediationClienteView } from "@/components/remediation/RemediationClienteView";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { EmptyState } from "@/components/ui/empty-state";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -162,6 +163,11 @@ export default function RemediacionesPage() {
           setSelected(null);
         }}
       />
+
+      {/* ADR-055 · remediación automática (cloud safe-auto + guarded autorizado) */}
+      <div className="mt-8 border-t border-slate-200 pt-6">
+        <RemediationClienteView />
+      </div>
     </div>
   );
 }

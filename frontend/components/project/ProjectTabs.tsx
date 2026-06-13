@@ -50,6 +50,7 @@ import {
   Wallet,
   Warehouse,
   Workflow,
+  Wrench,
   type LucideIcon,
 } from "lucide-react";
 
@@ -145,6 +146,8 @@ const SUB_TABS: TabDescriptor[] = [
   { href: "/mcps", label: "Pentest MCPs", icon: Shield },
   // Sub-atom 1.D.X.J v3.12 · Cloud Connectors unified layer (M16 OAuth reuse)
   { href: "/cloud-connectors", label: "Conexiones Cloud", icon: Cloud },
+  // ADR-055 · Remediación automática (cloud safe-auto + guarded autorizado + agente)
+  { href: "/remediation", label: "Remediación", icon: Wrench },
   // Sub-atom 1.E.1.B.2 v3.12 · AI Act art.50 transparency log (admin full view)
   { href: "/transparency", label: "Transparencia IA", icon: ScrollText },
   // (Retainer project-scoped vive en "/retainer" más abajo · se eliminó el tab
