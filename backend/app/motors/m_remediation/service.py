@@ -219,12 +219,16 @@ class RemediationService:
                 "Acción GUARDED · requiere autorización previa antes de ejecutar.",
             )
 
-        # Resolver writer (override de test o registro real opt-in).
+        # Resolver writer: override de test > fábrica-por-conector (credenciales
+        # reales descifradas de M16) > registro global opt-in > FAILED explícito.
         if writer is None:
-            try:
-                writer = get_writer(spec.provider)
-            except WriterNotConfigured as exc:
-                return await self._fail(job, str(exc))
+            writer = await self._resolve_writer(job, spec)
+            if writer is None:
+                return await self._fail(
+                    job,
+                    f"Sin writer configurado para '{spec.provider}' · la escritura "
+                    "es opt-in (requiere credenciales/scopes concedidos por el cliente).",
+                )
 
         # Blast-radius guard.
         affected = (job.params or {}).get("affected_count")
@@ -397,6 +401,23 @@ class RemediationService:
             return (True, AutoRemediationPolicy.FULL.value)
         # Sin objetivo → deshabilitado.
         return (False, AutoRemediationPolicy.OFF.value)
+
+    async def _resolve_writer(self, job: RemediationJob, spec):
+        """Obtiene el writer real del job (fábrica por conector → registro global)."""
+        if job.connector_id is not None:
+            connector = await self.db.get(CloudConnector, job.connector_id)
+            if connector is not None:
+                from backend.app.motors.m_remediation.cloud_writers import (
+                    build_writer_for_connector,
+                )
+
+                writer = await build_writer_for_connector(self.db, connector)
+                if writer is not None:
+                    return writer
+        try:
+            return get_writer(spec.provider)
+        except WriterNotConfigured:
+            return None
 
     async def _set_status(
         self, job: RemediationJob, status: RemediationJobStatus,
