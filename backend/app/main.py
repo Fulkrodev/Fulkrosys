@@ -76,6 +76,10 @@ from backend.app.motors.m_compliance_monitor.norma_reports_api import (
     router as norma_reports_router,
 )
 from backend.app.motors.m02_magerit.api import router as magerit_router
+# feat/fulkro-100 Ola D · MAGERIT capa cuantitativa (económica · Libro III 2.3)
+from backend.app.motors.m02_magerit.quantitative_api import (
+    router as magerit_quantitative_router,
+)
 from backend.app.motors.m01_categorization.api import router as categorization_router
 from backend.app.motors.m01_categorization.archetype_api import router as archetype_router
 from backend.app.motors.m01_categorization.dimensions_api import (
@@ -508,6 +512,11 @@ app.include_router(
     tags=["MB-9.bis mini-atom 3 - Norma reports"],
 )
 app.include_router(magerit_router, prefix="/api/v1", tags=["Motor 2 - MAGERIT v3"])
+# feat/fulkro-100 Ola D · MAGERIT cuantitativo (require_owner · ALE económico)
+app.include_router(
+    magerit_quantitative_router, prefix="/api/v1",
+    tags=["Motor 2 - MAGERIT · Cuantitativo (Libro III 2.3)"],
+)
 app.include_router(categorization_router, prefix="/api/v1", tags=["Motor 1 - Categorization"])
 app.include_router(archetype_router, prefix="/api/v1", tags=["M01 - Pyme Archetypes (MB-11.6)"])
 # Sub-atom 1.C.D.A.0 v3.8 · 19 dimensiones adaptación · canonical source of truth

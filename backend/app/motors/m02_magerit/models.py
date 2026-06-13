@@ -8,6 +8,7 @@ Motor 2 — MAGERIT v3 Risk Engine: SQLAlchemy models.
 """
 import uuid
 from datetime import date, datetime
+from decimal import Decimal
 
 from sqlalchemy import (
     ForeignKey, Index, Numeric, String, Text, Float, Integer, Date,
@@ -230,6 +231,38 @@ class MageritRiskCalculation(UUIDPrimaryKeyMixin, TimestampMixin, Base):
     risk_residual: Mapped[float | None] = mapped_column(Float)
     # Nivel cualitativo resultante
     risk_level: Mapped[str | None] = mapped_column(String(5))  # MC, C, I, A, D
+
+
+class MageritEconomicValue(UUIDPrimaryKeyMixin, TimestampMixin, Base):
+    """Valoración económica de un activo · capa CUANTITATIVA (MAGERIT Libro III sec 2.3).
+
+    feat/fulkro-100 Ola D · gap ALTA. Entrada económica OPCIONAL sobre el análisis
+    CUALITATIVO existente (backward-compat · sin esta fila, el análisis sigue siendo
+    100% cualitativo y válido). El ALE (Annual Loss Expectancy) se DERIVA on-query
+    (no se persiste → sin staleness) combinando ``asset_value_eur`` × ``exposure_factor``
+    con la degradación y probabilidad de las amenazas (FREQUENCY_MAP):
+        SLE_dim = asset_value_eur × exposure_factor × (degradation_dim / 100)
+        ARO     = FREQUENCY_MAP[probability]   (MB=0.01 … MA=365)
+        ALE_dim = SLE_dim × ARO
+    Determinista (R1 · sin LLM).
+    """
+    __tablename__ = "magerit_economic_values"
+    __table_args__ = (
+        UniqueConstraint(
+            "analysis_id", "asset_id",
+            name="uq_magerit_economic_analysis_asset",
+        ),
+    )
+    analysis_id: Mapped[uuid.UUID] = mapped_column(
+        ForeignKey("magerit_analysis.id"), nullable=False, index=True,
+    )
+    asset_id: Mapped[uuid.UUID] = mapped_column(
+        ForeignKey("magerit_assets.id"), nullable=False,
+    )
+    asset_value_eur: Mapped[Decimal] = mapped_column(Numeric(15, 2), nullable=False)
+    exposure_factor: Mapped[Decimal] = mapped_column(
+        Numeric(5, 4), nullable=False, server_default=text("1.0"),
+    )
 
 
 class MageritTreatmentPlan(FullMixin, Base):
