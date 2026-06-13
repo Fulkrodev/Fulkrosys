@@ -16,6 +16,13 @@ export interface CopilotPanelContext {
   clientId?: string;
   activeMotor?: string;
   projectPhase?: string;
+  /**
+   * feat/fulkro-100 Ola C · "Guíame precargado": cuando se abre el panel desde
+   * el banner de siguiente-paso, este mensaje se PRE-CARGA en el composer (sin
+   * auto-enviar · el admin lo revisa/edita/envía). El panel lo limpia tras
+   * precargarlo (lo pone a "") para no re-precargar en aperturas siguientes.
+   */
+  initialMessage?: string;
 }
 
 interface CopilotState {

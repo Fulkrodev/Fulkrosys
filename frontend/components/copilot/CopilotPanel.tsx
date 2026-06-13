@@ -51,7 +51,18 @@ export function CopilotPanel() {
 
   React.useEffect(() => {
     if (open) {
-      const id = window.setTimeout(() => composerRef.current?.focus(), 80);
+      const id = window.setTimeout(() => {
+        composerRef.current?.focus();
+        // Ola C · "Guíame precargado": si se abrió con un mensaje inicial (desde
+        // el banner de siguiente-paso), lo pre-carga en el composer y lo limpia
+        // del contexto para no re-precargarlo en aperturas posteriores.
+        const store = useCopilotStore.getState();
+        const initial = store.panelContext.initialMessage;
+        if (initial) {
+          composerRef.current?.setValue(initial);
+          store.setPanelContext({ initialMessage: "" });
+        }
+      }, 80);
       return () => window.clearTimeout(id);
     }
     return undefined;

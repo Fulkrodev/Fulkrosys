@@ -99,7 +99,12 @@ export function CopilotNextStepBanner() {
           variant="ghost"
           className="h-7"
           onClick={() =>
-            openPanel({ projectId, projectPhase: hint.current_phase })
+            openPanel({
+              projectId,
+              projectPhase: hint.current_phase,
+              // Ola C · precarga la pregunta del siguiente paso en el composer.
+              initialMessage: `Guíame paso a paso para completar: ${hint.message}`,
+            })
           }
           data-testid="copilot-banner-guide"
         >
