@@ -133,6 +133,11 @@ services:
       # El backend image SOLO copia backend/ + frontend/ (no infra/). Montamos
       # infra/docker para que el provision tenga los init-*.sql + el entrypoint.
       - ./infra/docker:/app/infra/docker:ro
+      # FIX docx (2026-06-14): seed_templates fija docx_path SOLO si el DOCX
+      # existe; provision no monta vardata y la imagen no copia var/ → el
+      # catálogo quedaba con docx_path NULL → 404 en generación. Bind del árbol
+      # git para que el seed escriba docx_path correcto en la tabla templates.
+      - ./var/templates_docx:/app/var/templates_docx:ro
     entrypoint: ["bash", "/app/infra/docker/provision-entrypoint.sh"]
     depends_on:
       postgres:
@@ -159,6 +164,12 @@ services:
       # claves de firma de PRODUCCIÓN vienen de env (FULKRO_M0X_SIGNING_*), no
       # de este volumen, pero el volumen evita pérdida de cualquier otro var/*.
       - vardata:/app/var
+      # FIX docx (2026-06-14): los DOCX de plantilla son artefactos BUILD-TIME
+      # (no runtime). El volumen vardata enmascara /app/var y la imagen no copia
+      # var/ → /app/var/templates_docx quedaba VACÍO → /documents/generate daba
+      # 404 'DOCX file not found' para TODOS los entregables en prod. Bind
+      # read-only del árbol git (git pull lo mantiene fresco).
+      - ./var/templates_docx:/app/var/templates_docx:ro
     command:
       - "uvicorn"
       - "backend.app.main:app"
@@ -200,6 +211,9 @@ services:
       # artefactos en filesystem que el backend sirve en descarga · deben
       # compartir el almacén hasta la migración completa a MinIO).
       - vardata:/app/var
+      # FIX docx (2026-06-14): mismo bind read-only que backend (las tareas que
+      # rinden entregables necesitan los DOCX de plantilla · ver backend).
+      - ./var/templates_docx:/app/var/templates_docx:ro
     command:
       - "celery"
       - "-A"
