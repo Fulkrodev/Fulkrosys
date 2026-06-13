@@ -25,3 +25,13 @@ RUN set -eux; \
     rm -rf /tmp/age; \
     apt-get purge -y --auto-remove build-essential git postgresql-server-dev-16 flex bison; \
     rm -rf /var/lib/apt/lists/*
+
+# feat/fulkro-100 Ola E · pgBackRest (PITR · backup físico + WAL · repo local gratis).
+RUN set -eux; \
+    apt-get update; \
+    apt-get install -y --no-install-recommends pgbackrest; \
+    mkdir -p /var/lib/pgbackrest /var/spool/pgbackrest /var/log/pgbackrest /etc/pgbackrest; \
+    chown -R postgres:postgres /var/lib/pgbackrest /var/spool/pgbackrest /var/log/pgbackrest; \
+    rm -rf /var/lib/apt/lists/*
+
+COPY pgbackrest.conf /etc/pgbackrest/pgbackrest.conf

@@ -135,6 +135,23 @@ else
   die "el compose no define el servicio 'provision' (lo aporta la Tarea A)."
 fi
 
+# ── 4.5 · pgBackRest (PITR · backup físico + WAL · repo local gratis) ─────────
+# Crea la stanza (idempotente · no falla si existe), valida el archive_command
+# y toma un backup full base. Habilita restaurar a CUALQUIER instante (PITR),
+# complementando el pg_dump diario lógico. NO bloquea el deploy si algo falla.
+log "4.5 · pgBackRest stanza-create + check + backup base (PITR)"
+if [ "${DRY_RUN}" -eq 0 ]; then
+  dc exec -T -u postgres "${PG_SERVICE}" pgbackrest --stanza=fulkro stanza-create \
+    || echo "      (stanza ya existe o warn · continúo)"
+  dc exec -T -u postgres "${PG_SERVICE}" pgbackrest --stanza=fulkro check \
+    || echo "      (pgbackrest check warn · revisar archive_command si persiste)"
+  dc exec -T -u postgres "${PG_SERVICE}" pgbackrest --stanza=fulkro --type=full backup \
+    || echo "      (pgbackrest backup warn · no bloquea el deploy · reintenta el cron)"
+  ok "pgBackRest stanza + backup base (PITR activo)"
+else
+  echo "      (dry-run · omitido)"
+fi
+
 # ── 5 · MinIO + buckets (incl. WORM Object Lock) ─────────────────────────────
 log "5 · MinIO + bootstrap de buckets (incl. fulkro-evidence-worm WORM 7y)"
 if dc config --services 2>/dev/null | grep -qx 'minio'; then

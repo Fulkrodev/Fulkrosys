@@ -48,6 +48,8 @@ services:
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?POSTGRES_PASSWORD requerido en .env.prod}
     volumes:
       - pgdata:/var/lib/postgresql/data
+      # feat/fulkro-100 Ola E · repo pgBackRest persistente (PITR · backup físico).
+      - pgbackrest_repo:/var/lib/pgbackrest
       - ./infra/docker/init-extensions.sql:/docker-entrypoint-initdb.d/01-extensions.sql:ro
       - ./infra/docker/init-functions.sql:/docker-entrypoint-initdb.d/02-functions.sql:ro
       - ./infra/docker/init-roles.sql:/docker-entrypoint-initdb.d/03-roles.sql:ro
@@ -55,6 +57,17 @@ services:
       - "postgres"
       - "-c"
       - "shared_preload_libraries=pgaudit"
+      # feat/fulkro-100 Ola E · WAL archiving para PITR (pgBackRest). archive-push
+      # asíncrono (no bloquea el primario); falla hasta stanza-create (provision)
+      # y reintenta · para piloto bajo tráfico el WAL acumulado es mínimo.
+      - "-c"
+      - "archive_mode=on"
+      - "-c"
+      - "archive_command=pgbackrest --stanza=fulkro archive-push %p"
+      - "-c"
+      - "wal_level=replica"
+      - "-c"
+      - "max_wal_senders=3"
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-fulkro} -d ${POSTGRES_DB:-fulkro}"]
       interval: 10s
@@ -373,6 +386,7 @@ networks:
 # ════════════════════════════════════════════════════════════════════════════
 volumes:
   pgdata:
+  pgbackrest_repo:   # feat/fulkro-100 Ola E · repo pgBackRest (PITR · físico + WAL)
   redisdata:
   miniodata:
   clamavdata:
