@@ -341,6 +341,11 @@ from backend.app.motors.m_remediation.api import (
     admin_router as remediation_admin_router,
     client_router as remediation_client_router,
 )
+# ADR-055 Fase 3 · agente on-prem (control-plane admin + endpoints del agente)
+from backend.app.motors.m_remediation.agent_api import (
+    admin_router as remediation_agent_admin_router,
+    agent_router as remediation_agent_router,
+)
 from backend.app.api.v1.client_compliance_summary import (
     router as client_compliance_summary_router,
 )
@@ -965,6 +970,15 @@ app.include_router(
 app.include_router(
     remediation_client_router, prefix="/api/v1",
     tags=["Remediación (ADR-055) - Cliente"],
+)
+# ADR-055 Fase 3 · Agente on-prem (control-plane admin + endpoints del agente)
+app.include_router(
+    remediation_agent_admin_router, prefix="/api/v1",
+    tags=["Remediación Agente (ADR-055) - Admin"],
+)
+app.include_router(
+    remediation_agent_router, prefix="/api/v1",
+    tags=["Remediación Agente (ADR-055) - Agente"],
 )
 # Bloque 4 · Cliente Compliance Summary aggregator
 app.include_router(

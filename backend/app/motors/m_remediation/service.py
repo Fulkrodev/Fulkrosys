@@ -383,7 +383,19 @@ class RemediationService:
                 bool(connector.remediation_enabled),
                 connector.auto_remediation_policy or AutoRemediationPolicy.OFF.value,
             )
-        # Host/agente (Fase 3) o sin objetivo → deshabilitado.
+        if agent_id is not None:
+            # Host on-prem (Fase 3): un agente ACTIVE habilita el objetivo con
+            # política FULL (safe_auto auto + guarded con autorización previa).
+            from backend.app.motors.m_remediation.agent_models import (
+                RemediationAgent,
+                RemediationAgentStatus,
+            )
+
+            agent = await self.db.get(RemediationAgent, agent_id)
+            if agent is None or agent.status != RemediationAgentStatus.ACTIVE.value:
+                return (False, AutoRemediationPolicy.OFF.value)
+            return (True, AutoRemediationPolicy.FULL.value)
+        # Sin objetivo → deshabilitado.
         return (False, AutoRemediationPolicy.OFF.value)
 
     async def _set_status(
