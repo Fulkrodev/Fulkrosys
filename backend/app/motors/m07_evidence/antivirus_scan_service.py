@@ -530,6 +530,9 @@ async def admin_release_quarantined(
 
     Justified false-positive · admin manual override · audit log entry.
     """
+    # FIX(RLS): op admin cross-cliente sobre evidence (RLS FORCE) · sin bypass el
+    # UPDATE afectaba 0 filas (no-op silencioso) en prod.
+    await db.execute(text("SET LOCAL ROLE fulkro_app_bypassrls"))
     row = await db.execute(
         text(
             "SELECT id, project_id, fichero_path, scan_status, "
@@ -591,6 +594,9 @@ async def admin_permanent_delete_quarantined(
     admin_user_id: uuid.UUID,
 ) -> None:
     """Delete quarantined file from disk + soft-delete evidence row."""
+    # FIX(RLS): op admin cross-cliente sobre evidence (RLS FORCE) · sin bypass el
+    # SELECT/UPDATE no veía la fila en prod (no-op silencioso).
+    await db.execute(text("SET LOCAL ROLE fulkro_app_bypassrls"))
     row = await db.execute(
         text(
             "SELECT project_id, fichero_path, scan_status "
@@ -639,6 +645,10 @@ async def list_quarantined(
     project_id: uuid.UUID | None = None,
 ) -> list[dict]:
     """List quarantined evidences · optional project_id filter."""
+    # FIX(RLS): cola de cuarentena admin cross-cliente · evidence tiene RLS FORCE
+    # y la ruta admin (require_owner) NO fija tenant context → vacío en prod.
+    # Elevar a fulkro_app_bypassrls (como m07_evidence/request_api.py:199).
+    await db.execute(text("SET LOCAL ROLE fulkro_app_bypassrls"))
     sql = (
         "SELECT id, project_id, fichero_nombre_original, "
         "scan_completed_at, scan_result_jsonb "

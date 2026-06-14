@@ -558,7 +558,7 @@ templates:
       Sin Plan AdecuaciÃ³n · GAPs quedan no abordados · auditorÃ­a externa marca
       NO conformidades crÃ­ticas. Plan E-050 es roadmap pre-implementaciÃ³n.
     cta_label: Aprobar Plan
-    cta_url: /admin/projects/{project_id}/gap
+    cta_url: /admin/projects/{project_id}/planes-accion
     deliverable_codes: [E-050]
     prerequisite_template_ids: [ENR_AD_01_DDA_DECLARACION_APLICABILIDAD]
     actors: [Marcos, CISO, responsable_TI_cliente]
@@ -811,7 +811,7 @@ templates:
       ALTA · Red Team obligatorio per refuerzo R3. Marcos ejecuta manual
       (MCPs Red Team eliminados OpciÃ³n A · ROI rebuilt no justifica).
     cta_label: Programar Red Team
-    cta_url: /admin/projects/{project_id}/red-team
+    cta_url: /admin/projects/{project_id}/verification
     deliverable_codes: ["E-704"]
     actors: [Marcos, CISO]
     estimated_days: 30
@@ -998,7 +998,7 @@ templates:
       Fintech con payment · sanción PCI-DSS hasta $500k/mes brecha. ENS sin
       PCI overlay insuficiente · audit ENAC verifica overlay.
     cta_label: Documentar overlay
-    cta_url: /admin/projects/{project_id}/files
+    cta_url: /admin/projects/{project_id}/documents
     deliverable_codes: []
     actors: [CISO, Marcos]
     estimated_days: 21

@@ -12,6 +12,14 @@ from sqlalchemy import text
 from sqlalchemy.ext.asyncio import AsyncSession
 
 
+async def _elevate_admin(db: AsyncSession) -> None:
+    """FIX(RLS): dashboard de observabilidad LLM es admin cross-cliente.
+    llm_interaction_log tiene RLS y los endpoints (require_owner) NO fijan tenant
+    context → bajo fulkro_app las queries devolvían vacío/cero en prod. Elevar a
+    fulkro_app_bypassrls (transaction-scoped) como operations.py."""
+    await db.execute(text("SET LOCAL ROLE fulkro_app_bypassrls"))
+
+
 PERIODS: dict[str, Optional[int]] = {
     "today": 1,
     "week": 7,
@@ -34,6 +42,7 @@ async def get_cost_summary(
     db: AsyncSession, period: str = "today",
 ) -> dict:
     """Aggregate tokens + cost over a period."""
+    await _elevate_admin(db)
     cutoff = _cutoff_for(period)
     where_clause = ""
     params: dict = {}
@@ -83,6 +92,7 @@ async def get_interactions_paginated(
     offset: int = 0,
 ) -> dict:
     """Paginated interaction log with optional filters."""
+    await _elevate_admin(db)
     limit = max(1, min(int(limit), 200))
     offset = max(0, int(offset))
     where_clauses: list[str] = []
@@ -155,6 +165,7 @@ async def get_top_consumers(
     db: AsyncSession, limit: int = 10, period: str = "month",
 ) -> list[dict]:
     """Top features by total_tokens consumed over the period."""
+    await _elevate_admin(db)
     cutoff = _cutoff_for(period)
     limit = max(1, min(int(limit), 50))
     where_clause = ""
@@ -193,6 +204,7 @@ async def get_anomaly_alerts(
     period: str = "today",
 ) -> list[dict]:
     """Detect anomalous calls (high cost or high latency or error status)."""
+    await _elevate_admin(db)
     cutoff = _cutoff_for(period)
     where_clauses: list[str] = []
     params: dict = {
@@ -271,6 +283,7 @@ async def get_project_token_usage(
     table). Returns total + per-agent breakdown including cached_input_tokens
     + cache_hit_rate.
     """
+    await _elevate_admin(db)
     days = max(1, min(int(days), 365))
     cutoff = datetime.now(timezone.utc) - timedelta(days=days)
     params = {"project_id": project_id, "cutoff": cutoff}
@@ -341,6 +354,7 @@ async def get_agent_cache_stats(
 
     hit_rate = cached / (prompt_tokens + cached). 0.0 si denom == 0.
     """
+    await _elevate_admin(db)
     days = max(1, min(int(days), 365))
     cutoff = datetime.now(timezone.utc) - timedelta(days=days)
     row = (await db.execute(

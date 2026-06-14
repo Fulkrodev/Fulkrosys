@@ -222,7 +222,7 @@ _PHASE_ACTIONS: dict[WorkflowPhase, dict[str, list[ActionHint]]] = {
                     "(L0-L5) + gaps detected. Page /admin/projects/{id}/diagnostico."
                 ),
                 priority="urgent",
-                target_url="/admin/projects/{project_id}/diagnostico",
+                target_url="/admin/projects/{project_id}/diagnosis",
             ),
         ],
         "cliente": [
@@ -279,7 +279,7 @@ _PHASE_ACTIONS: dict[WorkflowPhase, dict[str, list[ActionHint]]] = {
                     "firma acta categorización. Cliente revisa post-firma."
                 ),
                 priority="urgent",
-                target_url="/admin/projects/{project_id}/categorizacion",
+                target_url="/admin/projects/{project_id}/dimensiones",
             ),
             ActionHint(
                 motor="m03",
@@ -346,7 +346,7 @@ _PHASE_ACTIONS: dict[WorkflowPhase, dict[str, list[ActionHint]]] = {
                     "trazabilidad ENAC. Page /admin/projects/{id}/evidencias."
                 ),
                 priority="urgent",
-                target_url="/admin/projects/{project_id}/evidencias",
+                target_url="/admin/projects/{project_id}/evidence",
             ),
         ],
         "cliente": [

@@ -16,10 +16,19 @@ from dataclasses import dataclass
 from datetime import date, datetime, timedelta, timezone
 from typing import Optional
 
-from sqlalchemy import desc, select
+from sqlalchemy import desc, select, text as _sa_text
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from backend.app.motors.m_observability.models import AIActTransparencyEvent
+
+
+async def _elevate_admin(db: AsyncSession) -> None:
+    """FIX(RLS): la vista admin del log AI-Act es cross-cliente. La ruta admin
+    (require_owner) NO fija tenant context → bajo fulkro_app
+    ai_act_transparency_events (RLS) devolvía vacío para Marcos. Elevar a
+    fulkro_app_bypassrls (transaction-scoped). La ruta cliente NO usa esto (filtra
+    por client_id con el rol ya bypaseado por verify_session)."""
+    await db.execute(_sa_text("SET LOCAL ROLE fulkro_app_bypassrls"))
 
 
 # Retention boundary · AI Act art.50 guidance 6 years
@@ -100,6 +109,7 @@ async def get_project_transparency_log(
 
     Returns ordered DESC by created_at · capped at limit.
     """
+    await _elevate_admin(db)
     days = max(1, min(int(days), 730))
     limit = max(1, min(int(limit), 1000))
     cutoff = datetime.now(timezone.utc) - timedelta(days=days)
