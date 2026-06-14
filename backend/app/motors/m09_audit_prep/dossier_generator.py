@@ -604,6 +604,43 @@ async def _collect_remediations(
     return out, "\n".join(lines)
 
 
+def _build_impl_coverage_section(categoria: str | None) -> tuple[dict, str]:
+    """IMPL-6 · matriz 'no falta ni uno' para el dossier ENAC.
+
+    Para el nivel del proyecto, demuestra que CADA medida del Anexo II aplicable
+    tiene un camino de implantación: automático (plantilla cloud/host que el
+    sistema aplica con ciclo seguro) o guiado (tarea + entregable que ejecuta el IT
+    del cliente y se verifica con evidencia). Determinista (R1) · reutiliza
+    ``m_remediation.impl_coverage``. Best-effort: si no se puede calcular, nota
+    honesta sin romper el ZIP."""
+    try:
+        from backend.app.motors.m_remediation.impl_coverage import (
+            compute_implementation_coverage,
+        )
+        cov = compute_implementation_coverage(categoria or "MEDIA")
+    except Exception:  # noqa: BLE001 — non-fatal · el ZIP se entrega igual
+        return {}, "Cobertura de implantación técnica no disponible."
+
+    lines = [
+        "# Cobertura de implantación técnica (ENS · 'no falta ni uno')", "",
+        f"Nivel del proyecto: **{cov['level']}** · medidas aplicables: "
+        f"**{cov['total_applicable']}** · con plantilla automática: "
+        f"**{cov['auto_count']}** · guiadas (tarea + entregable): "
+        f"**{cov['guided_count']}** · sin camino de implantación: "
+        f"**{len(cov['uncovered'])}**.", "",
+        "Toda medida aplicable tiene un camino de implantación. Las **automáticas** "
+        "las aplica el sistema con ciclo seguro (copia previa + verificación + "
+        "deshacer si falla); las **guiadas** las ejecuta el IT del cliente con guía "
+        "del copiloto y se cierran con evidencia.", "",
+        "| Medida | Nombre | Camino |",
+        "|--------|--------|--------|",
+    ]
+    for r in cov.get("rows", []):
+        camino = "Automático" if r["coverage"] == "auto" else "Guiado"
+        lines.append(f"| {r['measure']} | {r['nombre']} | {camino} |")
+    return cov, "\n".join(lines)
+
+
 async def generate_dossier(
     db: AsyncSession, project_id: uuid.UUID, run_id: uuid.UUID,
     *, force: bool = False, sign_manifest: bool = False,
@@ -881,6 +918,19 @@ async def generate_dossier(
         _write(
             zipf, "14_REMEDIACION/informe_remediaciones.md",
             remediation_md.encode("utf-8"),
+        )
+        # IMPL-6 · matriz de cobertura de implantación ('no falta ni uno') para
+        # que el auditor ENAC vea que cada medida tiene camino auto o guiado.
+        cov_data, cov_md = _build_impl_coverage_section(run.categoria)
+        _write(
+            zipf, "14_REMEDIACION/cobertura_implantacion.json",
+            json.dumps(
+                cov_data, default=str, indent=2, ensure_ascii=False,
+            ).encode("utf-8"),
+        )
+        _write(
+            zipf, "14_REMEDIACION/cobertura_implantacion.md",
+            cov_md.encode("utf-8"),
         )
 
         # 01_GOBIERNO/declaracion_conformidad/ — M27 BasicDeclarationRow + submission

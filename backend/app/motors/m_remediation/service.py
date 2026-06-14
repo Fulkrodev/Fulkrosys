@@ -199,6 +199,73 @@ class RemediationService:
         job_id: uuid.UUID,
         *,
         writer: RemediationWriter | None = None,
+        chain_retest: bool = True,
+    ) -> RemediationJob:
+        """Ejecuta el ciclo seguro y (IMPL-5) encadena el retest quirúrgico.
+
+        Tras una remediación que deja el activo en el estado deseado (SUCCEEDED o
+        SKIPPED_COMPLIANT) y que provenía de un hallazgo de pentest (m08), dispara
+        el re-test determinista que vuelve a comprobar SOLO ese hallazgo y, si está
+        resuelto, lo cierra (CLOSED) con evidencia R6 inmutable — cerrando el bucle
+        diagnóstico→remediación→verificación que certifica el auditor ENAC.
+        Idempotente sobre estados terminales."""
+        job = await self._execute_cycle(job_id, writer=writer)
+        if chain_retest:
+            await self._maybe_chain_retest(job)
+        return job
+
+    async def _maybe_chain_retest(self, job: RemediationJob) -> None:
+        """IMPL-5 · re-test encadenado best-effort del finding origen.
+
+        Solo aplica si el job (a) dejó el activo conforme y (b) provino de un
+        finding de m08. En entornos sin escáneres instalados el retest registra
+        traza 'error/inconclusive' SIN cerrar falsamente el finding (honesto · el
+        cierre real ocurre en Hetzner con MCP/escáneres). Nunca rompe el resultado
+        de la remediación."""
+        if job.source_finding_id is None:
+            return
+        if job.status not in (
+            RemediationJobStatus.SUCCEEDED.value,
+            RemediationJobStatus.SKIPPED_COMPLIANT.value,
+        ):
+            return
+        try:
+            from backend.app.motors.m08_verification.models import (
+                VerificationFinding,
+            )
+            from backend.app.motors.m08_verification.remediation.retest_runner import (  # noqa: E501
+                run_retest,
+            )
+
+            # SAVEPOINT: el re-test corre AISLADO de la transacción principal. Si
+            # falla (escáner, RLS, constraint…) se revierte solo el savepoint y la
+            # remediación exitosa NO se pierde — best-effort de verdad, no poison.
+            sp = await self.db.begin_nested()
+            try:
+                finding = await self.db.get(
+                    VerificationFinding, job.source_finding_id,
+                )
+                if finding is None:
+                    await sp.rollback()
+                    return
+                await run_retest(
+                    self.db, finding, triggered_by="remediation_chain",
+                )
+                await sp.commit()
+            except Exception:  # noqa: BLE001
+                await sp.rollback()
+                raise
+            await self._audit(job, "remediation.retest_chained")
+        except Exception:  # noqa: BLE001 — el encadenado es best-effort
+            logger.exception(
+                "Retest encadenado falló (best-effort) para job %s", job.id,
+            )
+
+    async def _execute_cycle(
+        self,
+        job_id: uuid.UUID,
+        *,
+        writer: RemediationWriter | None = None,
     ) -> RemediationJob:
         """Ejecuta el ciclo seguro completo. Idempotente sobre estados terminales."""
         job = await self._load_job(job_id)

@@ -400,3 +400,122 @@ async def test_execute_idempotent_on_terminal(db: AsyncSession) -> None:
     job = await svc.execute_job(job.id, writer=writer)
     assert job.status == RemediationJobStatus.SUCCEEDED.value
     assert writer.calls == calls_after_first
+
+
+# ─────────────────────────────────────────────────────────────────────────
+# IMPL-5 · retest encadenado (remediación SUCCEEDED → re-test del finding m08)
+
+
+async def _set_tenant_for(db: AsyncSession, project_id) -> None:
+    from backend.app.database import set_tenant_context
+    client_id = (await db.execute(
+        text("SELECT get_project_owner(:pid)"), {"pid": str(project_id)},
+    )).scalar()
+    await set_tenant_context(
+        db, client_id=client_id, project_id=uuid.UUID(str(project_id)),
+    )
+
+
+async def _mk_open_finding(db: AsyncSession, project_uuid: uuid.UUID):
+    from datetime import datetime, timezone
+
+    from backend.app.motors.m08_verification.finding_state_machine import (
+        FindingState,
+    )
+    from backend.app.motors.m08_verification.models import (
+        VerificationFinding,
+        VerificationRun,
+    )
+
+    async with _admin_setup(db):
+        run = VerificationRun(
+            project_id=project_uuid, category="MEDIO", mode="internal",
+            status="completed", scope_jsonb={"targets": ["t.example.es"]},
+            completed_at=datetime.now(timezone.utc),
+        )
+        db.add(run)
+        await db.flush()
+        vf = VerificationFinding(
+            project_id=project_uuid, run_id=run.id,
+            finding_hash=f"t_{uuid.uuid4().hex[:12]}",
+            title="x", description="d", severity="high",
+            affected_host="t.example.es", cve_id="CVE-2024-Y",
+            tool_sources=["nuclei"], raw_outputs=[{"tool": "nuclei"}],
+            confidence_score=0.95, zfp_gate1_dedup=True, zfp_gate2_fp_filter=True,
+            zfp_gate3_cross_tool=1, zfp_gate4_retest="not_applicable",
+            zfp_gate5_classification="confirmed",
+            ens_measures=[{"measure": "op.exp.5", "title": "t", "method": "rule"}],
+            ens_primary_measure="op.exp.5", remediation_summary="patch",
+            status="open", finding_state=FindingState.IN_REMEDIATION,
+        )
+        db.add(vf)
+        await db.flush()
+    return run, vf
+
+
+@pytest.mark.asyncio
+async def test_success_chains_retest_and_closes_finding(
+    db: AsyncSession, monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Una remediación que deja el activo conforme y proviene de un finding de
+    pentest encadena el re-test determinista → cierra el bucle (CLOSED) + deja
+    un RemediationRetest + audita 'remediation.retest_chained'."""
+    from sqlalchemy import select
+
+    from backend.app.motors.m08_verification.finding_state_machine import (
+        FindingState,
+    )
+    from backend.app.motors.m08_verification.models import RemediationRetest
+    from backend.app.motors.m08_verification.remediation import retest_runner
+
+    _, pid = await setup_test_project(db)
+    project_uuid = uuid.UUID(pid)
+    connector = await _create_connector(db, project_uuid)
+    _, vf = await _mk_open_finding(db, project_uuid)
+    await _set_tenant_for(db, pid)
+
+    async def _fixed(_f):
+        return ("fixed", "nuclei -t cves/CVE-2024-Y.yaml", "0 matches")
+    monkeypatch.setitem(retest_runner._DISPATCHERS, "cve", _fixed)
+
+    svc = RemediationService(db)
+    job = await svc.create_job(
+        project_id=project_uuid, action_type="enable_bucket_encryption",
+        source_kind="host_finding", connector_id=connector.id,
+        source_finding_id=vf.id, target_ref="arn:demo",
+    )
+    writer = FakeWriter(assertion_key="encryption_enabled", initial_compliant=False)
+    job = await svc.execute_job(job.id, writer=writer)
+
+    assert job.status == RemediationJobStatus.SUCCEEDED.value
+    assert vf.finding_state == FindingState.CLOSED  # bucle cerrado
+    retests = (await db.execute(
+        select(RemediationRetest).where(RemediationRetest.finding_id == vf.id)
+    )).scalars().all()
+    assert len(retests) == 1 and retests[0].result == "fixed"
+    cnt = await db.execute(text(
+        "SELECT count(*) FROM audit_log WHERE tabla='remediation_jobs' "
+        "AND registro_id=:rid AND accion='remediation.retest_chained'"
+    ), {"rid": str(job.id)})
+    assert int(cnt.scalar() or 0) == 1
+
+
+@pytest.mark.asyncio
+async def test_cloud_gap_job_does_not_chain_retest(db: AsyncSession) -> None:
+    """Un job de cloud gap (sin source_finding_id) NO encadena retest."""
+    _, pid = await setup_test_project(db)
+    project_uuid = uuid.UUID(pid)
+    connector = await _create_connector(db, project_uuid)
+    svc = RemediationService(db)
+    job = await svc.create_job(
+        project_id=project_uuid, action_type="enable_bucket_encryption",
+        source_kind="cloud_gap", connector_id=connector.id, target_ref="arn:demo",
+    )
+    writer = FakeWriter(assertion_key="encryption_enabled", initial_compliant=False)
+    job = await svc.execute_job(job.id, writer=writer)
+    assert job.status == RemediationJobStatus.SUCCEEDED.value
+    cnt = await db.execute(text(
+        "SELECT count(*) FROM audit_log WHERE tabla='remediation_jobs' "
+        "AND registro_id=:rid AND accion='remediation.retest_chained'"
+    ), {"rid": str(job.id)})
+    assert int(cnt.scalar() or 0) == 0
