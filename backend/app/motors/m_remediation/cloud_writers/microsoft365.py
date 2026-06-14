@@ -20,14 +20,20 @@ GRAPH = "https://graph.microsoft.com/v1.0"
 
 # action_type → configuración de la política de Acceso Condicional.
 _POLICIES: dict[str, dict[str, str]] = {
+    # FIX: displayNames DISTINTOS para las dos variantes del control MFA. Antes
+    # ambas usaban "FULKRO-Require-MFA" y read_state/apply/rollback localizan la
+    # política por displayName → al ejecutar la variante report-only sobre un
+    # enforce ya activo, apply DEGRADABA la política de obligatoria (enabled) a
+    # solo-informe sin que el operador lo percibiera (op.acc.6 desactivado de
+    # hecho · verify lo daba verde). Políticas independientes evitan el cruce.
     "require_mfa_conditional_access": {
-        "display": "FULKRO-Require-MFA",
+        "display": "FULKRO-Require-MFA-Report",
         "assertion": "mfa_required",
         "state": "enabledForReportingButNotEnforced",
         "kind": "mfa",
     },
     "require_mfa_enforce": {
-        "display": "FULKRO-Require-MFA",
+        "display": "FULKRO-Require-MFA-Enforce",
         "assertion": "mfa_enforced",
         "state": "enabled",
         "kind": "mfa",

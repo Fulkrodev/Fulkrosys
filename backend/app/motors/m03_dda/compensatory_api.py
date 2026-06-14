@@ -19,7 +19,6 @@ from backend.app.auth.dependencies import require_owner
 from backend.app.database import get_db
 from backend.app.models.auth import User
 from backend.app.models.compensatory_control import CompensatoryControl
-from backend.app.models.core import Project
 from backend.app.motors.m03_dda.compensatory_service import (
     CompensatoryError,
     create_compensatory,
@@ -97,10 +96,18 @@ def _to_out(r: CompensatoryControl) -> CompensatoryOut:
 
 
 async def _ensure_project_rls(db: AsyncSession, project_id: uuid.UUID) -> str:
-    project = await db.get(Project, project_id)
-    if project is None:
+    # FIX(RLS): projects es RLS fail-closed bajo fulkro_app, así que db.get(Project)
+    # SIN contexto está RLS-filtrado → None → 404 en un proyecto válido. Resolver
+    # client_id via get_project_owner() SECURITY DEFINER (cruza RLS) ANTES de fijar
+    # el tenant context (patrón canónico m03_dda::_set_project_rls / bia_api).
+    owner = (
+        await db.execute(
+            text("SELECT get_project_owner(:pid)"), {"pid": str(project_id)}
+        )
+    ).scalar()
+    if not owner:
         raise HTTPException(status_code=404, detail="Project not found")
-    client_id = str(project.client_id)
+    client_id = str(owner)
     await db.execute(
         text("SELECT set_config('app.current_project_id', :pid, true)"),
         {"pid": str(project_id)},

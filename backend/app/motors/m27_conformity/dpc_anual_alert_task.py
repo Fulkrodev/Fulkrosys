@@ -26,6 +26,7 @@ from backend.app.motors.m27_conformity.dpc_anual_service import (
     ALERT_LEAD_DAYS,
     CRITICAL_LEAD_DAYS,
     DpcAnualService,
+    add_years_safe,
 )
 
 
@@ -73,9 +74,10 @@ async def _check_dpc_anual_anniversaries() -> int:
             base_date = signed_at.date()
             year_offset = 1
             while True:
-                anniversary_date = base_date.replace(
-                    year=base_date.year + year_offset,
-                )
+                # FIX(feb-29): add_years_safe clampa el 29-feb a 28-feb en años no
+                # bisiestos (antes .replace(year=) lanzaba ValueError fuera de
+                # cualquier try → abortaba TODA la corrida diaria).
+                anniversary_date = add_years_safe(base_date, year_offset)
                 if anniversary_date > cutoff:
                     break
                 anniversary_year = anniversary_date.year

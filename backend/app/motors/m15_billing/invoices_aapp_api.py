@@ -19,9 +19,11 @@ from typing import Optional
 from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel, ConfigDict, Field
 from sqlalchemy import select
+from sqlalchemy import text as _sa_text
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from backend.app.database import get_db
+from backend.app.auth.dependencies import require_owner
+from backend.app.database import get_db, set_tenant_context
 from backend.app.models.core import Client, Project
 from backend.app.models.invoices_aapp import InvoiceAapp
 from backend.app.motors.m15_billing.face_submitter import submit_to_face
@@ -40,7 +42,48 @@ from backend.app.motors.m15_billing.xades_signer import (
     sign_facturae_xades,
 )
 
-router = APIRouter(tags=["M15 - AAPP Billing (MB-11.3)"])
+# ADR-013: la facturación a la AAPP es operación admin. require_owner cierra el
+# IDOR (antes el router no tenía dependencia de auth).
+router = APIRouter(
+    tags=["M15 - AAPP Billing (MB-11.3)"],
+    dependencies=[Depends(require_owner)],
+)
+
+
+async def _set_project_rls(db: AsyncSession, project_id: uuid.UUID) -> None:
+    """FIX(RLS): projects + invoices_aapp son RLS fail-closed bajo fulkro_app.
+    Resolver owner via get_project_owner() SECURITY DEFINER + fijar tenant context
+    antes de leer/insertar (si no, db.get → None → 404 y el INSERT viola WITH
+    CHECK)."""
+    owner = (
+        await db.execute(
+            _sa_text("SELECT get_project_owner(:pid)"), {"pid": str(project_id)}
+        )
+    ).scalar()
+    if not owner:
+        raise HTTPException(404, "Project not found")
+    await set_tenant_context(db, client_id=owner, project_id=project_id)
+
+
+async def _set_rls_for_invoice(
+    db: AsyncSession, invoice_id: uuid.UUID
+) -> None:
+    """Resuelve el project_id de una invoice_aapp (cruzando RLS vía bypass admin
+    acotado) y fija el tenant context del proyecto. Necesario porque los endpoints
+    invoice-scoped reciben invoice_id sin project_id en la ruta."""
+    await db.execute(_sa_text("SET LOCAL ROLE fulkro_app_bypassrls"))
+    try:
+        pid = (
+            await db.execute(
+                _sa_text("SELECT project_id FROM invoices_aapp WHERE id = :iid"),
+                {"iid": str(invoice_id)},
+            )
+        ).scalar()
+    finally:
+        await db.execute(_sa_text("RESET ROLE"))
+    if not pid:
+        raise HTTPException(404, "Invoice not found")
+    await _set_project_rls(db, pid)
 
 
 class InvoiceAappCreate(BaseModel):
@@ -106,6 +149,7 @@ async def post_create_invoice(
     body: InvoiceAappCreate,
     db: AsyncSession = Depends(get_db),
 ) -> InvoiceAappResponse:
+    await _set_project_rls(db, project_id)
     project = await db.get(Project, project_id)
     if project is None:
         raise HTTPException(404, "Project not found")
@@ -133,6 +177,7 @@ async def get_invoices(
     project_id: uuid.UUID,
     db: AsyncSession = Depends(get_db),
 ) -> list[InvoiceAappResponse]:
+    await _set_project_rls(db, project_id)
     project = await db.get(Project, project_id)
     if project is None:
         raise HTTPException(404, "Project not found")
@@ -154,6 +199,7 @@ async def post_generate_facturae(
     description: str = "Servicios consultoría ENS",
     db: AsyncSession = Depends(get_db),
 ) -> FacturaeGenerationResponse:
+    await _set_rls_for_invoice(db, invoice_id)
     invoice = await db.get(InvoiceAapp, invoice_id)
     if invoice is None:
         raise HTTPException(404, "Invoice not found")
@@ -229,6 +275,7 @@ async def post_submit_face(
     invoice_id: uuid.UUID,
     db: AsyncSession = Depends(get_db),
 ) -> FaceSubmitResponse:
+    await _set_rls_for_invoice(db, invoice_id)
     invoice = await db.get(InvoiceAapp, invoice_id)
     if invoice is None:
         raise HTTPException(404, "Invoice not found")
@@ -272,6 +319,7 @@ async def get_late_interest(
     today_override: Optional[date] = None,
     db: AsyncSession = Depends(get_db),
 ) -> LateInterestResponse:
+    await _set_rls_for_invoice(db, invoice_id)
     invoice = await db.get(InvoiceAapp, invoice_id)
     if invoice is None:
         raise HTTPException(404, "Invoice not found")

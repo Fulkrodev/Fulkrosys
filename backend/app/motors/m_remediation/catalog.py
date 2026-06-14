@@ -75,7 +75,10 @@ ACTION_CATALOG: dict[str, RemediationActionSpec] = {
         reversible=True,
         provider="aws",
         title_es="Activar cifrado en reposo del bucket",
-        ens_measures=("mp.info.3", "mp.s.8"),
+        # FIX(REV-1): cifrado at-rest = mp.si.2 "Criptografía" (antes mp.info.3 =
+        # "Firma electrónica" medida equivocada + mp.s.8 inexistente · mismo error
+        # ya corregido en gap_rules.py).
+        ens_measures=("mp.si.2",),
         target_kind="asset.storage_bucket",
         desired_assertion="encryption_enabled",
         cliente_blurb=(
@@ -190,7 +193,8 @@ ACTION_CATALOG: dict[str, RemediationActionSpec] = {
         reversible=True,
         provider="aws",
         title_es="Rotar clave de acceso antigua",
-        ens_measures=("op.acc.5", "mp.s.8"),
+        # FIX(REV-1): mp.s.8 no existe en RD 311/2022 (familia mp.s solo .1-.4).
+        ens_measures=("op.acc.5",),
         target_kind="identity.access_key",
         desired_assertion="key_age_ok",
         cliente_blurb=(
@@ -238,7 +242,9 @@ ACTION_CATALOG: dict[str, RemediationActionSpec] = {
         reversible=True,
         provider="azure",
         title_es="Exigir HTTPS en el almacenamiento",
-        ens_measures=("mp.com.2", "mp.s.8"),
+        # FIX(REV-1): HTTPS in-transit = mp.com.2 (protección de la
+        # confidencialidad/integridad de comunicaciones) · mp.s.8 inexistente.
+        ens_measures=("mp.com.2",),
         target_kind="asset.storage_account",
         desired_assertion="https_required",
         cliente_blurb=(
@@ -255,7 +261,9 @@ ACTION_CATALOG: dict[str, RemediationActionSpec] = {
         reversible=True,
         provider="google_workspace",
         title_es="Restringir compartición externa de unidad compartida",
-        ens_measures=("mp.s.2", "mp.info.3"),
+        # FIX(REV-1): compartición externa = mp.s.2 (protección de servicios) ·
+        # mp.info.3 = "Firma electrónica" no aplica aquí.
+        ens_measures=("mp.s.2",),
         target_kind="asset.shared_drive",
         desired_assertion="external_sharing_restricted",
         cliente_blurb=(

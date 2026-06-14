@@ -76,14 +76,21 @@ class TestRequestSignature:
 
     @pytest.mark.asyncio
     async def test_request_signature_fails_nonexistent_system(self, async_client, db):
-        """POST request-signature on non-existent system returns 422."""
+        """POST request-signature on non-existent system returns 404.
+
+        FIX(RLS): el endpoint ahora resuelve el sistema vía _get_system_with_rls
+        (get_system_owner SECURITY DEFINER + tenant context) ANTES de operar — sin
+        esto un sistema VÁLIDO fallaría bajo RLS en prod. Para un sistema
+        inexistente devuelve 404 (Not Found · correcto y consistente con el
+        endpoint de doble firma), no el 422 previo.
+        """
         fake_id = uuid.uuid4()
         r = await async_client.post(
             f"/api/v1/categorization/systems/{fake_id}/acta-e012/request-signature",
             json={"recipient_email": "x@example.com"},
         )
-        assert r.status_code == 422
-        assert "no existe" in r.json()["detail"].lower()
+        assert r.status_code == 404
+        assert "no encontrado" in r.json()["detail"].lower()
 
     @pytest.mark.asyncio
     async def test_request_signature_fails_uncategorized_system(self, async_client, db):

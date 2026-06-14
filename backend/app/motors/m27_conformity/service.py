@@ -146,14 +146,16 @@ def compute_renewal_state(target_renewal_date: date, today: date | None = None) 
     if delta > 180:
         state = "T-180"
     elif delta > 120:
-        state = "T-180"
+        state = "T-120"  # FIX(off-by-one): era "T-180" duplicado → colapsaba la
+        # ventana 120-180 y desplazaba cada umbral inferior una posición.
     elif delta > 90:
-        state = "T-120"
-    elif delta > 60:
         state = "T-90"
-    elif delta > 30:
+    elif delta > 60:
         state = "T-60"
+    elif delta > 30:
+        state = "T-30"
     elif delta > 0:
+        # Dentro de 30 días: se mantiene el hito T-30 (el más urgente pre-DUE).
         state = "T-30"
     elif delta == 0:
         state = "DUE"

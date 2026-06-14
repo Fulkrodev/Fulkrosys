@@ -68,7 +68,10 @@ test.describe("Client Portal · Conformidad ENS BÁSICA · happy path E2E", () =
     // Verify ReadinessSection · BASICA = 4 items + ready banner
     await expect(page.getByText(/DdA firmada/i)).toBeVisible();
     await expect(page.getByText(/MAGERIT validado/i)).toBeVisible();
-    await expect(page.getByText(/pentest firmada/i)).toBeVisible();
+    // FIX(categoría): el item de pentest SOLO aplica a ALTA → BÁSICA no debe
+    // mostrarlo (antes el seed lo firmaba para todos los tiers, enmascarando el
+    // CTA engañoso en BÁSICA/MEDIA).
+    await expect(page.getByText(/pentest firmada/i)).toHaveCount(0);
     await expect(page.getByText(/25.*evidencias/i)).toBeVisible();
     await expect(
       page.getByText(/Todos los pasos previos están completos/i),

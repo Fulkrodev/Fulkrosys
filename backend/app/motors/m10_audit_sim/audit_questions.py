@@ -425,7 +425,11 @@ AUDIT_QUESTIONS: dict[str, dict[str, Any]] = {
         "pregunta": "¿Cómo se protegen los equipos portátiles? ¿Están cifrados? ¿Tienen MDM?",
         "criterio": "Cifrado de disco (BitLocker/FileVault) + MDM/EDR + política de dispositivos móviles + evidencia cobertura",
         "evidencia_tipos": ["cifrado_portatiles", "mdm", "politica_dispositivos_moviles"],
-        "documento_esperado": "E-125",
+        # FIX(catalog): antes E-125 = POLÍTICA DE MESA LIMPIA (no cubre portátiles
+        # /cifrado/MDM/movilidad · plantilla equivocada → veredicto falso). Se
+        # evalúa por evidencia (cifrado_portatiles/mdm/politica_dispositivos_moviles).
+        # El doc tópico real sería E-110 (teletrabajo y movilidad), opcional.
+        "documento_esperado": None,
         "familia": "mp.eq",
         "nombre": "Protección de los equipos portátiles",
         "aplica": ["BASICA", "MEDIA", "ALTA"],

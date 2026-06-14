@@ -80,6 +80,36 @@ def _to_out(r: RetainerQuarterlyReport) -> CheckinReportOut:
     )
 
 
+async def _set_rls_for_report(db: AsyncSession, report_id: uuid.UUID) -> None:
+    """FIX(RLS): los endpoints report_id-scoped (get/curate/send) reciben
+    report_id sin project_id en la ruta. Resolver el project_id del check-in
+    (cruzando RLS vía bypass admin acotado) + fijar tenant context, si no
+    retainer_quarterly_reports (RLS fail-closed bajo fulkro_app) → None → 404."""
+    await db.execute(_sa_text("SET LOCAL ROLE fulkro_app_bypassrls"))
+    try:
+        pid = (
+            await db.execute(
+                _sa_text(
+                    "SELECT project_id FROM retainer_quarterly_reports "
+                    "WHERE id = :rid"
+                ),
+                {"rid": str(report_id)},
+            )
+        ).scalar()
+    finally:
+        await db.execute(_sa_text("RESET ROLE"))
+    if not pid:
+        raise HTTPException(404, "Check-in no existe")
+    owner = (
+        await db.execute(
+            _sa_text("SELECT get_project_owner(:pid)"), {"pid": str(pid)}
+        )
+    ).scalar()
+    if not owner:
+        raise HTTPException(404, "Check-in no existe")
+    await set_tenant_context(db, client_id=owner, project_id=pid)
+
+
 # ──────────────────────────────────────────────────────────────────────
 # Endpoints (admin · require_owner a nivel de router)
 
@@ -115,6 +145,7 @@ async def list_reports(
 async def get_report(
     report_id: uuid.UUID, db: AsyncSession = Depends(get_db),
 ) -> CheckinReportOut:
+    await _set_rls_for_report(db, report_id)
     r = await db.get(RetainerQuarterlyReport, report_id)
     if r is None:
         raise HTTPException(404, "Check-in no existe")
@@ -159,6 +190,7 @@ async def curate_report(
     db: AsyncSession = Depends(get_db),
 ) -> CheckinReportOut:
     """Marcos cura el borrador (edita el resumen) · draft → curated_by_admin."""
+    await _set_rls_for_report(db, report_id)
     try:
         r = await RetainerCheckinService(db).admin_curate_report(
             report_id, owner.id, body.summary_edits,
@@ -195,6 +227,7 @@ async def send_report(
     db: AsyncSession = Depends(get_db),
 ) -> CheckinReportOut:
     """Marcos envía el check-in curado al cliente · curated_by_admin → sent_to_client."""
+    await _set_rls_for_report(db, report_id)
     try:
         r = await RetainerCheckinService(db).admin_send_to_client(
             report_id, owner.id,

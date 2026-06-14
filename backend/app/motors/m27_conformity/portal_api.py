@@ -253,20 +253,28 @@ def _readiness_to_view(snap: ConformityReadinessSnapshot) -> ConformityReadiness
             ),
         ),
         ReadinessItemView(
-            label="Autorización pentest firmada",
-            ready=snap.pentest_signed_at is not None,
-            detail=(
-                f"Firmada {snap.pentest_signed_at.isoformat()}"
-                if snap.pentest_signed_at else None
-            ),
-        ),
-        ReadinessItemView(
             label=f"Evidencias 73 medidas ({snap.evidence_count} cargadas)",
             ready=snap.evidence_count > 0
             and len([b for b in snap.blockers if "Evidencias" in b]) == 0,
             detail=f"{snap.evidence_count} evidencias vigentes",
         ),
     ]
+    # FIX(categoría · R29): el pentest solo es obligatorio en ALTA (en MEDIA es
+    # opcional y en BÁSICA nunca · readiness_service gate solo ALTA). Antes el item
+    # se mostraba SIEMPRE en rojo "Autorización pentest firmada: NO listo" con CTA
+    # engañoso para BÁSICA/MEDIA (el cliente creía que le faltaba algo que no
+    # necesita). No bloqueaba la firma, pero confundía.
+    if snap.tier == "ALTA":
+        items.append(
+            ReadinessItemView(
+                label="Autorización pentest firmada",
+                ready=snap.pentest_signed_at is not None,
+                detail=(
+                    f"Firmada {snap.pentest_signed_at.isoformat()}"
+                    if snap.pentest_signed_at else None
+                ),
+            )
+        )
     # Policies item · tier-aware (SAN-E v3.MB-6 atom 1 · Q2.b)
     # BASICA 10 · MEDIA 18 · ALTA 25 · pre-atom-1 era solo ALTA 8.
     from backend.app.motors.m27_conformity.readiness_service import (

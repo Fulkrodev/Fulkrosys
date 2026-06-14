@@ -724,16 +724,24 @@ class CloudRemediationOrchestrator:
             failure_category=failure_category,
             correlation_id=correlation_id,
         )
-        self.db.add(log_row)
         try:
-            await self.db.flush()
+            # FIX: SAVEPOINT (begin_nested) en vez de rollback() global. Antes,
+            # ante una carrera concurrente que viola la UNIQUE de idempotencia, el
+            # rollback() revertía TODA la transacción —incluida la transición de
+            # gap.approval_status ya aplicada en esta misma transacción— y el
+            # endpoint hacía commit sobre una sesión revertida → incoherencia
+            # entre lo que devolvía la API y lo persistido. El savepoint revierte
+            # SOLO el INSERT del log y preserva la mutación de estado del gap.
+            async with self.db.begin_nested():
+                self.db.add(log_row)
+                await self.db.flush()
         except IntegrityError as exc:
-            # Concurrent INSERT raced · rollback partial + re-fetch existing
+            # Concurrent INSERT raced · el savepoint ya revirtió SOLO el log ·
+            # re-fetch existing (la transición del gap sigue viva en la transacción)
             logger.warning(
                 "IntegrityError on log INSERT · gap=%s action=%s · re-fetching existing",
                 gap.id, action,
             )
-            await self.db.rollback()
             if idempotency_key:
                 existing = await self.db.execute(
                     select(CloudRemediationApprovalLog)

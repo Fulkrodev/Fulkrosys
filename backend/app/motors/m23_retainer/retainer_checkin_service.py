@@ -153,14 +153,19 @@ class RetainerCheckinService:
             {"pid": str(project_id), "start": period_start, "end": period_end},
         )
         activities = {"completed": 0, "pending": 0, "overdue": 0, "total": 0}
+        # FIX(enum-drift): RetainerActivity.estado se persiste en ESPAÑOL
+        # (programada/en_curso/completada/cancelada/vencida · models/retainer.py).
+        # Antes se comparaba contra literales en inglés → activities_* SIEMPRE 0 y
+        # RAG verde fabricado. 'cancelada' cuenta en total pero en ningún bucket.
         for estado, cnt in act_row:
             count = int(cnt)
             activities["total"] += count
-            if estado == "completed":
+            if estado in ("completada", "completed"):
                 activities["completed"] += count
-            elif estado in ("scheduled", "in_progress", "pending"):
+            elif estado in ("programada", "en_curso", "scheduled",
+                            "in_progress", "pending"):
                 activities["pending"] += count
-            elif estado in ("overdue", "delayed"):
+            elif estado in ("vencida", "overdue", "delayed"):
                 activities["overdue"] += count
 
         # 2. Incidents (M19)

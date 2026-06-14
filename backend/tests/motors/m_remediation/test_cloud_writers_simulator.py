@@ -163,7 +163,10 @@ async def test_m365_simulator_idempotent(db: AsyncSession) -> None:
         "policies": [
             {
                 "id": "pol-x",
-                "displayName": "FULKRO-Require-MFA",
+                # FIX: displayName de la variante report-only (require_mfa_
+                # conditional_access) ahora distinto del enforce para no cruzar
+                # estados entre las dos acciones.
+                "displayName": "FULKRO-Require-MFA-Report",
                 "state": "enabledForReportingButNotEnforced",
             },
         ],

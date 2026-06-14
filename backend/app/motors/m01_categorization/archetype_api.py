@@ -18,9 +18,11 @@ from typing import Optional
 
 from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel, ConfigDict
+from sqlalchemy import text as _sa_text
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from backend.app.database import get_db
+from backend.app.auth.dependencies import require_owner
+from backend.app.database import get_db, set_tenant_context
 from backend.app.models.core import Client, Project
 from backend.app.motors.m01_categorization.pyme_archetypes import (
     PymeArquetipo,
@@ -28,7 +30,27 @@ from backend.app.motors.m01_categorization.pyme_archetypes import (
     classify_archetype,
 )
 
-router = APIRouter(prefix="/projects", tags=["M01 - Pyme Archetypes"])
+# ADR-013: el arquetipo es operación admin (Marcos). require_owner cierra el IDOR
+# (antes el router no tenía dependencia de auth).
+router = APIRouter(
+    prefix="/projects",
+    tags=["M01 - Pyme Archetypes"],
+    dependencies=[Depends(require_owner)],
+)
+
+
+async def _set_project_rls(project_id: uuid.UUID, db: AsyncSession) -> None:
+    """FIX(RLS): projects es RLS fail-closed bajo fulkro_app · resolver owner via
+    get_project_owner() SECURITY DEFINER + fijar tenant context antes de leer
+    Project/Client (si no, db.get devuelve None → 404 en proyecto válido)."""
+    owner = (
+        await db.execute(
+            _sa_text("SELECT get_project_owner(:pid)"), {"pid": str(project_id)}
+        )
+    ).scalar()
+    if not owner:
+        raise HTTPException(404, "Project not found")
+    await set_tenant_context(db, client_id=owner, project_id=project_id)
 
 
 class ArchetypeClassifyRequest(BaseModel):
@@ -70,6 +92,7 @@ async def post_classify_archetype(
     4. Persiste ``project.archetype`` + ``project.archetype_confidence``.
     5. Retorna response con reasoning_path + adjustments.
     """
+    await _set_project_rls(project_id, db)
     project = await db.get(Project, project_id)
     if project is None:
         raise HTTPException(404, "Project not found")
@@ -111,6 +134,7 @@ async def get_project_archetype(
     Si ``project.archetype`` es None (nunca clasificado), retorna 404
     para diferenciar de GENERICO explícito.
     """
+    await _set_project_rls(project_id, db)
     project = await db.get(Project, project_id)
     if project is None:
         raise HTTPException(404, "Project not found")

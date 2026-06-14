@@ -21,7 +21,7 @@ from sqlalchemy import text as sa_text
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from backend.app.auth.dependencies import require_owner
-from backend.app.database import get_db
+from backend.app.database import get_db, set_tenant_context
 from backend.app.motors.m30_client_contacts.ens_required import (
     ENS_REQUIRED_ROLES,
     get_priority_for_category,
@@ -37,6 +37,21 @@ router = APIRouter(
     tags=["Motor 30 - ENS_REQUIRED stakeholders"],
     dependencies=[Depends(require_owner)],
 )
+
+
+async def _set_project_rls(db: AsyncSession, project_id: uuid.UUID) -> None:
+    """FIX(RLS): projects es RLS fail-closed bajo fulkro_app · resolver owner via
+    get_project_owner() SECURITY DEFINER + fijar tenant context antes de las
+    lecturas crudas de projects (si no, devuelven None → 404 en proyecto válido).
+    client_contacts tiene policy permisiva admin_all, no necesita más."""
+    owner = (
+        await db.execute(
+            sa_text("SELECT get_project_owner(:pid)"), {"pid": str(project_id)}
+        )
+    ).scalar()
+    if not owner:
+        raise HTTPException(status_code=404, detail="Project not found")
+    await set_tenant_context(db, client_id=owner, project_id=project_id)
 
 
 class AssignRoleBody(BaseModel):
@@ -85,6 +100,7 @@ async def get_ens_required_roles_status(
             'total_required': 6
         }``
     """
+    await _set_project_rls(db, project_id)
     service = ClientContactService(db)
     try:
         status = await service.get_ens_required_roles_status(project_id)
@@ -124,13 +140,8 @@ async def assign_contact_to_ens_role(
             ),
         )
 
-    # Verify project exists (404 if not).
-    proj_row = await db.execute(
-        sa_text("SELECT id FROM projects WHERE id = :pid"),
-        {"pid": str(project_id)},
-    )
-    if proj_row.first() is None:
-        raise HTTPException(status_code=404, detail="Project not found")
+    # Verify project exists (404 if not) + fija tenant context RLS.
+    await _set_project_rls(db, project_id)
 
     service = ClientContactService(db)
     try:
@@ -172,6 +183,7 @@ async def vacate_ens_role(
             ),
         )
 
+    await _set_project_rls(db, project_id)
     service = ClientContactService(db)
     try:
         status = await service.get_ens_required_roles_status(project_id)

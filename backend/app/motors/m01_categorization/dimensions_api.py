@@ -22,14 +22,14 @@ from __future__ import annotations
 import uuid
 
 from fastapi import APIRouter, Depends, HTTPException, Request, status
+from sqlalchemy import text as _sa_text
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from backend.app.auth.dependencies import (
     require_marcos_or_client,
     require_owner,
 )
-from backend.app.core.workflow_state import verify_client_owns_project
-from backend.app.database import get_db
+from backend.app.database import get_db, set_tenant_context
 
 from .dimensions_schemas import (
     ProjectDimensionsRead,
@@ -76,6 +76,12 @@ async def _ensure_access(
     Marcos owner: acceso TODO · updated_by = subject.user.id (auth_users pool).
     Cliente: verify project_id pertenece a su client_id · updated_by =
     subject.user.id (client_users pool).
+
+    FIX(RLS): `projects` es RLS fail-closed bajo fulkro_app, así que el service
+    (select(Project)) devuelve 0 filas → 404 sin tenant context. Resolvemos el
+    owner via get_project_owner() SECURITY DEFINER (cruza RLS) y fijamos el tenant
+    context para AMBAS rutas — antes la admin no lo fijaba y la cliente dependía,
+    frágil, de que verify_session dejara activo el rol bypassrls.
     """
     subject = _subject_from_request(request)
     if subject is None:
@@ -89,22 +95,35 @@ async def _ensure_access(
     )
     user_id = subject.user.id
 
-    # Admin Marcos: bypass · acceso TODO proyectos
+    owner = (
+        await db.execute(
+            _sa_text("SELECT get_project_owner(:pid)"), {"pid": str(project_id)}
+        )
+    ).scalar()
+    if not owner:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="Project not found",
+        )
+
+    # Admin Marcos: acceso TODO proyectos
     if pool == "auth_users" or getattr(subject.user, "is_marcos", False):
+        await set_tenant_context(db, client_id=owner, project_id=project_id)
         return user_id
 
-    # Cliente: verify ownership
+    # Cliente: verify ownership (owner == su client_id) · equivalente a
+    # verify_client_owns_project pero robusto bajo RLS (get_project_owner cruza).
     client_id = getattr(subject.user, "client_id", None)
     if client_id is None:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="Identidad cliente sin client_id",
         )
-    if not await verify_client_owns_project(db, project_id, client_id):
+    if str(owner) != str(client_id):
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="No tienes acceso a este proyecto",
         )
+    await set_tenant_context(db, client_id=client_id, project_id=project_id)
     return user_id
 
 

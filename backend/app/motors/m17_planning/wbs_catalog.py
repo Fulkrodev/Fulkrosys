@@ -169,14 +169,17 @@ WBS_CATALOG: list[WBSTaskTemplate] = [
         "WBS-071", "Coaching pre-auditoría", 7,
         3.0, 1.0, 3, "marcos", ["WBS-070"], None, ["MEDIA", "ALTA"],
     ),
+    # FIX(categoría): BÁSICA es conformidad por AUTODECLARACIÓN (sin auditoría de
+    # certificadora/ENAC) → estas tareas son solo MEDIA/ALTA, coherente con
+    # WBS-071 (coaching pre-auditoría) y la rama BÁSICO de m_audit_accompaniment.
     WBSTaskTemplate(
         "WBS-072", "Auditoría externa (certificadora)", 7,
         8.0, 0, 10, "marcos",
-        ["WBS-070", "WBS-071"], None, ["BASICA", "MEDIA", "ALTA"],
+        ["WBS-070", "WBS-071"], None, ["MEDIA", "ALTA"],
     ),
     WBSTaskTemplate(
         "WBS-073", "Corrección hallazgos auditoría", 7,
-        4.0, 2.0, 10, "mixto", ["WBS-072"], None, ["BASICA", "MEDIA", "ALTA"],
+        4.0, 2.0, 10, "mixto", ["WBS-072"], None, ["MEDIA", "ALTA"],
     ),
 
     # === FASE 8 — MANTENIMIENTO ===

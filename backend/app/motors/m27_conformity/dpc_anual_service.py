@@ -34,6 +34,20 @@ from backend.app.models.conformity_lifecycle import BasicDeclarationRow
 
 DPC_DECLARATION_TYPE = "dpc_anual"
 
+
+def add_years_safe(base: date, years: int) -> date:
+    """Suma `years` a `base` siendo seguro con el 29-feb.
+
+    FIX(feb-29): base.replace(year=...) revienta con ValueError si la
+    conformidad se firmó un 29-feb y el año destino no es bisiesto. Clampa al
+    28-feb (convención legal de aniversarios). Antes el ValueError abortaba la
+    corrida diaria entera del task → ningún DPC anual (art.25) para NINGÚN
+    proyecto."""
+    try:
+        return base.replace(year=base.year + years)
+    except ValueError:
+        return base.replace(year=base.year + years, day=28)
+
 # Cuántos días antes del anniversary_date el Celery task crea draft + alert
 ALERT_LEAD_DAYS = 30
 
@@ -152,10 +166,7 @@ class DpcAnualService:
         self, conformidad_signed_at: datetime, year_offset: int,
     ) -> date:
         """signed_at + (12 * year_offset) meses (Q1.A anniversary-based)."""
-        target = conformidad_signed_at.date().replace(
-            year=conformidad_signed_at.date().year + year_offset
-        )
-        return target
+        return add_years_safe(conformidad_signed_at.date(), year_offset)
 
     # ----------------------------------------------------------------
     # Draft creation (idempotent)

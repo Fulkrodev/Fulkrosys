@@ -19,9 +19,11 @@ from typing import Optional
 from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel, ConfigDict, Field
 from sqlalchemy import select
+from sqlalchemy import text as _sa_text
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from backend.app.database import get_db
+from backend.app.auth.dependencies import require_owner
+from backend.app.database import get_db, set_tenant_context
 from backend.app.models.aepd import AepdNotification
 from backend.app.models.core import Client, Project
 from backend.app.motors.m18_communication.aepd_connector import (
@@ -32,7 +34,26 @@ from backend.app.motors.m18_communication.aepd_decision_tree import (
     evaluate_decision_tree,
 )
 
-router = APIRouter(prefix="/projects", tags=["M18 - AEPD (MB-11.2)"])
+# ADR-013: gestión de brechas AEPD (op.exp.7) es operación admin. require_owner
+# cierra el IDOR (antes el router no tenía dependencia de auth).
+router = APIRouter(
+    prefix="/projects",
+    tags=["M18 - AEPD (MB-11.2)"],
+    dependencies=[Depends(require_owner)],
+)
+
+
+async def _set_project_rls(project_id: uuid.UUID, db: AsyncSession) -> None:
+    """FIX(RLS): projects + aepd_notifications son RLS fail-closed bajo fulkro_app.
+    Sin contexto, db.get(Project) → None → 404 y el INSERT viola WITH CHECK."""
+    owner = (
+        await db.execute(
+            _sa_text("SELECT get_project_owner(:pid)"), {"pid": str(project_id)}
+        )
+    ).scalar()
+    if not owner:
+        raise HTTPException(404, "Project not found")
+    await set_tenant_context(db, client_id=owner, project_id=project_id)
 
 
 class AepdEvaluateRequest(BaseModel):
@@ -83,6 +104,7 @@ async def post_evaluate_aepd(
     body: AepdEvaluateRequest,
     db: AsyncSession = Depends(get_db),
 ) -> AepdEvaluateResponse:
+    await _set_project_rls(project_id, db)
     project = await db.get(Project, project_id)
     if project is None:
         raise HTTPException(404, "Project not found")
@@ -152,6 +174,7 @@ async def get_aepd_notifications(
     project_id: uuid.UUID,
     db: AsyncSession = Depends(get_db),
 ) -> list[AepdNotificationResponse]:
+    await _set_project_rls(project_id, db)
     project = await db.get(Project, project_id)
     if project is None:
         raise HTTPException(404, "Project not found")

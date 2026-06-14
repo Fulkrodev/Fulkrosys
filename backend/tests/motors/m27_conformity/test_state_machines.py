@@ -120,6 +120,22 @@ class TestRenewalClock:
         from datetime import date
         assert service.compute_renewal_state(date.today())["state"] == "DUE"
 
+    def test_intermediate_windows_no_off_by_one(self):
+        """Regresión batch2: la cascada de umbrales no debe desplazarse (antes
+        delta>120 devolvía 'T-180' duplicado y corría cada ventana inferior)."""
+        from datetime import date, timedelta
+
+        def st(days: int) -> str:
+            return service.compute_renewal_state(
+                date.today() + timedelta(days=days)
+            )["state"]
+
+        assert st(150) == "T-120"
+        assert st(100) == "T-90"
+        assert st(70) == "T-60"
+        assert st(45) == "T-30"
+        assert st(15) == "T-30"
+
 
 class TestPceOverlay:
     def test_detects_pce_pyme_for_basica_generic(self):

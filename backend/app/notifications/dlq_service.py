@@ -37,6 +37,17 @@ NOTIFICATION_DLQ_REPROCESSED = "notification.dlq.reprocessed"
 NOTIFICATION_DLQ_RESOLVED = "notification.dlq.resolved"
 
 
+async def _elevate_admin(db: AsyncSession) -> None:
+    """FIX(RLS): la consola DLQ es admin cross-cliente. notification_events tiene
+    policy fail-open `project_id IS NULL OR project_id::text = current_setting(...)`,
+    así que sin contexto solo se ven filas con project_id NULL → las entradas DLQ
+    de proyectos (la mayoría) quedan invisibles/no reprocesables. Elevar a
+    fulkro_app_bypassrls (transaction-scoped) igual que operations.py · BYPASSRLS
+    también permite el INSERT en audit_log para project-scoped (que con la WITH
+    CHECK 3-way fallaría sin contexto). El R6 hash-chain trigger sigue activo."""
+    await db.execute(sa_text("SET LOCAL ROLE fulkro_app_bypassrls"))
+
+
 @dataclass
 class DlqEntry:
     """Single DLQ entry · derived from NotificationEvent failed row.
@@ -85,6 +96,7 @@ async def list_dlq_entries(
     Ordered by created_at DESC (newest first).
     Optional project_id filter scope.
     """
+    await _elevate_admin(db)
     sql_parts = [
         "SELECT id, event_type, recipient_email, project_id, status, retry_count, "
         "error, channels_attempted, channels_failed, template_used, "
@@ -129,6 +141,7 @@ async def get_dlq_summary(
     project_id: Optional[uuid.UUID] = None,
 ) -> DlqSummary:
     """Aggregated summary count + 24h delta + by event_type breakdown."""
+    await _elevate_admin(db)
     pid_clause = "AND project_id = :pid" if project_id is not None else ""
     params: dict = {"max_retries": MAX_RETRIES}
     if project_id is not None:
@@ -178,6 +191,7 @@ async def reprocess_dlq_entry(
 
     audit_log emit notification.dlq.reprocessed Sub-atom 5.A 3-way OR.
     """
+    await _elevate_admin(db)
     row = (await db.execute(sa_text(
         "SELECT project_id FROM notification_events WHERE id = :eid"
     ), {"eid": str(event_id)})).first()
@@ -220,6 +234,7 @@ async def resolve_dlq_entry(
 
     Audit emit notification.dlq.resolved Sub-atom 5.A.
     """
+    await _elevate_admin(db)
     row = (await db.execute(sa_text(
         "SELECT project_id FROM notification_events WHERE id = :eid"
     ), {"eid": str(event_id)})).first()

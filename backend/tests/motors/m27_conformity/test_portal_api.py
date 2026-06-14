@@ -306,8 +306,13 @@ async def test_readiness_complete_returns_ready_true(db, async_client):
         assert body["magerit_signed_at"] is not None
         assert body["pentest_signed_at"] is not None
         assert body["evidence_count"] >= 25
-        # BASICA ahora incluye policies item (Q2.b MB-6 atom 1) · 5 items total
-        assert len(body["items"]) == 5
+        # FIX(categoría): BÁSICA = DdA + MAGERIT + Evidencias + Policies = 4 items.
+        # El item de pentest SOLO aplica a ALTA (antes se mostraba en todos los
+        # tiers con CTA engañoso). El snapshot pentest_signed_at sigue existiendo.
+        assert len(body["items"]) == 4
+        assert not any(
+            "pentest" in (it.get("label") or "").lower() for it in body["items"]
+        )
         assert body["policies_signed_count"] >= 10
     finally:
         _clear_overrides()

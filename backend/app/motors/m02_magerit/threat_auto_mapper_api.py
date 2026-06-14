@@ -50,7 +50,13 @@ async def trigger_auto_map(
     await set_tenant_context(db, client_id=_owner, project_id=project_id)
 
     service = ThreatAutoMapper(db)
-    return await service.auto_map_threats_for_project(
+    result = await service.auto_map_threats_for_project(
         project_id=project_id,
         analysis_id=analysis_id,
     )
+    # FIX(commit): get_db NO auto-commitea (database.py:30-35) y el service solo
+    # hace flush() → sin este commit las filas MageritThreatAssessment se
+    # revierten al cerrar la sesión (rollback). Espejo de los 15 commits de
+    # m02_magerit/api.py.
+    await db.commit()
+    return result

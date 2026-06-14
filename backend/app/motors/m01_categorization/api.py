@@ -1112,6 +1112,10 @@ async def request_signature_endpoint(
     por canal separado. Si ya existe una solicitud previa, la revoca y
     emite una nueva.
     """
+    # FIX(RLS): resolver owner + fijar tenant context antes de tocar
+    # categorizations/magic_links (RLS fail-closed bajo fulkro_app), espejo
+    # del endpoint de doble firma.
+    await _get_system_with_rls(system_id, db)
     try:
         result = await request_acta_signature(
             session=db,
@@ -1126,6 +1130,10 @@ async def request_signature_endpoint(
             status_code=422,
             detail=str(exc),
         )
+    # FIX(commit): get_db NO auto-commitea → sin esto el magic_link insertado y
+    # categorization.signature_magic_link_id se revierten y el firmante recibe un
+    # link 404. Espejo de request_double_signature_endpoint.
+    await db.commit()
     return RequestSignatureResponse(**result)
 
 

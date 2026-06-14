@@ -22,6 +22,7 @@ Refs: SAN-C.MB-10.4 · CCN-STIC 824/844
 from __future__ import annotations
 
 import io
+import logging
 import uuid
 from dataclasses import dataclass, field
 from datetime import date
@@ -33,6 +34,8 @@ from docx.shared import Pt, RGBColor
 from sqlalchemy import text as sa_text
 from sqlalchemy.ext.asyncio import AsyncSession
 
+
+logger = logging.getLogger(__name__)
 
 INES_SCHEMA_VERSION = "CCN-STIC-824-v1"
 INES_TEMPLATE_VERSION = "1.0"
@@ -108,25 +111,28 @@ async def collect_ines_data(
         "CRITICA": 0,
     }
     try:
+        # FIX(column-drift): la tabla incidents tiene `severidad` (español) y la
+        # fecha del incidente es `fecha`, NO `severity`/`created_at`. Antes la
+        # query lanzaba UndefinedColumn tragado por el except → INES siempre 0
+        # incidentes (corrupción silenciosa de un entregable regulatorio · CCN-STIC
+        # 824). Espejo de dpc_anual_service.py.
         inc_row = await db.execute(
             sa_text(
-                "SELECT COALESCE(severity, 'MEDIA'), count(*) "
+                "SELECT COALESCE(severidad, 'MEDIA'), count(*) "
                 "FROM incidents i "
                 "JOIN projects p ON p.id = i.project_id "
                 "WHERE p.client_id = :cid "
-                "  AND extract(year from i.created_at) = :y "
-                "GROUP BY severity"
+                "  AND extract(year from i.fecha) = :y "
+                "  AND i.deleted_at IS NULL "
+                "GROUP BY severidad"
             ),
             {"cid": str(organization_id), "y": year},
         )
         for sev, count in inc_row.fetchall():
             sev_norm = (sev or "MEDIA").upper()
-            if sev_norm in incidents_summary:
-                incidents_summary[sev_norm] = int(count)
-            else:
-                incidents_summary[sev_norm] = int(count)
+            incidents_summary[sev_norm] = int(count)
     except Exception:
-        pass
+        logger.exception("INES incidents query failed (year=%s)", year)
 
     # Madurez avg cross-projects (placeholder · 0.0 si no hay datos)
     maturity_avg = 0.0

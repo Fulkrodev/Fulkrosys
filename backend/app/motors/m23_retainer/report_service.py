@@ -246,20 +246,24 @@ class ReportService:
             {"cid": str(client_id)},
         )
 
+        # FIX(column-drift): la tabla retainer_activities tiene tipo_actividad /
+        # fecha_ejecutada / retainer_contract_id (NO tipo / fecha_realizada /
+        # retainer_id). Antes la query lanzaba UndefinedColumn tragado por
+        # _safe_list → [] → activities_ok_pct=100 → RAG verde fabricado.
         actividades_list = await self._safe_list(
             db,
-            "SELECT id::text, tipo, estado, fecha_realizada "
+            "SELECT id::text, tipo_actividad, estado, fecha_ejecutada "
             "FROM retainer_activities "
-            "WHERE retainer_id IN "
+            "WHERE retainer_contract_id IN "
             "(SELECT id FROM retainer_contracts WHERE client_id = :cid) "
-            "AND fecha_realizada BETWEEN :i AND :f "
-            "ORDER BY fecha_realizada DESC LIMIT 50",
+            "AND fecha_ejecutada BETWEEN :i AND :f "
+            "ORDER BY fecha_ejecutada DESC LIMIT 50",
             {"cid": str(client_id), "i": periodo_inicio, "f": periodo_fin},
             lambda a: {
-                "id": a.id, "tipo": a.tipo, "estado": a.estado,
+                "id": a.id, "tipo": a.tipo_actividad, "estado": a.estado,
                 "fecha": (
-                    a.fecha_realizada.isoformat()
-                    if a.fecha_realizada else None
+                    a.fecha_ejecutada.isoformat()
+                    if a.fecha_ejecutada else None
                 ),
             },
         )

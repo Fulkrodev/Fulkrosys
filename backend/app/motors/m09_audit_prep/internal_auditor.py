@@ -99,6 +99,11 @@ QUESTION_BANK: list[dict[str, Any]] = [
             "¿Se ha realizado un analisis de riesgos MAGERIT y esta "
             "documentado el plan de tratamiento?"
         ),
+        # NOTA(honest-path): E-050 = INFORME DE AUDITORÍA INTERNA (duplica Q-007 ·
+        # semánticamente incorrecto para MAGERIT). No existe plantilla emitible de
+        # análisis de riesgos MAGERIT dedicada en el registry (vive en M02), así
+        # que NO se reasigna a un código inventado. Módulo A11/E-701 aún latente
+        # (sin caller de producción); revisar code_required con Marcos al cablearlo.
         "check_kind": "document_exists", "code_required": "E-050",
     },
     {
@@ -156,7 +161,9 @@ QUESTION_BANK: list[dict[str, Any]] = [
             "¿Existe plan de formacion en seguridad y registros de "
             "asistencia/evaluaciones?"
         ),
-        "check_kind": "document_exists", "code_required": "E-207",
+        # FIX(catalog): E-207 = PROCEDIMIENTO DE COPIAS DE SEGURIDAD (backup), NO
+        # formación → E-500 = PLAN ANUAL DE FORMACIÓN Y CONCIENCIACIÓN.
+        "check_kind": "document_exists", "code_required": "E-500",
     },
     {
         "code": "Q-012", "area": "proveedores", "weight": 2,

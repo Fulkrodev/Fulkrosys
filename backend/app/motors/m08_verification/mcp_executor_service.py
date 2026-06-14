@@ -59,6 +59,17 @@ class MCPToolDescriptor:
     params: tuple[MCPToolParamSpec, ...]
 
 
+# NOTA(drift · manual /mcps UI · Future-X): este catálogo es la lista curada
+# UI-facing para ejecución MANUAL de tools (NO el autopilot · ese vive en
+# autopilot/orchestrator.py y ya está alineado con el registry real). Algunos
+# tool_name aquí divergen del MCPTool.name real (prowler_scan→prowler_audit,
+# scoutsuite_scan→scoutsuite_audit, pacu_audit→pacu_attack, clara_scan→
+# clara_ccn_audit, cis_cat_scan→cis_cat_audit, openscap_scan→openscap_audit) Y
+# además los params declarados (aws_account/regions/...) NO mapean a las firmas
+# reales (provider/mode/...). Por eso con USE_MCP_REAL la ejecución manual cae a
+# _simulated_result. Alinear nombres SOLO no basta (haría falta una capa de mapeo
+# de params); se difiere a un Future-X dedicado para no dar falsa confianza. El
+# ciclo ENS de verificación (autopilot → dossier ENAC) NO depende de este catálogo.
 MCP_TOOLS_CATALOG: dict[str, dict[str, MCPToolDescriptor]] = {
     "vulnscan": {
         "nuclei_scan": MCPToolDescriptor(

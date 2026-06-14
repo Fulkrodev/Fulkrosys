@@ -289,7 +289,14 @@ class AwsRemediationWriter:
         keys = iam.list_access_keys(UserName=target).get("AccessKeyMetadata", [])
         now = datetime.datetime.now(datetime.timezone.utc)
         oldest_days = 0
+        # FIX: computar la edad SOLO sobre claves Activas. list_access_keys
+        # también devuelve las Inactive, y la desactivación NO cambia CreateDate.
+        # Antes, tras rotar (crear nueva + desactivar la vieja), la vieja seguía
+        # contando → oldest_days>90 → key_age_ok=False → verify fallaba →
+        # _rollback REACTIVABA la clave caducada (op.acc.5 nunca se cerraba).
         for k in keys:
+            if k.get("Status") != "Active":
+                continue
             created = k.get("CreateDate")
             if created is not None:
                 age = (now - created).days

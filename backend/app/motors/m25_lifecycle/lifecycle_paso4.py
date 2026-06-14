@@ -330,6 +330,31 @@ class LifecyclePaso4Service:
                     f"Error inesperado en retainer trigger: {exc}"
                 )
 
+        # FIX(wiring): art.31 RD 311/2022 · al pasar la auditoría ENAC de un
+        # proyecto MEDIA/ALTA programar la auditoría bienal (730 días).
+        # schedule_biannual_audit existía pero NUNCA se invocaba → el aviso de
+        # renovación bienal nunca se disparaba automáticamente. BÁSICA es
+        # autodeclaración (sin auditoría externa) → excluida. Idempotente +
+        # non-fatal (no bloquea cert).
+        categoria = str(
+            getattr(project, "categoria_objetivo", "") or ""
+        ).upper()
+        if result == "passed" and categoria in ("MEDIA", "ALTA"):
+            try:
+                from backend.app.motors.m27_conformity.audit_schedule_service import (  # noqa: E501
+                    schedule_biannual_audit,
+                )
+                sched_id = await schedule_biannual_audit(
+                    db, project_id, now_dt.date(),
+                    metadata={
+                        "triggered_by": "audit_marked",
+                        "audit_event_id": str(audit_event.id),
+                    },
+                )
+                response["biannual_audit_schedule_id"] = str(sched_id)
+            except Exception as exc:  # pragma: no cover · non-fatal
+                response["biannual_audit_skipped_reason"] = str(exc)
+
         return response
 
     # ── oferta retainer ──────────────────────────────────────────────

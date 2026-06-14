@@ -47,6 +47,27 @@ async def _set_project_rls(project_id: uuid.UUID, db: AsyncSession):
     await set_tenant_context(db, client_id=client_id, project_id=project_id)
 
 
+async def _set_rls_for_retainer(retainer_id: uuid.UUID, db: AsyncSession):
+    """FIX(RLS): los endpoints retainer_id-scoped (descarga DOCX) reciben
+    retainer_id sin project_id. Resolver client_id/project_id del contrato
+    (cruzando RLS vía bypass admin acotado) + fijar tenant context, si no
+    _fetch_retainer_with_client devuelve None → ValueError → 404 en prod."""
+    await db.execute(text("SET LOCAL ROLE fulkro_app_bypassrls"))
+    try:
+        row = (await db.execute(
+            text(
+                "SELECT client_id, project_id FROM retainer_contracts "
+                "WHERE id = :rid"
+            ),
+            {"rid": str(retainer_id)},
+        )).first()
+    finally:
+        await db.execute(text("RESET ROLE"))
+    if row is None:
+        raise HTTPException(status_code=404, detail="Retainer not found")
+    await set_tenant_context(db, client_id=row[0], project_id=row[1])
+
+
 # ─────────── Schemas ───────────
 
 class CreateRetainerBody(BaseModel):
@@ -155,11 +176,20 @@ async def list_active_retainer_client_ids(
     """#29 · IDs de clientes con un retainer ACTIVO · alimenta el bucket
     'En retainer' del sidebar admin (antes ``filterRetainer`` devolvía siempre []).
     Vista global Marcos (require_owner a nivel de router · sin RLS)."""
-    rows = await db.execute(text(
-        "SELECT DISTINCT client_id FROM retainer_contracts "
-        "WHERE estado = 'active' AND deleted_at IS NULL"
-    ))
-    return {"client_ids": [str(r[0]) for r in rows.all()]}
+    # FIX(RLS): retainer_contracts es RLS fail-closed bajo fulkro_app · sin bypass
+    # ni tenant context la query devuelve [] (los retainers reales tienen
+    # project_id non-NULL → ni client_isolation ni el escape project_id IS NULL los
+    # rescatan). Elevar a bypassrls como hacen /dashboard y /list (vía service).
+    await db.execute(text("SET LOCAL ROLE fulkro_app_bypassrls"))
+    try:
+        rows = await db.execute(text(
+            "SELECT DISTINCT client_id FROM retainer_contracts "
+            "WHERE estado = 'active' AND deleted_at IS NULL"
+        ))
+        client_ids = [str(r[0]) for r in rows.all()]
+    finally:
+        await db.execute(text("RESET ROLE"))
+    return {"client_ids": client_ids}
 
 
 # ─────────── Lifecycle por proyecto ───────────
@@ -570,6 +600,7 @@ async def download_quarterly_report(
     db: AsyncSession = Depends(get_db),
 ):
     """Render+download quarterly DOCX for retainer + period_start (YYYY-MM-DD)."""
+    await _set_rls_for_retainer(retainer_id, db)
     try:
         blob = await render_quarterly_report_docx(
             db, retainer_id, period_start,
@@ -595,6 +626,7 @@ async def download_annual_report(
     """Render+download annual DOCX aggregating 4 quarters of `year`."""
     if year < 2024 or year > 2100:
         raise HTTPException(status_code=400, detail="Year out of range")
+    await _set_rls_for_retainer(retainer_id, db)
     try:
         blob = await render_annual_report_docx(db, retainer_id, year)
     except ValueError as exc:

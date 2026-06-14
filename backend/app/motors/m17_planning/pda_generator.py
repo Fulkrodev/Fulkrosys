@@ -179,7 +179,12 @@ async def build_pda_context(
         pct = round((conformes / aplica_all * 100) if aplica_all else 0, 1)
         gap_summary.append({
             "family": fam,
-            "aplicables": int(aplicables or 0),
+            # FIX: la columna "Aplicables" debe contar SOLO las medidas aplicables
+            # (aplica%), no el total con no_aplica · si no, 'Aplicables' no
+            # reconcilia con 'No conformes'/'% conformidad' (que usan aplica_all)
+            # en el PdA E-150 firmable (CCN-STIC 806). `aplicables` (count(*) total)
+            # se ignora; el nombre del campo se mantiene por compatibilidad render.
+            "aplicables": int(aplica_all or 0),
             "conformes": conformes,
             "no_conformes": no_conformes,
             "pct_conformidad": pct,

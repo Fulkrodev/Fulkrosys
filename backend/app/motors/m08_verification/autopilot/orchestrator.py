@@ -71,48 +71,82 @@ AUTOPILOT_PHASES = (
 # construir args desde el scope. Reutiliza el arsenal MCP existente (OPS-045).
 # safe-by-default: solo escaneo no destructivo en autopilot (exploitation =
 # Gate 2 humano).
+# FIX(MCP drift): los nombres de tool DEBEN coincidir EXACTOS con MCPTool.name
+# registrado en backend/mcp_servers/*/tools/*.py · antes httpx_scan/subfinder_scan/
+# amass_scan/grype_scan/testssl/zap/nikto/arjun/scoutsuite_scan NO existían →
+# invoke_mcp devolvía "tool not found" → escaneo MEDIO/ALTO silenciosamente
+# degradado (dossier ENAC falso-incompleto). Verificado contra el registry.
 CATEGORY_PLAN: dict[str, tuple[tuple[str, str, str], ...]] = {
     "BASICO": (
         ("recon", "nmap_scan", "host"),
-        ("recon", "httpx_scan", "web"),
+        ("recon", "httpx_probe", "web"),
         ("vulnscan", "nuclei_scan", "web_or_host"),
         ("config", "lynis_audit", "host"),
     ),
     "MEDIO": (
         ("recon", "nmap_scan", "host"),
-        ("recon", "httpx_scan", "web"),
-        ("recon", "subfinder_scan", "domain"),
+        ("recon", "httpx_probe", "web"),
+        ("recon", "subfinder_enum", "domain"),
         ("vulnscan", "nuclei_scan", "web_or_host"),
         ("vulnscan", "openvas_scan", "host"),
         ("vulnscan", "trivy_scan", "host"),
-        ("webpentest", "testssl", "web"),
-        ("webpentest", "zap", "web"),
+        ("webpentest", "testssl_scan", "web"),
+        ("webpentest", "zap_spider_scan", "web"),
         ("sast", "semgrep_scan", "repo"),
         ("cloud", "prowler_audit", "cloud"),
-        ("cloud", "scoutsuite_scan", "cloud"),
+        ("cloud", "scoutsuite_audit", "cloud"),
         ("config", "lynis_audit", "host"),
     ),
     "ALTO": (
         ("recon", "nmap_scan", "host"),
-        ("recon", "httpx_scan", "web"),
-        ("recon", "subfinder_scan", "domain"),
-        ("recon", "amass_scan", "domain"),
+        ("recon", "httpx_probe", "web"),
+        ("recon", "subfinder_enum", "domain"),
+        ("recon", "amass_enum", "domain"),
         ("vulnscan", "nuclei_scan", "web_or_host"),
         ("vulnscan", "openvas_scan", "host"),
         ("vulnscan", "trivy_scan", "host"),
-        ("vulnscan", "grype_scan", "host"),
-        ("webpentest", "testssl", "web"),
-        ("webpentest", "zap", "web"),
-        ("webpentest", "nikto", "web"),
-        ("apisec", "arjun", "web"),
+        ("vulnscan", "grype_sbom_scan", "host"),
+        ("webpentest", "testssl_scan", "web"),
+        ("webpentest", "zap_spider_scan", "web"),
+        ("webpentest", "nikto_scan", "web"),
+        ("apisec", "arjun_param_discovery", "web"),
         ("sast", "semgrep_scan", "repo"),
         ("sast", "checkov_scan", "repo"),
         ("cloud", "prowler_audit", "cloud"),
-        ("cloud", "scoutsuite_scan", "cloud"),
+        ("cloud", "scoutsuite_audit", "cloud"),
         ("cloud", "kube_security_scan", "cloud"),
         ("config", "lynis_audit", "host"),
     ),
 }
+
+
+def _build_tool_args(tool: str, target: str) -> dict[str, Any]:
+    """FIX(MCP args): cada tool MCP espera el target con un nombre de parámetro
+    distinto. Pasar siempre {'target': ...} provocaba TypeError (kwarg
+    inesperado / requerido ausente) → tool 'failed' silencioso en prod. Mapea el
+    target del scope al parámetro real de cada handler (verificado contra las
+    firmas async def en backend/mcp_servers)."""
+    if tool in ("subfinder_enum", "amass_enum"):
+        return {"domain": target}
+    if tool in ("zap_spider_scan", "arjun_param_discovery"):
+        return {"url": target}
+    if tool == "semgrep_scan":
+        return {"path": target}
+    if tool == "checkov_scan":
+        return {"directory": target}
+    if tool in ("prowler_audit", "scoutsuite_audit"):
+        # Cloud: el target es el nombre/tipo de la cuenta · derivar provider.
+        t = (target or "").lower()
+        if "azure" in t:
+            provider = "azure"
+        elif "gcp" in t or "google" in t:
+            provider = "gcp"
+        else:
+            provider = "aws"
+        return {"provider": provider}
+    # Default (nmap/nuclei/openvas/trivy/grype_sbom/testssl/nikto/kube/lynis/httpx):
+    # todos aceptan `target`.
+    return {"target": target}
 
 # Categoría humana label → clave de run.category ('ALTO'/'MEDIO'/'BASICO')
 _CATEGORY_NORM = {
@@ -202,7 +236,7 @@ async def collect_candidates(
                 try:
                     resp = await try_invoke_mcp_or_none(
                         server=server, tool=tool,
-                        args={"target": target}, timeout_seconds=600,
+                        args=_build_tool_args(tool, target), timeout_seconds=600,
                     )
                     cands = mcp_result_to_candidates(
                         resp, server=server, tool=tool, target=target,

@@ -556,6 +556,11 @@ async def update_lead_stage(
     except InvalidTransitionError as exc:
         raise HTTPException(status_code=400, detail=str(exc))
 
+    # FIX(commit): get_db NO auto-commitea y transition_estado_contacto solo hace
+    # flush() → sin esto el cambio de estado_contacto y la fila lead_stage_history
+    # se revierten al cerrar la sesión (el Kanban "avanza" en la UI optimista pero
+    # revierte al recargar). Espejo de los endpoints de propuestas (161/201/...).
+    await db.commit()
     return _serialize_lead_for_crm(lead)
 
 
@@ -742,4 +747,6 @@ async def update_lead_estado_contacto(
     except InvalidTransitionError as exc:
         raise HTTPException(status_code=400, detail=str(exc))
 
+    # FIX(commit): gemelo español de update_lead_stage · misma omisión de commit.
+    await db.commit()
     return _serialize_lead_for_crm(lead)
