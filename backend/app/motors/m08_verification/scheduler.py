@@ -245,7 +245,14 @@ try:
         )
 
         async def _run():
+            from sqlalchemy import text as _text
             async with async_session() as db:
+                # Path de scheduler/Celery: sin request NO hay contexto de tenant.
+                # verification_runs/findings tienen FORCE RLS (project_isolation),
+                # así que bajo fulkro_app el run sería invisible → ValueError. Es
+                # una tarea de sistema que opera sobre un run_id concreto: elevamos
+                # a bypassrls (espeja autopilot_api que sí fija contexto).
+                await db.execute(_text("SET LOCAL ROLE fulkro_app_bypassrls"))
                 summary = await orchestrate_run(db, run_id)
                 await db.commit()
                 return summary

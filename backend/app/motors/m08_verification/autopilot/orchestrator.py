@@ -16,6 +16,7 @@ depende del agente). Excepciones → status='failed', findings intactos.
 """
 from __future__ import annotations
 
+import asyncio
 import logging
 import os
 import uuid
@@ -387,7 +388,9 @@ async def process_and_persist(
             else bool(_safe_llm_available())
         )
         if do_triage:
-            verdict_payload = triage_finding({
+            # El LLM router.complete es SÍNCRONO (SDK bloqueante); ejecutarlo en un
+            # hilo para NO bloquear el event loop de FastAPI mientras triagea.
+            verdict_payload = await asyncio.to_thread(triage_finding, {
                 "finding_hash": vf.finding_hash, "title": vf.title,
                 "description": vf.description, "severity": vf.severity,
                 "cve_id": vf.cve_id, "cvss_score": float(vf.cvss_score) if vf.cvss_score else None,
@@ -426,6 +429,12 @@ async def process_and_persist(
         "rejected": len(rejected),
         "verdicts": verdicts,
         "severity_counts": sev_counts,
+        # 'confirmed' real = solo los clasificados confirmed (NO needs_review/probable),
+        # para que run.confirmed_findings no infle la métrica que ve el auditor ENAC.
+        "confirmed": sum(
+            1 for vf in persisted
+            if getattr(vf, "zfp_gate5_classification", None) == "confirmed"
+        ),
     }
 
 
@@ -520,7 +529,7 @@ async def orchestrate_run(
         run.autopilot_phase = "reporting"
         sev = result.get("severity_counts", {})
         run.total_findings = result["persisted"]
-        run.confirmed_findings = result["persisted"]
+        run.confirmed_findings = result.get("confirmed", result["persisted"])
         run.critical_count = sev.get("critical", 0)
         run.high_count = sev.get("high", 0)
         run.medium_count = sev.get("medium", 0)

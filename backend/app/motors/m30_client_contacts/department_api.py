@@ -64,7 +64,9 @@ async def _set_project_context(
     )).scalar()
     if not cid:
         raise HTTPException(status_code=404, detail="Project not found")
-    await set_tenant_context(db, project_id=project_id)
+    # projects tiene FORCE RLS por current_client_id(): hay que fijar client_id
+    # además de project_id, si no db.get(Project) da 404 bajo fulkro_app.
+    await set_tenant_context(db, client_id=cid, project_id=project_id)
 
 
 @router.get("/suggestions", response_model=DepartmentSuggestionsResponse)

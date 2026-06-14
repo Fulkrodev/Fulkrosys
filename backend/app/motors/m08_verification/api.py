@@ -280,6 +280,7 @@ async def patch_finding(
         raise HTTPException(status_code=404, detail=str(exc))
     except ValidationError as exc:
         raise HTTPException(status_code=422, detail=str(exc))
+    await db.commit()  # get_db() no auto-commitea: persistir la disposición del finding
     return _serialize_finding_summary(f)
 
 
@@ -300,6 +301,7 @@ async def patch_finding_mapping(
         )
     except FindingNotFoundError as exc:
         raise HTTPException(status_code=404, detail=str(exc))
+    await db.commit()  # get_db() no auto-commitea: persistir el mapeo ENS corregido
     return _serialize_finding_summary(f)
 
 

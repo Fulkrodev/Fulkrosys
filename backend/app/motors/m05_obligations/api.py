@@ -288,6 +288,7 @@ async def create_obligation(
     response = _serialize_obligation(ob)
     if magic_link_data:
         response["magic_link"] = magic_link_data
+    await db.commit()  # get_db() no auto-commitea: persistir obligación + magic link
     return response
 
 
@@ -451,6 +452,7 @@ async def update_obligation(
     for key, val in updates.items():
         setattr(ob, key, val)
     await db.flush()
+    await db.commit()  # get_db() no auto-commitea
     return _serialize_obligation(ob)
 
 
@@ -481,6 +483,7 @@ async def _transition_estado(
         from datetime import datetime as _dt, timezone as _tz
         ob.fecha_completado = _dt.now(_tz.utc)
     await db.flush()
+    await db.commit()  # get_db() no auto-commitea
     return _serialize_obligation(ob)
 
 

@@ -615,6 +615,7 @@ async def create_conversation(
     )
     db.add(conv)
     await db.flush()
+    await db.commit()  # get_db() no auto-commitea: persistir la conversación
     return _serialize_conv(conv)
 
 
@@ -709,6 +710,7 @@ async def delete_conversation(
         raise HTTPException(status_code=404, detail="Conversation not found")
     conv.deleted_at = datetime.now(timezone.utc)
     await db.flush()
+    await db.commit()  # get_db() no auto-commitea: persistir el soft-delete
     return {"ok": True}
 
 
@@ -803,6 +805,7 @@ async def conversation_chat(
     )
     db.add(assistant_msg)
     await db.flush()
+    await db.commit()  # get_db() no auto-commitea: persistir memoria user+assistant
 
     return {
         "user_message": _serialize_msg(user_msg),

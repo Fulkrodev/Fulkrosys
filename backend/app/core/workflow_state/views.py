@@ -225,6 +225,17 @@ async def verify_client_owns_project(
     Helper para endpoints ``/portal/workflow/*`` (TODO-CLIENT-WORKFLOW-VIEW
     RESOLVED durante FASE 8). Cliente solo ve workflow de SUS proyectos.
     """
+    # projects tiene FORCE RLS por current_client_id(): fijar el contexto del
+    # cliente ANTES de leer projects (si no, 0 filas → False → 403 al dueño
+    # legítimo). Fijamos también current_project_id para las lecturas posteriores.
+    await session.execute(
+        sa_text("SELECT set_config('app.current_client_id', :cid, true)"),
+        {"cid": str(client_id)},
+    )
+    await session.execute(
+        sa_text("SELECT set_config('app.current_project_id', :pid, true)"),
+        {"pid": str(project_id)},
+    )
     row = await session.execute(
         sa_text(
             "SELECT 1 FROM projects "
