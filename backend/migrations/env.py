@@ -76,6 +76,7 @@ _AUTOGEN_EXCLUDE_TABLES = frozenset({
     "client_dashboard_state",   # m21 estado dashboard cliente · raw
     "client_workspaces",        # m20 workspaces · raw
     "global_search_queries",    # búsqueda global · raw/telemetría
+    "pricing_config",           # P4-1 fuente única precios · raw-SQL (core/pricing/repository.py) · NO ORM
 })
 
 
