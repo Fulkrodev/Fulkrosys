@@ -832,7 +832,7 @@ async def _fetch_document_for_cliente(
     res = await db.execute(
         text(
             "SELECT d.id, d.nombre, d.template_codigo, d.docx_path, d.pdf_path, "
-            "d.storage_path, d.deleted_at, p.client_id "
+            "d.storage_path, d.deleted_at, d.interno, p.client_id "
             "FROM documents d JOIN projects p ON d.project_id = p.id "
             "WHERE d.id = :did"
         ),
@@ -842,6 +842,9 @@ async def _fetch_document_for_cliente(
     if row is None or row["deleted_at"] is not None:
         return None
     if str(row["client_id"]) != str(client_id):
+        return None
+    if row["interno"]:
+        # interno=true es SOLO admin · paridad con el listado/descarga cliente.
         return None
     return dict(row)
 
@@ -1106,7 +1109,7 @@ async def portal_document_download(
     res = await db.execute(
         text(
             "SELECT d.id, d.nombre, d.template_codigo, d.docx_path, "
-            "       d.pdf_path, d.storage_path, d.deleted_at, "
+            "       d.pdf_path, d.storage_path, d.deleted_at, d.interno, "
             "       p.client_id "
             "FROM documents d "
             "JOIN projects p ON d.project_id = p.id "
@@ -1119,6 +1122,10 @@ async def portal_document_download(
         raise HTTPException(status_code=404, detail="Documento no encontrado")
     if str(row["client_id"]) != str(user.client_id):
         # No exponer existencia cross-tenant.
+        raise HTTPException(status_code=404, detail="Documento no encontrado")
+    if row["interno"]:
+        # Documentos interno=true son SOLO admin · paridad con el listado cliente
+        # (que filtra interno=false). 404 para no revelar su existencia.
         raise HTTPException(status_code=404, detail="Documento no encontrado")
 
     file_path: str | None = (

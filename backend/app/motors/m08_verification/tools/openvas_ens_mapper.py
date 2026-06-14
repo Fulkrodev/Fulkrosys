@@ -25,7 +25,7 @@ FAMILY_TO_ENS: dict[str, list[str]] = {
     "web servers": ["mp.sw.1", "mp.sw.2"],
     "web application abuses": ["mp.sw.2", "mp.s.2"],
     # BBDD
-    "databases": ["mp.info.2", "mp.info.3"],
+    "databases": ["mp.info.2", "mp.si.2"],
     # Windows
     "windows": ["op.exp.3", "op.exp.4"],
     "windows : microsoft bulletins": ["op.exp.3", "op.exp.4"],
@@ -42,7 +42,7 @@ FAMILY_TO_ENS: dict[str, list[str]] = {
     "default accounts": ["op.acc.2", "op.acc.4"],
     "credentials": ["op.acc.5"],
     # Archivos / FTP / SMB
-    "smb": ["mp.com.1", "mp.info.3"],
+    "smb": ["mp.com.1", "mp.si.2"],
     "ftp": ["mp.com.2"],
     # Firewall / perimetro
     "firewalls": ["mp.com.1"],
@@ -129,7 +129,7 @@ ENS_MEASURE_LABEL: dict[str, str] = {
     "mp.com.3": "Proteccion de la integridad",
     "mp.eq.3": "Proteccion de equipos portatiles",
     "mp.info.2": "Calificacion de la informacion",
-    "mp.info.3": "Cifrado",
+    "mp.si.2": "Criptografia",
     "mp.s.2": "Proteccion de servicios web",
     "mp.sw.1": "Desarrollo de aplicaciones",
     "mp.sw.2": "Aceptacion y puesta en servicio",

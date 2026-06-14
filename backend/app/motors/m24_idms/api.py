@@ -422,6 +422,45 @@ async def list_documents(
     return {"documents": [_serialize_document(d) for d in docs]}
 
 
+# NOTA: las rutas ESTÁTICAS (/documents/expiring, /documents/expired) DEBEN
+# declararse ANTES que la dinámica /documents/{document_id}; si no, FastAPI casa
+# "expiring"/"expired" contra {document_id} (UUID) → 422 y nunca las alcanza.
+@router.get("/projects/{project_id}/idms/documents/expiring")
+async def list_documents_expiring(
+    project_id: uuid.UUID,
+    days: int = 30,
+    db: AsyncSession = Depends(get_db),
+):
+    """Documentos activos cuya expires_at cae en los proximos N dias."""
+    await _set_project_rls(project_id, db)
+    if days < 0 or days > 365:
+        raise HTTPException(
+            status_code=400, detail="days debe estar en rango [0, 365]",
+        )
+    docs = await IDMSService().list_expiring_soon(db, project_id, days_ahead=days)
+    return {
+        "project_id": str(project_id),
+        "days_ahead": days,
+        "count": len(docs),
+        "documents": [_serialize_document(d) for d in docs],
+    }
+
+
+@router.get("/projects/{project_id}/idms/documents/expired")
+async def list_documents_expired(
+    project_id: uuid.UUID,
+    db: AsyncSession = Depends(get_db),
+):
+    """Documentos activos cuya expires_at ya paso (alerta inmediata)."""
+    await _set_project_rls(project_id, db)
+    docs = await IDMSService().list_expired(db, project_id)
+    return {
+        "project_id": str(project_id),
+        "count": len(docs),
+        "documents": [_serialize_document(d) for d in docs],
+    }
+
+
 @router.get("/projects/{project_id}/idms/documents/{document_id}")
 async def get_document(
     project_id: uuid.UUID,
@@ -743,42 +782,6 @@ async def set_document_expiration(
         raise HTTPException(status_code=400, detail=str(exc))
     await db.commit()
     return _serialize_document(doc)
-
-
-@router.get("/projects/{project_id}/idms/documents/expiring")
-async def list_documents_expiring(
-    project_id: uuid.UUID,
-    days: int = 30,
-    db: AsyncSession = Depends(get_db),
-):
-    """Documentos activos cuya expires_at cae en los proximos N dias."""
-    await _set_project_rls(project_id, db)
-    if days < 0 or days > 365:
-        raise HTTPException(
-            status_code=400, detail="days debe estar en rango [0, 365]",
-        )
-    docs = await IDMSService().list_expiring_soon(db, project_id, days_ahead=days)
-    return {
-        "project_id": str(project_id),
-        "days_ahead": days,
-        "count": len(docs),
-        "documents": [_serialize_document(d) for d in docs],
-    }
-
-
-@router.get("/projects/{project_id}/idms/documents/expired")
-async def list_documents_expired(
-    project_id: uuid.UUID,
-    db: AsyncSession = Depends(get_db),
-):
-    """Documentos activos cuya expires_at ya paso (alerta inmediata)."""
-    await _set_project_rls(project_id, db)
-    docs = await IDMSService().list_expired(db, project_id)
-    return {
-        "project_id": str(project_id),
-        "count": len(docs),
-        "documents": [_serialize_document(d) for d in docs],
-    }
 
 
 @router.post("/projects/{project_id}/idms/documents/auto-deprecate-expired")

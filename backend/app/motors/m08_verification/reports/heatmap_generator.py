@@ -17,45 +17,16 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import Iterable
 
+from backend.app.motors.m03_dda.anexo2_rd311_2022 import ANEXO_II_RD311
+
 
 CELL_STATUS = {"compliant", "partial", "non_compliant", "not_verified"}
 
 
-ENS_73_MEASURES: list[str] = [
-    # Marco organizativo (4)
-    "org.1", "org.2", "org.3", "org.4",
-    # op.pl (5)
-    "op.pl.1", "op.pl.2", "op.pl.3", "op.pl.4", "op.pl.5",
-    # op.acc (6)
-    "op.acc.1", "op.acc.2", "op.acc.3", "op.acc.4", "op.acc.5", "op.acc.6",
-    # op.exp (11)
-    "op.exp.1", "op.exp.2", "op.exp.3", "op.exp.4", "op.exp.5",
-    "op.exp.6", "op.exp.7", "op.exp.8", "op.exp.9", "op.exp.10", "op.exp.11",
-    # op.ext (4)
-    "op.ext.1", "op.ext.2", "op.ext.3", "op.ext.4",
-    # op.nub (2)
-    "op.nub.1", "op.nub.2",
-    # op.cont (4)
-    "op.cont.1", "op.cont.2", "op.cont.3", "op.cont.4",
-    # op.mon (3)
-    "op.mon.1", "op.mon.2", "op.mon.3",
-    # mp.if (7)
-    "mp.if.1", "mp.if.2", "mp.if.3", "mp.if.4", "mp.if.5", "mp.if.6", "mp.if.7",
-    # mp.per (4)
-    "mp.per.1", "mp.per.2", "mp.per.3", "mp.per.4",
-    # mp.eq (4)
-    "mp.eq.1", "mp.eq.2", "mp.eq.3", "mp.eq.4",
-    # mp.com (4)
-    "mp.com.1", "mp.com.2", "mp.com.3", "mp.com.4",
-    # mp.si (5)
-    "mp.si.1", "mp.si.2", "mp.si.3", "mp.si.4", "mp.si.5",
-    # mp.sw (2)
-    "mp.sw.1", "mp.sw.2",
-    # mp.info (6)
-    "mp.info.1", "mp.info.2", "mp.info.3", "mp.info.4", "mp.info.5", "mp.info.6",
-    # mp.s (2)
-    "mp.s.1", "mp.s.2",
-]  # Total: 4+5+6+11+4+2+4+3+7+4+4+4+5+2+6+2 = 73
+# Derivado de la FUENTE ÚNICA RD 311/2022 (Anexo II) para que el heatmap NUNCA
+# vuelva a derivar al RD 3/2010. La lista hardcodeada anterior tenía códigos
+# fantasma (op.exp.11, op.nub.2) y omitía medidas reales (mp.s.3, mp.s.4).
+ENS_73_MEASURES: list[str] = list(ANEXO_II_RD311.keys())
 
 
 @dataclass(frozen=True)

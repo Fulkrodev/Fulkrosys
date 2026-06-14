@@ -143,8 +143,11 @@ class CopilotPersonaService:
         if details:
             active_client_context = " · ".join(details)
         elif active_project_id is not None:
-            # Fallback · fetch project name desde DB cuando NO se pasó name
+            # Fallback · fetch project name desde DB cuando NO se pasó name.
+            # bypassrls puntual: admin, un único proyecto por id (si no, projects
+            # FORCE RLS lo ocultaría y el copiloto no sabría el nombre).
             try:
+                await db.execute(sa_text("SET LOCAL ROLE fulkro_app_bypassrls"))
                 result = await db.execute(
                     sa_text(
                         "SELECT nombre, fase FROM projects WHERE id = :pid",
@@ -159,6 +162,11 @@ class CopilotPersonaService:
                     )
             except Exception:
                 pass
+            finally:
+                try:
+                    await db.execute(sa_text("RESET ROLE"))
+                except Exception:  # noqa: S110
+                    pass
 
         # 1.D.F.0.D · screen-aware context lookup
         screen_ref = lookup_screen_reference(self.persona, current_screen)
@@ -188,6 +196,10 @@ class CopilotPersonaService:
     async def _build_portfolio_summary(self, db: AsyncSession) -> str:
         """Resumen portfolio multi-cliente · counts per fase · best-effort."""
         try:
+            # Agregado cross-tenant (admin/Marcos): bajo fulkro_app la RLS de
+            # projects daría 0 sin contexto → "0 clientes" falso. bypassrls solo
+            # para este COUNT, RESET al final (no contaminar el resto del request).
+            await db.execute(sa_text("SET LOCAL ROLE fulkro_app_bypassrls"))
             result = await db.execute(
                 sa_text(
                     # #7.3 guard: proyectos LIGEROS (lead en embudo · DRAFT +
@@ -201,6 +213,11 @@ class CopilotPersonaService:
             return f"Portfolio activo: {active_count} cliente(s)"
         except Exception:
             return "(portfolio resumen no disponible)"
+        finally:
+            try:
+                await db.execute(sa_text("RESET ROLE"))
+            except Exception:  # noqa: S110
+                pass
 
     # ════════════════════════════════════════════════════════════════
     # System prompt rendering

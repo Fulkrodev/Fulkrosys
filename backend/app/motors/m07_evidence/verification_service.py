@@ -133,13 +133,17 @@ async def verify_evidence(
             detail=f"Signature length {len(sig_bytes)} != 64 bytes",
         )
 
-    # Signature looks structurally valid, hash matches — evidence is OK.
+    # Hash matches y la firma es ESTRUCTURALMENTE válida (64 bytes), pero NO se
+    # verifica criptográficamente con Ed25519 porque no se conserva el payload
+    # original (timestamp) para reconstruirlo. Reportar signature_valid=None (no
+    # verificada) en vez de True — no afirmar integridad de firma ante ENAC que
+    # no se ha comprobado. La integridad de contenido (hash) SÍ se confirma.
     return VerificationReport(
         evidence_id=evidence_id,
         verdict="ok",
         hash_matches=True,
-        signature_valid=True,
+        signature_valid=None,
         stored_hash=stored_hash,
         computed_hash=computed_hash,
-        detail="Hash matches and signature is structurally valid",
+        detail="Hash coincide; firma estructuralmente válida pero NO verificada criptográficamente (payload original no conservado)",
     )

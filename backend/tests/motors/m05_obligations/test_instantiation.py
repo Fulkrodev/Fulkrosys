@@ -219,7 +219,9 @@ class TestInstantiateObligations:
         assert rec["template_id"] == tmpl.id
         assert rec["template_version"] == "1.0"
         assert rec["esfuerzo_estimado"] == tmpl.esfuerzo_horas
-        assert rec["estado"] == "pending"
+        # 'pendiente' (ES) = canónico de la máquina de estados (antes 'pending' EN
+        # dejaba la obligación en limbo: no arrancable ni contabilizada).
+        assert rec["estado"] == "pendiente"
         assert rec["modo_ejecucion"] == tmpl.modo_ejecucion
 
     async def test_instantiate_for_multiple_gaps(self, db):

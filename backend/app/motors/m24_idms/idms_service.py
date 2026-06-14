@@ -394,6 +394,8 @@ class IDMSService:
             select(Document).where(
                 Document.project_id == project_id,
                 Document.content_hash == content_hash,
+                # un documento borrado no debe eclipsar una re-subida legítima
+                Document.deleted_at.is_(None),
             ).limit(1)
         )
         return res.scalar_one_or_none()

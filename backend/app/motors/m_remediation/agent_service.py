@@ -316,8 +316,12 @@ class RemediationAgentService:
             raise AgentServiceError("Comando no encontrado.")
 
         report_payload = {"command_id": str(cmd.id), "result": result}
+        try:
+            _pubkey = bytes.fromhex(agent.agent_pubkey_hex or "")
+        except ValueError:
+            raise AgentAuthError("Clave pública del agente inválida · rechazado.")
         if not agent.agent_pubkey_hex or not verify_payload(
-            bytes.fromhex(agent.agent_pubkey_hex), report_payload, report_signature,
+            _pubkey, report_payload, report_signature,
         ):
             raise AgentAuthError("Firma del report inválida · rechazado.")
 
@@ -341,6 +345,18 @@ class RemediationAgentService:
                 if target == RemediationJobStatus.FAILED:
                     job.error_message = str(result.get("error", "fallo en el agente"))
                 await self.db.flush()
+                # R6: el avance terminal del host job vía agente DEBE auditarse,
+                # igual que la ruta cloud (RemediationService._audit), para que la
+                # trazabilidad ENAC de la remediación on-prem esté completa.
+                await emit_audit_log(
+                    self.db, tabla="remediation_jobs", registro_id=job.id,
+                    accion=f"remediation.{job.status}"[:60],
+                    project_id=job.project_id, client_id=job.client_id,
+                    payload_new={
+                        "action_type": job.action_type, "status": job.status,
+                        "via": "agent", "outcome": outcome,
+                    },
+                )
 
         await self._audit_cmd(cmd, "remediation.agent.command_reported")
         return cmd

@@ -69,7 +69,8 @@ def test_parse_output_accepts_wrapped_findings():
     findings = ProwlerRunner.parse_output(raw)
     assert len(findings) == 1
     assert findings[0]["severity"] == "high"
-    assert "mp.s.5" in findings[0]["tool_metadata"]["ens_measures"]
+    # s3 público → clasificación + control de acceso (mp.s.5 era código fantasma)
+    assert "mp.info.2" in findings[0]["tool_metadata"]["ens_measures"]
 
 
 def test_parse_output_accepts_flat_list():
@@ -146,9 +147,9 @@ async def test_fixture_s3_mixed_severity_distribution():
     assert summary["by_severity"].get("critical") == 1
     assert summary["by_severity"].get("high") == 1
     assert summary["by_severity"].get("medium") == 1
-    # Hit sobre cifrado + confidencialidad
-    assert "mp.info.3" in summary["ens_measures_unique"]
-    assert "mp.s.5" in summary["ens_measures_unique"]
+    # Hit sobre cifrado (mp.si.2 Criptografía) + clasificación/acceso (público)
+    assert "mp.si.2" in summary["ens_measures_unique"]
+    assert "mp.info.2" in summary["ens_measures_unique"]
 
 
 # ════════════════════════════════════════════════════════════════════

@@ -172,6 +172,10 @@ async def request_e040_signature_endpoint(
         )
     except E040SignatureIntegrationError as exc:
         raise HTTPException(status_code=422, detail=str(exc))
+    # get_db() no auto-commitea: sin esto el magic link de firma E-040 (y el
+    # signature_magic_link_id de la DdA) se revierten y el RSEG recibe un 404.
+    # Espejo de m02_magerit request_e028_signature_endpoint.
+    await db.commit()
     return RequestE040SignatureResponse(**result)
 
 

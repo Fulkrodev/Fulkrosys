@@ -144,7 +144,10 @@ async def instantiate_obligations_for_gap(
             modo_ejecucion=tmpl.modo_ejecucion,
             magic_link_template=tmpl.magic_link_template,
             esfuerzo_estimado=tmpl.esfuerzo_horas,
-            estado="pending",
+            # 'pendiente' (ES) = vocabulario canónico de la máquina de estados
+            # (VALID_ESTADOS_OBLIGATION); 'pending' (EN) dejaba la obligación en
+            # limbo: no arrancable (start exige 'pendiente') ni contabilizada.
+            estado="pendiente",
             dependencias_template_ids=tmpl.dependencias_template_ids or None,
             criterios_aceptacion=tmpl.criterios_aceptacion,
             fuente_normativa=tmpl.fuente_normativa,

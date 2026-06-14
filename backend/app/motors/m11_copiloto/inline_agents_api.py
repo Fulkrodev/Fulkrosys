@@ -73,6 +73,12 @@ def _get_agent_class(class_path: str) -> type[AgentBase] | None:
 async def _resolve_project_and_tier(
     db: AsyncSession, client_id: uuid.UUID,
 ) -> tuple[Optional[uuid.UUID], Optional[str]]:
+    # projects tiene FORCE RLS por current_client_id(): fijar el contexto del
+    # cliente ANTES de leer (si no, 0 filas → 404 para TODO cliente legítimo).
+    await db.execute(
+        text("SELECT set_config('app.current_client_id', :cid, true)"),
+        {"cid": str(client_id)},
+    )
     row = (await db.execute(
         text(
             "SELECT id, categoria_objetivo FROM projects "
@@ -83,6 +89,11 @@ async def _resolve_project_and_tier(
     )).first()
     if not row:
         return None, None
+    # Fijar también project_id para que agent.invoke lea datos project-scoped.
+    await db.execute(
+        text("SELECT set_config('app.current_project_id', :pid, true)"),
+        {"pid": str(row[0])},
+    )
     return row[0], row[1]
 
 

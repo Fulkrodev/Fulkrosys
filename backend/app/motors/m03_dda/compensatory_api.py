@@ -179,6 +179,18 @@ async def create_control(
         await db.commit()
     except CompensatoryError as exc:
         raise HTTPException(status_code=422, detail=str(exc)) from exc
+    except Exception as exc:  # IntegrityError → duplicado (project_id+measure_code)
+        from sqlalchemy.exc import IntegrityError
+        if not isinstance(exc, IntegrityError):
+            raise
+        await db.rollback()  # evita envenenar la sesión
+        raise HTTPException(
+            status_code=409,
+            detail=(
+                "Ya existe una medida compensatoria para esta medida "
+                "en el proyecto."
+            ),
+        ) from exc
     return _to_out(row)
 
 

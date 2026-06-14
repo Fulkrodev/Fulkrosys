@@ -23,15 +23,16 @@ SCOUTSUITE_TO_ENS: dict[str, list[str]] = {
     "iam-root-access-keys-exist": ["op.acc.4"],
     "iam-user-with-multiple-access-keys": ["op.acc.2"],
     "cloudtrail-no-global-trail": ["op.exp.8"],
-    "cloudtrail-no-log-file-validation": ["op.exp.10"],
+    "cloudtrail-no-log-file-validation": ["op.exp.8"],
     "vpc-default-in-use": ["op.exp.2"],
     "ec2-default-security-group-open": ["mp.com.1"],
-    "rds-instance-no-encryption": ["mp.info.3"],
-    "kms-key-rotation-disabled": ["op.exp.2", "mp.info.3"],
+    "rds-instance-no-encryption": ["mp.si.2"],
+    "kms-key-rotation-disabled": ["op.exp.10", "mp.si.2"],
     # ── Azure (cobertura unica) ───────────────────────────────────
-    "azure-storage-account-blob-public": ["mp.s.5", "mp.info.2"],
-    "azure-storage-account-no-soft-delete": ["op.exp.10"],
-    "azure-sqldatabase-no-encryption": ["mp.info.3"],
+    # almacenamiento público: clasificación + control de acceso (mp.s.5 NO existe).
+    "azure-storage-account-blob-public": ["mp.info.2", "op.acc.4"],
+    "azure-storage-account-no-soft-delete": ["mp.info.6"],
+    "azure-sqldatabase-no-encryption": ["mp.si.2"],
     "azure-sqlserver-no-ad-admin": ["op.acc.4", "op.acc.5"],
     "azure-keyvault-no-rbac": ["op.acc.4"],
     "azure-keyvault-no-purge-protection": ["op.exp.10"],
@@ -42,13 +43,13 @@ SCOUTSUITE_TO_ENS: dict[str, list[str]] = {
     # ── GCP (cobertura unica) ─────────────────────────────────────
     "gcp-compute-firewall-rule-allow-any": ["mp.com.1"],
     "gcp-compute-instance-public-ip": ["mp.com.1"],
-    "gcp-storage-bucket-public": ["mp.s.5", "mp.info.2"],
+    "gcp-storage-bucket-public": ["mp.info.2", "op.acc.4"],
     "gcp-iam-service-account-with-user-keys": ["op.acc.4"],
     "gcp-iam-primitive-role-assigned": ["op.acc.4"],
     "gcp-logging-audit-configs-disabled": ["op.exp.8"],
-    "gcp-cloudsql-no-ssl": ["mp.com.2", "mp.info.3"],
-    "gcp-bigquery-dataset-public": ["mp.s.5"],
-    "gcp-kms-key-rotation-disabled": ["op.exp.2", "mp.info.3"],
+    "gcp-cloudsql-no-ssl": ["mp.com.2", "mp.si.2"],
+    "gcp-bigquery-dataset-public": ["mp.info.2", "op.acc.4"],
+    "gcp-kms-key-rotation-disabled": ["op.exp.10", "mp.si.2"],
 }
 
 
@@ -58,12 +59,12 @@ ENS_MEASURE_LABEL: dict[str, str] = {
     "op.acc.5": "Mecanismo de autenticacion",
     "op.exp.2": "Configuracion de seguridad",
     "op.exp.8": "Registro de la actividad",
-    "op.exp.10": "Proteccion de los registros",
+    "op.exp.10": "Proteccion de claves criptograficas",
     "mp.com.1": "Perimetro seguro",
     "mp.com.2": "Proteccion de la confidencialidad",
     "mp.info.2": "Calificacion de la informacion",
-    "mp.info.3": "Cifrado",
-    "mp.s.5": "Medios alternativos (confidencialidad servicios)",
+    "mp.info.6": "Copias de seguridad",
+    "mp.si.2": "Criptografia",
 }
 
 

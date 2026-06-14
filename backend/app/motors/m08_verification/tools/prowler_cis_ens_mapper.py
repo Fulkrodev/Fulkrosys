@@ -38,24 +38,26 @@ CIS_TO_ENS: dict[str, list[str]] = {
     "iam_rotate_access_key_90_days": ["op.acc.2"],
     "iam_user_no_setup_initial_access_key": ["op.acc.2"],
     # ── S3 ─────────────────────────────────────────────────────────
-    "s3_bucket_public_access": ["mp.s.5", "mp.info.2"],
-    "s3_bucket_public_read": ["mp.s.5", "mp.info.2"],
-    "s3_bucket_public_write": ["mp.s.5", "mp.info.2"],
-    "s3_bucket_default_encryption": ["mp.info.3"],
-    "s3_bucket_no_mfa_delete": ["op.exp.10", "mp.info.4"],
+    # Exposición pública de almacenamiento = clasificación + control de acceso
+    # (mp.s.5 NO existe en RD 311/2022; era código fantasma RD 3/2010).
+    "s3_bucket_public_access": ["mp.info.2", "op.acc.4"],
+    "s3_bucket_public_read": ["mp.info.2", "op.acc.4"],
+    "s3_bucket_public_write": ["mp.info.2", "op.acc.4"],
+    "s3_bucket_default_encryption": ["mp.si.2"],  # Criptografía (no mp.info.3=Firma)
+    "s3_bucket_no_mfa_delete": ["op.acc.5", "mp.info.6"],
     "s3_bucket_secure_transport_policy": ["mp.com.2"],
     "s3_bucket_server_access_logging_enabled": ["op.exp.8"],
-    "s3_bucket_object_versioning": ["op.exp.10"],
+    "s3_bucket_object_versioning": ["mp.info.6"],  # Copias de seguridad
     # ── EC2 ────────────────────────────────────────────────────────
     "ec2_securitygroup_allow_ingress_from_internet_to_ssh": ["mp.com.1"],
     "ec2_securitygroup_allow_ingress_from_internet_to_rdp": ["mp.com.1"],
     "ec2_securitygroup_allow_ingress_from_internet_to_any": ["mp.com.1"],
-    "ec2_ebs_default_encryption": ["mp.info.3"],
+    "ec2_ebs_default_encryption": ["mp.si.2"],  # Criptografía
     "ec2_instance_public_ip": ["mp.com.1"],
     "ec2_metadata_service_enabled_v1": ["op.exp.2"],
     # ── CloudTrail / Logging (aplicable cross-service) ─────────────
     "cloudtrail_multi_region_enabled": ["op.exp.8"],
-    "cloudwatch_log_group_retention_days": ["op.exp.10"],
+    "cloudwatch_log_group_retention_days": ["op.exp.8"],  # Registro (no op.exp.10=claves)
 }
 
 
@@ -66,14 +68,15 @@ ENS_MEASURE_LABEL: dict[str, str] = {
     "op.acc.5": "Mecanismo de autenticacion",
     "op.exp.2": "Configuracion de seguridad",
     "op.exp.8": "Registro de la actividad",
-    "op.exp.10": "Proteccion de los registros",
+    "op.exp.10": "Proteccion de claves criptograficas",
     "mp.com.1": "Perimetro seguro",
     "mp.com.2": "Proteccion de la confidencialidad",
     "mp.com.3": "Proteccion de la integridad",
+    "mp.si.2": "Criptografia",
     "mp.info.2": "Calificacion de la informacion",
-    "mp.info.3": "Cifrado",
-    "mp.info.4": "Firma electronica",
-    "mp.s.5": "Medios alternativos (confidencialidad servicios)",
+    "mp.info.3": "Firma electronica",
+    "mp.info.4": "Sellos de tiempo",
+    "mp.info.6": "Copias de seguridad",
 }
 
 

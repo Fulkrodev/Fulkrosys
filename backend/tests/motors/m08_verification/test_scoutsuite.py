@@ -107,7 +107,8 @@ def test_parse_azure_provider_detected_from_prefix():
     assert len(findings) == 1
     md = findings[0]["tool_metadata"]
     assert md["provider"] == "azure"
-    assert "mp.s.5" in md["ens_measures"]
+    # storage público → clasificación + acceso (mp.s.5 era código fantasma RD3/2010)
+    assert "mp.info.2" in md["ens_measures"]
 
 
 def test_parse_gcp_services_findings():
@@ -214,7 +215,7 @@ async def test_fixture_azure_storage_mixed_severities_and_ens():
     # ScoutSuite level="danger" -> severity="high"
     assert summary["by_severity"].get("high", 0) >= 2
     assert summary["by_severity"].get("medium", 0) >= 1  # warning
-    assert "mp.s.5" in summary["ens_measures_unique"]
+    assert "mp.info.2" in summary["ens_measures_unique"]
     assert "mp.com.1" in summary["ens_measures_unique"]
     # Todos los findings con provider detectado como azure
     for f in result.findings:

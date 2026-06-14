@@ -258,7 +258,12 @@ async def _retest_hardening(finding: VerificationFinding) -> tuple[str, str, str
     control_id = ""
     if isinstance(meta, list) and meta:
         md = (meta[0] or {}).get("metadata") or {}
-        control_id = md.get("control_id") or md.get("test_id") or ""
+        # El parser de Lynis guarda la clave como 'lynis_test_id'; leerla primero
+        # (antes solo miraba control_id/test_id → nunca re-ejecutaba el control).
+        control_id = (
+            md.get("lynis_test_id") or md.get("control_id")
+            or md.get("test_id") or ""
+        )
     cmd_str = f"lynis audit system --tests {control_id}" if control_id else "lynis audit system --quick"
     try:
         result = await LynisRunner.run(
