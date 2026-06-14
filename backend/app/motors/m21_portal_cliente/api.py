@@ -427,6 +427,56 @@ async def portal_project(
     return dict(row)
 
 
+@portal_router.get("/dossier/download")
+async def portal_dossier_download(
+    user: ClientUser = Depends(get_current_client_user),
+    db: AsyncSession = Depends(get_db),
+):
+    """FASE 4b · 'Todo junto': el CLIENTE descarga su expediente completo ENS
+    (todos los entregables + pentest E-702/703/704 carpeta 13 + remediaciones
+    carpeta 14 + matriz). Read-only · R29. Mismo dossier que ve el auditor, sin
+    firma de entrega ENAC (esa la dispara Marcos). force=True → estado actual."""
+    await db.execute(text("SET LOCAL ROLE fulkro_app_bypassrls"))
+    proj = (await db.execute(
+        text(
+            "SELECT id FROM projects WHERE client_id = :cid "
+            "AND deleted_at IS NULL ORDER BY created_at DESC LIMIT 1"
+        ),
+        {"cid": str(user.client_id)},
+    )).first()
+    if not proj:
+        raise HTTPException(status_code=404, detail="Proyecto no encontrado")
+    project_id = proj[0]
+    run = (await db.execute(
+        text(
+            "SELECT id FROM audit_preparation_runs WHERE project_id = :pid "
+            "AND deleted_at IS NULL ORDER BY created_at DESC LIMIT 1"
+        ),
+        {"pid": str(project_id)},
+    )).first()
+    if not run:
+        raise HTTPException(
+            status_code=404,
+            detail="Tu expediente aún no está disponible · en preparación.",
+        )
+    from backend.app.motors.m09_audit_prep import dossier_generator
+    try:
+        data = await dossier_generator.generate_dossier(
+            db, project_id, run[0], force=True, sign_manifest=False,
+        )
+    except dossier_generator.DossierError as exc:
+        raise HTTPException(status_code=422, detail=str(exc))
+    return StreamingResponse(
+        io.BytesIO(data),
+        media_type="application/zip",
+        headers={
+            "Content-Disposition": (
+                f'attachment; filename="expediente_ens_{project_id}.zip"'
+            ),
+        },
+    )
+
+
 @portal_router.get("/documents")
 async def portal_documents(
     q: Optional[str] = Query(None, description="Search hybrid ILIKE · filename + full_text_content + metadata"),

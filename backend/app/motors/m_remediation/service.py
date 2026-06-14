@@ -174,6 +174,24 @@ class RemediationService:
         await self._audit(job, "remediation.authorized")
         return job
 
+    async def approve_and_execute_job(
+        self,
+        job_id: uuid.UUID,
+        *,
+        user_id: uuid.UUID | None,
+        writer: "RemediationWriter | None" = None,
+    ) -> RemediationJob:
+        """FASE 4 · un solo clic 'aprobar y ejecutar'.
+
+        Autoriza el job si está AWAITING_AUTHORIZATION (GUARDED) y a continuación
+        dispara el ciclo seguro. Para SAFE_AUTO (QUEUED) ejecuta directo. Nada se
+        ejecuta sin esta acción humana explícita (decisión Marcos · proponer→aprobar
+        →ejecutar). Idempotente sobre estados terminales (execute_job)."""
+        job = await self._load_job(job_id)
+        if job.status == RemediationJobStatus.AWAITING_AUTHORIZATION.value:
+            await self.authorize_job(job_id, user_id=user_id)
+        return await self.execute_job(job_id, writer=writer)
+
     # ── ejecución (el corazón) ─────────────────────────────────────────────
 
     async def execute_job(

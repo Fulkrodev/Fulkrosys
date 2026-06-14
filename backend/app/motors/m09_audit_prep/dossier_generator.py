@@ -14,6 +14,7 @@ from datetime import datetime, timezone
 from typing import Optional
 
 from sqlalchemy import select
+from sqlalchemy import text as _sa_text
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from backend.app.models.audit_prep import AuditPreparationRun
@@ -51,6 +52,7 @@ DOSSIER_STRUCTURE: list[dict] = [
     {"folder": "11_FORMACION", "description": "Plan formacion + registros asistencia + evaluaciones"},
     {"folder": "12_PROVEEDORES", "description": "Inventario + contratos + evaluaciones proveedores"},
     {"folder": "13_INFORMES_TECNICOS", "description": "E-702/E-703/E-704 + delta + heatmap + raw outputs"},
+    {"folder": "14_REMEDIACION", "description": "Remediaciones aplicadas (antes/despues + evidencia firmada) · ADR-055"},
     {"folder": "99_MATRIZ_CRUZADA", "description": "Matriz 99 medida x evidencia x documento (XLSX)"},
 ]
 
@@ -543,6 +545,65 @@ def _sha256_bytes(data: bytes) -> str:
     return hashlib.sha256(data).hexdigest()
 
 
+async def _collect_remediations(
+    db: AsyncSession, project_id: uuid.UUID,
+) -> tuple[list[dict], str]:
+    """FASE 4 · recopila las remediaciones (ADR-055) del proyecto para el dossier:
+    acción, medida ENS, estado, antes/después (result), recurso, evidencia. El
+    estado de cada job + su `result` aporta la trazabilidad antes/después. Best-
+    effort: si el motor no está o RLS no deja ver nada → ([], nota honesta)."""
+    try:
+        from backend.app.motors.m_remediation.catalog import get_action_spec
+        rows = (await db.execute(_sa_text(
+            "SELECT id::text AS id, action_type, tier, status, target_ref, "
+            "source_gap_id::text AS source_gap_id, error_message, result, "
+            "created_at, finished_at "
+            "FROM remediation_jobs "
+            "WHERE project_id = :pid AND deleted_at IS NULL "
+            "ORDER BY created_at DESC"
+        ), {"pid": str(project_id)})).mappings().all()
+    except Exception:  # noqa: BLE001 — non-fatal · el ZIP se entrega igual
+        return [], "Sin datos de remediación disponibles."
+
+    out: list[dict] = []
+    for r in rows:
+        spec = get_action_spec(r["action_type"])
+        out.append({
+            "job_id": r["id"],
+            "action_type": r["action_type"],
+            "titulo": spec.title_es if spec else r["action_type"],
+            "ens_measures": list(spec.ens_measures) if spec else [],
+            "tier": r["tier"],
+            "estado": r["status"],
+            "recurso": r["target_ref"],
+            "source_gap_id": r["source_gap_id"],
+            "resultado": r["result"],
+            "error": r["error_message"],
+            "created_at": str(r["created_at"]) if r["created_at"] else None,
+            "finished_at": str(r["finished_at"]) if r["finished_at"] else None,
+        })
+
+    lines = ["# Informe de Remediaciones aplicadas (ADR-055)", ""]
+    if not out:
+        lines.append(
+            "No se han registrado remediaciones automáticas para este proyecto."
+        )
+    else:
+        succeeded = sum(1 for j in out if j["estado"] == "succeeded")
+        lines += [
+            f"Total de remediaciones: **{len(out)}** · resueltas con éxito: "
+            f"**{succeeded}**.", "",
+            "| Acción | Medida ENS | Estado | Recurso |",
+            "|--------|-----------|--------|---------|",
+        ]
+        for j in out:
+            lines.append(
+                f"| {j['titulo']} | {', '.join(j['ens_measures']) or '-'} | "
+                f"{j['estado']} | {j['recurso'] or '-'} |"
+            )
+    return out, "\n".join(lines)
+
+
 async def generate_dossier(
     db: AsyncSession, project_id: uuid.UUID, run_id: uuid.UUID,
     *, force: bool = False, sign_manifest: bool = False,
@@ -805,6 +866,21 @@ async def generate_dossier(
                 compliance_declaration, default=str, indent=2,
                 ensure_ascii=False,
             ).encode("utf-8"),
+        )
+
+        # 14_REMEDIACION — remediaciones ADR-055 (antes/después + estado) · FASE 4.
+        # Cierra el "todo junto": el dossier (auditor + cliente) incluye también lo
+        # que el sistema remedió automáticamente tras el pentest/diagnóstico.
+        remediations, remediation_md = await _collect_remediations(db, project_id)
+        _write(
+            zipf, "14_REMEDIACION/remediaciones.json",
+            json.dumps(
+                remediations, default=str, indent=2, ensure_ascii=False,
+            ).encode("utf-8"),
+        )
+        _write(
+            zipf, "14_REMEDIACION/informe_remediaciones.md",
+            remediation_md.encode("utf-8"),
         )
 
         # 01_GOBIERNO/declaracion_conformidad/ — M27 BasicDeclarationRow + submission

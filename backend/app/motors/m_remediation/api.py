@@ -230,6 +230,33 @@ async def admin_create_job(
     return _job_to_dict(job)
 
 
+@admin_router.post("/propose-from-gaps", status_code=201)
+async def admin_propose_from_gaps(
+    project_id: uuid.UUID,
+    user=Depends(require_owner),
+    db: AsyncSession = Depends(get_db),
+) -> dict[str, Any]:
+    """FASE 3 · Puente diagnóstico/pentest → remediación.
+
+    Auto-propone RemediationJobs desde los CloudGaps abiertos del proyecto
+    (mapeo determinista catálogo). NO ejecuta nada: deja los jobs PROPUESTOS
+    para aprobación con un clic (FASE 4). Idempotente."""
+    await _set_project_context(db, project_id)
+    owner = (await db.execute(
+        text("SELECT get_project_owner(:pid)"), {"pid": str(project_id)},
+    )).scalar()
+    from backend.app.motors.m_remediation.bridge import (
+        propose_remediations_for_project,
+    )
+    result = await propose_remediations_for_project(
+        db, project_id,
+        created_by_user_id=getattr(user, "id", None),
+        client_id=owner,
+    )
+    await db.commit()
+    return result
+
+
 @admin_router.get("/jobs/{job_id}", status_code=200)
 async def admin_get_job(
     project_id: uuid.UUID,
@@ -284,6 +311,32 @@ async def admin_execute_job(
     except AuthorizationRequiredError as exc:
         raise HTTPException(status_code=409, detail=str(exc))
     except RemediationDisabledError as exc:
+        raise HTTPException(status_code=409, detail=str(exc))
+    await db.commit()
+    return _job_to_dict(job)
+
+
+@admin_router.post("/jobs/{job_id}/approve-and-execute", status_code=200)
+async def admin_approve_and_execute(
+    project_id: uuid.UUID,
+    job_id: uuid.UUID,
+    user=Depends(require_owner),
+    db: AsyncSession = Depends(get_db),
+) -> dict[str, Any]:
+    """FASE 4 · un clic: autoriza (si GUARDED) y dispara el ciclo seguro."""
+    await _set_project_context(db, project_id)
+    svc = RemediationService(db)
+    try:
+        job = await svc.approve_and_execute_job(
+            job_id, user_id=getattr(user, "id", None),
+        )
+    except JobNotFoundError:
+        raise HTTPException(status_code=404, detail="Job no encontrado")
+    except (
+        AuthorizationRequiredError,
+        InvalidJobTransitionError,
+        RemediationDisabledError,
+    ) as exc:
         raise HTTPException(status_code=409, detail=str(exc))
     await db.commit()
     return _job_to_dict(job)
@@ -443,6 +496,36 @@ async def cliente_authorize_job(
     except JobNotFoundError:
         raise HTTPException(status_code=404, detail="No encontrado")
     except InvalidJobTransitionError as exc:
+        raise HTTPException(status_code=409, detail=str(exc))
+    await db.commit()
+    return _job_to_cliente_dict(job)
+
+
+@client_router.post("/jobs/{job_id}/approve-and-execute", status_code=200)
+async def cliente_approve_and_execute(
+    job_id: uuid.UUID,
+    cliente_user=Depends(require_client_user),
+    db: AsyncSession = Depends(get_db),
+) -> dict[str, Any]:
+    """El cliente APRUEBA con un clic y el sistema ejecuta la mejora en SU sistema.
+
+    Cliente-mínimo (ADR-014 carve-out · decisión Marcos 'todo con un clic'): el
+    cliente autoriza · el writer opt-in (con los permisos que el propio cliente
+    concedió a su conector) ejecuta el ciclo seguro (preflight→snapshot→apply→
+    verify→rollback). RLS aísla por proyecto del cliente."""
+    await _resolve_cliente_project(db, cliente_user)
+    svc = RemediationService(db)
+    try:
+        job = await svc.approve_and_execute_job(
+            job_id, user_id=getattr(cliente_user, "id", None),
+        )
+    except JobNotFoundError:
+        raise HTTPException(status_code=404, detail="No encontrado")
+    except (
+        AuthorizationRequiredError,
+        InvalidJobTransitionError,
+        RemediationDisabledError,
+    ) as exc:
         raise HTTPException(status_code=409, detail=str(exc))
     await db.commit()
     return _job_to_cliente_dict(job)

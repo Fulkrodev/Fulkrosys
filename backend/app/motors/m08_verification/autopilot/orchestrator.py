@@ -200,6 +200,34 @@ async def _dispatch(project_id: uuid.UUID, event_type: str, data: dict) -> None:
         logger.debug("SSE dispatch %s skipped: %s", event_type, exc)
 
 
+async def _autogenerate_reports(db, run) -> list[str]:
+    """FASE 2 · Genera los informes E-702/703/704 del run (best-effort).
+
+    Reusable por el orquestador (BÁSICA/MEDIA al completar) y por attest_run
+    (ALTA tras Gate 2). Non-fatal: una plantilla/render ausente NO rompe el flujo
+    (OPS-049). Devuelve los códigos generados (o [] si falló)."""
+    try:
+        from backend.app.motors.m08_verification.reports.report_generator import (
+            VerificationReportGenerator,
+        )
+        reports = await VerificationReportGenerator(db).generate_all_for_run(
+            run.id, remediation_force_offline=True,
+        )
+        await db.flush()
+        codes: list[str] = []
+        for r in (reports or []):
+            c = (r or {}).get("template_codigo") or (r or {}).get("codigo")
+            if c:
+                codes.append(c)
+        logger.info("Auto-informe pentest run=%s generado: %s", run.id, codes)
+        return codes
+    except Exception as exc:  # pragma: no cover · non-fatal
+        logger.warning(
+            "Auto-informe pentest run=%s falló (best-effort): %s", run.id, exc,
+        )
+        return []
+
+
 async def collect_candidates(
     run: VerificationRun,
     scope: dict[str, Any],
@@ -555,10 +583,20 @@ async def orchestrate_run(
         ))
         await db.flush()
 
+        # 7b. FASE 2 · Informe de pentest auto-generado al CERRAR el run.
+        # BÁSICA/MEDIA: al completar (aquí). ALTA: tras atestación Gate 2
+        # (attest_run), porque el run queda paused_gate2. Best-effort: una
+        # plantilla/render ausente NO rompe el run (OPS-049 · honest path). El
+        # informe (E-702/703/704) cae luego en la carpeta 13 del dossier ENAC.
+        report_codes: list[str] = []
+        if run.autopilot_status in ("completed", "partial"):
+            report_codes = await _autogenerate_reports(db, run)
+
         await _dispatch(run.project_id, "m08_run_completed", {
             "run_id": str(run.id), "status": run.autopilot_status,
             "findings": result["persisted"], "coverage_pct": float(run.coverage_pct or 0),
             "partial": run.partial_run, "manifest_hash": manifest_hash,
+            "reports": report_codes,
         })
 
         return {

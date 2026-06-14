@@ -255,6 +255,13 @@ async def attest_run(
                  "opinion": (body.opinion or "")[:2000],
                  "attested_at": datetime.now(timezone.utc).isoformat()},
     ))
+    await db.flush()
+    # FASE 2 · ALTA: el informe de pentest se genera AHORA (tras Gate 2), porque
+    # el run quedó paused_gate2 sin informe. Best-effort (non-fatal).
+    from backend.app.motors.m08_verification.autopilot.orchestrator import (
+        _autogenerate_reports,
+    )
+    report_codes = await _autogenerate_reports(db, run)
     await db.commit()
     return {"run_id": str(run.id), "autopilot_status": run.autopilot_status,
-            "attested_by": body.attested_by}
+            "attested_by": body.attested_by, "reports": report_codes}

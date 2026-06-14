@@ -200,7 +200,7 @@ class TestDossierStructure:
             "05_PLAN_ADECUACION", "06_NORMATIVA", "07_PROCEDIMIENTOS",
             "08_REGISTROS_OPERACION", "09_EVIDENCIAS_POR_MEDIDA",
             "10_PLAN_CONTINUIDAD", "11_FORMACION", "12_PROVEEDORES",
-            "13_INFORMES_TECNICOS", "99_MATRIZ_CRUZADA",
+            "13_INFORMES_TECNICOS", "14_REMEDIACION", "99_MATRIZ_CRUZADA",
         ]
 
     @pytest.mark.asyncio

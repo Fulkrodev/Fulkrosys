@@ -292,8 +292,8 @@ class TestMatriz99:
 
 class TestDossierGenerator:
     def test_dossier_structure_has_15_entries(self):
-        # 14 tematicas + 99 = 15
-        assert len(dossier_generator.DOSSIER_STRUCTURE) == 15
+        # 15 tematicas (00-14 · +14_REMEDIACION ADR-055) + 99 = 16
+        assert len(dossier_generator.DOSSIER_STRUCTURE) == 16
 
     def test_classify_folder_e012(self):
         assert dossier_generator.classify_folder("E-012") == "02_CATEGORIZACION"
@@ -330,7 +330,7 @@ class TestDossierGenerator:
             "08_REGISTROS_OPERACION", "09_EVIDENCIAS_POR_MEDIDA",
             "10_PLAN_CONTINUIDAD",
             "11_FORMACION", "12_PROVEEDORES", "13_INFORMES_TECNICOS",
-            "99_MATRIZ_CRUZADA",
+            "14_REMEDIACION", "99_MATRIZ_CRUZADA",
         ]:
             assert any(n.startswith(folder + "/") for n in names), (
                 f"falta carpeta: {folder}"
@@ -357,8 +357,8 @@ class TestDossierGenerator:
         assert "files" in manifest
         assert all("sha256" in f for f in manifest["files"])
         assert all(len(f["sha256"]) == 64 for f in manifest["files"])
-        # Estructura debe referenciar las 15 carpetas
-        assert len(manifest["dossier_structure"]) == 15
+        # Estructura debe referenciar las 16 carpetas (00-14 + 99)
+        assert len(manifest["dossier_structure"]) == 16
 
     @pytest.mark.asyncio
     async def test_dossier_classifies_e012_to_categorizacion(
@@ -452,7 +452,7 @@ class TestAPI:
         )
         assert r.status_code == 200
         body = r.json()
-        assert len(body["structure"]) == 15
+        assert len(body["structure"]) == 16
 
     @pytest.mark.asyncio
     async def test_api_download_matriz_99(self, async_client, db):
