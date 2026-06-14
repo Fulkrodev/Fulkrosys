@@ -780,6 +780,10 @@ async def generate_declaration_docx_endpoint(
         generate_declaration_docx,
     )
 
+    # RLS: build_distintivo_context lee projects/M01/M03/M30; sin contexto de
+    # tenant da 'Project not found'/500 en prod. Mismo guard que issue/download.
+    if await _set_project_rls(project_id, db) is None:
+        raise HTTPException(status_code=404, detail="Project not found")
     ctx = await build_distintivo_context(db, project_id)
     bio = generate_declaration_docx(ctx)
     return Response(
@@ -889,6 +893,11 @@ async def ines_annual_json(
     """Genera JSON canónico INES (CCN-STIC 824) para subida portal."""
     from .ines_generator import collect_ines_data, generate_ines_json
 
+    # RLS org-level: projects/incidents filtran por client_id=organization_id;
+    # fijar el contexto para que sean visibles bajo fulkro_app (si no, informe vacío).
+    await db.execute(sa_text(
+        "SELECT set_config('app.current_client_id', :cid, true)"
+    ), {"cid": str(organization_id)})
     report = await collect_ines_data(db, organization_id, year)
     return generate_ines_json(report)
 
@@ -904,6 +913,11 @@ async def ines_annual_docx(
 
     from .ines_generator import collect_ines_data, generate_ines_docx
 
+    # RLS org-level: projects/incidents filtran por client_id=organization_id;
+    # fijar el contexto para que sean visibles bajo fulkro_app (si no, informe vacío).
+    await db.execute(sa_text(
+        "SELECT set_config('app.current_client_id', :cid, true)"
+    ), {"cid": str(organization_id)})
     report = await collect_ines_data(db, organization_id, year)
     bio = generate_ines_docx(report)
     return Response(

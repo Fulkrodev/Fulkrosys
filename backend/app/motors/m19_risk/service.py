@@ -296,11 +296,15 @@ class ProjectRiskService:
         # contingency_plan SE QUEDA INTACTO. Es el plan puro, no el log de ejecución.
         await self.db.flush()
 
-        # ── Sprint C6: hooks reactivos automáticos ──
+        # ── Sprint C6: hooks reactivos automáticos (aislados en SAVEPOINT) ──
+        # Best-effort: si un hook falla, el SAVEPOINT revierte SOLO el hook y deja
+        # la transacción principal sana para que el commit del endpoint persista la
+        # materialización (sin esto, un fallo de hook envenenaba la sesión y la
+        # revertía entera).
         try:
-            await self._trigger_reactive_hooks(risk)
+            async with self.db.begin_nested():
+                await self._trigger_reactive_hooks(risk)
         except Exception:
-            # Best-effort: no bloquear materialización si hook falla
             pass
 
         return risk

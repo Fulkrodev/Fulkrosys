@@ -87,6 +87,10 @@ async def execute_simulacro_pre_enac(
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND, detail=str(exc),
         )
+    # get_db() NO auto-commitea: sin esto, audit_log (executed+report_generated),
+    # los corrective_loops y el dry-run se descartan al cerrar la sesión → GATE-7
+    # (require_clean_audit_sim) bloquearía ENAC para siempre. Espejo de m10:104.
+    await db.commit()
     return SimulacroReportResponse(**report.to_dict())
 
 

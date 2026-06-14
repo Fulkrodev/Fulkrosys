@@ -340,6 +340,10 @@ async def update_task_endpoint(
             status_code=http_status.HTTP_422_UNPROCESSABLE_CONTENT, detail=str(exc),
         )
     await session.commit()
+    # El commit cierra la transacción y SET LOCAL pierde el contexto de tenant;
+    # las lecturas post-commit (projects/ClientUser) quedarían sin RLS → no se
+    # enviaría la notificación al cliente. Re-fijar contexto para el bloque siguiente.
+    await _set_project_rls(project_id, session)
 
     # Sesión 3B-2B.8 Phase 1E · SSE dispatch m17.plan.updated cliente subscribe.
     # Best-effort try/except pattern Phase 1A+1B+1C+1D sostained.

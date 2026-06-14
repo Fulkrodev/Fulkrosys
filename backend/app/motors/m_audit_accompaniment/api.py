@@ -119,6 +119,10 @@ async def advance_state(
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND, detail=str(exc),
         )
+    # get_db() NO auto-commitea: sin esto el UPDATE de estado, el INSERT de
+    # transición y el audit_log se descartan al cerrar la sesión (el SSE quedaría
+    # como evento fantasma). Persistir antes de devolver.
+    await db.commit()
     return TransitionAdvanceResponse(**result)
 
 
@@ -156,6 +160,9 @@ async def upload_artifact_endpoint(
         file_path=str(file_path),
         usuario=current_user.email,
     )
+    # get_db() NO auto-commitea: sin esto la metadata del artefacto + audit_log se
+    # descartan y el fichero queda huérfano en disco sin registro en BD.
+    await db.commit()
     return ArtifactUploadResponse(**result)
 
 
@@ -192,6 +199,13 @@ async def cliente_timeline(
     """Cliente read-only timeline · R29 friendly · single-project per cliente LIMIT 1."""
     from sqlalchemy import text as sa_text
 
+    # RLS: bajo el rol cliente (fulkro_app) projects es invisible sin fijar
+    # app.current_client_id → la query daría 0 filas y un 404 falso. Patrón
+    # canónico chat_api._resolve_client_project_id (fijar client_id antes de leer
+    # projects, luego project_id para las lecturas del timeline).
+    await db.execute(sa_text(
+        "SELECT set_config('app.current_client_id', :cid, true)"
+    ), {"cid": str(client_user.client_id)})
     row = (await db.execute(sa_text(
         "SELECT id FROM projects "
         "WHERE client_id = :cid AND deleted_at IS NULL "
@@ -203,6 +217,9 @@ async def cliente_timeline(
             detail="No project found for this client",
         )
     project_id = row[0]
+    await db.execute(sa_text(
+        "SELECT set_config('app.current_project_id', :pid, true)"
+    ), {"pid": str(project_id)})
 
     timeline = await get_timeline(db, project_id)
     return TimelineResponse(

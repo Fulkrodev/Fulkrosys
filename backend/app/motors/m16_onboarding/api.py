@@ -237,6 +237,9 @@ async def get_session_endpoint(
     session_id: uuid.UUID,
     session: AsyncSession = Depends(get_db),
 ) -> SessionDetail:
+    # Admin por session_id (sin project_id en path): bajo fulkro_app la sesión es
+    # invisible sin contexto de tenant → 404 falso. require_owner ya garantiza admin.
+    await session.execute(text("SET LOCAL ROLE fulkro_app_bypassrls"))
     try:
         result = await get_session_detail(session, session_id)
     except OnboardingServiceError as exc:
@@ -254,6 +257,7 @@ async def mark_sent_endpoint(
     session: AsyncSession = Depends(get_db),
 ) -> MarkSessionSentResponse:
     """Marcos marca que ya envio el magic link al cliente."""
+    await session.execute(text("SET LOCAL ROLE fulkro_app_bypassrls"))
     try:
         result = await mark_session_sent(session, session_id)
     except OnboardingServiceError as exc:
@@ -272,6 +276,7 @@ async def cancel_session_endpoint(
     body: CancelSessionBody,
     session: AsyncSession = Depends(get_db),
 ) -> CancelSessionResponse:
+    await session.execute(text("SET LOCAL ROLE fulkro_app_bypassrls"))
     try:
         result = await cancel_session(session, session_id, body.reason)
     except OnboardingServiceError as exc:

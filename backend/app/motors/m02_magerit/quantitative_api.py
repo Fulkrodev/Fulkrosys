@@ -15,7 +15,7 @@ from sqlalchemy import text
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from backend.app.auth.dependencies import require_owner
-from backend.app.database import get_db
+from backend.app.database import get_db, set_tenant_context
 from backend.app.models.auth import User
 from backend.app.motors.m02_magerit.models import MageritAnalysis
 from backend.app.motors.m02_magerit.quantitative_service import (
@@ -69,13 +69,22 @@ class QuantitativeReportOut(BaseModel):
 async def _ensure_analysis_rls(
     db: AsyncSession, analysis_id: uuid.UUID,
 ) -> MageritAnalysis:
+    # RLS chicken-and-egg: bajo fulkro_app, magerit_analysis es invisible sin
+    # contexto. Resolver owner vía la función SECURITY DEFINER y fijar el contexto
+    # ANTES de leer (si no, db.get corría sin contexto → None → 404 en prod).
+    # Espejo de api.py::_get_analysis_with_rls (OPS-026 DRY).
+    owner = (await db.execute(
+        text("SELECT * FROM get_magerit_analysis_owner(:aid)"),
+        {"aid": str(analysis_id)},
+    )).mappings().first()
+    if not owner or not owner["client_id"]:
+        raise HTTPException(status_code=404, detail="Análisis no encontrado")
+    await set_tenant_context(
+        db, client_id=owner["client_id"], project_id=owner["project_id"],
+    )
     analysis = await db.get(MageritAnalysis, analysis_id)
     if analysis is None:
         raise HTTPException(status_code=404, detail="Análisis no encontrado")
-    await db.execute(
-        text("SELECT set_config('app.current_project_id', :pid, true)"),
-        {"pid": str(analysis.project_id)},
-    )
     return analysis
 
 

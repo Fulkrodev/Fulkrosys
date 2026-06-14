@@ -195,7 +195,7 @@ def classify_folder(template_codigo: Optional[str]) -> str:
         return "11_FORMACION"
     if code.startswith("E-7"):
         return "13_INFORMES_TECNICOS"
-    return "08_REGISTROS_OPERATIVOS"
+    return "08_REGISTROS_OPERACION"  # canónico (coincide con DOSSIER_STRUCTURE + línea 180)
 
 
 # =============== Collectors ===============
@@ -449,10 +449,11 @@ def _build_index(
             for e in entries:
                 lines.append(e)
         else:
-            # Contenidos auto-generados por carpeta
-            if folder == "08_REGISTROS_OPERATIVOS":
+            # Contenidos auto-generados por carpeta (nombres canónicos =
+            # DOSSIER_STRUCTURE; antes comparaba nombres legacy que nunca casaban).
+            if folder == "08_REGISTROS_OPERACION":
                 lines.append(f"- {len(records)} registros operativos")
-            elif folder == "09_EVIDENCIAS":
+            elif folder == "09_EVIDENCIAS_POR_MEDIDA":
                 by_measure: dict[str, int] = {}
                 for ev in evidence:
                     by_measure[ev["measure_code"]] = (

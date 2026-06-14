@@ -154,6 +154,11 @@ async def admin_command_center(
         "CERTIFIED",
         "RETAINER",
     )
+    # Agregado admin cross-tenant (router require_owner): bajo fulkro_app la RLS
+    # de projects ocultaría TODO sin contexto → Command Center vacío en prod.
+    # Escalamos a bypassrls (transaction-scoped); los compute_* filtran por
+    # project_id explícito, así que devuelven resultados correctos por proyecto.
+    await db.execute(_sa_text("SET LOCAL ROLE fulkro_app_bypassrls"))
     rows = await db.execute(
         select(Project).where(
             Project.lifecycle_state.in_(active_states),

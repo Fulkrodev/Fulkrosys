@@ -130,6 +130,7 @@ async def client_create_thread(
         client_user_id=user.id,
         subject=body.subject,
     )
+    await db.commit()  # get_db() no auto-commitea: persistir el thread creado
     return _serialize_thread(thread)
 
 
@@ -169,6 +170,7 @@ async def client_post_message(
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST, detail=str(exc),
         )
+    await db.commit()  # get_db() no auto-commitea: persistir el mensaje
     return _serialize_message(msg)
 
 
@@ -197,6 +199,7 @@ async def client_mark_read(
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND, detail=str(exc),
         )
+    await db.commit()  # get_db() no auto-commitea: persistir read_at
     return {"marked_count": marked}
 
 
@@ -251,6 +254,7 @@ async def admin_post_message(
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST, detail=str(exc),
         )
+    await db.commit()  # get_db() no auto-commitea: persistir el mensaje admin
     return _serialize_message(msg)
 
 
@@ -297,4 +301,5 @@ async def admin_mark_read(
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND, detail=str(exc),
         )
+    await db.commit()  # get_db() no auto-commitea: persistir read_at
     return {"marked_count": marked}

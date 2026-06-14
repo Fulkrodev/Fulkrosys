@@ -66,6 +66,7 @@ async def generate_magic_link(
     body: MagicLinkGenerateRequest,
     response: "Response",
     db: AsyncSession = Depends(get_db),
+    _owner=Depends(require_owner),
 ):
     """Genera un nuevo magic link. Requiere tenant context (RLS).
 
@@ -291,9 +292,11 @@ async def consume_magic_link(
 async def revoke_magic_link(
     magic_link_id: UUID,
     db: AsyncSession = Depends(get_db),
+    _owner=Depends(require_owner),
 ):
-    """Revoca un magic link activo. Idempotente."""
-    # Need admin to look up the link first (RLS chicken-and-egg)
+    """Revoca un magic link activo. Idempotente. Solo owner (admin)."""
+    # Need admin to look up the link first (RLS chicken-and-egg).
+    # require_owner garantiza que el caller es admin antes del bypass de RLS.
     from sqlalchemy import text
     await db.execute(text("SET LOCAL ROLE fulkro_app_bypassrls"))
 
@@ -412,8 +415,13 @@ async def get_magic_link_by_token(
 async def get_magic_link_status(
     magic_link_id: UUID,
     db: AsyncSession = Depends(get_db),
+    _owner=Depends(require_owner),
 ):
-    """Devuelve estado semantico del magic link para dashboard admin."""
+    """Devuelve estado semantico del magic link para dashboard admin.
+
+    Solo owner (admin): bypassa RLS, así que require_owner evita fuga de
+    recipient_email/estado cross-tenant a usuarios no-admin.
+    """
     from sqlalchemy import text
     await db.execute(text("SET LOCAL ROLE fulkro_app_bypassrls"))
 

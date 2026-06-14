@@ -254,6 +254,7 @@ async def create_stakeholder(
     s = Stakeholder(project_id=project_id, **body.model_dump(exclude_none=True))
     session.add(s)
     await session.flush()
+    await session.commit()  # get_db() no auto-commitea
     return _ser_stake(s)
 
 
@@ -284,6 +285,7 @@ async def create_process(
     p = BusinessProcess(project_id=project_id, **body.model_dump(exclude_none=True))
     session.add(p)
     await session.flush()
+    await session.commit()  # get_db() no auto-commitea
     return _ser_proc(p)
 
 
@@ -314,6 +316,7 @@ async def create_legal_obligation(
     lo = LegalObligation(project_id=project_id, **body.model_dump(exclude_none=True))
     session.add(lo)
     await session.flush()
+    await session.commit()  # get_db() no auto-commitea
     return _ser_legal(lo)
 
 
@@ -371,6 +374,7 @@ async def export_processes_to_magerit(
         ))
         created += 1
     await session.flush()
+    await session.commit()  # get_db() no auto-commitea: persistir los MageritAsset
     return {
         "exported": created,
         "analysis_id": str(magerit_analysis_id),

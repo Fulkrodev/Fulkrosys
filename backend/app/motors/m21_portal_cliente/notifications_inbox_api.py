@@ -85,6 +85,28 @@ def _to_out(n) -> NotificationOut:
     )
 
 
+async def _set_inbox_rls(db: AsyncSession, user: ClientUser) -> None:
+    """Fija el contexto de tenant del cliente para que la RLS de
+    client_notifications (por project_id/client_id) NO deje el inbox vacío en
+    producción (fail-closed). El service además filtra por client_user_id, así
+    que esto es defensa en profundidad. Patrón chat_api._resolve_client_project_id.
+    """
+    from sqlalchemy import text as _t
+    await db.execute(
+        _t("SELECT set_config('app.current_client_id', :c, true)"),
+        {"c": str(user.client_id)},
+    )
+    row = (await db.execute(_t(
+        "SELECT id FROM projects WHERE client_id = :c AND deleted_at IS NULL "
+        "ORDER BY created_at DESC LIMIT 1"
+    ), {"c": str(user.client_id)})).first()
+    if row is not None:
+        await db.execute(
+            _t("SELECT set_config('app.current_project_id', :p, true)"),
+            {"p": str(row[0])},
+        )
+
+
 # ──────────────── Endpoints ────────────────
 
 @router.get("", response_model=InboxResponse)
@@ -96,6 +118,7 @@ async def list_inbox(
     user: ClientUser = Depends(get_current_client_user),
     db: AsyncSession = Depends(get_db),
 ) -> InboxResponse:
+    await _set_inbox_rls(db, user)
     notifications = await notification_service.list_inbox(
         db, user.id,
         include_read=include_read,
@@ -117,6 +140,7 @@ async def count_unread(
     user: ClientUser = Depends(get_current_client_user),
     db: AsyncSession = Depends(get_db),
 ) -> CountUnreadResponse:
+    await _set_inbox_rls(db, user)
     count = await notification_service.count_unread(db, user.id)
     return CountUnreadResponse(count=count)
 
@@ -127,6 +151,7 @@ async def mark_read(
     user: ClientUser = Depends(get_current_client_user),
     db: AsyncSession = Depends(get_db),
 ) -> ActionResponse:
+    await _set_inbox_rls(db, user)
     ok = await notification_service.mark_read(db, notification_id, user.id)
     if not ok:
         raise HTTPException(status_code=404, detail="Notification not found")
@@ -145,6 +170,7 @@ async def mark_all_read_endpoint(
     db: AsyncSession = Depends(get_db),
 ) -> MarkAllReadResponse:
     """Mark every unread notification of the user as read · MB-7 atom 7.4."""
+    await _set_inbox_rls(db, user)
     n = await notification_service.mark_all_read(db, user.id)
     await db.commit()
     return MarkAllReadResponse(ok=True, marked_count=n)
@@ -156,6 +182,7 @@ async def dismiss(
     user: ClientUser = Depends(get_current_client_user),
     db: AsyncSession = Depends(get_db),
 ) -> ActionResponse:
+    await _set_inbox_rls(db, user)
     ok = await notification_service.dismiss(db, notification_id, user.id)
     if not ok:
         raise HTTPException(status_code=404, detail="Notification not found")
@@ -169,6 +196,7 @@ async def mark_actioned(
     user: ClientUser = Depends(get_current_client_user),
     db: AsyncSession = Depends(get_db),
 ) -> ActionResponse:
+    await _set_inbox_rls(db, user)
     ok = await notification_service.mark_actioned(db, notification_id, user.id)
     if not ok:
         raise HTTPException(status_code=404, detail="Notification not found")

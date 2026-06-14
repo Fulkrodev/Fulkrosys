@@ -81,7 +81,22 @@ async def _get_analysis_with_rls(
 
 
 async def _ensure_analysis_not_frozen(analysis_id: uuid.UUID, db: AsyncSession):
-    """Reject pipeline modifications on frozen analyses."""
+    """Reject pipeline modifications on frozen analyses (RLS-aware).
+
+    Los callers invocan este guard ANTES de _get_analysis_with_rls, así que aquí
+    aún no hay contexto de tenant: sin fijarlo, la SELECT corre bajo fulkro_app
+    sin contexto → 0 filas → row is None → el guard fallaba ABIERTO (permitía
+    mutar un análisis congelado). Resolvemos owner vía SECURITY DEFINER + fijamos
+    contexto antes de leer.
+    """
+    owner = (await db.execute(
+        text("SELECT * FROM get_magerit_analysis_owner(:aid)"),
+        {"aid": str(analysis_id)},
+    )).mappings().first()
+    if owner and owner["client_id"]:
+        await set_tenant_context(
+            db, client_id=owner["client_id"], project_id=owner["project_id"],
+        )
     result = await db.execute(
         text("SELECT snapshot_frozen_at FROM magerit_analysis WHERE id = :aid"),
         {"aid": str(analysis_id)},
@@ -1273,6 +1288,10 @@ async def request_e028_signature_endpoint(
         )
     except E028SignatureIntegrationError as exc:
         raise HTTPException(status_code=422, detail=str(exc))
+    # get_db() no auto-commitea: sin esto el magic link de firma E-028 (y su
+    # signing_intent) se revierten y el firmante recibe un enlace 404. Espejo de
+    # request_signature_endpoint (M01).
+    await db.commit()
     return RequestE028SignatureResponse(**result)
 
 

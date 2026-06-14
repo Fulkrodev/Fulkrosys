@@ -405,12 +405,14 @@ async def categorize_system(
     # Prerequisite check
     it_count = await db.scalar(
         select(sa_func.count()).select_from(InformationType).where(
-            InformationType.system_id == system_id
+            InformationType.system_id == system_id,
+            InformationType.deleted_at.is_(None),
         )
     )
     svc_count = await db.scalar(
         select(sa_func.count()).select_from(Service).where(
-            Service.system_id == system_id
+            Service.system_id == system_id,
+            Service.deleted_at.is_(None),
         )
     )
     if not it_count and not svc_count:
