@@ -13,9 +13,10 @@ const buttonVariants = cva(
         // Secondary · glass-strong con texto morado oscuro · acción importante pero no principal
         secondary:
           "bg-[color:var(--fulkro-surface-glass-strong)] text-[color:var(--fulkro-title)] hover:bg-[color:var(--fulkro-surface-glass-border)] border border-[color:var(--fulkro-surface-glass-border)]",
-        // Accent · morado vivo (mantiene compat con código antiguo)
+        // Accent · morado AA (shade -700 · contraste ≥4.5:1 sobre blanco · antes
+        // accent-500 = 2.92:1 FAIL AA con texto blanco · fix polish gate).
         accent:
-          "bg-fulkro-accent-500 text-white hover:bg-fulkro-accent-300 shadow-md",
+          "bg-fulkro-accent-700 text-white hover:bg-fulkro-accent-700/90 shadow-md",
         // Outline · tinte morado sutil · acción terciaria sobre superficies claras
         outline: "btn-outline-fulkro",
         // Ghost · sin fondo · acciones en chrome o links

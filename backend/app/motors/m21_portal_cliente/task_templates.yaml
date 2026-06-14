@@ -795,6 +795,30 @@ templates:
     estimated_days: 14
     priority: 9
 
+  - id: ENR_VF_05_REMEDIACION
+    phase: verificacion
+    applicable_categories: ["MEDIA", "ALTA"]
+    applicable_archetypes: "ALL"
+    is_enriched: true
+    order_within_phase: 2
+    title: Remediación de hallazgos (proponer → aprobar → ejecutar)
+    description: ADR-055 · cerrar hallazgos cloud antes de la auditoría ENAC.
+    description_detailed_es: >
+      Tras el pentest/diagnóstico, el sistema propone remediaciones cloud
+      (cifrado · acceso público · MFA · HTTPS…) mapeadas a medidas Anexo II. El
+      cliente concede permisos por conector y aprueba con un clic; el sistema
+      aplica el cambio con ciclo seguro (snapshot + auto-rollback) y lo documenta
+      en el dossier (carpeta 14_REMEDIACION). Nada se ejecuta sin autorización.
+    rationale_es: >
+      Cerrar hallazgos antes de la auditoría sube el nivel de conformidad y evita
+      no-conformidades. El snapshot antes/después da trazabilidad ENAC.
+    cta_label: Revisar remediaciones
+    cta_url: /admin/projects/{project_id}/remediation
+    deliverable_codes: []
+    actors: [Marcos, responsable_TI_cliente]
+    estimated_days: 5
+    priority: 9
+
   - id: ENR_VF_02_REDTEAM_ALTA
     phase: verificacion
     applicable_categories: ["ALTA"]

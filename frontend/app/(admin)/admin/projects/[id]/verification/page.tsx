@@ -4,6 +4,8 @@ import {
   TabsList,
   TabsTrigger,
 } from "@/components/ui/tabs";
+import { CopilotGuidedFlow } from "@/components/admin/copilot/CopilotGuidedFlow";
+import { PHASE_GUIDES } from "@/components/admin/copilot/phaseGuides";
 import { InfoTag } from "@/components/ui/info-tag";
 import { AutopilotSection } from "@/components/verification/AutopilotSection";
 import { DeltaReport } from "@/components/verification/DeltaReport";
@@ -24,6 +26,7 @@ export default function VerificationPage({
   const projectId = params.id;
   return (
     <div className="flex flex-col gap-6" data-testid="verification-page">
+      <CopilotGuidedFlow {...PHASE_GUIDES.verification(projectId)} />
       <header className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
         <div>
           <h2>

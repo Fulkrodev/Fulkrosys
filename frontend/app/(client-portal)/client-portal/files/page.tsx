@@ -185,15 +185,30 @@ export default function FilesPage() {
               Mis Documentos
             </h1>
           </div>
-          <Button
-            variant="primary"
-            size="md"
-            onClick={() => setUploadOpen(true)}
-            data-testid="client-upload-button"
-          >
-            <Upload size={14} />
-            Compartir documento
-          </Button>
+          <div className="flex flex-wrap items-center gap-2">
+            <Button
+              variant="secondary"
+              size="md"
+              onClick={() => {
+                window.location.href =
+                  "/api/v1/client-portal/dossier/download";
+              }}
+              data-testid="client-dossier-download-button"
+              title="Descarga tu expediente ENS completo: todos los entregables + pentest + remediaciones (ZIP)"
+            >
+              <FileText size={14} />
+              Descargar expediente ENS completo
+            </Button>
+            <Button
+              variant="primary"
+              size="md"
+              onClick={() => setUploadOpen(true)}
+              data-testid="client-upload-button"
+            >
+              <Upload size={14} />
+              Compartir documento
+            </Button>
+          </div>
         </div>
         <p className="text-sm text-fulkro-ink-600 max-w-3xl">
           Sube los documentos que tu consultor te pida (DNI representante,

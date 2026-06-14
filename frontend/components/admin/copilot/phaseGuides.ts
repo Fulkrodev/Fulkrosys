@@ -206,6 +206,88 @@ export const PHASE_GUIDES = {
     },
   }),
 
+  verification: (projectId: string) => ({
+    phaseId: "verification-pentest",
+    title: "Verificación técnica · vuln-scan (MEDIA) / pentest (ALTA)",
+    intro:
+      "El sistema ejecuta de forma AUTÓNOMA el escaneo de vulnerabilidades (MEDIA) o el pentest + red-team (ALTA) sobre el alcance autorizado, guiado por Opus 4.8 (determinista · anti-inyección · sin bajar severidad). Al cerrar el run genera el informe E-702/703/704 firmado.",
+    whyImportant:
+      "ENS MEDIA exige análisis de vulnerabilidades (mp.s.2); ALTA exige pentest + red-team (refuerzo R3 · CPSTIC). Sin esta verificación y su informe, el dossier ENAC queda incompleto y el auditor marca no-conformidad.",
+    steps: [
+      { label: "Autoriza el alcance (ALTA: firma autorización pentest)", detail: "Hosts/web/cloud in-scope · ALTA requiere autorización firmada antes de lanzar (fail-closed)" },
+      { label: "Lanza el autopilot", detail: "MEDIA completa sola · ALTA pausa en Gate 2 para atestación del pentester acreditado" },
+      { label: "Revisa findings + triage Opus 4.8", detail: "El LLM triagea como ASESOR · nunca baja severidad ni cambia el veredicto determinista" },
+      { label: "Informe E-702/703/704 auto-generado", detail: "Firmado Ed25519 · cae solo en el dossier (carpeta 13)" },
+    ],
+    commonMistakes: [
+      "Lanzar ALTA sin autorización firmada: el sistema lo bloquea (fail-closed · zero standing access)",
+      "Cerrar el run sin revisar los críticos antes de proponer remediación",
+    ],
+    estimatedTime: "MEDIA: scan automático + revisión 1-2h · ALTA: + atestación pentester",
+    helpTopics: [
+      { label: "Herramientas MCP", href: `/admin/projects/${projectId}/mcps` },
+      { label: "Preguntar al copiloto", href: "#copilot-dock" },
+    ],
+    nextAction: {
+      label: "Revisar y aplicar remediaciones",
+      targetUrl: `/admin/projects/${projectId}/remediation`,
+    },
+  }),
+
+  mcps: (projectId: string) => ({
+    phaseId: "mcps-tools",
+    title: "Herramientas de verificación (MCPs)",
+    intro:
+      "Arsenal de herramientas de seguridad (recon · vuln-scan · web · cloud · SAST) que alimenta la verificación. Normalmente el autopilot las orquesta solo; este panel es para una ejecución puntual o un re-escaneo concreto.",
+    whyImportant:
+      "Las herramientas producen la evidencia técnica del pentest. El autopilot las usa automáticamente por categoría; aquí solo intervienes para casos puntuales.",
+    steps: [
+      { label: "Normalmente NO necesitas tocar esto", detail: "La pestaña Verificación (autopilot) ya lanza las herramientas pertinentes por categoría" },
+      { label: "Lanza una herramienta puntual si hace falta", detail: "Ej. re-escanear un host concreto tras un cambio" },
+      { label: "Resultados → evidencia + findings", detail: "Se adjuntan automáticamente al expediente del proyecto" },
+    ],
+    commonMistakes: [
+      "Lanzar herramientas sin autorización de alcance vigente",
+    ],
+    estimatedTime: "Puntual · minutos por herramienta",
+    helpTopics: [
+      { label: "Verificación autónoma", href: `/admin/projects/${projectId}/verification` },
+      { label: "Preguntar al copiloto", href: "#copilot-dock" },
+    ],
+    nextAction: {
+      label: "Volver a Verificación",
+      targetUrl: `/admin/projects/${projectId}/verification`,
+    },
+  }),
+
+  remediation: (projectId: string) => ({
+    phaseId: "remediation-adr055",
+    title: "Remediación · proponer → aprobar (1 clic) → ejecutar",
+    intro:
+      "El sistema propone remediaciones para los hallazgos cloud (cifrado · acceso público · MFA · HTTPS…) mapeadas a medidas Anexo II. Tú o el cliente las aprobáis con un clic y el sistema las aplica en los sistemas del cliente con ciclo seguro (preflight→snapshot→aplicar→verificar→rollback). Todo queda documentado en el dossier (carpeta 14).",
+    whyImportant:
+      "Cerrar los hallazgos antes de la auditoría sube el nivel de conformidad y evita no-conformidades. La aprobación con un clic + el snapshot antes/después dan trazabilidad ENAC y seguridad: nada se toca sin autorización del cliente.",
+    steps: [
+      { label: "Genera propuestas desde los hallazgos", detail: "Botón 'Proponer remediaciones' · mapeo determinista hallazgo→acción del catálogo" },
+      { label: "Revisa cada propuesta (qué hace + recurso)", detail: "SAFE_AUTO reversible · GUARDED puede afectar acceso · BLOCKED nunca automático" },
+      { label: "El cliente concede permisos de escritura por conector", detail: "Activación + grant-write · sin permiso no se ejecuta nada" },
+      { label: "Aprobar y ejecutar (1 clic)", detail: "Ciclo seguro con snapshot + auto-rollback si la verificación falla" },
+    ],
+    commonMistakes: [
+      "Ejecutar sin que el cliente haya concedido permisos al conector: el job queda como plan",
+      "Aprobar una GUARDED sin avisar al cliente del posible impacto en accesos",
+    ],
+    estimatedTime: "Revisión 15-30 min · ejecución automática por acción",
+    helpTopics: [
+      { label: "Verificación (origen de hallazgos)", href: `/admin/projects/${projectId}/verification` },
+      { label: "Preguntar al copiloto", href: "#copilot-dock" },
+    ],
+    nextAction: {
+      label: "Ir al Dossier ENAC",
+      targetUrl: `/admin/projects/${projectId}/dossier`,
+    },
+  }),
+
   dossier: (projectId: string) => ({
     phaseId: "dossier-enac",
     title: "Dossier ENAC · entrega audit externo",
