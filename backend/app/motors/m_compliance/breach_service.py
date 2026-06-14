@@ -122,19 +122,24 @@ class BreachNotificationService:
         subject = (
             f"[FULKRO] Notificación brecha Art. 33 GDPR · {row.breach_code}"
         )
+        sent_ok = False
         try:
-            await get_email_sender().send(
+            result = await get_email_sender().send(
                 self.db,
                 to=AEPD_NOTIFICATION_EMAIL,
                 subject=subject,
                 html_body=html,
                 template_used="aepd_breach_notification",
             )
+            sent_ok = bool(getattr(result, "ok", True)) if result is not None else True
         except Exception as e:  # noqa: BLE001
             logger.warning("AEPD email send failed: {}", e)
 
-        row.notified_aepd_at = datetime.now(timezone.utc)
-        row.notification_status = BREACH_AEPD_NOTIFIED
+        # Solo atestar la notificación Art.33 si el envío fue exitoso (antes se
+        # marcaba 'notificado a AEPD' aunque el email fallara → falsa atestación).
+        if sent_ok:
+            row.notified_aepd_at = datetime.now(timezone.utc)
+            row.notification_status = BREACH_AEPD_NOTIFIED
         await self.db.flush()
         return row
 

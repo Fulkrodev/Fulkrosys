@@ -132,6 +132,7 @@ async def start_task(
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND, detail=str(exc),
         )
+    await db.commit()  # get_db() no auto-commitea: persistir la transición
     return _serialize(task)
 
 
@@ -151,6 +152,8 @@ async def complete_task(
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND, detail=str(exc),
         )
+    # commit DESPUÉS de transition() (que propaga el desbloqueo de dependientes)
+    await db.commit()  # get_db() no auto-commitea
     return _serialize(task)
 
 
@@ -198,6 +201,7 @@ async def block_task(
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND, detail=str(exc),
         )
+    await db.commit()  # get_db() no auto-commitea: persistir el bloqueo
     return _serialize(task)
 
 

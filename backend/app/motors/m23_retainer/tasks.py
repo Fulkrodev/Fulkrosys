@@ -181,7 +181,12 @@ def dispatch_due_activities() -> dict:
     from backend.app.models.retainer import RetainerActivity
 
     async def _due_ids() -> list[str]:
+        from sqlalchemy import text as sa_text
         async with async_session() as session:
+            # Tarea de sistema cross-tenant: bajo fulkro_app la RLS ocultaría
+            # todas las actividades → 0 encoladas. bypassrls para el scan global
+            # (mismo patrón que check_overdue_activities).
+            await session.execute(sa_text("SET LOCAL ROLE fulkro_app_bypassrls"))
             rows = await session.execute(
                 select(RetainerActivity.id).where(
                     RetainerActivity.estado == "programada",
@@ -359,6 +364,9 @@ def generate_quarterly_reports() -> dict:
 
         async with async_session() as db:
             try:
+                # Scan cross-tenant (vista admin): bajo fulkro_app la RLS daría 0
+                # proyectos → 0 informes. bypassrls para el inventario global.
+                await db.execute(sa_text("SET LOCAL ROLE fulkro_app_bypassrls"))
                 row = await db.execute(sa_text(
                     "SELECT DISTINCT project_id FROM retainer_contracts "
                     "WHERE estado = 'active' AND deleted_at IS NULL"

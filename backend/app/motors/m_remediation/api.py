@@ -96,10 +96,17 @@ async def _resolve_cliente_project(db: AsyncSession, cliente_user) -> uuid.UUID:
     cliente_client_id = getattr(cliente_user, "client_id", None)
     if cliente_client_id is None:
         raise HTTPException(status_code=403, detail="Forbidden")
+    # projects FORCE RLS por current_client_id(): fijar contexto ANTES de leer
+    # (si no, 404 en prod). ORDER BY DESC para alinear con el resto del portal
+    # (task_api/dossier/signing) → todas las vistas apuntan al mismo proyecto.
+    await db.execute(
+        text("SELECT set_config('app.current_client_id', :cid, true)"),
+        {"cid": str(cliente_client_id)},
+    )
     row = await db.execute(
         text(
             "SELECT id FROM projects WHERE client_id = :cid AND deleted_at IS NULL "
-            "ORDER BY created_at ASC LIMIT 1"
+            "ORDER BY created_at DESC LIMIT 1"
         ),
         {"cid": str(cliente_client_id)},
     )
@@ -536,9 +543,15 @@ async def cliente_authorize_job(
 
     RLS aísla por proyecto del cliente: un job de otro proyecto no es visible (404).
     """
-    await _resolve_cliente_project(db, cliente_user)
+    pid = await _resolve_cliente_project(db, cliente_user)
     svc = RemediationService(db)
     try:
+        # Defensa en profundidad: además de la RLS, verificar explícitamente que
+        # el job pertenece al proyecto del cliente antes de mutar (un job de otro
+        # proyecto → 404, nunca se autoriza cross-tenant).
+        existing = await svc.get_job(job_id)
+        if existing.project_id != pid:
+            raise JobNotFoundError("cross-project")
         job = await svc.authorize_job(
             job_id, user_id=getattr(cliente_user, "id", None),
         )
@@ -562,9 +575,13 @@ async def cliente_approve_and_execute(
     cliente autoriza · el writer opt-in (con los permisos que el propio cliente
     concedió a su conector) ejecuta el ciclo seguro (preflight→snapshot→apply→
     verify→rollback). RLS aísla por proyecto del cliente."""
-    await _resolve_cliente_project(db, cliente_user)
+    pid = await _resolve_cliente_project(db, cliente_user)
     svc = RemediationService(db)
     try:
+        # Defensa en profundidad: el job debe pertenecer al proyecto del cliente.
+        existing = await svc.get_job(job_id)
+        if existing.project_id != pid:
+            raise JobNotFoundError("cross-project")
         job = await svc.approve_and_execute_job(
             job_id, user_id=getattr(cliente_user, "id", None),
         )

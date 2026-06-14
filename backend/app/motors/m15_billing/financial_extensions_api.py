@@ -145,8 +145,11 @@ async def get_aapp_billing_status(
     try:
         rows = (await db.execute(
             text(
-                "SELECT id, invoice_number, total_amount, status, "
-                "facturae_xml_signed, face_submitted_at "
+                # Nombres reales de columna (antes total_amount/face_submitted_at
+                # NO existían → SELECT fallaba → except tragaba el error → SIEMPRE
+                # 'sin factura AAPP'). Posiciones rows[2]/rows[5] se conservan.
+                "SELECT id, invoice_number, amount_eur, status, "
+                "facturae_xml_signed, submitted_to_face_at "
                 "FROM invoices_aapp WHERE project_id = :pid "
                 "ORDER BY created_at DESC LIMIT 1"
             ),

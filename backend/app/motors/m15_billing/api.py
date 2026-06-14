@@ -247,6 +247,10 @@ async def list_invoices_by_client_endpoint(
     projects e iterase invoices por cada uno (decisión audit pre-FASE 5
     H4). Retorna lista plana enriquecida con ``project_name``.
     """
+    # Agregado admin cross-proyecto del cliente (require_owner): invoices tiene
+    # RLS por client_id; sin fijar contexto daría [] en prod bajo fulkro_app.
+    from sqlalchemy import text as _t
+    await db.execute(_t("SET LOCAL ROLE fulkro_app_bypassrls"))
     rows = await BillingService().list_invoices_by_client(db, client_id)
     return [
         {

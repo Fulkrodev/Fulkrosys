@@ -160,15 +160,25 @@ class BillingService:
         return invoice
 
     async def _get_next_correlative(self, db: AsyncSession, year: int) -> str:
-        """Formato: FULKRO-{año}-{NNNN} secuencial bajo el tenant actual."""
-        count = (await db.execute(
-            text(
-                "SELECT COUNT(*) FROM invoices "
-                "WHERE EXTRACT(YEAR FROM fecha_emision) = :y "
-                "AND tipo != 'anulada'"
-            ),
-            {"y": year},
-        )).scalar() or 0
+        """Formato: FULKRO-{año}-{NNNN} · serie fiscal ÚNICA por emisor (global).
+
+        El índice uq_invoices_numero_correlativo es GLOBAL (un solo emisor). El
+        COUNT DEBE correr FUERA de RLS: bajo fulkro_app+tenant solo contaría las
+        facturas del cliente actual → todos empezarían en 0001 → IntegrityError al
+        2º cliente del año. bypassrls (transaction-scoped) cuenta toda la serie.
+        """
+        await db.execute(text("SET LOCAL ROLE fulkro_app_bypassrls"))
+        try:
+            count = (await db.execute(
+                text(
+                    "SELECT COUNT(*) FROM invoices "
+                    "WHERE EXTRACT(YEAR FROM fecha_emision) = :y "
+                    "AND tipo != 'anulada'"
+                ),
+                {"y": year},
+            )).scalar() or 0
+        finally:
+            await db.execute(text("RESET ROLE"))
         return f"FULKRO-{year}-{count + 1:04d}"
 
     async def _calculate_verifactu_hash(
@@ -185,16 +195,23 @@ class BillingService:
         Primera factura del año: prev_hash = "INICIO-{año}".
         Siguientes: prev_hash = verifactu_hash de la factura anterior del año.
         """
-        last = (await db.execute(
-            text(
-                "SELECT verifactu_hash FROM invoices "
-                "WHERE EXTRACT(YEAR FROM fecha_emision) = :y "
-                "AND verifactu_hash IS NOT NULL "
-                "ORDER BY fecha_emision DESC, numero_correlativo DESC "
-                "LIMIT 1"
-            ),
-            {"y": year},
-        )).scalar()
+        # La cadena Verifactu es ÚNICA por emisor (global): leer la factura previa
+        # FUERA de RLS, si no bajo fulkro_app+tenant cada cliente encadenaría su
+        # propia sub-cadena (bifurcación de la cadena fiscal).
+        await db.execute(text("SET LOCAL ROLE fulkro_app_bypassrls"))
+        try:
+            last = (await db.execute(
+                text(
+                    "SELECT verifactu_hash FROM invoices "
+                    "WHERE EXTRACT(YEAR FROM fecha_emision) = :y "
+                    "AND verifactu_hash IS NOT NULL "
+                    "ORDER BY fecha_emision DESC, numero_correlativo DESC "
+                    "LIMIT 1"
+                ),
+                {"y": year},
+            )).scalar()
+        finally:
+            await db.execute(text("RESET ROLE"))
         prev_hash = last or f"INICIO-{year}"
         payload = f"{prev_hash}|{numero}|{fecha.isoformat()}|{base}|{total}"
         return hashlib.sha256(payload.encode()).hexdigest()
