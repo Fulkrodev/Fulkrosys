@@ -18,7 +18,7 @@ Cliente NO crea ni ejecuta: solo VE y AUTORIZA cambios de riesgo en SUS sistemas
 from __future__ import annotations
 
 import uuid
-from typing import Any
+from typing import Any, Literal
 
 from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel, Field
@@ -63,7 +63,9 @@ client_router = APIRouter(
 
 class CreateJobBody(BaseModel):
     action_type: str = Field(..., min_length=2, max_length=80)
-    source_kind: str = Field(default="cloud_gap")
+    # Validado a nivel schema (espejo del CHECK ck_remediation_jobs_source_kind):
+    # un valor inválido daba 500 (CheckViolation crudo) en vez de 422 limpio.
+    source_kind: Literal["cloud_gap", "host_finding"] = Field(default="cloud_gap")
     source_gap_id: uuid.UUID | None = None
     source_finding_id: uuid.UUID | None = None
     connector_id: uuid.UUID | None = None

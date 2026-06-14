@@ -23,7 +23,7 @@ from sqlalchemy import text
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from backend.app.auth.dependencies import require_owner
-from backend.app.database import get_db
+from backend.app.database import get_db, set_tenant_context
 from backend.app.models.client_portal import ClientUser
 from backend.app.motors.m21_portal_cliente.api import get_current_client_user
 from backend.app.motors.m21_portal_cliente.chat_service import (
@@ -110,6 +110,30 @@ async def _resolve_client_project_id(
     return project_id
 
 
+async def _assert_thread_in_project(
+    db: AsyncSession, thread_id: UUID, project_id: UUID,
+) -> None:
+    """Defense-in-depth ownership check (IDOR · verificado empíricamente).
+
+    El portal cliente corre bajo fulkro_app_bypassrls durante todo el request
+    (verify_session lo fija para poder leer client_sessions). Eso DESACTIVA la
+    RLS, así que un cliente podía leer/escribir en el hilo de OTRO cliente
+    pasando su thread_id directamente (cross-tenant read+write confirmado en el
+    roleplay). Comprobamos explícitamente que el hilo pertenece al proyecto del
+    cliente. 404 (no 403) para no filtrar la existencia del recurso ajeno."""
+    row = (await db.execute(
+        text(
+            "SELECT 1 FROM chat_threads "
+            "WHERE id = :tid AND project_id = :pid AND deleted_at IS NULL"
+        ),
+        {"tid": str(thread_id), "pid": str(project_id)},
+    )).first()
+    if row is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="Thread not found",
+        )
+
+
 # ── Cliente endpoints ─────────────────────────────────────
 
 
@@ -149,7 +173,8 @@ async def client_list_messages(
     db: AsyncSession = Depends(get_db),
     user: ClientUser = Depends(get_current_client_user),
 ) -> list[dict]:
-    await _resolve_client_project_id(db, user)
+    project_id = await _resolve_client_project_id(db, user)
+    await _assert_thread_in_project(db, thread_id, project_id)
     service = ChatService(db)
     messages = await service.list_messages(thread_id)
     return [_serialize_message(m) for m in messages]
@@ -164,7 +189,8 @@ async def client_post_message(
     db: AsyncSession = Depends(get_db),
     user: ClientUser = Depends(get_current_client_user),
 ) -> dict:
-    await _resolve_client_project_id(db, user)
+    project_id = await _resolve_client_project_id(db, user)
+    await _assert_thread_in_project(db, thread_id, project_id)
     service = ChatService(db)
     try:
         msg = await service.post_message(
@@ -194,7 +220,8 @@ async def client_mark_read(
     audit_log emit chat.message.read (Sub-atom 5.A 3-way OR) via
     ChatService.mark_messages_read.
     """
-    await _resolve_client_project_id(db, user)
+    project_id = await _resolve_client_project_id(db, user)
+    await _assert_thread_in_project(db, thread_id, project_id)
     service = ChatService(db)
     try:
         marked = await service.mark_messages_read(
@@ -213,6 +240,23 @@ async def client_mark_read(
 # ── Admin endpoints ─────────────────────────────────────
 
 
+async def _set_admin_project_rls(project_id: UUID, db: AsyncSession) -> None:
+    """Los endpoints admin corren bajo fulkro_app (RLS forzado · NO bypassrls).
+    chat_threads/chat_messages filtran por current_project_id → sin fijar el
+    contexto de tenant el admin ve 0 hilos y no puede responder (404/[]/400 en
+    prod · verificado empíricamente en el roleplay). Resuelve el owner del
+    proyecto y fija el contexto (mismo patrón que el resto de endpoints admin
+    project-scoped · p.ej. m15 financial_extensions._set_project_rls)."""
+    client_id = (await db.execute(
+        text("SELECT get_project_owner(:pid)"), {"pid": str(project_id)}
+    )).scalar()
+    if not client_id:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="Project not found",
+        )
+    await set_tenant_context(db, client_id=client_id, project_id=project_id)
+
+
 @admin_chat_router.get("/projects/{project_id}/chat/threads")
 async def admin_list_threads(
     project_id: UUID,
@@ -220,6 +264,7 @@ async def admin_list_threads(
     db: AsyncSession = Depends(get_db),
     current_user=Depends(require_owner),
 ) -> list[dict]:
+    await _set_admin_project_rls(project_id, db)
     service = ChatService(db)
     threads = await service.list_threads(project_id, status=status_filter)
     return [_serialize_thread(t) for t in threads]
@@ -234,6 +279,7 @@ async def admin_list_messages(
     db: AsyncSession = Depends(get_db),
     current_user=Depends(require_owner),
 ) -> list[dict]:
+    await _set_admin_project_rls(project_id, db)
     service = ChatService(db)
     messages = await service.list_messages(thread_id)
     return [_serialize_message(m) for m in messages]
@@ -249,6 +295,7 @@ async def admin_post_message(
     db: AsyncSession = Depends(get_db),
     current_user=Depends(require_owner),
 ) -> dict:
+    await _set_admin_project_rls(project_id, db)
     service = ChatService(db)
     try:
         msg = await service.post_message(
@@ -274,6 +321,7 @@ async def admin_thread_sla(
     db: AsyncSession = Depends(get_db),
     current_user=Depends(require_owner),
 ) -> dict:
+    await _set_admin_project_rls(project_id, db)
     service = ChatService(db)
     try:
         return await service.get_sla_status(thread_id)
@@ -297,6 +345,7 @@ async def admin_mark_read(
     audit_log emit chat.message.read (Sub-atom 5.A) via
     ChatService.mark_messages_read.
     """
+    await _set_admin_project_rls(project_id, db)
     service = ChatService(db)
     try:
         marked = await service.mark_messages_read(

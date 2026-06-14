@@ -168,7 +168,9 @@ async def mark_read_client(
     await set_tenant_context(db, client_id=user.client_id)
     svc = ClientMessagingService(db)
     try:
-        msg = await svc.mark_as_read(message_id=message_id, by_role="client")
+        msg = await svc.mark_as_read(
+            message_id=message_id, by_role="client", client_id=user.client_id,
+        )
     except MessageNotFoundError as exc:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND, detail=str(exc),

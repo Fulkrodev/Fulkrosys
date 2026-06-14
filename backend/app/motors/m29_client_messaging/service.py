@@ -314,15 +314,25 @@ class ClientMessagingService:
         self,
         message_id: uuid.UUID,
         by_role: Literal["client", "admin"],
+        client_id: uuid.UUID | None = None,
     ) -> ClientMessage:
         """Marca mensaje como leído por pool. Idempotente.
 
         Cliente sólo puede marcar mensajes con ``from_role='admin'``
         (no tiene sentido marcar propio como read).
         Admin sólo puede marcar mensajes con ``from_role='client'``.
+
+        ``client_id`` (defensa-en-profundidad IDOR): el portal corre bajo
+        bypassrls, así que validamos explícitamente que el mensaje pertenece
+        al cliente que lo marca. 404 si es de otro tenant (verificado en el
+        roleplay: sin esto un cliente podía voltear el flag de lectura de un
+        mensaje admin→otro-cliente).
         """
         msg = await self.db.get(ClientMessage, message_id)
         if msg is None or msg.deleted_at is not None:
+            raise MessageNotFoundError(f"Mensaje {message_id} no existe.")
+
+        if client_id is not None and msg.client_id != client_id:
             raise MessageNotFoundError(f"Mensaje {message_id} no existe.")
 
         if by_role == "client":
