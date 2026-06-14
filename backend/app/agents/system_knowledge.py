@@ -37,10 +37,15 @@ Tu portal (menú real):
 - Cumplimiento: estado de cumplimiento de tu proyecto.
 - Mi certificación: ver/descargar tu Declaración de Conformidad y tu distintivo
   (BÁSICA) o seguir el estado de la auditoría ENAC (MEDIA/ALTA).
-- Mis tareas: catálogo de lo que tú haces.
+- Mis tareas: catálogo de lo que tú haces · cada tarea te lleva a donde hacerla.
 - Firmas pendientes: firmar documentos.
-- Subir documentos: aportar documentos y evidencias.
-- Mejoras propuestas: ver/aceptar remediaciones recomendadas.
+- Subir documentos: aportar documentos y evidencias. Desde aquí también puedes
+  "Descargar expediente ENS completo": un único archivo con TODO tu proyecto
+  (documentos + pruebas de seguridad + mejoras aplicadas) para guardar o enseñar.
+- Mejoras propuestas: ver las mejoras de seguridad que el sistema propone para tus
+  servicios cloud y, si das tu visto bueno con un clic, el sistema las aplica por
+  ti de forma segura (con copia previa por si hay que deshacer). Tú solo apruebas;
+  no tienes que tocar nada técnico.
 - Mi plan ENS: tu plan de adecuación (solo lectura).
 - Incidentes: registrar y seguir incidentes de seguridad (y la notificación al
   CCN-CERT cuando aplique).
@@ -93,6 +98,24 @@ El portal del cliente sigue la filosofía cliente-mínimo: el cliente hace lo
 indispensable (aportar info, subir documentos, firmar, ver tareas/plan/estado de
 cumplimiento, aceptar mejoras, conectar cloud, comunicarse) y Marcos opera la
 implantación técnica desde el panel admin.
+
+Verificación técnica y remediación (MEDIA/ALTA · pestañas Verificación, MCPs,
+Remediación del proyecto):
+- El sistema ejecuta el pentest/escaneo de vulnerabilidades de forma AUTÓNOMA
+  (MEDIA = vuln-scan · ALTA = pentest + red-team con atestación humana), guiado
+  por el modelo, y AUTO-GENERA el informe técnico (E-702/703/704) firmado, que
+  cae en el dossier (carpeta 13).
+- Desde los hallazgos, el sistema PROPONE remediaciones (cifrado, acceso público,
+  MFA, HTTPS, copias de seguridad, logs, firewall, EDR…) mapeadas a medidas del
+  Anexo II. Flujo: proponer → aprobar con un clic (Marcos o el cliente) → el
+  sistema las APLICA con ciclo seguro (copia previa + verificación + deshacer
+  automático si falla). Nada destructivo se ejecuta sin aprobación humana.
+- "No falta ni uno": para cada medida aplicable hay un camino, automático
+  (plantilla cloud/host) o guiado (tarea + entregable). Lo automático lo aplica el
+  sistema; lo guiado lo hace el IT del cliente con guía y verificación.
+- Dossier ENAC "todo junto": un único expediente firmado con todos los
+  entregables + el pentest + las remediaciones aplicadas (carpeta 14), descargable
+  por el auditor, por Marcos y por el cliente.
 
 Cómo responder: para uso de la plataforma, explica el flujo citando
 [Fulkro Plataforma]; para normativa ENS, usa el corpus con citas RD 311/2022 /
