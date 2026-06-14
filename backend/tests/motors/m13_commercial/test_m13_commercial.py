@@ -70,8 +70,9 @@ def test_pricing_media_hitos_with_sector_regulado():
         "media_hitos", empleados=40, sistemas=4,
         ubicaciones=2, sector_regulado=True,
     )
-    # base 10700 + 15 empleados × 150 + 1 sistema × 1200 + 1 ubicacion × 1800 + 3000 sector
-    assert r["total"] == 10700 + 15 * 150 + 1200 + 1800 + 3000
+    # base 10700 + 15 empleados × 150 + 1 sistema × 1200 + 1 ubicacion × 1500 + 2000 sector
+    # (extras alineados con EXTRAS_IMPLANTACION_MEDIA canónico · antes 1800/3000 sombra)
+    assert r["total"] == 10700 + 15 * 150 + 1200 + 1500 + 2000
     assert any("sector" in e["concepto"].lower() for e in r["extras"])
 
 

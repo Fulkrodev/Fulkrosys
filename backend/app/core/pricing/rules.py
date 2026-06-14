@@ -268,9 +268,9 @@ GARANTIAS_COMERCIALES: dict[str, str] = {
     "MEDIA": (
         "Garantia de certificacion: si no se obtiene la certificacion "
         "ENAC por razon imputable exclusivamente al consultor, el "
-        "ultimo hito de 1.000 EUR no se cobrara. El consultor continuara "
-        "prestando los servicios necesarios hasta obtener la "
-        "certificacion sin coste adicional."
+        "importe del ultimo hito de certificacion no se cobrara. El "
+        "consultor continuara prestando los servicios necesarios hasta "
+        "obtener la certificacion sin coste adicional."
     ),
     "ALTA": (
         "Alianza con partner senior: el proyecto se ejecuta en "

@@ -58,22 +58,30 @@ async def list_projects_with_active_connectors(
 ) -> list[uuid.UUID]:
     """Project ids con al menos 1 CloudConnector activo (no revoked).
 
-    Bypassa RLS via _admin_setup pattern (este task corre como fulkro_migrate).
+    Descubrimiento CROSS-TENANT: el task corre con async_session (rol fulkro_app,
+    NO fulkro_migrate como decía el docstring antiguo), así que la RLS de
+    cloud_connectors (por app.current_project_id) ocultaría TODO sin contexto →
+    el beat escaneaba 0 proyectos. Elevamos a bypassrls SOLO para el inventario;
+    el bucle posterior fija set_tenant_context por proyecto (correcto).
     """
-    res = await db.execute(
-        select(CloudConnector.project_id)
-        .where(
-            CloudConnector.revoked_at.is_(None),
-            CloudConnector.status.in_([
-                CloudConnectorStatus.CONNECTED.value,
-                CloudConnectorStatus.SYNCING.value,
-                CloudConnectorStatus.SYNC_ERROR.value,
-                CloudConnectorStatus.PENDING_OAUTH.value,
-            ]),
+    await db.execute(text("SET LOCAL ROLE fulkro_app_bypassrls"))
+    try:
+        res = await db.execute(
+            select(CloudConnector.project_id)
+            .where(
+                CloudConnector.revoked_at.is_(None),
+                CloudConnector.status.in_([
+                    CloudConnectorStatus.CONNECTED.value,
+                    CloudConnectorStatus.SYNCING.value,
+                    CloudConnectorStatus.SYNC_ERROR.value,
+                    CloudConnectorStatus.PENDING_OAUTH.value,
+                ]),
+            )
+            .distinct()
         )
-        .distinct()
-    )
-    return [row[0] for row in res.all()]
+        return [row[0] for row in res.all()]
+    finally:
+        await db.execute(text("RESET ROLE"))
 
 
 async def run_diagnosis_for_project_id(

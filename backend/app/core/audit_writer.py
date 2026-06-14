@@ -121,21 +121,27 @@ async def emit_audit_log(
         # registro_id es NOT NULL · sintetizamos uno para no romper el INSERT.
         registro_id = uuid.uuid4()
     try:
-        await db.execute(
-            _INSERT_SQL,
-            {
-                "tabla": tabla[:100],
-                "rid": str(registro_id),
-                "accion": accion[:60],
-                "usuario": (usuario or "system")[:255],
-                "pid": _coerce_uuid(project_id),
-                "cid": _coerce_uuid(client_id),
-                "payload_old": _coerce_jsonb(payload_old),
-                "payload_new": _coerce_jsonb(payload_new),
-            },
-        )
-        # flush ⇒ dispara fn_audit_log_hash_chain en esta misma transacción.
-        await db.flush()
+        # SAVEPOINT: si el INSERT/flush del audit falla (constraint, trigger hash,
+        # etc.) el rollback se limita al savepoint y NO envenena la transacción
+        # principal → la mutación primaria sigue pudiendo commitear (contrato
+        # best-effort de verdad). Las filas que SÍ insertan se confirman con el
+        # commit del endpoint, preservando la cadena hash R6.
+        async with db.begin_nested():
+            await db.execute(
+                _INSERT_SQL,
+                {
+                    "tabla": tabla[:100],
+                    "rid": str(registro_id),
+                    "accion": accion[:60],
+                    "usuario": (usuario or "system")[:255],
+                    "pid": _coerce_uuid(project_id),
+                    "cid": _coerce_uuid(client_id),
+                    "payload_old": _coerce_jsonb(payload_old),
+                    "payload_new": _coerce_jsonb(payload_new),
+                },
+            )
+            # flush ⇒ dispara fn_audit_log_hash_chain en esta misma transacción.
+            await db.flush()
     except Exception:  # pragma: no cover · best-effort · no rompe la mutación
         logger.exception(
             "emit_audit_log fallo (best-effort) · tabla=%s accion=%s rid=%s",

@@ -135,7 +135,7 @@ async def test_agent_20_context_builder_from_proposal(db):
     "categoria,expected_tokens",
     [
         ("BASICA", ("BASICA",)),
-        ("MEDIA", ("1.000", "1000")),
+        ("MEDIA", ("hito", "certificacion")),
         ("ALTA", ("ALTA", "partner")),
     ],
 )

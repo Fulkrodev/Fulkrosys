@@ -100,7 +100,8 @@ class TestProposalApendiceM:
             db, lead_id=lead_id, categoria="MEDIA", sector="sanidad",
         )
         assert "Garantia" in (p.notas_marcos or "")
-        assert "1.000 EUR" in (p.notas_marcos or "")
+        # La garantia MEDIA ya no fija una cifra (era inconsistente con el hito real).
+        assert "ultimo hito de certificacion" in (p.notas_marcos or "")
 
 
 # ══════════════════════════════════════════════════════════════════════

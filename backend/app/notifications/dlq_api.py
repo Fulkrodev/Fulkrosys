@@ -121,6 +121,7 @@ async def reprocess(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="DLQ entry not found",
         )
+    await db.commit()  # get_db() no auto-commitea: persistir UPDATE + audit_log
     return DlqActionResponse(
         success=result["reprocessed"],
         rows_affected=result.get("rows_affected", 0),
@@ -149,6 +150,7 @@ async def resolve(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="DLQ entry not found",
         )
+    await db.commit()  # get_db() no auto-commitea: persistir UPDATE + audit_log
     return DlqActionResponse(
         success=result["resolved"],
         rows_affected=result.get("rows_affected", 0),

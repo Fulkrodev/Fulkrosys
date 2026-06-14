@@ -172,8 +172,8 @@ async def test_agent_19_whitelist_detects_hallucinations(db):
     # (base MEDIA 10700 + sanidad 2000 + multi-sede 1500 + +1 sistema 1200 = 15400)
     assert Decimal("10700.00") in known_amounts
     assert Decimal("15400.00") in known_amounts
-    # Garantia MEDIA incluye el hito de 1.000 EUR — debe parsearse del texto
-    assert Decimal("1000.00") in known_amounts
+    # La garantia MEDIA ya NO promete una cifra fija (era inconsistente con el
+    # hito real); por eso known_amounts no deriva un importe de la garantia.
 
     # Parsed limpio: importes conocidos + citas normativas legitimas
     parsed_clean = {
@@ -189,7 +189,7 @@ async def test_agent_19_whitelist_detects_hallucinations(db):
         "justificacion_extras": "Sector regulado 2.000,00 EUR. Multi-ubicacion 1.500,00 EUR.",
         "pricing_desglose": f"Base {pricing.base:.2f} EUR. Hitos 26%, 21%, 21%, 21%, 11%.",
         "hitos_pago": "5 hitos segun Apendice M v2.2.",
-        "garantias": "Ultimo hito 1.000 EUR si no certifica ENAC.",
+        "garantias": "El importe del ultimo hito de certificacion no se cobra si no certifica ENAC.",
         "proximos_pasos": "Firma P-001 validez 30 dias. [RGPD Art. 28].",
         "referencias_legales": (
             "[RD 311/2022]. [Ley 40/2015 Art. 156]. [CCN-STIC 808]. "

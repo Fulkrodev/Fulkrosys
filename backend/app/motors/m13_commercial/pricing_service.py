@@ -35,11 +35,13 @@ PRICING_CATALOG: list[dict[str, Any]] = [
         "descripcion": "Para ENS categoría MEDIA. Pago por hitos entregables.",
         "aplicable_categoria": ["MEDIA"],
         "formula": {
-            "base": 22000,
+            "base": 22000,  # override en runtime por get_base_prices() (10.700)
             "por_empleado_extra_de_25": 150,
             "por_sistema_extra_de_3": 1200,
-            "por_ubicacion_extra": 1800,
-            "por_sector_regulado_extra": 3000,
+            # Alineados con EXTRAS_IMPLANTACION_MEDIA (rules · fuente única):
+            # antes 1800/3000 eran recargos sombra inflados (RD 3/2010).
+            "por_ubicacion_extra": 1500,
+            "por_sector_regulado_extra": 2000,
         },
         "rango_min": 22000,
         "rango_max": 55000,

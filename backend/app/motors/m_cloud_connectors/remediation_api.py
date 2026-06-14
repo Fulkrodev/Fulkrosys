@@ -136,17 +136,24 @@ async def _set_cliente_context_for_gap(
 
     Returns gap si verification OK · raises 403/404 otherwise.
     """
-    # Cliente NO sabe project_id · resolve via gap (admin-side query bypass RLS)
-    # Pattern reuse · m_cloud_connectors.api_cliente set_tenant_context idiom
-    row = await db.execute(
-        text(
-            "SELECT project_id, "
-            "(SELECT client_id FROM projects WHERE id = cg.project_id) AS client_id "
-            "FROM cloud_gaps cg WHERE id = :gid"
-        ),
-        {"gid": str(gap_id)},
-    )
-    hit = row.first()
+    # Cliente NO sabe project_id y SOLO tiene el gap_id. cloud_gaps Y projects
+    # están aislados por RLS bajo fulkro_app (FORCE), así que sin project_id no se
+    # puede leer ninguno. Resolvemos la ownership con un bypass EXPLÍCITO y acotado
+    # (igual que magic_link/list), verificamos pertenencia, y SOLO entonces fijamos
+    # el contexto de tenant del cliente para operar bajo RLS normal.
+    await db.execute(text("SET LOCAL ROLE fulkro_app_bypassrls"))
+    try:
+        row = await db.execute(
+            text(
+                "SELECT cg.project_id, p.client_id "
+                "FROM cloud_gaps cg JOIN projects p ON p.id = cg.project_id "
+                "WHERE cg.id = :gid"
+            ),
+            {"gid": str(gap_id)},
+        )
+        hit = row.first()
+    finally:
+        await db.execute(text("RESET ROLE"))
     if hit is None:
         raise HTTPException(status_code=404, detail="Gap not found")
 
@@ -155,7 +162,9 @@ async def _set_cliente_context_for_gap(
     if cliente_client_id is None or str(cliente_client_id) != str(gap_client_id):
         raise HTTPException(status_code=403, detail="Forbidden")
 
-    await set_tenant_context(db, project_id=gap_project_id)
+    await set_tenant_context(
+        db, client_id=gap_client_id, project_id=gap_project_id,
+    )
 
     # Reload bajo RLS context
     gap = await db.get(CloudGap, gap_id)
@@ -484,7 +493,13 @@ async def cliente_list_pending_remediations(
     if cliente_client_id is None:
         raise HTTPException(status_code=403, detail="Forbidden")
 
-    # Resolve project_id del cliente · single-project assumption per 1.E.2.bis
+    # Resolve project_id del cliente · single-project assumption per 1.E.2.bis.
+    # projects tiene FORCE RLS por current_client_id(): fijar app.current_client_id
+    # ANTES de leerla (si no, 0 filas → el cliente vería SIEMPRE 0 remediaciones).
+    await db.execute(
+        text("SELECT set_config('app.current_client_id', :cid, true)"),
+        {"cid": str(cliente_client_id)},
+    )
     row = await db.execute(
         text(
             "SELECT id FROM projects "

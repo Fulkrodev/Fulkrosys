@@ -79,6 +79,13 @@ def _serialize_message(m) -> dict:
 async def _resolve_client_project_id(
     db: AsyncSession, client_user: ClientUser,
 ) -> UUID:
+    # projects tiene FORCE RLS (client_isolation USING client_id=current_client_id()):
+    # hay que fijar app.current_client_id ANTES de leerla, si no devuelve 0 filas
+    # → 404 falso en producción bajo fulkro_app (verificado empíricamente).
+    await db.execute(
+        text("SELECT set_config('app.current_client_id', :cid, true)"),
+        {"cid": str(client_user.client_id)},
+    )
     result = await db.execute(
         text(
             "SELECT id FROM projects WHERE client_id = :cid "
