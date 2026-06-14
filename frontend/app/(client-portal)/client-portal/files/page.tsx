@@ -45,8 +45,8 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useClientProjectEvents } from "@/hooks/useClientProjectEvents";
+import { useClientProjectId } from "@/hooks/useClientProjectId";
 import { useFileSearch } from "@/hooks/useFileSearch";
-import { clientApi } from "@/lib/client-portal-api";
 import {
   documentDownloadUrl,
   documentPreviewUrl,
@@ -87,13 +87,9 @@ export default function FilesPage() {
 
   // FIX P2-3 · realtime: cuando Marcos comparte un documento nuevo, la lista del
   // cliente se refresca sola (antes sólo al recargar la página). projectId vía
-  // /client-auth/me (single-project · mismo patrón que /certificacion).
-  const [projectId, setProjectId] = useState<string | null>(null);
-  useEffect(() => {
-    void clientApi<{ project_id: string | null }>("/client-auth/me")
-      .then((data) => setProjectId(data?.project_id ?? null))
-      .catch(() => setProjectId(null));
-  }, []);
+  // hook canónico (/client-portal/project). FIX(roleplay visual): antes llamaba
+  // /client-auth/me (inexistente → 404) → projectId null → SSE no suscribía.
+  const { projectId } = useClientProjectId();
   useClientProjectEvents(projectId, {
     onDocumentUploaded: () => {
       void refetch();

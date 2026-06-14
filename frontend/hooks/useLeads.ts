@@ -2,6 +2,7 @@
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
+import { api, ApiError } from "@/lib/api";
 import { MOCK_LEADS } from "@/lib/mock";
 import type { Lead, LeadStage } from "@/lib/types";
 
@@ -52,12 +53,17 @@ export function useLeads() {
     queryFn: async (): Promise<LeadsState> => {
       // Try backend first (real data post-MB-19.5)
       const backendLeads = await fetchLeadsFromBackend();
-      if (backendLeads !== null && backendLeads.length > 0) {
+      if (backendLeads !== null) {
         return { items: backendLeads };
       }
-      // Fallback mock (test env · BD vacía · graceful UX preview)
-      await sleep(120);
-      return { items: MOCK_LEADS.map((l) => ({ ...l })) };
+      // Fallback mock SOLO fuera de producción (R24 · 0 mocks en prod): un admin
+      // real con 0 leads ve el estado vacío real, NUNCA leads ficticios. El mock
+      // se preserva en dev/test para Playwright pipeline.spec.ts sin fixtures BD.
+      if (process.env.NODE_ENV !== "production") {
+        await sleep(120);
+        return { items: MOCK_LEADS.map((l) => ({ ...l })) };
+      }
+      return { items: [] };
     },
     staleTime: 0,
   });
@@ -69,35 +75,31 @@ export function useUpdateLeadStage() {
     mutationFn: async ({
       leadId,
       stage,
+      notes,
     }: {
       leadId: string;
       stage: LeadStage;
+      notes?: string;
     }) => {
-      // Try real backend PATCH first
+      // PATCH real vía wrapper `api` (añade x-csrf-token en mutaciones · antes
+      // un fetch crudo SIN CSRF → 403 → el cambio NO persistía, sólo la UI
+      // optimista). `notes` persiste razon_perdida+fecha_perdida cuando stage=lost.
       try {
-        const res = await fetch(
+        await api(
           `/api/v1/commercial/leads/${encodeURIComponent(leadId)}/stage`,
-          {
-            method: "PATCH",
-            credentials: "include",
-            headers: {
-              "Content-Type": "application/json",
-              Accept: "application/json",
-            },
-            body: JSON.stringify({ stage }),
-          },
+          { method: "PATCH", json: { stage, ...(notes ? { notes } : {}) } },
         );
-        if (res.ok) {
+        return { leadId, stage };
+      } catch (err) {
+        // 404 = lead inexistente en BD (datos mock demo dev/test) → fallback
+        // silente optimista. Errores reales (400/403/500) se propagan → onError
+        // revierte y la UI los muestra (no se tragan en silencio).
+        if (err instanceof ApiError && err.status === 404) {
+          await sleep(80);
           return { leadId, stage };
         }
-        // Si lead no existe en BD (mock data) · fallback silente sin error
-        // (UI optimistic update aplicado vía onMutate ya).
-      } catch {
-        // Network error → fallback mock behavior
+        throw err;
       }
-      // Mock fallback delay para UX feel similar real
-      await sleep(80);
-      return { leadId, stage };
     },
     onMutate: async ({ leadId, stage }) => {
       await qc.cancelQueries({ queryKey: ["leads"] });
@@ -128,31 +130,10 @@ export function useUpdateLeadStage() {
   });
 }
 
-export function useUpdateLead() {
-  const qc = useQueryClient();
-  return useMutation({
-    mutationFn: async (lead: Lead) => {
-      await sleep(80);
-      return lead;
-    },
-    onMutate: async (lead) => {
-      await qc.cancelQueries({ queryKey: ["leads"] });
-      const previous = qc.getQueryData<LeadsState>(["leads"]);
-      qc.setQueryData<LeadsState>(["leads"], (old) =>
-        old
-          ? {
-              items: old.items.map((l) => (l.id === lead.id ? lead : l)),
-            }
-          : old,
-      );
-      return { previous };
-    },
-    onError: (_err, _vars, ctx) => {
-      if (ctx?.previous) qc.setQueryData(["leads"], ctx.previous);
-    },
-    onSettled: () => qc.invalidateQueries({ queryKey: ["leads"] }),
-  });
-}
+// NOTA(#9): el antiguo `useUpdateLead` (mock sleep(80) que NO persistía) se
+// eliminó. La única acción que lo usaba (LeadDrawer "Cerrar como perdido") ahora
+// llama a `useUpdateLeadStage` con stage='lost' + notes → persistencia real
+// (razon_perdida + fecha_perdida) vía PATCH /commercial/leads/{id}/stage.
 
 export function useCreateLead() {
   const qc = useQueryClient();

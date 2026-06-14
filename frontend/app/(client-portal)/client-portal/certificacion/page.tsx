@@ -7,23 +7,13 @@
  * R29 cliente friendly · SSE auto-update via useClientProjectEvents.
  * R23 cliente-mínimo filosofía: cliente RECIBE updates · NO opera proceso.
  */
-import { useEffect, useState } from "react";
-
 import { AuditAccompanimentClienteView } from "@/components/client-portal/AuditAccompanimentClienteView";
-import { clientApi } from "@/lib/client-portal-api";
-
-interface ClientMeResponse {
-  project_id: string | null;
-}
+import { useClientProjectId } from "@/hooks/useClientProjectId";
 
 export default function ClienteCertificacionPage() {
-  const [projectId, setProjectId] = useState<string | null>(null);
-
-  useEffect(() => {
-    void clientApi<ClientMeResponse>("/client-auth/me")
-      .then((data) => setProjectId(data?.project_id ?? null))
-      .catch(() => setProjectId(null));
-  }, []);
+  // FIX(roleplay visual): antes llamaba /client-auth/me (inexistente → 404)
+  // dejando projectId=null y la vista vacía. Hook canónico → /client-portal/project.
+  const { projectId } = useClientProjectId();
 
   return (
     <div className="space-y-4 p-4 md:p-6">

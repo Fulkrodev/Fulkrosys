@@ -16,7 +16,7 @@ import { toast } from "sonner";
 
 import { RAGBadge } from "@/components/data/RAGBadge";
 import { Button, buttonVariants } from "@/components/ui/button";
-import { useUpdateLead } from "@/hooks/useLeads";
+import { useUpdateLeadStage } from "@/hooks/useLeads";
 import { ROUTES } from "@/lib/constants";
 import type { Lead } from "@/lib/types";
 import { cn, formatDate } from "@/lib/utils";
@@ -38,7 +38,7 @@ export function LeadDrawer({
   open: boolean;
   onClose: () => void;
 }) {
-  const updateLead = useUpdateLead();
+  const markLost = useUpdateLeadStage();
   const [busyAgent, setBusyAgent] = React.useState<number | null>(null);
 
   if (!open || !lead) return null;
@@ -219,13 +219,16 @@ export function LeadDrawer({
             </h3>
             <LostForm
               lead={lead}
-              pending={updateLead.isPending}
+              pending={markLost.isPending}
               onSubmit={async (reason) => {
                 try {
-                  await updateLead.mutateAsync({
-                    ...lead,
+                  // FIX(#9): persistencia real vía /commercial/leads/{id}/stage
+                  // (antes useUpdateLead era un mock sleep(80) → no persistía).
+                  // notes → razon_perdida + fecha_perdida en el backend.
+                  await markLost.mutateAsync({
+                    leadId: lead.id,
                     stage: "lost",
-                    lost_reason: reason,
+                    notes: reason,
                   });
                   toast.success("Lead cerrado como perdido");
                   onClose();
