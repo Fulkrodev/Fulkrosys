@@ -257,6 +257,55 @@ async def admin_propose_from_gaps(
     return result
 
 
+@admin_router.get("/coverage", status_code=200)
+async def admin_implementation_coverage(
+    project_id: uuid.UUID,
+    level: str = "MEDIA",
+    db: AsyncSession = Depends(get_db),
+) -> dict[str, Any]:
+    """IMPL · matriz 'no falta ni uno' para un nivel ENS: cada medida aplicable
+    tiene camino AUTO (plantilla cloud/host) o GUIADA. Read-only · para el
+    copiloto, el auditor y el informe de implantación."""
+    await _set_project_context(db, project_id)
+    from backend.app.motors.m_remediation.impl_coverage import (
+        compute_implementation_coverage,
+    )
+    try:
+        return compute_implementation_coverage(level)
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc))
+
+
+class PlanBody(BaseModel):
+    measures: list[str] = Field(default_factory=list)
+    providers: list[str] = Field(default_factory=list)
+    host_os_families: list[str] = Field(default_factory=list)
+    params: dict[str, Any] = Field(default_factory=dict)
+
+
+@admin_router.post("/plan", status_code=200)
+async def admin_implementation_plan(
+    project_id: uuid.UUID,
+    body: PlanBody,
+    db: AsyncSession = Depends(get_db),
+) -> dict[str, Any]:
+    """IMPL · plan DRY-RUN determinista (selector): plantillas que aplican al
+    inventario para cerrar las medidas dadas. NO ejecuta · previsualización para
+    aprobar. Sin generación libre (plantillas verificadas del catálogo)."""
+    await _set_project_context(db, project_id)
+    from backend.app.motors.m_remediation.impl_selector import (
+        ClientInventory,
+        build_dry_run_plan,
+    )
+    inv = ClientInventory(
+        providers=tuple(body.providers),
+        host_os_families=tuple(body.host_os_families),
+        params=body.params,
+    )
+    steps = build_dry_run_plan(body.measures, inv)
+    return {"steps": [s.to_dict() for s in steps], "total": len(steps)}
+
+
 @admin_router.get("/jobs/{job_id}", status_code=200)
 async def admin_get_job(
     project_id: uuid.UUID,
