@@ -43,6 +43,7 @@ STANDARD_FOLDERS: list[dict[str, str]] = [
     {"code": "11", "name": "11_Formacion", "path": "/11_Formacion/"},
     {"code": "12", "name": "12_Proveedores", "path": "/12_Proveedores/"},
     {"code": "13", "name": "13_Informes_Tecnicos", "path": "/13_Informes_Tecnicos/"},
+    {"code": "14", "name": "14_Remediacion", "path": "/14_Remediacion/"},
     {"code": "99", "name": "99_Misc", "path": "/99_Misc/"},
 ]
 

@@ -42,9 +42,10 @@ async def _setup_tenant(db):
 # ─────────── Catálogo ───────────
 
 def test_standard_folders_15():
-    assert len(STANDARD_FOLDERS) == 15
+    # 16 = 00-14 (incl 14_Remediacion ADR-055) + 99 · alineado con DOSSIER_STRUCTURE.
+    assert len(STANDARD_FOLDERS) == 16
     codes = [f["code"] for f in STANDARD_FOLDERS]
-    assert "00" in codes and "99" in codes
+    assert "00" in codes and "14" in codes and "99" in codes
 
 
 def test_classification_rules_cover_main_types():
@@ -64,7 +65,7 @@ async def test_initialize_standard_folders_creates_15(db):
     folders = await IDMSService().initialize_standard_folders(
         db, project_id=uuid.UUID(project_id),
     )
-    assert len(folders) == 15
+    assert len(folders) == 16
     assert all(f.is_standard for f in folders)
     codes = {f.standard_code for f in folders}
     assert codes == {f["code"] for f in STANDARD_FOLDERS}
@@ -76,7 +77,7 @@ async def test_initialize_idempotent(db):
     svc = IDMSService()
     first = await svc.initialize_standard_folders(db, uuid.UUID(project_id))
     second = await svc.initialize_standard_folders(db, uuid.UUID(project_id))
-    assert len(first) == len(second) == 15
+    assert len(first) == len(second) == 16
 
 
 @pytest.mark.asyncio
@@ -373,7 +374,7 @@ async def test_project_stats(db):
     )
     stats = await svc.get_project_stats(db, uuid.UUID(project_id))
     assert stats["total_documents"] == 2
-    assert stats["total_folders"] == 15
+    assert stats["total_folders"] == 16
     assert "politica" in stats["by_clasificacion"]
     assert "informe" in stats["by_clasificacion"]
 
@@ -384,7 +385,7 @@ async def test_project_stats(db):
 async def test_api_list_standard_folders(async_client):
     r = await async_client.get(f"{BASE}/standard-folders")
     assert r.status_code == 200
-    assert r.json()["count"] == 15
+    assert r.json()["count"] == 16
 
 
 @pytest.mark.asyncio
@@ -394,7 +395,7 @@ async def test_api_initialize_folders(async_client, db):
         f"{BASE}/projects/{project_id}/idms/folders/initialize"
     )
     assert r.status_code == 201
-    assert r.json()["count"] == 15
+    assert r.json()["count"] == 16
 
 
 @pytest.mark.asyncio
@@ -440,4 +441,4 @@ async def test_api_folder_tree(async_client, db):
     await async_client.post(f"{BASE}/projects/{project_id}/idms/folders/initialize")
     r = await async_client.get(f"{BASE}/projects/{project_id}/idms/folders/tree")
     assert r.status_code == 200
-    assert len(r.json()["folders"]) == 15
+    assert len(r.json()["folders"]) == 16

@@ -21,7 +21,8 @@ def test_c1_4_m9_imports_idms_standard_folders():
     from pathlib import Path
     src = Path("backend/app/motors/m09_audit_prep/dossier_generator.py").read_text()
     assert "IDMS_STANDARD_FOLDERS" in src
-    # Y las 15 carpetas M24 tienen mismo count que DOSSIER_STRUCTURE M9
+    # Las carpetas M24 (IDMS) alineadas en count con DOSSIER_STRUCTURE M9.
+    # 16 = 00-14 (incl 14_Remediacion ADR-055) + 99.
     from backend.app.motors.m24_idms.idms_service import STANDARD_FOLDERS
     from backend.app.motors.m09_audit_prep.dossier_generator import DOSSIER_STRUCTURE
-    assert len(STANDARD_FOLDERS) == len(DOSSIER_STRUCTURE) == 15
+    assert len(STANDARD_FOLDERS) == len(DOSSIER_STRUCTURE) == 16
