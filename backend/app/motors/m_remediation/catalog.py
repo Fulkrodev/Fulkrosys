@@ -350,6 +350,68 @@ ACTION_CATALOG: dict[str, RemediationActionSpec] = {
         ),
         blast_radius_max=1,
     ),
+    # ── Host on-prem · ampliación implantación técnica (agente · plantillas) ──
+    "configure_host_backup": RemediationActionSpec(
+        action_type="configure_host_backup",
+        tier=RemediationTier.SAFE_AUTO,
+        reversible=True,
+        provider="host",
+        title_es="Configurar copias de seguridad automáticas",
+        ens_measures=("mp.info.6", "op.cont.4"),
+        target_kind="host.backup",
+        desired_assertion="backup_configured",
+        cliente_blurb=(
+            "Programamos copias de seguridad automáticas de tus datos y "
+            "verificamos que se pueden restaurar. No afecta a tu operativa."
+        ),
+        blast_radius_max=1,
+    ),
+    "configure_log_forwarding": RemediationActionSpec(
+        action_type="configure_log_forwarding",
+        tier=RemediationTier.SAFE_AUTO,
+        reversible=True,
+        provider="host",
+        title_es="Activar registro y envío de logs (SIEM)",
+        ens_measures=("op.exp.8",),
+        target_kind="host.logging",
+        desired_assertion="log_forwarding_active",
+        cliente_blurb=(
+            "Activamos el registro de actividad y su envío seguro al sistema de "
+            "monitorización. Permite detectar y trazar incidentes."
+        ),
+        blast_radius_max=1,
+    ),
+    "enable_host_firewall_baseline": RemediationActionSpec(
+        action_type="enable_host_firewall_baseline",
+        tier=RemediationTier.GUARDED,
+        reversible=True,
+        provider="host",
+        title_es="Aplicar línea base de firewall del host",
+        ens_measures=("mp.com.1", "mp.com.4"),
+        target_kind="host.firewall",
+        desired_assertion="firewall_baseline_active",
+        cliente_blurb=(
+            "Aplicamos una configuración de cortafuegos segura por defecto "
+            "(denegar salvo lo necesario). Lo revisamos contigo antes para no "
+            "cortar ningún servicio que uses."
+        ),
+        blast_radius_max=1,
+    ),
+    "enroll_endpoint_edr": RemediationActionSpec(
+        action_type="enroll_endpoint_edr",
+        tier=RemediationTier.GUARDED,
+        reversible=True,
+        provider="host",
+        title_es="Desplegar protección antimalware/EDR en el equipo",
+        ens_measures=("op.exp.6",),
+        target_kind="host.endpoint",
+        desired_assertion="edr_enrolled",
+        cliente_blurb=(
+            "Instalamos y damos de alta el antivirus/EDR en el equipo para "
+            "protegerlo frente a código dañino. Sin impacto en tu trabajo."
+        ),
+        blast_radius_max=1,
+    ),
 }
 
 

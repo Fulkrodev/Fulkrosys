@@ -42,6 +42,11 @@ PLAYBOOK_ALLOWLIST: frozenset[str] = frozenset(
         "harden_sshd_root_login",
         "enable_host_firewall_rule",
         "apply_package_security_update",
+        # Ampliación implantación técnica (ADR-055 · plantillas verificadas).
+        "configure_host_backup",
+        "configure_log_forwarding",
+        "enable_host_firewall_baseline",
+        "enroll_endpoint_edr",
     }
 )
 
