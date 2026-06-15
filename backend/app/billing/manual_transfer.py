@@ -14,6 +14,7 @@ Marcos añade datos a mano editando email Postmark template antes envío).
 """
 from __future__ import annotations
 
+import html
 import re
 from dataclasses import dataclass
 from decimal import Decimal
@@ -148,20 +149,20 @@ class ManualTransferProvider:
         ]
         if info.institution:
             rows.append(
-                f"<p style=\"margin:4px 0;\">🏦 Banco: <strong>{info.institution}</strong></p>"
+                f"<p style=\"margin:4px 0;\">🏦 Banco: <strong>{html.escape(info.institution)}</strong></p>"
             )
         rows.append(
-            f"<p style=\"margin:4px 0;\">📋 IBAN: <strong>{info.iban}</strong></p>"
+            f"<p style=\"margin:4px 0;\">📋 IBAN: <strong>{html.escape(info.iban)}</strong></p>"
         )
         rows.append(
-            f"<p style=\"margin:4px 0;\">👤 Titular: <strong>{info.holder}</strong></p>"
+            f"<p style=\"margin:4px 0;\">👤 Titular: <strong>{html.escape(info.holder)}</strong></p>"
         )
         rows.append(
-            f"<p style=\"margin:4px 0;\">🔖 Concepto: <strong>{info.concept}</strong></p>"
+            f"<p style=\"margin:4px 0;\">🔖 Concepto: <strong>{html.escape(info.concept)}</strong></p>"
         )
         if info.bic:
             rows.append(
-                f"<p style=\"margin:4px 0;\">🌐 BIC: <strong>{info.bic}</strong></p>"
+                f"<p style=\"margin:4px 0;\">🌐 BIC: <strong>{html.escape(info.bic)}</strong></p>"
             )
         if info.payment_due_date:
             rows.append(
@@ -170,7 +171,7 @@ class ManualTransferProvider:
         instructions_html = (
             f"<p style=\"margin-top:12px;color:#555;font-size:14px;\">"
             f"Por favor incluye la referencia "
-            f"<strong>{info.reference}</strong> en el concepto de "
+            f"<strong>{html.escape(info.reference)}</strong> en el concepto de "
             f"la transferencia.</p>"
         )
         return (

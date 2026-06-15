@@ -13,6 +13,7 @@ import { FileLock2 } from "lucide-react";
 
 import { BaseSignFlow } from "@/components/sign-flows/BaseSignFlow";
 import type { MagicLinkStatus } from "@/lib/magic-link-types";
+import { isSafeHref } from "@/lib/utils";
 
 interface DPAScope {
   dpa_version?: string;
@@ -88,7 +89,7 @@ export function SignDPAFlow({
           </ul>
         </div>
       ) : null}
-      {scope.descarga_pdf_url ? (
+      {scope.descarga_pdf_url && isSafeHref(scope.descarga_pdf_url) ? (
         <a
           href={scope.descarga_pdf_url}
           target="_blank"
