@@ -15,7 +15,7 @@ RGPD art.15 export (Q6.D):
 from __future__ import annotations
 
 import logging
-import random
+import secrets
 import string
 import uuid
 from dataclasses import dataclass, field
@@ -90,8 +90,12 @@ class RGPDExportPayload:
 
 
 def _generate_otp(length: int = OTP_LENGTH) -> str:
-    """6-digit numeric OTP · phone keyboard friendly."""
-    return "".join(random.choices(string.digits, k=length))
+    """6-digit numeric OTP · phone keyboard friendly.
+
+    Usa secrets (CSPRNG) en vez de random.choices (PRNG no criptográfico):
+    el OTP es un control de autenticación y debe ser impredecible.
+    """
+    return "".join(secrets.choice(string.digits) for _ in range(length))
 
 
 def validate_phone_e164(raw: str) -> str:
