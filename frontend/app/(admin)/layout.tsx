@@ -91,7 +91,11 @@ export default function AppLayout({
             tabIndex={-1}
             className="flex-1 overflow-y-auto p-4 pb-16 md:p-6 md:pb-24"
           >
-            {children}
+            {/* §estética w3q · contenedor canónico: centra + limita ancho para
+                TODAS las páginas admin (el shell ya aporta el gutter p-4/md:p-6;
+                este wrapper NO añade padding, solo mx-auto + max-w, así que no
+                introduce doble-padding en ninguna página). */}
+            <div className="mx-auto h-full w-full max-w-screen-2xl">{children}</div>
           </main>
         </div>
         <CommandPalette open={paletteOpen} onOpenChange={setPaletteOpen} />
