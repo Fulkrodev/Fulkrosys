@@ -396,7 +396,14 @@ class NotificationOrchestrator:
         channel: str | None,
         data: dict,
     ) -> tuple[bool, str | None]:
-        target_channel = channel or f"client_user:{event.recipient_user_id}"
+        # Canal por defecto: project:{project_id} (el que SÍ escucha el portal cliente,
+        # /client-portal/projects/{id}/events). Antes caía a client_user:{recipient_user_id},
+        # un canal SIN suscriptores → los callers directos del orchestrator no recibían
+        # refresco realtime (solo billing lo mitigaba emitiendo aparte a project:{id}).
+        target_channel = channel or (
+            f"project:{event.project_id}" if event.project_id
+            else f"client_user:{event.recipient_user_id}"
+        )
         payload: dict[str, Any] = {
             "notification_event_id": str(event.id),
             "event_type": event.event_type,

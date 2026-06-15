@@ -164,14 +164,17 @@ async def test_enqueue_dispatches_email_when_enabled(db):
 
 
 @pytest.mark.asyncio
-async def test_enqueue_dispatches_sse_to_client_user_channel(db):
+async def test_enqueue_dispatches_sse_to_project_channel(db):
     user = await _make_user(db)
     project_id = await _make_project(db)
     fake = _FakeEmailSender()
     orch = NotificationOrchestrator(db, email_sender=fake)  # type: ignore[arg-type]
 
     received: list[dict] = []
-    channel = f"client_user:{user.id}"
+    # El orchestrator emite al canal project:{project_id} (el que escucha el portal
+    # cliente). Antes este test usaba client_user:{user.id}, un canal SIN suscriptores
+    # en el portal real → validaba un comportamiento muerto. Corregido a la realidad.
+    channel = f"project:{project_id}"
 
     async def consume():
         async for evt in sse_dispatcher.subscribe(channel):
