@@ -93,7 +93,7 @@ export default function AdminNotificationsPage() {
   }, [events]);
 
   return (
-    <div className="container py-8 space-y-6">
+    <div className="mx-auto max-w-6xl py-8 space-y-6">
       <div className="flex items-center justify-between gap-4">
         <div className="flex items-center gap-3">
           <Bell className="h-6 w-6 text-fulkro-primary-500" />

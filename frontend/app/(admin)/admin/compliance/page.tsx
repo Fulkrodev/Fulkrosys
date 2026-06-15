@@ -185,7 +185,7 @@ export default function ComplianceLandingPage() {
   );
 
   return (
-    <div className="container mx-auto max-w-7xl space-y-6 py-6">
+    <div className="mx-auto max-w-7xl space-y-6 py-6">
       {/* Sub-atom Sesión 3B-2A Phase C.2 · brand header logo + title
           (pattern análogo /(radar)/ layout · diferenciación cognitiva por
           iconografía + copy + URL · paleta purple+ink sostenida). */}

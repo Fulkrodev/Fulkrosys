@@ -50,7 +50,7 @@ export default function ClientBillingPage() {
   }, [loadInvoices, retryCount]);
 
   return (
-    <div className="container max-w-4xl py-8 space-y-6">
+    <div className="mx-auto max-w-4xl py-8 space-y-6">
       <div className="flex items-center gap-3">
         <Receipt className="h-6 w-6 text-fulkro-primary-500" />
         <div>

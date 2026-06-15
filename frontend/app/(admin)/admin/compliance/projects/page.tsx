@@ -41,7 +41,7 @@ export default function ComplianceProjectsPage() {
   const data = query.data;
 
   return (
-    <div className="container mx-auto py-6 space-y-6 max-w-7xl">
+    <div className="mx-auto py-6 space-y-6 max-w-7xl">
       <header className="space-y-2">
         <div className="flex items-center justify-between gap-3">
           <h1 className="text-2xl font-semibold flex items-center gap-2 text-fulkro-primary-700">

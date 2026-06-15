@@ -40,7 +40,7 @@ export default function CumplimientoPage() {
   const areas = data?.areas ?? [];
 
   return (
-    <div className="container mx-auto py-6 space-y-6 max-w-3xl">
+    <div className="mx-auto py-6 space-y-6 max-w-3xl">
       <header className="space-y-2">
         <h1 className="text-2xl font-semibold flex items-center gap-2">
           <ShieldCheck className="h-6 w-6 text-emerald-700" />

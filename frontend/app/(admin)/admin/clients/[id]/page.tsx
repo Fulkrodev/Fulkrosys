@@ -77,7 +77,7 @@ export default function LegacyClientDetailRouter({
 
   return (
     <div
-      className="container mx-auto flex max-w-md flex-col items-center gap-4 py-16 text-center"
+      className="mx-auto flex max-w-md flex-col items-center gap-4 py-16 text-center"
       data-testid="clients-detail-legacy-router"
     >
       <Loader2 className="h-6 w-6 animate-spin text-fulkro-primary-700" aria-hidden />
