@@ -304,7 +304,7 @@ trap 'rm -f "${TMP_OUT}"' EXIT
   echo "BACKUP_S3_SECRET_KEY=${SECRETS[BACKUP_S3_SECRET_KEY]}"
   echo "BACKUP_S3_ENDPOINT=https://nbg1.your-objectstorage.com"
   echo "BACKUP_S3_BUCKET=backup-vault-fulkro"
-  echo "PGBACKREST_STANZA=fulkro-prod"
+  echo "PGBACKREST_STANZA=fulkro"  # §5 · debe coincidir con la stanza creada en el deploy (deploy-hetzner.sh + m26 + archive_command usan 'fulkro'); 'fulkro-prod' rompía el test mensual de restore R8
   echo
 
   echo "# ============================================================================="

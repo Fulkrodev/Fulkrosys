@@ -45,7 +45,9 @@ async def impacket_tool(
         return e
     creds = f"{domain}/{user}:{password}@{target}" if user else target
     cmd = ["python3", "-m", f"impacket.{tool}", creds]
-    result = await run_command(cmd, timeout=TOOL.timeout_seconds)
+    result = await run_command(  # §1.4 · redacta el password de command/stdout/logs
+        cmd, timeout=TOOL.timeout_seconds, redact=[password] if password else None,
+    )
     return {
         "tool": tool, "target": target,
         "command": result["command"],

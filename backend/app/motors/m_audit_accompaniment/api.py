@@ -44,11 +44,14 @@ from backend.app.motors.m_audit_accompaniment.service import (
 router = APIRouter(tags=["Audit Accompaniment (Sesión 3B-4 Ejecutable 7.5)"])
 
 
-# Local file storage path for artifacts (MVP · S3 post-piloto enrichment)
+# Local file storage path for artifacts (MVP · S3/MinIO post-piloto enrichment).
+# §5.5 audit-2026-06-15 · default bajo var/ (= volumen vardata persistente en prod,
+# igual que evidencias y actas) · ANTES /tmp → los artefactos de certificación
+# (certificado ENAC, declaración de conformidad) se PERDÍAN al recrear el contenedor.
 ARTIFACTS_BASE_PATH = Path(
     os.environ.get(
         "FULKRO_ACCOMPANIMENT_ARTIFACTS_PATH",
-        "/tmp/fulkro_accompaniment_artifacts",
+        "var/audit_accompaniment_artifacts",
     )
 )
 

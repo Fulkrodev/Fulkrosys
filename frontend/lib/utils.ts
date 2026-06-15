@@ -53,3 +53,27 @@ export function isSafeHref(url: unknown): boolean {
     return false;
   }
 }
+
+/**
+ * §4.5 audit-2026-06-15 · normaliza el `detail` de un error de API a un mensaje
+ * legible. FastAPI en un 422 AUTOMÁTICO devuelve `detail` como LISTA de objetos
+ * `[{loc,msg,type},...]`; `String(detail)` daba "[object Object]" al cliente.
+ * Maneja string (422 explícito), array (422 automático → une los `msg`) y fallback.
+ */
+export function detailToMessage(payload: unknown, fallback: string): string {
+  if (payload && typeof payload === "object" && "detail" in payload) {
+    const d = (payload as { detail: unknown }).detail;
+    if (typeof d === "string" && d.trim() !== "") return d;
+    if (Array.isArray(d)) {
+      const msgs = d
+        .map((e) =>
+          e && typeof e === "object" && "msg" in e
+            ? String((e as { msg: unknown }).msg)
+            : null,
+        )
+        .filter((m): m is string => Boolean(m));
+      if (msgs.length) return msgs.join(" · ");
+    }
+  }
+  return fallback;
+}

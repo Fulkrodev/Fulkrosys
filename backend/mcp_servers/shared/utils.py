@@ -41,9 +41,27 @@ async def run_command(
     cwd: Optional[str] = None,
     env: Optional[dict] = None,
     stdin_data: Optional[str] = None,
+    redact: Optional[list[str]] = None,
 ) -> dict:
-    """Execute an external command and capture stdout/stderr."""
+    """Execute an external command and capture stdout/stderr.
+
+    §1.4 audit-2026-06-15 · ``redact``: lista de secretos (p.ej. el password pasado
+    por argv en las tools AD) que se sustituyen por ``***`` en el campo ``command``
+    devuelto y en stdout/stderr → la credencial NO vuelve por el protocolo MCP ni
+    acaba en logs. (La visibilidad en /proc se mitiga por-tool con env/stdin donde
+    el binario lo soporta.)
+    """
     full_env = {**os.environ, **(env or {})}
+
+    def _scrub(s: str) -> str:
+        if not redact or not s:
+            return s
+        for secret in redact:
+            if secret:
+                s = s.replace(secret, "***")
+        return s
+
+    safe_command = _scrub(" ".join(cmd))
 
     try:
         process = await asyncio.create_subprocess_exec(
@@ -61,9 +79,9 @@ async def run_command(
         )
         return {
             "returncode": process.returncode,
-            "stdout": stdout.decode(errors="replace"),
-            "stderr": stderr.decode(errors="replace"),
-            "command": " ".join(cmd),
+            "stdout": _scrub(stdout.decode(errors="replace")),
+            "stderr": _scrub(stderr.decode(errors="replace")),
+            "command": safe_command,
             "timed_out": False,
         }
     except asyncio.TimeoutError:
@@ -76,7 +94,7 @@ async def run_command(
             "returncode": -1,
             "stdout": "",
             "stderr": f"Command timed out after {timeout}s",
-            "command": " ".join(cmd),
+            "command": safe_command,
             "timed_out": True,
         }
     except FileNotFoundError:
@@ -84,15 +102,15 @@ async def run_command(
             "returncode": -2,
             "stdout": "",
             "stderr": f"Command not found: {cmd[0]}",
-            "command": " ".join(cmd),
+            "command": safe_command,
             "timed_out": False,
         }
     except Exception as exc:
         return {
             "returncode": -3,
             "stdout": "",
-            "stderr": f"Error: {exc}",
-            "command": " ".join(cmd),
+            "stderr": _scrub(f"Error: {exc}"),
+            "command": safe_command,
             "timed_out": False,
         }
 

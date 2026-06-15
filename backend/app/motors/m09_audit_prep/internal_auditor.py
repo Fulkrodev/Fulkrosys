@@ -347,6 +347,13 @@ async def run_internal_audit(
     """Ejecuta las 15 preguntas y devuelve resumen + detalle.
 
     No requiere API key externa; todas las comprobaciones son queries SQL.
+
+    ⚠️ §3.2 audit-2026-06-15 · PATH DORMIDO: run_internal_audit + build_e701_context
+    NO tienen caller de producción (ni API, ni Celery, ni servicio · sólo tests).
+    El informe E-701 (Auditor Interno Virtual · A11) NO se genera en ningún flujo
+    real todavía. Antes de prometerlo al cliente, cablear E-701 al motor m09
+    (lifecycle paso 4 o endpoint dedicado) vía DocumentFactoryService. Misma clase
+    'latente' que el trigger m19 (marcado en a7be335b). NO está roto; está sin cablear.
     """
     results: list[InternalAuditQuestion] = []
     for q in QUESTION_BANK:

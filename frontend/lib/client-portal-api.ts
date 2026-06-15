@@ -15,6 +15,7 @@
 
 import { CSRF_HEADER } from "./constants";
 import { getCsrfToken } from "./csrf";
+import { detailToMessage } from "./utils";
 
 export class ClientApiError extends Error {
   status: number;
@@ -58,11 +59,11 @@ export async function clientApi<T = unknown>(
   const ct = response.headers.get("content-type") ?? "";
   const payload = ct.includes("application/json") ? await response.json().catch(() => null) : null;
   if (!response.ok) {
-    const msg =
-      (payload && typeof payload === "object" && "detail" in payload
-        ? String((payload as { detail: unknown }).detail)
-        : null) ?? response.statusText;
-    throw new ClientApiError(response.status, msg, payload);
+    throw new ClientApiError(
+      response.status,
+      detailToMessage(payload, response.statusText),
+      payload,
+    );
   }
   return payload as T;
 }

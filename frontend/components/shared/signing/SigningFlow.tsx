@@ -80,6 +80,9 @@ export function SigningFlow(props: Props) {
   const [maskedEmail, setMaskedEmail] = useState<string>("");
   const [otpCode, setOtpCode] = useState("");
   const [error, setError] = useState<string | null>(null);
+  // §2.7 audit-2026-06-15 · guard de operación en vuelo: sin esto un doble-click en
+  // "Continuar firma"/"Verificar y firmar" durante el await creaba 2 intents.
+  const [busy, setBusy] = useState(false);
 
   const reset = () => {
     setStep("confirm");
@@ -88,6 +91,7 @@ export function SigningFlow(props: Props) {
     setMaskedEmail("");
     setOtpCode("");
     setError(null);
+    setBusy(false);
   };
 
   const handleClose = () => {
@@ -96,7 +100,9 @@ export function SigningFlow(props: Props) {
   };
 
   const handleStartFlow = async () => {
+    if (busy) return;
     setError(null);
+    setBusy(true);
     try {
       const intent = await createSigningIntent({
         project_id: props.projectId,
@@ -124,16 +130,19 @@ export function SigningFlow(props: Props) {
     } catch (err) {
       setError(errorMessage(err, "Error iniciando firma"));
       setStep("error");
+    } finally {
+      setBusy(false);
     }
   };
 
   const handleVerifyOtp = async () => {
-    if (!intentId) return;
+    if (!intentId || busy) return;
     if (otpCode.length !== 6) {
       setError("Introduce los 6 digitos del codigo");
       return;
     }
     setError(null);
+    setBusy(true);
     try {
       const result = await verifyStepUpOtp(intentId, otpCode);
       if (!result.otp_verified) {
@@ -146,8 +155,10 @@ export function SigningFlow(props: Props) {
       props.onSuccess(signResult);
     } catch (err) {
       const msg = errorMessage(err, "Error verificando codigo");
-      // 429 max attempts → terminal error · cerramos modal
-      if (msg.toLowerCase().includes("max otp attempts")) {
+      // §2.7 · límite de intentos → detectar por STATUS 429 (robusto), con el
+      // string-match como respaldo (antes sólo string-match · frágil a traducción).
+      const status = (err as { status?: number } | null)?.status;
+      if (status === 429 || msg.toLowerCase().includes("max otp attempts")) {
         toast.error(
           "Demasiados intentos · solicita un nuevo codigo en unos minutos",
         );
@@ -155,6 +166,8 @@ export function SigningFlow(props: Props) {
         return;
       }
       setError(msg);
+    } finally {
+      setBusy(false);
     }
   };
 
@@ -175,10 +188,12 @@ export function SigningFlow(props: Props) {
         </AlertDescription>
       </Alert>
       <div className="flex justify-end gap-2">
-        <Button variant="outline" onClick={handleClose}>
+        <Button variant="outline" onClick={handleClose} disabled={busy}>
           Cancelar
         </Button>
-        <Button onClick={handleStartFlow}>Continuar firma</Button>
+        <Button onClick={() => void handleStartFlow()} disabled={busy}>
+          {busy ? "Procesando…" : "Continuar firma"}
+        </Button>
       </div>
     </div>
   );
@@ -230,9 +245,9 @@ export function SigningFlow(props: Props) {
         </Button>
         <Button
           onClick={() => void handleVerifyOtp()}
-          disabled={otpCode.length !== 6}
+          disabled={busy || otpCode.length !== 6}
         >
-          Verificar y firmar
+          {busy ? "Firmando…" : "Verificar y firmar"}
         </Button>
       </div>
     </div>

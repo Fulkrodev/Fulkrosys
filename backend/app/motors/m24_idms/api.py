@@ -37,6 +37,20 @@ async def _capture_subject(request: Request) -> None:
     _current_subject.set(getattr(request.state, "auth_subject", None))
 
 
+def _authenticated_uploader(fallback: str = "marcos") -> str:
+    """§1.4 audit-2026-06-15 · procedencia REAL del documento desde la identidad
+    AUTENTICADA, NO desde body.subido_por (forjable: un ClientUser podía poner
+    'marcos' y suplantar la autoría · rompe no-repudio/trazabilidad ENAC R6).
+    marcos → 'marcos'; cliente → su email (identidad verificada del JWT)."""
+    subject = _current_subject.get()
+    if subject is None:
+        return fallback
+    if getattr(subject, "role_pool", None) == "marcos":
+        return "marcos"
+    email = getattr(subject, "email", None)
+    return str(email) if email else fallback
+
+
 router = APIRouter(
     prefix="/idms",
     tags=["Motor 24 - IDMS"],
@@ -91,6 +105,8 @@ class IntakeBody(BaseModel):
     folder_id: Optional[uuid.UUID] = None
     clasificacion: Optional[str] = Field(None, max_length=30)
     tags: Optional[list[IntakeTag]] = None
+    # §1.4 · IGNORADO: la procedencia se deriva de la identidad autenticada
+    # (_authenticated_uploader) · se conserva por compat de callers pero NO se usa.
     subido_por: str = Field("marcos", max_length=100)
     full_text_content: Optional[str] = None
 
@@ -250,7 +266,7 @@ async def intake_document(
             folder_id=body.folder_id,
             clasificacion=body.clasificacion,
             tags=[t.model_dump() for t in (body.tags or [])],
-            subido_por=body.subido_por,
+            subido_por=_authenticated_uploader(),  # §1.4 · no body.subido_por (forjable)
             full_text_content=body.full_text_content,
         )
     except IDMSError as exc:
@@ -384,7 +400,7 @@ async def create_version(
             db, document_id=document_id,
             contenido=contenido,
             descripcion_cambio=body.descripcion_cambio,
-            subido_por=body.subido_por,
+            subido_por=_authenticated_uploader(),  # §1.4 · no body.subido_por (forjable)
         )
     except IDMSError as exc:
         raise HTTPException(status_code=404, detail=str(exc))

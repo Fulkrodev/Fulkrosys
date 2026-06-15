@@ -33,7 +33,9 @@ async def certipy_adcs(
         cmd += ["-p", password]
     if dc_ip:
         cmd += ["-dc-ip", dc_ip]
-    result = await run_command(cmd, timeout=TOOL.timeout_seconds)
+    result = await run_command(  # §1.4 · redacta el password de command/stdout/logs
+        cmd, timeout=TOOL.timeout_seconds, redact=[password] if password else None,
+    )
     return {
         "domain": domain, "user": user,
         "command": result["command"],

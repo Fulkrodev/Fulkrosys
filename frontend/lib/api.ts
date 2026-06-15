@@ -1,5 +1,6 @@
 import { CSRF_HEADER } from "./constants";
 import { getCsrfToken } from "./csrf";
+import { detailToMessage } from "./utils";
 
 /** Fetch wrapper that adds CSRF header on mutating calls and parses JSON. */
 
@@ -44,11 +45,11 @@ export async function api<T = unknown>(path: string, init: FetchInit = {}): Prom
   const payload = isJson ? await response.json().catch(() => null) : null;
 
   if (!response.ok) {
-    const message =
-      (payload && typeof payload === "object" && "detail" in payload
-        ? String((payload as { detail: unknown }).detail)
-        : null) ?? response.statusText;
-    throw new ApiError(response.status, message, payload);
+    throw new ApiError(
+      response.status,
+      detailToMessage(payload, response.statusText),
+      payload,
+    );
   }
 
   return payload as T;

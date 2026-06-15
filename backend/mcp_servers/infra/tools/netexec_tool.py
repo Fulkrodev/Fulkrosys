@@ -33,7 +33,9 @@ async def netexec_scan(
         cmd += ["-u", user]
     if password:
         cmd += ["-p", password]
-    result = await run_command(cmd, timeout=TOOL.timeout_seconds)
+    result = await run_command(  # §1.4 · redacta el password de command/stdout/logs
+        cmd, timeout=TOOL.timeout_seconds, redact=[password] if password else None,
+    )
     return {
         "protocol": protocol, "target": target,
         "command": result["command"],
