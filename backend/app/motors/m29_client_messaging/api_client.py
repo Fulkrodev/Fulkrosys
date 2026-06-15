@@ -236,7 +236,7 @@ async def complete_attachment_upload_client(
 
     svc = AttachmentService(db)
     try:
-        att = await svc.mark_upload_complete(attachment_id)
+        att = await svc.mark_upload_complete(message_id, attachment_id)
     except AttachmentNotFoundError as exc:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND, detail=str(exc),
@@ -270,7 +270,7 @@ async def get_attachment_download_client(
 
     svc = AttachmentService(db)
     try:
-        return await svc.get_download_url(attachment_id)
+        return await svc.get_download_url(message_id, attachment_id)
     except AttachmentNotFoundError as exc:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND, detail=str(exc),

@@ -160,6 +160,7 @@ class AttachmentService:
 
     async def mark_upload_complete(
         self,
+        message_id: uuid.UUID,
         attachment_id: uuid.UUID,
     ) -> AttachmentOut:
         """Verifica que el PUT al MinIO se completó (HEAD object) y setea
@@ -170,7 +171,15 @@ class AttachmentService:
         existe antes de marcar uploaded.
         """
         attachment = await self.db.get(ClientMessageAttachment, attachment_id)
-        if attachment is None or attachment.deleted_at is not None:
+        # Binding anti-IDOR: el adjunto DEBE pertenecer al message_id de la ruta.
+        # Sin esto, un cliente con un mensaje propio podia pedir el adjunto de
+        # otro tenant (client_message_attachments no tiene client_id y el portal
+        # corre con RLS desactivada). 404 para no filtrar existencia cross-tenant.
+        if (
+            attachment is None
+            or attachment.deleted_at is not None
+            or attachment.message_id != message_id
+        ):
             raise AttachmentNotFoundError(
                 f"Attachment {attachment_id} no existe."
             )
@@ -213,6 +222,7 @@ class AttachmentService:
 
     async def get_download_url(
         self,
+        message_id: uuid.UUID,
         attachment_id: uuid.UUID,
     ) -> AttachmentOut:
         """Genera presigned GET URL TTL ``signed_url_ttl_seconds``.
@@ -221,7 +231,15 @@ class AttachmentService:
         owner check.
         """
         attachment = await self.db.get(ClientMessageAttachment, attachment_id)
-        if attachment is None or attachment.deleted_at is not None:
+        # Binding anti-IDOR: el adjunto DEBE pertenecer al message_id de la ruta.
+        # Sin esto, un cliente con un mensaje propio podia pedir el adjunto de
+        # otro tenant (client_message_attachments no tiene client_id y el portal
+        # corre con RLS desactivada). 404 para no filtrar existencia cross-tenant.
+        if (
+            attachment is None
+            or attachment.deleted_at is not None
+            or attachment.message_id != message_id
+        ):
             raise AttachmentNotFoundError(
                 f"Attachment {attachment_id} no existe."
             )

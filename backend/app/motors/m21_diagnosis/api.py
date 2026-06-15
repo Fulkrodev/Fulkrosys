@@ -146,7 +146,8 @@ async def download_docx_endpoint(
 ):
     """Descarga el DOCX del informe."""
     await _set_project_rls(project_id, session)
-    r = await session.execute(select(DiagnosisRun).where(DiagnosisRun.id == run_id))
+    r = await session.execute(select(DiagnosisRun).where(
+        DiagnosisRun.id == run_id, DiagnosisRun.project_id == project_id))
     run = r.scalar_one_or_none()
     if run is None or not run.report_docx_path:
         raise HTTPException(status_code=404, detail="DOCX no generado")
@@ -168,7 +169,8 @@ async def get_quick_wins_endpoint(
 ):
     """Devuelve solo los quick wins del informe generado."""
     await _set_project_rls(project_id, session)
-    r = await session.execute(select(DiagnosisRun).where(DiagnosisRun.id == run_id))
+    r = await session.execute(select(DiagnosisRun).where(
+        DiagnosisRun.id == run_id, DiagnosisRun.project_id == project_id))
     run = r.scalar_one_or_none()
     if run is None or run.report_data is None:
         raise HTTPException(status_code=404, detail="Informe no generado")
