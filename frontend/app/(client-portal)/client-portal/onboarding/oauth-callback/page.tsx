@@ -52,7 +52,10 @@ function OAuthCallbackInner() {
       })
       .catch((err: unknown) => {
         setStatus("error");
-        setErrorMsg(err instanceof Error ? err.message : String(err));
+        // §2.7 · no exponer el detalle crudo del backend al cliente (R29/R30-inv).
+        // eslint-disable-next-line no-console
+        console.error("OAuth callback error:", err);
+        setErrorMsg("No se pudo completar la conexión con el proveedor.");
       });
   }, [searchParams, router]);
 
@@ -88,9 +91,7 @@ function OAuthCallbackInner() {
         </CardHeader>
         {status === "error" && errorMsg ? (
           <CardContent className="space-y-3">
-            <pre className="overflow-x-auto rounded bg-fulkro-canvas p-2 text-xs">
-              {errorMsg}
-            </pre>
+            <p className="text-sm text-fulkro-ink-500">{errorMsg}</p>
             <Button
               variant="primary"
               onClick={() => router.push("/client-portal/onboarding")}

@@ -98,37 +98,18 @@ export function AdminClarificationsInbox({ projectId }: Props) {
     staleTime: 15_000,
   });
 
-  // SSE subscription · realtime invalidate on auditor_clarification_new
-  // Hook listens by default to admin event types · we add custom listener
-  // via tanstack invalidation trigger.
+  // SSE subscription · §2.7 audit-2026-06-15: una SOLA conexión SSE (antes este
+  // componente abría un 2º EventSource al mismo canal). auditor_clarification_new
+  // lo sirve el propio hook vía onClarificationNew.
   useProjectEvents({
     projectId,
-    onReadinessChanged: () => {},
-    onPhaseChanged: () => {},
-    onAlertNew: () => {},
-  });
-
-  React.useEffect(() => {
-    if (typeof window === "undefined" || !projectId) return;
-    const eventSource = new EventSource(
-      `/api/v1/projects/${projectId}/events`,
-      { withCredentials: true },
-    );
-    const handler = () => {
+    onClarificationNew: () => {
       queryClient.invalidateQueries({
         queryKey: ["admin", "audit", "clarifications", projectId],
       });
       setNewSinceMount((n) => n + 1);
-    };
-    eventSource.addEventListener("auditor_clarification_new", handler);
-    return () => {
-      eventSource.removeEventListener(
-        "auditor_clarification_new",
-        handler,
-      );
-      eventSource.close();
-    };
-  }, [projectId, queryClient]);
+    },
+  });
 
   return (
     <div className="space-y-4" data-testid="admin-clarifications-inbox">

@@ -269,19 +269,24 @@ function BlockerCard({
   onOpenDetail,
 }: BlockerCardProps) {
   const queryClient = useQueryClient();
-  const [feedback, setFeedback] = React.useState<string | null>(null);
+  // §2.7 audit-2026-06-15 · el feedback de error se mostraba en VERDE (éxito).
+  // Track isError para estilarlo correctamente.
+  const [feedback, setFeedback] = React.useState<{
+    text: string;
+    isError: boolean;
+  } | null>(null);
 
   const remindMutation = useMutation({
     mutationFn: () => remindClientStep(projectId, step.template_id),
     onSuccess: (data) => {
-      setFeedback(data.message);
+      setFeedback({ text: data.message, isError: false });
       queryClient.invalidateQueries({
         queryKey: ["project-cronologica", projectId],
       });
     },
     onError: (err: unknown) => {
       const msg = err instanceof Error ? err.message : "Error al recordar";
-      setFeedback(msg);
+      setFeedback({ text: msg, isError: true });
     },
   });
 
@@ -339,10 +344,12 @@ function BlockerCard({
       </div>
       {feedback && (
         <p
-          className="text-xs text-emerald-700 mt-2"
+          className={`text-xs mt-2 ${
+            feedback.isError ? "text-red-600" : "text-emerald-700"
+          }`}
           data-testid={`remind-feedback-${step.template_id}`}
         >
-          {feedback}
+          {feedback.text}
         </p>
       )}
     </div>

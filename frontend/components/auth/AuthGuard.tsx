@@ -79,6 +79,10 @@ export function AuthGuard({
   // owner-shaped). El user del store se setea solo en owner mode.
   const [clientMe, setClientMe] = React.useState<ClientMe | null>(null);
   const [clientReady, setClientReady] = React.useState(false);
+  // §2.7 · error de auth NO-401 (500/red) → mostrar aviso + reintento (antes
+  // se quedaba en pantalla en blanco renderizando null).
+  const [authError, setAuthError] = React.useState(false);
+  const [retryNonce, setRetryNonce] = React.useState(0);
 
   const isClientMode = requiredRole === "client";
   const isPublicClientPath =
@@ -92,6 +96,7 @@ export function AuthGuard({
         const me = await api<MeResponse>("/api/v1/auth/me");
         if (cancelled) return;
         setUser(me);
+        setAuthError(false);
         if (typeof document !== "undefined") {
           const match = document.cookie.match(/(?:^|;\s*)fulkro_csrf=([^;]+)/);
           if (match) setCsrf(decodeURIComponent(match[1]));
@@ -102,6 +107,9 @@ export function AuthGuard({
           setUser(null);
           setCsrf(null);
           router.replace(ROUTES.login);
+        } else {
+          // §2.7 · error NO-401 (500/red): no quedarse en blanco · mostrar aviso.
+          setAuthError(true);
         }
       } finally {
         if (!cancelled) setReady(true);
@@ -113,11 +121,14 @@ export function AuthGuard({
         const me = await clientApi<ClientMe>("/client-portal/me");
         if (cancelled) return;
         setClientMe(me);
+        setAuthError(false);
       } catch (err) {
         if (cancelled) return;
         if (err instanceof ClientApiError && err.status === 401) {
           setClientMe(null);
           router.replace("/client-portal/login");
+        } else {
+          setAuthError(true);
         }
       } finally {
         if (!cancelled) setClientReady(true);
@@ -138,7 +149,14 @@ export function AuthGuard({
       cancelled = true;
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [pathname, isClientMode, isPublicClientPath]);
+  }, [pathname, isClientMode, isPublicClientPath, retryNonce]);
+
+  const retryAuth = React.useCallback(() => {
+    setAuthError(false);
+    setReady(false);
+    setClientReady(false);
+    setRetryNonce((n) => n + 1);
+  }, [setReady]);
 
   // Role check (solo owner mode)
   React.useEffect(() => {
@@ -179,6 +197,9 @@ export function AuthGuard({
         )
       );
     }
+    if (authError) {
+      return <AuthErrorCard onRetry={retryAuth} />;  // §2.7
+    }
     if (!clientMe) {
       // 401 ya disparó redirect; null evita flash de contenido
       return null;
@@ -199,6 +220,10 @@ export function AuthGuard({
     );
   }
 
+  if (authError) {
+    return <AuthErrorCard onRetry={retryAuth} />;  // §2.7
+  }
+
   if (!user) {
     return null;
   }
@@ -208,4 +233,28 @@ export function AuthGuard({
   }
 
   return <>{children}</>;
+}
+
+/** §2.7 · aviso (no pantalla en blanco) cuando /me falla por 500/red. */
+function AuthErrorCard({ onRetry }: { onRetry: () => void }) {
+  return (
+    <div className="flex min-h-dvh items-center justify-center bg-fulkro-ink-50 p-6">
+      <div className="max-w-sm space-y-3 rounded-lg border border-fulkro-ink-200 bg-white p-6 text-center">
+        <p className="text-sm font-medium text-fulkro-ink-700">
+          No pudimos verificar tu sesión
+        </p>
+        <p className="text-xs text-fulkro-ink-500">
+          Ha habido un problema temporal de conexión con el servidor. Inténtalo
+          de nuevo.
+        </p>
+        <button
+          type="button"
+          onClick={onRetry}
+          className="rounded-md bg-fulkro-primary-700 px-4 py-2 text-sm font-medium text-white hover:bg-fulkro-primary-800"
+        >
+          Reintentar
+        </button>
+      </div>
+    </div>
+  );
 }

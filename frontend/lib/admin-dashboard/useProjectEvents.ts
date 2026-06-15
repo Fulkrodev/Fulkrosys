@@ -48,6 +48,11 @@ interface UseProjectEventsOptions {
   // feat/fulkro-100 Ola A · el admin ve en realtime cuando el cliente rellena el
   // cuestionario de continuidad o aprueba/comenta un borrador BIA/DRP.
   onContinuidadChanged?: () => void;
+  // §2.7 audit-2026-06-15 · eventos de chat/clarificación servidos por ESTE hook
+  // (antes AdminChatPanel / AdminClarificationsInbox abrían un 2º EventSource al
+  // mismo canal → doble conexión SSE por componente).
+  onChatMessageNew?: () => void;
+  onClarificationNew?: () => void;
 }
 
 export function useProjectEvents({
@@ -60,6 +65,8 @@ export function useProjectEvents({
   onSigningDeclined,
   onDocumentUploaded,
   onContinuidadChanged,
+  onChatMessageNew,
+  onClarificationNew,
 }: UseProjectEventsOptions): void {
   const queryClient = useQueryClient();
 
@@ -159,6 +166,14 @@ export function useProjectEvents({
       onContinuidadChanged?.();
     };
 
+    // §2.7 · chat + clarificación (antes 2º EventSource en cada componente)
+    const handleChatMessageNew = () => {
+      onChatMessageNew?.();
+    };
+    const handleClarificationNew = () => {
+      onClarificationNew?.();
+    };
+
     eventSource.addEventListener("readiness_changed", handleReadinessChanged);
     eventSource.addEventListener("phase_changed", handlePhaseChanged);
     eventSource.addEventListener("alert_new", handleAlertNew);
@@ -177,6 +192,11 @@ export function useProjectEvents({
     eventSource.addEventListener(
       "continuidad.draft.comment",
       handleContinuidadChanged,
+    );
+    eventSource.addEventListener("chat_message_new", handleChatMessageNew);
+    eventSource.addEventListener(
+      "auditor_clarification_new",
+      handleClarificationNew,
     );
 
     eventSource.onerror = () => {
@@ -217,6 +237,11 @@ export function useProjectEvents({
         "continuidad.draft.comment",
         handleContinuidadChanged,
       );
+      eventSource.removeEventListener("chat_message_new", handleChatMessageNew);
+      eventSource.removeEventListener(
+        "auditor_clarification_new",
+        handleClarificationNew,
+      );
       eventSource.close();
     };
   }, [
@@ -230,5 +255,7 @@ export function useProjectEvents({
     onSigningDeclined,
     onDocumentUploaded,
     onContinuidadChanged,
+    onChatMessageNew,
+    onClarificationNew,
   ]);
 }

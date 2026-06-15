@@ -46,30 +46,16 @@ export function AdminChatPanel({ projectId }: Props) {
 
   const activeThread = threads[0];
 
-  // CLUSTER 5 Phase 5C delta · admin SSE realtime · backend filter
-  // sender_type=client (NO admin own echo). DRY pattern reuse mirror cliente
+  // CLUSTER 5 Phase 5C delta · admin SSE realtime · §2.7 audit-2026-06-15: una
+  // SOLA conexión SSE (antes este componente abría un 2º EventSource al mismo
+  // canal). chat_message_new lo sirve el propio hook vía onChatMessageNew.
   useProjectEvents({
     projectId,
     enabled: Boolean(projectId),
-    // No specific handlers · invalidations dispatched below on each event.
-  });
-
-  useEffect(() => {
-    // Subscribe extra listener para chat_message_new (admin recv cliente msgs)
-    if (typeof window === "undefined" || !projectId) return;
-    const source = new EventSource(
-      `/api/v1/projects/${projectId}/events`,
-      { withCredentials: true },
-    );
-    const handler = () => {
+    onChatMessageNew: () => {
       queryClient.invalidateQueries({ queryKey: ["admin-chat", projectId] });
-    };
-    source.addEventListener("chat_message_new", handler);
-    return () => {
-      source.removeEventListener("chat_message_new", handler);
-      source.close();
-    };
-  }, [projectId, queryClient]);
+    },
+  });
 
   const { data: messages = [], isLoading: messagesLoading } = useQuery<
     ChatMessage[]
