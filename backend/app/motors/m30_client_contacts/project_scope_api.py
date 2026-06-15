@@ -28,7 +28,7 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from backend.app.auth.dependencies import CurrentUser, require_owner
-from backend.app.database import get_db
+from backend.app.database import get_db, set_tenant_context
 from backend.app.motors.m30_client_contacts.models import ClientContact
 
 
@@ -100,6 +100,16 @@ async def _get_client_id_for_project(project_id: uuid.UUID, db: AsyncSession) ->
     return cid if isinstance(cid, uuid.UUID) else uuid.UUID(str(cid))
 
 
+async def _set_project_rls(project_id: uuid.UUID, db: AsyncSession) -> uuid.UUID:
+    """Resuelve owner (get_project_owner SECURITY DEFINER) y fija el tenant
+    context. Sin esto, las queries por project_id corrian bajo fulkro_app SIN
+    contexto → la RLS por client_id de client_contacts devolvia [] (lista vacia
+    espuria en prod) y los INSERT podian fallar. Aislamiento por proyecto."""
+    client_id = await _get_client_id_for_project(project_id, db)
+    await set_tenant_context(db, client_id=client_id, project_id=project_id)
+    return client_id
+
+
 async def _check_portal_constraint_v3(
     project_id: uuid.UUID,
     db: AsyncSession,
@@ -131,6 +141,7 @@ async def list_project_contacts(
     user: CurrentUser,
     db: AsyncSession = Depends(get_db),
 ) -> dict[str, Any]:
+    await _set_project_rls(project_id, db)
     rows = (await db.execute(
         select(ClientContact)
         .where(
@@ -154,7 +165,7 @@ async def create_project_contact(
     user: CurrentUser,
     db: AsyncSession = Depends(get_db),
 ) -> dict[str, Any]:
-    client_id = await _get_client_id_for_project(project_id, db)
+    client_id = await _set_project_rls(project_id, db)
     if body.has_portal_access:
         await _check_portal_constraint_v3(project_id, db)
     contact = ClientContact(
@@ -185,6 +196,7 @@ async def update_project_contact(
     user: CurrentUser,
     db: AsyncSession = Depends(get_db),
 ) -> dict[str, Any]:
+    await _set_project_rls(project_id, db)
     contact = (await db.execute(
         select(ClientContact).where(
             ClientContact.id == contact_id,
@@ -212,6 +224,7 @@ async def delete_project_contact(
     user: CurrentUser,
     db: AsyncSession = Depends(get_db),
 ) -> None:
+    await _set_project_rls(project_id, db)
     contact = (await db.execute(
         select(ClientContact).where(
             ClientContact.id == contact_id,

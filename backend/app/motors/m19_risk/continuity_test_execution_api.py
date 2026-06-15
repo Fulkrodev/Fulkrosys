@@ -20,7 +20,6 @@ from backend.app.auth.dependencies import require_owner
 from backend.app.database import get_db
 from backend.app.models.auth import User
 from backend.app.models.continuity_test_execution import ContinuityTestExecution
-from backend.app.models.core import Project
 from backend.app.motors.m19_risk.continuity_test_execution_service import (
     InvalidResultadoError,
     aggregate_test_history,
@@ -105,11 +104,18 @@ def _to_out(r: ContinuityTestExecution) -> ContinuityTestOut:
 async def _ensure_project_rls(
     db: AsyncSession, project_id: uuid.UUID,
 ) -> str:
-    """Verifica proyecto + setea contexto RLS · devuelve client_id."""
-    project = await db.get(Project, project_id)
-    if project is None:
+    """Verifica proyecto + setea contexto RLS · devuelve client_id.
+
+    Usa get_project_owner (SECURITY DEFINER) para resolver el owner SIN RLS:
+    antes `db.get(Project)` corría bajo fulkro_app sin contexto de tenant aún
+    fijado (chicken-and-egg) → devolvía None y 404 espurio para proyectos válidos.
+    """
+    owner = (await db.execute(
+        text("SELECT get_project_owner(:pid)"), {"pid": str(project_id)}
+    )).scalar()
+    if not owner:
         raise HTTPException(status_code=404, detail="Project not found")
-    client_id = str(project.client_id)
+    client_id = str(owner)
     await db.execute(
         text("SELECT set_config('app.current_project_id', :pid, true)"),
         {"pid": str(project_id)},

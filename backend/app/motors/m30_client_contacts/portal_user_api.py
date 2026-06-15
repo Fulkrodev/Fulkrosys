@@ -24,7 +24,7 @@ from sqlalchemy import select, text
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from backend.app.auth.dependencies import require_owner
-from backend.app.database import get_db
+from backend.app.database import get_db, set_tenant_context
 from backend.app.models.client_portal import ClientUser
 from backend.app.motors.m21_portal_cliente import auth_service
 from backend.app.motors.m21_portal_cliente.auth_service import AuthError
@@ -63,7 +63,12 @@ async def _get_client_id_for_project(
     )).scalar()
     if not cid:
         raise HTTPException(status_code=404, detail="Project not found")
-    return cid if isinstance(cid, uuid.UUID) else uuid.UUID(str(cid))
+    client_id = cid if isinstance(cid, uuid.UUID) else uuid.UUID(str(cid))
+    # Fijar tenant context: sin esto las queries por client_id/project_id corren
+    # bajo fulkro_app SIN contexto y la RLS devuelve None/[] → estado del portal
+    # vacio espurio en prod y riesgo de duplicados en ensure_portal_user.
+    await set_tenant_context(db, client_id=client_id, project_id=project_id)
+    return client_id
 
 
 @router.get("")
