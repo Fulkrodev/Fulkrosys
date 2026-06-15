@@ -72,6 +72,15 @@ def get_server_keypair() -> tuple[bytes, bytes]:
         priv = bytes.fromhex(seed.strip())
         pub = public_from_private(priv)
     else:
+        from backend.app.core.signing_keys import is_production
+
+        if is_production():
+            raise RuntimeError(
+                "FULKRO_REMEDIATION_SIGNING_KEY no definido en producción. La firma "
+                "de comandos al agente on-prem requiere una clave Ed25519 estable "
+                "(hex 32 bytes); NUNCA se autogenera en producción (fail-fast · los "
+                "agentes no verificarían tras un reinicio)."
+            )
         priv, pub = generate_keypair()
         logger.warning(
             "FULKRO_REMEDIATION_SIGNING_KEY no definido · usando clave efímera "

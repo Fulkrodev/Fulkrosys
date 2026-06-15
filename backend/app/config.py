@@ -30,6 +30,10 @@ class Settings(BaseSettings):
     # con minio_endpoint via http://; en staging/prod puede ser un
     # CDN o nginx proxy delante.
     minio_public_url: str = "http://localhost:9000"
+    # TLS al conectar con MinIO/S3. Dev/compose interno: False (HTTP en red
+    # privada). Prod con endpoint S3 externo (Hetzner Object Storage MB-11):
+    # poner MINIO_USE_TLS=true para forzar HTTPS sin tocar código.
+    minio_use_tls: bool = False
 
     # Application
     app_env: str = "development"

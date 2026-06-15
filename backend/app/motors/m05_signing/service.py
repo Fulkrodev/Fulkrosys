@@ -192,7 +192,10 @@ class SigningService:
         existing = (await self.db.execute(existing_stmt)).scalar_one_or_none()
         if existing is not None:
             existing.code_sha256 = code_hash
-            existing.attempts = 0
+            # NO resetear `attempts`: si se reseteara, un atacante esquivaría el
+            # bloqueo por max_attempts simplemente re-solicitando OTP (fuerza
+            # bruta ilimitada sobre 6 dígitos). El contador persiste entre
+            # regeneraciones de código (anti brute-force-by-re-request).
             existing.expires_at = expires
             existing.consumed_at = None
             existing.created_at = datetime.now(UTC)
@@ -340,6 +343,16 @@ class SigningService:
             intent.updated_at = datetime.now(UTC)
             await self.db.flush()
             raise IntentExpiredError("Intent expired")
+
+        # Per-document advisory lock (Pattern #22) · serializa firmas
+        # concurrentes del mismo documento para que _get_last_signature_hash lea
+        # un previous_hash estable (evita doble-firma en carrera con el mismo
+        # eslabón de cadena). Mismo patrón que sign_canvas.
+        doc_lock_key = f"signing_document_{intent.document_id or intent.id}"
+        await self.db.execute(
+            sa_text("SELECT pg_advisory_xact_lock(hashtext(:k))"),
+            {"k": doc_lock_key},
+        )
 
         # Build signature message (deterministic JSON sorted keys)
         signed_at_iso = datetime.now(UTC).isoformat()

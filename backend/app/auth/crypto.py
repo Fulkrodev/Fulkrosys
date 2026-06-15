@@ -50,9 +50,18 @@ def _load_keys() -> tuple[bytes, bytes]:
         logger.info("Auth: Ed25519 key pair loaded from FULKRO_AUTH_PRIVATE_KEY")
         return private_pem, public_pem
 
+    from backend.app.core.signing_keys import is_production
+
+    if is_production():
+        raise RuntimeError(
+            "FULKRO_AUTH_PRIVATE_KEY no definido en producción. Debe inyectarse "
+            "la clave Ed25519 (PEM): sin ella las sesiones se invalidarían en cada "
+            "reinicio. NUNCA se autogenera en producción (fail-fast)."
+        )
+
     logger.warning(
-        "Auth: FULKRO_AUTH_PRIVATE_KEY not set. Generating ephemeral Ed25519 key. "
-        "Tokens will be invalidated on process restart. Set the env var in production."
+        "Auth: FULKRO_AUTH_PRIVATE_KEY not set. Generating ephemeral Ed25519 key "
+        "(dev/test only). Tokens will be invalidated on process restart."
     )
     private_key = Ed25519PrivateKey.generate()
     private_pem = private_key.private_bytes(

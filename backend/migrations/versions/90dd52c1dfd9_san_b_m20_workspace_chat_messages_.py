@@ -54,15 +54,23 @@ def upgrade() -> None:
         # Lazy import para evitar fallo si master key no configurada en
         # contextos edge (init schema sin env vars). Si rows existen,
         # master key DEBE estar configurada.
+        from cryptography.fernet import InvalidToken
+
         from backend.app.core.encryption.master_key import get_master_fernet
         fernet = get_master_fernet()
         for row in rows:
             row_id, plain = row[0], row[1]
-            # Skip si ya parece Fernet (re-run idempotency · caracteres
-            # base64 + length > ~100). Heurística: Fernet output empieza
-            # con "gAAAAA" (versión 0x80 + timestamp prefijo).
-            if isinstance(plain, str) and plain.startswith("gAAAAA"):
+            if not isinstance(plain, str):
                 continue
+            # Idempotencia robusta (re-run safe): si descifra con la master key,
+            # ya está cifrado → skip. Try-decrypt en vez de heurística de prefijo
+            # "gAAAAA" (un plaintext que empezara por ese prefijo se saltaría el
+            # cifrado y quedaría en claro).
+            try:
+                fernet.decrypt(plain.encode("ascii"))
+                continue
+            except (InvalidToken, ValueError):
+                pass
             encrypted = fernet.encrypt(plain.encode("utf-8")).decode("ascii")
             conn.execute(
                 sa.text(
@@ -82,17 +90,20 @@ def downgrade() -> None:
     )).fetchall()
 
     if rows:
+        from cryptography.fernet import InvalidToken
+
         from backend.app.core.encryption.master_key import get_master_fernet
         fernet = get_master_fernet()
         for row in rows:
             row_id, encrypted = row[0], row[1]
-            if not (isinstance(encrypted, str) and encrypted.startswith("gAAAAA")):
-                # Ya plaintext o formato no reconocido · skip
+            if not isinstance(encrypted, str):
                 continue
+            # Try-decrypt (sin heurística de prefijo): si descifra, era cifrado
+            # → volver a plaintext; si no, ya está en claro / no descifrable con
+            # la key actual → skip.
             try:
                 plain = fernet.decrypt(encrypted.encode("ascii")).decode("utf-8")
-            except Exception:
-                # No descifrable con key actual · dejar tal cual + warning
+            except (InvalidToken, ValueError):
                 continue
             conn.execute(
                 sa.text(

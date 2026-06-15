@@ -77,10 +77,19 @@ def _load_signing_keys() -> tuple[bytes, bytes]:
         logger.info("Magic Link: Ed25519 key loaded from FULKRO_ML_PRIVATE_KEY")
         return private_pem, public_pem
 
+    from backend.app.core.signing_keys import is_production
+
+    if is_production():
+        raise RuntimeError(
+            "FULKRO_ML_PRIVATE_KEY no definido en producción. Debe inyectarse la "
+            "clave Ed25519 (PEM): sin ella los magic links se invalidarían en cada "
+            "reinicio. NUNCA se autogenera en producción (fail-fast)."
+        )
+
     # Development fallback: ephemeral key
     logger.warning(
-        "Magic Link: FULKRO_ML_PRIVATE_KEY not set. Generating ephemeral Ed25519 key. "
-        "Tokens will be invalid after restart. Set the env var in production."
+        "Magic Link: FULKRO_ML_PRIVATE_KEY not set. Generating ephemeral Ed25519 key "
+        "(dev/test only). Tokens will be invalid after restart."
     )
     private_key = Ed25519PrivateKey.generate()
     private_pem = private_key.private_bytes(

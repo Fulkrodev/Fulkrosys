@@ -134,6 +134,15 @@ def _load_backup_signing_key() -> tuple[Ed25519PrivateKey, bytes]:
         )
         return key, pub_pem
 
+    from backend.app.core.signing_keys import is_production
+
+    if is_production():
+        raise RuntimeError(
+            "FULKRO_BACKUP_SIGNING_KEY (o FULKRO_ML_PRIVATE_KEY) no definida en "
+            "producción. La firma de backups requiere una clave Ed25519 estable; "
+            "NUNCA se autogenera en producción (fail-fast)."
+        )
+
     logger.warning(
         "Backup signing: usando clave Ed25519 ephemeral (dev/tests)."
     )

@@ -546,5 +546,8 @@ async def verify_signature(body: _VerifySignatureRequest):
     try:
         public_key.verify(signature, payload)
         return _VerifySignatureResponse(valid=True)
-    except (InvalidSignature, Exception):
+    except InvalidSignature:
+        # Sólo una firma inválida devuelve valid=False. Cualquier otro error
+        # (clave corrupta, payload mal codificado) DEBE propagarse para no
+        # enmascarar bugs como "firma inválida".
         return _VerifySignatureResponse(valid=False)
