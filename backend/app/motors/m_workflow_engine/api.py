@@ -40,6 +40,7 @@ from .deliverables_service import (
     WorkflowDeliverablesService,
 )
 from .engine import (
+    TERMINAL_STEP_STATUSES,
     EnrichedStepState,
     compute_current_step_for_project,
     compute_progress_for_project,
@@ -238,8 +239,8 @@ async def admin_project_cronologica(
     progress = await compute_progress_for_project(db, project_id)
     current = await compute_current_step_for_project(db, project_id)
 
-    completed = [s for s in steps if s.status == "completed"]
-    pending = [s for s in steps if s.status != "completed"]
+    completed = [s for s in steps if s.status in TERMINAL_STEP_STATUSES]
+    pending = [s for s in steps if s.status not in TERMINAL_STEP_STATUSES]
     # ahora = current_step (max urgency · NO completed)
     # proximos_7d = next 3-5 pending (high priority · pending)
     # proximos_30d = forecast resto
@@ -516,9 +517,9 @@ async def workflow_guide_client(
     progress = await compute_progress_for_project(db, project_id)
     current = await compute_current_step_for_project(db, project_id)
     steps = await compute_steps_for_project(db, project_id)
-    completed = [s for s in steps if s.status == "completed"]
+    completed = [s for s in steps if s.status in TERMINAL_STEP_STATUSES]
     pending = sorted(
-        [s for s in steps if s.status != "completed"],
+        [s for s in steps if s.status not in TERMINAL_STEP_STATUSES],
         key=lambda s: -s.urgency_score,
     )
     # Cliente ve current + next 5 (NO 30d forecast · UX simplified R29)

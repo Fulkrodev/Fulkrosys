@@ -350,7 +350,10 @@ async def create_extraordinary_audit(
     await db.commit()
     return {
         "audit_id": str(audit_data["audit_id"]),
-        "state": audit_data["state"],
+        # Devolver el estado REALMENTE persistido (audit_row.status), no el "open"
+        # logico del servicio: antes la fila guardaba "scheduled" pero la respuesta
+        # decia "open" → el cliente veia un estado distinto al almacenado.
+        "state": audit_row.status,
         "readiness_required": audit_data["readiness_required"],
     }
 

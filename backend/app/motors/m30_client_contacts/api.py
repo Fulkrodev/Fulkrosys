@@ -145,7 +145,7 @@ async def create_contact(
 
 
 @router.get(
-    "/{contact_id}", response_model=ClientContactOut,
+    "/{contact_id:uuid}", response_model=ClientContactOut,
 )
 async def get_contact_detail(
     client_id: uuid.UUID,
@@ -165,7 +165,7 @@ async def get_contact_detail(
 
 
 @router.patch(
-    "/{contact_id}", response_model=ClientContactOut,
+    "/{contact_id:uuid}", response_model=ClientContactOut,
 )
 async def update_contact(
     client_id: uuid.UUID,
@@ -237,7 +237,7 @@ async def activate_contact(
     return result
 
 
-@router.delete("/{contact_id}", status_code=204)
+@router.delete("/{contact_id:uuid}", status_code=204)
 async def delete_contact(
     client_id: uuid.UUID,
     contact_id: uuid.UUID,

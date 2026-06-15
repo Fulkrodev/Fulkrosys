@@ -101,6 +101,13 @@ _HORAS_FACTOR = {
     "full_time": 0.5,
 }
 
+# Estados terminales de una tarea. El engine históricamente solo miraba
+# "completed", pero task_service (m21) marca las tareas como "done" → un task
+# "done" se contaba como pendiente en progreso/urgencia/current-step.
+# Canónico en dependency_resolver_service.TERMINAL_DONE_STATUSES (duplicado aquí
+# como constante de módulo para evitar el import circular del paquete).
+TERMINAL_STEP_STATUSES = frozenset({"done", "completed"})
+
 
 def _compute_urgency_score(
     template: TaskTemplate,
@@ -111,7 +118,7 @@ def _compute_urgency_score(
 
     Pure function · testeable.
     """
-    if task_status == "completed":
+    if task_status in TERMINAL_STEP_STATUSES:
         return 0
 
     base = template.priority * 5  # priority 0-10 → 0-50
@@ -309,7 +316,7 @@ async def compute_progress_for_project(
             "per_phase": {},
         }
 
-    completed_global = sum(1 for s in steps if s.status == "completed")
+    completed_global = sum(1 for s in steps if s.status in TERMINAL_STEP_STATUSES)
     total_global = len(steps)
     pct_global = int(round((completed_global / total_global) * 100)) if total_global else 0
 
@@ -318,7 +325,7 @@ async def compute_progress_for_project(
         if s.phase not in per_phase:
             per_phase[s.phase] = {"completed": 0, "total": 0}
         per_phase[s.phase]["total"] += 1
-        if s.status == "completed":
+        if s.status in TERMINAL_STEP_STATUSES:
             per_phase[s.phase]["completed"] += 1
 
     for phase, counts in per_phase.items():
@@ -339,7 +346,7 @@ async def compute_current_step_for_project(
 ) -> EnrichedStepState | None:
     """Returns siguiente paso pendiente most-urgent · None si todo completado."""
     steps = await compute_steps_for_project(db, project_id)
-    pending = [s for s in steps if s.status != "completed"]
+    pending = [s for s in steps if s.status not in TERMINAL_STEP_STATUSES]
     if not pending:
         return None
     # Sort by urgency desc · take first

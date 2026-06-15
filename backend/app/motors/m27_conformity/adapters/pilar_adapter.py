@@ -62,7 +62,11 @@ async def generate_mgr_file(
 
             # Valoracion DICAT desde categorizations
             cat_row = (await db.execute(sa_text(
-                "SELECT valoracion_d FROM information_types "
+                # Traer las 5 dimensiones: el loop de abajo itera D/I/C/A/T y antes
+                # solo se seleccionaba valoracion_d, por lo que I/C/A/T salian None
+                # y se degradaban silenciosamente a "BAJO" en el .mgr de PILAR.
+                "SELECT valoracion_d, valoracion_i, valoracion_c, "
+                "valoracion_a, valoracion_t FROM information_types "
                 "WHERE system_id = :sid LIMIT 1"
             ), {"sid": sys_row.id})).first()
             val = SubElement(act, "Valoracion")

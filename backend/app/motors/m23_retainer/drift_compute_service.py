@@ -313,7 +313,10 @@ class DriftComputeService:
         retainers = (await db.execute(
             select(RetainerContract).where(
                 RetainerContract.deleted_at.is_(None),
-                RetainerContract.estado == "activo",
+                # Los retainers se crean con estado "active" (ingles), no "activo":
+                # con el valor antiguo este filtro no devolvia ninguno y la task
+                # semanal de drift computaba siempre 0.
+                RetainerContract.estado == "active",
             )
         )).scalars().all()
 

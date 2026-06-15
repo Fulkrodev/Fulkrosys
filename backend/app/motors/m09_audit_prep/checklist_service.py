@@ -614,7 +614,10 @@ def _collect_blockers(results: dict) -> list[dict]:
             })
 
     firmas = results.get("firmas") or {}
-    missing_firmas = firmas.get("missing") or []
+    # check_signatures() devuelve los codigos sin firma bajo la clave "pendientes"
+    # (no "missing"); leer la clave correcta para que las firmas faltantes
+    # cuenten realmente como blockers del dossier.
+    missing_firmas = firmas.get("pendientes") or []
     for f in missing_firmas:
         blockers.append({
             "tipo": "firma_missing",

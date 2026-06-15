@@ -38,23 +38,27 @@ def _score_from_obligations(obligations: list[LegalObligation]) -> int:
     """Score de sensibilidad normativa 0-10."""
     if not obligations:
         return 0
-    # Peso por norma
+    # Peso por norma (claves en MAYUSCULAS para casar con la normalizacion).
     weight = {
         "RGPD": 3,      # base
         "NIS2": 6,      # sector critico
         "DORA": 7,      # entidad financiera
-        "AI Act": 5,    # IA alto riesgo
+        "AI ACT": 5,    # IA alto riesgo
         "LOPDGDD": 4,   # datos sensibles
         "ENI": 4,       # admin publica
     }
     score = 0
     seen: set[str] = set()
     for o in obligations:
-        n = (o.normativa or "").split()[0].upper()  # Normalizar
-        if n in seen:
+        raw = (o.normativa or "").strip().upper()
+        # Casar por prefijo conocido (p.ej. "AI ACT ..." o "RGPD (UE) 2016/679")
+        # en vez de split()[0], que rompia las normas multi-palabra como "AI Act"
+        # (se quedaba en "AI" y caia al peso por defecto 1 en vez de 5).
+        key = next((k for k in weight if raw.startswith(k)), raw.split()[0] if raw else "")
+        if key in seen:
             continue
-        seen.add(n)
-        score += weight.get(n, 1)
+        seen.add(key)
+        score += weight.get(key, 1)
     return min(10, score)
 
 
