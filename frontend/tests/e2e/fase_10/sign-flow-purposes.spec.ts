@@ -64,12 +64,21 @@ interface PurposeConfig {
 
 const PURPOSES: PurposeConfig[] = [
   {
+    // §3.1 audit-2026-06-15 · firma_documento YA NO es mock: el dispatcher lo
+    // enruta al flujo REAL DocumentSigningFlow (consume magic-link + Ed25519 m05).
     purpose: "firma_documento",
-    expectedComponent: "LegacyDocumentSignFlow",
+    expectedComponent: "DocumentSigningFlow",
     expectedTitle: /Firma de documento/i,
     expectedActionPhrase: /firmo conforme/i,
     expectedApproveButton: /Firmar con Ed25519/i,
-    legacyMockSpec: true,
+    legacyMockSpec: false,
+    scope: {
+      document_type: "acta_e012",
+      recipient_name: "Responsable de la Información E2E",
+      recipient_role: "responsable_informacion",
+      acta_snapshot_hash:
+        "e2e00000000000000000000000000000000000000000000000000000000e2e00",
+    },
   },
   {
     purpose: "aprobacion_acta",

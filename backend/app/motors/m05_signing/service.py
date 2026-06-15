@@ -57,6 +57,14 @@ from backend.app.motors.m05_signing.signable_types import (
     SignableType,
 )
 
+# Firmante EXTERNO sin cuenta (flujo público ``firma_documento`` vía magic-link:
+# Responsable de la Información/Servicio, Dirección, RSEG…). La columna
+# ``signing_intents.created_by_user_id`` es NOT NULL pero NO tiene FK → se usa el
+# UUID NIL como centinela documentado (la identidad real del firmante va en
+# ``intent_payload`` + en el mensaje Ed25519 firmado). NO confundir con un
+# client_user real.
+_EXTERNAL_SIGNER_SENTINEL = uuid.UUID(int=0)
+
 
 @dataclass(slots=True)
 class RequestOtpResult:
@@ -506,6 +514,117 @@ class SigningService:
             signed_surname=signed_surname,
         )
         return event
+
+    # ----------------------------------------------------------------
+    # Firma de documento por firmante EXTERNO (magic-link FIRMA_DOCUMENTO)
+    # §3.1 audit-2026-06-15 · sustituye el MOCK frontend que prometía
+    # "firma Ed25519 registrada" sin registrar NADA.
+    # ----------------------------------------------------------------
+
+    async def sign_document_external(
+        self,
+        *,
+        project_id: uuid.UUID,
+        signable_type: SignableType,
+        document_hash_sha256: str,
+        signer_email: str,
+        signer_name: str | None = None,
+        signer_role: str | None = None,
+        signable_ref_id: uuid.UUID | None = None,
+        signable_ref_type: str | None = None,
+        magic_link_id: uuid.UUID | None = None,
+        ip_address: str | None = None,
+        user_agent: str | None = None,
+        extras: dict | None = None,
+    ) -> SigningEvent:
+        """Registra la firma Ed25519 REAL de un documento por un firmante externo.
+
+        Es el registro criptográfico del flujo público ``firma_documento`` (el
+        Responsable de la Información/Servicio, la Dirección o el RSEG firma el
+        acta E-012 / informe MAGERIT E-028 / DdA E-040 / conformidad vía
+        magic-link + OTP por canal aparte). El OTP YA fue validado en la puerta
+        magic-link (``MagicLinkService.consume_magic_link``) → NO step-up OTP
+        adicional (mismo principio que ``sign_canvas``: la puerta ya autenticó).
+
+        El firmante NO tiene client_user → ``created_by_user_id`` = NIL centinela
+        y ``actor_type='system'`` (el CHECK ``ck_signing_events_actor_type`` sólo
+        admite client_user/system/admin); su identidad real (email + rol + nombre)
+        queda DENTRO del mensaje firmado Ed25519. Firma sobre el hash congelado
+        del snapshot del documento + eslabón de la cadena R6. Reusa los primitivos
+        de ``sign()`` (DRY · OPS-026).
+        """
+        # Per-document advisory lock (Pattern #22) · serializa firmas concurrentes
+        # del mismo documento para un previous_hash estable (anti doble-eslabón).
+        doc_lock_key = f"signing_document_external_{document_hash_sha256}"
+        await self.db.execute(
+            sa_text("SELECT pg_advisory_xact_lock(hashtext(:k))"),
+            {"k": doc_lock_key},
+        )
+
+        # Intent sintético terminal 'signed' (firmante externo · sin client_user).
+        intent = SigningIntent(
+            project_id=project_id,
+            signable_type=signable_type,
+            signable_ref_id=signable_ref_id,
+            signable_ref_type=signable_ref_type,
+            document_hash_sha256=document_hash_sha256,
+            intent_payload={
+                "external_signer_email": signer_email,
+                "external_signer_name": signer_name,
+                "external_signer_role": signer_role,
+                "magic_link_id": str(magic_link_id) if magic_link_id else None,
+                "via": "magic_link_firma_documento",
+            },
+            status="signed",
+            requires_step_up_otp=False,
+            expires_at=datetime.now(UTC) + timedelta(hours=1),
+            created_by_user_id=_EXTERNAL_SIGNER_SENTINEL,
+        )
+        self.db.add(intent)
+        await self.db.flush()
+
+        signed_at_iso = datetime.now(UTC).isoformat()
+        message_dict: dict = {
+            "intent_id": str(intent.id),
+            "project_id": str(project_id),
+            "signable_type": signable_type,
+            "document_hash_sha256": document_hash_sha256,
+            "signed_at": signed_at_iso,
+            "external_signer_email": signer_email,
+            "external_signer_name": signer_name,
+            "external_signer_role": signer_role,
+            "magic_link_id": str(magic_link_id) if magic_link_id else None,
+        }
+        if extras:
+            message_dict["extras"] = extras
+
+        message_bytes = json.dumps(
+            message_dict, sort_keys=True, default=str
+        ).encode("utf-8")
+        signature_bytes = sign_payload(message_bytes)
+        public_key_bytes = get_public_key_bytes()
+
+        previous_hash = await self._get_last_signature_hash(project_id)
+        event_hash_input = (
+            message_bytes + (previous_hash or "").encode() + signature_bytes
+        )
+        event_hash = hashlib.sha256(event_hash_input).hexdigest()
+
+        return await self._log_event(
+            project_id=project_id,
+            signing_intent_id=intent.id,
+            event_type="signature_generated",
+            actor_user_id=None,
+            actor_type="system",
+            event_payload=message_dict,
+            signature_ed25519=signature_bytes,
+            signature_public_key=public_key_bytes,
+            signature_message=message_bytes.decode("utf-8"),
+            previous_signature_hash=previous_hash,
+            event_hash_sha256=event_hash,
+            ip_address=ip_address,
+            user_agent=user_agent,
+        )
 
     # ----------------------------------------------------------------
     # Reject

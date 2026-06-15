@@ -29,6 +29,7 @@ import { ApproveFacturaFlow } from "@/components/sign-flows/ApproveFacturaFlow";
 import { ApprovePropuestaFlow } from "@/components/sign-flows/ApprovePropuestaFlow";
 import { ConfirmConformidadFlow } from "@/components/sign-flows/ConfirmConformidadFlow";
 import { ContractCanvasSignFlow } from "@/components/sign-flows/ContractCanvasSignFlow";
+import { DocumentSigningFlow } from "@/components/sign-flows/DocumentSigningFlow";
 import { LegacyDocumentSignFlow } from "@/components/sign-flows/LegacyDocumentSignFlow";
 import { SignDPAFlow } from "@/components/sign-flows/SignDPAFlow";
 import { ValidateScopeChangeFlow } from "@/components/sign-flows/ValidateScopeChangeFlow";
@@ -66,9 +67,10 @@ export default function SignTokenPage({
       // magic-link + registra la firma del asistente en el acta (m18).
       return <ApproveActaFlow token={token} status={status} />;
     case "firma_documento":
-      // TODO-FIRMA-DOCUMENTO-REAL: aún usa el flujo legacy (mock). Pendiente de
-      // cablear el endpoint real de firma de documento (DdA/E-012/k6).
-      return <LegacyDocumentSignFlow token={token} />;
+      // §3.1 · flujo REAL (reemplaza el mock LegacyDocumentSignFlow): consume el
+      // magic-link + registra la firma Ed25519 del documento (acta E-012 /
+      // MAGERIT E-028 / DdA E-040 / conformidad · m05 hash chain R6).
+      return <DocumentSigningFlow token={token} status={status} />;
     case "aprobacion_propuesta":
       return <ApprovePropuestaFlow token={token} status={status} />;
     case "aprobacion_factura":

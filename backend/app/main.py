@@ -226,6 +226,9 @@ from backend.app.motors.m13_commercial.contract_signing_public_api import (
 from backend.app.motors.m18_communication.minutes_public_api import (
     public_router as minutes_public_router,
 )
+from backend.app.motors.m05_signing.document_public_api import (
+    public_router as document_signing_public_router,
+)
 from backend.app.motors.m13_commercial.api import router as m13_commercial_router
 from backend.app.motors.m27_conformity.public_api import (
     public_router as m27_conformity_public_router,
@@ -765,6 +768,9 @@ app.include_router(contract_signing_public_router, prefix="/api/v1")
 # Público · aprobación/firma de acta (E-005) vía magic-link APROBACION_ACTA
 # (reemplaza el mock LegacyDocumentSignFlow · firma real registrada en m18).
 app.include_router(minutes_public_router, prefix="/api/v1")
+# §3.1 · firma de documento (acta E-012 / MAGERIT E-028 / DdA E-040 / conformidad)
+# vía magic-link FIRMA_DOCUMENTO (reemplaza el mock · firma Ed25519 real R6).
+app.include_router(document_signing_public_router, prefix="/api/v1")
 # BUG3 fix · CRM router (propuestas + pricing-models + pipeline leads). Marcos-only
 # (require_owner). Sin deps externas. prefix interno /commercial → /api/v1/commercial/*.
 app.include_router(m13_commercial_router, prefix="/api/v1", tags=["Motor 13 - Commercial"])
