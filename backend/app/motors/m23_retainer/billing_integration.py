@@ -113,7 +113,8 @@ async def generate_retainer_invoice(
             f"{start.isoformat()} a {end.isoformat()}"
         ),
         "cantidad": 1,
-        "precio_unitario": float(base),
+        # §4.4 · Decimal directo (create_invoice lo re-cuantiza) · sin round-trip float.
+        "precio_unitario": base,
     }]
     for key, value in (extras_applied or {}).items():
         amount = Decimal(str(value))
@@ -121,7 +122,7 @@ async def generate_retainer_invoice(
         lineas.append({
             "descripcion": f"Extra retainer: {key}",
             "cantidad": 1,
-            "precio_unitario": float(amount),
+            "precio_unitario": amount,
         })
 
     svc = BillingService()
@@ -147,7 +148,7 @@ async def generate_retainer_invoice(
         invoice_id=invoice.id,
         billing_period_start=start,
         billing_period_end=end,
-        amount=float(Decimal(str(invoice.total))),
+        amount=invoice.total,
         status="emitted",
         notes=(
             f"Generada automaticamente. Base {float(base)} EUR "

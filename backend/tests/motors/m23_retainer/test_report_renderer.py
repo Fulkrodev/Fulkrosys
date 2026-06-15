@@ -52,7 +52,7 @@ async def _seed_retainer_with_report(
             " activities_pending, activities_overdue, incidents_detected, "
             " normativa_changes_relevant, vulns_critical, rag_overall, "
             " admin_curation_status, schema_version, created_at, updated_at) "
-            "VALUES (:id, :rid, :pid, 'quarterly', "
+            "VALUES (:id, :rid, :pid, 'trimestral', "
             " :ps, :pe, "
             " 8, 2, 1, 3, 5, 0, 'amber', 'draft', '1.0', now(), now())"
         ), {
@@ -110,7 +110,7 @@ async def test_render_annual_report_aggregates_quarters(db):
             " activities_pending, activities_overdue, incidents_detected, "
             " normativa_changes_relevant, vulns_critical, rag_overall, "
             " admin_curation_status, schema_version, created_at, updated_at) "
-            "VALUES (:id, :rid, :pid, 'quarterly', "
+            "VALUES (:id, :rid, :pid, 'trimestral', "
             " :ps, :pe, 10, 1, 0, 1, 3, 0, 'green', "
             " 'draft', '1.0', now(), now())"
         ), {

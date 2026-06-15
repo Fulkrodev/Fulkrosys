@@ -164,8 +164,8 @@ export function SigningFlow(props: Props) {
         <AlertCircle className="h-4 w-4" />
         <AlertDescription>
           Vas a firmar este documento con firma electronica simple
-          (eIDAS Art 25.1). La accion es irreversible · queda registrada
-          en el audit log con cadena criptografica Ed25519.
+          (eIDAS Art 25.1). La accion es irreversible · tu firma Ed25519
+          queda registrada en el audit log (cadena de integridad SHA-256).
           {requiresOtp && (
             <span className="mt-2 block">
               Por seguridad, te enviaremos un codigo a tu email para

@@ -18,7 +18,6 @@ from typing import Any
 from backend.app.motors.m27_conformity.route_machine import (
     ACTIVE_STATES,
     RouteState,
-    TERMINAL_STATES,
 )
 from backend.app.motors.m27_conformity.submission_machine import (
     SubmissionState,
@@ -34,7 +33,11 @@ INVARIANTS = (
     "NO_SUBMITTED_WITHOUT_PAYLOAD",
     "NO_COMPLETED_WITHOUT_PROOF_OR_JUSTIFICATION",
     "NO_RENEWAL_WITHOUT_TARGET_DATE",
-    "NEVER_ACTIVE_AND_EXPIRED_TOGETHER",
+    # §2.2 audit-2026-06-15 · "NEVER_ACTIVE_AND_EXPIRED_TOGETHER" retirado: una
+    # ruta tiene UN solo campo `state` → no puede ser ACTIVE y EXPIRED a la vez
+    # (la columna de estado ya lo garantiza). El invariante era estructuralmente
+    # invioable (rama muerta `state==ACTIVE and state in TERMINAL_STATES`) → no
+    # mantener una promesa de protección que nunca se evalúa.
 )
 
 
@@ -79,10 +82,6 @@ def check_invariants(snapshot: dict[str, Any]) -> list[str]:
             if not r.get("target_renewal_date"):
                 violations.append("NO_RENEWAL_WITHOUT_TARGET_DATE")
                 break
-
-    if route and route["state"] == RouteState.ACTIVE.value:
-        if route["state"] in TERMINAL_STATES:
-            violations.append("NEVER_ACTIVE_AND_EXPIRED_TOGETHER")
 
     return violations
 

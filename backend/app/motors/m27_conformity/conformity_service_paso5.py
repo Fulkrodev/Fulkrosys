@@ -15,6 +15,7 @@ persisten en las 13 tablas nuevas y orquestan:
 from __future__ import annotations
 
 import hashlib
+import json
 import logging
 import uuid
 from datetime import date, datetime, timedelta, timezone
@@ -379,8 +380,14 @@ class ConformityServicePaso5:
                 if self_assessment_report_id else None
             ),
         }
+        # §4.4 audit-2026-06-15 · hash sobre JSON canónico (claves ordenadas), NO
+        # sobre str(sorted(payload.items())) (repr Python frágil/no portable: un
+        # auditor que recomputa desde submission_payload_jsonb no podía casarlo).
         signed_hash = hashlib.sha256(
-            str(sorted(payload.items())).encode("utf-8")
+            json.dumps(
+                payload, sort_keys=True, separators=(",", ":"),
+                ensure_ascii=False, default=str,
+            ).encode("utf-8")
         ).hexdigest()
 
         # Submission (al sistema WEB del cliente + Registro CCN opcional)
