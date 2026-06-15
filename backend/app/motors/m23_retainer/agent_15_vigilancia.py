@@ -27,6 +27,7 @@ Diseno:
 from __future__ import annotations
 
 import hashlib
+import html
 import logging
 import uuid
 import xml.etree.ElementTree as ET
@@ -398,9 +399,14 @@ class Agente15Vigilancia:
             )
             lines.append("<ul>")
             for a in items:
-                src = a.source.upper()
-                title = (a.title or "(sin titulo)")[:200]
-                url = a.source_url or "#"
+                # XSS §1.6: el title/url provienen de feeds RSS externos no
+                # confiables → escapar el texto y validar el protocolo del href
+                # (rechazar javascript:/data:) antes de incrustarlos en el email.
+                src = html.escape(a.source.upper())
+                title = html.escape((a.title or "(sin titulo)")[:200])
+                raw_url = (a.source_url or "").strip()
+                is_http = raw_url.lower().startswith(("http://", "https://"))
+                url = html.escape(raw_url if is_http else "#", quote=True)
                 lines.append(
                     f'<li><strong>{src}</strong>: '
                     f'<a href="{url}">{title}</a></li>'

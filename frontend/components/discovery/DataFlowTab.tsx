@@ -72,15 +72,29 @@ function DataFlowCard({ dfd }: { dfd: DataFlowDiagram }) {
               <Button type="button" variant="outline" size="sm" onClick={copyMermaid}>
                 <Copy className="mr-1 size-3.5" /> Copiar
               </Button>
-              <a
-                href={buildMermaidLiveLink(dfd.mermaid_code ?? "")}
-                target="_blank"
-                rel="noreferrer"
+              <button
+                type="button"
+                onClick={() => {
+                  // §1.6: abrir el diagrama en mermaid.live envía la arquitectura
+                  // interna (nodos, almacenes, protocolos) a un servicio externo.
+                  // Avisar al admin y exigir confirmación explícita antes de salir.
+                  const ok = window.confirm(
+                    "Este diagrama (arquitectura interna del proyecto) se enviará a " +
+                      "mermaid.live, un servicio EXTERNO. ¿Continuar?",
+                  );
+                  if (ok) {
+                    window.open(
+                      buildMermaidLiveLink(dfd.mermaid_code ?? ""),
+                      "_blank",
+                      "noopener,noreferrer",
+                    );
+                  }
+                }}
                 className="inline-flex items-center gap-1 text-xs text-fulkro-primary-700 hover:underline"
               >
                 <ExternalLink className="size-3" />
                 Abrir en mermaid.live
-              </a>
+              </button>
             </div>
             <pre className="max-h-72 overflow-auto rounded border border-fulkro-ink-100 bg-fulkro-canvas p-3 text-xs">
               {dfd.mermaid_code}
