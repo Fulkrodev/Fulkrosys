@@ -247,23 +247,33 @@ async def admin_propose_from_gaps(
 ) -> dict[str, Any]:
     """FASE 3 · Puente diagnóstico/pentest → remediación.
 
-    Auto-propone RemediationJobs desde los CloudGaps abiertos del proyecto
-    (mapeo determinista catálogo). NO ejecuta nada: deja los jobs PROPUESTOS
-    para aprobación con un clic (FASE 4). Idempotente."""
+    Auto-propone RemediationJobs desde (a) los CloudGaps abiertos y (b) los
+    VerificationFindings de pentest (host) verificados del proyecto (mapeo
+    determinista catálogo). NO ejecuta nada: deja los jobs PROPUESTOS para
+    aprobación con un clic (FASE 4). Idempotente."""
     await _set_project_context(db, project_id)
     owner = (await db.execute(
         text("SELECT get_project_owner(:pid)"), {"pid": str(project_id)},
     )).scalar()
     from backend.app.motors.m_remediation.bridge import (
         propose_remediations_for_project,
+        propose_remediations_from_findings,
     )
-    result = await propose_remediations_for_project(
-        db, project_id,
-        created_by_user_id=getattr(user, "id", None),
-        client_id=owner,
+    uid = getattr(user, "id", None)
+    cloud = await propose_remediations_for_project(
+        db, project_id, created_by_user_id=uid, client_id=owner,
+    )
+    # §6: además del cloud, propone desde los findings de pentest (host findings).
+    host = await propose_remediations_from_findings(
+        db, project_id, created_by_user_id=uid, client_id=owner,
     )
     await db.commit()
-    return result
+    return {
+        "created": cloud["created"] + host["created"],
+        "skipped": cloud["skipped"] + host["skipped"],
+        "total_gaps": cloud["total_gaps"],
+        "total_findings": host["total_findings"],
+    }
 
 
 @admin_router.get("/coverage", status_code=200)

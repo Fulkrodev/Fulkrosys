@@ -195,3 +195,91 @@ async def propose_remediations_for_project(
         "skipped": skipped,
         "total_gaps": len(gaps),
     }
+
+
+async def propose_remediations_from_findings(
+    db: AsyncSession,
+    project_id: uuid.UUID,
+    *,
+    created_by_user_id: uuid.UUID | None = None,
+    client_id: uuid.UUID | None = None,
+) -> dict:
+    """Crea RemediationJobs PROPUESTOS desde los VerificationFindings (host) del
+    proyecto · §6 cierra el puente pentest→remediación (antes sólo CloudGap, los
+    findings de host nunca llegaban a remediación → 100% manual).
+
+    Sólo findings 'open' verificados (zfp_gate5_classification confirmed/probable)
+    con medida ENS primaria. Mapea (host, medida ENS) → action_type del catálogo
+    (provider='host'). NO ejecuta (requiere aprobación · FASE 4). Idempotente por
+    (source_finding_id, action_type). El llamador fija el tenant context RLS.
+
+    Returns: {"created": [...], "skipped": [...], "total_findings": n}
+    """
+    from backend.app.motors.m08_verification.models import VerificationFinding
+
+    findings = (
+        await db.execute(
+            select(VerificationFinding).where(
+                VerificationFinding.project_id == project_id,
+                VerificationFinding.status == "open",
+                VerificationFinding.zfp_gate5_classification.in_(
+                    ("confirmed", "probable"),
+                ),
+                VerificationFinding.ens_primary_measure.isnot(None),
+            )
+        )
+    ).scalars().all()
+
+    svc = RemediationService(db)
+    created: list[dict] = []
+    skipped: list[dict] = []
+
+    for f in findings:
+        measure = f.ens_primary_measure
+        resource_type = f.affected_service or f.affected_os
+        action_type = map_gap_to_action_type("host", measure, resource_type)
+        if not action_type:
+            skipped.append({
+                "finding_id": str(f.id),
+                "reason": (
+                    f"sin acción de catálogo para host/{measure} (→ guía manual)"
+                ),
+            })
+            continue
+        # Idempotencia: no re-proponer si ya hay job vivo/exitoso para finding+acción.
+        existing = (
+            await db.execute(
+                select(RemediationJob.id).where(
+                    RemediationJob.source_finding_id == f.id,
+                    RemediationJob.action_type == action_type,
+                    RemediationJob.status.in_(_NON_REPROPOSABLE),
+                ).limit(1)
+            )
+        ).scalar()
+        if existing:
+            skipped.append({"finding_id": str(f.id), "reason": "job ya propuesto"})
+            continue
+        job = await svc.create_job(
+            project_id=project_id,
+            action_type=action_type,
+            source_kind=RemediationSourceKind.HOST_FINDING,
+            source_finding_id=f.id,
+            target_ref=str(f.affected_host)[:200] if f.affected_host else None,
+            created_by_user_id=created_by_user_id,
+            client_id=client_id,
+        )
+        created.append({
+            "job_id": str(job.id),
+            "finding_id": str(f.id),
+            "action_type": action_type,
+            "tier": job.tier,
+            "status": job.status,
+            "ens_measure_code": measure,
+            "severity": f.severity,
+        })
+
+    return {
+        "created": created,
+        "skipped": skipped,
+        "total_findings": len(findings),
+    }
