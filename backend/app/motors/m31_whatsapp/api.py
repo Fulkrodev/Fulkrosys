@@ -1,6 +1,7 @@
 """M31 WhatsApp API · admin + cliente + webhook · atom 8.1."""
 from __future__ import annotations
 
+import hashlib
 import hmac
 import uuid
 
@@ -322,13 +323,18 @@ webhook_router = APIRouter(
 )
 
 
-def _webhook_authorized(request: Request) -> bool:
-    """Verifica el token del webhook (anti-spoofing de mensajes entrantes).
+def _webhook_authorized(request: Request, raw_body: bytes) -> bool:
+    """Verifica la autenticidad del webhook (anti-spoofing de mensajes entrantes).
 
-    Si ``dialog_360_webhook_secret`` está configurado, EXIGE un token coincidente
-    (query ``?token=`` o header ``X-Webhook-Token``) en tiempo constante. Sin
-    secret (dev/mock) devuelve True (verificación omitida).
-    Configura la URL en 360dialog como
+    Si ``dialog_360_webhook_secret`` está configurado, EXIGE una de (tiempo
+    constante):
+      1. Firma HMAC-SHA256 del *raw body* en el header ``X-Hub-Signature-256``
+         (formato Meta/WhatsApp Cloud: ``sha256=<hexdigest>``) — preferido.
+      2. Token compartido coincidente (query ``?token=`` o header
+         ``X-Webhook-Token``) — fallback de compatibilidad.
+    Sin secret (dev/mock) devuelve True (verificación omitida).
+
+    Configura 360dialog con la firma HMAC (preferido) o, en su defecto, con
     ``https://<host>/api/v1/webhooks/360dialog?token=<secret>``.
     """
     try:
@@ -337,6 +343,15 @@ def _webhook_authorized(request: Request) -> bool:
         secret = ""
     if not secret:
         return True
+    # 1) Firma HMAC-SHA256 sobre el raw body (preferida · anti-spoofing real).
+    sig_header = request.headers.get("X-Hub-Signature-256", "")
+    if sig_header:
+        expected = "sha256=" + hmac.new(
+            secret.encode("utf-8"), raw_body, hashlib.sha256,
+        ).hexdigest()
+        if hmac.compare_digest(sig_header, expected):
+            return True
+    # 2) Token compartido (fallback de compatibilidad).
     provided = (
         request.query_params.get("token")
         or request.headers.get("X-Webhook-Token", "")
@@ -349,9 +364,13 @@ async def webhook_360dialog(
     request: Request,
     db: AsyncSession = Depends(get_db),
 ) -> dict:
-    """360dialog webhook · inbound messages + delivery receipts (token-auth)."""
-    if not _webhook_authorized(request):
-        raise HTTPException(status_code=403, detail="invalid webhook token")
+    """360dialog webhook · inbound messages + delivery receipts (HMAC + token)."""
+    raw_body = await request.body()
+    if not _webhook_authorized(request, raw_body):
+        raise HTTPException(
+            status_code=403, detail="invalid webhook signature or token",
+        )
+    # request.json() reutiliza el body ya cacheado por request.body().
     payload = await request.json()
     client = get_default_client()
     event = client.parse_webhook(payload)

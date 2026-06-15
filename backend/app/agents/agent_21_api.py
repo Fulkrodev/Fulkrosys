@@ -18,10 +18,17 @@ from sqlalchemy import text as sa_text
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from backend.app.agents.agent_21_service import DiscrepancyDetectorService
+from backend.app.auth.dependencies import require_owner
 from backend.app.database import get_db
 
 
-router = APIRouter(tags=["Agent 21 - Detector Discrepancias"])
+# Endpoints admin (Marcos-only) · mirror agents/api.py (bug-hunt 2026-06-14):
+# evita abuso de coste/operación por client_user. El _set_project_rls() interno
+# sólo valida existencia (404), NO autoriza al usuario.
+router = APIRouter(
+    tags=["Agent 21 - Detector Discrepancias"],
+    dependencies=[Depends(require_owner)],
+)
 
 
 async def _set_project_rls(

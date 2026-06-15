@@ -16,9 +16,11 @@ import uuid
 
 from fastapi import APIRouter, Depends, File, HTTPException, UploadFile
 from pydantic import BaseModel
+from sqlalchemy import text
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from backend.app.database import get_db
+from backend.app.auth.dependencies import require_owner
+from backend.app.database import get_db, set_tenant_context
 from backend.app.motors.m02_magerit.models import MageritAnalysis
 from backend.app.motors.m02_magerit.pilar_importer import (
     PilarImportError,
@@ -26,7 +28,11 @@ from backend.app.motors.m02_magerit.pilar_importer import (
     parse_xml,
 )
 
-router = APIRouter(prefix="/magerit", tags=["M02 - PILAR XML import (MB-11.4)"])
+router = APIRouter(
+    prefix="/magerit", tags=["M02 - PILAR XML import (MB-11.4)"],
+    # TODO-RBAC-PER-ENDPOINT-001 Cat A: Marcos-only (mirror m02 api.py).
+    dependencies=[Depends(require_owner)],
+)
 
 
 class ImportXmlResponse(BaseModel):
@@ -50,6 +56,23 @@ _MAX_XML_SIZE_BYTES = 10 * 1024 * 1024  # 10 MB
 async def _ensure_analysis_exists(
     db: AsyncSession, analysis_id: uuid.UUID,
 ) -> MageritAnalysis:
+    """Carga el análisis y fija el contexto RLS desde el client_id de su proyecto.
+
+    Usa get_magerit_analysis_owner() (SECURITY DEFINER) para resolver el
+    chicken-and-egg de RLS: necesitamos el client_id para fijar el tenant, pero
+    no podemos leer la tabla sin contexto. La función puentea RLS (mirror de
+    ``api.py::_get_analysis_with_rls``). Sin fijar contexto, bajo ``fulkro_app``
+    el SELECT devolvería 0 filas → 404 espurio en producción.
+    """
+    owner = (await db.execute(
+        text("SELECT * FROM get_magerit_analysis_owner(:aid)"),
+        {"aid": str(analysis_id)},
+    )).mappings().first()
+    if not owner or not owner["client_id"]:
+        raise HTTPException(404, "Analysis not found")
+    await set_tenant_context(
+        db, client_id=owner["client_id"], project_id=owner["project_id"],
+    )
     analysis = await db.get(MageritAnalysis, analysis_id)
     if analysis is None:
         raise HTTPException(404, "Analysis not found")
