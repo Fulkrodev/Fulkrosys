@@ -7,6 +7,7 @@ Gone si se llama con un id deprecated (vs 404 genuino para ids
 desconocidos).
 """
 import importlib
+import logging
 from typing import Type
 from uuid import UUID
 
@@ -17,6 +18,8 @@ from backend.app.agents.base import AgentBase
 from backend.app.agents.registry import AGENT_REGISTRY, get_agent_info, list_agents
 from backend.app.auth.dependencies import require_owner
 from backend.app.database import get_db
+
+logger = logging.getLogger(__name__)
 
 # FIX seguridad (bug-hunt 2026-06-14): los 13 agentes IA son admin-only (ADR-013/
 # ADR-020 · A2/A4/A6/A11/A17/A18/A27/A31 invocan LLM real). El gate global solo
@@ -552,10 +555,11 @@ async def meeting_update_stream(body: dict, db: AsyncSession = Depends(get_db)):
                 meeting_id=meeting_id,
                 project_id=project_id,
             )
-        except Exception as exc:  # noqa: BLE001
+        except Exception:  # noqa: BLE001
+            logger.exception("Agent18 SSE analyze_meeting_blocks falló")
             yield (
                 "event: error\n"
-                f"data: {json.dumps({'error': str(exc)})}\n\n"
+                f"data: {json.dumps({'error': 'internal_error'})}\n\n"
             )
             return
 

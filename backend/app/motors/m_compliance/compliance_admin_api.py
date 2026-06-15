@@ -12,6 +12,7 @@ Endpoints under ``/api/v1/admin/compliance``:
 """
 from __future__ import annotations
 
+import logging
 from datetime import datetime
 from uuid import UUID
 
@@ -33,6 +34,8 @@ from backend.app.motors.m_compliance.breach_service import (
     BreachNotificationService,
 )
 from backend.app.motors.m_compliance.rgpd_services import RGPDErasureService
+
+logger = logging.getLogger(__name__)
 
 
 router = APIRouter(
@@ -325,5 +328,7 @@ async def _send_erasure_email(
             html_body=html,
             template_used=mjml_name.replace(".mjml", ""),
         )
-    except Exception:  # noqa: BLE001
-        pass
+    except Exception as exc:  # noqa: BLE001
+        # best-effort (el email de notificación NO debe tumbar el flujo) · pero
+        # dejar rastro para soporte en vez de tragar el error en silencio.
+        logger.warning("_send_erasure_email best-effort falló: %s", exc)

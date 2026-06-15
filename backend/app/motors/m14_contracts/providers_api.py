@@ -14,6 +14,7 @@ Sub-lote 1.B.7.1.3 (AMEND-014 OPCION C hibrida · cierre GAP-CRITICO-8):
 """
 from __future__ import annotations
 
+import logging
 import uuid
 from datetime import datetime
 from typing import Any
@@ -30,6 +31,8 @@ from backend.app.motors.m14_contracts.providers_service import (
     M14ProvidersService,
     ProvidersError,
 )
+
+logger = logging.getLogger(__name__)
 
 
 router = APIRouter(
@@ -348,8 +351,13 @@ async def admin_trigger_adenda_check(
                 meta["triggers_history"] = history
                 meta["last_trigger"] = "admin_manual"
                 addendum.metadata_ = meta
-        except Exception:  # noqa: BLE001
-            pass
+        except (ValueError, KeyError) as exc:
+            # best-effort (actualización del audit trail del addendum) · no debe
+            # tumbar el trigger admin, pero sí dejar rastro para soporte.
+            logger.warning(
+                "admin_trigger_adenda_check: no se pudo actualizar metadata del "
+                "addendum (best-effort): %s", exc,
+            )
 
     await db.commit()
     return {
