@@ -59,7 +59,7 @@ function statusIcon(status: string) {
   if (status === "failed") {
     return <AlertCircle className="h-4 w-4 text-rose-600" />;
   }
-  return <ShieldCheck className="h-4 w-4 text-slate-500" />;
+  return <ShieldCheck className="h-4 w-4 text-fulkro-ink-500" />;
 }
 
 export function RemediationCard({ gap, onReview }: RemediationCardProps) {

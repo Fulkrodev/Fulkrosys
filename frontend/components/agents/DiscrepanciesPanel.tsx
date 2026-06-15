@@ -50,14 +50,14 @@ const SEVERITY_TONE: Record<DiscrepancySeverity, string> = {
   critical: "bg-red-100 text-red-900 border-red-300",
   high: "bg-orange-100 text-orange-900 border-orange-300",
   medium: "bg-amber-100 text-amber-900 border-amber-300",
-  low: "bg-slate-100 text-slate-700 border-slate-300",
+  low: "bg-fulkro-ink-100 text-fulkro-ink-700 border-fulkro-ink-300",
 };
 
 const STATUS_TONE: Record<ResolutionStatus, string> = {
   open: "bg-amber-100 text-amber-900 border-amber-300",
   acknowledged: "bg-blue-100 text-blue-900 border-blue-300",
   resolved: "bg-emerald-100 text-emerald-900 border-emerald-300",
-  dismissed: "bg-slate-100 text-slate-700 border-slate-300",
+  dismissed: "bg-fulkro-ink-100 text-fulkro-ink-700 border-fulkro-ink-300",
 };
 
 export function DiscrepanciesPanel({ projectId }: { projectId: string }) {

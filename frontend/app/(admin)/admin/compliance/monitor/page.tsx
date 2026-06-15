@@ -71,7 +71,7 @@ const STATUS_CHIP: Record<CheckStatus, string> = {
   green: "bg-emerald-100 text-emerald-800 border-emerald-200",
   yellow: "bg-amber-100 text-amber-800 border-amber-200",
   red: "bg-red-100 text-red-800 border-red-200",
-  unknown: "bg-slate-100 text-slate-700 border-slate-200",
+  unknown: "bg-fulkro-ink-100 text-fulkro-ink-700 border-fulkro-ink-200",
 };
 
 function StatusChip({ status }: { status: CheckStatus }) {
@@ -171,7 +171,7 @@ export default function ComplianceMonitorPage() {
             <ShieldCheck className="h-6 w-6" />
             Compliance Monitor
           </h1>
-          <p className="mt-1 text-sm text-slate-600">
+          <p className="mt-1 text-sm text-fulkro-ink-600">
             Verificación automática RGPD · LOPDGDD · LSSI-CE · NIS2 · ISO
             27001 — 17 checks en cadencias diaria/semanal/mensual/trimestral.
           </p>
@@ -210,7 +210,7 @@ export default function ComplianceMonitorPage() {
         )}
       </section>
 
-      <section className="text-xs text-slate-500">
+      <section className="text-xs text-fulkro-ink-500">
         Último run: {formatTs(s?.last_run_at ?? null)} ·
         Último reporte: {formatTs(s?.last_report_at ?? null)}
       </section>
@@ -300,7 +300,7 @@ export default function ComplianceMonitorPage() {
         </CardHeader>
         <CardContent>
           {reports.length === 0 ? (
-            <p className="text-sm text-slate-500">
+            <p className="text-sm text-fulkro-ink-500">
               Aún sin reportes generados. El primer reporte semanal se genera
               el próximo lunes 08:00.
             </p>
@@ -313,7 +313,7 @@ export default function ComplianceMonitorPage() {
                 >
                   <div>
                     <div className="font-medium">{r.report_type}</div>
-                    <div className="text-xs text-slate-500">
+                    <div className="text-xs text-fulkro-ink-500">
                       {formatTs(r.period_start)} → {formatTs(r.period_end)} ·
                       modo: <span className="font-mono">{r.storage_mode}</span>
                     </div>
@@ -329,11 +329,11 @@ export default function ComplianceMonitorPage() {
                       Descargar
                     </a>
                   ) : r.storage_path ? (
-                    <span className="font-mono text-xs text-slate-500">
+                    <span className="font-mono text-xs text-fulkro-ink-500">
                       {r.storage_path}
                     </span>
                   ) : (
-                    <span className="text-xs text-slate-400">inline</span>
+                    <span className="text-xs text-fulkro-ink-400">inline</span>
                   )}
                 </li>
               ))}
@@ -411,7 +411,7 @@ function StatusCard({
   return (
     <Card>
       <CardContent className="pt-4">
-        <div className="text-xs uppercase tracking-wide text-slate-500">
+        <div className="text-xs uppercase tracking-wide text-fulkro-ink-500">
           {label}
         </div>
         <div className="mt-1 flex items-baseline gap-2">
@@ -434,7 +434,7 @@ function ChecksTable({
 }) {
   if (checks.length === 0) {
     return (
-      <div className="flex items-center gap-2 p-6 text-sm text-slate-500">
+      <div className="flex items-center gap-2 p-6 text-sm text-fulkro-ink-500">
         <CircleHelp className="h-4 w-4" />
         Sin checks para el filtro actual. Pulsa “Sync registry” si has
         actualizado el código backend.
@@ -444,7 +444,7 @@ function ChecksTable({
   return (
     <table className="w-full text-sm">
       <thead>
-        <tr className="border-b text-left text-xs uppercase tracking-wide text-slate-500">
+        <tr className="border-b text-left text-xs uppercase tracking-wide text-fulkro-ink-500">
           <th className="px-4 py-2">Check</th>
           <th className="px-4 py-2">Categoría</th>
           <th className="px-4 py-2">Cadencia</th>
@@ -463,10 +463,10 @@ function ChecksTable({
             <td className="px-4 py-2">
               <StatusChip status={c.status} />
             </td>
-            <td className="px-4 py-2 text-xs text-slate-600">
+            <td className="px-4 py-2 text-xs text-fulkro-ink-600">
               {formatTs(c.last_run_at)}
             </td>
-            <td className="max-w-md truncate px-4 py-2 text-xs text-slate-600">
+            <td className="max-w-md truncate px-4 py-2 text-xs text-fulkro-ink-600">
               {c.last_result?.message ?? c.description ?? "—"}
             </td>
             <td className="px-4 py-2">
@@ -502,7 +502,7 @@ function AlertsTable({
   return (
     <table className="w-full text-sm">
       <thead>
-        <tr className="border-b text-left text-xs uppercase tracking-wide text-slate-500">
+        <tr className="border-b text-left text-xs uppercase tracking-wide text-fulkro-ink-500">
           <th className="px-4 py-2">Check</th>
           <th className="px-4 py-2">Severidad</th>
           <th className="px-4 py-2">Estado</th>
@@ -531,10 +531,10 @@ function AlertsTable({
                 </span>
               )}
             </td>
-            <td className="px-4 py-2 text-xs text-slate-600">
+            <td className="px-4 py-2 text-xs text-fulkro-ink-600">
               {formatTs(a.triggered_at)}
             </td>
-            <td className="max-w-md truncate px-4 py-2 text-xs text-slate-600">
+            <td className="max-w-md truncate px-4 py-2 text-xs text-fulkro-ink-600">
               {a.message}
             </td>
             <td className="px-4 py-2">

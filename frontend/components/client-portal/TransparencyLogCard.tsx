@@ -32,13 +32,13 @@ export function TransparencyLogCard({ days = 180 }: { days?: number }) {
   return (
     <section
       data-testid="transparency-log-card"
-      className="rounded-lg border border-slate-200 bg-white p-6 shadow-sm"
+      className="rounded-lg border border-fulkro-ink-200 bg-white p-6 shadow-sm"
     >
       <header className="mb-4">
-        <h2 className="text-lg font-semibold text-slate-900">
+        <h2 className="text-lg font-semibold text-fulkro-ink-900">
           Transparencia IA · AI Act art.50
         </h2>
-        <p className="mt-1 text-sm text-slate-600">
+        <p className="mt-1 text-sm text-fulkro-ink-600">
           Aquí puedes ver cuándo se utilizó inteligencia artificial para
           ayudar a generar documentos o realizar análisis en tu proyecto.
           Cumplimos transparencia europea por defecto.
@@ -47,7 +47,7 @@ export function TransparencyLogCard({ days = 180 }: { days?: number }) {
 
       {loading && (
         <p
-          className="text-sm text-slate-500"
+          className="text-sm text-fulkro-ink-500"
           data-testid="transparency-loading"
         >
           Cargando registro…
@@ -65,7 +65,7 @@ export function TransparencyLogCard({ days = 180 }: { days?: number }) {
 
       {!loading && !error && total === 0 && (
         <p
-          className="rounded-md bg-slate-50 p-4 text-sm text-slate-600"
+          className="rounded-md bg-fulkro-ink-50 p-4 text-sm text-fulkro-ink-600"
           data-testid="transparency-empty"
         >
           Aún no se ha utilizado IA en este proyecto. Cuando se haga, cada
@@ -75,11 +75,11 @@ export function TransparencyLogCard({ days = 180 }: { days?: number }) {
 
       {!loading && !error && total > 0 && (
         <div
-          className="overflow-x-auto rounded-md border border-slate-100"
+          className="overflow-x-auto rounded-md border border-fulkro-ink-100"
           data-testid="transparency-list"
         >
-          <table className="min-w-full divide-y divide-slate-100 text-sm">
-            <thead className="bg-slate-50 text-left text-xs font-medium uppercase tracking-wide text-slate-500">
+          <table className="min-w-full divide-y divide-fulkro-ink-100 text-sm">
+            <thead className="bg-fulkro-ink-50 text-left text-xs font-medium uppercase tracking-wide text-fulkro-ink-500">
               <tr>
                 <th className="px-4 py-2">Fecha</th>
                 <th className="px-4 py-2">Acción</th>
@@ -87,22 +87,22 @@ export function TransparencyLogCard({ days = 180 }: { days?: number }) {
                 <th className="px-4 py-2">Propósito</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-slate-100 bg-white">
+            <tbody className="divide-y divide-fulkro-ink-100 bg-white">
               {items.map((item) => (
                 <tr
                   key={item.id}
                   data-testid={`transparency-row-${item.id}`}
                 >
-                  <td className="whitespace-nowrap px-4 py-3 text-slate-700">
+                  <td className="whitespace-nowrap px-4 py-3 text-fulkro-ink-700">
                     {formatRelativeDate(item.created_at)}
                   </td>
-                  <td className="px-4 py-3 text-slate-900">
+                  <td className="px-4 py-3 text-fulkro-ink-900">
                     {EVENT_TYPE_LABEL[item.event_type] ?? item.event_type}
                   </td>
-                  <td className="whitespace-nowrap px-4 py-3 text-slate-600">
+                  <td className="whitespace-nowrap px-4 py-3 text-fulkro-ink-600">
                     {item.agent_name}
                   </td>
-                  <td className="px-4 py-3 text-slate-700">{item.purpose}</td>
+                  <td className="px-4 py-3 text-fulkro-ink-700">{item.purpose}</td>
                 </tr>
               ))}
             </tbody>

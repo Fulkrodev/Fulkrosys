@@ -183,7 +183,7 @@ function KpiCard({
   const toneClasses = {
     emerald: "text-emerald-700",
     amber: "text-amber-600",
-    slate: "text-slate-600",
+    slate: "text-fulkro-ink-600",
     muted: "text-muted-foreground",
   }[tone];
   return (

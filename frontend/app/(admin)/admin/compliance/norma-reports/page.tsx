@@ -39,7 +39,7 @@ const STATUS_DOT: Record<NonNullable<NormaSummary["latest_status"]>, string> = {
   green: "bg-emerald-500",
   yellow: "bg-amber-500",
   red: "bg-red-500",
-  unknown: "bg-slate-400",
+  unknown: "bg-fulkro-ink-400",
 };
 
 const STATUS_BADGE_VARIANT: Record<
@@ -99,7 +99,7 @@ export default function NormaReportsPage() {
           <ShieldCheck className="h-6 w-6" />
           Reportes por Normativa
         </h1>
-        <p className="mt-1 max-w-2xl text-sm text-slate-600">
+        <p className="mt-1 max-w-2xl text-sm text-fulkro-ink-600">
           Estado de cumplimiento agregado por norma regulatoria
           (RGPD · LOPDGDD · LSSI-CE · NIS2 · AEPD cookies · ISO 27001 · ENS).
           Cada plugin agrega los checks pertinentes del Self-Monitoring y
@@ -127,15 +127,15 @@ export default function NormaReportsPage() {
         <CardHeader>
           <CardTitle className="text-lg">Sobre los reportes por normativa</CardTitle>
         </CardHeader>
-        <CardContent className="space-y-2 text-sm text-slate-700">
+        <CardContent className="space-y-2 text-sm text-fulkro-ink-700">
           <p>
             Cada normativa es un <strong>plugin</strong> autodescubierto al
             arrancar la aplicación. Añadir una nueva norma (DORA · AI Act ·
             NIS3 cuando proceda) es crear un nuevo archivo en{" "}
-            <code className="rounded bg-slate-100 px-1.5 py-0.5 text-xs">
+            <code className="rounded bg-fulkro-ink-100 px-1.5 py-0.5 text-xs">
               backend/app/motors/m_compliance_monitor/normas/
             </code>{" "}
-            y registrarla con <code className="rounded bg-slate-100 px-1.5 py-0.5 text-xs">NormaRegistry.register()</code>.
+            y registrarla con <code className="rounded bg-fulkro-ink-100 px-1.5 py-0.5 text-xs">NormaRegistry.register()</code>.
             No hay que modificar el motor.
           </p>
           <p>
@@ -173,7 +173,7 @@ function NormaCard({
               href={norma.regulatory_basis_url}
               target="_blank"
               rel="noreferrer"
-              className="mt-1 inline-flex items-center gap-1 text-xs text-slate-500 hover:underline"
+              className="mt-1 inline-flex items-center gap-1 text-xs text-fulkro-ink-500 hover:underline"
             >
               <ExternalLink className="h-3 w-3" />
               base regulatoria
@@ -187,7 +187,7 @@ function NormaCard({
       <CardContent className="flex flex-1 flex-col justify-between gap-4">
         <div>
           <div className="flex items-baseline gap-3">
-            <span className="text-3xl font-bold text-slate-900">
+            <span className="text-3xl font-bold text-fulkro-ink-900">
               {score !== null ? `${score.toFixed(1)}%` : "—"}
             </span>
             <span
@@ -199,11 +199,11 @@ function NormaCard({
             />
             <Badge variant={STATUS_BADGE_VARIANT[status]}>{status}</Badge>
           </div>
-          <div className="mt-3 flex items-center gap-1 text-xs text-slate-500">
+          <div className="mt-3 flex items-center gap-1 text-xs text-fulkro-ink-500">
             <CalendarDays className="h-3 w-3" />
             Último reporte: {formatDate(norma.latest_generated_at)}
           </div>
-          <div className="mt-1 text-xs text-slate-500">
+          <div className="mt-1 text-xs text-fulkro-ink-500">
             Frecuencia <code>{norma.frequency}</code> ·{" "}
             {norma.checks_owned.length} checks
           </div>
@@ -225,7 +225,7 @@ function NormaCard({
           </Button>
           <Link
             href={`/admin/compliance/norma-reports/${norma.norma_key}`}
-            className="inline-flex items-center rounded-md px-3 py-1.5 text-xs font-medium text-slate-700 hover:bg-slate-100"
+            className="inline-flex items-center rounded-md px-3 py-1.5 text-xs font-medium text-fulkro-ink-700 hover:bg-fulkro-ink-100"
           >
             <FileText className="mr-1 h-4 w-4" />
             Historial

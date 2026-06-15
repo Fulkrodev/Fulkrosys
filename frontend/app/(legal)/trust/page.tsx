@@ -51,7 +51,7 @@ const HEALTH_DOT: Record<OverallHealth, string> = {
   green: "bg-emerald-500",
   yellow: "bg-amber-500",
   red: "bg-red-500",
-  unknown: "bg-slate-400",
+  unknown: "bg-fulkro-ink-400",
 };
 
 function formatDate(iso: string | null): string {

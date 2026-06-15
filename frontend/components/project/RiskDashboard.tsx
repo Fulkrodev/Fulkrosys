@@ -74,7 +74,7 @@ const RISK_LEVEL_TONE: Record<string, string> = {
   C: "bg-orange-500 text-white border-orange-600",
   I: "bg-amber-400 text-amber-950 border-amber-500",
   A: "bg-emerald-200 text-emerald-900 border-emerald-300",
-  D: "bg-slate-200 text-slate-700 border-slate-300",
+  D: "bg-fulkro-ink-200 text-fulkro-ink-700 border-fulkro-ink-300",
 };
 
 const DIMENSION_LABEL: Record<string, string> = {

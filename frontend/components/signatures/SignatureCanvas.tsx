@@ -81,11 +81,11 @@ export function SignatureCanvas({
 
   return (
     <div
-      className="space-y-4 rounded-lg border border-slate-200 bg-white p-5"
+      className="space-y-4 rounded-lg border border-fulkro-ink-200 bg-white p-5"
       data-testid={testIdPrefix}
     >
       {documentLabel ? (
-        <p className="text-sm text-slate-600" data-testid={`${testIdPrefix}-label`}>
+        <p className="text-sm text-fulkro-ink-600" data-testid={`${testIdPrefix}-label`}>
           Estás firmando: <strong>{documentLabel}</strong>
         </p>
       ) : null}
@@ -93,7 +93,7 @@ export function SignatureCanvas({
       <div>
         <label
           htmlFor={`${testIdPrefix}-name`}
-          className="mb-1 block text-sm font-medium text-slate-700"
+          className="mb-1 block text-sm font-medium text-fulkro-ink-700"
         >
           Nombre
         </label>
@@ -105,7 +105,7 @@ export function SignatureCanvas({
           maxLength={120}
           placeholder="p. ej. María"
           aria-label="Nombre del firmante"
-          className="w-full rounded-md border border-slate-300 px-3 py-2 text-sm focus:border-violet-500 focus:outline-none focus:ring-1 focus:ring-violet-500"
+          className="w-full rounded-md border border-fulkro-ink-300 px-3 py-2 text-sm focus:border-violet-500 focus:outline-none focus:ring-1 focus:ring-violet-500"
           data-testid={`${testIdPrefix}-name-input`}
         />
       </div>
@@ -113,7 +113,7 @@ export function SignatureCanvas({
       <div>
         <label
           htmlFor={`${testIdPrefix}-surname`}
-          className="mb-1 block text-sm font-medium text-slate-700"
+          className="mb-1 block text-sm font-medium text-fulkro-ink-700"
         >
           Apellido
         </label>
@@ -125,19 +125,19 @@ export function SignatureCanvas({
           maxLength={120}
           placeholder="p. ej. García"
           aria-label="Apellido del firmante"
-          className="w-full rounded-md border border-slate-300 px-3 py-2 text-sm focus:border-violet-500 focus:outline-none focus:ring-1 focus:ring-violet-500"
+          className="w-full rounded-md border border-fulkro-ink-300 px-3 py-2 text-sm focus:border-violet-500 focus:outline-none focus:ring-1 focus:ring-violet-500"
           data-testid={`${testIdPrefix}-surname-input`}
         />
       </div>
 
       <div>
-        <p className="mb-2 text-sm font-medium text-slate-700">Tu firma</p>
-        <p className="mb-2 text-xs text-slate-500">
+        <p className="mb-2 text-sm font-medium text-fulkro-ink-700">Tu firma</p>
+        <p className="mb-2 text-xs text-fulkro-ink-500">
           Firma con tu dedo (móvil) o con el ratón (ordenador). Si te equivocas,
           pulsa <em>Borrar y volver a empezar</em>.
         </p>
         <div
-          className="rounded-md border-2 border-dashed border-slate-300 bg-slate-50"
+          className="rounded-md border-2 border-dashed border-fulkro-ink-300 bg-fulkro-ink-50"
           role="img"
           aria-label="Lienzo para dibujar tu firma manuscrita"
         >

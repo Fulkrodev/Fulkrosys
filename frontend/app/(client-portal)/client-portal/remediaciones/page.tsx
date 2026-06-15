@@ -167,7 +167,7 @@ export default function RemediacionesPage() {
       />
 
       {/* ADR-055 · remediación automática (cloud safe-auto + guarded autorizado) */}
-      <div className="mt-8 border-t border-slate-200 pt-6">
+      <div className="mt-8 border-t border-fulkro-ink-200 pt-6">
         <RemediationClienteView />
       </div>
       </div>

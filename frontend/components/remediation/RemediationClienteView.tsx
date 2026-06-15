@@ -29,7 +29,7 @@ function chipClass(estado: string): string {
   if (estado.includes("revis")) {
     return "bg-amber-100 text-amber-800";
   }
-  return "bg-slate-100 text-slate-700";
+  return "bg-fulkro-ink-100 text-fulkro-ink-700";
 }
 
 export function RemediationClienteView() {
@@ -61,11 +61,11 @@ export function RemediationClienteView() {
   return (
     <div className="space-y-5">
       <div>
-        <h2 className="flex items-center gap-2 text-xl font-bold text-slate-900">
+        <h2 className="flex items-center gap-2 text-xl font-bold text-fulkro-ink-900">
           <ShieldCheck className="size-6 text-emerald-600" />
           Mejoras automáticas de seguridad
         </h2>
-        <p className="mt-1 max-w-2xl text-sm text-slate-600">
+        <p className="mt-1 max-w-2xl text-sm text-fulkro-ink-600">
           Estas son las mejoras que aplicamos en tus sistemas para protegerlos. La
           mayoría se hacen solas; algunas necesitan tu visto bueno antes. Sin prisa
           por tu parte.
@@ -73,7 +73,7 @@ export function RemediationClienteView() {
       </div>
 
       {jobsQ.isLoading ? (
-        <div className="flex items-center gap-2 py-6 text-slate-600">
+        <div className="flex items-center gap-2 py-6 text-fulkro-ink-600">
           <Loader2 className="size-4 animate-spin" /> Cargando…
         </div>
       ) : jobsQ.isError ? (
@@ -95,8 +95,8 @@ export function RemediationClienteView() {
           </Button>
         </Alert>
       ) : jobs.length === 0 ? (
-        <Card className="border-slate-200 bg-white">
-          <CardContent className="py-8 text-center text-slate-600">
+        <Card className="border-fulkro-ink-200 bg-white">
+          <CardContent className="py-8 text-center text-fulkro-ink-600">
             <CheckCircle2 className="mx-auto mb-2 size-8 text-emerald-500" />
             Todo en orden por ahora. Te avisaremos si hay algo que mejorar.
           </CardContent>
@@ -106,10 +106,10 @@ export function RemediationClienteView() {
           {pending.length > 0 ? (
             <Card className="border-amber-200 bg-white">
               <CardHeader>
-                <CardTitle className="text-lg text-slate-900">
+                <CardTitle className="text-lg text-fulkro-ink-900">
                   Necesitan tu autorización
                 </CardTitle>
-                <CardDescription className="text-slate-600">
+                <CardDescription className="text-fulkro-ink-600">
                   Son cambios que podrían afectar a algún acceso · por eso te
                   pedimos el visto bueno antes de aplicarlos.
                 </CardDescription>
@@ -120,9 +120,9 @@ export function RemediationClienteView() {
                     key={job.id}
                     className="rounded-lg border border-amber-200 bg-amber-50/60 p-4"
                   >
-                    <p className="font-semibold text-slate-900">{job.title}</p>
+                    <p className="font-semibold text-fulkro-ink-900">{job.title}</p>
                     {job.explicacion ? (
-                      <p className="mt-1 text-sm text-slate-700">
+                      <p className="mt-1 text-sm text-fulkro-ink-700">
                         {job.explicacion}
                       </p>
                     ) : null}
@@ -144,27 +144,27 @@ export function RemediationClienteView() {
             </Card>
           ) : null}
 
-          <Card className="border-slate-200 bg-white">
+          <Card className="border-fulkro-ink-200 bg-white">
             <CardHeader>
-              <CardTitle className="text-lg text-slate-900">Historial</CardTitle>
+              <CardTitle className="text-lg text-fulkro-ink-900">Historial</CardTitle>
             </CardHeader>
             <CardContent className="space-y-2">
               {rest.length === 0 ? (
-                <p className="py-2 text-sm text-slate-500">
+                <p className="py-2 text-sm text-fulkro-ink-500">
                   Aún no hay mejoras aplicadas.
                 </p>
               ) : (
                 rest.map((job) => (
                   <div
                     key={job.id}
-                    className="flex items-center justify-between gap-3 rounded-md border border-slate-100 bg-slate-50 p-3"
+                    className="flex items-center justify-between gap-3 rounded-md border border-fulkro-ink-100 bg-fulkro-ink-50 p-3"
                   >
                     <div className="min-w-0">
-                      <p className="truncate font-medium text-slate-900">
+                      <p className="truncate font-medium text-fulkro-ink-900">
                         {job.title}
                       </p>
                       {job.explicacion ? (
-                        <p className="truncate text-xs text-slate-500">
+                        <p className="truncate text-xs text-fulkro-ink-500">
                           {job.explicacion}
                         </p>
                       ) : null}

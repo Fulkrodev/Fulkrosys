@@ -51,22 +51,22 @@ function severityBadgeClass(severity: GoldenEvalSeverity | null): string {
     case "alert":
       return "bg-rose-100 text-rose-800";
     default:
-      return "bg-slate-100 text-slate-600";
+      return "bg-fulkro-ink-100 text-fulkro-ink-600";
   }
 }
 
 function statusBadgeClass(status: GoldenEvalRunStatus): string {
   switch (status) {
     case "completed":
-      return "bg-slate-100 text-slate-700";
+      return "bg-fulkro-ink-100 text-fulkro-ink-700";
     case "running":
       return "bg-indigo-100 text-indigo-800";
     case "queued":
-      return "bg-slate-50 text-slate-600";
+      return "bg-fulkro-ink-50 text-fulkro-ink-600";
     case "failed":
       return "bg-rose-100 text-rose-800";
     default:
-      return "bg-slate-100 text-slate-600";
+      return "bg-fulkro-ink-100 text-fulkro-ink-600";
   }
 }
 
@@ -185,14 +185,14 @@ export function AdminGoldenEvalView() {
               {datasets.map((ds) => (
                 <div
                   key={`${ds.agent_name}:${ds.version}`}
-                  className="flex items-center justify-between rounded-md border border-slate-100 p-3"
+                  className="flex items-center justify-between rounded-md border border-fulkro-ink-100 p-3"
                   data-testid={`dataset-${ds.agent_name}`}
                 >
                   <div>
-                    <code className="text-sm font-semibold text-slate-900">
+                    <code className="text-sm font-semibold text-fulkro-ink-900">
                       {ds.agent_name}
                     </code>
-                    <span className="ml-2 text-xs text-slate-500">
+                    <span className="ml-2 text-xs text-fulkro-ink-500">
                       {ds.version}
                     </span>
                   </div>
@@ -239,8 +239,8 @@ export function AdminGoldenEvalView() {
               onClick={() => setSelectedAgent(null)}
               className={`rounded-md px-2 py-1 text-xs ${
                 selectedAgent === null
-                  ? "bg-slate-700 text-white"
-                  : "bg-slate-100 text-slate-700"
+                  ? "bg-fulkro-ink-700 text-white"
+                  : "bg-fulkro-ink-100 text-fulkro-ink-700"
               }`}
             >
               Todos
@@ -252,8 +252,8 @@ export function AdminGoldenEvalView() {
                 onClick={() => setSelectedAgent(ds.agent_name)}
                 className={`rounded-md px-2 py-1 text-xs ${
                   selectedAgent === ds.agent_name
-                    ? "bg-slate-700 text-white"
-                    : "bg-slate-100 text-slate-700"
+                    ? "bg-fulkro-ink-700 text-white"
+                    : "bg-fulkro-ink-100 text-fulkro-ink-700"
                 }`}
               >
                 {ds.agent_name}
@@ -288,8 +288,8 @@ export function AdminGoldenEvalView() {
               className="overflow-x-auto"
               data-testid="runs-table"
             >
-              <table className="min-w-full divide-y divide-slate-100 text-sm">
-                <thead className="bg-slate-50 text-left text-xs font-medium uppercase tracking-wide text-slate-500">
+              <table className="min-w-full divide-y divide-fulkro-ink-100 text-sm">
+                <thead className="bg-fulkro-ink-50 text-left text-xs font-medium uppercase tracking-wide text-fulkro-ink-500">
                   <tr>
                     <th className="px-3 py-2">Fecha</th>
                     <th className="px-3 py-2">Agent</th>
@@ -300,16 +300,16 @@ export function AdminGoldenEvalView() {
                     <th className="px-3 py-2"></th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-slate-100 bg-white">
+                <tbody className="divide-y divide-fulkro-ink-100 bg-white">
                   {runs.map((run) => (
                     <tr
                       key={run.id}
                       data-testid={`run-row-${run.id}`}
                     >
-                      <td className="whitespace-nowrap px-3 py-2 text-slate-700">
+                      <td className="whitespace-nowrap px-3 py-2 text-fulkro-ink-700">
                         {formatDate(run.triggered_at)}
                       </td>
-                      <td className="px-3 py-2 text-slate-900">
+                      <td className="px-3 py-2 text-fulkro-ink-900">
                         <code className="text-xs">{run.agent_name}</code>
                       </td>
                       <td className="px-3 py-2">
@@ -331,15 +331,15 @@ export function AdminGoldenEvalView() {
                             {SEVERITY_LABEL[run.severity]}
                           </span>
                         ) : (
-                          <span className="text-xs text-slate-400">—</span>
+                          <span className="text-xs text-fulkro-ink-400">—</span>
                         )}
                       </td>
-                      <td className="px-3 py-2 text-slate-700">
+                      <td className="px-3 py-2 text-fulkro-ink-700">
                         {run.regression_score !== null
                           ? `${(run.regression_score * 100).toFixed(1)}%`
                           : "—"}
                       </td>
-                      <td className="px-3 py-2 text-slate-700">
+                      <td className="px-3 py-2 text-fulkro-ink-700">
                         {run.entries_evaluated}/{run.entries_in_dataset}
                       </td>
                       <td className="px-3 py-2">
@@ -372,42 +372,42 @@ export function AdminGoldenEvalView() {
           <CardContent>
             <dl className="grid grid-cols-2 gap-4 text-sm">
               <div>
-                <dt className="text-xs uppercase text-slate-500">Status</dt>
-                <dd className="font-medium text-slate-900">
+                <dt className="text-xs uppercase text-fulkro-ink-500">Status</dt>
+                <dd className="font-medium text-fulkro-ink-900">
                   {STATUS_LABEL[detail.status]}
                 </dd>
               </div>
               <div>
-                <dt className="text-xs uppercase text-slate-500">Severity</dt>
-                <dd className="font-medium text-slate-900">
+                <dt className="text-xs uppercase text-fulkro-ink-500">Severity</dt>
+                <dd className="font-medium text-fulkro-ink-900">
                   {detail.severity ? SEVERITY_LABEL[detail.severity] : "—"}
                 </dd>
               </div>
               <div>
-                <dt className="text-xs uppercase text-slate-500">
+                <dt className="text-xs uppercase text-fulkro-ink-500">
                   Regression score
                 </dt>
-                <dd className="font-medium text-slate-900">
+                <dd className="font-medium text-fulkro-ink-900">
                   {detail.regression_score !== null
                     ? `${(detail.regression_score * 100).toFixed(1)}%`
                     : "—"}
                 </dd>
               </div>
               <div>
-                <dt className="text-xs uppercase text-slate-500">
+                <dt className="text-xs uppercase text-fulkro-ink-500">
                   Entries (eval/total)
                 </dt>
-                <dd className="font-medium text-slate-900">
+                <dd className="font-medium text-fulkro-ink-900">
                   {detail.entries_evaluated}/{detail.entries_in_dataset}
                 </dd>
               </div>
             </dl>
             {detail.failed_entry_ids && detail.failed_entry_ids.length > 0 && (
               <div className="mt-4">
-                <p className="text-xs uppercase text-slate-500">
+                <p className="text-xs uppercase text-fulkro-ink-500">
                   Entries fallidos
                 </p>
-                <ul className="mt-1 list-inside list-disc text-sm text-slate-700">
+                <ul className="mt-1 list-inside list-disc text-sm text-fulkro-ink-700">
                   {detail.failed_entry_ids.map((eid) => (
                     <li key={eid}>
                       <code>{eid}</code>

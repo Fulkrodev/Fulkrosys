@@ -17,10 +17,10 @@ export default function ClientTransparencyPage() {
     <PageContainer variant="reading">
       <div className="space-y-6">
         <header>
-          <h1 className="text-2xl font-semibold text-slate-900">
+          <h1 className="text-2xl font-semibold text-fulkro-ink-900">
             Transparencia IA
           </h1>
-          <p className="mt-2 max-w-2xl text-sm text-slate-600">
+          <p className="mt-2 max-w-2xl text-sm text-fulkro-ink-600">
             Por transparencia europea (AI Act art.50) te mostramos cuándo se
             ha utilizado inteligencia artificial para ayudar a generar
             documentos o realizar análisis en tu proyecto. Marcos siempre

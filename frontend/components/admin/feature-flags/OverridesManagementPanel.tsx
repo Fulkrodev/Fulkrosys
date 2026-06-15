@@ -246,7 +246,7 @@ export function OverridesManagementPanel({
                         className={cn(
                           resolved
                             ? "bg-emerald-100 text-emerald-900 hover:bg-emerald-100"
-                            : "bg-slate-100 text-slate-800 hover:bg-slate-100",
+                            : "bg-fulkro-ink-100 text-fulkro-ink-800 hover:bg-fulkro-ink-100",
                         )}
                       >
                         {resolved ? "activa" : "inactiva"}
