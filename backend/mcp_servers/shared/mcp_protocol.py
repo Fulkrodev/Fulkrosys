@@ -113,6 +113,22 @@ class MCPServer(ABC):
 
         tool = self.tools[tool_name]
         handler = self._handlers[tool_name]
+
+        # Gate de aprobación FAIL-CLOSED: las tools marcadas requires_approval
+        # (ofensivas/destructivas: metasploit, sliver, sqlmap, pacu, gophish,
+        # responder, impacket, hashcat/john, aircrack/wifite, caldera, atomic_red_team,
+        # infection_monkey, purplesharp) NO se ejecutan sin aprobación humana
+        # explícita. Antes requires_approval SOLO se reflejaba en la meta de la
+        # respuesta pero nunca se comprobaba → eran ejecutables con solo tener scope.
+        # El llamador debe pasar params["approved"]=True (autorización humana) para
+        # ejecutarlas; en cualquier otro caso se rechaza.
+        if tool.requires_approval and params.get("approved") is not True:
+            return self._error(
+                req_id, -32003,
+                f"Tool '{tool_name}' requires explicit human approval "
+                f"(requires_approval=True). Pass params.approved=true to execute.",
+            )
+
         start_time = datetime.now(timezone.utc)
 
         try:
