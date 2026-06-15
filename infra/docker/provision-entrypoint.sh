@@ -8,7 +8,7 @@
 #   1. init-extensions.sql   (superuser)        → pgvector / AGE / pgaudit / pgcrypto / uuid-ossp
 #   2. init-functions.sql    (superuser)        → funciones PL/pgSQL (audit_log hash chain R6)
 #   3. init-roles.sql        (superuser)        → crea + endurece fulkro_app / _bypassrls / _migrate
-#   4. alembic upgrade head  (fulkro_migrate)   → esquema (1 head: client_mfa_email_code_001)
+#   4. alembic upgrade head  (fulkro_migrate)   → esquema (árbol con 1 head · dinámico)
 #   5. grants sobre tablas creadas por migraciones (superuser)
 #   6. seed_all_fulkro       (fulkro_migrate)   → catálogos + pricing + clientes
 #   7. REVOKE UPDATE,DELETE ON audit_log (superuser) → append-only por privilegio (R6)
@@ -99,7 +99,7 @@ ALTER USER fulkro_app     WITH PASSWORD :'app_pw';
 ALTER USER fulkro_migrate WITH PASSWORD :'mig_pw';
 PSQL
 
-echo "==> [4/7] alembic upgrade head (como fulkro_migrate · 1 head client_mfa_email_code_001)"
+echo "==> [4/7] alembic upgrade head (como fulkro_migrate · árbol con 1 head · dinámico)"
 # PYTHONPATH=REPO_ROOT: env.py hace `import backend.app.models`; al hacer
 # `cd backend` el paquete `backend` debe seguir resolviéndose (el -e install lo
 # cubre, pero lo forzamos explícito por robustez cross-imagen).

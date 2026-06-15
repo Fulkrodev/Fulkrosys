@@ -41,7 +41,9 @@ cd "${REPO_ROOT}"
 COMPOSE_FILE="${FULKRO_COMPOSE_FILE:-docker-compose.prod.yml}"
 ENV_FILE="${FULKRO_ENV_FILE:-.env.prod}"
 PG_SERVICE="${FULKRO_PG_SERVICE:-postgres}"
-ALEMBIC_EXPECTED_HEAD="client_mfa_email_code_001"
+# §5 · informativo (NO es un gate): `alembic upgrade head` es dinámico · el árbol
+# tiene un único head · evitamos nombrar una revisión concreta (drift recurrente).
+ALEMBIC_EXPECTED_HEAD="(head único del árbol)"
 
 SKIP_BUILD=0; SKIP_SEED=0; DRY_RUN=0
 for arg in "$@"; do

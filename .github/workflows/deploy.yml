@@ -21,7 +21,28 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
+  # §5 audit-2026-06-15 · gate previo al deploy (antes el push a main desplegaba
+  # SIN ninguna verificación). Determinista y rápido (sin BD): ruff (mismas reglas
+  # que CI · pin 0.15.13) + compileall (caza errores de sintaxis). El gate REAL de
+  # tests sigue siendo LOCAL (`build_test_db.sh && pytest` · ver ci.yml) hasta
+  # cablear la provisión completa de BD en el runner. Si el gate falla, NO se
+  # despliega (deploy `needs: gate`).
+  gate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install ruff (pin)
+        run: pip install ruff==0.15.13
+      - name: Lint (ruff)
+        run: ruff check backend/
+      - name: Syntax check (compileall)
+        run: python -m compileall -q backend/app
+
   deploy:
+    needs: [gate]
     runs-on: ubuntu-latest
     steps:
       - name: Deploy (pull + build + up -d) vía SSH
