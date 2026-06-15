@@ -1,7 +1,7 @@
 """Tool: impacket_tool — Run an Impacket SMB/RPC script against a target."""
 from shared.mcp_protocol import MCPTool
 from shared.scope_check import check_scope
-from shared.utils import run_command
+from shared.utils import reject_unsafe_args, run_command
 
 
 TOOL = MCPTool(
@@ -37,6 +37,12 @@ async def impacket_tool(
     scope = check_scope(target, "exploit")
     if not scope["allowed"]:
         return {"error": f"SCOPE DENIED: {scope['reason']}"}
+    # `tool` se interpola en el módulo `impacket.{tool}` → validar (los args van
+    # por exec en lista, sin shell, pero el nombre de módulo no debe llevar
+    # metacaracteres). creds/password NO se validan (pueden ser legítimos y van
+    # como un único arg de lista, sin shell).
+    if (e := reject_unsafe_args(tool)):
+        return e
     creds = f"{domain}/{user}:{password}@{target}" if user else target
     cmd = ["python3", "-m", f"impacket.{tool}", creds]
     result = await run_command(cmd, timeout=TOOL.timeout_seconds)

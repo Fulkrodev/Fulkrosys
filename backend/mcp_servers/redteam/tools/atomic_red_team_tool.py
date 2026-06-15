@@ -1,6 +1,6 @@
 """Tool: atomic_red_team_test — Run an Atomic Red Team technique."""
 from shared.mcp_protocol import MCPTool
-from shared.utils import run_command
+from shared.utils import reject_unsafe_args, run_command
 from shared.scope_check import check_scope
 
 
@@ -29,6 +29,8 @@ async def atomic_red_team_test(technique: str, test_index: int = 1) -> dict:
     scope = check_scope("__local__", "config_audit")
     if not scope["allowed"]:
         return {"error": f"SCOPE DENIED: {scope['reason']}"}
+    if (e := reject_unsafe_args(technique)):
+        return e
     cmd = [
         "powershell", "-Command",
         f"Invoke-AtomicTest {technique} -TestNumbers {test_index}",

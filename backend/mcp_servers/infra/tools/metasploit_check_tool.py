@@ -1,7 +1,7 @@
 """Tool: metasploit_check — Non-intrusive vulnerability check via MSF `check`."""
 from shared.mcp_protocol import MCPTool
 from shared.scope_check import check_scope
-from shared.utils import run_command
+from shared.utils import reject_unsafe_args, run_command
 
 
 TOOL = MCPTool(
@@ -24,6 +24,8 @@ async def metasploit_check(module: str, target: str) -> dict:
     scope = check_scope(target, "scan")
     if not scope["allowed"]:
         return {"error": f"SCOPE DENIED: {scope['reason']}"}
+    if (e := reject_unsafe_args(module, target)):
+        return e
     cmd = [
         "msfconsole", "-qx",
         f"use {module}; set RHOSTS {target}; check; exit",

@@ -8,6 +8,33 @@ import xml.etree.ElementTree as ET
 from typing import Any, Optional
 
 
+# §1.6: metacaracteres de shell/intérprete. Aunque los comandos se lanzan con
+# create_subprocess_exec(*cmd) (sin shell), varias tools pasan un único argumento
+# que el PROPIO intérprete de la herramienta evalúa como cadena de comandos
+# (msfconsole -qx "...", powershell -Command "..."). Un ';' o '$(...)' en un
+# parámetro interpolado (module/target/technique/query/...) inyectaría comandos
+# DENTRO de esa sesión. Defensa-en-profundidad sobre el gate scope+approval.
+_INJECTION_CHARS = re.compile(r"[;&|`$\n\r<>\x00]")
+
+
+def check_arg_safe(value: Any) -> Optional[str]:
+    """Devuelve un mensaje de error si ``value`` contiene metacaracteres de
+    inyección; ``None`` si es seguro. Sólo valida str (ints/otros son seguros)."""
+    if isinstance(value, str) and _INJECTION_CHARS.search(value):
+        return "argumento con metacaracteres no permitidos (posible inyeccion)"
+    return None
+
+
+def reject_unsafe_args(*values: Any) -> Optional[dict]:
+    """Valida varios args; devuelve un dict de error MCP si alguno es inseguro,
+    o ``None`` si todos son seguros. Uso: ``if (e := reject_unsafe_args(a, b)): return e``."""
+    for v in values:
+        err = check_arg_safe(v)
+        if err:
+            return {"error": f"INPUT REJECTED: {err}"}
+    return None
+
+
 async def run_command(
     cmd: list[str],
     timeout: int = 600,

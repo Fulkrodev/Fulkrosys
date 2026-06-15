@@ -1,9 +1,17 @@
 """ScopeEnforcer — validates a target/test_type pair against a signed authorization.
 
 Fail-closed: any unexpected state denies the call.
+
+La lógica de matching (host IPv6-aware + CIDR + dominio) es ÚNICA en
+``shared.scope_check.evaluate_target_scope`` (DRY · §1.7) — antes estaba
+duplicada aquí y divergía (sin CIDR en exclusiones, IPv6 roto por split).
 """
-import ipaddress
 from datetime import datetime, timezone
+
+try:  # MCP runtime (backend/mcp_servers en sys.path)
+    from shared.scope_check import evaluate_target_scope
+except ImportError:  # importado como paquete desde el backend/tests
+    from backend.mcp_servers.shared.scope_check import evaluate_target_scope
 
 
 class ScopeEnforcer:
@@ -39,38 +47,10 @@ class ScopeEnforcer:
                     "reason": f"Test type '{test_type}' not allowed. Allowed: {allowed_types}",
                 }
 
-            targets = auth.get("targets", [])
-            excluded = auth.get("excluded_targets", [])
-            target_clean = target.split(":")[0]
-
-            for excl in excluded:
-                try:
-                    if ipaddress.ip_address(target_clean) == ipaddress.ip_address(excl):
-                        return {"allowed": False, "reason": f"Target {target} is excluded"}
-                except ValueError:
-                    if target_clean.lower() == excl.lower():
-                        return {"allowed": False, "reason": f"Target {target} is excluded"}
-
-            for allowed_target in targets:
-                try:
-                    net = ipaddress.ip_network(allowed_target, strict=False)
-                    ip = ipaddress.ip_address(target_clean)
-                    if ip in net:
-                        return {"allowed": True, "reason": "IP in authorized network"}
-                except ValueError:
-                    pass
-                allowed_lower = allowed_target.lower()
-                target_lower = target_clean.lower()
-                if allowed_lower.startswith("*."):
-                    base = allowed_lower[2:]
-                    if target_lower == base or target_lower.endswith("." + base):
-                        return {"allowed": True, "reason": "Domain matches wildcard"}
-                elif target_lower == allowed_lower:
-                    return {"allowed": True, "reason": "Domain exact match"}
-
-            return {
-                "allowed": False,
-                "reason": f"Target {target} not in authorized scope: {targets}",
-            }
+            return evaluate_target_scope(
+                target,
+                auth.get("targets", []),
+                auth.get("excluded_targets", []),
+            )
         except Exception as exc:
             return {"allowed": False, "reason": f"Scope check error (fail-closed): {exc}"}

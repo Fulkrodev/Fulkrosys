@@ -38,8 +38,20 @@ async def gophish_campaign(
     if not api_key:
         return {"error": "GOPHISH_API_KEY not configured", "action": action}
 
-    if action in ("create", "launch") and payload:
-        for target in payload.get("targets", []):
+    # §1.7: el scope DEBE validarse en create Y launch. Antes el guard era
+    # `action in (create,launch) and payload`, así que un `launch` sólo con
+    # campaign_id (payload=None) se saltaba el check y disparaba la campaña
+    # contra objetivos fuera de alcance. Ahora launch exige targets para validar.
+    if action in ("create", "launch"):
+        targets = (payload or {}).get("targets", [])
+        if not targets:
+            return {
+                "error": (
+                    "SCOPE DENIED: se requiere payload.targets para validar el "
+                    f"alcance antes de '{action}'"
+                )
+            }
+        for target in targets:
             scope = check_scope(target.get("email", ""), "phishing")
             if not scope["allowed"]:
                 return {"error": f"SCOPE DENIED: {scope['reason']}"}

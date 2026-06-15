@@ -1,6 +1,6 @@
 """Tool: metasploit_search — Search Metasploit modules by keyword."""
 from shared.mcp_protocol import MCPTool
-from shared.utils import run_command
+from shared.utils import reject_unsafe_args, run_command
 
 
 TOOL = MCPTool(
@@ -18,6 +18,8 @@ TOOL = MCPTool(
 
 async def metasploit_search(query: str) -> dict:
     """Scope: local audit — no external target, scope check not applicable."""
+    if (e := reject_unsafe_args(query)):
+        return e
     cmd = ["msfconsole", "-qx", f"search {query}; exit"]
     result = await run_command(cmd, timeout=TOOL.timeout_seconds)
     return {

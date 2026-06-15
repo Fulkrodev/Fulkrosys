@@ -539,7 +539,16 @@ async def pentester_download_vpn(
     handoff, _ = await _load_handoff_for_token(db, ctx)
     if not handoff.vpn_config_path:
         raise HTTPException(status_code=404, detail="VPN config not generated")
-    abs_path = Path(handoff.vpn_config_path)
+    abs_path = Path(handoff.vpn_config_path).resolve()
+    # §1.7 anti path-traversal: el .ovpn DEBE vivir bajo var/verification_vpn/
+    # (mismo guard que /documents/{index}). Antes se servía la ruta absoluta de
+    # BD sin validar → un path malicioso (../../etc/...) leería ficheros del host.
+    root = Path(__file__).resolve().parents[4]
+    allowed_root = (root / "var" / "verification_vpn").resolve()
+    try:
+        abs_path.relative_to(allowed_root)
+    except ValueError:
+        raise HTTPException(status_code=403, detail="Invalid path")
     if not abs_path.exists():
         raise HTTPException(status_code=404, detail="VPN config file missing")
     await _log_portal_access(db, ctx, "pentester_portal_vpn_download")

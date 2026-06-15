@@ -1,6 +1,6 @@
 """Tool: metasploit_post — Run post-exploitation module on an existing session."""
 from shared.mcp_protocol import MCPTool
-from shared.utils import run_command
+from shared.utils import reject_unsafe_args, run_command
 from shared.scope_check import check_scope
 
 
@@ -26,6 +26,8 @@ async def metasploit_post(module: str, session: int) -> dict:
     scope = check_scope("__local__", "config_audit")
     if not scope["allowed"]:
         return {"error": f"SCOPE DENIED: {scope['reason']}"}
+    if (e := reject_unsafe_args(module)):
+        return e
     cmd = [
         "msfconsole", "-qx",
         f"use {module}; set SESSION {session}; run; exit",

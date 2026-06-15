@@ -1,6 +1,6 @@
 """Tool: sliver_implant — Generate a Sliver implant (CRITICAL, approval)."""
 from shared.mcp_protocol import MCPTool
-from shared.utils import run_command
+from shared.utils import reject_unsafe_args, run_command
 from shared.scope_check import check_scope
 
 
@@ -33,6 +33,8 @@ async def sliver_implant(
     scope = check_scope("__local__", "config_audit")
     if not scope["allowed"]:
         return {"error": f"SCOPE DENIED: {scope['reason']}"}
+    if (e := reject_unsafe_args(name, os, arch, protocol)):
+        return e
     cmd = [
         "sliver-client", "--command",
         f"generate --{protocol} --os {os} --arch {arch} --name {name}",

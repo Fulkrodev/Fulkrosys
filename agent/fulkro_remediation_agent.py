@@ -26,6 +26,7 @@ from __future__ import annotations
 import argparse
 import json
 import os
+import random
 import sys
 import time
 import urllib.error
@@ -84,6 +85,13 @@ def load_state() -> dict[str, Any]:
 
 def save_state(state: dict[str, Any]) -> None:
     STATE_DIR.mkdir(parents=True, exist_ok=True)
+    try:
+        # §1.7: el directorio contiene la clave privada del agente. Restringir
+        # antes de escribir (mkdir hereda el umask → puede quedar 0o755 world-read
+        # durante la ventana de enrolamiento).
+        STATE_DIR.chmod(0o700)
+    except OSError:
+        pass
     STATE_FILE.write_text(json.dumps(state, indent=2))
     try:
         STATE_FILE.chmod(0o600)  # clave privada del agente · solo root
@@ -189,6 +197,9 @@ def cmd_run(args: argparse.Namespace) -> int:
     priv_raw = bytes.fromhex(state["agent_private_hex"])
 
     print(f"Agente en marcha · apply={args.apply} · poll cada {args.interval}s")
+    # §1.7: backoff exponencial ante errores de red (evita polling agresivo /
+    # thundering herd si el servidor está caído). Se resetea al primer éxito.
+    backoff = 0.0
     while True:
         try:
             resp = _get(f"{server}/api/v1/agent/remediation/commands", token)
@@ -203,16 +214,20 @@ def cmd_run(args: argparse.Namespace) -> int:
                     token=token,
                 )
                 print(f"  comando {cmd['command_id'][:8]} → {result['outcome']}")
+            backoff = 0.0  # éxito → reset
         except urllib.error.HTTPError as exc:
             print(f"HTTP {exc.code}: {exc.reason}", file=sys.stderr)
             if exc.code == 401:
                 print("Agente revocado o token inválido · saliendo.", file=sys.stderr)
                 return 3
+            backoff = min(backoff * 2 + 1.0, 300.0)
         except Exception as exc:  # noqa: BLE001
             print(f"error de red: {exc}", file=sys.stderr)
+            backoff = min(backoff * 2 + 1.0, 300.0)
         if args.once:
             return 0
-        time.sleep(args.interval)
+        # jitter para desincronizar agentes ante recuperación del servidor.
+        time.sleep(args.interval + backoff + random.uniform(0.0, 1.0))
 
 
 def main() -> int:
