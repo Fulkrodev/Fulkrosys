@@ -324,10 +324,15 @@ async def mark_feed_read(
     db: AsyncSession = Depends(get_db),
 ):
     await _set_project_rls(project_id, db)
+    svc = WorkspaceService()
+    ws = await svc.get_workspace(db, project_id)
     try:
-        item = await WorkspaceService().mark_read(db, item_id)
+        item = await svc.mark_read(db, item_id)
     except WorkspaceError as exc:
         raise HTTPException(status_code=404, detail=str(exc))
+    # Binding cross-project: el item debe ser del workspace de ESTE proyecto.
+    if not ws or item.workspace_id != ws.id:
+        raise HTTPException(status_code=404, detail="Feed item not found")
     await db.commit()
     return _serialize_feed_item(item)
 
@@ -398,10 +403,15 @@ async def message_thread(
     db: AsyncSession = Depends(get_db),
 ):
     await _set_project_rls(project_id, db)
+    svc = WorkspaceService()
+    ws = await svc.get_workspace(db, project_id)
     try:
-        thread = await WorkspaceService().get_thread(db, message_id)
+        thread = await svc.get_thread(db, message_id)
     except WorkspaceError as exc:
         raise HTTPException(status_code=404, detail=str(exc))
+    # Binding cross-project: el hilo debe pertenecer al workspace del proyecto.
+    if not ws or any(m.workspace_id != ws.id for m in thread):
+        raise HTTPException(status_code=404, detail="Message not found")
     return {"thread": [_serialize_message(m) for m in thread]}
 
 
@@ -436,10 +446,14 @@ async def accept_videocall(
     db: AsyncSession = Depends(get_db),
 ):
     await _set_project_rls(project_id, db)
+    svc = WorkspaceService()
+    ws = await svc.get_workspace(db, project_id)
     try:
-        session = await WorkspaceService().accept_videocall(db, session_id)
+        session = await svc.accept_videocall(db, session_id)
     except WorkspaceError as exc:
         raise HTTPException(status_code=400, detail=str(exc))
+    if not ws or session.workspace_id != ws.id:
+        raise HTTPException(status_code=404, detail="Videocall not found")
     await db.commit()
     return _serialize_videocall(session)
 
@@ -451,10 +465,14 @@ async def start_videocall(
     db: AsyncSession = Depends(get_db),
 ):
     await _set_project_rls(project_id, db)
+    svc = WorkspaceService()
+    ws = await svc.get_workspace(db, project_id)
     try:
-        session = await WorkspaceService().start_videocall(db, session_id)
+        session = await svc.start_videocall(db, session_id)
     except WorkspaceError as exc:
         raise HTTPException(status_code=400, detail=str(exc))
+    if not ws or session.workspace_id != ws.id:
+        raise HTTPException(status_code=404, detail="Videocall not found")
     await db.commit()
     return _serialize_videocall(session)
 
@@ -466,10 +484,14 @@ async def end_videocall(
     db: AsyncSession = Depends(get_db),
 ):
     await _set_project_rls(project_id, db)
+    svc = WorkspaceService()
+    ws = await svc.get_workspace(db, project_id)
     try:
-        session = await WorkspaceService().end_videocall(db, session_id)
+        session = await svc.end_videocall(db, session_id)
     except WorkspaceError as exc:
         raise HTTPException(status_code=400, detail=str(exc))
+    if not ws or session.workspace_id != ws.id:
+        raise HTTPException(status_code=404, detail="Videocall not found")
     await db.commit()
     return _serialize_videocall(session)
 
