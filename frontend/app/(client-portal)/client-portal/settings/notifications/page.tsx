@@ -18,6 +18,7 @@ import { Bell } from "lucide-react";
 import { useEffect, useState } from "react";
 
 import { NotificationPreferencesForm } from "@/components/client-portal/NotificationPreferencesForm";
+import { PageContainer } from "@/components/layout/PageContainer";
 import { PreferencesForm } from "@/components/notifications/PreferencesForm";
 import {
   Card,
@@ -60,59 +61,58 @@ export default function ClientNotificationSettingsPage() {
   }, []);
 
   return (
-    <main
-      className="mx-auto max-w-3xl space-y-6 px-6 py-8"
-      data-testid="client-notifications-unified"
-    >
-      <div className="flex items-center gap-3">
-        <Bell className="h-6 w-6 text-fulkro-primary-500" aria-hidden="true" />
-        <div>
-          <h1 className="text-2xl font-bold text-fulkro-ink-900">Tus avisos</h1>
-          <p className="text-sm text-fulkro-ink-500">
-            Cómo y cuándo te avisamos, y qué avisos quieres recibir. Sin prisa
-            por tu parte · cambia lo que necesites cuando lo necesites.
-          </p>
+    <PageContainer variant="reading">
+      <div className="space-y-6" data-testid="client-notifications-unified">
+        <div className="flex items-center gap-3">
+          <Bell className="h-6 w-6 text-fulkro-primary-500" aria-hidden="true" />
+          <div>
+            <h1 className="text-2xl font-bold text-fulkro-ink-900">Tus avisos</h1>
+            <p className="text-sm text-fulkro-ink-500">
+              Cómo y cuándo te avisamos, y qué avisos quieres recibir. Sin prisa
+              por tu parte · cambia lo que necesites cuando lo necesites.
+            </p>
+          </div>
         </div>
+
+        {/* Sección 1 · canales + horario + resumen */}
+        <Card className="bg-white" data-testid="notifications-prefs-card">
+          <CardHeader>
+            <CardTitle>Canales y horario</CardTitle>
+            <CardDescription>
+              Email y avisos en el portal · tu ventana de silencio.
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            {loadError ? (
+              <div
+                role="alert"
+                className="rounded-md bg-fulkro-danger-50 px-3 py-2 text-sm text-fulkro-danger-700"
+                data-testid="prefs-load-error"
+              >
+                {loadError}
+              </div>
+            ) : preference === null ? (
+              <div className="space-y-3" data-testid="prefs-loading">
+                <Skeleton className="h-10 w-full" />
+                <Skeleton className="h-10 w-full" />
+                <Skeleton className="h-10 w-full" />
+              </div>
+            ) : (
+              <PreferencesForm
+                preference={preference}
+                onSave={async (update) => {
+                  const updated = await updateMyNotificationPreferences(update);
+                  setPreference(updated);
+                  return updated;
+                }}
+              />
+            )}
+          </CardContent>
+        </Card>
+
+        {/* Sección 2 · qué avisos quieres + WhatsApp (self-loading) */}
+        <NotificationPreferencesForm />
       </div>
-
-      {/* Sección 1 · canales + horario + resumen */}
-      <Card className="bg-white" data-testid="notifications-prefs-card">
-        <CardHeader>
-          <CardTitle>Canales y horario</CardTitle>
-          <CardDescription>
-            Email y avisos en el portal · tu ventana de silencio.
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          {loadError ? (
-            <div
-              role="alert"
-              className="rounded-md bg-fulkro-danger-50 px-3 py-2 text-sm text-fulkro-danger-700"
-              data-testid="prefs-load-error"
-            >
-              {loadError}
-            </div>
-          ) : preference === null ? (
-            <div className="space-y-3" data-testid="prefs-loading">
-              <Skeleton className="h-10 w-full" />
-              <Skeleton className="h-10 w-full" />
-              <Skeleton className="h-10 w-full" />
-            </div>
-          ) : (
-            <PreferencesForm
-              preference={preference}
-              onSave={async (update) => {
-                const updated = await updateMyNotificationPreferences(update);
-                setPreference(updated);
-                return updated;
-              }}
-            />
-          )}
-        </CardContent>
-      </Card>
-
-      {/* Sección 2 · qué avisos quieres + WhatsApp (self-loading) */}
-      <NotificationPreferencesForm />
-    </main>
+    </PageContainer>
   );
 }

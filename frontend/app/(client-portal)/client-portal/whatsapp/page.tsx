@@ -14,6 +14,7 @@ import { useEffect, useState } from "react";
 import { WhatsAppOptInCard } from "@/components/client-portal/whatsapp/WhatsAppOptInCard";
 import { WhatsAppOTPVerifyCard } from "@/components/client-portal/whatsapp/WhatsAppOTPVerifyCard";
 import { WhatsAppThreadView } from "@/components/client-portal/whatsapp/WhatsAppThreadView";
+import { PageContainer } from "@/components/layout/PageContainer";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { TooltipENS } from "@/components/ui/tooltip-ens";
@@ -95,14 +96,17 @@ export default function ClientWhatsAppPage() {
 
   if (loading) {
     return (
-      <div className="grid place-items-center py-20 text-[color:var(--fulkro-muted)]">
-        <Loader2 className="h-6 w-6 animate-spin" />
-      </div>
+      <PageContainer variant="reading">
+        <div className="grid place-items-center py-20 text-[color:var(--fulkro-muted)]">
+          <Loader2 className="h-6 w-6 animate-spin" />
+        </div>
+      </PageContainer>
     );
   }
 
   return (
-    <main className="mx-auto flex max-w-3xl flex-col gap-6 px-4 py-6 md:px-6 md:py-10">
+    <PageContainer variant="reading">
+      <div className="flex flex-col gap-6">
       <header>
         <h1 className="text-2xl font-bold tracking-tight text-[color:var(--fulkro-title)]">
           WhatsApp · FULKRO
@@ -156,6 +160,7 @@ export default function ClientWhatsAppPage() {
           </p>
         </>
       )}
-    </main>
+      </div>
+    </PageContainer>
   );
 }

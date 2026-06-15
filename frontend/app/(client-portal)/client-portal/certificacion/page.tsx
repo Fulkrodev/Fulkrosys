@@ -8,6 +8,7 @@
  * R23 cliente-mínimo filosofía: cliente RECIBE updates · NO opera proceso.
  */
 import { AuditAccompanimentClienteView } from "@/components/client-portal/AuditAccompanimentClienteView";
+import { PageContainer } from "@/components/layout/PageContainer";
 import { useClientProjectId } from "@/hooks/useClientProjectId";
 
 export default function ClienteCertificacionPage() {
@@ -16,13 +17,15 @@ export default function ClienteCertificacionPage() {
   const { projectId } = useClientProjectId();
 
   return (
-    <div className="space-y-4 p-4 md:p-6">
-      <h1 className="text-2xl font-bold">Tu certificación ENS</h1>
-      <p className="text-sm text-muted-foreground">
-        Sigue en tiempo real cómo avanza tu cumplimiento del Esquema Nacional de
-        Seguridad. Tu consultor va marcando los hitos según los completamos.
-      </p>
-      <AuditAccompanimentClienteView projectId={projectId} />
-    </div>
+    <PageContainer variant="reading">
+      <div className="space-y-4">
+        <h1 className="text-2xl font-bold">Tu certificación ENS</h1>
+        <p className="text-sm text-muted-foreground">
+          Sigue en tiempo real cómo avanza tu cumplimiento del Esquema Nacional de
+          Seguridad. Tu consultor va marcando los hitos según los completamos.
+        </p>
+        <AuditAccompanimentClienteView projectId={projectId} />
+      </div>
+    </PageContainer>
   );
 }

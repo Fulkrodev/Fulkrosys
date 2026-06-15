@@ -19,6 +19,7 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 
 import { ImplementationPaymentsSummary } from "@/components/client-portal/ImplementationPaymentsSummary";
+import { PageContainer } from "@/components/layout/PageContainer";
 import { GanttView, type TimelineResponse } from "@/components/project/PlanGantt";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
@@ -98,34 +99,36 @@ export default function ClientePlanPage() {
 
   if (planQuery.isLoading) {
     return (
-      <div
-        className="space-y-4 p-4 sm:p-6"
-        data-testid="cliente-plan-loading"
-      >
-        <Skeleton className="h-8 w-1/2" />
-        <Skeleton className="h-48 w-full" />
-        <Skeleton className="h-24 w-full" />
-      </div>
+      <PageContainer variant="app">
+        <div
+          className="space-y-4"
+          data-testid="cliente-plan-loading"
+        >
+          <Skeleton className="h-8 w-1/2" />
+          <Skeleton className="h-48 w-full" />
+          <Skeleton className="h-24 w-full" />
+        </div>
+      </PageContainer>
     );
   }
 
   if (planQuery.isError) {
     return (
-      <div className="p-4 sm:p-6">
+      <PageContainer variant="app">
         <Alert variant="danger" data-testid="cliente-plan-error">
           <AlertTitle>No pudimos cargar tu plan</AlertTitle>
           <AlertDescription>
             Recarga la página. Si sigue pasando avisa a Marcos por chat.
           </AlertDescription>
         </Alert>
-      </div>
+      </PageContainer>
     );
   }
 
   const data = planQuery.data;
   if (!data) {
     return (
-      <div className="p-4 sm:p-6">
+      <PageContainer variant="app">
         <Card>
           <CardContent className="p-6">
             <EmptyState
@@ -135,7 +138,7 @@ export default function ClientePlanPage() {
             />
           </CardContent>
         </Card>
-      </div>
+      </PageContainer>
     );
   }
 
@@ -144,8 +147,9 @@ export default function ClientePlanPage() {
   const ganttData = adaptToGanttView(data, filterMisTareas);
 
   return (
-    <div className="space-y-6 p-4 sm:p-6" data-testid="cliente-plan-page">
-      <header className="space-y-2">
+    <PageContainer variant="app">
+      <div className="space-y-6" data-testid="cliente-plan-page">
+        <header className="space-y-2">
         <h1 className="flex items-center gap-2 text-2xl font-semibold text-fulkro-primary-700">
           <Map className="size-6" />
           Mi plan ENS
@@ -221,8 +225,9 @@ export default function ClientePlanPage() {
         </>
       )}
 
-      {/* #45 · resumen amable de hitos y pagos (se autooculta si no hay hitos) */}
-      <ImplementationPaymentsSummary />
-    </div>
+        {/* #45 · resumen amable de hitos y pagos (se autooculta si no hay hitos) */}
+        <ImplementationPaymentsSummary />
+      </div>
+    </PageContainer>
   );
 }

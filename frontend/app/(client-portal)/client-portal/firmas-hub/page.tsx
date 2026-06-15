@@ -18,6 +18,7 @@ import { AlertCircle, ChevronDown, ChevronUp, FileSignature } from "lucide-react
 import { ChainIntegrityBanner } from "@/components/client-portal/firmas-hub/ChainIntegrityBanner";
 import { ChainVisualizer } from "@/components/client-portal/firmas-hub/ChainVisualizer";
 import { SignatureCard } from "@/components/client-portal/firmas-hub/SignatureCard";
+import { PageContainer } from "@/components/layout/PageContainer";
 import { Card } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -29,7 +30,8 @@ export default function FirmasHubPage() {
   const [snapshotOpen, setSnapshotOpen] = useState(false);
 
   return (
-    <div className="space-y-6 px-4 py-6 sm:px-6 md:px-8 max-w-5xl mx-auto">
+    <PageContainer variant="reading">
+      <div className="space-y-6">
       <header className="space-y-2">
         <div className="flex items-center gap-2 text-fulkro-primary-700">
           <FileSignature className="h-5 w-5" aria-hidden />
@@ -153,6 +155,7 @@ export default function FirmasHubPage() {
           )}
         </>
       )}
-    </div>
+      </div>
+    </PageContainer>
   );
 }

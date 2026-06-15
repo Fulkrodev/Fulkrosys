@@ -18,6 +18,7 @@ import { CheckinCard } from "@/components/client-portal/retainer-checkin/Checkin
 import { CheckinDetail } from "@/components/client-portal/retainer-checkin/CheckinDetail";
 import { ClientDigestCard } from "@/components/client-portal/retainer-checkin/ClientDigestCard";
 import { AgentSuggestionBanner } from "@/components/client-portal/inline-agents/AgentSuggestionBanner";
+import { PageContainer } from "@/components/layout/PageContainer";
 import { Card } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { TooltipENS } from "@/components/ui/tooltip-ens";
@@ -30,7 +31,8 @@ export default function RetainerCheckinPage() {
   const selected = checkins.find((c) => c.id === selectedId) ?? checkins[0] ?? null;
 
   return (
-    <div className="space-y-6 px-4 py-6 sm:px-6 md:px-8 max-w-6xl mx-auto pb-32">
+    <PageContainer variant="app">
+      <div className="space-y-6 pb-32">
       <header className="space-y-2">
         <div className="flex items-center gap-2 text-fulkro-primary-700">
           <CalendarCheck className="h-5 w-5" aria-hidden />
@@ -132,6 +134,7 @@ export default function RetainerCheckinPage() {
           </div>
         </>
       )}
-    </div>
+      </div>
+    </PageContainer>
   );
 }

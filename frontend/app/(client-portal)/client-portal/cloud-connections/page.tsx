@@ -33,6 +33,7 @@ import {
 import { toast } from "sonner";
 
 import { CloudConnectFirstStep } from "@/components/client-portal/CloudConnectFirstStep";
+import { PageContainer } from "@/components/layout/PageContainer";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -297,10 +298,11 @@ export default function CloudConnectionsPage() {
   );
 
   return (
-    <div
-      className="space-y-8 p-4 sm:p-6"
-      data-testid="cloud-connections-page"
-    >
+    <PageContainer variant="app">
+      <div
+        className="space-y-8"
+        data-testid="cloud-connections-page"
+      >
       {/* Hero steady-state */}
       <header className="space-y-2">
         <h1 className="flex items-center gap-2 text-2xl font-semibold text-fulkro-primary-700">
@@ -511,6 +513,7 @@ export default function CloudConnectionsPage() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
-    </div>
+      </div>
+    </PageContainer>
   );
 }

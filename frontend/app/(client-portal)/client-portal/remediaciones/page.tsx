@@ -18,6 +18,7 @@ import { ShieldCheck } from "lucide-react";
 import { ApprovalModal } from "@/components/client-portal/remediations/ApprovalModal";
 import { RemediationCard } from "@/components/client-portal/remediations/RemediationCard";
 import { RemediationClienteView } from "@/components/remediation/RemediationClienteView";
+import { PageContainer } from "@/components/layout/PageContainer";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { EmptyState } from "@/components/ui/empty-state";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -70,7 +71,8 @@ export default function RemediacionesPage() {
   };
 
   return (
-    <div className="mx-auto py-6 space-y-6 max-w-3xl">
+    <PageContainer variant="reading">
+      <div className="space-y-6">
       <header className="space-y-2">
         <h1 className="text-2xl font-semibold flex items-center gap-2">
           <ShieldCheck className="h-6 w-6 text-amber-600" />
@@ -168,6 +170,7 @@ export default function RemediacionesPage() {
       <div className="mt-8 border-t border-slate-200 pt-6">
         <RemediationClienteView />
       </div>
-    </div>
+      </div>
+    </PageContainer>
   );
 }

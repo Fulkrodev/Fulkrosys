@@ -13,6 +13,7 @@ import { useState } from "react";
 
 
 import { NotificationsInboxPanel } from "@/components/client-portal/NotificationsInboxPanel";
+import { PageContainer } from "@/components/layout/PageContainer";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -42,8 +43,8 @@ export default function ClientPortalInboxPage() {
 
   return (
     <>
-
-      <div className="mx-auto w-full max-w-6xl space-y-6 px-6 py-8">
+      <PageContainer variant="reading">
+        <div className="space-y-6">
         <div className="flex flex-wrap items-center justify-between gap-4">
           <h1>Bandeja de entrada</h1>
           <Button
@@ -68,7 +69,8 @@ export default function ClientPortalInboxPage() {
             onSelectThread={(tid) => setActiveThreadId(tid)}
           />
         </div>
-      </div>
+        </div>
+      </PageContainer>
 
       <Sheet
         open={activeThreadId !== null}

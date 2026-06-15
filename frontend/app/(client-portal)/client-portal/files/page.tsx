@@ -36,6 +36,7 @@ import { FilePreviewModal } from "@/components/client-portal/files/FilePreviewMo
 import { FileVersionDialog } from "@/components/client-portal/files/FileVersionDialog";
 import { SearchBar } from "@/components/client-portal/files/SearchBar";
 import { AgentSuggestionBanner } from "@/components/client-portal/inline-agents/AgentSuggestionBanner";
+import { PageContainer } from "@/components/layout/PageContainer";
 import {
   Alert,
   AlertDescription,
@@ -167,8 +168,9 @@ export default function FilesPage() {
   const items = tab === "documents" ? documents : evidence;
 
   return (
-    <div className="space-y-6 px-4 py-6 sm:px-6 md:px-8 max-w-6xl mx-auto pb-32">
-      <header className="space-y-2">
+    <PageContainer variant="app">
+      <div className="space-y-6 pb-32">
+        <header className="space-y-2">
         <div className="flex items-center justify-between gap-3">
           <div className="space-y-1">
             <div className="flex items-center gap-2 text-fulkro-primary-700">
@@ -256,7 +258,7 @@ export default function FilesPage() {
         )}
 
         {/* Main content */}
-        <main className="min-w-0 space-y-4">
+        <div className="min-w-0 space-y-4">
           <div
             data-testid="files-tabs"
             className="flex gap-2 border-b border-fulkro-ink-200"
@@ -380,7 +382,7 @@ export default function FilesPage() {
                   ))}
             </div>
           )}
-        </main>
+        </div>
       </div>
 
       <FilePreviewModal
@@ -404,16 +406,17 @@ export default function FilesPage() {
         documentId={versionsDocId}
       />
 
-      <ClientUploadModal
-        open={uploadOpen}
-        onOpenChange={setUploadOpen}
-        folders={folders}
-        defaultFolderId={folderId}
-        onUploaded={() => {
-          void refetch();
-        }}
-      />
-    </div>
+        <ClientUploadModal
+          open={uploadOpen}
+          onOpenChange={setUploadOpen}
+          folders={folders}
+          defaultFolderId={folderId}
+          onUploaded={() => {
+            void refetch();
+          }}
+        />
+      </div>
+    </PageContainer>
   );
 }
 

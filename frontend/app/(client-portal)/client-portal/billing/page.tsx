@@ -12,6 +12,7 @@ import { Receipt, RefreshCw } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
 
 import { BillingHistory } from "@/components/client-portal/BillingHistory";
+import { PageContainer } from "@/components/layout/PageContainer";
 import { listMyInvoices } from "@/lib/billing/api";
 import type { ClientInvoiceRow } from "@/lib/billing/schemas";
 
@@ -50,7 +51,8 @@ export default function ClientBillingPage() {
   }, [loadInvoices, retryCount]);
 
   return (
-    <div className="mx-auto max-w-4xl py-8 space-y-6">
+    <PageContainer variant="reading">
+      <div className="space-y-6">
       <div className="flex items-center gap-3">
         <Receipt className="h-6 w-6 text-fulkro-primary-500" />
         <div>
@@ -88,6 +90,7 @@ export default function ClientBillingPage() {
       ) : null}
 
       <BillingHistory invoices={invoices} loading={loading} />
-    </div>
+      </div>
+    </PageContainer>
   );
 }

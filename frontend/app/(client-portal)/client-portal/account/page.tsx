@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 
 
+import { PageContainer } from "@/components/layout/PageContainer";
 import {
   Card,
   CardContent,
@@ -68,9 +69,8 @@ export default function AccountPage() {
     "btn-action rounded-md px-5 py-2.5 text-base font-bold";
 
   return (
-    <>
-
-      <main className="mx-auto max-w-3xl space-y-6 px-6 py-8">
+    <PageContainer variant="reading">
+      <div className="space-y-6">
         <h1>Mi cuenta</h1>
 
         <Card>
@@ -163,7 +163,7 @@ export default function AccountPage() {
           </CardContent>
         </Card>
 
-      </main>
-    </>
+      </div>
+    </PageContainer>
   );
 }

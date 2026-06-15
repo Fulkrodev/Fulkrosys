@@ -13,6 +13,7 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 
+import { PageContainer } from "@/components/layout/PageContainer";
 import {
   getRetainerOffer,
   submitRetainerDecision,
@@ -53,18 +54,18 @@ export default function RetainerOfferPage() {
 
   if (isLoading) {
     return (
-      <main className="mx-auto max-w-4xl px-6 py-16 text-center text-fulkro-muted">
-        Cargando tu oferta de mantenimiento…
-      </main>
+      <PageContainer variant="reading">
+        <div className="text-center text-fulkro-muted">
+          Cargando tu oferta de mantenimiento…
+        </div>
+      </PageContainer>
     );
   }
 
   if (isError || !data) {
     return (
-      <main
-        className="mx-auto max-w-2xl px-6 py-16 text-center space-y-3"
-        data-testid="retainer-offer-empty"
-      >
+      <PageContainer variant="narrow">
+        <div className="text-center space-y-3" data-testid="retainer-offer-empty">
         <p className="text-3xl">🔒</p>
         <h1 className="text-xl font-bold">Aún no hay oferta de mantenimiento</h1>
         <p className="text-fulkro-muted">
@@ -77,7 +78,8 @@ export default function RetainerOfferPage() {
         >
           Volver al panel
         </a>
-      </main>
+        </div>
+      </PageContainer>
     );
   }
 
@@ -85,10 +87,8 @@ export default function RetainerOfferPage() {
 
   if (activated) {
     return (
-      <main
-        className="mx-auto max-w-2xl px-6 py-16 text-center space-y-3"
-        data-testid="retainer-offer-accepted"
-      >
+      <PageContainer variant="narrow">
+        <div className="text-center space-y-3" data-testid="retainer-offer-accepted">
         <p className="text-4xl">🎉</p>
         <h1 className="text-2xl font-bold">¡Mantenimiento activado!</h1>
         <p className="text-fulkro-muted">
@@ -101,15 +101,14 @@ export default function RetainerOfferPage() {
         >
           Ver el seguimiento del retainer
         </a>
-      </main>
+        </div>
+      </PageContainer>
     );
   }
 
   return (
-    <main
-      className="mx-auto max-w-5xl px-6 py-10 space-y-8"
-      data-testid="retainer-offer-page"
-    >
+    <PageContainer variant="reading">
+      <div className="space-y-8" data-testid="retainer-offer-page">
       <header className="space-y-2 text-center">
         <p className="text-3xl">🛡️</p>
         <h1 className="text-2xl font-bold">
@@ -207,6 +206,7 @@ export default function RetainerOfferPage() {
           segundos.
         </p>
       )}
-    </main>
+      </div>
+    </PageContainer>
   );
 }

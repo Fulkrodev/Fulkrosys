@@ -24,6 +24,7 @@ import { toast } from "sonner";
 
 import { MageritSignValidationButton } from "@/components/client-portal/magerit/MageritSignValidationButton";
 import { MageritSummaryCard } from "@/components/client-portal/magerit/MageritSummaryCard";
+import { PageContainer } from "@/components/layout/PageContainer";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -75,28 +76,28 @@ export default function ClientMageritPage() {
 
   if (loading) {
     return (
-      <main className="mx-auto max-w-3xl px-4 py-8 sm:px-6">
+      <PageContainer variant="app">
         <p className="text-sm text-[color:var(--fulkro-muted)]">
           Cargando inventario…
         </p>
-      </main>
+      </PageContainer>
     );
   }
 
   if (error) {
     return (
-      <main className="mx-auto max-w-3xl px-4 py-8 sm:px-6">
+      <PageContainer variant="app">
         <Alert variant="danger">
           <AlertTitle>No se pudo cargar el inventario</AlertTitle>
           <AlertDescription>{error}</AlertDescription>
         </Alert>
-      </main>
+      </PageContainer>
     );
   }
 
   if (!summary) {
     return (
-      <main className="mx-auto max-w-3xl px-4 py-8 sm:px-6 space-y-4">
+      <PageContainer variant="app">
         <Alert>
           <Info className="size-4" />
           <AlertTitle>Marcos está preparando el análisis</AlertTitle>
@@ -106,7 +107,7 @@ export default function ClientMageritPage() {
             necesario.
           </AlertDescription>
         </Alert>
-      </main>
+      </PageContainer>
     );
   }
 
@@ -146,7 +147,8 @@ export default function ClientMageritPage() {
   };
 
   return (
-    <main className="mx-auto max-w-3xl px-4 py-8 sm:px-6 space-y-6">
+    <PageContainer variant="app">
+      <div className="space-y-6">
       <header className="space-y-2">
         <h1 className="text-2xl font-semibold tracking-tight text-[color:var(--fulkro-title)]">
           Activos del análisis de riesgos
@@ -288,6 +290,7 @@ export default function ClientMageritPage() {
             </CardContent>
           </Card>
         )}
-    </main>
+      </div>
+    </PageContainer>
   );
 }

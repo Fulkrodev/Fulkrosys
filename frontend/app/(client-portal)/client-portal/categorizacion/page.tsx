@@ -24,6 +24,7 @@ import {
 import { useEffect } from "react";
 import { toast } from "sonner";
 
+import { PageContainer } from "@/components/layout/PageContainer";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
 import {
@@ -67,18 +68,21 @@ export default function ClientCategorizacionPage() {
 
   if (query.isLoading) {
     return (
-      <main className="mx-auto max-w-4xl px-4 py-8 sm:px-6" data-testid="cat-loading">
-        <div className="flex items-center gap-2 text-sm text-fulkro-ink-500">
+      <PageContainer variant="reading">
+        <div
+          className="flex items-center gap-2 text-sm text-fulkro-ink-500"
+          data-testid="cat-loading"
+        >
           <Loader2 size={14} className="animate-spin" aria-hidden="true" />
           Cargando categorización…
         </div>
-      </main>
+      </PageContainer>
     );
   }
 
   if (query.isError || !query.data) {
     return (
-      <main className="mx-auto max-w-4xl px-4 py-8 sm:px-6">
+      <PageContainer variant="reading">
         <Alert variant="danger" data-testid="cat-error">
           <AlertCircle size={14} aria-hidden="true" />
           <AlertTitle>No se pudo cargar la categorización</AlertTitle>
@@ -86,7 +90,7 @@ export default function ClientCategorizacionPage() {
             Reintenta más tarde o contacta con el consultor responsable.
           </AlertDescription>
         </Alert>
-      </main>
+      </PageContainer>
     );
   }
 
@@ -94,10 +98,8 @@ export default function ClientCategorizacionPage() {
   const allCategorized = data.categorized_systems === data.total_systems && data.total_systems > 0;
 
   return (
-    <main
-      className="mx-auto max-w-4xl space-y-4 px-4 py-8 sm:px-6"
-      data-testid="cat-view"
-    >
+    <PageContainer variant="reading">
+      <div className="space-y-4" data-testid="cat-view">
       <header>
         <h1 className="text-2xl font-bold text-fulkro-ink-900">
           Categorización ENS
@@ -219,6 +221,7 @@ export default function ClientCategorizacionPage() {
           chat sin presiones.
         </AlertDescription>
       </Alert>
-    </main>
+      </div>
+    </PageContainer>
   );
 }

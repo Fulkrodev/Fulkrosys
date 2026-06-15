@@ -14,6 +14,7 @@ import { useState } from "react";
 
 import { ActaCard } from "@/components/client-portal/actas/ActaCard";
 import { ActaDetail } from "@/components/client-portal/actas/ActaDetail";
+import { PageContainer } from "@/components/layout/PageContainer";
 import { Card } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
@@ -46,7 +47,8 @@ export default function ActasPage() {
   const selected = actas.find((a) => a.id === selectedId) ?? actas[0] ?? null;
 
   return (
-    <div className="space-y-6 px-4 py-6 sm:px-6 md:px-8 max-w-6xl mx-auto pb-32">
+    <PageContainer variant="app">
+      <div className="space-y-6 pb-32">
       <header className="space-y-2">
         <div className="flex items-center gap-2 text-fulkro-primary-700">
           <FileText className="h-5 w-5" aria-hidden />
@@ -157,6 +159,7 @@ export default function ActasPage() {
           )}
         </div>
       )}
-    </div>
+      </div>
+    </PageContainer>
   );
 }

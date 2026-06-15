@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { Bell, ShieldCheck, Smartphone, User } from "lucide-react";
 
+import { PageContainer } from "@/components/layout/PageContainer";
 import {
   Card,
   CardContent,
@@ -43,10 +44,8 @@ const SETTINGS_LINKS = [
 
 export default function ClientSettingsHubPage() {
   return (
-    <main
-      className="mx-auto max-w-3xl px-6 py-8"
-      data-testid="client-settings-hub"
-    >
+    <PageContainer variant="reading">
+      <div data-testid="client-settings-hub">
       <h1 className="mb-2 text-2xl font-bold">Ajustes</h1>
       <p className="mb-6 text-sm text-muted-foreground">
         Todo lo que puedes configurar de tu portal, en un solo sitio. Sin prisa
@@ -85,6 +84,7 @@ export default function ClientSettingsHubPage() {
           );
         })}
       </div>
-    </main>
+      </div>
+    </PageContainer>
   );
 }

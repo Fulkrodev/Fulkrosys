@@ -30,6 +30,7 @@ import { useRouter } from "next/navigation";
 import { ClientNextActionCard } from "@/components/client-portal/workflow/ClientNextActionCard";
 import { ClientUnblockedBanner } from "@/components/client-portal/workflow/ClientUnblockedBanner";
 import { MarcosPreparaSection } from "@/components/client-portal/workflow/MarcosPreparaSection";
+import { PageContainer } from "@/components/layout/PageContainer";
 import { EmptyState } from "@/components/ui/empty-state";
 import { TooltipENS } from "@/components/ui/tooltip-ens";
 import { WorkflowFAQContextual } from "@/components/workflow-guide-client/WorkflowFAQContextual";
@@ -89,7 +90,8 @@ export default function ClientWorkflowPage() {
   const guideQuery = useClientWorkflowGuide(projectId);
 
   return (
-    <main className="mx-auto flex w-full max-w-3xl flex-col gap-6 px-6 py-8">
+    <PageContainer variant="app">
+      <div className="flex flex-col gap-6">
       <header className="flex flex-col gap-2">
         <p className="text-[13px] font-bold uppercase tracking-wider text-[color:var(--fulkro-subtitle)]">
           Mi proyecto
@@ -247,6 +249,7 @@ export default function ClientWorkflowPage() {
           />
         </>
       ) : null}
-    </main>
+      </div>
+    </PageContainer>
   );
 }

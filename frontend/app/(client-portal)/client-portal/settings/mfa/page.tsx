@@ -14,6 +14,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { CheckCircle2, Loader2, ShieldCheck, Mail } from "lucide-react";
 import { useState } from "react";
 
+import { PageContainer } from "@/components/layout/PageContainer";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -79,7 +80,7 @@ export default function ClientMfaSettingsPage() {
   const email = statusQuery.data?.email ?? "tu email";
 
   return (
-    <main className="mx-auto max-w-3xl px-6 py-8">
+    <PageContainer variant="reading">
       <h1 className="mb-2 text-2xl font-bold">Verificación en 2 pasos</h1>
       <p className="mb-6 text-sm text-muted-foreground">
         Una capa extra de seguridad para entrar al portal: al iniciar sesión te
@@ -230,6 +231,6 @@ export default function ClientMfaSettingsPage() {
           )}
         </CardContent>
       </Card>
-    </main>
+    </PageContainer>
   );
 }

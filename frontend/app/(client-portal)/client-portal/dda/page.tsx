@@ -25,6 +25,7 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
+import { PageContainer } from "@/components/layout/PageContainer";
 import { Textarea } from "@/components/ui/textarea";
 import { TooltipENS } from "@/components/ui/tooltip-ens";
 import { useDdaClient } from "@/hooks/useDdaClient";
@@ -44,38 +45,40 @@ export default function ClientDdaPage() {
 
   if (loading) {
     return (
-      <main className="mx-auto max-w-3xl px-4 py-8 sm:px-6">
+      <PageContainer variant="reading">
         <p className="text-sm text-[color:var(--fulkro-muted)]">
           Cargando <TooltipENS term="DdA" />…
         </p>
-      </main>
+      </PageContainer>
     );
   }
 
   if (error) {
     return (
-      <main className="mx-auto max-w-3xl px-4 py-8 sm:px-6">
+      <PageContainer variant="reading">
         <Alert variant="danger">
           <AlertTitle>No se pudo cargar la DdA</AlertTitle>
           <AlertDescription>{error}</AlertDescription>
         </Alert>
-      </main>
+      </PageContainer>
     );
   }
 
   if (!summary) {
     return (
-      <main className="mx-auto max-w-3xl px-4 py-8 sm:px-6 space-y-4">
-        <Alert>
-          <Info className="size-4" />
-          <AlertTitle>Marcos está preparando la DdA</AlertTitle>
-          <AlertDescription>
-            La <TooltipENS term="DdA" /> es el documento donde tu consultor
-            decide qué medidas del Esquema Nacional de Seguridad aplican a tu
-            sistema. Te avisaremos cuando esté lista para revisar y firmar.
-          </AlertDescription>
-        </Alert>
-      </main>
+      <PageContainer variant="reading">
+        <div className="space-y-4">
+          <Alert>
+            <Info className="size-4" />
+            <AlertTitle>Marcos está preparando la DdA</AlertTitle>
+            <AlertDescription>
+              La <TooltipENS term="DdA" /> es el documento donde tu consultor
+              decide qué medidas del Esquema Nacional de Seguridad aplican a tu
+              sistema. Te avisaremos cuando esté lista para revisar y firmar.
+            </AlertDescription>
+          </Alert>
+        </div>
+      </PageContainer>
     );
   }
 
@@ -112,7 +115,8 @@ export default function ClientDdaPage() {
   };
 
   return (
-    <main className="mx-auto max-w-3xl px-4 py-8 sm:px-6 space-y-6">
+    <PageContainer variant="reading">
+      <div className="space-y-6">
       <header className="space-y-2">
         <h1 className="flex items-center gap-2 text-2xl font-semibold tracking-tight text-[color:var(--fulkro-title)]">
           <FileSignature className="size-6 text-primary" />
@@ -226,6 +230,7 @@ export default function ClientDdaPage() {
           </CardContent>
         </Card>
       )}
-    </main>
+      </div>
+    </PageContainer>
   );
 }

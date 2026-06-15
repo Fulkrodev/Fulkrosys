@@ -9,6 +9,7 @@
  * realtime via SSE (continuidad.*).
  */
 import { ContinuidadClienteView } from "@/components/client-portal/ContinuidadClienteView";
+import { PageContainer } from "@/components/layout/PageContainer";
 import { useClientProjectId } from "@/hooks/useClientProjectId";
 
 export default function ClienteContinuidadPage() {
@@ -17,7 +18,8 @@ export default function ClienteContinuidadPage() {
   const { projectId } = useClientProjectId();
 
   return (
-    <div className="space-y-4 p-4 md:p-6">
+    <PageContainer variant="reading">
+      <div className="space-y-4">
       <h1 className="text-2xl font-bold">Continuidad de tu negocio</h1>
       <p className="text-sm text-muted-foreground">
         Nos ayudas a entender qué es lo más importante de tu actividad para
@@ -25,6 +27,7 @@ export default function ClienteContinuidadPage() {
         tienes que revisarlo y aprobarlo.
       </p>
       <ContinuidadClienteView projectId={projectId} />
-    </div>
+      </div>
+    </PageContainer>
   );
 }

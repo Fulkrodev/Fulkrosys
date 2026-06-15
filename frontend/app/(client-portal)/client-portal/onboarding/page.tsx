@@ -3,6 +3,7 @@
 import * as React from "react";
 import { Loader2 } from "lucide-react";
 
+import { PageContainer } from "@/components/layout/PageContainer";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ClientApiError, clientApi } from "@/lib/client-portal-api";
@@ -56,16 +57,18 @@ export default function ClientOnboardingPage() {
 
   if (status === "loading") {
     return (
-      <div className="flex items-center gap-2 p-6 text-sm text-fulkro-ink-500">
-        <Loader2 className="size-4 animate-spin" />
-        Cargando proyecto…
-      </div>
+      <PageContainer variant="reading">
+        <div className="flex items-center gap-2 text-sm text-fulkro-ink-500">
+          <Loader2 className="size-4 animate-spin" />
+          Cargando proyecto…
+        </div>
+      </PageContainer>
     );
   }
 
   if (status === "error") {
     return (
-      <div className="p-6">
+      <PageContainer variant="reading">
         <Card>
           <CardHeader>
             <CardTitle>No se pudo cargar el proyecto</CardTitle>
@@ -74,13 +77,13 @@ export default function ClientOnboardingPage() {
             </CardDescription>
           </CardHeader>
         </Card>
-      </div>
+      </PageContainer>
     );
   }
 
   if (status === "no-project" || !projectId) {
     return (
-      <div className="p-6">
+      <PageContainer variant="reading">
         <Card>
           <CardHeader>
             <CardTitle>Sin proyecto activo</CardTitle>
@@ -89,12 +92,13 @@ export default function ClientOnboardingPage() {
             </CardDescription>
           </CardHeader>
         </Card>
-      </div>
+      </PageContainer>
     );
   }
 
   return (
-    <div className="space-y-6 p-4 sm:p-6">
+    <PageContainer variant="reading">
+      <div className="space-y-6">
       <header className="space-y-2">
         <h1 className="text-xl font-semibold text-fulkro-primary-700">Onboarding</h1>
         <p className="text-sm text-fulkro-ink-500">
@@ -130,6 +134,7 @@ export default function ClientOnboardingPage() {
           <LMSClientView projectId={projectId} />
         </TabsContent>
       </Tabs>
-    </div>
+      </div>
+    </PageContainer>
   );
 }

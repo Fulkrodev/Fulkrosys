@@ -18,6 +18,7 @@ import { useCallback, useEffect, useState } from "react";
 import { toast } from "sonner";
 import { CheckCircle2, FileSignature, Inbox } from "lucide-react";
 
+import { PageContainer } from "@/components/layout/PageContainer";
 import { SignatureCanvas } from "@/components/signatures/SignatureCanvas";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -126,10 +127,8 @@ export default function FirmasPendientesPage() {
   const activeCard = pending.find((c) => c.intent_id === activeIntentId);
 
   return (
-    <div
-      className="space-y-6 px-4 py-6 sm:px-6 md:px-8 max-w-4xl mx-auto"
-      data-testid="firmas-pendientes-page"
-    >
+    <PageContainer variant="reading">
+      <div className="space-y-6" data-testid="firmas-pendientes-page">
       <header className="space-y-2">
         <div className="flex items-center gap-2 text-fulkro-primary-700">
           <FileSignature className="h-5 w-5" aria-hidden />
@@ -242,6 +241,7 @@ export default function FirmasPendientesPage() {
           {pending.length === 1 ? "" : "s"} de firma.
         </p>
       )}
-    </div>
+      </div>
+    </PageContainer>
   );
 }

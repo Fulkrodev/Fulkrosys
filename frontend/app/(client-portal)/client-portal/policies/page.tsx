@@ -17,6 +17,7 @@ import { PolicyBulkSignButton } from "@/components/client-portal/policies/Policy
 import { PolicyFamilyAccordion } from "@/components/client-portal/policies/PolicyFamilyAccordion";
 import { PolicyHeader } from "@/components/client-portal/policies/PolicyHeader";
 import { AgentSuggestionBanner } from "@/components/client-portal/inline-agents/AgentSuggestionBanner";
+import { PageContainer } from "@/components/layout/PageContainer";
 import {
   Alert,
   AlertDescription,
@@ -32,7 +33,8 @@ export default function PoliciesPage() {
     usePoliciesClient();
 
   return (
-    <div className="space-y-6 px-4 py-6 sm:px-6 md:px-8 max-w-5xl mx-auto pb-32">
+    <PageContainer variant="reading">
+      <div className="space-y-6 pb-32">
       <header className="space-y-2">
         <div className="flex items-center gap-2 text-fulkro-primary-700">
           <ShieldCheck className="h-5 w-5" aria-hidden />
@@ -126,6 +128,7 @@ export default function PoliciesPage() {
           />
         </>
       )}
-    </div>
+      </div>
+    </PageContainer>
   );
 }

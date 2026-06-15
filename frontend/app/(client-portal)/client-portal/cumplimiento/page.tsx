@@ -16,6 +16,7 @@
 import { ShieldCheck } from "lucide-react";
 
 import { ComplianceSummaryCard } from "@/components/client-portal/compliance/ComplianceSummaryCard";
+import { PageContainer } from "@/components/layout/PageContainer";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
 import { EmptyState } from "@/components/ui/empty-state";
@@ -40,8 +41,9 @@ export default function CumplimientoPage() {
   const areas = data?.areas ?? [];
 
   return (
-    <div className="mx-auto py-6 space-y-6 max-w-3xl">
-      <header className="space-y-2">
+    <PageContainer variant="reading">
+      <div className="space-y-6">
+        <header className="space-y-2">
         <h1 className="text-2xl font-semibold flex items-center gap-2">
           <ShieldCheck className="h-6 w-6 text-emerald-700" />
           Resumen de cumplimiento
@@ -102,6 +104,7 @@ export default function CumplimientoPage() {
           </div>
         </>
       )}
-    </div>
+      </div>
+    </PageContainer>
   );
 }

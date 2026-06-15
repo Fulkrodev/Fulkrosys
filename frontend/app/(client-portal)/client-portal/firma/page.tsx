@@ -26,6 +26,7 @@ import {
 } from "lucide-react";
 
 import { PublicKeyVerifier } from "@/components/auth/PublicKeyVerifier";
+import { PageContainer } from "@/components/layout/PageContainer";
 import { Card } from "@/components/ui/card";
 import { InfoTag } from "@/components/ui/info-tag";
 
@@ -37,7 +38,7 @@ export const metadata: Metadata = {
 
 export default function ClientFirmaPage() {
   return (
-    <div className="mx-auto w-full max-w-4xl px-6 py-8">
+    <PageContainer variant="reading">
       <header className="mb-8">
         <h1 className="text-3xl font-semibold tracking-tight text-[color:var(--fulkro-title)]">
           Cómo funciona la firma electrónica de FULKRO
@@ -230,6 +231,6 @@ export default function ClientFirmaPage() {
           Volver al inicio
         </Link>
       </div>
-    </div>
+    </PageContainer>
   );
 }

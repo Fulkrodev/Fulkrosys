@@ -25,6 +25,7 @@ import { PostSignSection } from "@/components/client-portal/conformidad/PostSign
 import { ReadinessSection } from "@/components/client-portal/conformidad/ReadinessSection";
 import { TierAwareNextStepSection } from "@/components/client-portal/conformidad/TierAwareNextStepSection";
 import { AgentSuggestionBanner } from "@/components/client-portal/inline-agents/AgentSuggestionBanner";
+import { PageContainer } from "@/components/layout/PageContainer";
 import { TooltipENS } from "@/components/ui/tooltip-ens";
 import { useConformidadClient } from "@/hooks/useConformidadClient";
 
@@ -43,27 +44,27 @@ export default function ClientConformidadPage() {
 
   if (loading) {
     return (
-      <main className="mx-auto max-w-4xl px-4 py-8 sm:px-6">
+      <PageContainer variant="reading">
         <p className="text-sm text-[color:var(--fulkro-muted)]">
           Cargando conformidad ENS…
         </p>
-      </main>
+      </PageContainer>
     );
   }
 
   if (error) {
     return (
-      <main className="mx-auto max-w-4xl px-4 py-8 sm:px-6">
+      <PageContainer variant="reading">
         <div className="rounded-md border border-fulkro-danger/30 bg-fulkro-danger/10 px-4 py-3 text-sm font-medium text-fulkro-danger">
           {error}
         </div>
-      </main>
+      </PageContainer>
     );
   }
 
   if (notFound || !declaration) {
     return (
-      <main className="mx-auto max-w-4xl px-4 py-8 sm:px-6">
+      <PageContainer variant="reading">
         <header className="mb-6">
           <h1
             aria-label="Conformidad ENS"
@@ -85,7 +86,7 @@ export default function ClientConformidadPage() {
           <TooltipENS term="MAGERIT" /> · pentest) y Marcos preparará tu
           declaración para que la firmes.
         </p>
-      </main>
+      </PageContainer>
     );
   }
 
@@ -94,7 +95,7 @@ export default function ClientConformidadPage() {
   const readyForSign = readiness?.ready_for_conformity_sign ?? false;
 
   return (
-    <main className="mx-auto max-w-4xl px-4 py-8 sm:px-6">
+    <PageContainer variant="reading">
       <header className="mb-6">
         <h1
           aria-label="Conformidad ENS"
@@ -149,6 +150,6 @@ export default function ClientConformidadPage() {
           </>
         )}
       </div>
-    </main>
+    </PageContainer>
   );
 }
