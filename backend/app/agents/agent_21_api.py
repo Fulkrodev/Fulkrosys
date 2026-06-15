@@ -17,9 +17,13 @@ from pydantic import BaseModel, ConfigDict, Field
 from sqlalchemy import text as sa_text
 from sqlalchemy.ext.asyncio import AsyncSession
 
+import logging
+
 from backend.app.agents.agent_21_service import DiscrepancyDetectorService
 from backend.app.auth.dependencies import require_owner
 from backend.app.database import get_db
+
+logger = logging.getLogger(__name__)
 
 
 # Endpoints admin (Marcos-only) · mirror agents/api.py (bug-hunt 2026-06-14):
@@ -101,8 +105,9 @@ async def trigger_scan(
     svc = DiscrepancyDetectorService()
     try:
         run = await svc.scan_project(db, project_id)
-    except Exception as exc:
-        raise HTTPException(500, f"Scan failed: {exc}")
+    except Exception:
+        logger.exception("A21 scan_project falló · project=%s", project_id)
+        raise HTTPException(500, "Error interno ejecutando el scan A21")
     await db.commit()
     return ScanRunOut.model_validate(_serialize_run(run))
 

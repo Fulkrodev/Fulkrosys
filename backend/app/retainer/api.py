@@ -185,6 +185,9 @@ async def transition_retainer(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail=str(exc),
         ) from exc
+    # §2.6: el state machine sólo hace flush (service-layer) · el endpoint debe
+    # commitear (get_db NO autocommit) · sin esto la transición se perdía.
+    await db.commit()
     return TransitionResponse(
         retainer_id=outcome.retainer_id,
         previous_state=outcome.previous_state,
@@ -204,6 +207,9 @@ async def trigger_scan_churn(
     """Trigger manual scan churn (debug Celery beat)."""
     await _set_admin_rls_context(db)
     stats = await scan_churn_risk_with_session(db)
+    # §2.6: scan_churn_risk_with_session documenta que el caller commitea · sin
+    # esto las alertas churn creadas se perdían.
+    await db.commit()
     return ScanChurnResponse(
         total_scanned=stats["total_scanned"],
         critical_count=stats["critical_count"],

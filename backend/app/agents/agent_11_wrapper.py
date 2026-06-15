@@ -10,6 +10,7 @@ Query opcional: ?run_id=<m10_run_uuid> (else picks latest completed)
 """
 from __future__ import annotations
 
+import logging
 import uuid
 from datetime import date
 from typing import Any
@@ -19,6 +20,7 @@ from pydantic import BaseModel
 from sqlalchemy import select, text as sa_text
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from backend.app.auth.dependencies import require_owner
 from backend.app.database import get_db
 from backend.app.models.audit_sim import (
     AuditSimulationFinding,
@@ -27,7 +29,13 @@ from backend.app.models.audit_sim import (
 from backend.app.models.core import Client, Project
 
 
-router = APIRouter(tags=["Agent 11 - Auditor Virtual (project-scoped wrapper)"])
+# A11 = auditor virtual admin → Marcos-only (antes el router no tenía gate).
+router = APIRouter(
+    tags=["Agent 11 - Auditor Virtual (project-scoped wrapper)"],
+    dependencies=[Depends(require_owner)],
+)
+
+logger = logging.getLogger(__name__)
 
 
 async def _set_project_rls(
@@ -182,8 +190,11 @@ async def run_supplementary_audit_for_project(
             client_context=client_context,
             project_id=project_id,
         )
-    except Exception as exc:
-        raise HTTPException(500, f"A11 falló: {exc}")
+    except Exception:
+        logger.exception(
+            "A11 generate_supplementary_audit falló · project=%s", project_id,
+        )
+        raise HTTPException(500, "Error interno ejecutando el auditor A11")
     await db.commit()
 
     return A11WrapperResponse(

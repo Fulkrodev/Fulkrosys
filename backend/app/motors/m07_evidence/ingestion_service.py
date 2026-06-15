@@ -93,13 +93,15 @@ async def ingest_evidence(
     # 4. Calculate SHA-256
     file_hash = hashlib.sha256(request.file_bytes).hexdigest()
 
-    # 5. Persist file to disk
+    # 5. Preparar ruta del fichero (la escritura a disco va DESPUÉS del flush DB
+    #    para evitar ficheros huérfanos si el INSERT falla · §2.6). Nada entre
+    #    aquí y el flush lee el fichero de disco (firma/extracción usan los bytes
+    #    en memoria request.file_bytes).
     evidence_id = uuid.uuid4()
     ext = _extension_from_name(request.file_name)
     project_dir = _EVIDENCES_DIR / str(request.project_id)
     project_dir.mkdir(parents=True, exist_ok=True)
     file_path = project_dir / f"{evidence_id}{ext}"
-    file_path.write_bytes(request.file_bytes)
 
     # 6. Build signing payload and sign
     timestamp = datetime.now(timezone.utc).isoformat()
@@ -187,6 +189,11 @@ async def ingest_evidence(
         },
     )
     await session.flush()
+
+    # 8.bis · Escribir el fichero a disco SÓLO tras un flush DB correcto (evita
+    # huérfano si el INSERT falla). Si la escritura fallara aquí, la excepción
+    # propaga → el endpoint no llega al commit → rollback (sin fila ni fichero).
+    file_path.write_bytes(request.file_bytes)
 
     # 9. Queue async antivirus scan (MB-6 atom 6 · ENS mp.s.5 · Q3 B async Celery).
     # Evidence row inserted con scan_status='scanning' (server default migration).

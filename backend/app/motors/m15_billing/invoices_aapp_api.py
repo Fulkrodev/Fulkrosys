@@ -333,8 +333,9 @@ async def get_late_interest(
         paid_at=paid_date,
         today=today_override,
     )
-    invoice.interest_owed_eur = interest
-    await db.commit()
+    # §2.5: GET es seguro/idempotente · NO persistir desde un GET. El interés se
+    # calcula puro y se devuelve; persistirlo (si hace falta para auditoría) va en
+    # un POST dedicado, no en la lectura.
 
     ref_date = paid_date or today_override or date.today()
     days_late = max(0, (ref_date - invoice.payment_due_date).days)

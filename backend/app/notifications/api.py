@@ -239,7 +239,9 @@ async def update_my_preferences(
     for field, value in data.items():
         setattr(pref, field, value)
 
-    await db.flush()
+    # §2.6: get_db() NO hace autocommit → sin commit los cambios se perdían al
+    # cerrar la sesión (antes sólo flush → las preferencias no persistían).
+    await db.commit()
     await db.refresh(pref)
     return _serialize_pref(pref)
 
