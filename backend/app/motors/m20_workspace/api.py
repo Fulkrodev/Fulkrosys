@@ -244,8 +244,12 @@ async def get_file(
     db: AsyncSession = Depends(get_db),
 ):
     await _set_project_rls(project_id, db)
-    wf = await WorkspaceService().get_file(db, file_id)
-    if not wf:
+    svc = WorkspaceService()
+    ws = await svc.get_workspace(db, project_id)
+    wf = await svc.get_file(db, file_id)
+    # Binding cross-project: el fichero debe pertenecer al workspace de ESTE
+    # proyecto (workspace 1:1 con proyecto) — defensa además de RLS.
+    if not wf or not ws or wf.workspace_id != ws.id:
         raise HTTPException(status_code=404, detail="File not found")
     return _serialize_file(wf)
 
@@ -257,8 +261,14 @@ async def delete_file(
     db: AsyncSession = Depends(get_db),
 ):
     await _set_project_rls(project_id, db)
+    svc = WorkspaceService()
+    ws = await svc.get_workspace(db, project_id)
+    existing = await svc.get_file(db, file_id)
+    # Binding cross-project: el fichero debe ser del workspace de este proyecto.
+    if not existing or not ws or existing.workspace_id != ws.id:
+        raise HTTPException(status_code=404, detail="File not found")
     try:
-        wf = await WorkspaceService().delete_file(db, file_id)
+        wf = await svc.delete_file(db, file_id)
     except WorkspaceError as exc:
         raise HTTPException(status_code=404, detail=str(exc))
     await db.commit()
