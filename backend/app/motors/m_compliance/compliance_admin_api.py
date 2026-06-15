@@ -184,11 +184,17 @@ async def reject_erasure(
     ).scalar_one_or_none()
     if req_row is None:
         raise HTTPException(404, detail="ErasureRequest not found")
+    # ClientUser tiene RLS por client_id; este endpoint admin (require_owner) no
+    # fija contexto de cliente → bypassrls puntual para leer el email al que enviar
+    # el rechazo (antes la query corría bajo RLS y devolvía None → email no enviado).
+    from sqlalchemy import text as _t
+    await db.execute(_t("SET LOCAL ROLE fulkro_app_bypassrls"))
     cliente = (
         await db.execute(
             select(ClientUser).where(ClientUser.id == req_row.client_user_id)
         )
     ).scalar_one_or_none()
+    await db.execute(_t("RESET ROLE"))
     cliente_email = cliente.email if cliente else None
 
     rejected = await svc.reject_audit_retention(

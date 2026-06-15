@@ -28,12 +28,12 @@ from typing import Awaitable, Callable
 from uuid import UUID
 
 from fastapi import Depends, HTTPException, status
-from sqlalchemy import select
+from sqlalchemy import select, text
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
 from backend.app.core.feature_flags import is_feature_applicable
-from backend.app.database import get_db
+from backend.app.database import get_db, set_tenant_context
 from backend.app.models.core import Project
 
 
@@ -42,6 +42,19 @@ async def _load_project_with_client(
     project_id: UUID,
 ) -> Project:
     """Eager load project + client (necesario para numero_empleados)."""
+    # Fijar tenant context vía get_project_owner (SECURITY DEFINER) ANTES de
+    # consultar projects: estas deps corren como FastAPI Depends, antes de que el
+    # endpoint fije el contexto, así que bajo fulkro_app la RLS bloquearía el
+    # SELECT y daría un 404 espurio (proyecto "no encontrado") en producción.
+    owner = (await db.execute(
+        text("SELECT get_project_owner(:pid)"), {"pid": str(project_id)}
+    )).scalar()
+    if not owner:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Project not found",
+        )
+    await set_tenant_context(db, client_id=owner, project_id=project_id)
     stmt = (
         select(Project)
         .where(Project.id == project_id)
