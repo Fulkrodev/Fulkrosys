@@ -27,9 +27,6 @@ from backend.app.models.commercial import (
     Contract,
     Proposal,
 )
-from backend.app.motors.m12_magic_link.purposes import MagicLinkPurpose
-from backend.app.motors.m12_magic_link.schemas import MagicLinkGenerateRequest
-from backend.app.motors.m12_magic_link.service import MagicLinkService
 
 
 CONTRACT_TEMPLATES: dict[str, dict[str, str]] = {
@@ -395,72 +392,10 @@ class ContractService:
         await db.flush()
         return c
 
-    async def send_for_client_signature(
-        self,
-        db: AsyncSession,
-        contract_id: uuid.UUID,
-        recipient_email: str,
-        base_url: str = "https://app.fulkro.es",
-    ) -> tuple[Contract, dict[str, Any]]:
-        """Envía el contrato al cliente para firma via magic link FIRMA_DOCUMENTO."""
-        c = await self.get_contract(db, contract_id)
-        if not c:
-            raise ContractError(f"Contract {contract_id} no encontrado")
-        if c.estado != "firmado_marcos":
-            raise ContractError(
-                f"Requiere firma previa de Marcos (actual: {c.estado})"
-            )
-        if not c.project_id:
-            raise ContractError(
-                "Contract sin project_id — imposible generar magic link"
-            )
-
-        ml_service = MagicLinkService(db)
-        req = MagicLinkGenerateRequest(
-            project_id=c.project_id,
-            purpose=MagicLinkPurpose.FIRMA_DOCUMENTO,
-            recipient_email=recipient_email,
-            scope={
-                "contract_id": str(c.id),
-                "plantilla_id": c.plantilla_id,
-                "hash_sha256": c.hash_sha256,
-            },
-        )
-        resp = await ml_service.generate_magic_link(req, base_url)
-
-        c.firmado_cliente_link_id = resp.magic_link_id
-        c.estado = "sent"
-        await db.flush()
-        return c, {
-            "magic_link_id": str(resp.magic_link_id),
-            "url": resp.url,
-            "expires_at": resp.expires_at.isoformat(),
-            "otp_sent_separately": resp.otp is not None,
-        }
-
-    async def register_client_signature(
-        self,
-        db: AsyncSession,
-        contract_id: uuid.UUID,
-        magic_link_id: uuid.UUID | None = None,
-    ) -> Contract:
-        """Registra la firma del cliente (callback tras consumir el magic link)."""
-        c = await self.get_contract(db, contract_id)
-        if not c:
-            raise ContractError(f"Contract {contract_id} no encontrado")
-        if c.estado != "sent":
-            raise ContractError(
-                f"Contract no está en estado 'sent' (actual: {c.estado})"
-            )
-        if magic_link_id and c.firmado_cliente_link_id and c.firmado_cliente_link_id != magic_link_id:
-            raise ContractError(
-                "magic_link_id no coincide con el link emitido para este contrato"
-            )
-
-        c.firmado_cliente_at = datetime.now(timezone.utc)
-        c.estado = "vigente"
-        await db.flush()
-        return c
+    # §3.3: send_for_client_signature + register_client_signature ELIMINADOS
+    # (código muerto · #43). El flujo autoritativo es el m13 ContractSigningFlow
+    # (FIRMA_CONTRATO + canvas Ed25519); el endpoint send-client delega en m13 y
+    # el callback register-client-signature ya se eliminó. La UI nunca los llamaba.
 
     async def retract_in_flight_contract(
         self,

@@ -417,6 +417,46 @@ class GapAnalysisService:
             "has_vigente": vigentes > 0,
         }
 
+    async def _get_evidence_coverage_batch(
+        self, project_id: UUID,
+    ) -> dict[str, dict]:
+        """§2.8: cobertura de evidencia de TODAS las medidas del proyecto en 1
+        sola query (evita el N+1 de ``_get_evidence_coverage`` por medida).
+
+        Devuelve {measure_code: {total, vigentes, caducadas, has_any, has_vigente}}
+        con la misma forma que ``_get_evidence_coverage`` (un dict por medida).
+        """
+        from datetime import date as _date
+
+        from backend.app.models.documents import Evidence
+        today = _date.today()
+        res = await self.db.execute(
+            select(Evidence).where(
+                Evidence.project_id == project_id,
+                Evidence.deleted_at.is_(None),
+            )
+        )
+        out: dict[str, dict] = {}
+        for e in res.scalars().all():
+            mc = e.measure_code
+            if not mc:
+                continue
+            cov = out.setdefault(
+                mc,
+                {"total": 0, "vigentes": 0, "caducadas": 0,
+                 "has_any": False, "has_vigente": False},
+            )
+            cov["total"] += 1
+            cov["has_any"] = True
+            if (e.vigente is True) and (
+                e.fecha_caducidad is None or e.fecha_caducidad >= today
+            ):
+                cov["vigentes"] += 1
+                cov["has_vigente"] = True
+            if e.fecha_caducidad and e.fecha_caducidad < today:
+                cov["caducadas"] += 1
+        return out
+
     async def analyze_project(
         self,
         project_id: UUID,
@@ -481,6 +521,10 @@ class GapAnalysisService:
         nuclear_gaps: list[str] = []
         now = datetime.now(timezone.utc)
 
+        # §2.8: cobertura de evidencia por medida en UNA sola query (antes
+        # _get_evidence_coverage hacía 1 SELECT por medida → N+1 de ~47-70 queries).
+        evidence_by_measure = await self._get_evidence_coverage_batch(project_id)
+
         for entry in dda_entries:
             # Skip non-applicable measures
             if entry["aplicabilidad"] == "no_aplica":
@@ -520,11 +564,10 @@ class GapAnalysisService:
             evidencia = rule["evidencia_tipica"] if rule else ""
             notas = rule["notas_auditor"] if rule else ""
 
-            # GAP 11: enriquecer metadata con cobertura real de evidencia (M7)
-            try:
-                evidence_coverage = await self._get_evidence_coverage(project_id, codigo)
-            except Exception:
-                evidence_coverage = {"total": 0, "vigentes": 0, "has_vigente": False}
+            # GAP 11: cobertura real de evidencia (M7) · lookup del batch (§2.8).
+            evidence_coverage = evidence_by_measure.get(
+                codigo, {"total": 0, "vigentes": 0, "has_vigente": False},
+            )
 
             # Sum of estimated effort for the obligations that M5 would
             # instantiate for this medida. Gives a realistic, bottom-up

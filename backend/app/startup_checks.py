@@ -21,14 +21,10 @@ from loguru import logger
 
 # Repo root via path traversal · backend/app/startup_checks.py → /home/usuario/fulkro
 _REPO_ROOT = Path(__file__).resolve().parents[2]
-_KEYS_DIR = _REPO_ROOT / "var" / "keys"
 
-# Claves Ed25519 esperadas en disco (paths espejo signing.py de M06+M07).
-# Si M06/M07 cambian sus paths, actualizar aquí para mantener consistencia.
-_M06_PRIV = _KEYS_DIR / "m6_signing_dev.ed25519.pem"
-_M06_PUB = _KEYS_DIR / "m6_signing_dev.ed25519.pub.pem"
-_M07_PRIV = _KEYS_DIR / "ed25519_signing_private.pem"
-_M07_PUB = _KEYS_DIR / "ed25519_signing_private.pub.pem"
+# §3.3: las constantes de paths de claves M06/M07 (_KEYS_DIR/_M06_*/_M07_*) eran
+# código muerto · verify_ed25519_keys() carga las claves vía los módulos de motor
+# (load_or_generate_keypair), NO desde estos paths. Eliminadas.
 
 # Env vars críticas · sin estas el arranque no tiene sentido en
 # dev/staging/prod. Las claves Ed25519 (AUTH/ML/BACKUP) son opcionales

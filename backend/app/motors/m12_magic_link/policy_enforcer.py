@@ -6,8 +6,9 @@ hybrid policy categorization:
 - 33 purposes mantienen razón (categorías A-F ADR-042 · firmas legales ·
   aprobaciones · descargas · acceso externo · lifecycle · auxiliares).
 - 2 purposes deprecated soft (ONBOARDING_INICIAL · APORTE_EVIDENCIA) ·
-  cubiertos por portal cliente workspace MB-14 · invocación retorna
-  warning + header X-Deprecated · NO bloquea generación (compat backward).
+  cubiertos por portal cliente workspace MB-14 · BLOQUEAN la generación
+  (hard-rejection MB-4.bis3 · ADR-020 v3): is_ok=False → ValueError en
+  generate_magic_link → HTTP 422. (El nombre "soft" es histórico.)
 
 API:
     enforcer = MagicLinkPolicyEnforcer()
@@ -18,7 +19,8 @@ API:
 Convenciones:
 - Solo "unknown" retorna `is_ok=False` (impide generación purpose
   no-existente · safety net).
-- "deprecated_soft" retorna `is_ok=True` + reason (soft warning soft).
+- "deprecated_soft" retorna `is_ok=False` + reason (HARD-rejection · el cliente
+  usa /client-portal · el magic link NO se genera).
 - "ok" retorna `is_ok=True` + reason="" (bypass logging warning).
 
 Integration point: `MagicLinkService.generate_magic_link()` invoca

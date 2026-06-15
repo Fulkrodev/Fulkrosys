@@ -85,8 +85,8 @@ class SendClientSignatureBody(BaseModel):
     base_url: str = Field("https://app.fulkro.es", min_length=10, max_length=255)
 
 
-class RegisterClientSignatureBody(BaseModel):
-    magic_link_id: Optional[uuid.UUID] = None
+# §3.3: RegisterClientSignatureBody eliminado (schema muerto · el endpoint
+# register-client-signature se quitó en #43 · flujo real = m13 ContractSigningFlow).
 
 
 class AddCommitmentBody(BaseModel):

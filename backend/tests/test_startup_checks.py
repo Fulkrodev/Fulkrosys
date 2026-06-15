@@ -21,26 +21,14 @@ from backend.app.startup_checks import (
 # ─── verify_ed25519_keys ────────────────────────────────────────────
 
 
-def test_verify_ed25519_keys_passes_when_all_present(tmp_path, monkeypatch):
-    """Con los 4 archivos PEM presentes, no levanta excepción."""
-    keys_dir = tmp_path / "var" / "keys"
-    keys_dir.mkdir(parents=True)
-    fakes = [
-        "m6_signing_dev.ed25519.pem",
-        "m6_signing_dev.ed25519.pub.pem",
-        "ed25519_signing_private.pem",
-        "ed25519_signing_private.pub.pem",
-    ]
-    for name in fakes:
-        (keys_dir / name).write_text("fake-pem")
+def test_verify_ed25519_keys_passes_when_all_present(monkeypatch):
+    """En dev/test (no producción) los motores M05/M06/M07 generan claves
+    ephemeral vía load_or_generate_keypair → verify_ed25519_keys NO levanta.
 
-    # Reapunta los path constants del módulo a tmp_path
-    import backend.app.startup_checks as sc
-    monkeypatch.setattr(sc, "_M06_PRIV", keys_dir / fakes[0])
-    monkeypatch.setattr(sc, "_M06_PUB", keys_dir / fakes[1])
-    monkeypatch.setattr(sc, "_M07_PRIV", keys_dir / fakes[2])
-    monkeypatch.setattr(sc, "_M07_PUB", keys_dir / fakes[3])
-
+    (§3.3: ya no se monkeypatchean path-constants muertos · verify_ed25519_keys
+    carga vía los módulos de motor, no desde rutas de fichero.)
+    """
+    monkeypatch.setenv("FULKRO_TESTING", "1")
     # No raise → check OK
     verify_ed25519_keys()
 

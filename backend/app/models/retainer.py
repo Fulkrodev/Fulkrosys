@@ -217,10 +217,10 @@ class PricingCatalog(FullMixin, Base):
     Reemplaza pricing hardcoded; consumido por M13/M14/M15 (Paso 6) y
     por retainer_service (Paso 2) para buscar el precio del tier.
 
-    Seeds iniciales segun imagen pricing 2026-04-21:
-    - Retainer: R_MICRO 150 / R_LITE 300 / R_STD 700 / R_PLUS 1200
-    - Implantacion: BASICA 5500 / MEDIA 9500 / ALTA 17500
-    - Extras: sector_regulado +2000, multi_ubicacion +1500, ...
+    Fuente de verdad de precios (§4.3): tabla ``pricing_config`` (editable en
+    /admin/settings/pricing) + ``backend.app.core.pricing.rules.BASE_PRICES``
+    (canónico unificado 2026-06-11 · BÁSICA 3.200 / MEDIA 10.700 / ALTA 22.800).
+    NO hardcodear importes aquí (los seeds de 2026-04-21 quedaron obsoletos).
     """
 
     __tablename__ = "pricing_catalog"
