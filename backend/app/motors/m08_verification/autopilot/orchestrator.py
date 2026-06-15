@@ -18,7 +18,6 @@ from __future__ import annotations
 
 import asyncio
 import logging
-import os
 import uuid
 from datetime import datetime, timezone
 from typing import Any
@@ -242,19 +241,23 @@ async def collect_candidates(
     (fallback honesto · el run quedará PARCIAL). Cada tool valida scope
     fail-closed vía PENTEST_AUTHORIZATION (scope_enforcer).
     """
-    from backend.app.mcp_client import try_invoke_mcp_or_none
+    import json as _json
+
+    from backend.app.mcp_client import (
+        pentest_authorization_context,
+        try_invoke_mcp_or_none,
+    )
 
     plan = CATEGORY_PLAN.get(_normalize_category(run.category), ())
     candidates: list[dict] = []
     attempted: list[str] = []
     failed: list[str] = []
 
-    import json as _json
-    prev_auth = os.environ.get("PENTEST_AUTHORIZATION")
-    prev_sig = os.environ.get("PENTEST_AUTHORIZATION_SIG")
-    os.environ["PENTEST_AUTHORIZATION"] = _json.dumps(authorization)
-    os.environ["PENTEST_AUTHORIZATION_SIG"] = signature
-    try:
+    # §6 audit-2026-06-15 · autorización task-local (contextvar) en vez de mutar
+    # os.environ global (race entre runs concurrentes) + run_id para el kill-switch.
+    with pentest_authorization_context(
+        _json.dumps(authorization), signature, run_id=run.id,
+    ):
         for server, tool, kind in plan:
             tgts = _targets_for_kind(kind, scope)
             if not tgts:
@@ -275,15 +278,6 @@ async def collect_candidates(
                     logger.warning("MCP %s sobre %s falló: %s", label, target, exc)
                     if label not in failed:
                         failed.append(label)
-    finally:
-        if prev_auth is None:
-            os.environ.pop("PENTEST_AUTHORIZATION", None)
-        else:
-            os.environ["PENTEST_AUTHORIZATION"] = prev_auth
-        if prev_sig is None:
-            os.environ.pop("PENTEST_AUTHORIZATION_SIG", None)
-        else:
-            os.environ["PENTEST_AUTHORIZATION_SIG"] = prev_sig
 
     return candidates, attempted, failed
 

@@ -109,41 +109,47 @@ async def run_offensive_engagement(
         if box.status in ("error",):
             failed.append(f"provision:{box.error}")
         else:
-            from backend.app.mcp_client import try_invoke_mcp_or_none
-
             import json as _json
-            prev_auth = os.environ.get("PENTEST_AUTHORIZATION")
-            prev_sig = os.environ.get("PENTEST_AUTHORIZATION_SIG")
+
+            from backend.app.mcp_client import (
+                pentest_authorization_context,
+                try_invoke_mcp_or_none,
+            )
+
+            # §6 · auth/firma/run_id van por contextvar task-local (no os.environ
+            # global · race). Las credenciales de la box ofensiva (env_overrides)
+            # sí van por os.environ porque el hijo las hereda vía os.environ.copy()
+            # (no son el token de scope compartido entre runs).
             prev_env = {k: os.environ.get(k) for k in box.env_overrides()}
-            os.environ["PENTEST_AUTHORIZATION"] = _json.dumps(session["authorization"])
-            os.environ["PENTEST_AUTHORIZATION_SIG"] = session["signature"]
             os.environ.update(box.env_overrides())
             try:
-                for inv in tool_invocations:
-                    server = inv.get("server", "")
-                    tool = inv.get("tool", "")
-                    args = inv.get("args", {}) or {}
-                    label = f"{server}:{tool}"
-                    attempted.append(label)
-                    try:
-                        resp = await try_invoke_mcp_or_none(
-                            server=server, tool=tool, args=args, timeout_seconds=1800,
-                        )
-                        cands = mcp_result_to_candidates(
-                            resp, server=server, tool=tool,
-                            target=str(args.get("target") or box.host or "offensive"),
-                        )
-                        candidates.extend(cands)
-                    except Exception as exc:  # pragma: no cover — fail-soft
-                        logger.warning("offensive %s falló: %s", label, exc)
-                        failed.append(label)
+                with pentest_authorization_context(
+                    _json.dumps(session["authorization"]),
+                    session["signature"],
+                    run_id=run.id,
+                ):
+                    for inv in tool_invocations:
+                        server = inv.get("server", "")
+                        tool = inv.get("tool", "")
+                        args = inv.get("args", {}) or {}
+                        label = f"{server}:{tool}"
+                        attempted.append(label)
+                        try:
+                            resp = await try_invoke_mcp_or_none(
+                                server=server, tool=tool, args=args,
+                                timeout_seconds=1800,
+                            )
+                            cands = mcp_result_to_candidates(
+                                resp, server=server, tool=tool,
+                                target=str(args.get("target") or box.host or "offensive"),
+                            )
+                            candidates.extend(cands)
+                        except Exception as exc:  # pragma: no cover — fail-soft
+                            logger.warning("offensive %s falló: %s", label, exc)
+                            failed.append(label)
             finally:
-                # restaurar env (no dejar credenciales/auth colgando)
-                for k, v in {
-                    "PENTEST_AUTHORIZATION": prev_auth,
-                    "PENTEST_AUTHORIZATION_SIG": prev_sig,
-                    **prev_env,
-                }.items():
+                # restaurar env de la box (no dejar credenciales colgando)
+                for k, v in prev_env.items():
                     if v is None:
                         os.environ.pop(k, None)
                     else:

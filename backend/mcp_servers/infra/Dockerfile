@@ -8,17 +8,25 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 RUN curl -fsSL https://raw.githubusercontent.com/rapid7/metasploit-omnibus/master/config/templates/metasploit-framework-wrappers/msfupdate.erb \
       > /tmp/msfinstall \
  && chmod 755 /tmp/msfinstall \
- && /tmp/msfinstall 2>/dev/null || true
+ && ( /tmp/msfinstall || echo "metasploit best-effort · omitido (log visible)" )
 ENV PATH="/opt/metasploit-framework/bin:${PATH}"
 
-RUN pip install --no-cache-dir impacket netexec bloodhound certipy-ad coercer 2>/dev/null || true
+# Suite AD ofensiva · best-effort (pesada · puede fallar en slim) · log VISIBLE
+# (antes 2>/dev/null ocultaba el fallo → imagen verde sin herramientas).
+RUN pip install --no-cache-dir impacket netexec bloodhound certipy-ad coercer \
+    || echo "suite AD (impacket/netexec/...) best-effort · omitido (log visible)"
 
-RUN git clone --depth 1 https://github.com/lgandx/Responder.git /opt/responder 2>/dev/null || true
+RUN git clone --depth 1 https://github.com/lgandx/Responder.git /opt/responder \
+    || echo "Responder best-effort · omitido (log visible)"
 
 RUN wget -qO /tmp/go.tar.gz https://go.dev/dl/go1.22.2.linux-amd64.tar.gz \
  && tar -C /usr/local -xzf /tmp/go.tar.gz && rm /tmp/go.tar.gz
 ENV PATH="/usr/local/go/bin:/root/go/bin:${PATH}"
-RUN go install github.com/ropnop/kerbrute@latest 2>/dev/null || true
+RUN go install github.com/ropnop/kerbrute@latest \
+    || echo "kerbrute best-effort · omitido (log visible)"
+
+# §6 audit-2026-06-15 · el build FALLA si falta el binario base certero (nmap).
+RUN command -v nmap >/dev/null 2>&1 || { echo "FALTA binario primario: nmap" >&2; exit 1; }
 
 COPY shared/ /app/shared/
 COPY infra/ /app/infra/

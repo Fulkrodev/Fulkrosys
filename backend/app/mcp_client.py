@@ -35,17 +35,58 @@ documentado para hardening pre-deploy.
 from __future__ import annotations
 
 import asyncio
+import contextvars
 import json
 import logging
 import os
 import shutil
 import sys
+import uuid
+from contextlib import contextmanager, nullcontext
+from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
 
 from pydantic import BaseModel, Field
 
 logger = logging.getLogger(__name__)
+
+
+# §6 audit-2026-06-15 · autorización de pentest a NIVEL DE TAREA (contextvar ·
+# task-local), NO en os.environ global. Antes el orchestrator mutaba
+# os.environ["PENTEST_AUTHORIZATION"] (proceso-global) para que el subprocess
+# hijo lo heredara → dos runs concurrentes (proyectos distintos) se pisaban la
+# autorización (race de un token de scope crítico). Un ContextVar da una copia
+# por tarea asyncio: cada run ve la suya. invoke_mcp lee este contexto e inyecta
+# los valores en el env del hijo (sin tocar el env global) + registra el process
+# group para el kill-switch si hay run_id.
+@dataclass(frozen=True)
+class _PentestContext:
+    authorization: str | None = None
+    authorization_sig: str | None = None
+    run_id: uuid.UUID | None = None
+
+
+_pentest_ctx: contextvars.ContextVar[_PentestContext | None] = contextvars.ContextVar(
+    "fulkro_pentest_ctx", default=None,
+)
+
+
+@contextmanager
+def pentest_authorization_context(
+    authorization: str | None,
+    authorization_sig: str | None,
+    run_id: uuid.UUID | None = None,
+):
+    """Fija (auth, firma, run_id) de pentest para todas las invoke_mcp de ESTA
+    tarea asyncio. Sustituye la mutación de os.environ global (race §6)."""
+    token = _pentest_ctx.set(
+        _PentestContext(authorization, authorization_sig, run_id)
+    )
+    try:
+        yield
+    finally:
+        _pentest_ctx.reset(token)
 
 
 def use_mcp_real() -> bool:
@@ -296,6 +337,22 @@ async def invoke_mcp(invocation: MCPInvocation) -> dict[str, Any]:
     sep = ";" if sys.platform == "win32" else ":"
     env["PYTHONPATH"] = f"{mcp_servers_root}{sep}{existing}" if existing else str(mcp_servers_root)
 
+    # §6 · inyecta la autorización task-local en el env del hijo (en vez de
+    # heredar de un os.environ global pisado entre runs concurrentes).
+    ctx = _pentest_ctx.get()
+    if ctx is not None and ctx.authorization is not None:
+        env["PENTEST_AUTHORIZATION"] = ctx.authorization
+        env["PENTEST_AUTHORIZATION_SIG"] = ctx.authorization_sig or ""
+
+    # §6 kill-switch · si hay run_id, spawn en su PROPIO process group
+    # (start_new_session → setsid) para que os.killpg(pgid) alcance al server.py
+    # y a sus hijos scanner. Sin esto, getpgid(pid) devolvería el grupo del
+    # backend y killpg lo mataría a él. Sólo POSIX (ignorado en win32).
+    track_run_id = ctx.run_id if ctx is not None else None
+    spawn_kwargs: dict[str, Any] = {}
+    if track_run_id is not None and sys.platform != "win32":
+        spawn_kwargs["start_new_session"] = True
+
     proc = await asyncio.create_subprocess_exec(
         sys.executable, str(server_path),
         stdin=asyncio.subprocess.PIPE,
@@ -303,7 +360,17 @@ async def invoke_mcp(invocation: MCPInvocation) -> dict[str, Any]:
         stderr=asyncio.subprocess.PIPE,
         env=env,
         cwd=str(server_dir),
+        **spawn_kwargs,
     )
+
+    if track_run_id is not None:
+        from backend.app.motors.m08_verification.kill_switch import (
+            tracked_subprocess,
+        )
+        track_cm: Any = tracked_subprocess(track_run_id, proc.pid)
+    else:
+        track_cm = nullcontext()
+    track_cm.__enter__()
 
     try:
         # 1. initialize handshake
@@ -360,6 +427,8 @@ async def invoke_mcp(invocation: MCPInvocation) -> dict[str, Any]:
             await proc.wait()
         except Exception:
             pass
+        # §6 · des-registra el process group del kill-switch (si lo había).
+        track_cm.__exit__(None, None, None)
 
 
 __all__ = [
