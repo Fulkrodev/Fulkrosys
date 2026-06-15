@@ -45,7 +45,13 @@ export function RemediationClienteView() {
       toast.success("¡Gracias! Lo aplicamos por ti. Sin prisa por tu parte.");
       void qc.invalidateQueries({ queryKey: QKEY });
     },
-    onError: (e) => toast.error(String(e)),
+    onError: (e) => {
+      // R29: nada de error crudo al cliente · detalle a consola para soporte.
+      console.error("Remediation authorize error:", e);
+      toast.error(
+        "Hubo un problema al procesar tu solicitud. Por favor, inténtalo de nuevo.",
+      );
+    },
   });
 
   const jobs = jobsQ.data?.jobs ?? [];

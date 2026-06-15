@@ -237,7 +237,9 @@ def _readiness_to_view(snap: ConformityReadinessSnapshot) -> ConformityReadiness
     """Convert snapshot dataclass → API view + itemized checklist."""
     items: list[ReadinessItemView] = [
         ReadinessItemView(
-            label="DdA firmada (Declaración Aplicabilidad 73 medidas)",
+            # No fijar "73 medidas": el nº aplicable depende de la categoría
+            # (BÁSICA 52 · MEDIA 68 · ALTA 73). Referenciar el Anexo II sin número.
+            label="DdA firmada (Declaración de Aplicabilidad · Anexo II)",
             ready=snap.dda_signed_at is not None,
             detail=(
                 f"Firmada {snap.dda_signed_at.isoformat()}"
@@ -253,7 +255,7 @@ def _readiness_to_view(snap: ConformityReadinessSnapshot) -> ConformityReadiness
             ),
         ),
         ReadinessItemView(
-            label=f"Evidencias 73 medidas ({snap.evidence_count} cargadas)",
+            label=f"Evidencias del Anexo II ({snap.evidence_count} cargadas)",
             ready=snap.evidence_count > 0
             and len([b for b in snap.blockers if "Evidencias" in b]) == 0,
             detail=f"{snap.evidence_count} evidencias vigentes",

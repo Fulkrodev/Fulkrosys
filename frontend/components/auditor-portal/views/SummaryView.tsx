@@ -211,7 +211,7 @@ export function SummaryView({ token }: Props) {
         <AlertTitle>Acceso de solo lectura</AlertTitle>
         <AlertDescription>
           Toda interacción con este portal queda registrada en el registro de auditoría
-          inmutable del cliente (hash chain Ed25519 verificable).
+          inmutable del cliente (hash chain SHA-256 verificable).
         </AlertDescription>
       </Alert>
     </div>

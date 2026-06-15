@@ -31,6 +31,16 @@ const TIER_BADGES: Record<string, { label: string; className: string }> = {
 };
 
 
+// Medidas aplicables del Anexo II RD 311/2022 por categoría (BOE-A-2022-7191):
+// BÁSICA 52 · MEDIA 68 · ALTA 73 (el total de 73 sólo aplica a ALTA). Antes el
+// copy decía "73 medidas" para TODAS las categorías → impreciso legalmente en la
+// declaración del cliente.
+const MEDIDAS_POR_CATEGORIA: Record<string, number> = {
+  BASICA: 52,
+  MEDIA: 68,
+  ALTA: 73,
+};
+
 export function DeclarationHeader({ declaration }: Props) {
   const tierBadge = TIER_BADGES[declaration.tier] ?? {
     label: declaration.tier,
@@ -39,6 +49,7 @@ export function DeclarationHeader({ declaration }: Props) {
 
   const isBasica = declaration.declaration_type === "initial";
   const Icon = isBasica ? Award : FileSignature;
+  const medidasCount = MEDIDAS_POR_CATEGORIA[declaration.tier] ?? 73;
 
   return (
     <section className="rounded-lg border bg-card p-5 shadow-sm">
@@ -59,15 +70,17 @@ export function DeclarationHeader({ declaration }: Props) {
         {isBasica ? (
           <>
             Esta firma <strong>certifica</strong> que tu organización cumple
-            las 73 medidas del Anexo II del Real Decreto 311/2022 (ENS). Tras
-            firmar generaremos automáticamente tu distintivo de conformidad y
-            tu identificador de certificación.
+            las {medidasCount} medidas del Anexo II del Real Decreto 311/2022
+            (ENS) aplicables a tu categoría. Tras firmar generaremos
+            automáticamente tu distintivo de conformidad y tu identificador de
+            certificación.
           </>
         ) : (
           <>
             Esta firma documenta tu <strong>compromiso</strong> de cumplir las
-            73 medidas del Anexo II del ENS. Tras firmar, Marcos enviará tu
-            dossier al auditor ENAC acreditado para la certificación formal.
+            {" "}{medidasCount} medidas del Anexo II del ENS aplicables a tu
+            categoría. Tras firmar, Marcos enviará tu dossier al auditor ENAC
+            acreditado para la certificación formal.
           </>
         )}
       </p>

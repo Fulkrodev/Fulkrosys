@@ -91,7 +91,9 @@ export function RemediationPortal({ token }: { token: string }) {
       setData(d);
       setError(null);
     } catch (e) {
-      setError((e as Error).message);
+      // R29: no exponer el detalle crudo al cliente · va a consola para soporte.
+      console.error("Remediation portal load error:", e);
+      setError("load_failed");
     } finally {
       setLoading(false);
     }
@@ -108,9 +110,10 @@ export function RemediationPortal({ token }: { token: string }) {
       setPendingAck({ finding_id: f.finding_id, result });
       await refresh();
     } catch (e) {
-      toast.error("No se pudo verificar la corrección", {
-        description: (e as Error).message,
-      });
+      console.error("Remediation quickFixed error:", e);
+      toast.error(
+        "No se pudo verificar la corrección ahora mismo. Recarga la página o contacta con tu consultor.",
+      );
     } finally {
       setFixingId(null);
     }
@@ -139,9 +142,6 @@ export function RemediationPortal({ token }: { token: string }) {
         <CardContent className="p-6 text-sm text-fulkro-danger">
           No se pudo cargar el portal. Es posible que el enlace haya caducado
           o haya sido revocado. Contacta con tu consultor ENS.
-          <p className="mt-2 text-xs text-fulkro-ink-500">
-            Detalle técnico: {error}
-          </p>
         </CardContent>
       </Card>
     );
