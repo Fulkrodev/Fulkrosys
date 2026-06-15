@@ -245,7 +245,7 @@ export function CheckinDetail({
         </dl>
       </Card>
 
-      {summary && summary.evidence_freshness.stale > 0 && (
+      {summary && summary.evidence_freshness && summary.evidence_freshness.stale > 0 && (
         <Card className="p-4 border-fulkro-warning/40 bg-fulkro-warning/10">
           <div className="flex items-center gap-2 text-sm text-fulkro-warning">
             <AlertCircle className="h-4 w-4" aria-hidden />

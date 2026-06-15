@@ -221,8 +221,11 @@ async def _gather_integrity_status(
     # Verify hash chain via R6 trigger function
     chain_status = "unknown"
     try:
+        # fn_audit_log_verify_chain() devuelve columnas OUT (total, first_bad_seq,
+        # ok) → hay que seleccionarla como tabla-función, NO como escalar (antes
+        # `SELECT fn(...)` daba error de tipo composite).
         verify_row = (await db.execute(sa_text(
-            "SELECT fn_audit_log_verify_chain() AS valid"
+            "SELECT ok FROM fn_audit_log_verify_chain()"
         ))).first()
         if verify_row is not None:
             chain_status = "valid" if verify_row[0] else "invalid"

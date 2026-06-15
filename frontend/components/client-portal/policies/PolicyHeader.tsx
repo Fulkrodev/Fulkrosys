@@ -14,9 +14,10 @@ interface Props {
 }
 
 export function PolicyHeader({ summary }: Props) {
-  const percent = Math.round(
-    (summary.revisada_ok_count / summary.expected_count) * 100,
-  );
+  // §2.7: guarda división por cero → 0% en vez de NaN%.
+  const percent = summary.expected_count > 0
+    ? Math.round((summary.revisada_ok_count / summary.expected_count) * 100)
+    : 0;
 
   return (
     <Card className="p-5">

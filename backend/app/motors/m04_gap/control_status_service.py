@@ -116,6 +116,24 @@ async def compute_control_status(
     stmt = select(Document).where(Document.project_id == project_id)
     documents = list((await db.execute(stmt)).scalars().all())
 
+    # §2.1: un documento cuenta como FIRMADO sólo si su signing_intent está en
+    # estado 'signed'. Antes bastaba con que el FK client_signing_intent_id no
+    # fuera None → un intent 'pending'/'rejected' daba semáforo verde FALSO.
+    from backend.app.motors.m05_signing.models import SigningIntent
+
+    _intent_ids = {
+        d.client_signing_intent_id for d in documents
+        if d.client_signing_intent_id is not None
+    }
+    signed_intent_ids: set = set()
+    if _intent_ids:
+        signed_intent_ids = set((await db.execute(
+            select(SigningIntent.id).where(
+                SigningIntent.id.in_(_intent_ids),
+                SigningIntent.status == "signed",
+            )
+        )).scalars().all())
+
     documents_count = len(documents)
     documents_approved_count = 0
     documents_signed_count = 0
@@ -140,8 +158,8 @@ async def compute_control_status(
             if doc.client_review_status == "revisada_ok":
                 cliente_reviewed_count += 1
 
-        # Signed via signing_intent
-        if doc.client_signing_intent_id is not None:
+        # Signed via signing_intent · sólo si el intent está 'signed'
+        if doc.client_signing_intent_id in signed_intent_ids:
             documents_signed_count += 1
 
         # Expired check
@@ -175,7 +193,7 @@ async def compute_control_status(
     req_all_signed = (
         len(requires_signature_docs) == 0
         or all(
-            d.client_signing_intent_id is not None
+            d.client_signing_intent_id in signed_intent_ids
             for d in requires_signature_docs
         )
     )

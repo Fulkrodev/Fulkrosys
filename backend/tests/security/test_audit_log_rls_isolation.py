@@ -151,7 +151,11 @@ async def test_hash_chain_verify_function_works_post_rls(db):
 
     # Run verify function · should NOT raise · returns boolean OR rows count
     async with _admin_setup(db):
-        result = await db.execute(sa_text("SELECT fn_audit_log_verify_chain()"))
+        # fn_audit_log_verify_chain() devuelve columnas OUT → seleccionar como
+        # tabla-función (SELECT ok FROM ...), no como escalar.
+        result = await db.execute(
+            sa_text("SELECT ok FROM fn_audit_log_verify_chain()")
+        )
         chain_status = result.scalar()
 
     # The function returns either boolean true OR an integer (rows scanned)

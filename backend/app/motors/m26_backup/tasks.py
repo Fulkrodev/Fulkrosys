@@ -14,7 +14,7 @@ shared_task = celery_app.task
 
 
 @shared_task(name="backup.run_pgbackrest_full")
-def run_pgbackrest_full() -> dict:  # pragma: no cover
+def run_pgbackrest_full(job_id: str | None = None) -> dict:  # pragma: no cover
     """Execute a full PostgreSQL backup via pgBackRest.
 
     Scheduled: weekly (Sunday 02:00 via Celery beat).
@@ -54,7 +54,7 @@ def run_pgbackrest_full() -> dict:  # pragma: no cover
 
 
 @shared_task(name="backup.run_pgbackrest_incremental")
-def run_pgbackrest_incremental() -> dict:  # pragma: no cover
+def run_pgbackrest_incremental(job_id: str | None = None) -> dict:  # pragma: no cover
     """Execute an incremental PostgreSQL backup.
 
     Scheduled: daily at 03:00 via Celery beat.
@@ -78,7 +78,7 @@ def run_pgbackrest_incremental() -> dict:  # pragma: no cover
 
 
 @shared_task(name="backup.verify_integrity")
-def verify_backup_integrity() -> dict:  # pragma: no cover
+def verify_backup_integrity(check_id: str | None = None) -> dict:  # pragma: no cover
     """Verify integrity of the latest backup.
 
     Scheduled: weekly after full backup.

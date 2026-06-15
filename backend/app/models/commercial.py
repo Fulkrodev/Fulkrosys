@@ -5,7 +5,7 @@ M13 Commercial Doc Factory + M14 Contracts Engine + M15 Billing Engine.
 import uuid
 from datetime import date, datetime
 
-from sqlalchemy import ForeignKey, Index, String, Text, Float, Integer, Boolean, Numeric, Date, text
+from sqlalchemy import CheckConstraint, ForeignKey, Index, String, Text, Float, Integer, Boolean, Numeric, Date, text
 from sqlalchemy.dialects.postgresql import UUID, JSONB, TIMESTAMP
 from sqlalchemy.orm import Mapped, mapped_column
 
@@ -18,6 +18,15 @@ class Lead(FullMixin, Base):
         Index("ix_leads_convertido_proyecto", "convertido_a_proyecto_id"),
         Index("ix_leads_estado_contacto", "estado_contacto"),
         Index("ix_leads_temperature_level", "temperature_level"),
+        # §2.2: el CHECK existe en BD (sand_crm_lead_extensions) pero faltaba en
+        # el ORM (drift) · declararlo alinea modelo↔BD (mismo nombre → sin diff
+        # de autogenerate).
+        CheckConstraint(
+            "estado_contacto IS NULL OR estado_contacto IN ("
+            "'nuevo', 'enviado', 'respondio', 'reunion_agendada', "
+            "'propuesta_enviada', 'ganado', 'descartado', 'no_interesa')",
+            name="ck_leads_estado_contacto",
+        ),
     )
     empresa_nombre: Mapped[str] = mapped_column(String(255), nullable=False)
     empresa_cif: Mapped[str | None] = mapped_column(String(20))

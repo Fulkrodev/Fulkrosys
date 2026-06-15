@@ -84,6 +84,32 @@ async def _create_document(
     return doc_id
 
 
+async def _create_signed_intent(
+    db: AsyncSession, *, project_id: uuid.UUID, status: str = "signed",
+) -> uuid.UUID:
+    """Inserta un signing_intents REAL (status='signed' por defecto).
+
+    Necesario tras el fix §2.1: un documento cuenta como firmado sólo si su
+    signing_intent existe y está en estado 'signed' (antes bastaba con el FK).
+    """
+    intent_id = uuid.uuid4()
+    async with _admin_setup(db):
+        await db.execute(text(
+            "INSERT INTO signing_intents "
+            "(id, project_id, signable_type, document_hash_sha256, status, "
+            "expires_at, created_by_user_id) "
+            "VALUES (:id, :pid, 'policy_approval', :hash, :status, "
+            "now() + interval '30 days', :uid)"
+        ), {
+            "id": str(intent_id),
+            "pid": str(project_id),
+            "hash": "0" * 64,
+            "status": status,
+            "uid": str(uuid.uuid4()),
+        })
+    return intent_id
+
+
 # ════════════════════════════════════════════════════════════════════
 # Phase 3B · semaforo='no_aplica' cuando NO documents
 # ════════════════════════════════════════════════════════════════════
@@ -116,8 +142,9 @@ async def test_all_prereqs_met_returns_verde(db: AsyncSession) -> None:
     cliente reviewed + signed + NOT expired."""
     _, project_id_str = await setup_test_project(db)
     project_uuid = uuid.UUID(project_id_str)
-    signing_intent_id = uuid.uuid4()
     now = datetime.now(timezone.utc)
+    # Intent REAL en estado 'signed' (fix §2.1: el FK no basta · debe estar firmado).
+    signing_intent_id = await _create_signed_intent(db, project_id=project_uuid)
 
     await _create_document(
         db,

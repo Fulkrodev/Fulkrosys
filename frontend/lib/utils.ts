@@ -7,6 +7,8 @@ export function cn(...inputs: ClassValue[]) {
 
 export function formatDate(input: string | number | Date, locale = "es-ES"): string {
   const date = new Date(input);
+  // §2.7: fecha inválida/undefined → "—" en vez de "Invalid Date" o throw.
+  if (Number.isNaN(date.getTime())) return "—";
   return new Intl.DateTimeFormat(locale, {
     day: "2-digit",
     month: "short",
@@ -18,6 +20,7 @@ export function formatDate(input: string | number | Date, locale = "es-ES"): str
 
 export function formatDay(input: string | number | Date, locale = "es-ES"): string {
   const date = new Date(input);
+  if (Number.isNaN(date.getTime())) return "—";
   return new Intl.DateTimeFormat(locale, {
     day: "2-digit",
     month: "long",

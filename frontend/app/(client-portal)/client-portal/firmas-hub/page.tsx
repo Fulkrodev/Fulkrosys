@@ -87,15 +87,19 @@ export default function FirmasHubPage() {
                 </div>
               </div>
               <div className="text-2xl font-bold text-fulkro-primary-700 font-mono tabular-nums">
-                {Math.round(
-                  (history.total_signed / history.total_expected) * 100,
-                )}
+                {history.total_expected > 0
+                  ? Math.round(
+                      (history.total_signed / history.total_expected) * 100,
+                    )
+                  : 0}
                 %
               </div>
             </div>
             <Progress
               value={
-                (history.total_signed / history.total_expected) * 100
+                history.total_expected > 0
+                  ? (history.total_signed / history.total_expected) * 100
+                  : 0
               }
               className="h-2"
             />

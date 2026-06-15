@@ -16,7 +16,7 @@ Audit log via emitted_by_motor (m05 · m18 · m25 · etc).
 from __future__ import annotations
 
 import uuid
-from datetime import datetime
+from datetime import datetime, timezone
 
 from sqlalchemy import ForeignKey, Index, String, Text
 from sqlalchemy.dialects.postgresql import UUID, JSONB, TIMESTAMP
@@ -62,5 +62,7 @@ class ClientNotification(Base):
     actioned_at: Mapped[datetime | None] = mapped_column(TIMESTAMP(timezone=True))
     expires_at: Mapped[datetime | None] = mapped_column(TIMESTAMP(timezone=True))
     created_at: Mapped[datetime] = mapped_column(
-        TIMESTAMP(timezone=True), nullable=False, default=datetime.utcnow,
+        # §2.7: tz-aware · datetime.utcnow es naive sobre columna timezone=True.
+        TIMESTAMP(timezone=True), nullable=False,
+        default=lambda: datetime.now(timezone.utc),
     )
