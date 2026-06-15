@@ -24,6 +24,7 @@ from pydantic import BaseModel, ConfigDict
 from sqlalchemy import select, text as sa_text
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from backend.app.auth.dependencies import require_owner
 from backend.app.database import get_db, set_tenant_context
 from backend.app.models.core import Client, Project
 from backend.app.models.ens import DdaEntry
@@ -41,7 +42,14 @@ from backend.app.motors.m27_conformity.conformity_service_paso5 import (
 from backend.app.motors.m30_client_contacts.models import ClientContact
 
 
-router = APIRouter(tags=["Project Composer (FASE 9.B)"])
+router = APIRouter(
+    tags=["Project Composer (FASE 9.B)"],
+    # Composer admin cross-motor → Marcos-only. Sin esto, una sesión cliente
+    # podía leer CUALQUIER proyecto por UUID: _set_project_rls fija el contexto
+    # al owner del proyecto sin verificar que el llamante sea su dueño. Consumido
+    # sólo desde páginas admin (wrapper api()).
+    dependencies=[Depends(require_owner)],
+)
 
 
 async def _set_project_rls(

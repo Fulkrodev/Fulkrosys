@@ -23,10 +23,17 @@ from __future__ import annotations
 
 from typing import Literal
 
-from fastapi import APIRouter
+from fastapi import APIRouter, Depends
 from pydantic import BaseModel, Field
 
-router = APIRouter(prefix="/mcps", tags=["MCPs - Servers Status"])
+from backend.app.auth.dependencies import require_owner
+
+router = APIRouter(
+    prefix="/mcps", tags=["MCPs - Servers Status"],
+    # El inventario revela el arsenal ofensivo (14 MCP pentest) → Marcos-only.
+    # Antes: cualquier sesión autenticada (incl. cliente) podía listarlo.
+    dependencies=[Depends(require_owner)],
+)
 
 MCPCategory = Literal[
     "scope",
