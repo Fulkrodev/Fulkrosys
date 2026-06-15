@@ -274,7 +274,8 @@ async def get_status(
     project_id: uuid.UUID,
     db: AsyncSession = Depends(get_db),
 ) -> ConformityStatus:
-    await _set_project_rls(project_id, db)
+    if await _set_project_rls(project_id, db) is None:
+        raise HTTPException(status_code=404, detail="Project not found")
     route_row = await _get_route_row(db, project_id)
 
     subs_stmt = select(ConformitySubmissionRow).where(
@@ -340,7 +341,8 @@ async def route_history(
     project_id: uuid.UUID,
     db: AsyncSession = Depends(get_db),
 ) -> dict:
-    await _set_project_rls(project_id, db)
+    if await _set_project_rls(project_id, db) is None:
+        raise HTTPException(status_code=404, detail="Project not found")
     stmt = (
         select(ConformityStateSnapshotRow)
         .where(
@@ -577,7 +579,8 @@ async def get_renewal(
     project_id: uuid.UUID,
     db: AsyncSession = Depends(get_db),
 ) -> RenewalCampaignOut:
-    await _set_project_rls(project_id, db)
+    if await _set_project_rls(project_id, db) is None:
+        raise HTTPException(status_code=404, detail="Project not found")
     stmt = (
         select(RenewalCampaignRow)
         .where(RenewalCampaignRow.project_id == project_id)
@@ -672,7 +675,8 @@ async def list_exports(
     project_id: uuid.UUID,
     db: AsyncSession = Depends(get_db),
 ) -> list[ExternalExportOut]:
-    await _set_project_rls(project_id, db)
+    if await _set_project_rls(project_id, db) is None:
+        raise HTTPException(status_code=404, detail="Project not found")
     stmt = (
         select(ConformityStateSnapshotRow)
         .where(
@@ -1027,6 +1031,10 @@ async def admin_badge_svg(
         generate_distintivo_svg,
     )
 
+    # Fijar contexto de tenant (faltaba) antes de construir el distintivo:
+    # bajo fulkro_app las queries de build_distintivo_context corrian sin contexto.
+    if await _set_project_rls(project_id, db) is None:
+        raise HTTPException(status_code=404, detail="Project not found")
     ctx = await build_distintivo_context(db, project_id)
     svg = generate_distintivo_svg(ctx)
     return Response(
