@@ -58,7 +58,7 @@ export default function NormaDetailPage() {
   });
 
   return (
-    <div className="flex flex-col gap-6 p-6">
+    <div className="flex flex-col gap-6">
       <Link
         href="/admin/compliance/norma-reports"
         className="inline-flex w-fit items-center gap-1 text-sm text-fulkro-ink-600 hover:underline"

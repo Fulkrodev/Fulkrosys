@@ -106,7 +106,7 @@ export default function AdminWhatsAppPage() {
   };
 
   return (
-    <div className="mx-auto flex h-full max-w-6xl gap-4 px-4 py-6">
+    <div className="mx-auto flex h-full max-w-6xl gap-4">
       <aside className="w-72 shrink-0 overflow-y-auto" data-testid="admin-wa-threads-list">
         <Card>
           <CardHeader>

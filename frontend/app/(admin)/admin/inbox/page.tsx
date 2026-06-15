@@ -23,7 +23,7 @@ import { Inbox } from "lucide-react";
 
 export default function AdminInboxPage() {
   return (
-    <main className="mx-auto max-w-4xl px-6 py-8">
+    <div className="mx-auto max-w-4xl">
       <h1 className="mb-6 text-2xl font-bold">Inbox · Chat con clientes</h1>
       <Card>
         <CardHeader>
@@ -45,6 +45,6 @@ export default function AdminInboxPage() {
           </p>
         </CardContent>
       </Card>
-    </main>
+    </div>
   );
 }

@@ -93,7 +93,7 @@ export default function NormaReportsPage() {
   const normas = normasQuery.data ?? [];
 
   return (
-    <div className="mx-auto max-w-6xl space-y-6 p-6">
+    <div className="mx-auto max-w-6xl space-y-6">
       <header>
         <h1 className="flex items-center gap-2 text-2xl font-semibold">
           <ShieldCheck className="h-6 w-6" />

@@ -97,7 +97,7 @@ export default function SystemHealthPage() {
   const data = query.data;
 
   return (
-    <div className="mx-auto py-6 space-y-6 max-w-6xl">
+    <div className="mx-auto space-y-6 max-w-6xl">
       <header className="space-y-2">
         <h1 className="text-2xl font-semibold flex items-center gap-2">
           <ShieldCheck className="h-6 w-6 text-indigo-600" />

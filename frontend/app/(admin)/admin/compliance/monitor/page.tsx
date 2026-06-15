@@ -164,7 +164,7 @@ export default function ComplianceMonitorPage() {
   const reports = reportsQuery.data ?? [];
 
   return (
-    <div className="mx-auto max-w-6xl space-y-6 p-6">
+    <div className="mx-auto max-w-6xl space-y-6">
       <header className="flex items-start justify-between">
         <div>
           <h1 className="flex items-center gap-2 text-2xl font-semibold">

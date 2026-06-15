@@ -102,7 +102,7 @@ export default function AdminAlertsPage() {
   }, [alerts, severityFilter, categoryFilter]);
 
   return (
-    <main className="mx-auto max-w-5xl px-6 py-8">
+    <div className="mx-auto max-w-5xl">
       <div className="mb-6 flex flex-wrap items-center gap-3">
         <h1 className="text-2xl font-bold">Alertas activas</h1>
         <Badge variant={alerts.length > 0 ? "warning" : "secondary"}>
@@ -195,7 +195,7 @@ export default function AdminAlertsPage() {
           ))}
         </ul>
       )}
-    </main>
+    </div>
   );
 }
 
