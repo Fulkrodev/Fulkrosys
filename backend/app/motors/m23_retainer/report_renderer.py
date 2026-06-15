@@ -55,7 +55,7 @@ async def _fetch_quarterly_report_row(
             "FROM retainer_quarterly_reports "
             "WHERE retainer_contract_id = :rid "
             "AND period_start = :ps "
-            "AND period_type = 'quarterly' "
+            "AND period_type = 'trimestral' "
             "ORDER BY created_at DESC LIMIT 1"
         ),
         {"rid": str(retainer_id), "ps": ps_date},
@@ -76,7 +76,7 @@ async def _fetch_annual_aggregate(
             "normativa_changes_relevant, vulns_critical, rag_overall "
             "FROM retainer_quarterly_reports "
             "WHERE retainer_contract_id = :rid "
-            "AND period_type = 'quarterly' "
+            "AND period_type = 'trimestral' "
             "AND EXTRACT(YEAR FROM period_start) = :y "
             "ORDER BY period_start"
         ),
