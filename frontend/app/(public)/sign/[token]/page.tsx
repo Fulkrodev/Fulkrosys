@@ -24,6 +24,7 @@ import { Loader2 } from "lucide-react";
 import { redirect } from "next/navigation";
 
 import { AcceptResidualRiskFlow } from "@/components/sign-flows/AcceptResidualRiskFlow";
+import { ApproveActaFlow } from "@/components/sign-flows/ApproveActaFlow";
 import { ApproveFacturaFlow } from "@/components/sign-flows/ApproveFacturaFlow";
 import { ApprovePropuestaFlow } from "@/components/sign-flows/ApprovePropuestaFlow";
 import { ConfirmConformidadFlow } from "@/components/sign-flows/ConfirmConformidadFlow";
@@ -60,8 +61,13 @@ export default function SignTokenPage({
   }
 
   switch (status.tipo_operacion) {
-    case "firma_documento":
     case "aprobacion_acta":
+      // Flujo REAL (reemplaza el mock LegacyDocumentSignFlow): consume el
+      // magic-link + registra la firma del asistente en el acta (m18).
+      return <ApproveActaFlow token={token} status={status} />;
+    case "firma_documento":
+      // TODO-FIRMA-DOCUMENTO-REAL: aún usa el flujo legacy (mock). Pendiente de
+      // cablear el endpoint real de firma de documento (DdA/E-012/k6).
       return <LegacyDocumentSignFlow token={token} />;
     case "aprobacion_propuesta":
       return <ApprovePropuestaFlow token={token} status={status} />;
