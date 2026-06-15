@@ -88,14 +88,15 @@ class VerificationService:
     ) -> VerificationRun:
         """Crea un run y auto-deriva el scope de Fulkro.
 
-        Gate (P7-F1 · handoff H6): un run ``mode == "external"`` toca infra del
-        cliente (acción técnica) y exige autorización previa del cliente vía
+        Gate (P7-F1 · handoff H6): un run ``mode == "external_handoff"`` (pentest
+        que toca infra del cliente, acción técnica) exige autorización previa del
+        cliente vía
         magic-link ``autorizar_accion_tecnica`` (ADR-014 read-only OAuth /
         ADR-020 pentest authorization flow OTP step-up). Los runs ``internal``
         (self-scan / dogfooding sobre infra de Fulkro) NO la requieren. Mirror
         del patrón m03_dda/service.py:92.
         """
-        if enforce_gates and mode == "external":
+        if enforce_gates and mode == "external_handoff":
             from backend.app.core.workflow_gates import (
                 require_pentest_authorisation,
             )

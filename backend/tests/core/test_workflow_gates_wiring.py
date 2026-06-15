@@ -183,12 +183,19 @@ async def _project_with_tenant(db: AsyncSession) -> uuid.UUID:
 async def test_create_run_external_gated_on_pentest_auth(
     db: AsyncSession, gates_enforced,
 ) -> None:
-    """Run mode='external' sin autorización cliente (magic-link) → gate H6."""
+    """Run mode='external_handoff' sin autorización cliente (magic-link) → gate H6.
+
+    Nota: antes este test usaba mode="external", un valor que NO existe en
+    VALID_MODES (internal|external_handoff|external_ingest_pdf|external_ingest_form);
+    el gate de servicio comparaba con ese literal muerto, así que NUNCA se disparaba
+    para los runs externos reales. Ahora valida el modo real que toca infra.
+    """
     from backend.app.motors.m08_verification.service import VerificationService
 
     pid = await _project_with_tenant(db)
     with pytest.raises(WorkflowGateError) as ei:
-        await VerificationService(db).create_run(pid, "BASICO", mode="external")
+        await VerificationService(db).create_run(
+            pid, "BASICO", mode="external_handoff")
     assert ei.value.gate == "pentest_authorisation"
 
 

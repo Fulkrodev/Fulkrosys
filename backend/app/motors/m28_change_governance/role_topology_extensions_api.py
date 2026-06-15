@@ -35,13 +35,15 @@ router = APIRouter(
 )
 
 
-async def _set_project_rls(project_id: uuid.UUID, db: AsyncSession) -> None:
+async def _set_project_rls(project_id: uuid.UUID, db: AsyncSession):
+    """Fija el tenant context del proyecto y devuelve su client_id (owner)."""
     client_id = (await db.execute(
         text("SELECT get_project_owner(:pid)"), {"pid": str(project_id)}
     )).scalar()
     if not client_id:
         raise HTTPException(status_code=404, detail="Project not found")
     await set_tenant_context(db, client_id=client_id, project_id=project_id)
+    return client_id
 
 
 async def _get_or_create_assignment(
@@ -179,12 +181,17 @@ async def assign_role(
     user: CurrentUser,
     db: AsyncSession = Depends(get_db),
 ) -> dict[str, Any]:
-    await _set_project_rls(project_id, db)
-    # Validar contact existe en proyecto (project_id O client-scoped del mismo cliente)
+    project_client_id = await _set_project_rls(project_id, db)
+    # Validar contact existe y pertenece AL MISMO CLIENTE que el proyecto
+    # (invariante cliente=proyecto): un contact client-scoped (project_id=None)
+    # de OTRO tenant no debe poder asignarse a roles de este proyecto. Antes solo
+    # se rechazaba si el contact estaba atado a OTRO project, pero un contact con
+    # project_id=None pasaba sin comprobar su client_id → fuga cross-tenant.
     contact = (await db.execute(
         select(ClientContact).where(
             ClientContact.id == body.contact_id,
             ClientContact.deleted_at.is_(None),
+            ClientContact.client_id == project_client_id,
         )
     )).scalar_one_or_none()
     if contact is None:
