@@ -17,6 +17,7 @@ Operaciones expuestas:
 from __future__ import annotations
 
 import csv
+import logging
 import uuid
 from io import BytesIO, StringIO
 from typing import Any
@@ -34,6 +35,12 @@ from backend.app.motors.m_live_records.schemas import (
     LiveRecordsDashboardBlock,
     validate_entry_data,
 )
+
+logger = logging.getLogger(__name__)
+
+# §2.8 · tope de filas por export (protege memoria/tiempo). Si se supera, se
+# registra (ya no es truncado SILENCIOSO) · el fix completo sería paginar.
+_EXPORT_ROW_CAP = 10_000
 
 
 class LiveRecordsService:
@@ -197,13 +204,18 @@ class LiveRecordsService:
         if register_type not in ENTRY_SCHEMAS:
             raise ValueError(f"Unknown register_type {register_type!r}")
 
-        rows, _ = await self.list_records(
+        rows, total = await self.list_records(
             project_id=project_id,
             register_type=register_type,
             status=None,  # include archived too
-            limit=10_000,
+            limit=_EXPORT_ROW_CAP,
             offset=0,
         )
+        if total > len(rows):
+            logger.warning(
+                "export_csv %s truncado: %d de %d filas (cap %d · project=%s)",
+                register_type, len(rows), total, _EXPORT_ROW_CAP, project_id,
+            )
 
         schema = ENTRY_SCHEMAS[register_type]
         field_names = list(schema.model_fields.keys())
@@ -237,13 +249,18 @@ class LiveRecordsService:
         if register_type not in ENTRY_SCHEMAS:
             raise ValueError(f"Unknown register_type {register_type!r}")
 
-        rows, _ = await self.list_records(
+        rows, total = await self.list_records(
             project_id=project_id,
             register_type=register_type,
             status=None,
-            limit=10_000,
+            limit=_EXPORT_ROW_CAP,
             offset=0,
         )
+        if total > len(rows):
+            logger.warning(
+                "export_xlsx %s truncado: %d de %d filas (cap %d · project=%s)",
+                register_type, len(rows), total, _EXPORT_ROW_CAP, project_id,
+            )
 
         schema = ENTRY_SCHEMAS[register_type]
         field_names = list(schema.model_fields.keys())

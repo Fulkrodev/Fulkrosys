@@ -71,6 +71,7 @@ class AgentBase(ABC):
         context: Optional[dict] = None,
         structured_output: bool = False,
         extra_context: str = "",
+        feature_override: Optional[str] = None,
     ) -> dict:
         start = time.monotonic()
 
@@ -112,7 +113,10 @@ class AgentBase(ABC):
         citations = self._extract_citations(text_out)
 
         latency_ms = int((time.monotonic() - start) * 1000)
-        await self._log_interaction(db, project_id, full_user_message, llm_response, latency_ms)
+        await self._log_interaction(
+            db, project_id, full_user_message, llm_response, latency_ms,
+            feature_override=feature_override,
+        )
 
         return {
             "agent_id": self.AGENT_ID,
@@ -256,6 +260,7 @@ class AgentBase(ABC):
         user_message: str,
         response: dict,
         latency_ms: int,
+        feature_override: Optional[str] = None,
     ) -> None:
         """Persist interaction to llm_interaction_log (best-effort).
 
@@ -273,10 +278,17 @@ class AgentBase(ABC):
             ).hexdigest()
             slug = re.sub(r"[^a-z0-9]+", "_", self.AGENT_NAME.lower()).strip("_")
             feature_slug = f"agent_{self.AGENT_ID:02d}_{slug}"
+            # §4.5 · feature_override permite distinguir la vía cliente inline
+            # ("inline_cliente_*") de las ejecuciones backend del mismo agente
+            # ("agent_XX_*") → el cap cliente cuenta SÓLO lo iniciado por el cliente.
+            feature_used = (feature_override or feature_slug)[:64]
+            # §4.5 · poblar cost_usd (antes None → el cap mensual de coste sumaba 0).
+            from backend.app.core.ai.pricing import compute_cost_usd
+            model_id = str(response.get("model", self.MODEL))[:128]
             entry = LLMInteractionLog(
                 project_id=project_id,
-                feature=feature_slug[:64],
-                model=str(response.get("model", self.MODEL))[:128],
+                feature=feature_used,
+                model=model_id,
                 prompt_hash=prompt_hash,
                 prompt_preview=user_message[:500],
                 response_preview=str(response.get("text", ""))[:500],
@@ -284,6 +296,7 @@ class AgentBase(ABC):
                 completion_tokens=tokens_out,
                 total_tokens=tokens_in + tokens_out,
                 cached_input_tokens=cached_in,
+                cost_usd=compute_cost_usd(model_id, tokens_in, tokens_out, cached_in),
                 latency_ms=latency_ms,
                 status="success",
             )

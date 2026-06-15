@@ -409,6 +409,7 @@ class CopilotAdminLLMService:
             prompt_hash = hashlib.sha256(
                 user_message.encode("utf-8", errors="ignore"),
             ).hexdigest()
+            from backend.app.core.ai.pricing import compute_cost_usd
             entry = LLMInteractionLog(
                 project_id=project_id,
                 feature="copilot_admin_1d_b_2",
@@ -419,6 +420,7 @@ class CopilotAdminLLMService:
                 prompt_tokens=prompt_tokens,
                 completion_tokens=completion_tokens,
                 total_tokens=prompt_tokens + completion_tokens,
+                cost_usd=compute_cost_usd(model, prompt_tokens, completion_tokens),
                 latency_ms=0,
                 status="success",
             )

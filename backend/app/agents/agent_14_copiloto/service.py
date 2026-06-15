@@ -510,6 +510,7 @@ async def answer_question(
     chunk_ids = [c.chunk_id for c in chunks]
 
     # 6. Log the interaction
+    from backend.app.core.ai.pricing import compute_cost_usd
     p_hash = _prompt_hash(messages)
     log_entry = LLMInteractionLog(
         project_id=query.project_id if query.project_id else None,
@@ -521,6 +522,11 @@ async def answer_question(
         prompt_tokens=llm_result.prompt_tokens,
         completion_tokens=llm_result.completion_tokens,
         total_tokens=llm_result.total_tokens,
+        cost_usd=compute_cost_usd(  # §4.5
+            llm_result.model,
+            llm_result.prompt_tokens,
+            llm_result.completion_tokens,
+        ),
         latency_ms=int(llm_result.latency_ms),
         status="success",
     )
@@ -686,7 +692,17 @@ async def stream_answer_question(
     low_grounding = assess_grounding(answer, chunks)
 
     try:
+        from backend.app.core.ai.pricing import compute_cost_usd
         p_hash = _prompt_hash(messages)
+        # §4.5 · el stream no devuelve usage exacto → estimación por longitud
+        # (~4 chars/token) sobre pregunta + contexto RAG + respuesta, para que el
+        # cap de tokens/coste mensual también contabilice esta vía (antes 0 → evasión).
+        ctx_chars = sum(
+            len(getattr(c, "text", "") or getattr(c, "content", "") or "")
+            for c in chunks
+        )
+        est_in = max(1, (len(query.question) + ctx_chars) // 4)
+        est_out = max(1, len(answer) // 4)
         log_entry = LLMInteractionLog(
             project_id=query.project_id if query.project_id else None,
             feature="copilot_chat_stream",
@@ -694,9 +710,10 @@ async def stream_answer_question(
             prompt_hash=p_hash,
             prompt_preview=query.question[:500],
             response_preview=answer[:500],
-            prompt_tokens=0,
-            completion_tokens=0,
-            total_tokens=0,
+            prompt_tokens=est_in,
+            completion_tokens=est_out,
+            total_tokens=est_in + est_out,
+            cost_usd=compute_cost_usd(model, est_in, est_out),
             latency_ms=0,
             status="success",
         )

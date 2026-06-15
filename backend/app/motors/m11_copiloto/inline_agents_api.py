@@ -28,12 +28,53 @@ from sqlalchemy import text
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from backend.app.agents.base import AgentBase
+from backend.app.agents.copilot_rate_limit import (
+    CopilotRateLimitExceeded,
+    enforce_rate_limit_or_raise,
+)
 from backend.app.database import get_db
 from backend.app.models.client_portal import ClientUser
 from backend.app.motors.m21_portal_cliente.api import get_current_client_user
 
 
 logger = logging.getLogger(__name__)
+
+# Tamaño máximo del cache in-process (evita crecimiento ilimitado · §4.5).
+_SUGGESTION_CACHE_MAX = 512
+
+
+async def _enforce_inline_cliente_cap(
+    db: AsyncSession, user: ClientUser, project_id: uuid.UUID,
+) -> None:
+    """§4.5 · aplica el cap cliente (mensajes/día + coste/mes) a los agentes inline
+    (antes SIN rate-limit → vía de evasión del tope de coste LLM). 429 si supera."""
+    try:
+        await enforce_rate_limit_or_raise(
+            db=db, user_id=user.id, tier="cliente", project_id=project_id,
+        )
+    except CopilotRateLimitExceeded as exc:
+        raise HTTPException(
+            status_code=429,
+            detail=(
+                getattr(exc.status, "blocked_reason", None)
+                or "Has alcanzado el límite de uso del asistente. Vuelve más tarde."
+            ),
+        )
+
+
+def _prune_suggestion_cache(now: float) -> None:
+    """Elimina entradas caducadas y, si aún excede el máximo, las más antiguas."""
+    expired = [
+        k for k, (ts, _) in _suggestion_cache.items()
+        if now - ts >= _SUGGESTION_TTL_SECONDS
+    ]
+    for k in expired:
+        _suggestion_cache.pop(k, None)
+    if len(_suggestion_cache) > _SUGGESTION_CACHE_MAX:
+        for k in sorted(_suggestion_cache, key=lambda k: _suggestion_cache[k][0])[
+            : len(_suggestion_cache) - _SUGGESTION_CACHE_MAX
+        ]:
+            _suggestion_cache.pop(k, None)
 
 
 router = APIRouter(
@@ -168,6 +209,7 @@ async def invoke_inline_agent(
             ),
         )
 
+    await _enforce_inline_cliente_cap(db, user, project_id)  # §4.5
     cls = _get_agent_class(class_path)
     if not cls:
         raise HTTPException(
@@ -180,6 +222,7 @@ async def invoke_inline_agent(
         user_message=body.user_message,
         extra_context=body.extra_context or "",
         structured_output=body.structured_output,
+        feature_override=f"inline_cliente_{slug}",  # §4.5 · cuenta contra cap cliente
     )
     return InlineAgentInvokeResponse(
         agent_id=agent_id,
@@ -222,6 +265,9 @@ async def quick_suggestion(
     if hit and now - hit[0] < _SUGGESTION_TTL_SECONDS:
         return {"available": True, "cached": True, **hit[1]}
 
+    # §4.5 · sólo en miss (un hit no llama al LLM) aplicar cap + poda del cache.
+    await _enforce_inline_cliente_cap(db, user, project_id)
+    _prune_suggestion_cache(now)
     cls = _get_agent_class(class_path)
     if not cls:
         raise HTTPException(status_code=404, detail="No impl class")
@@ -234,6 +280,7 @@ async def quick_suggestion(
             f"contexto actual{f' en {page_url}' if page_url else ''}."
         ),
         extra_context="",
+        feature_override=f"inline_cliente_{slug}",  # §4.5
     )
     payload = {
         "agent_id": agent_id,

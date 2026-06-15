@@ -22,7 +22,7 @@ from dataclasses import dataclass
 from datetime import datetime, time, timezone
 from typing import Literal, Optional
 
-from sqlalchemy import func, select
+from sqlalchemy import func, or_, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from backend.app.models.knowledge import LLMInteractionLog
@@ -43,6 +43,9 @@ class RateLimitConfig:
     # un único string "copiloto_cliente"/"copiloto_admin" que NO casaba con ninguna
     # etiqueta real → el cap nunca saltaba (0 filas · auditoría 2026-06-07).
     feature_filters: tuple[str, ...]
+    # §4.5 · prefijos LIKE adicionales (p.ej. "inline_cliente_" para los agentes
+    # inline del portal cliente · feature_override en base.py). Vacío = sólo exact.
+    feature_prefixes: tuple[str, ...] = ()
 
 
 # Default caps · architect approve · puede env override
@@ -52,6 +55,9 @@ CLIENTE_CAPS = RateLimitConfig(
     monthly_cost_eur_cap=6.0,
     # Copiloto cliente (D.B service) · el cliente NO usa answer_question (admin-only m11)
     feature_filters=("copilot_cliente_1d_b_1",),
+    # §4.5 · los agentes inline del portal cliente (inline_agents_api · feature
+    # "inline_cliente_<slug>") cuentan también contra el cap cliente del proyecto.
+    feature_prefixes=("inline_cliente_",),
 )
 
 ADMIN_CAPS = RateLimitConfig(
@@ -138,12 +144,17 @@ async def get_rate_limit_status(
 
     # FIX P1-1: filtro tenant opcional. Daily + monthly comparten el mismo filtro
     # de proyecto para que el cap del cliente sea estrictamente de su proyecto.
-    daily_filters = [
+    # §4.5 · feature exacto IN(...) OR prefijo LIKE 'inline_cliente_%' (inline agents).
+    feature_pred = or_(
         LLMInteractionLog.feature.in_(config.feature_filters),
+        *[LLMInteractionLog.feature.like(f"{p}%") for p in config.feature_prefixes],
+    )
+    daily_filters = [
+        feature_pred,
         LLMInteractionLog.created_at >= start_today,
     ]
     monthly_filters = [
-        LLMInteractionLog.feature.in_(config.feature_filters),
+        feature_pred,
         LLMInteractionLog.created_at >= start_month,
     ]
     if project_id is not None:
