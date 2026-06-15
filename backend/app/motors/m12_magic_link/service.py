@@ -51,6 +51,9 @@ from backend.app.motors.m12_magic_link.schemas import (
 JWT_ALGORITHM = "EdDSA"
 OTP_FAILURE_THRESHOLD = 3
 OTP_DIGITS = 6
+# §1.5: expiración propia del OTP, corta e independiente del TTL del link
+# (que puede llegar a 120 días). Reduce la ventana de fuerza bruta del OTP.
+OTP_TTL_MINUTES = 15
 
 
 # ================================================================
@@ -274,11 +277,13 @@ class MagicLinkService:
         token = _generate_jwt(jwt_payload)
         token_hash = _hash_token(token)
 
-        # OTP
+        # OTP (con expiración propia corta · §1.5 · indep del TTL del link)
         otp_plaintext = None
         otp_hash = None
+        otp_expires_at = None
         if config["requires_otp"]:
             otp_plaintext, otp_hash = _generate_otp()
+            otp_expires_at = now + timedelta(minutes=OTP_TTL_MINUTES)
 
         # Geo restriction
         allowed_countries = None
@@ -297,6 +302,7 @@ class MagicLinkService:
             scope=request.scope,
             token_hash=token_hash,
             otp_hash=otp_hash,
+            otp_expires_at=otp_expires_at,
             expira_at=expires_at,
             max_usos=max_uses,
             usos=0,
@@ -397,6 +403,13 @@ class MagicLinkService:
                 raise MagicLinkOTPBlockedError(
                     "El enlace ha sido bloqueado por demasiados intentos fallidos"
                 )
+            # §1.5: expiración propia del OTP (corta · indep del TTL del link).
+            if link.otp_expires_at is not None:
+                otp_exp = link.otp_expires_at
+                if otp_exp.tzinfo is None:
+                    otp_exp = otp_exp.replace(tzinfo=timezone.utc)
+                if now > otp_exp:
+                    raise MagicLinkExpiredError("El código OTP ha expirado")
             if not request.otp:
                 raise MagicLinkOTPRequired("Se requiere codigo OTP para este enlace")
 

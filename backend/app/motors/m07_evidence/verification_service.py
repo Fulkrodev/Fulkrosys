@@ -46,7 +46,8 @@ async def verify_evidence(
     # 1. Load evidence from DB
     result = await session.execute(
         text(
-            "SELECT id, fichero_path, hash_sha256, firma_ed25519, firma_payload_sha256 "
+            "SELECT id, fichero_path, hash_sha256, firma_ed25519, firma_payload_sha256, "
+            "project_id, evidence_type_id, firma_timestamp "
             "FROM evidence WHERE id = :eid AND deleted_at IS NULL"
         ),
         {"eid": str(evidence_id)},
@@ -63,6 +64,9 @@ async def verify_evidence(
     stored_hash = row[2]
     firma_hex = row[3]
     firma_payload_sha256 = row[4]
+    ev_project_id = row[5]
+    ev_evidence_type_id = row[6]
+    firma_timestamp = row[7]
 
     # 2. Resolve file path and check existence
     file_path = _REPO_ROOT / fichero_path if fichero_path else None
@@ -133,17 +137,38 @@ async def verify_evidence(
             detail=f"Signature length {len(sig_bytes)} != 64 bytes",
         )
 
-    # Hash matches y la firma es ESTRUCTURALMENTE válida (64 bytes), pero NO se
-    # verifica criptográficamente con Ed25519 porque no se conserva el payload
-    # original (timestamp) para reconstruirlo. Reportar signature_valid=None (no
-    # verificada) en vez de True — no afirmar integridad de firma ante ENAC que
-    # no se ha comprobado. La integridad de contenido (hash) SÍ se confirma.
+    # §1.5: si se conservó firma_timestamp, reconstruimos el payload original y
+    # verificamos la firma Ed25519 DE VERDAD. El payload de ingestion fue
+    # f"{file_hash}|{timestamp}|{project_id}|{evidence_type_id}"; como el hash
+    # coincide, file_hash == computed_hash.
+    if firma_timestamp is None:
+        # Evidencia previa a la migración (sin timestamp) → no reconstruible.
+        return VerificationReport(
+            evidence_id=evidence_id,
+            verdict="ok",
+            hash_matches=True,
+            signature_valid=None,
+            stored_hash=stored_hash,
+            computed_hash=computed_hash,
+            detail="Hash coincide; firma estructuralmente válida pero NO verificable (evidencia previa a la migración · sin firma_timestamp)",
+        )
+
+    from backend.app.motors.m07_evidence.signing import verify_signature
+
+    reconstructed = (
+        f"{computed_hash}|{firma_timestamp}|{ev_project_id}|{ev_evidence_type_id}"
+    ).encode("utf-8")
+    signature_valid = verify_signature(reconstructed, sig_bytes)
     return VerificationReport(
         evidence_id=evidence_id,
-        verdict="ok",
+        verdict="ok" if signature_valid else "invalid_signature",
         hash_matches=True,
-        signature_valid=None,
+        signature_valid=signature_valid,
         stored_hash=stored_hash,
         computed_hash=computed_hash,
-        detail="Hash coincide; firma estructuralmente válida pero NO verificada criptográficamente (payload original no conservado)",
+        detail=(
+            "Hash coincide; firma Ed25519 verificada criptográficamente"
+            if signature_valid else
+            "Hash coincide pero la firma Ed25519 NO es válida"
+        ),
     )

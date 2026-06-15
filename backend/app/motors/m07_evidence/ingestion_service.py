@@ -151,7 +151,7 @@ async def ingest_evidence(
                 firma_ed25519, metadata_extra,
                 evidence_type_id, nombre_tipo,
                 fichero_nombre_original, fichero_mime_type,
-                fichero_tamano_bytes, firma_payload_sha256,
+                fichero_tamano_bytes, firma_payload_sha256, firma_timestamp,
                 measure_code, obligation_id,
                 created_at
             ) VALUES (
@@ -161,7 +161,7 @@ async def ingest_evidence(
                 :firma_ed25519, :metadata_extra,
                 :evidence_type_id, :nombre_tipo,
                 :fichero_nombre_original, :fichero_mime_type,
-                :fichero_tamano_bytes, :firma_payload_sha256,
+                :fichero_tamano_bytes, :firma_payload_sha256, :firma_timestamp,
                 :measure_code, :obligation_id,
                 now()
             )
@@ -184,6 +184,7 @@ async def ingest_evidence(
             "fichero_mime_type": request.mime_type,
             "fichero_tamano_bytes": len(request.file_bytes),
             "firma_payload_sha256": payload_hash,
+            "firma_timestamp": timestamp,
             "measure_code": request.measure_code,
             "obligation_id": str(request.obligation_id) if request.obligation_id else None,
         },

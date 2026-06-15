@@ -113,6 +113,10 @@ class MagicLink(FullMixin, Base):
     scope: Mapped[dict | None] = mapped_column(JSONB)
     token_hash: Mapped[str] = mapped_column(String(64), nullable=False)
     otp_hash: Mapped[str | None] = mapped_column(String(64))
+    otp_expires_at: Mapped[datetime | None] = mapped_column(
+        TIMESTAMP(timezone=True), nullable=True,
+        doc="Expiración propia del OTP (corta · indep del TTL del link · §1.5). NULL=sin expiración propia (links legacy).",
+    )
     expira_at: Mapped[datetime] = mapped_column(TIMESTAMP(timezone=True), nullable=False)
     max_usos: Mapped[int | None] = mapped_column(Integer, default=1)
     usos: Mapped[int] = mapped_column(Integer, default=0)

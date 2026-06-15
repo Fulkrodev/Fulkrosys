@@ -135,6 +135,9 @@ class Evidence(FullMixin, Base):
     fichero_mime_type: Mapped[str | None] = mapped_column(String(100))
     fichero_tamano_bytes: Mapped[int | None] = mapped_column(Integer)
     firma_payload_sha256: Mapped[str | None] = mapped_column(String(64))
+    # §1.5: timestamp ISO del payload firmado · permite re-verificar la firma
+    # Ed25519 (reconstruir el payload). NULL en evidencias previas a la migración.
+    firma_timestamp: Mapped[str | None] = mapped_column(String(40))
     measure_code: Mapped[str | None] = mapped_column(String(40), index=True)
     obligation_id: Mapped[uuid.UUID | None] = mapped_column(UUID(as_uuid=True), index=True)
     # --- MB-6 atom 6 · ClamAV antivirus scan (ENS mp.s.5) ---
