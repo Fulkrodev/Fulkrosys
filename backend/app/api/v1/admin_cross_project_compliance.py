@@ -134,31 +134,37 @@ async def list_cross_project_compliance(
         project_id = str(row["project_id"])
 
         # Remediations pending cliente (Bloque 3+5)
+        # §2.2 audit-2026-06-15 · SAVEPOINT (begin_nested) en TODOS los COUNT (no
+        # sólo en 3 de 5): si una query falla SIN savepoint, deja la transacción
+        # asyncpg en estado aborted → todas las siguientes (incl. los begin_nested)
+        # revientan y CADA proyecto del bucle queda en ceros con HTTP 200.
         try:
-            rem = (await db.execute(
-                sa_text(
-                    "SELECT COUNT(*) FROM cloud_gaps "
-                    "WHERE project_id = :pid "
-                    "  AND approval_status = 'proposed_to_cliente' "
-                    "  AND deleted_at IS NULL"
-                ),
-                {"pid": project_id},
-            )).scalar()
+            async with db.begin_nested():
+                rem = (await db.execute(
+                    sa_text(
+                        "SELECT COUNT(*) FROM cloud_gaps "
+                        "WHERE project_id = :pid "
+                        "  AND approval_status = 'proposed_to_cliente' "
+                        "  AND deleted_at IS NULL"
+                    ),
+                    {"pid": project_id},
+                )).scalar()
             remediations_pending = int(rem or 0)
         except Exception:  # noqa: BLE001
             remediations_pending = 0
 
         # Tasks pending
         try:
-            t = (await db.execute(
-                sa_text(
-                    "SELECT COUNT(*) FROM client_tasks "
-                    "WHERE project_id = :pid "
-                    "  AND status IN ('pending', 'in_progress') "
-                    "  AND deleted_at IS NULL"
-                ),
-                {"pid": project_id},
-            )).scalar()
+            async with db.begin_nested():
+                t = (await db.execute(
+                    sa_text(
+                        "SELECT COUNT(*) FROM client_tasks "
+                        "WHERE project_id = :pid "
+                        "  AND status IN ('pending', 'in_progress') "
+                        "  AND deleted_at IS NULL"
+                    ),
+                    {"pid": project_id},
+                )).scalar()
             tasks_pending = int(t or 0)
         except Exception:  # noqa: BLE001
             tasks_pending = 0
@@ -213,14 +219,16 @@ async def list_cross_project_compliance(
             if c_row is None:
                 conformity_status: HealthIndicator = "unknown"
             else:
-                estado = (c_row[0] or "").lower()
-                if any(k in estado for k in (
-                    "regist", "cert", "vigente", "firmad", "aprob",
-                    "accept", "complet",
-                )):
-                    conformity_status = "ok"
-                else:
-                    conformity_status = "warning"
+                # §2.2 audit-2026-06-15 · membership EXPLÍCITA contra RouteState
+                # (route_machine) en vez de substring-keyword (que daba falsos
+                # verdes: CERTIFICATION_IN_PROGRESS contenía 'cert'→ok; y CONFORMANT
+                # no casaba ningún keyword → warning). Sólo los estados realmente
+                # conformes/registrados/vigentes son verdes.
+                estado = (c_row[0] or "").upper()
+                conformity_status = (
+                    "ok" if estado in ("CONFORMANT", "REGISTERED", "ACTIVE")
+                    else "warning"
+                )
         except Exception:  # noqa: BLE001
             conformity_status = "unknown"
 

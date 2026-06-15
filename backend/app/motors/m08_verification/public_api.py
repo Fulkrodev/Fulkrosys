@@ -844,6 +844,15 @@ async def verify_auth_submit(
         )
         if link.otp_failures >= OTP_FAILURE_THRESHOLD:
             raise HTTPException(status_code=403, detail="OTP bloqueado")
+        # §1.5 audit-2026-06-15 · expiración propia del OTP (corta · indep del TTL
+        # del link · que para AUTORIZAR_PENTEST es 72h) · mirror m12 consume.
+        if link.otp_expires_at is not None:
+            from datetime import datetime, timezone
+            otp_exp = link.otp_expires_at
+            if otp_exp.tzinfo is None:
+                otp_exp = otp_exp.replace(tzinfo=timezone.utc)
+            if datetime.now(timezone.utc) > otp_exp:
+                raise HTTPException(status_code=403, detail="OTP expirado")
         if _hash_otp(body.otp) != link.otp_hash:
             link.otp_failures += 1
             await _log_portal_access(

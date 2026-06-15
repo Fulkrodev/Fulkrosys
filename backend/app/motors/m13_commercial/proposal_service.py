@@ -410,6 +410,42 @@ class ProposalService:
         if not original:
             raise ProposalError(f"Proposal {proposal_id} no encontrada")
 
+        # §4.4 audit-2026-06-15 · si cambia importe_total, RECALCULAR el desglose
+        # (base/IVA/total_con_iva) y RE-PROPORCIONAR los hitos por sus % originales
+        # (mirror generate_revision). Antes se copiaba importe_desglose y hitos_pago
+        # VERBATIM con un importe_total nuevo → IVA y sumatorio de hitos incoherentes
+        # impresos en el DOCX que ve el prospecto.
+        nuevo_importe = ajustes.get("importe_total", original.importe_total)
+        nuevo_desglose = original.importe_desglose
+        nuevos_hitos = ajustes.get("hitos_pago", original.hitos_pago)
+        if (
+            "importe_total" in ajustes
+            and original.importe_total
+            and float(nuevo_importe or 0) != float(original.importe_total or 0)
+        ):
+            imp = float(nuevo_importe or 0)
+            base_desglose = original.importe_desglose or {}
+            iva_pct = base_desglose.get("iva_percent", 21)
+            nuevo_desglose = dict(base_desglose)
+            nuevo_desglose["base"] = imp
+            nuevo_desglose["iva_importe"] = round(imp * iva_pct / 100, 2)
+            nuevo_desglose["total_con_iva"] = round(imp * (1 + iva_pct / 100), 2)
+            nuevo_desglose["importe_anterior"] = float(original.importe_total or 0)
+            if "hitos_pago" not in ajustes:
+                anterior_hitos = (original.hitos_pago or {}).get("hitos") or []
+                total_original = float(original.importe_total or 0)
+                if anterior_hitos and total_original > 0:
+                    nuevos_hitos = {
+                        "hitos": [
+                            {
+                                "nombre": h.get("nombre", ""),
+                                "pct": h.get("pct", 0),
+                                "importe": round(imp * h.get("pct", 0) / 100, 2),
+                            }
+                            for h in anterior_hitos
+                        ]
+                    }
+
         nueva = Proposal(
             lead_id=original.lead_id,
             project_id=original.project_id,
@@ -419,9 +455,9 @@ class ProposalService:
             alcance=ajustes.get("alcance", original.alcance),
             duracion_semanas=ajustes.get("duracion_semanas", original.duracion_semanas),
             effort_marcos_horas=original.effort_marcos_horas,
-            importe_total=ajustes.get("importe_total", original.importe_total),
-            importe_desglose=original.importe_desglose,
-            hitos_pago=ajustes.get("hitos_pago", original.hitos_pago),
+            importe_total=nuevo_importe,
+            importe_desglose=nuevo_desglose,
+            hitos_pago=nuevos_hitos,
             validez_hasta=date.today() + timedelta(days=30),
             estado="draft",
             notas_marcos=ajustes.get("notas_marcos", original.notas_marcos),
@@ -655,9 +691,13 @@ class ProposalService:
         desglose = p.importe_desglose or {}
         doc.add_paragraph(f"Base: {desglose.get('base', 0):.2f} €")
         for extra in desglose.get("extras") or []:
-            doc.add_paragraph(
-                f"  + {extra.get('concepto', '')}: {extra.get('importe', 0):.2f} €"
-            )
+            # §4.4 audit-2026-06-15 · soporta ambos esquemas de extras: el legacy
+            # (concepto/importe) y el canónico Apéndice M v2.2 (code/description/
+            # amount). Antes sólo leía concepto/importe → en propuestas generadas por
+            # la vía apéndice-M cada extra salía "  + : 0.00 €" (línea en blanco).
+            label = extra.get("concepto") or extra.get("description") or ""
+            amount = extra.get("importe", extra.get("amount", 0)) or 0
+            doc.add_paragraph(f"  + {label}: {float(amount):.2f} €")
         doc.add_paragraph(f"Total (sin IVA): {float(p.importe_total or 0):.2f} €")
         doc.add_paragraph(
             f"IVA {desglose.get('iva_percent', 21)}%: {desglose.get('iva_importe', 0):.2f} €"

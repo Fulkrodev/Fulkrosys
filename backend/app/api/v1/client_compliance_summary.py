@@ -250,15 +250,15 @@ async def _conformity_status_raw(
             hit = row.first()
         if hit is None:
             return "unknown", 0
-        estado = (hit[0] or "").lower()
+        estado = (hit[0] or "").upper()
     except Exception:  # noqa: BLE001
         return "unknown", 0
-    # Estados "cerrados/al día": registrada / certificada / aceptada / vigente.
-    if any(k in estado for k in (
-        "regist", "cert", "vigente", "firmad", "aprob", "accept", "complet",
-    )):
+    # §2.2 audit-2026-06-15 · membership EXPLÍCITA contra RouteState (route_machine)
+    # en vez de substring-keyword (que daba falsos verdes CERTIFICATION_IN_PROGRESS
+    # y falsos amarillos CONFORMANT). Sólo conforme/registrado/vigente = al día.
+    if estado in ("CONFORMANT", "REGISTERED", "ACTIVE"):
         return "ok", 0
-    # En curso → warning con 1 pendiente (borrador / pendiente / enviada...).
+    # En curso → warning con 1 pendiente.
     return "warning", 1
 
 

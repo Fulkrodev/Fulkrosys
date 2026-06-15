@@ -294,16 +294,27 @@ async def totp_verify(
     if user is None or not user.is_active:
         raise HTTPException(status.HTTP_401_UNAUTHORIZED, "user not found")
 
+    # §1.8 audit-2026-06-15 · el paso TOTP carecía de rate-limit IP y de lockout de
+    # cuenta (sólo registraba el intento) → con un mfa_ticket válido (5 min) se podían
+    # adivinar códigos sin tope por cuenta. Mismo control que /login.
+    if await rate_limit.ip_is_rate_limited(db, ip_address=_ip(request)):
+        raise HTTPException(
+            status.HTTP_429_TOO_MANY_REQUESTS, "too many attempts; try again later",
+        )
+    if service.user_is_locked(user):
+        raise HTTPException(status.HTTP_423_LOCKED, "account temporarily locked")
+
     totp = await service.get_totp_secret(db, user.id)
     if totp is None or not totp.verified:
         raise HTTPException(status.HTTP_400_BAD_REQUEST, "totp not enrolled")
 
     if not totp_svc.verify_code(totp.secret, body.code):
+        await service.register_failed_attempt(db, user)  # §1.8 · lockout por cuenta
         await rate_limit.record_attempt(
             db, email=user.email, ip_address=_ip(request), user_agent=_ua(request),
             success=False, reason="bad_totp",
         )
-        await db.commit()  # persist bad-totp attempt before raising
+        await db.commit()  # persist bad-totp attempt + lockout counter before raising
         raise HTTPException(status.HTTP_401_UNAUTHORIZED, "invalid code")
 
     await service.register_successful_login(db, user)
