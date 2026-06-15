@@ -24,7 +24,7 @@ export default function CrossProjectCompliancePageLegacy() {
 
   return (
     <div
-      className="mx-auto flex max-w-md flex-col items-center gap-4 py-16 text-center"
+      className="mx-auto flex max-w-md flex-col items-center gap-4 text-center"
       data-testid="cross-project-compliance-legacy-redirect"
     >
       <Loader2 className="h-6 w-6 animate-spin text-fulkro-primary-700" aria-hidden />

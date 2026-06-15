@@ -10,7 +10,7 @@ export default function FinancialPage({
     <>
       <FinancialPanel projectId={params.id} />
       {/* #45 · vista cruzada avance × pagos */}
-      <div className="mx-auto w-full max-w-6xl px-6 pb-8">
+      <div className="mx-auto w-full max-w-6xl pb-8">
         <ImplementationPaymentsPanel projectId={params.id} />
       </div>
     </>
