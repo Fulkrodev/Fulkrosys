@@ -285,7 +285,12 @@ async def copilot_chat_stream(
         except Exception as exc:  # noqa: BLE001
             logger.exception("Copilot stream error: {}", exc)
             import json as _json
-            payload = _json.dumps({"type": "error", "error": str(exc)}, ensure_ascii=False)
+            # §2.4 · mensaje genérico al cliente (el detalle real ya queda en el
+            # log server-side · no filtrar str(exc) por el SSE).
+            payload = _json.dumps(
+                {"type": "error", "error": "Error en el copiloto."},
+                ensure_ascii=False,
+            )
             yield f"data: {payload}\n\n"
 
     return StreamingResponse(

@@ -155,7 +155,13 @@ async def get_aapp_billing_status(
             ),
             {"pid": str(project_id)},
         )).fetchone()
-    except Exception:
+    except Exception as exc:  # noqa: BLE001 · invoices_aapp puede no existir (tabla fuera del chain)
+        # §2.4 · no enmascarar en silencio: log visible (antes `except: rows=None`
+        # ocultaba cualquier fallo · degradación honesta a "sin factura AAPP").
+        logger.warning(
+            "aapp-billing/status: lectura invoices_aapp falló (%s) · degradado a 'sin factura'",
+            exc,
+        )
         rows = None
 
     if rows is None:

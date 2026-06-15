@@ -44,14 +44,56 @@ async def _set_project_rls(project_id: uuid.UUID, db: AsyncSession) -> None:
     await set_tenant_context(db, client_id=client_id, project_id=project_id)
 
 
-async def _get_or_create_active_campaign(
+async def _get_active_campaign(
     project_id: uuid.UUID, db: AsyncSession,
-) -> RenewalCampaignRow:
-    row = (await db.execute(
+) -> RenewalCampaignRow | None:
+    """Lectura pura (§2.5): NO crea nada · None si no hay campaign."""
+    return (await db.execute(
         select(RenewalCampaignRow).where(
             RenewalCampaignRow.project_id == project_id,
         ).order_by(RenewalCampaignRow.created_at.desc())
     )).scalars().first()
+
+
+def _ephemeral_timeline(
+    project_id: uuid.UUID, campaign: RenewalCampaignRow | None = None,
+) -> dict[str, Any]:
+    """Timeline por defecto CALCULADO (no persistido · §2.5) para la vista cuando
+    aún no hay campaign/milestones materializados. La materialización ocurre en la
+    acción POST (contact-auditor) o el scheduler de renovación, NO en un GET."""
+    scheduled = (
+        campaign.scheduled_for if campaign and campaign.scheduled_for
+        else datetime.now(timezone.utc) + timedelta(weeks=24)
+    )
+    ms = [
+        {
+            "id": None,
+            "campaign_id": str(campaign.id) if campaign else None,
+            "milestone_code": entry["code"],
+            "label": entry["label"],
+            "due_date": (scheduled + timedelta(weeks=entry["offset_weeks"])).isoformat(),
+            "status": "pendiente",
+            "responsable": None,
+            "completed_at": None,
+            "notes": None,
+        }
+        for entry in DEFAULT_MILESTONES
+    ]
+    return {
+        "project_id": str(project_id),
+        "campaign_id": str(campaign.id) if campaign else None,
+        "campaign_type": campaign.campaign_type if campaign else "recertification_bianual",
+        "scheduled_for": scheduled.isoformat(),
+        "milestones": ms,
+        "progress": {"total": len(ms), "completed": 0, "completed_pct": 0.0},
+        "ephemeral": True,
+    }
+
+
+async def _get_or_create_active_campaign(
+    project_id: uuid.UUID, db: AsyncSession,
+) -> RenewalCampaignRow:
+    row = await _get_active_campaign(project_id, db)
     if row is not None:
         return row
     # Crear placeholder campaign si no hay ninguna · scheduled 6 meses adelante
@@ -116,9 +158,20 @@ async def get_renewal_timeline(
     db: AsyncSession = Depends(get_db),
 ) -> dict[str, Any]:
     await _set_project_rls(project_id, db)
-    campaign = await _get_or_create_active_campaign(project_id, db)
-    milestones = await _seed_default_milestones(campaign, db)
-    await db.commit()
+    # §2.5 · GET read-only: NO crea campaign/milestones (eso es una acción · POST
+    # contact-auditor o el scheduler). Sin campaign persistida → timeline efímero.
+    campaign = await _get_active_campaign(project_id, db)
+    if campaign is None:
+        return _ephemeral_timeline(project_id)
+    milestones = (await db.execute(
+        select(RenewalCampaignMilestone).where(
+            RenewalCampaignMilestone.campaign_id == campaign.id,
+            RenewalCampaignMilestone.deleted_at.is_(None),
+        )
+    )).scalars().all()
+    if not milestones:
+        # campaign sin milestones materializados → preview efímero sobre su fecha
+        return _ephemeral_timeline(project_id, campaign=campaign)
     sorted_ms = sorted(milestones, key=lambda m: (m.due_date or datetime.max.replace(tzinfo=timezone.utc)))
     completed = sum(1 for m in sorted_ms if m.status == "completado")
     return {
@@ -194,8 +247,28 @@ async def get_auditor_info(
 ) -> dict[str, Any]:
     """Info consolidada auditor + ventana auditoria activa."""
     await _set_project_rls(project_id, db)
-    campaign = await _get_or_create_active_campaign(project_id, db)
-    await _seed_default_milestones(campaign, db)
+    # §2.5 · GET read-only: sin campaign persistida → placeholder (sin escribir).
+    campaign = await _get_active_campaign(project_id, db)
+    if campaign is None:
+        # §2.5 · read-only: ventana de auditoría CALCULADA (no persistida) para la
+        # vista · la materialización ocurre en la acción POST / scheduler.
+        scheduled = datetime.now(timezone.utc) + timedelta(weeks=24)
+        aw = next(
+            (e for e in DEFAULT_MILESTONES if e["code"] == "audit_window"), None,
+        )
+        return {
+            "project_id": str(project_id),
+            "campaign_id": None,
+            "campaign_status": None,
+            "audit_window_due": (
+                (scheduled + timedelta(weeks=aw["offset_weeks"])).isoformat()
+                if aw else None
+            ),
+            "auditor_contacted": False,
+            "auditor_contacted_at": None,
+            "auditor_contact_notes": None,
+            "ephemeral": True,
+        }
     auditor_contact_ms = (await db.execute(
         select(RenewalCampaignMilestone).where(
             RenewalCampaignMilestone.campaign_id == campaign.id,
@@ -210,7 +283,6 @@ async def get_auditor_info(
             RenewalCampaignMilestone.deleted_at.is_(None),
         )
     )).scalar_one_or_none()
-    await db.commit()
     return {
         "project_id": str(project_id),
         "campaign_id": str(campaign.id),

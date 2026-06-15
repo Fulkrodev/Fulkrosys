@@ -636,8 +636,14 @@ async def stream_answer_question(
                 temperature=DEFAULT_TEMPERATURE,
             ):
                 loop.call_soon_threadsafe(queue.put_nowait, delta)
-        except Exception as exc:  # noqa: BLE001
-            loop.call_soon_threadsafe(queue.put_nowait, ("__error__", str(exc)))
+        except Exception:  # noqa: BLE001
+            # §2.4 · NO exponer str(exc) al cliente (puede filtrar detalle del
+            # router LLM). Log server-side + mensaje genérico en el frame SSE.
+            logger.exception("Copiloto: stream LLM (producer) falló")
+            loop.call_soon_threadsafe(
+                queue.put_nowait,
+                ("__error__", "Error en el copiloto. Inténtalo de nuevo."),
+            )
         finally:
             loop.call_soon_threadsafe(queue.put_nowait, SENTINEL)
 

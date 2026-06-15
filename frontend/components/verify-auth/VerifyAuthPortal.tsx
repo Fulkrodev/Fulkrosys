@@ -39,9 +39,18 @@ export function VerifyAuthPortal({ token }: { token: string }) {
   const [accepted, setAccepted] = React.useState(false);
   const [otp, setOtp] = React.useState("");
   const [otpRequested, setOtpRequested] = React.useState(false);
+  // §2.7 · cooldown de reenvío (antes el botón quedaba deshabilitado PARA SIEMPRE
+  // tras el 1er envío → quien no recibía el código no podía reintentar).
+  const [resendCooldown, setResendCooldown] = React.useState(0);
   const [submitting, setSubmitting] = React.useState(false);
   const [signed, setSigned] =
     React.useState<VerifyAuthSignResponse | null>(null);
+
+  React.useEffect(() => {
+    if (resendCooldown <= 0) return;
+    const t = setTimeout(() => setResendCooldown((s) => s - 1), 1000);
+    return () => clearTimeout(t);
+  }, [resendCooldown]);
 
   React.useEffect(() => {
     getVerifyAuthData(token)
@@ -59,6 +68,7 @@ export function VerifyAuthPortal({ token }: { token: string }) {
     try {
       const r = await requestVerifyAuthOtp(token);
       setOtpRequested(true);
+      setResendCooldown(30);  // §2.7 · reintento posible tras 30s
       toast.success(`OTP enviado por ${r.delivery_method}`, {
         description: "El código expira en 10 minutos",
       });
@@ -104,7 +114,6 @@ export function VerifyAuthPortal({ token }: { token: string }) {
         <CardContent className="p-6 text-sm text-fulkro-danger">
           No se pudo cargar la autorización. El enlace puede estar caducado,
           revocado, o ya ha sido firmado.
-          <p className="mt-2 text-xs text-fulkro-ink-500">Detalle: {error}</p>
         </CardContent>
       </Card>
     );
@@ -269,7 +278,7 @@ export function VerifyAuthPortal({ token }: { token: string }) {
               aria-describedby="accept-helper"
               className="mt-1"
             />
-            <span>
+            <span id="accept-helper">
               He leído y acepto la declaración legal. Autorizo la ejecución de
               la verificación en los términos descritos.
             </span>
@@ -298,10 +307,14 @@ export function VerifyAuthPortal({ token }: { token: string }) {
                   variant="outline"
                   onClick={requestOtp}
                   className="gap-1"
-                  disabled={otpRequested}
+                  disabled={resendCooldown > 0}
                 >
                   <Mail size={14} />
-                  {otpRequested ? "Reenviado" : "Reenviar OTP"}
+                  {resendCooldown > 0
+                    ? `Reenviar (${resendCooldown}s)`
+                    : otpRequested
+                      ? "Reenviar OTP"
+                      : "Enviar OTP"}
                 </Button>
               </div>
               <p id="otp-helper" className="text-xs text-fulkro-ink-500">
