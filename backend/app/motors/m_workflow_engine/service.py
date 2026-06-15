@@ -117,4 +117,25 @@ class WorkflowEngineService:
                 exc_info=True,
             )
 
+        # Propagar el desbloqueo: al completar este paso, los pasos cuyo único
+        # prerequisito pendiente era éste pasan de "blocked" a "available" (y
+        # emiten step_unblocked + notificaciones). Antes NO se invocaba desde
+        # advance_step → los pasos dependientes quedaban bloqueados pese a estar
+        # cumplido su prerequisito. Best-effort post-commit (no revierte el avance).
+        try:
+            from backend.app.motors.m_workflow_engine.dependency_resolver_service import (  # noqa: E501
+                DependencyResolverService,
+            )
+
+            resolver = DependencyResolverService(self.db)
+            await resolver.propagate_unblock(project_id, template_id)
+        except Exception:  # noqa: BLE001 · best-effort · nunca rompe el avance
+            logger.warning(
+                "propagate_unblock best-effort falló · project=%s template=%s "
+                "(avance NO revertido)",
+                project_id,
+                template_id,
+                exc_info=True,
+            )
+
         return task

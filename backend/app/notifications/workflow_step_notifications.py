@@ -175,11 +175,10 @@ async def send_client_unblock_notification(
                 try:
                     await dispatch_critical_event(
                         db=db,
-                        client_user=user,
+                        client_user_id=user.id,
                         project_id=project_id,
                         event_type="workflow_step_unblocked",
-                        message=body,
-                        target_url=target_url,
+                        payload={"body": body, "target_url": target_url},
                     )
                 except Exception as exc:  # noqa: BLE001
                     logger.warning(

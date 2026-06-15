@@ -21,6 +21,13 @@ OVERLAY_TYPES = (
     "cloud_aws_eu",
     "cloud_gcp_eu",
 )
+# NOTA §2.1 (revertido): PCE NIS2/SSG (pce_nis2.yaml/pce_ssg.yaml) están en
+# KNOWN_OVERLAYS pero NO en OVERLAY_TYPES → catálogos muertos. NO es un one-liner:
+# el loader construye la ruta como f"pce_{overlay_type}.yaml" (los cloud usan
+# overlay_type SIN prefijo "pce_"), así que requiere alinear nombre de fichero +
+# overlay_type + clave KNOWN_OVERLAYS + campo interno del YAML + códigos de
+# detect_overlay coherentemente. NIS2/SSG son overlays extra (NO core ENS) →
+# DEFER a rewiring dedicado. Ver FIX_TRACKER §2.1.
 
 
 @functools.lru_cache(maxsize=None)

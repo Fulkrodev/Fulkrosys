@@ -575,7 +575,7 @@ class Agent20NegociadorContractual(AgentBase):
                 f"Hitos:\n{hitos_lines}"
                 + (f"\n\nRecargo urgencia: {urgencia:.2f} EUR." if urgencia > 0 else "")
             ),
-            "garantia": garantia or "Garantia estandar FULKRO segun categoria {cat}.",
+            "garantia": garantia or f"Garantia estandar FULKRO segun categoria {cat}.",
             "incompatibilidad": (
                 "FULKRO manifiesta y el Cliente acepta que, en aplicacion de "
                 "ISO/IEC 17065 y de la nota CCN-CERT IC-01/19 sobre "

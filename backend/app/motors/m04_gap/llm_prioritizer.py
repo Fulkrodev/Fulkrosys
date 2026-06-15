@@ -187,7 +187,11 @@ def _deterministic_fallback(
     gaps: list[dict[str, Any]],
 ) -> dict[str, Any]:
     """Fallback sin LLM: orden por severidad determinista."""
-    sev_order = {"critica": 0, "mayor": 1, "menor": 2, "info": 3}
+    # Vocabulario canónico de severidad (get_severidad_for_categoria / catálogo):
+    # critica/alta/media/baja/informativa. El anterior (mayor/menor/info) NUNCA
+    # casaba → todos los gaps caían al default 99 (sin orden real) y el impacto
+    # quedaba mal clasificado.
+    sev_order = {"critica": 0, "alta": 1, "media": 2, "baja": 3, "informativa": 4}
     sorted_gaps = sorted(
         gaps,
         key=lambda g: sev_order.get(
@@ -201,12 +205,12 @@ def _deterministic_fallback(
     for i, g in enumerate(sorted_gaps):
         sev = str(g.get("severidad", "")).lower()
         impact = (
-            "alto" if sev in ("critica", "mayor")
-            else "medio" if sev == "menor"
+            "alto" if sev in ("critica", "alta")
+            else "medio" if sev == "media"
             else "bajo"
         )
-        effort = 5 if sev in ("critica", "mayor") else 3
-        is_qw = sev == "menor" and effort <= 3
+        effort = 5 if sev in ("critica", "alta") else 3
+        is_qw = sev in ("baja", "informativa") and effort <= 3
         total_effort += effort
         if is_qw:
             quick_wins += 1

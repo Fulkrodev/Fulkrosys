@@ -68,7 +68,12 @@ def _sshd_rollback(_params: dict[str, Any], snapshot: dict[str, Any]) -> None:
 def _fw_read(params: dict[str, Any]) -> dict[str, Any]:
     port = str(params.get("port", ""))
     status = _run(["ufw", "status"])
-    denied = bool(re.search(rf"(?m)^{re.escape(port)}\s+DENY", status))
+    # ufw status lista "443/tcp  DENY  ..." (con sufijo de protocolo) o "443 DENY".
+    # El regex anterior (^{port}\s+DENY) sólo casaba el puerto desnudo a principio
+    # de línea → falso negativo con "443/tcp DENY" → la regla parecía no aplicada.
+    denied = bool(
+        re.search(rf"(?m)(?:^|\s){re.escape(port)}(?:/\w+)?\s+DENY", status)
+    )
     return {"compliant": denied, "port": port}
 
 

@@ -90,7 +90,7 @@ async def _cleanup_expired_attachments_async() -> dict[str, Any]:
         await db.commit()
 
     loguru_logger.info(
-        "m29 cleanup_expired_attachments: checked=%d deleted=%d errors=%d",
+        "m29 cleanup_expired_attachments: checked={} deleted={} errors={}",
         checked, deleted, errors,
     )
     return {
@@ -212,7 +212,7 @@ async def _digest_unread_admin_async() -> dict[str, Any]:
         await db.commit()
 
         loguru_logger.info(
-            "m29 digest sent ok=%s message_id=%s unread=%d threads=%d",
+            "m29 digest sent ok={} message_id={} unread={} threads={}",
             result.ok, result.message_id, unread, threads,
         )
 

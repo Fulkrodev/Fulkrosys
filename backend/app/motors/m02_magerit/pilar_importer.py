@@ -112,8 +112,16 @@ def parse_xml(xml_bytes: bytes) -> ImportedAnalysis:
     if not xml_bytes:
         raise PilarImportError("XML vacío")
 
+    # §2.1 anti-XXE: el endpoint acepta XML subido por el usuario. lxml por
+    # defecto resuelve entidades externas (XXE → lectura de ficheros / SSRF vía
+    # DTD externa / billion-laughs DoS). Parser endurecido: sin entidades, sin
+    # red, sin DTD. (Parser local · lxml parsers no son thread-safe compartidos.)
+    safe_parser = etree.XMLParser(
+        resolve_entities=False, no_network=True,
+        load_dtd=False, dtd_validation=False, huge_tree=False,
+    )
     try:
-        tree = etree.fromstring(xml_bytes)
+        tree = etree.fromstring(xml_bytes, parser=safe_parser)
     except etree.XMLSyntaxError as exc:
         raise PilarImportError(f"XML mal formado: {exc}") from exc
 

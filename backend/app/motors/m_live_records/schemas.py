@@ -142,7 +142,7 @@ class E305LibroIncidentesEntry(BaseModel):
     notificado_aepd: bool = False
     fase_nist: _NIST_PHASE
     fecha_cierre: datetime | None = None
-    leciones_aprendidas: str | None = None
+    lecciones_aprendidas: str | None = None
 
 
 class E306LibroVulnerabilidadesEntry(BaseModel):

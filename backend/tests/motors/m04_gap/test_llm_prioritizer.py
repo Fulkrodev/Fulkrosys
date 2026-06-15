@@ -46,13 +46,13 @@ def _make_gaps(n: int = 3) -> list[dict]:
         {
             "id": "g2",
             "medida_afectada": "mp.per.1",
-            "severidad": "menor",
+            "severidad": "baja",
             "descripcion": "Sin formacion anual documentada",
         },
         {
             "id": "g3",
             "medida_afectada": "org.1",
-            "severidad": "mayor",
+            "severidad": "alta",
             "descripcion": "Sin politica seguridad aprobada formalmente",
         },
     ][:n]
@@ -108,11 +108,11 @@ async def test_prioritize_fallback_without_api_key(patched_settings):
     )
     assert result["fallback_used"] is True
     assert result["model"] == "fallback"
-    # Orden por severidad: critica > mayor > menor
+    # Orden por severidad: critica > alta > baja (vocab canónico catálogo)
     pg = result["prioritized"]
     assert pg[0]["gap_id"] == "g1"   # critica mp.info.3
-    assert pg[1]["gap_id"] == "g3"   # mayor org.1
-    assert pg[2]["gap_id"] == "g2"   # menor mp.per.1
+    assert pg[1]["gap_id"] == "g3"   # alta org.1
+    assert pg[2]["gap_id"] == "g2"   # baja mp.per.1
     # Rank consecutivo
     assert [p["priority_rank"] for p in pg] == [1, 2, 3]
 
@@ -123,9 +123,9 @@ async def test_prioritize_fallback_without_api_key(patched_settings):
 
 
 def test_deterministic_fallback_identifies_quick_wins():
-    """Severidad 'menor' + effort 3 -> quick_win=True."""
+    """Severidad 'baja' + effort 3 -> quick_win=True (vocab canónico catálogo)."""
     gaps = [
-        {"id": "g1", "medida_afectada": "org.2", "severidad": "menor"},
+        {"id": "g1", "medida_afectada": "org.2", "severidad": "baja"},
     ]
     fb = _deterministic_fallback(gaps)
     assert fb["prioritized_gaps"][0]["is_quick_win"] is True
@@ -145,9 +145,9 @@ def test_deterministic_fallback_summary_counts():
     fb = _deterministic_fallback(gaps)
     s = fb["summary"]
     assert s["total_gaps"] == 3
-    # g1 critica (alto), g3 mayor (alto) = 2 alto_impacto
+    # g1 critica (alto), g3 alta (alto) = 2 alto_impacto
     assert s["alto_impacto_count"] == 2
-    # g2 menor 3d -> quick win
+    # g2 baja 3d -> quick win
     assert s["quick_wins_count"] == 1
 
 

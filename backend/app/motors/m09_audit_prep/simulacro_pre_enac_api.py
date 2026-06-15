@@ -127,10 +127,13 @@ async def get_last_simulacro_report(
         executed_at=ts.isoformat() if hasattr(ts, "isoformat") else str(ts),
         overall_readiness_score=int(payload_dict.get("overall_score", 0) or 0),
         total_gaps=int(payload_dict.get("total_gaps", 0) or 0),
-        critical_gaps=0,
-        high_gaps=0,
-        coverage_pct=0.0,
-        current_phase="",
+        # El service SÍ persiste estos campos en payload_new (service.py:319-321);
+        # antes se devolvían hardcodeados a 0 → GATE-7 (require_clean_audit_sim)
+        # no veía los gaps críticos/altos reales.
+        critical_gaps=int(payload_dict.get("critical_gaps", 0) or 0),
+        high_gaps=int(payload_dict.get("high_gaps", 0) or 0),
+        coverage_pct=float(payload_dict.get("coverage_pct", 0.0) or 0.0),
+        current_phase=str(payload_dict.get("current_phase", "") or ""),
         integrity_ok=bool(payload_dict.get("integrity_ok", False)),
         integrity_first_bad_seq=None,
         corrective_loops_opened=int(payload_dict.get("loops_opened", 0) or 0),
