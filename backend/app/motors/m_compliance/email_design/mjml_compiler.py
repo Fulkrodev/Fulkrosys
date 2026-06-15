@@ -41,7 +41,13 @@ def _env() -> Environment:
     """Lazy-built Jinja2 environment with brand tokens + helpers exposed."""
     env = Environment(
         loader=FileSystemLoader(_TEMPLATES_DIR),
-        autoescape=select_autoescape(disabled_extensions=("mjml",)),
+        # Autoescape ACTIVADO para .mjml: antes estaba deshabilitado para esa
+        # extensión, por lo que las variables ({{ breach.description }},
+        # {{ rejection_reason }}, {{ cliente_email }}…) se interpolaban sin escapar
+        # → XSS en el email renderizado. El markup MJML estático de la plantilla
+        # NO se ve afectado (autoescape solo escapa interpolaciones); si alguna
+        # variable debe ser HTML crudo, debe marcarse explícitamente con |safe.
+        autoescape=select_autoescape(enabled_extensions=("mjml", "html", "xml")),
         trim_blocks=True,
         lstrip_blocks=True,
     )
