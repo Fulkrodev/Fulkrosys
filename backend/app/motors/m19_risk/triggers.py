@@ -59,6 +59,14 @@ MILESTONE_TO_MAGIC_LINK_MAPPING: dict[str, dict[str, Any]] = {
         "purpose": MagicLinkPurpose.APROBACION_PROPUESTA,
         "ttl_hours": 168,  # 7 días
     },
+    # §3.1 audit-2026-06-15 · LATENTE/INCOMPLETO (no hay poller en producción que
+    # invoque process_phase_changed_event · sólo batch manual + tests). Si se cablea
+    # el poller, ESTE link NO debe usarse para la firma de la DdA: el scope no lleva
+    # document_type ni el dda_snapshot_hash congelado → el endpoint público firmaría
+    # un hash del scope, NO el contenido real de la DdA (gap de trazabilidad ENAC).
+    # La firma AUTORITATIVA de la DdA es m03 request_e040_signature (congela + carga
+    # dda_e040_rseg + dda_snapshot_hash). Reconciliar (delegar a m03 o enriquecer el
+    # scope con el snapshot real) ANTES de activar el poller.
     "phase_changed:to:implantacion": {
         "purpose": MagicLinkPurpose.FIRMA_DOCUMENTO,
         "ttl_hours": 168,

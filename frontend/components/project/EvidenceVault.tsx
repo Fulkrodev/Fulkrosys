@@ -323,36 +323,24 @@ function EmptyState() {
 // ─── Drag upload zone ────────────────────────────────────────────────
 
 function DragUploadZone() {
-  const [dragging, setDragging] = React.useState(false);
+  // §3.1 audit-2026-06-15 · esta zona NO subía nada (onDrop/botón sin acción ·
+  // fingía completitud). La subida REAL de evidencias se hace desde el portal del
+  // cliente (EvidenciasUploadPage · requiere tipo de evidencia + medida ENS). Aquí
+  // (vista admin) se muestra informativa y NO accionable hasta cablear el formulario
+  // de subida admin (tipo+medida) · no prometemos una acción que no ocurre.
   return (
-    <div
-      className={cn(
-        "flex items-center justify-between gap-3 rounded-md border border-dashed px-4 py-3 text-sm transition-colors",
-        dragging
-          ? "border-fulkro-primary-700 bg-fulkro-primary-700/5"
-          : "border-[color:var(--fulkro-surface-glass-border)] bg-[color:var(--fulkro-surface-glass)]",
-      )}
-      onDragOver={(e) => {
-        e.preventDefault();
-        setDragging(true);
-      }}
-      onDragLeave={() => setDragging(false)}
-      onDrop={(e) => {
-        e.preventDefault();
-        setDragging(false);
-      }}
-    >
+    <div className="flex items-center justify-between gap-3 rounded-md border border-dashed border-[color:var(--fulkro-surface-glass-border)] bg-[color:var(--fulkro-surface-glass)] px-4 py-3 text-sm">
       <div className="flex items-center gap-3 text-[color:var(--fulkro-muted)]">
         <Upload size={18} strokeWidth={2.3} />
         <span className="font-medium">
-          Arrastra ficheros para subir{" "}
+          El cliente sube las evidencias desde su portal{" "}
           <DevHint>
             POST /api/v1/evidence/projects/{"{id}"}/upload
           </DevHint>
         </span>
       </div>
-      <Button variant="outline" size="sm">
-        Seleccionar archivos
+      <Button variant="outline" size="sm" disabled title="Próximamente · subida admin">
+        Subir (próximamente)
       </Button>
     </div>
   );
@@ -448,12 +436,26 @@ function EvidenceDetailPanel({
               </div>
             )}
 
+            {/* §3.1 · estos botones no tenían onClick (fingían completitud) ·
+                deshabilitados con tooltip hasta cablear preview/verificación reales. */}
             <div className="space-y-2">
-              <Button variant="primary" size="md" className="w-full">
-                <ExternalLink size={16} strokeWidth={2.3} /> Abrir preview
+              <Button
+                variant="primary"
+                size="md"
+                className="w-full"
+                disabled
+                title="Próximamente"
+              >
+                <ExternalLink size={16} strokeWidth={2.3} /> Abrir preview (próximamente)
               </Button>
-              <Button variant="outline" size="md" className="w-full">
-                <Fingerprint size={16} strokeWidth={2.3} /> Verificar firma
+              <Button
+                variant="outline"
+                size="md"
+                className="w-full"
+                disabled
+                title="Próximamente"
+              >
+                <Fingerprint size={16} strokeWidth={2.3} /> Verificar firma (próximamente)
               </Button>
             </div>
           </>

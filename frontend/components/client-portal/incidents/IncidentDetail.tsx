@@ -186,18 +186,21 @@ export function IncidentDetail({
 
         {isManualNotification && incident.manual_notification_doc_id && (
           <div className="mt-4">
+            {/* §3.1 audit-2026-06-15 · el botón no descargaba (no hay endpoint de
+                descarga en incidents.ts) y el texto contradecía la condición de
+                render (sólo aparece SI el doc ya existe). Deshabilitado + honesto
+                hasta cablear la descarga del documento (IDMS/documents). */}
             <Button
               size="sm"
               variant="outline"
               data-testid="incident-manual-notification-download"
-              onClick={() => {
-                toast.info(
-                  "Descarga E-CCN-NOTIFY pdf · disponible cuando admin genera el documento",
-                );
-              }}
+              disabled
+              title="Descarga próximamente"
             >
               <Download className="h-3 w-3" />
-              <span className="ml-1.5">Descargar E-CCN-NOTIFY (pdf)</span>
+              <span className="ml-1.5">
+                E-CCN-NOTIFY (descarga próximamente)
+              </span>
             </Button>
           </div>
         )}

@@ -63,8 +63,11 @@ export function VulnsTab({ projectId }: VulnsTabProps) {
       toast.warning("Vulnerabilidad sin activo asociado · no se puede lanzar pentest");
       return;
     }
+    // §3.1 audit-2026-06-15 · NO fingir que se inició (antes el toast decía
+    // "iniciado" sin llamar a backend). El lanzamiento real se hará desde el motor
+    // de verificación (m08 autopilot) cuando se cablee · mensaje honesto.
     toast.info(
-      `Pentest deep-dive iniciado · activo ${assetId.slice(0, 8)} · ${cve ?? "sin CVE"}`,
+      `Pentest dirigido (activo ${assetId.slice(0, 8)}${cve ? ` · ${cve}` : ""}) · función en preparación`,
     );
   };
 
