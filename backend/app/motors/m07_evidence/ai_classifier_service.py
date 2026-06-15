@@ -148,12 +148,14 @@ CLASSIFIER_RULES: list[tuple[str, tuple[str, ...], str, str, list[str], list[str
         "registro", "proveedor",
         ["mp.s.7"], ["proveedor", "tercero"],
     ),
-    # Pentest / auditoría
+    # Pentest / auditoría · §2.2 · op.exp.10 = "Protección de claves criptográficas"
+    # (no procede) → alinear con el catálogo (evidence_types.json): gestión de la
+    # configuración (op.exp.3) + gestión de incidentes (op.exp.7).
     (
         "rule_pentest",
         ("pentest", "auditoria", "informe_seguridad", "e-7"),
         "informe", "informe_pentest",
-        ["op.exp.10"], ["pentest", "auditoria"],
+        ["op.exp.3", "op.exp.7"], ["pentest", "auditoria"],
     ),
     # Acceso / permisos
     (

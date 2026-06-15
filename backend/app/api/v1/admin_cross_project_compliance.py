@@ -164,52 +164,61 @@ async def list_cross_project_compliance(
             tasks_pending = 0
 
         # Evidences missing
+        # §2.2 audit-2026-06-15 · la tabla es `evidence_requests` (NO
+        # evidence_collection_requests · inexistente) + status pending_cliente/
+        # rejected. SAVEPOINT (begin_nested) para que un fallo NO envenene la
+        # transacción y haga 500 el resto de COUNTs (mirror client_compliance_summary).
         try:
-            e = (await db.execute(
-                sa_text(
-                    "SELECT COUNT(*) FROM evidence_collection_requests "
-                    "WHERE project_id = :pid "
-                    "  AND status IN ('pending', 'rejected')"
-                ),
-                {"pid": project_id},
-            )).scalar()
+            async with db.begin_nested():
+                e = (await db.execute(
+                    sa_text(
+                        "SELECT COUNT(*) FROM evidence_requests "
+                        "WHERE project_id = :pid "
+                        "  AND status IN ('pending_cliente', 'rejected')"
+                    ),
+                    {"pid": project_id},
+                )).scalar()
             evidences_missing = int(e or 0)
         except Exception:  # noqa: BLE001
             evidences_missing = 0
 
-        # Gaps critical M04
+        # Gaps critical M04 · §2.2 · la columna es `severidad` (NO `severity`).
         try:
-            g = (await db.execute(
-                sa_text(
-                    "SELECT COUNT(*) FROM findings "
-                    "WHERE project_id = :pid "
-                    "  AND severity IN ('critica', 'critical') "
-                    "  AND estado IN ('abierto', 'open', 'en_curso')"
-                ),
-                {"pid": project_id},
-            )).scalar()
+            async with db.begin_nested():
+                g = (await db.execute(
+                    sa_text(
+                        "SELECT COUNT(*) FROM findings "
+                        "WHERE project_id = :pid "
+                        "  AND severidad IN ('critica', 'alta', 'critical', 'high') "
+                        "  AND estado IN ('abierto', 'open', 'en_curso')"
+                    ),
+                    {"pid": project_id},
+                )).scalar()
             gaps_critical = int(g or 0)
         except Exception:  # noqa: BLE001
             gaps_critical = 0
 
-        # Conformity coarse status
+        # Conformity coarse status · §2.2 · la tabla es `conformity_routes`
+        # (col `status`) · `conformity_declarations` NO existe.
         try:
-            c_row = (await db.execute(
-                sa_text(
-                    "SELECT estado_declaracion FROM conformity_declarations "
-                    "WHERE project_id = :pid "
-                    "ORDER BY created_at DESC LIMIT 1"
-                ),
-                {"pid": project_id},
-            )).first()
+            async with db.begin_nested():
+                c_row = (await db.execute(
+                    sa_text(
+                        "SELECT status FROM conformity_routes "
+                        "WHERE project_id = :pid "
+                        "ORDER BY created_at DESC LIMIT 1"
+                    ),
+                    {"pid": project_id},
+                )).first()
             if c_row is None:
                 conformity_status: HealthIndicator = "unknown"
             else:
                 estado = (c_row[0] or "").lower()
-                if estado in ("firmada", "vigente", "aprobada"):
+                if any(k in estado for k in (
+                    "regist", "cert", "vigente", "firmad", "aprob",
+                    "accept", "complet",
+                )):
                     conformity_status = "ok"
-                elif estado in ("borrador", "pendiente"):
-                    conformity_status = "warning"
                 else:
                     conformity_status = "warning"
         except Exception:  # noqa: BLE001

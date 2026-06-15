@@ -274,7 +274,11 @@ class DpcAnualService:
         }
 
         # Recovery section · M26 backup + M25 lifecycle
-        # Note: backup_jobs no tiene project_id (es global cluster) · count total
+        # §4.4 audit-2026-06-15 · backup_jobs NO tiene project_id (es global del
+        # clúster) → métrica de PLATAFORMA (régimen de copias del proveedor · ENS
+        # R8 dogfooding), NO del proyecto. Se marca el scope explícito para que el
+        # DPC firmado no induzca a error (no es una fuga de datos de otro tenant:
+        # es la misma infraestructura que sirve a todos · sólo un conteo agregado).
         recovery_row = await self.db.execute(
             sa_text(
                 "SELECT count(*) AS backup_jobs_count, "
@@ -284,13 +288,16 @@ class DpcAnualService:
         )
         recovery_hit = recovery_row.first()
         recovery_section = {
+            "backup_scope": "platform",
             "backup_jobs_last_12m": int(recovery_hit[0] or 0) if recovery_hit else 0,
             "last_backup_at": (
                 recovery_hit[1].isoformat()
                 if recovery_hit and recovery_hit[1] else None
             ),
+            # Valores por defecto del servicio · pendiente afinar por proyecto (BIA).
             "rto_documented_hours": 24,
             "rpo_documented_hours": 4,
+            "rto_rpo_source": "platform_default",
         }
 
         # Incidents section · M19 incidents últimos 12m

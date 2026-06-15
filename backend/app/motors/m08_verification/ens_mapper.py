@@ -223,12 +223,15 @@ PATTERN_TO_ENS: list[dict[str, Any]] = [
             {"measure": "op.acc.4", "title": "Proceso de gestion de derechos"},
         ],
     },
-    # Backups expuestos
+    # Backups expuestos · §2.2 audit-2026-06-15 · mapeo ENS corregido:
+    # mp.info.6 es "Copias de seguridad" (NO "Limpieza de documentos"=mp.info.5) y
+    # op.exp.10 es "Protección de claves criptográficas" (NO procede para un backup
+    # expuesto · debe cifrarse el soporte → mp.si.2 "Criptografía").
     {
         "patterns": ["backup exposed", ".sql.gz", ".bak", "backup file"],
         "measures": [
-            {"measure": "mp.info.6", "title": "Limpieza de documentos"},
-            {"measure": "op.exp.10", "title": "Procedimientos operativos"},
+            {"measure": "mp.info.6", "title": "Copias de seguridad"},
+            {"measure": "mp.si.2", "title": "Criptografía"},
         ],
     },
     # Lynis warnings

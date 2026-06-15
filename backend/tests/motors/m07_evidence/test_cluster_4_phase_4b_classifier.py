@@ -85,7 +85,10 @@ def test_suggest_classification_pentest():
     result = suggest_classification("informe_pentest_2026.pdf")
     assert result.rule_id == "rule_pentest"
     assert "pentest" in result.matched_keywords
-    assert "op.exp.10" in result.suggested_measure_codes
+    # §2.2 audit-2026-06-15 · op.exp.10 = "Protección de claves criptográficas"
+    # (mapeo erróneo) · pentest → op.exp.3 (config) + op.exp.7 (incidentes).
+    assert "op.exp.3" in result.suggested_measure_codes
+    assert "op.exp.7" in result.suggested_measure_codes
 
 
 def test_suggest_classification_continuidad_multiple_matches():
