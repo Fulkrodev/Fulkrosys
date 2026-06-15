@@ -43,101 +43,101 @@ CVE_TO_ENS: dict[str, list[dict[str, Any]]] = {
 
     # ── Log4Shell + Spring4Shell ──
     "CVE-2021-44228": [
-        {"measure": "op.exp.5", "title": "Gestion de vulnerabilidades", "citation": "Log4Shell — actualizacion critica"},
+        {"measure": "op.exp.4", "title": "Gestion de vulnerabilidades", "citation": "Log4Shell — actualizacion critica"},
         {"measure": "op.exp.6", "title": "Proteccion frente a codigo danino"},
     ],
     "CVE-2021-45046": [
-        {"measure": "op.exp.5", "title": "Gestion de vulnerabilidades"},
+        {"measure": "op.exp.4", "title": "Gestion de vulnerabilidades"},
     ],
     "CVE-2022-22965": [
-        {"measure": "op.exp.5", "title": "Gestion de vulnerabilidades"},
+        {"measure": "op.exp.4", "title": "Gestion de vulnerabilidades"},
         {"measure": "mp.sw.1", "title": "Desarrollo de aplicaciones"},
     ],
 
     # ── ProxyShell / Exchange ──
     "CVE-2021-34473": [
-        {"measure": "op.exp.5", "title": "Gestion de vulnerabilidades"},
+        {"measure": "op.exp.4", "title": "Gestion de vulnerabilidades"},
         {"measure": "op.acc.6", "title": "Acceso local — bypass auth"},
     ],
-    "CVE-2021-34523": [{"measure": "op.exp.5", "title": "Gestion de vulnerabilidades"}],
-    "CVE-2021-31207": [{"measure": "op.exp.5", "title": "Gestion de vulnerabilidades"}],
+    "CVE-2021-34523": [{"measure": "op.exp.4", "title": "Gestion de vulnerabilidades"}],
+    "CVE-2021-31207": [{"measure": "op.exp.4", "title": "Gestion de vulnerabilidades"}],
 
     # ── EternalBlue / SMB ──
     "CVE-2017-0144": [
-        {"measure": "op.exp.5", "title": "Gestion de vulnerabilidades"},
+        {"measure": "op.exp.4", "title": "Gestion de vulnerabilidades"},
         {"measure": "mp.com.2", "title": "Proteccion comunicaciones internas"},
     ],
 
     # ── BlueKeep / RDP ──
     "CVE-2019-0708": [
-        {"measure": "op.exp.5", "title": "Gestion de vulnerabilidades"},
+        {"measure": "op.exp.4", "title": "Gestion de vulnerabilidades"},
         {"measure": "op.acc.6", "title": "Acceso local"},
     ],
 
     # ── Heartbleed / OpenSSL ──
     "CVE-2014-0160": [
         {"measure": "mp.com.2", "title": "Proteccion comunicaciones — TLS"},
-        {"measure": "op.exp.5", "title": "Gestion de vulnerabilidades"},
+        {"measure": "op.exp.4", "title": "Gestion de vulnerabilidades"},
     ],
 
     # ── ShellShock ──
     "CVE-2014-6271": [
-        {"measure": "op.exp.5", "title": "Gestion de vulnerabilidades"},
+        {"measure": "op.exp.4", "title": "Gestion de vulnerabilidades"},
         {"measure": "op.exp.6", "title": "Proteccion frente a codigo danino"},
     ],
 
     # ── Apache Struts ──
     "CVE-2017-5638": [
-        {"measure": "op.exp.5", "title": "Gestion de vulnerabilidades"},
+        {"measure": "op.exp.4", "title": "Gestion de vulnerabilidades"},
         {"measure": "mp.sw.1", "title": "Desarrollo seguro"},
     ],
-    "CVE-2018-11776": [{"measure": "op.exp.5", "title": "Gestion de vulnerabilidades"}],
+    "CVE-2018-11776": [{"measure": "op.exp.4", "title": "Gestion de vulnerabilidades"}],
 
     # ── Drupalgeddon ──
     "CVE-2018-7600": [{"measure": "mp.sw.2", "title": "Aceptacion y puesta en produccion"}],
 
     # ── PrintNightmare ──
     "CVE-2021-1675": [
-        {"measure": "op.exp.5", "title": "Gestion de vulnerabilidades"},
+        {"measure": "op.exp.4", "title": "Gestion de vulnerabilidades"},
         {"measure": "op.acc.4", "title": "Proceso de gestion de derechos"},
     ],
-    "CVE-2021-34527": [{"measure": "op.exp.5", "title": "Gestion de vulnerabilidades"}],
+    "CVE-2021-34527": [{"measure": "op.exp.4", "title": "Gestion de vulnerabilidades"}],
 
     # ── Citrix ADC ──
     "CVE-2019-19781": [
-        {"measure": "op.exp.5", "title": "Gestion de vulnerabilidades"},
+        {"measure": "op.exp.4", "title": "Gestion de vulnerabilidades"},
         {"measure": "op.acc.5", "title": "Mecanismos de autenticacion"},
     ],
 
     # ── F5 BIG-IP ──
     "CVE-2020-5902": [
-        {"measure": "op.exp.5", "title": "Gestion de vulnerabilidades"},
+        {"measure": "op.exp.4", "title": "Gestion de vulnerabilidades"},
         {"measure": "op.acc.6", "title": "Acceso local"},
     ],
 
     # ── PHP / WordPress ──
     "CVE-2024-4577": [
-        {"measure": "op.exp.5", "title": "Gestion de vulnerabilidades"},
+        {"measure": "op.exp.4", "title": "Gestion de vulnerabilidades"},
         {"measure": "mp.sw.1", "title": "Desarrollo seguro"},
     ],
 
     # ── Atlassian ──
-    "CVE-2022-26134": [{"measure": "op.exp.5", "title": "Gestion de vulnerabilidades"}],
+    "CVE-2022-26134": [{"measure": "op.exp.4", "title": "Gestion de vulnerabilidades"}],
     "CVE-2023-22515": [{"measure": "op.acc.5", "title": "Mecanismos de autenticacion"}],
 
     # ── MOVEit / SQLi ──
     "CVE-2023-34362": [
         {"measure": "mp.sw.1", "title": "Desarrollo seguro"},
-        {"measure": "op.exp.5", "title": "Gestion de vulnerabilidades"},
+        {"measure": "op.exp.4", "title": "Gestion de vulnerabilidades"},
     ],
-    "CVE-2023-35036": [{"measure": "op.exp.5", "title": "Gestion de vulnerabilidades"}],
-    "CVE-2023-35708": [{"measure": "op.exp.5", "title": "Gestion de vulnerabilidades"}],
+    "CVE-2023-35036": [{"measure": "op.exp.4", "title": "Gestion de vulnerabilidades"}],
+    "CVE-2023-35708": [{"measure": "op.exp.4", "title": "Gestion de vulnerabilidades"}],
 
     # ── VMware ESXi ──
-    "CVE-2021-21974": [{"measure": "op.exp.5", "title": "Gestion de vulnerabilidades"}],
+    "CVE-2021-21974": [{"measure": "op.exp.4", "title": "Gestion de vulnerabilidades"}],
 
     # ── Spring Cloud / Spring4Shell ──
-    "CVE-2022-22963": [{"measure": "op.exp.5", "title": "Gestion de vulnerabilidades"}],
+    "CVE-2022-22963": [{"measure": "op.exp.4", "title": "Gestion de vulnerabilidades"}],
 
     # ── pwnkit ──
     "CVE-2021-4034": [
@@ -148,14 +148,14 @@ CVE_TO_ENS: dict[str, list[dict[str, Any]]] = {
     # ── Fortinet ──
     "CVE-2022-40684": [
         {"measure": "op.acc.5", "title": "Mecanismos de autenticacion"},
-        {"measure": "op.exp.5", "title": "Gestion de vulnerabilidades"},
+        {"measure": "op.exp.4", "title": "Gestion de vulnerabilidades"},
     ],
-    "CVE-2024-21762": [{"measure": "op.exp.5", "title": "Gestion de vulnerabilidades"}],
+    "CVE-2024-21762": [{"measure": "op.exp.4", "title": "Gestion de vulnerabilidades"}],
 
     # ── ConnectWise ──
     "CVE-2024-1709": [
         {"measure": "op.acc.5", "title": "Mecanismos de autenticacion"},
-        {"measure": "op.exp.5", "title": "Gestion de vulnerabilidades"},
+        {"measure": "op.exp.4", "title": "Gestion de vulnerabilidades"},
     ],
 
     # ── XZ Utils backdoor ──
@@ -180,7 +180,7 @@ PATTERN_TO_ENS: list[dict[str, Any]] = [
         "patterns": ["expired certificate", "self-signed certificate"],
         "measures": [
             {"measure": "mp.com.2", "title": "Proteccion comunicaciones"},
-            {"measure": "op.exp.5", "title": "Gestion de vulnerabilidades — certificados"},
+            {"measure": "op.exp.4", "title": "Gestion de vulnerabilidades — certificados"},
         ],
     },
     # Headers HTTP
@@ -194,7 +194,7 @@ PATTERN_TO_ENS: list[dict[str, Any]] = [
         "patterns": ["SQL Injection", "SQLi", "blind sql"],
         "measures": [
             {"measure": "mp.sw.1", "title": "Desarrollo de aplicaciones — sanitizacion input"},
-            {"measure": "op.exp.5", "title": "Gestion de vulnerabilidades"},
+            {"measure": "op.exp.4", "title": "Gestion de vulnerabilidades"},
         ],
     },
     # XSS
@@ -386,5 +386,21 @@ class EnsMapper:
             unique.append(it)
         unique.sort(key=lambda x: -float(x.get("confidence", 0)))
         unique = unique[:3]
+        # §2.2 audit-2026-06-15 · RESOLVER el título oficial desde el catálogo
+        # canónico RD 311/2022 (fuente única) en vez de confiar en los títulos
+        # hardcodeados (muchos eran erróneos o deriva RD 3/2010 — p.ej. "Acceso
+        # local", "Gestión de vulnerabilidades"— y se imprimían VERBATIM en el
+        # informe del auditor ENAC, violando R2). Así el título SIEMPRE es el
+        # oficial sea cual sea el code. Code inexistente → warning (cazaría phantoms).
+        from backend.app.motors.m03_dda.anexo2_rd311_2022 import ANEXO_II_RD311
+        for it in unique:
+            official = ANEXO_II_RD311.get(it.get("measure"))
+            if official:
+                it["title"] = official[0]
+            else:
+                logger.warning(
+                    "ENS mapper: medida %s no existe en RD 311/2022 (revisar mapeo)",
+                    it.get("measure"),
+                )
         primary = unique[0]["measure"] if unique else None
         return unique, primary

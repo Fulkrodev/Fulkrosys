@@ -514,7 +514,12 @@ async def answer_question(
     p_hash = _prompt_hash(messages)
     log_entry = LLMInteractionLog(
         project_id=query.project_id if query.project_id else None,
-        feature="copilot_chat",
+        # §4.5 audit-2026-06-15 · feature ROLE-AWARE: el chat del cliente
+        # (portal_api · query.role=='cliente') se etiqueta copilot_cliente_chat
+        # para que cuente en el cap CLIENTE y NO envenene el cap admin (antes se
+        # logueaba 'copilot_chat' = etiqueta admin → la vía cliente dominante
+        # escapaba su tope y contaminaba el de Marcos).
+        feature=("copilot_cliente_chat" if query.role == "cliente" else "copilot_chat"),
         model=llm_result.model,
         prompt_hash=p_hash,
         prompt_preview=query.question[:500],
@@ -705,7 +710,11 @@ async def stream_answer_question(
         est_out = max(1, len(answer) // 4)
         log_entry = LLMInteractionLog(
             project_id=query.project_id if query.project_id else None,
-            feature="copilot_chat_stream",
+            # §4.5 · feature ROLE-AWARE (ver answer_question).
+            feature=(
+                "copilot_cliente_chat_stream" if query.role == "cliente"
+                else "copilot_chat_stream"
+            ),
             model=model,
             prompt_hash=p_hash,
             prompt_preview=query.question[:500],

@@ -53,10 +53,18 @@ CLIENTE_CAPS = RateLimitConfig(
     daily_messages_cap=100,
     daily_output_tokens_cap=30_000,
     monthly_cost_eur_cap=6.0,
-    # Copiloto cliente (D.B service) · el cliente NO usa answer_question (admin-only m11)
-    feature_filters=("copilot_cliente_1d_b_1",),
-    # §4.5 · los agentes inline del portal cliente (inline_agents_api · feature
-    # "inline_cliente_<slug>") cuentan también contra el cap cliente del proyecto.
+    # §4.5 audit-2026-06-15 · el cliente SÍ usa answer_question/stream vía
+    # portal_api (/client-portal/copiloto/chat[/stream]) · agent_14 ahora etiqueta
+    # esa vía como copilot_cliente_chat[_stream] (role-aware) → DEBE contar en el
+    # cap cliente (antes se logueaba 'copilot_chat' = etiqueta admin → la vía
+    # dominante del cliente escapaba su tope y contaminaba el cap de Marcos).
+    feature_filters=(
+        "copilot_cliente_1d_b_1",
+        "copilot_cliente_chat",
+        "copilot_cliente_chat_stream",
+    ),
+    # Los agentes inline del portal cliente (feature "inline_cliente_<slug>")
+    # también cuentan contra el cap cliente del proyecto.
     feature_prefixes=("inline_cliente_",),
 )
 

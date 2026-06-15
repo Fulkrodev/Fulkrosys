@@ -25,12 +25,19 @@ def _zfp(cve=None, title="t", description=""):
 # ════════════════════════════════════════════════════════════════════
 
 @pytest.mark.asyncio
-async def test_ens_mapper_log4shell_to_op_exp_5(db):
+async def test_ens_mapper_log4shell_to_op_exp_4(db):
+    # §2.2 audit-2026-06-15 · parchear un CVE (Log4Shell) es op.exp.4
+    # "Mantenimiento y actualizaciones de seguridad", NO op.exp.5 "Gestión de
+    # cambios" (mapeo previo incorrecto · 'Gestión de vulnerabilidades' ni existe).
     mapper = EnsMapper(db, enable_llm=False)
     f = _zfp(cve="CVE-2021-44228", title="Apache Log4j RCE")
     measures, primary = await mapper.map(f)
     measure_codes = [m["measure"] for m in measures]
-    assert "op.exp.5" in measure_codes
+    assert "op.exp.4" in measure_codes
+    assert "op.exp.5" not in measure_codes
+    # el título debe ser el oficial RD 311/2022 (resuelto del catálogo).
+    op_exp_4 = next(m for m in measures if m["measure"] == "op.exp.4")
+    assert op_exp_4["title"] == "Mantenimiento y actualizaciones de seguridad"
     assert primary == measure_codes[0]
     assert all(m["method"] == "rule" for m in measures)
     assert all(m["confidence"] == 0.95 for m in measures)

@@ -35,7 +35,14 @@ def test_cliente_caps_match_architect_spec():
     assert CLIENTE_CAPS.daily_messages_cap == 100
     assert CLIENTE_CAPS.daily_output_tokens_cap == 30_000
     assert CLIENTE_CAPS.monthly_cost_eur_cap == 6.0
-    assert CLIENTE_CAPS.feature_filters == ("copilot_cliente_1d_b_1",)
+    # §4.5 audit-2026-06-15 · incluye el chat real del cliente (role-aware) +
+    # prefijo de agentes inline · si no, la vía dominante del cliente escapaba el cap.
+    assert CLIENTE_CAPS.feature_filters == (
+        "copilot_cliente_1d_b_1",
+        "copilot_cliente_chat",
+        "copilot_cliente_chat_stream",
+    )
+    assert CLIENTE_CAPS.feature_prefixes == ("inline_cliente_",)
 
 
 def test_admin_caps_match_architect_spec():
@@ -187,13 +194,16 @@ async def test_cap_counts_real_feature_labels(db):
     db.add(_llm_row("copilot_admin_1d_b_2"))
     db.add(_llm_row("copilot_chat"))
     db.add(_llm_row("copilot_cliente_1d_b_1", project_id=pid))
+    # §4.5 · la etiqueta REAL que escribe el endpoint cliente de chat (portal_api
+    # → agent_14 role-aware). Antes se logueaba 'copilot_chat' (admin) y escapaba.
+    db.add(_llm_row("copilot_cliente_chat_stream", project_id=pid))
+    db.add(_llm_row("inline_cliente_a12_coach_suggestion", project_id=pid))
     await db.flush()
 
     admin = await get_rate_limit_status(db, uuid.uuid4(), "admin")
     cliente = await get_rate_limit_status(db, uuid.uuid4(), "cliente", project_id=pid)
 
-    # admin cuenta sus 2 etiquetas (admin_1d_b_2 + chat) · NO la del cliente
-    assert admin.messages_today >= 2
-    # cliente cuenta solo la suya (1) · NO las admin
-    assert cliente.messages_today >= 1
-    assert cliente.messages_today < admin.messages_today + 1  # no mezcla
+    # admin cuenta SOLO sus 2 etiquetas (admin_1d_b_2 + chat) · NO las 3 del cliente
+    assert admin.messages_today == 2
+    # cliente cuenta sus 3 (1d_b_1 + chat_stream real + inline) · NO las admin
+    assert cliente.messages_today == 3

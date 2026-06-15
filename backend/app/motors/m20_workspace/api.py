@@ -6,23 +6,55 @@ import uuid
 from datetime import datetime
 from typing import Optional
 
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, Request, status
 from pydantic import BaseModel, Field
 from sqlalchemy import text
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from backend.app.auth.dependencies import require_marcos_or_client
+from backend.app.auth.dependencies import (
+    _get_auth_subject,
+    require_marcos_or_client,
+)
 from backend.app.database import get_db, set_tenant_context
 
 from .workspace_service import WorkspaceError, WorkspaceService
+
+
+async def _enforce_cliente_project_ownership(
+    request: Request, db: AsyncSession = Depends(get_db),
+) -> None:
+    """§IDOR audit-2026-06-15 · el portal cliente corre bajo
+    ``fulkro_app_bypassrls`` (RLS DESACTIVADA en todo el request · ver
+    auth_service.verify_session), así que el aislamiento multi-tenant NO lo da la
+    RLS sino ESTA comprobación explícita: un cliente sólo puede tocar un
+    ``project_id`` cuyo owner sea SU ``client_id``. Marcos (pool marcos) tiene
+    acceso completo. Cierra el IDOR cross-tenant de TODOS los endpoints /workspace
+    en un único sitio (el binding workspace_id de w2c/w2i era defensa-en-profundidad
+    pero NO sustituía a este check · clase client-portal-bypassrls-idor)."""
+    subject = _get_auth_subject(request)
+    if subject.role_pool != "cliente":
+        return
+    pid = request.path_params.get("project_id")
+    if not pid:
+        return
+    owner = (await db.execute(
+        text("SELECT get_project_owner(:pid)"), {"pid": str(pid)},
+    )).scalar()
+    client_id = getattr(subject.user, "client_id", None)
+    if not owner or not client_id or str(owner) != str(client_id):
+        # 404 (no 403) para no revelar existencia de proyectos de otro tenant.
+        raise HTTPException(status_code=404, detail="Project not found")
 
 
 router = APIRouter(
     prefix="/workspace",
     tags=["Motor 20 - Workspace"],
     # TODO-RBAC-PER-ENDPOINT-001 Cat C: cliente accede a su workspace
-    # propio, Marcos también. Ambos pools válidos.
-    dependencies=[Depends(require_marcos_or_client)],
+    # propio, Marcos también. Ambos pools válidos · + ownership cliente→proyecto.
+    dependencies=[
+        Depends(require_marcos_or_client),
+        Depends(_enforce_cliente_project_ownership),
+    ],
 )
 
 

@@ -106,12 +106,13 @@ CLASSIFIER_RULES: list[tuple[str, tuple[str, ...], str, str, list[str], list[str
         "evidencia", "log",
         ["op.acc.5", "op.acc.6"], ["mfa", "autenticacion"],
     ),
-    # Antivirus
+    # Antivirus · §2.2 · mp.s.4 = "Protección frente a denegación de servicio" (DoS,
+    # incorrecto) → op.exp.6 "Protección frente a código dañino".
     (
         "rule_antivirus",
         ("antivirus", "clamav", "malware"),
         "evidencia", "log",
-        ["mp.s.4"], ["antivirus", "malware"],
+        ["op.exp.6"], ["antivirus", "malware"],
     ),
     # Backup / restore
     (
@@ -141,12 +142,13 @@ CLASSIFIER_RULES: list[tuple[str, tuple[str, ...], str, str, list[str], list[str
         "registro", "formacion",
         ["mp.per.3"], ["formacion"],
     ),
-    # Proveedores
+    # Proveedores · §2.2 · mp.s.7 NO EXISTE en RD 311/2022 (medida fantasma) →
+    # op.ext.1 "Contratación y ANS" + op.ext.3 "Protección de la cadena de suministro".
     (
         "rule_proveedor",
         ("proveedor", "vendor", "subcontratista"),
         "registro", "proveedor",
-        ["mp.s.7"], ["proveedor", "tercero"],
+        ["op.ext.1", "op.ext.3"], ["proveedor", "tercero"],
     ),
     # Pentest / auditoría · §2.2 · op.exp.10 = "Protección de claves criptográficas"
     # (no procede) → alinear con el catálogo (evidence_types.json): gestión de la
@@ -171,12 +173,13 @@ CLASSIFIER_RULES: list[tuple[str, tuple[str, ...], str, str, list[str], list[str
         "evidencia", "config",
         ["op.exp.2"], ["hardening", "configuracion"],
     ),
-    # Cifrado / SSL / TLS
+    # Cifrado / SSL / TLS · §2.2 · mp.com.4 = "Separación de flujos de información"
+    # (incorrecto) → mp.com.2 "Protección de la confidencialidad" (cifrado de comms).
     (
         "rule_cifrado",
         ("cifrado", "ssl", "tls", "https"),
         "evidencia", "config",
-        ["mp.com.4"], ["cifrado", "comunicaciones"],
+        ["mp.com.2"], ["cifrado", "comunicaciones"],
     ),
 ]
 
