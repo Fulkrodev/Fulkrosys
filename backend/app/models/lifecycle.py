@@ -109,6 +109,17 @@ class ProjectArchivedBackup(UUIDPrimaryKeyMixin, Base):
     Se genera a los 210 dias de grace period (mes 7), con TTL de 60 dias
     para descarga del cliente. Tras expirar se elimina del almacenamiento
     en frio (MinIO).
+
+    DIVERGENCIA CONOCIDA (WAVE C2 · 2026-06-16) · NO unificar a la ligera.
+    Coexisten DOS tablas de archival con propósitos distintos pero solapados:
+      * ``ArchivedProject`` (arriba): registro de archivo en almacenamiento
+        frío con ciclo retention_until / purge_scheduled_at / purged_at.
+      * ``ProjectArchivedBackup`` (esta): ZIP firmado DESCARGABLE por el
+        cliente con TTL (expires_at) — generación de Paso 4.
+    Unificarlas implicaría migrar datos y reconciliar dos ciclos de vida en
+    vivo (cold-storage vs descarga-cliente); se DIFIERE a un átomo de
+    consolidación m25 dedicado. Tracked, no es un bug en producción (ambas
+    se usan en flujos separados).
     """
 
     __tablename__ = "project_archived_backups"

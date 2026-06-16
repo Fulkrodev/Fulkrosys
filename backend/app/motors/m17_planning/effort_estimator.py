@@ -77,24 +77,42 @@ def reset_formulas_cache() -> None:
 # ---------------------------------------------------------------------------
 # Legacy API (mantained for backwards compatibility — tests v1)
 # ---------------------------------------------------------------------------
+#
+# WAVE C2 (2026-06-16) · DRY: SIZE_FACTOR y COMPLEXITY_FACTOR derivan ahora del
+# catálogo canónico ``effort_formulas_v1.json`` (factor_size_empleados /
+# factor_complejidad_tecnica) — antes eran tablas hardcodeadas duplicadas. Se
+# conserva un fallback hardcodeado idéntico para que el import nunca crashee si
+# el catálogo no está disponible (los valores fallback == JSON, freezados por
+# test_legacy_factors_match_catalog). ``CATEGORIA_FACTOR`` se mantiene local: el
+# JSON expone horas_base absolutas por categoría (otro concepto, lo usa
+# estimate_full), no un factor multiplicativo, así que no tiene fuente canónica.
 
-# Tablas legacy expuestas para tests que importan el factor directamente.
-# Se rellenan al cargar el catalogo por primera vez.
+
+def _derive_factor_table(
+    json_key: str, fallback: dict[str, float],
+) -> dict[str, float]:
+    """Extrae {nombre: factor} del catálogo JSON · fallback si no carga."""
+    try:
+        raw = load_formulas().get(json_key, {})
+        derived = {
+            k: float(v["factor"])
+            for k, v in raw.items()
+            if isinstance(v, dict) and "factor" in v
+        }
+        return derived or dict(fallback)
+    except EffortFormulasError:
+        return dict(fallback)
+
 
 CATEGORIA_FACTOR: dict[str, float] = {"BASICA": 0.6, "MEDIA": 1.0, "ALTA": 1.5}
-SIZE_FACTOR: dict[str, float] = {
-    "micro": 0.7,
-    "pequena": 0.85,
-    "mediana": 1.0,
-    "grande": 1.3,
-    "muy_grande": 1.6,
-}
-COMPLEXITY_FACTOR: dict[str, float] = {
-    "baja": 0.8,
-    "media": 1.0,
-    "alta": 1.3,
-    "muy_alta": 1.6,
-}
+SIZE_FACTOR: dict[str, float] = _derive_factor_table(
+    "factor_size_empleados",
+    {"micro": 0.7, "pequena": 0.85, "mediana": 1.0, "grande": 1.3, "muy_grande": 1.6},
+)
+COMPLEXITY_FACTOR: dict[str, float] = _derive_factor_table(
+    "factor_complejidad_tecnica",
+    {"baja": 0.8, "media": 1.0, "alta": 1.3, "muy_alta": 1.6},
+)
 
 VALID_SIZES = set(SIZE_FACTOR.keys())
 VALID_COMPLEXITY = set(COMPLEXITY_FACTOR.keys())

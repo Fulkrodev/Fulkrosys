@@ -446,8 +446,12 @@ async def build_and_sign_backup_zip(
 def verify_backup_signature(manifest: dict, zip_bytes: bytes | None = None) -> bool:
     """Verifica la firma Ed25519 del manifest.
 
-    Opcionalmente comprueba que ``zip_bytes`` contiene el manifest firmado
-    (no cambiado post-firma).
+    NOTA (WAVE C2 · 2026-06-16): la comprobación opcional de ``zip_bytes``
+    (que el ZIP descargado no se haya alterado post-firma) NO está
+    implementada — el parámetro se acepta pero NO se lee. Ningún caller lo
+    pasa hoy (demo/tests verifican sólo el manifest). Validar el digest del
+    ZIP contra ``manifest['zip_sha256']`` cuando ``zip_bytes`` venga dado es
+    una mejora pendiente; se mantiene el parámetro por compatibilidad de firma.
     """
     signed_digest = bytes.fromhex(manifest["signed_digest_sha256"])
     signature = bytes.fromhex(manifest["ed25519_signature"])

@@ -73,8 +73,8 @@ try:
             # SAN-D MB-18.4 · RetainerChurnPredictor scan weekly
             # (ADR-040). Beat: Monday 09:30 Europe/Madrid.
             "backend.app.retainer.tasks",
-            # M13 Commercial · CRM pipeline tasks (leads/propuestas/contratos).
-            "backend.app.motors.m13_commercial.tasks",
+            # M13 Commercial · CRM pipeline corre síncrono vía LeadService;
+            # no hay tasks Celery (scaffold m13_commercial/tasks.py eliminado · WAVE C2).
             # SAN-E MB-9.bis atom 9.bis.6 · FULKRO Self-Monitoring System.
             # Daily/weekly/monthly/quarterly compliance checks + alerts.
             "backend.app.motors.m_compliance_monitor.tasks",

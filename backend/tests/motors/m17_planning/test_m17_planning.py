@@ -85,6 +85,21 @@ class TestEffortEstimator:
     def test_duration_weeks_alta(self):
         assert effort_estimator.estimate_duration_weeks("ALTA") == 60
 
+    def test_legacy_factors_match_catalog(self):
+        # WAVE C2 · DRY invariant: las tablas legacy (SIZE_FACTOR /
+        # COMPLEXITY_FACTOR) deben coincidir 1:1 con el catálogo canónico
+        # effort_formulas_v1.json para que estimate_effort (legacy) y
+        # estimate_full no diverjan numéricamente.
+        cat = effort_estimator.load_formulas()
+        size_json = {
+            k: v["factor"] for k, v in cat["factor_size_empleados"].items()
+        }
+        comp_json = {
+            k: v["factor"] for k, v in cat["factor_complejidad_tecnica"].items()
+        }
+        assert effort_estimator.SIZE_FACTOR == size_json
+        assert effort_estimator.COMPLEXITY_FACTOR == comp_json
+
 
 # ================== Plan Generation ==================
 

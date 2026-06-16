@@ -1,4 +1,23 @@
-"""Stakeholder analysis from PKG person nodes."""
+"""Stakeholder analysis from PKG person nodes.
+
+DIVERGENCIA CONOCIDA (WAVE C2 · 2026-06-16) · NO unificar a la ligera.
+Coexisten DOS linajes de stakeholders, ambos vivos y alcanzando la API:
+
+  * PKG (este módulo, ``stakeholder_service.py``): basado en nodos persona
+    del grafo PKG (m16). Define 5 roles obligatorios (incluye ``sponsor``).
+    Cableado en ``service.run_diagnosis`` (DiagnosisRun clásico).
+  * ORM (``stakeholders_service.py``): tabla ``stakeholders`` + 4 roles ENS
+    (RI/RS/RSEG/RSis). Cableado en ``paso5_orchestrator.build_summary``.
+    Reusa la regla de separación canónica de m30 (roles_ens).
+
+El registry (agente 22) ya marca esta redundancia como ``deprecated``.
+Canónico declarado: la tabla ORM ``Stakeholder`` + m30 roles_ens (F0-1).
+Unificar = decidir modelo canónico, migrar el 5º rol (``sponsor``) del PKG
+al ORM y re-apuntar ``service.run_diagnosis`` — toca la salida de diagnosis
+en vivo, por lo que se DIFIERE a un átomo de consolidación m21 dedicado.
+Mismo patrón paralelo en process_service vs processes_service y
+compliance_service vs cross_compliance_service.
+"""
 from __future__ import annotations
 
 import uuid

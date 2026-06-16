@@ -1,5 +1,15 @@
 """M9 — Agente 11 Auditor Interno Virtual (pre-externa ENAC).
 
+ESTADO (WAVE C2 · 2026-06-16): MÓDULO LATENTE. Plenamente implementado y
+testeado (test_m09_paso4.py, test_catalog_integrity_regression.py) pero SIN
+caller de producción — ningún endpoint/servicio importa
+``run_internal_audit``/``build_e701_context`` (el único hit fuera de tests es
+un comentario en dossier_generator.py). La capacidad de auditoría dry-run que
+ofrece este módulo está cubierta en producción por
+``backend.app.agents.agent_11_auditor_virtual`` vía ``/audit-dry-run``.
+Cablear la emisión automática de E-701 en el flujo de dossier es una decisión
+de producto (Marcos), NO un fix mecánico: NO cablear sin esa decisión.
+
 Ejecuta 10-15 preguntas tipo auditor real sobre el proyecto, valida
 respuestas contra Evidence Vault (M7) + Documents (M6) + hallazgos de
 verificacion (M8 v5.1), y emite un informe E-701 con score 0-100 y

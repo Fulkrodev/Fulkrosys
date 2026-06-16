@@ -49,10 +49,6 @@ _TEMPERATURE = 0.2
 _MODEL = "sonnet-4.6"
 
 
-class PrioritizeError(Exception):
-    """Error en prioritize_gaps_with_llm tras agotar reintentos."""
-
-
 def _build_user_message(
     gaps: list[dict[str, Any]],
     client_context: dict[str, Any],
