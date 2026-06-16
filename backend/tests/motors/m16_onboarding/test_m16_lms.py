@@ -22,6 +22,7 @@ from backend.app.database import set_tenant_context
 from backend.app.motors.m16_onboarding.lms_service import (
     LmsNotFoundError,
     LmsService,
+    LmsStateError,
     LmsValidationError,
     get_course,
     list_courses,
@@ -431,3 +432,91 @@ async def test_api_e2e_lms001_dataforma(async_client, db):
     assert r4.status_code == 200
     courses = {c["course_codigo"]: c for c in r4.json()["by_course"]}
     assert courses["LMS-001"]["completed"] == 1
+
+
+# ─────────── Límite de intentos (§5.5 audit C6) ───────────
+
+_RESPUESTAS_FALLIDAS_LMS001 = {"q1": "a", "q2": "a", "q3": "a", "q4": "a", "q5": "a"}
+
+
+@pytest.mark.asyncio
+async def test_quiz_attempts_increment_each_submit(db):
+    """Cada envío del cuestionario incrementa el contador de intentos."""
+    _, project_id = await _setup(db)
+    svc = LmsService(db)
+    a = (await svc.assign_to_employees(
+        uuid.UUID(project_id), "LMS-001",
+        [_empleados_dataforma()[0]],
+    ))[0]
+    await svc.record_attendance(a.id, cliente_razon="X")
+    assert a.intentos == 0
+
+    u1 = await svc.submit_quiz(
+        a.id, respuestas=_RESPUESTAS_FALLIDAS_LMS001, cliente_razon="X",
+    )
+    assert u1.intentos == 1
+    assert u1.estado == "failed"
+
+    u2 = await svc.submit_quiz(
+        a.id, respuestas=_RESPUESTAS_FALLIDAS_LMS001, cliente_razon="X",
+    )
+    assert u2.intentos == 2
+
+
+@pytest.mark.asyncio
+async def test_quiz_rejected_after_max_attempts(db):
+    """Tras agotar max_attempts (3 en el catálogo) el envío se rechaza."""
+    _, project_id = await _setup(db)
+    svc = LmsService(db)
+    a = (await svc.assign_to_employees(
+        uuid.UUID(project_id), "LMS-001",
+        [_empleados_dataforma()[0]],
+    ))[0]
+    await svc.record_attendance(a.id, cliente_razon="X")
+
+    # 3 intentos fallidos consumen el límite
+    for _ in range(3):
+        await svc.submit_quiz(
+            a.id, respuestas=_RESPUESTAS_FALLIDAS_LMS001, cliente_razon="X",
+        )
+    assert a.intentos == 3
+
+    # El 4º envío se rechaza con mensaje claro
+    with pytest.raises(LmsStateError) as exc:
+        await svc.submit_quiz(
+            a.id, respuestas=_respuestas_correctas_lms001(), cliente_razon="X",
+        )
+    assert "intentos" in str(exc.value).lower()
+    # El contador no se mueve tras el rechazo
+    assert a.intentos == 3
+
+
+@pytest.mark.asyncio
+async def test_quiz_passed_cannot_be_resubmitted(db):
+    """Un cuestionario ya APROBADO no se puede reenviar (no re-aprobar)."""
+    _, project_id = await _setup(db)
+    svc = LmsService(db)
+    a = (await svc.assign_to_employees(
+        uuid.UUID(project_id), "LMS-001",
+        [_empleados_dataforma()[0]],
+    ))[0]
+    await svc.record_attendance(a.id, cliente_razon="X")
+    u = await svc.submit_quiz(
+        a.id, respuestas=_respuestas_correctas_lms001(), cliente_razon="X",
+    )
+    assert u.estado == "completed"
+    assert u.intentos == 1
+
+    with pytest.raises(LmsStateError) as exc:
+        await svc.submit_quiz(
+            a.id, respuestas=_respuestas_correctas_lms001(), cliente_razon="X",
+        )
+    assert "aprobad" in str(exc.value).lower()
+
+
+@pytest.mark.asyncio
+async def test_catalog_quizzes_define_max_attempts():
+    """Todos los cursos definen max_attempts en el catálogo (§5.5 audit C6)."""
+    for c in list_courses():
+        full = get_course(c["codigo"])
+        assert int(full["quiz"]["max_attempts"]) >= 1

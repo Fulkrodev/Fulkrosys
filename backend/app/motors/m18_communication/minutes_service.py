@@ -17,6 +17,8 @@ las actas pueden generarse en cualquier momento del proyecto.
 from __future__ import annotations
 
 import hashlib
+import logging
+import os
 import uuid
 from datetime import date, datetime, timezone
 from pathlib import Path
@@ -36,8 +38,50 @@ from backend.app.motors.m12_magic_link.emails.renderer import (
 from backend.app.motors.m18_communication.minutes_docx import build_minutes_docx
 
 
+logger = logging.getLogger(__name__)
+
 # Where DOCX/PDF go — vease tambien m06 service para coherencia
 _BASE_DIR = Path(__file__).resolve().parents[4] / "var" / "documents_minutes"
+
+# §5.5 audit C6 · retención WORM (Object Lock COMPLIANCE) del acta E-005 ·
+# inmutable para ENAC. Env-configurable (prod 7 años), coherente con
+# m07_evidence / m16 LMS.
+_WORM_RETENTION_DAYS = int(os.environ.get("FULKRO_WORM_RETENTION_DAYS", "2555"))
+
+
+def _archive_minute_to_worm(
+    file_bytes: bytes,
+    project_id: uuid.UUID,
+    codigo: str,
+    kind: str,
+    content_type: str,
+) -> str | None:
+    """Archiva el acta (DOCX/PDF) al bucket WORM inmutable. Best-effort.
+
+    Devuelve la URI ``minio://...`` del objeto WORM, o ``None`` si MinIO/WORM no
+    está disponible (dev). NO bloquea la generación del acta — la copia local
+    sigue siendo la fuente de lectura. Mismo patrón que
+    ``m07_evidence._archive_clean_evidence_to_worm``.
+    """
+    try:
+        from backend.app.core.storage.minio_client import (
+            BUCKET_EVIDENCE_WORM,
+            put_object,
+        )
+        key = f"actas/{project_id}/{codigo}/{codigo}.{kind}"
+        res = put_object(
+            BUCKET_EVIDENCE_WORM, key, file_bytes,
+            content_type=content_type,
+            metadata={"project-id": str(project_id), "codigo": codigo},
+            worm_retention_days=_WORM_RETENTION_DAYS,
+        )
+        return f"minio://{res.bucket}/{res.key}"
+    except Exception as exc:  # noqa: BLE001 — best-effort, dev sin MinIO
+        logger.warning(
+            "WORM archival acta %s (%s) falló (best-effort): %s",
+            codigo, kind, exc,
+        )
+        return None
 
 
 VALID_TIPOS = {"kickoff", "seguimiento_trimestral", "cierre", "extraordinario"}
@@ -264,12 +308,28 @@ class MinutesService:
         m.hash_sha256 = _hash_sha256(docx_bytes)
         m.signature_ed25519 = _ed25519_sign(docx_bytes)
         m.generado_at = datetime.now(timezone.utc)
+        # §5.5 audit C6 · archivado WORM inmutable best-effort (copia local intacta)
+        m.docx_worm_uri = _archive_minute_to_worm(
+            docx_bytes, m.project_id, m.codigo, "docx",
+            "application/vnd.openxmlformats-officedocument."
+            "wordprocessingml.document",
+        )
         if m.estado == "draft":
             m.estado = "generated"
 
         pdf = _convert_to_pdf(docx_out)
         if pdf:
             m.pdf_path = str(pdf)
+            try:
+                m.pdf_worm_uri = _archive_minute_to_worm(
+                    pdf.read_bytes(), m.project_id, m.codigo, "pdf",
+                    "application/pdf",
+                )
+            except Exception as exc:  # noqa: BLE001 — best-effort
+                logger.warning(
+                    "WORM archival PDF acta %s falló (best-effort): %s",
+                    m.codigo, exc,
+                )
 
         await self.db.flush()
         return m

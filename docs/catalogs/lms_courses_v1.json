@@ -48,6 +48,7 @@
       ],
       "quiz": {
         "pass_score": 70,
+        "max_attempts": 3,
         "preguntas": [
           {
             "id": "q1",
@@ -156,6 +157,7 @@
       ],
       "quiz": {
         "pass_score": 70,
+        "max_attempts": 3,
         "preguntas": [
           {
             "id": "q1",
@@ -253,6 +255,7 @@
       ],
       "quiz": {
         "pass_score": 70,
+        "max_attempts": 3,
         "preguntas": [
           {
             "id": "q1",

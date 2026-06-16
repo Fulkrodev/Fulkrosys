@@ -17,6 +17,8 @@ from __future__ import annotations
 
 import hashlib
 import json
+import logging
+import os
 import uuid
 from datetime import datetime, timezone
 from functools import lru_cache
@@ -29,6 +31,8 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from backend.app.models.lms import LmsAssignment
 
 
+logger = logging.getLogger(__name__)
+
 _CATALOG_PATH = (
     Path(__file__).resolve().parents[4]
     / "docs" / "catalogs" / "lms_courses_v1.json"
@@ -37,6 +41,54 @@ _BASE_DIR = Path(__file__).resolve().parents[4] / "var" / "documents_lms"
 
 
 VALID_ESTADOS = {"assigned", "in_progress", "completed", "failed", "expired"}
+
+# §5.5 audit C6 · retención WORM (Object Lock COMPLIANCE) de las evidencias
+# formativas E-502/E-503 · inmutable para ENAC. Env-configurable (prod 7 años),
+# coherente con m07_evidence. La durabilidad la garantiza el volumen vardata; el
+# WORM añade la inmutabilidad de almacenamiento.
+_WORM_RETENTION_DAYS = int(os.environ.get("FULKRO_WORM_RETENTION_DAYS", "2555"))
+
+# §5.5 audit C6 · límite de envíos del cuestionario por defecto cuando el curso
+# no define ``max_attempts`` en el catálogo. Evita reintentos ilimitados.
+_DEFAULT_MAX_ATTEMPTS = 3
+
+
+def _archive_to_worm(
+    docx_bytes: bytes,
+    project_id: uuid.UUID,
+    assignment_id: uuid.UUID,
+    course_codigo: str,
+    evidencia: str,
+) -> str | None:
+    """Archiva la evidencia formativa al bucket WORM inmutable. Best-effort.
+
+    Devuelve la URI ``minio://...`` del objeto WORM, o ``None`` si MinIO/WORM no
+    está disponible (dev). NO bloquea la generación de la evidencia — la copia
+    local sigue siendo la fuente de lectura. Mismo patrón que
+    ``m07_evidence._archive_clean_evidence_to_worm``.
+    """
+    try:
+        from backend.app.core.storage.minio_client import (
+            BUCKET_EVIDENCE_WORM,
+            put_object,
+        )
+        key = f"lms/{project_id}/{course_codigo}/{assignment_id}/{evidencia}.docx"
+        res = put_object(
+            BUCKET_EVIDENCE_WORM, key, docx_bytes,
+            content_type=(
+                "application/vnd.openxmlformats-officedocument."
+                "wordprocessingml.document"
+            ),
+            metadata={"project-id": str(project_id), "evidencia": evidencia},
+            worm_retention_days=_WORM_RETENTION_DAYS,
+        )
+        return f"minio://{res.bucket}/{res.key}"
+    except Exception as exc:  # noqa: BLE001 — best-effort, dev sin MinIO
+        logger.warning(
+            "WORM archival %s LMS %s falló (best-effort): %s",
+            evidencia, assignment_id, exc,
+        )
+        return None
 
 
 # ---------------------------------------------------------------------------
@@ -256,6 +308,10 @@ class LmsService:
 
         a.e502_path = str(path)
         a.e502_hash = _hash_sha256(docx_bytes)
+        # §5.5 audit C6 · archivado WORM inmutable best-effort (copia local intacta)
+        a.e502_worm_uri = _archive_to_worm(
+            docx_bytes, a.project_id, a.id, a.course_codigo, "E-502",
+        )
         if a.iniciado_at is None:
             a.iniciado_at = datetime.now(timezone.utc)
         if a.estado == "assigned":
@@ -272,9 +328,21 @@ class LmsService:
         cliente_razon: str,
     ) -> LmsAssignment:
         """Corrige el quiz, calcula score, marca completado/failed y
-        genera evidencia E-503 (cuestionario)."""
+        genera evidencia E-503 (cuestionario).
+
+        §5.5 audit C6 · límite de intentos: un cuestionario ya aprobado
+        (``completed``) NO se puede reenviar, y el número de envíos está
+        limitado a ``max_attempts`` (definido por curso en el catálogo, con
+        fallback ``_DEFAULT_MAX_ATTEMPTS``). Esto impide reintentos ilimitados
+        para "adivinar" hasta aprobar.
+        """
         a = await self.get(assignment_id)
-        if a.estado not in {"in_progress", "assigned", "failed", "completed"}:
+        # Un quiz ya APROBADO no se reabre (evita re-aprobar / regenerar evidencia).
+        if a.estado == "completed":
+            raise LmsStateError(
+                "El cuestionario ya está aprobado; no se puede reenviar."
+            )
+        if a.estado not in {"in_progress", "assigned", "failed"}:
             raise LmsStateError(
                 f"No se puede enviar quiz en estado '{a.estado}'"
             )
@@ -284,6 +352,14 @@ class LmsService:
         if not preguntas:
             raise LmsValidationError("El curso no tiene preguntas")
         pass_score = float(quiz.get("pass_score", 70))
+        max_attempts = int(quiz.get("max_attempts", _DEFAULT_MAX_ATTEMPTS))
+
+        # §5.5 audit C6 · bloqueo de reintentos: ya agotó los intentos permitidos.
+        if (a.intentos or 0) >= max_attempts:
+            raise LmsStateError(
+                f"Has agotado los {max_attempts} intentos permitidos para "
+                f"este cuestionario. Contacta con el responsable de formación."
+            )
 
         if not isinstance(respuestas, dict) or not respuestas:
             raise LmsValidationError("Las respuestas deben ser un dict no vacio")
@@ -307,6 +383,8 @@ class LmsService:
         score = round(100.0 * aciertos / len(preguntas), 1)
         passed = score >= pass_score
 
+        # §5.5 audit C6 · registra el intento consumido.
+        a.intentos = (a.intentos or 0) + 1
         a.quiz_score = score
         a.quiz_pass = passed
         a.quiz_respuestas = respuestas
@@ -329,6 +407,10 @@ class LmsService:
         path.write_bytes(docx_bytes)
         a.e503_path = str(path)
         a.e503_hash = _hash_sha256(docx_bytes)
+        # §5.5 audit C6 · archivado WORM inmutable best-effort (copia local intacta)
+        a.e503_worm_uri = _archive_to_worm(
+            docx_bytes, a.project_id, a.id, a.course_codigo, "E-503",
+        )
 
         a.completado_at = datetime.now(timezone.utc)
         a.estado = "completed" if passed else "failed"

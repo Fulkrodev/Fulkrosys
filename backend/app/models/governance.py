@@ -96,6 +96,12 @@ class CommitteeMeeting(ClientReviewMixinA, FullMixin, Base):
     hash_sha256: Mapped[str | None] = mapped_column(String(64), nullable=True)
     signature_ed25519: Mapped[str | None] = mapped_column(String(256), nullable=True)
 
+    # §5.5 audit C6 · URI canónica minio://{bucket}/{key} de la copia del acta
+    # archivada al bucket WORM inmutable (fulkro-evidence-worm). NULL si MinIO no
+    # está configurado (dev) — la copia local sigue siendo la fuente de lectura.
+    docx_worm_uri: Mapped[str | None] = mapped_column(String(500), nullable=True)
+    pdf_worm_uri: Mapped[str | None] = mapped_column(String(500), nullable=True)
+
     firmas: Mapped[list | None] = mapped_column(JSONB, nullable=True)
 
     estado: Mapped[str | None] = mapped_column(

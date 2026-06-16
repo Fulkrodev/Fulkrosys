@@ -833,6 +833,7 @@ def _serialize_lms_assignment(a) -> dict:
         "due_date": a.due_date.isoformat() if a.due_date else None,
         "quiz_score": a.quiz_score,
         "quiz_pass": a.quiz_pass,
+        "intentos": a.intentos,
         "e502_path": a.e502_path,
         "e502_hash": a.e502_hash,
         "e503_path": a.e503_path,

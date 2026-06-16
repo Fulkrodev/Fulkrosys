@@ -78,4 +78,16 @@ class LmsAssignment(FullMixin, Base):
     e503_path: Mapped[str | None] = mapped_column(String(500))
     e503_hash: Mapped[str | None] = mapped_column(String(64))
 
+    # §5.5 audit C6 · URI canónica minio://{bucket}/{key} de la copia archivada
+    # al bucket WORM inmutable (fulkro-evidence-worm). NULL si MinIO no está
+    # configurado (dev) — la copia local sigue siendo la fuente de lectura.
+    e502_worm_uri: Mapped[str | None] = mapped_column(String(500))
+    e503_worm_uri: Mapped[str | None] = mapped_column(String(500))
+
+    # §5.5 audit C6 · contador de envíos del cuestionario. submit_quiz lo
+    # incrementa y rechaza nuevos envíos al alcanzar max_attempts (por curso).
+    intentos: Mapped[int] = mapped_column(
+        Integer, nullable=False, default=0, server_default="0",
+    )
+
     notas: Mapped[str | None] = mapped_column(Text)
