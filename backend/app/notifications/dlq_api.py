@@ -109,9 +109,12 @@ async def reprocess(
     db: AsyncSession = Depends(get_db),
     current_user=Depends(require_owner),
 ) -> DlqActionResponse:
-    """Re-queue dispatch · resets retry_count to 0 + status='queued'.
+    """Re-envía la entrada DLQ · re-renderiza template + dispatch real (no no-op).
 
-    Atomic UPDATE protects concurrent reprocess race (WHERE guard).
+    Atomic UPDATE saca la fila de la cola (status='failed'→'queued', WHERE guard
+    protege reprocess concurrente) y a continuación re-ejecuta el envío vía el
+    núcleo ``redispatch_event_with_session`` (email/SSE). El resultado del
+    re-envío se devuelve en ``reason`` (redispatch_status) para diagnóstico admin.
     """
     result = await reprocess_dlq_entry(
         db, event_id, usuario=current_user.email,
@@ -125,7 +128,7 @@ async def reprocess(
     return DlqActionResponse(
         success=result["reprocessed"],
         rows_affected=result.get("rows_affected", 0),
-        reason=result.get("reason"),
+        reason=result.get("reason") or result.get("redispatch_status"),
     )
 
 

@@ -402,7 +402,6 @@ async def get_magic_link_by_token(
             detail="Magic link not found",
         )
     return MagicLinkPublicStatus(**data)
-    return None
 
 
 # ================================================================

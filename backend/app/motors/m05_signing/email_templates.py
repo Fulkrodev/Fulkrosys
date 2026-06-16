@@ -23,6 +23,8 @@ from datetime import UTC, datetime
 
 import jinja2
 
+from backend.app.motors.m05_signing.signable_types import SIGNABLE_TYPE_LABELS
+
 
 SIGNABLE_LABELS_ES: dict[str, str] = {
     "dda": "Declaración de Aplicabilidad ENS · 73 medidas",
@@ -43,7 +45,19 @@ SIGNABLE_LABELS_ES: dict[str, str] = {
 
 
 def get_signable_label(signable_type: str) -> str:
-    return SIGNABLE_LABELS_ES.get(signable_type, "Documento")
+    """Etiqueta humana del tipo firmable para el email de step-up OTP.
+
+    Las variantes email-friendly de ``SIGNABLE_LABELS_ES`` (más cortas) ganan
+    donde existen; para los 4 tipos no cubiertos aquí (declaracion_conformidad_basica,
+    retainer_quarterly_signoff, acta_decision_direccion, contrato_comercial) se
+    recurre al mapa canónico ``SIGNABLE_TYPE_LABELS`` en vez de mostrar el genérico
+    "Documento" (audit-roundup-W3 §4.1/341). Solo cae al genérico si el tipo no
+    existe en ningún mapa.
+    """
+    return (
+        SIGNABLE_LABELS_ES.get(signable_type)
+        or SIGNABLE_TYPE_LABELS.get(signable_type, "Documento")
+    )
 
 
 _HTML_TEMPLATE = """\

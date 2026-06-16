@@ -549,6 +549,44 @@ _PURPOSE_EMAILS: dict[MagicLinkPurpose, PurposeEmailConfig] = {
         ),
     ),
 
+    # ── #38 Diagnóstico precliente (outreach en frío · interés legítimo) ──
+    # m16_onboarding genera un magic-link account-less para que una empresa
+    # contactada en frío complete un diagnóstico ENS previo. Sin esta entrada,
+    # render_email_for_magic_link lanzaba ValueError → /generate-and-send
+    # devolvía email_sent=False y Marcos no podía enviar el enlace por email
+    # (mismo gap que cerró AUDITOR_PORTAL_ENAC arriba). Tono outreach frío,
+    # base de licitud interés legítimo (RGPD Art. 6.1.f) · sin presión.
+    MagicLinkPurpose.DIAGNOSTICO_PRECLIENTE: PurposeEmailConfig(
+        subject="Diagnóstico previo de Esquema Nacional de Seguridad — {cliente_razon}",
+        titulo=(
+            "Le ofrecemos un diagnóstico previo, sin compromiso, de su "
+            "situación frente al Esquema Nacional de Seguridad."
+        ),
+        que_hacer=(
+            "Abrir el enlace seguro y responder un breve cuestionario sobre su "
+            "organización y los servicios que presta a la Administración. Con "
+            "sus respuestas elaboramos una primera estimación de la categoría "
+            "ENS aplicable y de las medidas que le afectarían."
+        ),
+        por_que=(
+            "Cada vez más licitaciones públicas exigen acreditar la conformidad "
+            "con el RD 311/2022 (Esquema Nacional de Seguridad). Este "
+            "diagnóstico previo le ayuda a anticipar el alcance y el esfuerzo "
+            "antes de presentarse a un concurso, sin coste ni obligación de "
+            "contratar nada."
+        ),
+        cuando=(
+            "El enlace permanece activo durante 14 días. Puede completarlo "
+            "cuando le venga bien; no hay prisa por su parte."
+        ),
+        action_label="Completar diagnóstico previo ENS",
+        seguridad_nota=(
+            "Le escribimos por interés legítimo en relación con la contratación "
+            "pública (RGPD Art. 6.1.f). Si prefiere no recibir más mensajes, "
+            "respóndanos y lo retiraremos de inmediato."
+        ),
+    ),
+
     # ── M25 Paso 4 — cierre honesto del proyecto ─────────────────────
     MagicLinkPurpose.OFERTA_RETAINER: PurposeEmailConfig(
         subject="Continuidad tras certificación — {proyecto_nombre}",

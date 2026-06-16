@@ -8,10 +8,17 @@ from dataclasses import asdict
 from fastapi import APIRouter, Depends, Query
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from backend.app.auth.dependencies import require_owner
 from backend.app.corpus.retrieval import hybrid_search
 from backend.app.database import get_db
 
-router = APIRouter(prefix="/corpus", tags=["Corpus & RAG"])
+router = APIRouter(
+    prefix="/corpus", tags=["Corpus & RAG"],
+    # Marcos-only · evita que una sesión cliente liste el corpus/stats (clase w2p
+    # · mirror mcps.py/projects.py). El copiloto usa corpus.retrieval server-side,
+    # no este endpoint HTTP → restringirlo no rompe consumidores.
+    dependencies=[Depends(require_owner)],
+)
 
 
 @router.get("/search")

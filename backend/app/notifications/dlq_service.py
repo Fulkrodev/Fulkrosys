@@ -183,14 +183,30 @@ async def reprocess_dlq_entry(
     *,
     usuario: Optional[str] = None,
 ) -> dict:
-    """Mark DLQ entry as queued + reset retry_count · re-dispatch via Celery worker.
+    """Re-send a DLQ entry · re-render template + dispatch (NOT a no-op).
 
-    Atomic UPDATE protects against concurrent reprocess (race-safe via WHERE
-    status='failed' guard). Returns count of rows affected (0 si NO existe O
-    ya reprocessed by other worker).
+    Pasos:
+    1. Atomic UPDATE status='failed' → 'queued' (race-safe WHERE guard) para
+       sacar la fila de la cola DLQ y blindar contra reprocess concurrente.
+    2. Re-dispatch REAL vía ``redispatch_event_with_session`` (núcleo canónico
+       compartido con la task Celery ``notifications.dispatch_event``): re-renderiza
+       el template desde ``payload_jsonb._render_context`` y re-ejecuta el envío
+       (email/SSE). Crea un NotificationEvent nuevo para el envío; la fila DLQ
+       original queda como registro histórico.
+    3. audit_log emit ``notification.dlq.reprocessed`` (Sub-atom 5.A 3-way OR)
+       con el resultado real del re-envío.
 
-    audit_log emit notification.dlq.reprocessed Sub-atom 5.A 3-way OR.
+    Anteriormente esta función solo seteaba status='queued' y NUNCA re-enviaba
+    (silent no-op · ningún poller consume filas 'queued'). Ahora dispara el
+    envío en el mismo request.
+
+    Returns dict con ``reprocessed`` (bool), ``rows_affected`` y
+    ``redispatch_status`` (estado del re-envío: delivered/failed/failed_no_context/...).
     """
+    # Import diferido para evitar ciclo (tasks importa orchestrator que no importa
+    # este módulo, pero tasks importa modelos/DB que sí podrían encadenar).
+    from backend.app.notifications.tasks import redispatch_event_with_session
+
     await _elevate_admin(db)
     row = (await db.execute(sa_text(
         "SELECT project_id FROM notification_events WHERE id = :eid"
@@ -206,21 +222,40 @@ async def reprocess_dlq_entry(
     ), {"eid": str(event_id), "max_retries": MAX_RETRIES})
     affected = result.rowcount
 
-    if affected > 0:
-        await db.execute(sa_text(
-            "INSERT INTO audit_log (id, tabla, registro_id, accion, usuario, "
-            "project_id, payload_new, timestamp) "
-            "VALUES (gen_random_uuid(), 'notification_events', :eid, "
-            ":accion, :user, :pid, :payload, now())"
-        ), {
-            "eid": str(event_id),
-            "accion": NOTIFICATION_DLQ_REPROCESSED,
-            "user": usuario or "system",
-            "pid": str(project_id) if project_id else None,
-            "payload": json.dumps({"event_id": str(event_id)}),
-        })
+    if affected == 0:
+        # Ya reprocesada por otro worker o no era una entrada DLQ válida.
+        return {"reprocessed": False, "rows_affected": 0}
 
-    return {"reprocessed": affected > 0, "rows_affected": affected}
+    # Re-envío REAL: re-renderiza template + dispatch. No bloquea el reprocess si
+    # falla el envío (queda registrado en redispatch_status + el evento nuevo).
+    redispatch_status = "unknown"
+    try:
+        redispatch_result = await redispatch_event_with_session(db, str(event_id))
+        redispatch_status = redispatch_result.get("status", "unknown")
+    except Exception as exc:  # pragma: no cover · safety net
+        redispatch_status = f"redispatch_error: {exc}"
+
+    await db.execute(sa_text(
+        "INSERT INTO audit_log (id, tabla, registro_id, accion, usuario, "
+        "project_id, payload_new, timestamp) "
+        "VALUES (gen_random_uuid(), 'notification_events', :eid, "
+        ":accion, :user, :pid, :payload, now())"
+    ), {
+        "eid": str(event_id),
+        "accion": NOTIFICATION_DLQ_REPROCESSED,
+        "user": usuario or "system",
+        "pid": str(project_id) if project_id else None,
+        "payload": json.dumps({
+            "event_id": str(event_id),
+            "redispatch_status": redispatch_status,
+        }),
+    })
+
+    return {
+        "reprocessed": True,
+        "rows_affected": affected,
+        "redispatch_status": redispatch_status,
+    }
 
 
 async def resolve_dlq_entry(

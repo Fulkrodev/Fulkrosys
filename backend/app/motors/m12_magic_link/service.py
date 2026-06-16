@@ -233,9 +233,9 @@ class MagicLinkService:
         8. Return response with token plaintext ONCE (never shown again)
         """
         # ADR-042 · MagicLinkPolicyEnforcer validation gate (SAN-D MB-19.9).
-        # Soft-deprecation: NO bloquea generación · sólo log warning para
-        # purposes ONBOARDING_INICIAL/APORTE_EVIDENCIA (compat backward sites
-        # legacy m05/m16). Hard-deprecation diferida MB-20+ (DEC-MB19B-HARD).
+        # MagicLinkPolicyEnforcer HARD-rechaza los purposes deprecated v3
+        # (is_ok=False → ValueError → HTTP 422) Y los unknown · el cliente con
+        # cuenta usa /client-portal/X (ADR-020 v3). Solo "ok" permite generar.
         from backend.app.motors.m12_magic_link.policy_enforcer import (
             MagicLinkPolicyEnforcer,
         )
@@ -244,14 +244,13 @@ class MagicLinkService:
             request.purpose,
         )
         if not is_ok:
-            # Solo "unknown" purpose llega aquí · no debería ocurrir post
-            # Pydantic enum validation pero safety net contra purpose
-            # nuevo en enum sin categorización ADR-042.
+            # Llegan aquí TANTO "deprecated_soft" (hard-reject ADR-020 v3) COMO
+            # "unknown" (safety net contra purpose nuevo sin categorizar). Ambos
+            # bloquean la generación con ValueError → HTTP 422.
             raise ValueError(
                 f"MagicLinkPolicyEnforcer rechazó purpose: {policy_reason}"
             )
-        # policy_status ∈ {"ok", "deprecated_soft"} · ambos permiten
-        # generación · soft solo loggea (ya hecho en enforcer).
+        # Aquí policy_status == "ok" · es el único caso que permite generación.
 
         config = get_config(request.purpose)
 

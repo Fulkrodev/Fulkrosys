@@ -3,12 +3,14 @@
 SAN-D MB-19.9 · validates magic-link purpose generation requests against
 hybrid policy categorization:
 
-- 33 purposes mantienen razón (categorías A-F ADR-042 · firmas legales ·
+- 15 purposes mantienen razón (categorías A-F ADR-042 · firmas legales ·
   aprobaciones · descargas · acceso externo · lifecycle · auxiliares).
-- 2 purposes deprecated soft (ONBOARDING_INICIAL · APORTE_EVIDENCIA) ·
-  cubiertos por portal cliente workspace MB-14 · BLOQUEAN la generación
-  (hard-rejection MB-4.bis3 · ADR-020 v3): is_ok=False → ValueError en
-  generate_magic_link → HTTP 422. (El nombre "soft" es histórico.)
+  (= len(ONE_SHOT_OR_LEGITIMATE_PURPOSES))
+- 22 purposes deprecated soft (ONBOARDING_INICIAL · APORTE_EVIDENCIA + 20 v3
+  client-facing) · cubiertos por portal cliente workspace MB-14 · BLOQUEAN la
+  generación (hard-rejection MB-4.bis3 · ADR-020 v3): is_ok=False → ValueError
+  en generate_magic_link → HTTP 422. (El nombre "soft" es histórico.)
+  (= len(DEPRECATED_SOFT_PURPOSES) · 15 + 22 = 37 = len(MagicLinkPurpose))
 
 API:
     enforcer = MagicLinkPolicyEnforcer()
@@ -26,7 +28,7 @@ Convenciones:
 Integration point: `MagicLinkService.generate_magic_link()` invoca
 enforcer ANTES create + persist (validation gate).
 
-Refs: ADR-042 · MagicLinkPurpose enum 35 post-MB-19.4.
+Refs: ADR-042 · MagicLinkPurpose enum 37 (15 legítimos + 22 deprecated).
 """
 from __future__ import annotations
 
@@ -40,7 +42,7 @@ logger = logging.getLogger(__name__)
 
 
 # ──────────────────────────────────────────────────────────────────
-# Categorización ADR-042 · 33 mantienen + 2 deprecated soft
+# Categorización ADR-042 · 15 mantienen + 22 deprecated soft = 37 enum
 # ──────────────────────────────────────────────────────────────────
 
 
@@ -148,7 +150,7 @@ DEPRECATED_V3_CLIENT_FACING = frozenset({
     MagicLinkPurpose.ENCUESTA_SATISFACCION_NPS,
 })
 
-# Total mantienen razón post-MB-4.bis = 12 (excluyendo deprecated v3)
+# Total mantienen razón = 15 (excluyendo deprecated v3 · verificado empírico)
 ONE_SHOT_OR_LEGITIMATE_PURPOSES = (
     _CATEGORY_A_FIRMAS
     | _CATEGORY_B_APROBACIONES
@@ -158,7 +160,7 @@ ONE_SHOT_OR_LEGITIMATE_PURPOSES = (
     | _CATEGORY_F_AUXILIARES
 ) - DEPRECATED_V3_CLIENT_FACING
 
-# Deprecated soft (2 existing pre-MB-4.bis + 21 NEW v3 = 23)
+# Deprecated soft = 22 (2 existing pre-MB-4.bis + 20 v3 client-facing · empírico)
 DEPRECATED_SOFT_PURPOSES = frozenset({
     MagicLinkPurpose.ONBOARDING_INICIAL,
     MagicLinkPurpose.APORTE_EVIDENCIA,
@@ -286,16 +288,16 @@ class MagicLinkPolicyEnforcer:
         Returns:
             tuple (is_ok: bool, status: PolicyStatus, reason: str)
 
-            - status="ok" · is_ok=True · reason="" (12 mantienen razón post-MB-4.bis)
-            - status="deprecated_soft" · is_ok=True · reason="..." (23 deprecated
-              v3 · soft-deprecation · permite generación con warning header)
+            - status="ok" · is_ok=True · reason="" (15 mantienen razón · empírico)
+            - status="deprecated_soft" · is_ok=False · reason="..." (22 deprecated
+              v3 · HARD-rejection ADR-020 v3 · ValueError → HTTP 422 · el "soft"
+              es histórico; NO permite generación)
             - status="unknown" · is_ok=False · reason="purpose desconocido..."
               (purpose no en enum · safety net)
 
-        Post-MB-4.bis2 estado actual: SOFT-DEPRECATION mantenida · activos
-        revoked en BD (migration a7c5b9e2d1f8). Hard-reject policy_enforcer
-        + drop callers backend M16/M18/M25 deferred a atom posterior
-        MB-4.bis3 (refactor scope mayor).
+        Estado actual (ADR-020 v3 IMPLEMENTED FULLY · MB-4.bis3): deprecated_soft
+        Y unknown retornan is_ok=False · ambos fuerzan ValueError → HTTP 422 en
+        MagicLinkService.generate_magic_link. Solo "ok" permite la generación.
         """
         # Coerce string → enum si necesario
         if isinstance(purpose, str):

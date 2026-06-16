@@ -34,13 +34,14 @@ from backend.tests.conftest import _admin_setup
 
 # ====================== Categorization coverage ======================
 
-def test_total_purposes_13_plus_22_equals_35():
-    """ADR-020 v3 (post-MB-4.bis3): 13 mantienen + 22 deprecated_soft = 35.
+def test_total_purposes_15_plus_22_equals_37():
+    """Estado actual (verificado empírico): 15 legítimos + 22 deprecated = 37.
 
-    Pre-MB-4.bis: 33 + 2 = 35 (ADR-042 baseline).
-    Post-MB-4.bis2: 12 + 23 = 35.
-    Post-MB-4.bis3: 13 + 22 = 35 (APROBACION_ACTA re-clasificada como
-    mixed-use legitimate · asistentes pueden ser empleados externos).
+    Histórico:
+    - Pre-MB-4.bis: 33 + 2 = 35 (ADR-042 baseline · nombres legacy).
+    - Post-MB-4.bis3: 13 + 22 = 35 (APROBACION_ACTA re-clasificada mixed-use).
+    - + AUDITOR_PORTAL_ENAC (legítimo cat D): 14 + 22 = 36.
+    - + DIAGNOSTICO_PRECLIENTE (legítimo cat F): 15 + 22 = 37 (actual).
     """
     # Ejecutable 8 Pasada 16: AUDITOR_PORTAL_ENAC añadido Sesión 3B-2B.6 como legítimo
     # categoría D (externo continuo · auditor ENAC) → legitimate 13->14, total 35->36.
