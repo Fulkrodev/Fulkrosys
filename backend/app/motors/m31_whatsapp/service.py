@@ -14,6 +14,7 @@ RGPD art.15 export (Q6.D):
 """
 from __future__ import annotations
 
+import hashlib
 import logging
 import secrets
 import string
@@ -43,6 +44,7 @@ logger = logging.getLogger(__name__)
 
 OTP_LENGTH = 6
 OTP_TTL_MINUTES = 10
+MAX_OTP_ATTEMPTS = 5  # lockout anti-brute-force por OTP emitido
 
 
 class WhatsAppError(Exception):
@@ -98,6 +100,11 @@ def _generate_otp(length: int = OTP_LENGTH) -> str:
     return "".join(secrets.choice(string.digits) for _ in range(length))
 
 
+def _hash_otp(otp: str) -> str:
+    """SHA-256 hex del OTP · nunca se persiste el OTP en claro."""
+    return hashlib.sha256((otp or "").strip().encode("utf-8")).hexdigest()
+
+
 def validate_phone_e164(raw: str) -> str:
     """Validate + normalize to E.164 format · raises WhatsAppError on invalid."""
     try:
@@ -144,8 +151,9 @@ class WhatsAppService:
         otp = _generate_otp()
         now = datetime.now(timezone.utc)
         user.whatsapp_number = phone_e164
-        user.whatsapp_verification_otp = otp
+        user.whatsapp_verification_otp = _hash_otp(otp)  # se guarda el HASH
         user.whatsapp_otp_sent_at = now
+        user.whatsapp_otp_attempts = 0  # reset lockout al emitir OTP nuevo
         await db.flush()
 
         # Primer contacto: WhatsApp exige una PLANTILLA aprobada para mensajes
@@ -192,6 +200,10 @@ class WhatsAppService:
             return False
         if not user.whatsapp_otp_sent_at:
             return False
+        # Lockout anti-brute-force: tras MAX_OTP_ATTEMPTS fallos el OTP queda
+        # invalidado hasta pedir uno nuevo (initiate_opt_in resetea el contador).
+        if (user.whatsapp_otp_attempts or 0) >= MAX_OTP_ATTEMPTS:
+            return False
         # TTL check
         now = datetime.now(timezone.utc)
         sent = user.whatsapp_otp_sent_at
@@ -200,12 +212,18 @@ class WhatsAppService:
         elapsed_min = (now - sent).total_seconds() / 60
         if elapsed_min > OTP_TTL_MINUTES:
             return False
-        if (otp_input or "").strip() != user.whatsapp_verification_otp:
+        # Comparacion en tiempo constante sobre el HASH (nunca el OTP en claro).
+        if not secrets.compare_digest(
+            _hash_otp(otp_input), user.whatsapp_verification_otp,
+        ):
+            user.whatsapp_otp_attempts = (user.whatsapp_otp_attempts or 0) + 1
+            await db.flush()
             return False
         # OK · mark verified + opt-in active
         user.whatsapp_verified_at = now
         user.whatsapp_opt_in_at = now
         user.whatsapp_verification_otp = None
+        user.whatsapp_otp_attempts = 0
         await db.flush()
         return True
 

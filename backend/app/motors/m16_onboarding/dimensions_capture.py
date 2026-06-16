@@ -214,10 +214,27 @@ CANONICAL_DIM_QUESTIONS_DEFINITIONS: dict[str, dict[str, Any]] = {
 }
 
 
+def _normalize_qid(q_id: str) -> str:
+    """Unifica separadores tras el prefijo ``q-``.
+
+    Drift histórico: la question canónica de DPO es ``q-dpo-designado`` (guion)
+    pero las 10 plantillas ``*-legal_dpo-*`` la escriben ``q-dpo_designado``
+    (underscore) → el lookup exacto fallaba y la dimensión ``dpo_designado``
+    nunca se capturaba. Normalizando underscores→guiones SOLO para el match
+    canónico evitamos eso sin reescribir las plantillas (OPS-029 sostenido) y
+    sin riesgo de colisión (sólo afecta a las 10 question_ids canónicas).
+    """
+    if q_id.startswith("q-"):
+        return "q-" + q_id[2:].replace("_", "-")
+    return q_id
+
+
 def extract_dimension_updates_from_responses(
     responses: dict[str, Any],
 ) -> dict[str, Any]:
     """Extrae respuestas que matchean CANONICAL_DIM_QUESTION_MAPPING.
+
+    Tolera el drift guion/underscore de las question_ids (ver ``_normalize_qid``).
 
     Args:
         responses: dict question_id → answer (post-submit onboarding)
@@ -225,11 +242,15 @@ def extract_dimension_updates_from_responses(
     Returns:
         dict project_column → value (subset · sólo question_ids canónicas)
     """
+    # Índice normalizado: separadores unificados → primer valor visto.
+    norm_responses: dict[str, Any] = {}
+    for key, val in responses.items():
+        norm_responses.setdefault(_normalize_qid(key), val)
+
     updates: dict[str, Any] = {}
     for q_id, project_col in CANONICAL_DIM_QUESTION_MAPPING.items():
-        if q_id not in responses:
-            continue
-        value = responses[q_id]
+        # Match exacto primero (plantillas correctas), luego normalizado.
+        value = responses.get(q_id, norm_responses.get(_normalize_qid(q_id)))
         if value is None:
             continue
         updates[project_col] = value

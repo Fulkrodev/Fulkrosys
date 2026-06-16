@@ -94,23 +94,22 @@ async def test_initiate_opt_in_valid_phone_sends_otp(db):
     )).scalar_one()
     assert user.whatsapp_number == "+34666555444"
     assert user.whatsapp_verification_otp is not None
-    assert len(user.whatsapp_verification_otp) == 6
+    # Se guarda el SHA-256 hex (64 chars), NUNCA el OTP de 6 dígitos en claro.
+    assert len(user.whatsapp_verification_otp) == 64
 
 
-async def test_verify_otp_correct_marks_verified(db):
+async def test_verify_otp_correct_marks_verified(db, monkeypatch):
     _, _, user_id = await _seed_client_project_user(db)
     svc = WhatsAppService(client=Dialog360Client(mock_mode=True))
+    # El OTP se persiste HASHEADO; fijamos uno conocido para poder verificarlo.
+    import backend.app.motors.m31_whatsapp.service as wa_service
+    monkeypatch.setattr(wa_service, "_generate_otp", lambda *a, **k: "123456")
     await svc.initiate_opt_in(
         db, client_user_id=user_id, phone_raw="+34666555444",
     )
-    # Read the OTP that was set
-    user = (await db.execute(
-        select(ClientUser).where(ClientUser.id == user_id)
-    )).scalar_one()
-    otp = user.whatsapp_verification_otp
 
     ok = await svc.verify_otp(
-        db, client_user_id=user_id, otp_input=otp,
+        db, client_user_id=user_id, otp_input="123456",
     )
     assert ok is True
 
@@ -120,6 +119,26 @@ async def test_verify_otp_correct_marks_verified(db):
     assert user2.whatsapp_verified_at is not None
     assert user2.whatsapp_opt_in_at is not None
     assert user2.whatsapp_verification_otp is None  # cleared after use
+
+
+async def test_verify_otp_lockout_after_max_attempts(db, monkeypatch):
+    """Tras MAX_OTP_ATTEMPTS fallos el OTP queda bloqueado · ni el correcto pasa
+    (anti-brute-force del espacio 10^6 dentro del TTL)."""
+    _, _, user_id = await _seed_client_project_user(db)
+    svc = WhatsAppService(client=Dialog360Client(mock_mode=True))
+    import backend.app.motors.m31_whatsapp.service as wa_service
+    monkeypatch.setattr(wa_service, "_generate_otp", lambda *a, **k: "123456")
+    await svc.initiate_opt_in(
+        db, client_user_id=user_id, phone_raw="+34666555444",
+    )
+    for _ in range(wa_service.MAX_OTP_ATTEMPTS):
+        assert await svc.verify_otp(
+            db, client_user_id=user_id, otp_input="000000",
+        ) is False
+    # 6º intento con el OTP CORRECTO sigue bloqueado.
+    assert await svc.verify_otp(
+        db, client_user_id=user_id, otp_input="123456",
+    ) is False
 
 
 async def test_verify_otp_wrong_returns_false(db):

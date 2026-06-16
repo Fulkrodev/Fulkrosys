@@ -71,11 +71,14 @@ class ClientUser(FullMixin, Base):
         TIMESTAMP(timezone=True), nullable=True,
     )
     whatsapp_verification_otp: Mapped[str | None] = mapped_column(
-        String(8), nullable=True,
-    )
+        String(64), nullable=True,
+    )  # SHA-256 hex del OTP · NUNCA el OTP en claro (hardening WhatsApp OTP)
     whatsapp_otp_sent_at: Mapped[datetime | None] = mapped_column(
         TIMESTAMP(timezone=True), nullable=True,
     )
+    whatsapp_otp_attempts: Mapped[int] = mapped_column(
+        Integer, nullable=False, server_default="0",
+    )  # lockout anti-brute-force · se resetea al pedir un OTP nuevo
 
     # SAN-E MB-9.bis atom 9.bis.1 · cookie consent state (Guía AEPD 2020).
     # ``consent_renewal_due`` is checked by Self-Monitoring atom 9.bis.6
