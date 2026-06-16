@@ -20,6 +20,34 @@ Uso típico en un endpoint del pool cliente::
     ):
         await ensure_client_project_scope(db, body.project_id, user.client_id)
         ...  # a partir de aquí las queries quedan aisladas al proyecto
+
+Convenciones RLS canónicas (WAVE C3 · tracker §2.2 line 228 · SOLO documentación)
+----------------------------------------------------------------------------------
+En las políticas RLS de las migraciones coexisten ~3 formas de leer el contexto
+de tenant. Todas son SEMÁNTICAMENTE EQUIVALENTES y aíslan correctamente; la
+fragmentación es histórica, no un fallo de seguridad. Para migraciones NUEVAS
+úsese la forma canónica (1):
+
+  (1) CANÓNICA · ``project_id = current_project_id()``
+      donde ``current_project_id()`` ≡
+      ``SELECT NULLIF(current_setting('app.current_project_id', true), '')::uuid``
+      (función SQL · cast UUID · unset/empty → NULL → 0 filas fail-closed).
+
+  (2) EQUIVALENTE (legado · NO reescribir) · ``project_id::text =
+      current_setting('app.current_project_id', true)`` — misma semántica vía
+      comparación de texto en lugar del cast UUID.
+
+  (3) BYPASS ADMIN LEGÍTIMO (distinto propósito · MANTENER) ·
+      ``current_setting('app.current_role_pool', true) = 'marcos'`` — habilita
+      el acceso cross-tenant del pool admin/Marcos en policies concretas. NO es
+      una convención de aislamiento cliente: es un permiso explícito de admin.
+
+El GUC de contexto (``app.current_project_id`` / ``app.current_client_id``) lo
+fija ``database.set_tenant_context`` (vía ``set_config(..., is_local=true)``);
+``app.current_role_pool`` lo fijan los routers admin (p.ej. retainer/api.py,
+notifications/api.py). NO se reescriben las ~244 referencias existentes (riesgo
+alto, valor bajo): la unificación queda diferida a una tarea RLS dedicada
+post-piloto.
 """
 from __future__ import annotations
 

@@ -25,6 +25,7 @@ from typing import Any
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from backend.app.config import get_settings
+from backend.app.motors.m08_verification.category_taxonomy import normalize_category
 from backend.app.motors.m08_verification.agent.injection_guard import (
     INJECTION_FINDING_TEMPLATE,
     detect_injection_attempt,
@@ -148,16 +149,12 @@ def _build_tool_args(tool: str, target: str) -> dict[str, Any]:
     # todos aceptan `target`.
     return {"target": target}
 
-# Categoría humana label → clave de run.category ('ALTO'/'MEDIO'/'BASICO')
-_CATEGORY_NORM = {
-    "ALTA": "ALTO", "ALTO": "ALTO",
-    "MEDIA": "MEDIO", "MEDIO": "MEDIO",
-    "BASICA": "BASICO", "BASICO": "BASICO",
-}
-
-
+# Categoría humana label → clave de run.category ('ALTO'/'MEDIO'/'BASICO').
+# WAVE C3: el mapeo canónico vive ahora en category_taxonomy (fuente única
+# compartida por orchestrator + trigger events + evidence pack). Se conserva el
+# alias local para no romper call-sites existentes.
 def _normalize_category(cat: str | None) -> str:
-    return _CATEGORY_NORM.get((cat or "").upper(), "BASICO")
+    return normalize_category(cat)
 
 
 def _targets_for_kind(kind: str, scope: dict[str, Any]) -> list[str]:

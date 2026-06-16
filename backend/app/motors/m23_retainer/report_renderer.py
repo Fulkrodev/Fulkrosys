@@ -19,6 +19,8 @@ from docx import Document
 from sqlalchemy import text
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from .rag_vocab import normalize_rag, rag_display
+
 
 
 def _add_kv_table(doc: Document, rows: list[tuple[str, str]]) -> None:
@@ -32,11 +34,13 @@ def _add_kv_table(doc: Document, rows: list[tuple[str, str]]) -> None:
 
 
 def _fmt_rag(rag: Optional[str]) -> str:
-    if not rag:
-        return "—"
-    return {"green": "🟢 Verde", "amber": "🟡 Ámbar", "red": "🔴 Rojo"}.get(
-        rag, rag,
-    )
+    """Render any RAG vocabulary (english/spanish/uppercase/emoji) uniformly.
+
+    Delegates to the canonical normalizer (``rag_vocab.rag_display``) so the
+    three historical spellings — ``green/amber/red``, ``VERDE/AMBAR/ROJO``,
+    ``verde/ambar/rojo`` — all map to the same '🟢 Verde' style output.
+    """
+    return rag_display(rag)
 
 
 async def _fetch_quarterly_report_row(
@@ -100,8 +104,14 @@ async def _fetch_annual_aggregate(
 
 
 def _worst_rag(rags: list[Optional[str]]) -> Optional[str]:
+    """Return the worst RAG (canonical english token) across quarters.
+
+    Normalizes every input first so mixed vocabularies (VERDE/verde/green/🟢)
+    all rank correctly instead of falling through to priority 0.
+    """
     order = {"red": 3, "amber": 2, "green": 1}
-    candidates = [r for r in rags if r]
+    candidates = [normalize_rag(r) for r in rags]
+    candidates = [c for c in candidates if c]
     if not candidates:
         return None
     return max(candidates, key=lambda r: order.get(r, 0))

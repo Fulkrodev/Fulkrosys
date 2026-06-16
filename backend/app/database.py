@@ -48,6 +48,12 @@ async def set_tenant_context(
     `true` means is_local=true (scope is the current transaction).
 
     Reference: https://www.postgresql.org/docs/current/functions-admin.html
+
+    WAVE C3 (tracker §2.2 line 228): las policies RLS leen este GUC con ~3 formas
+    equivalentes (``current_project_id()`` canónica vs ``current_setting`` raw vs
+    el bypass admin ``current_role_pool='marcos'``). La convención canónica está
+    documentada en ``backend/app/auth/tenant_scope`` (no se reescriben las ~244
+    referencias existentes · diferido a tarea RLS dedicada post-piloto).
     """
     if client_id:
         await session.execute(

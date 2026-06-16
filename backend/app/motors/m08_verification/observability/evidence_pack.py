@@ -28,6 +28,7 @@ from typing import Any
 from sqlalchemy import select, text
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from backend.app.motors.m08_verification.category_taxonomy import is_alta
 from backend.app.motors.m08_verification.finding_state_machine import FindingState
 from backend.app.motors.m08_verification.gates import is_zero_fp_verified
 from backend.app.motors.m08_verification.models import (
@@ -94,8 +95,7 @@ async def build_enac_evidence_pack(
 
     zero_fp = sum(1 for f in findings if is_zero_fp_verified(f.verification_level))
 
-    category = (run.category or "").upper()
-    gate2_required = category in ("ALTO", "ALTA")
+    gate2_required = is_alta(run.category)
     gate2_done = run.autopilot_status == "completed" and not gate2_required
 
     return {

@@ -16,6 +16,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from backend.app.core.sse_dispatcher import sse_dispatcher
 from backend.app.database import get_db
+from backend.app.motors.m05_signing.signable_types import SIGNABLE_TYPE_LABELS
 from backend.app.motors.m13_commercial.services.contract_signing_flow import (
     ContractNotFoundError,
     ContractSigningFlow,
@@ -129,7 +130,8 @@ async def confirm_contract_signature(
                 data={
                     "intent_id": result["signing_intent_id"],
                     "signable_type": "contrato_comercial",
-                    "signable_label": "Contrato comercial",
+                    # WAVE C3: etiqueta desde la fuente canónica (no hardcode).
+                    "signable_label": SIGNABLE_TYPE_LABELS["contrato_comercial"],
                     "signable_ref_id": result["contract_id"],
                     "signable_ref_type": "contract",
                     "contract_id": result["contract_id"],
