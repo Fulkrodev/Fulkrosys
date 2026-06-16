@@ -1,23 +1,18 @@
 import { expect, test } from "@playwright/test";
 
-test("magic link sign: public page renders preview + disabled submit", async ({
+// El token mock `e2e-token-abc` NO existe en el backend → el dispatcher
+// /sign/[token] muestra la página de error honesta. Antes renderizaba un
+// formulario de firma MOCK (LegacyDocumentSignFlow), ya borrado: un enlace
+// inválido no debe simular una firma.
+test("magic link sign: token inválido muestra página de error", async ({
   page,
 }) => {
   await page.goto("/sign/e2e-token-abc");
 
   await expect(
-    page.getByRole("heading", { name: "Firma de documento" }),
+    page.getByText(/Enlace no válido o expirado/i),
   ).toBeVisible();
-  await expect(page.getByText("E-200")).toBeVisible();
-  await expect(page.getByText(/Procedimiento de Gestión de Riesgos/)).toBeVisible();
-
-  const signBtn = page.getByRole("button", { name: /Firmar con Ed25519/ });
-  await expect(signBtn).toBeDisabled();
-
-  await page.getByPlaceholder("000000").fill("123456");
-  await page
-    .getByText(/He leído el documento y firmo conforme/)
-    .locator("xpath=preceding-sibling::input")
-    .check();
-  await expect(signBtn).toBeEnabled();
+  await expect(
+    page.getByText(/El enlace de firma no pudo procesarse/i),
+  ).toBeVisible();
 });

@@ -119,7 +119,39 @@ export function FeedTab({ projectId }: FeedTabProps) {
   };
 
   const handleExportCsv = () => {
-    toast.info("Export CSV pendiente · backend extension MB-7+");
+    if (filtered.length === 0) {
+      toast.info("No hay eventos que exportar");
+      return;
+    }
+    const headers = ["fecha", "tipo", "autor", "leido", "titulo", "descripcion"];
+    const esc = (v: unknown) =>
+      `"${(v === null || v === undefined ? "" : String(v)).replace(/"/g, '""')}"`;
+    const rows = filtered.map((i) =>
+      [
+        i.created_at ?? "",
+        i.tipo,
+        i.autor,
+        i.leido ? "leido" : "sin_leer",
+        i.titulo ?? "",
+        i.descripcion ?? "",
+      ]
+        .map(esc)
+        .join(","),
+    );
+    // BOM ﻿ para que Excel lea UTF-8 (acentos) correctamente.
+    const csv = `﻿${[headers.join(","), ...rows].join("\r\n")}`;
+    const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `timeline-${projectId.slice(0, 8)}-${new Date()
+      .toISOString()
+      .slice(0, 10)}.csv`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    toast.success(`${filtered.length} eventos exportados`);
   };
 
   return (

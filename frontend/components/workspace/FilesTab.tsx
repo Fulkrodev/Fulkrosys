@@ -134,12 +134,6 @@ export function FilesTab({ projectId }: FilesTabProps) {
     }, 3000);
   };
 
-  const handlePromoteToIdms = (fileId: string) => {
-    toast.info(
-      `Promoción a IDMS pendiente · endpoint backend M20→M24 bridge programado FASE 9 · file ${fileId.slice(0, 8)}`,
-    );
-  };
-
   const handleDelete = (file: WorkspaceFile) => {
     if (!confirm(`¿Eliminar "${file.nombre}"?`)) return;
     deleteMutation.mutate(file.id, {
@@ -216,15 +210,6 @@ export function FilesTab({ projectId }: FilesTabProps) {
       header: "Acciones",
       cell: ({ row }) => (
         <div className="flex items-center gap-1">
-          <Button
-            type="button"
-            size="sm"
-            variant="outline"
-            onClick={() => handlePromoteToIdms(row.original.id)}
-            title="Promover a IDMS (deferred)"
-          >
-            <Upload className="size-3.5" />
-          </Button>
           <Button
             type="button"
             size="sm"

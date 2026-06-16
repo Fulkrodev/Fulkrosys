@@ -2,11 +2,9 @@
 
 import * as React from "react";
 import { AlertTriangle, Bug, Crosshair } from "lucide-react";
-import { toast } from "sonner";
 import type { ColumnDef } from "@tanstack/react-table";
 
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
 import { DataTable } from "@/components/ui/data-table";
 import {
   Sheet,
@@ -57,19 +55,6 @@ export function VulnsTab({ projectId }: VulnsTabProps) {
     }
     return grid;
   }, [vulns]);
-
-  const triggerPentestDive = (assetId: string | null, cve: string | null) => {
-    if (!assetId) {
-      toast.warning("Vulnerabilidad sin activo asociado · no se puede lanzar pentest");
-      return;
-    }
-    // §3.1 audit-2026-06-15 · NO fingir que se inició (antes el toast decía
-    // "iniciado" sin llamar a backend). El lanzamiento real se hará desde el motor
-    // de verificación (m08 autopilot) cuando se cablee · mensaje honesto.
-    toast.info(
-      `Pentest dirigido (activo ${assetId.slice(0, 8)}${cve ? ` · ${cve}` : ""}) · función en preparación`,
-    );
-  };
 
   const columns: ColumnDef<DiscoveryVulnerability>[] = [
     {
@@ -159,22 +144,6 @@ export function VulnsTab({ projectId }: VulnsTabProps) {
         ) : (
           <span className="text-fulkro-ink-300">—</span>
         ),
-    },
-    {
-      id: "acciones",
-      header: "Acciones",
-      cell: ({ row }) => (
-        <Button
-          type="button"
-          size="sm"
-          variant="outline"
-          onClick={() => triggerPentestDive(row.original.asset_id, row.original.cve_id)}
-        >
-          <TooltipENS term="pentest">
-            <span>Pentest</span>
-          </TooltipENS>
-        </Button>
-      ),
     },
   ];
 

@@ -4,9 +4,8 @@
  * FASE 4.5 sub-bloque B.2 · multiplex extension:
  * - useMagicLinkStatus (real backend) resuelve el purpose del link.
  * - Switch sobre tipo_operacion → componente sign-flow específico:
- *   · firma_documento / aprobacion_acta → LegacyDocumentSignFlow
- *     (mantiene UI mock-based existing · cleanup tracked en
- *     backlog ID FASE-9-MAGIC-LINK-MOCKS-CLEANUP-001)
+ *   · firma_documento → DocumentSigningFlow (Ed25519 real · m05 hash chain)
+ *   · aprobacion_acta → ApproveActaFlow (firma del asistente · m18)
  *   · aprobacion_propuesta → ApprovePropuestaFlow
  *   · aprobacion_factura → ApproveFacturaFlow
  *   · validacion_cambio_alcance → ValidateScopeChangeFlow
@@ -14,9 +13,8 @@
  *   · consentimiento_tratamiento_datos → SignDPAFlow
  *   · confirmacion_conformidad → ConfirmConformidadFlow
  *
- * Si el endpoint backend devuelve 404 (token mock E2E o token
- * inexistente), el componente cae al LegacyDocumentSignFlow para
- * preservar el test existing magic-link.spec.ts.
+ * Si el endpoint backend devuelve 404 (token inválido/expirado o inexistente),
+ * se muestra una página de error honesta (NO un formulario de firma falso).
  */
 "use client";
 
@@ -30,7 +28,6 @@ import { ApprovePropuestaFlow } from "@/components/sign-flows/ApprovePropuestaFl
 import { ConfirmConformidadFlow } from "@/components/sign-flows/ConfirmConformidadFlow";
 import { ContractCanvasSignFlow } from "@/components/sign-flows/ContractCanvasSignFlow";
 import { DocumentSigningFlow } from "@/components/sign-flows/DocumentSigningFlow";
-import { LegacyDocumentSignFlow } from "@/components/sign-flows/LegacyDocumentSignFlow";
 import { SignDPAFlow } from "@/components/sign-flows/SignDPAFlow";
 import { ValidateScopeChangeFlow } from "@/components/sign-flows/ValidateScopeChangeFlow";
 import { Card, CardContent } from "@/components/ui/card";
@@ -54,11 +51,23 @@ export default function SignTokenPage({
     );
   }
 
-  // Fallback al flow legacy (mock) si el backend no resuelve el token:
-  // cubre token mock E2E (`/sign/e2e-token-abc`) y firma_documento +
-  // aprobacion_acta legacy (mientras el cleanup mocks no llegue · FASE 9).
+  // Token no resuelto por el backend (inválido/expirado o inexistente):
+  // página de error honesta. Antes caía a un mock de firma (LegacyDocumentSignFlow),
+  // ya borrado: un enlace inválido NO debe mostrar un formulario de firma falso.
   if (isError || !status) {
-    return <LegacyDocumentSignFlow token={token} />;
+    return (
+      <Card>
+        <CardContent className="space-y-2 p-6 text-sm">
+          <p className="font-semibold text-fulkro-ink-700">
+            Enlace no válido o expirado
+          </p>
+          <p className="text-xs text-fulkro-ink-500">
+            El enlace de firma no pudo procesarse. Solicita uno nuevo o
+            contacta con tu responsable del proyecto.
+          </p>
+        </CardContent>
+      </Card>
+    );
   }
 
   switch (status.tipo_operacion) {

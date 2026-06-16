@@ -12,7 +12,6 @@ import {
   Timer,
   type LucideIcon,
 } from "lucide-react";
-import { toast } from "sonner";
 
 import { RAGDot } from "@/components/data/RAGBadge";
 import { DevHint } from "@/components/dev/DevHint";
@@ -166,13 +165,7 @@ export function RetainerProjectDashboard({
           <EmptyState
             icon={<Briefcase className="h-8 w-8" strokeWidth={2.2} />}
             title="Aún no tienes retainer activo"
-            description="Activa un retainer para mantener tu sistema ENS al día con vigilancia normativa, evidencias periódicas y auditorías programadas."
-            action={{
-              label: "Contratar retainer",
-              onClick: () =>
-                toast.info("Contratación de retainer · próximamente"),
-              variant: "primary",
-            }}
+            description="Activa un retainer para mantener tu sistema ENS al día con vigilancia normativa, evidencias periódicas y auditorías programadas. Tu consultor lo activa cuando completéis la certificación."
           />
         </CardContent>
       </Card>

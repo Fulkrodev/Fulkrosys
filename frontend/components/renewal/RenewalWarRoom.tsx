@@ -20,13 +20,10 @@ import {
   CalendarClock,
   CheckCircle2,
   Clock,
-  FileText,
   Loader2,
   Mail,
-  Play,
   ShieldAlert,
   ShieldCheck,
-  Wrench,
 } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
@@ -381,49 +378,12 @@ export function RenewalWarRoom({ projectId }: { projectId: string }) {
         </h2>
         <div className="grid grid-cols-1 gap-3 md:grid-cols-2 lg:grid-cols-4">
           <ActionCard
-            icon={<Play size={18} strokeWidth={2.4} />}
-            title="Iniciar preparación"
-            description="Marca el primer hito (prep) como en curso y activa la timeline de renovación."
-            cta="Iniciar"
-            disabled={overallStatus === "CRITICAL"}
-            variant="primary"
-            onClick={() => {
-              toast.info(
-                "Preparación · cableado MB-7 (mark milestone prep en_progreso)",
-              );
-            }}
-          />
-          <ActionCard
             icon={<Mail size={18} strokeWidth={2.4} />}
             title="Contactar auditor ENAC"
             description="Envía briefing al auditor + magic link revisión dossier."
             cta="Contactar"
             tooltipText="ENAC: la entidad española que acredita los auditores oficiales para certificación ENS."
             onClick={() => setContactOpen(true)}
-          />
-          <ActionCard
-            icon={<FileText size={18} strokeWidth={2.4} />}
-            title="Generar dossier"
-            description="Bundle PDF con DdA + evidencia + drift summary para revisión auditor."
-            cta="Generar"
-            tooltipText="Bundle ENAC-ready: Declaración de Aplicabilidad firmada + evidencias frescas + drift summary. Lo que el auditor pide para empezar a revisar."
-            onClick={() => {
-              toast.info(
-                "Dossier · cableado MB-7 (M27 dossier_generator + M24 IDMS bundle)",
-              );
-            }}
-          />
-          <ActionCard
-            icon={<Wrench size={18} strokeWidth={2.4} />}
-            title="Programar pentest refresh"
-            description="Schedule pentest pre-auditoría para validar postura técnica."
-            cta="Programar"
-            tooltipText="Pentest pre-auditoría: validamos que las medidas técnicas siguen funcionando antes de que el auditor las revise. Si encontramos algo, lo arreglamos antes que él."
-            onClick={() => {
-              toast.info(
-                "Pentest · cableado MB-7 (M08 verification + scan_window M14)",
-              );
-            }}
           />
         </div>
       </section>
