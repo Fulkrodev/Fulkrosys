@@ -207,6 +207,35 @@ async def test_revoke_invalid_category_rejected(async_client) -> None:
 # ── 9: security.txt file ───────────────────────────────────────────────
 
 
+@pytest.mark.asyncio
+async def test_consent_rls_policy_allows_anon_and_isolates_tenant(db) -> None:
+    """anon_consent_rls_001 guard: the RLS policy on fulkro_consent_audit_log must
+    keep tenant isolation (references current_client_id) AND permit anonymous,
+    ownerless rows (tenant_client_id IS NULL). A regression to a fully-strict policy
+    breaks the public cookie banner (500); a regression to a fully-open one breaks
+    tenant isolation. This locks both invariants at the schema level."""
+    row = await db.execute(
+        text(
+            "SELECT pg_get_expr(polqual, polrelid), pg_get_expr(polwithcheck, polrelid) "
+            "FROM pg_policy "
+            "WHERE polrelid = (SELECT oid FROM pg_class WHERE relname = "
+            "'fulkro_consent_audit_log') "
+            "AND polname = 'fulkro_consent_audit_log_tenant_isolation'"
+        )
+    )
+    record = row.first()
+    assert record is not None, "tenant_isolation policy must exist"
+    using_q, check_q = record[0], record[1]
+    for expr in (using_q, check_q):
+        assert expr is not None
+        assert "current_client_id()" in expr, (
+            "tenant isolation lost — policy no longer scopes by current_client_id()"
+        )
+        assert "tenant_client_id IS NULL" in expr, (
+            "anonymous consent broken — policy no longer permits NULL-tenant rows"
+        )
+
+
 def test_security_txt_file_has_required_directives() -> None:
     """RFC 9116: Contact + Expires are mandatory."""
     path = (
