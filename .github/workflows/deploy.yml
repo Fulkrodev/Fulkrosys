@@ -67,8 +67,10 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
-      - name: Install postgresql-client
-        run: sudo apt-get update && sudo apt-get install -y postgresql-client
+      - name: Install postgresql-client + build libs (cairo/pq · mirror Dockerfile)
+        # .[dev] arrastra pycairo (vía svglib · PDF) y psycopg2: necesitan
+        # libcairo2-dev + libpq-dev + toolchain para compilar (igual que la imagen).
+        run: sudo apt-get update && sudo apt-get install -y postgresql-client build-essential pkg-config libcairo2-dev libpq-dev
       - name: Install backend deps
         run: cd backend && pip install -e .[dev]
       - name: Init extensions + functions + roles (mirror build_test_db)
