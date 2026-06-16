@@ -412,6 +412,29 @@ async def generate_quarterly_report(
     )
     incidents = r.scalar() or 0
 
+    # FIX(claim/impl): normativa_changes_relevant y vulns_critical eran 0 fijos
+    # enviados al portal cliente. Se computan del estado real (m23 normativa_alerts
+    # del periodo + m08 findings CRITICAL/ALTA del proyecto en el periodo).
+    from sqlalchemy import text as sa_text
+    _ps = datetime(start.year, start.month, start.day, tzinfo=timezone.utc)
+    _pe = datetime(end.year, end.month, end.day, 23, 59, 59, tzinfo=timezone.utc)
+    normativa_changes_relevant = (await db.execute(
+        sa_text(
+            "SELECT count(*) FROM normativa_alerts WHERE detected_at BETWEEN :s AND :e"
+        ),
+        {"s": _ps, "e": _pe},
+    )).scalar() or 0
+    vulns_critical = 0
+    if rc.project_id:
+        vulns_critical = (await db.execute(
+            sa_text(
+                "SELECT count(*) FROM findings WHERE project_id = :pid "
+                "AND severidad IN ('CRITICAL', 'critical', 'ALTA', 'HIGH', 'high') "
+                "AND created_at BETWEEN :s AND :e"
+            ),
+            {"pid": str(rc.project_id), "s": _ps, "e": _pe},
+        )).scalar() or 0
+
     health = await calculate_health_status(db, retainer_contract_id)
 
     report = RetainerQuarterlyReport(
@@ -423,8 +446,8 @@ async def generate_quarterly_report(
         activities_pending=pending,
         activities_overdue=overdue,
         incidents_detected=incidents,
-        normativa_changes_relevant=0,
-        vulns_critical=0,
+        normativa_changes_relevant=normativa_changes_relevant,
+        vulns_critical=vulns_critical,
         rag_overall=health["health"],
         summary_jsonb={
             "health_drivers": health["drivers"],

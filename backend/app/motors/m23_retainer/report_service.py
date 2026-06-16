@@ -321,13 +321,35 @@ class ReportService:
             )
             medidas_pct = float(_mp or 0.0)
 
+        # FIX(claim/impl): incidents_trimestre y drift_score eran placeholders 0
+        # enviados al cliente en E-801/E-802. Se computan del estado real:
+        # incidentes m19 del periodo + drift events HIGH/CRITICAL m23 del periodo.
+        incidents_trimestre_val = 0
+        if project_id:
+            _inc = await self._safe_scalar(
+                db,
+                "SELECT count(*) FROM incidents WHERE project_id = :pid "
+                "AND created_at BETWEEN :i AND :f AND deleted_at IS NULL",
+                {"pid": str(project_id), "i": periodo_inicio, "f": periodo_fin},
+            )
+            incidents_trimestre_val = int(_inc or 0)
+        _drift = await self._safe_scalar(
+            db,
+            "SELECT count(*) FROM retainer_drift_events de "
+            "JOIN retainer_contracts rc ON rc.id = de.retainer_contract_id "
+            "WHERE rc.client_id = :cid AND de.severidad IN ('HIGH', 'CRITICAL') "
+            "AND de.created_at BETWEEN :i AND :f AND de.deleted_at IS NULL",
+            {"cid": str(client_id), "i": periodo_inicio, "f": periodo_fin},
+        )
+        drift_score_val = float(_drift or 0)
+
         kpis = ReportKPIs(
             actividades_completadas=len([
                 a for a in actividades_list if a.get("estado") == "completada"
             ]),
             vulns_abiertas=len([v for v in vulns_list if v.get("estado") != "closed"]),
-            incidents_trimestre=0,  # Placeholder: wire con M7 en iteracion
-            drift_score=0.0,
+            incidents_trimestre=incidents_trimestre_val,
+            drift_score=drift_score_val,
             normativa_cambios=len(normativa_list),
             activities_ok_pct=(
                 100.0 if not actividades_list

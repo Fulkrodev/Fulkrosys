@@ -143,20 +143,32 @@ async def _dim_contratos(db: AsyncSession, project_id: str) -> DimResult:
     )
 
 
-async def _dim_proveedores(db: AsyncSession, project_id: str) -> DimResult:
-    """Provider list size delta (count active providers · simple)."""
+async def _dim_proveedores(
+    db: AsyncSession, project_id: str, lookback_dt: datetime,
+) -> DimResult:
+    """Drift de proveedores: detecta altas/bajas en la ventana lookback (mismo
+    patrón change-detection que _dim_roles · NO requiere tabla de baseline)."""
     cnt = await _count(
         db,
         "SELECT count(*) FROM providers "
         "WHERE project_id = :pid AND deleted_at IS NULL",
         {"pid": project_id},
     )
+    changes = await _count(
+        db,
+        "SELECT count(*) FROM providers WHERE project_id = :pid "
+        "AND (created_at > :cutoff OR (deleted_at IS NOT NULL AND deleted_at > :cutoff))",
+        {"pid": project_id, "cutoff": lookback_dt},
+    )
     return DimResult(
         dimension="proveedores",
-        delta_detected=False,  # baseline tracking deferred
-        severity="LOW",
+        delta_detected=changes > 0,
+        severity="MEDIUM" if changes > 0 else "LOW",
         impacto="ROUTE",
-        descripcion=f"{cnt} proveedores activos (baseline tracking pendiente)",
+        descripcion=(
+            f"{cnt} proveedores activos · {changes} altas/bajas "
+            f"últimos {LOOKBACK_DAYS}d"
+        ),
     )
 
 
@@ -180,8 +192,11 @@ async def _dim_roles(
     )
 
 
-async def _dim_infraestructura(db: AsyncSession, project_id: str) -> DimResult:
-    """MAGERIT assets count · used as proxy for infra change."""
+async def _dim_infraestructura(
+    db: AsyncSession, project_id: str, lookback_dt: datetime,
+) -> DimResult:
+    """Drift de infraestructura: activos MAGERIT creados/modificados en la
+    ventana lookback (alta/baja/revaloración = cambio de superficie ENS)."""
     cnt = await _count(
         db,
         "SELECT count(*) FROM magerit_assets a "
@@ -189,23 +204,48 @@ async def _dim_infraestructura(db: AsyncSession, project_id: str) -> DimResult:
         "WHERE ma.project_id = :pid AND a.deleted_at IS NULL",
         {"pid": project_id},
     )
+    changes = await _count(
+        db,
+        "SELECT count(*) FROM magerit_assets a "
+        "JOIN magerit_analysis ma ON ma.id = a.analysis_id "
+        "WHERE ma.project_id = :pid AND a.deleted_at IS NULL "
+        "AND (a.created_at > :cutoff OR a.updated_at > :cutoff)",
+        {"pid": project_id, "cutoff": lookback_dt},
+    )
     return DimResult(
         dimension="infraestructura",
-        delta_detected=False,  # baseline tracking deferred
-        severity="LOW",
+        delta_detected=changes > 0,
+        severity="MEDIUM" if changes > 0 else "LOW",
         impacto="AUDIT",
-        descripcion=f"{cnt} activos MAGERIT inventariados",
+        descripcion=(
+            f"{cnt} activos MAGERIT · {changes} cambios últimos {LOOKBACK_DAYS}d"
+        ),
     )
 
 
-async def _dim_overlay(db: AsyncSession, project_id: str) -> DimResult:
-    """Conformity overlay changes (m27 routes · PCE/uCeENS)."""
+async def _dim_overlay(
+    db: AsyncSession, project_id: str, lookback_dt: datetime,
+) -> DimResult:
+    """Drift de overlay: nuevos overlays PCE/uCeENS (m27 pce_overlays) o cambios
+    materiales (m28 material_changes) en la ventana lookback · ambos alteran el
+    alcance/overlay de conformidad ENS."""
+    changes = await _count(
+        db,
+        "SELECT "
+        "(SELECT count(*) FROM pce_overlays WHERE project_id = :pid "
+        " AND created_at > :cutoff) + "
+        "(SELECT count(*) FROM material_changes WHERE project_id = :pid "
+        " AND created_at > :cutoff)",
+        {"pid": project_id, "cutoff": lookback_dt},
+    )
     return DimResult(
         dimension="overlay",
-        delta_detected=False,
-        severity="LOW",
+        delta_detected=changes > 0,
+        severity="MEDIUM" if changes > 0 else "LOW",
         impacto="CONTROL",
-        descripcion="overlay PCE/uCeENS (baseline tracking pendiente)",
+        descripcion=(
+            f"overlay PCE/uCeENS · {changes} cambios últimos {LOOKBACK_DAYS}d"
+        ),
     )
 
 
@@ -273,10 +313,10 @@ class DriftComputeService:
             await _dim_normativa(db, lookback_dt),
             await _dim_identidad(db, project_id, lookback_dt),
             await _dim_contratos(db, project_id),
-            await _dim_proveedores(db, project_id),
+            await _dim_proveedores(db, project_id, lookback_dt),
             await _dim_roles(db, project_id, lookback_dt),
-            await _dim_infraestructura(db, project_id),
-            await _dim_overlay(db, project_id),
+            await _dim_infraestructura(db, project_id, lookback_dt),
+            await _dim_overlay(db, project_id, lookback_dt),
             await _dim_cpstic(db),
             await _dim_continuidad(db, project_id),
         ]
