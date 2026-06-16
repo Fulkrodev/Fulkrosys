@@ -9,8 +9,7 @@
  * Backend: GET /api/v1/public/download/{token} (metadata) +
  *          GET /api/v1/public/download/{token}/file (stream)
  *
- * Antes era TokenScaffold 18 LOC con expectedPurpose mismatch · ahora
- * dispatcher real consume m25/public_api endpoints.
+ * Dispatcher real que consume los endpoints m25/public_api.
  */
 "use client";
 

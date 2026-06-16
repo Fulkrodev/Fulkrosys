@@ -43,6 +43,7 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { TempPasswordReveal } from "@/components/admin/TempPasswordReveal";
 import {
   cockpitCreateUser,
   cockpitDeactivate,
@@ -180,14 +181,14 @@ function UserRow({
   clientId: string;
 }) {
   const queryClient = useQueryClient();
+  const [resetPwd, setResetPwd] = React.useState<string | null>(null);
 
   const resetMut = useMutation({
     mutationFn: () => cockpitResetPassword(clientId, user.id),
     onSuccess: (data) => {
-      toast.success(
-        `Contraseña temporal generada · entrega por canal seguro: ${data.temp_password}`,
-        { duration: 12_000 },
-      );
+      // §1.8: la contraseña se muestra en un diálogo persistente con botón
+      // "Copiar" (no en un toast auto-desechable que podía perderse).
+      setResetPwd(data.temp_password);
     },
     onError: (err: Error) => toast.error(`Reset falló: ${err.message}`),
   });
@@ -213,10 +214,17 @@ function UserRow({
     resetMut.isPending || resendMut.isPending || deactivateMut.isPending;
 
   return (
-    <tr
-      className="border-b border-fulkro-ink-100"
-      data-testid={`client-user-row-${user.id}`}
-    >
+    <>
+      <TempPasswordReveal
+        tempPassword={resetPwd}
+        onClose={() => setResetPwd(null)}
+        title="Contraseña temporal generada"
+        description={`Nueva contraseña temporal para ${user.email}. Cópiala y entrégasela por un canal seguro. El usuario deberá cambiarla en su primer acceso.`}
+      />
+      <tr
+        className="border-b border-fulkro-ink-100"
+        data-testid={`client-user-row-${user.id}`}
+      >
       <td className="px-4 py-3 font-mono text-xs">{user.email}</td>
       <td className="px-4 py-3">{user.full_name ?? "—"}</td>
       <td className="px-4 py-3">
@@ -276,8 +284,9 @@ function UserRow({
             </Button>
           </div>
         )}
-      </td>
-    </tr>
+        </td>
+      </tr>
+    </>
   );
 }
 
@@ -286,6 +295,7 @@ function InviteUserDialog({ clientId }: { clientId: string }) {
   const [open, setOpen] = React.useState(false);
   const [email, setEmail] = React.useState("");
   const [fullName, setFullName] = React.useState("");
+  const [invitePwd, setInvitePwd] = React.useState<string | null>(null);
 
   const mutation = useMutation({
     mutationFn: () =>
@@ -298,17 +308,15 @@ function InviteUserDialog({ clientId }: { clientId: string }) {
         queryKey: ["client-users", clientId],
       });
       const tempPwd = data.temp_password;
-      if (tempPwd) {
-        toast.success(
-          `Usuario creado · contraseña temporal: ${tempPwd} (entrega por canal seguro)`,
-          { duration: 15_000 },
-        );
-      } else {
-        toast.success("Usuario invitado · email enviado");
-      }
       setOpen(false);
       setEmail("");
       setFullName("");
+      if (tempPwd) {
+        // §1.8: contraseña en diálogo persistente con "Copiar", no en toast.
+        setInvitePwd(tempPwd);
+      } else {
+        toast.success("Usuario invitado · email enviado");
+      }
     },
     onError: (err: Error) => toast.error(`Invitación falló: ${err.message}`),
   });
@@ -317,7 +325,14 @@ function InviteUserDialog({ clientId }: { clientId: string }) {
     email.includes("@") && fullName.trim().length >= 3 && !mutation.isPending;
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
+    <>
+      <TempPasswordReveal
+        tempPassword={invitePwd}
+        onClose={() => setInvitePwd(null)}
+        title="Usuario creado"
+        description="Contraseña temporal del nuevo usuario. Cópiala y entrégasela por un canal seguro. Deberá cambiarla en su primer acceso."
+      />
+      <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
         <Button variant="primary" size="md" data-testid="invite-user-trigger">
           <UserPlus size={13} />
@@ -386,6 +401,7 @@ function InviteUserDialog({ clientId }: { clientId: string }) {
           </Button>
         </DialogFooter>
       </DialogContent>
-    </Dialog>
+      </Dialog>
+    </>
   );
 }

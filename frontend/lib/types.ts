@@ -69,7 +69,7 @@ export interface Project {
   estado?: string | null;
 }
 
-/** ──────────── Dashboard (K.1) — not yet in backend, mocked for now ──────────── */
+/** ──────────── Dashboard (K.1) — backed by GET /api/v1/dashboard/* ──────────── */
 
 export interface DashboardKpis {
   active_projects: number;
@@ -115,7 +115,7 @@ export interface ActivityEvent {
   agent_id?: number;
 }
 
-/** ──────────── Pipeline (K.2) — not yet in backend, mocked for now ──────────── */
+/** ──────────── Pipeline (K.2) — backed by GET/PATCH /api/v1/commercial/leads ──────────── */
 
 export type LeadStage =
   | "new"

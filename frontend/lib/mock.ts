@@ -1,98 +1,11 @@
-/** Placeholder data for Sprint 2 surfaces whose backend endpoints don't exist yet.
+/** Fixture de leads para dev/test (Playwright pipeline.spec.ts).
  *
- * Each dataset is documented with the expected endpoint so the frontend can
- * swap mocks for real API calls one-by-one as the backend catches up.
+ * Sólo MOCK_LEADS sobrevive: lo consume hooks/useLeads.ts como fallback
+ * gated por NODE_ENV (R24: 0 mocks en producción). Los antiguos
+ * MOCK_KPIS/MY_DAY/ALERTS/ACTIVITY se eliminaron (0 consumidores · el
+ * dashboard real usa GET /api/v1/dashboard/* vía useDashboardData.ts).
  */
-import type {
-  ActivityEvent,
-  DashboardAlert,
-  DashboardKpis,
-  Lead,
-  MyDayItem,
-} from "./types";
-
-export const MOCK_KPIS: DashboardKpis = {
-  active_projects: 12,
-  leads_count: 8,
-  leads_value_eur: 47_500,
-  retainers_active: 15,
-  mrr_eur: 4_200,
-  treasury_30d_eur: 12_300,
-  treasury_trend_pct: 8,
-  projects_rag: "green",
-};
-
-export const MOCK_MY_DAY: MyDayItem[] = [
-  {
-    id: "md-1",
-    type: "review_docs",
-    title: "Revisar 3 documentos pendientes",
-    count: 3,
-    href: "/admin/projects",
-  },
-  {
-    id: "md-2",
-    type: "signature",
-    title: "Firmar contrato C-004 (Innovatech)",
-    count: 1,
-    href: "/admin/projects",
-  },
-  {
-    id: "md-3",
-    type: "meeting",
-    title: "Reunión con Soluciones Digitales Levante",
-    scheduledAt: "2026-04-20T11:30:00Z",
-    href: "/admin/meeting",
-  },
-];
-
-export const MOCK_ALERTS: DashboardAlert[] = [
-  {
-    id: "al-1",
-    severity: "red",
-    project: "SDL",
-    message: "Plazo auditoría ENS en 12 días",
-    createdAt: "2026-04-19T09:00:00Z",
-  },
-  {
-    id: "al-2",
-    severity: "amber",
-    project: "Innovatech",
-    message: "MFA parcial detectado — falta cobertura en admins",
-    createdAt: "2026-04-18T17:00:00Z",
-  },
-];
-
-export const MOCK_ACTIVITY: ActivityEvent[] = [
-  {
-    id: "act-1",
-    timestamp: "2026-04-19T14:02:00Z",
-    type: "evidence_generated",
-    description: "E-101 Política de seguridad generada para SDL",
-    project_slug: "sdl",
-  },
-  {
-    id: "act-2",
-    timestamp: "2026-04-19T12:45:00Z",
-    type: "scan_completed",
-    description: "Nuclei scan completado — 2 findings informativos",
-    project_slug: "innovatech",
-  },
-  {
-    id: "act-3",
-    timestamp: "2026-04-19T10:18:00Z",
-    type: "proposal_sent",
-    description: "Propuesta P-014 enviada a DataForma Galicia",
-    project_slug: "dataforma",
-  },
-  {
-    id: "act-4",
-    timestamp: "2026-04-18T16:30:00Z",
-    type: "document_signed",
-    description: "Contrato C-003 firmado por el RSEG de SDL",
-    project_slug: "sdl",
-  },
-];
+import type { Lead } from "./types";
 
 const now = new Date("2026-04-20T10:00:00Z").toISOString();
 

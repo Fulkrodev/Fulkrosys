@@ -134,29 +134,7 @@ export function useUpdateLeadStage() {
 // eliminó. La única acción que lo usaba (LeadDrawer "Cerrar como perdido") ahora
 // llama a `useUpdateLeadStage` con stage='lost' + notes → persistencia real
 // (razon_perdida + fecha_perdida) vía PATCH /commercial/leads/{id}/stage.
-
-export function useCreateLead() {
-  const qc = useQueryClient();
-  return useMutation({
-    mutationFn: async (
-      draft: Omit<Lead, "id" | "last_touched_at" | "rag" | "score" | "stage">,
-    ) => {
-      await sleep(120);
-      const id = `lead-${Math.random().toString(36).slice(2, 9)}`;
-      const created: Lead = {
-        ...draft,
-        id,
-        score: 50,
-        rag: "amber",
-        stage: "new",
-        last_touched_at: new Date().toISOString(),
-      };
-      return created;
-    },
-    onSuccess: (created) => {
-      qc.setQueryData<LeadsState>(["leads"], (old) =>
-        old ? { items: [created, ...old.items] } : { items: [created] },
-      );
-    },
-  });
-}
+//
+// El antiguo `useCreateLead` (mock puro sin backend POST, 0 consumidores) se
+// eliminó: no existe un flujo real de creación de leads en frontend ni un
+// endpoint POST /commercial/leads. Tracked como feature aparte.

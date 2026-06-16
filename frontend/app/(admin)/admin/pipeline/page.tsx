@@ -1,4 +1,3 @@
-import { DevHint } from "@/components/dev/DevHint";
 import { PipelineKanban } from "@/components/pipeline/PipelineKanban";
 
 export const metadata = {
@@ -14,8 +13,7 @@ export default function PipelinePage() {
         </h1>
         <p className="text-base font-medium text-[color:var(--fulkro-body)]">
           Arrastra un lead entre columnas para actualizar su etapa. Pulsa
-          para abrir el detalle lateral.{" "}
-          <DevHint>Leads mock — /api/v1/leads pendiente en backend.</DevHint>
+          para abrir el detalle lateral.
         </p>
       </header>
 
