@@ -22,6 +22,7 @@ Schema response IDÉNTICO ClientCopilotStubResponse · zero refactor frontend.
 from __future__ import annotations
 
 import logging
+import re
 import uuid
 from typing import Any
 
@@ -42,7 +43,6 @@ logger = logging.getLogger(__name__)
 # Patrones coercitivos prohibidos R29 sostener empíricamente.
 # Si LLM response contiene cualquiera · fallback stub (defensive).
 _R29_COERCITIVE_PATTERNS: tuple[str, ...] = (
-    "llevas",  # "llevas X días sin..."
     "deadline urgente",
     "se acaba el tiempo",
     "se te acaba",
@@ -52,6 +52,15 @@ _R29_COERCITIVE_PATTERNS: tuple[str, ...] = (
     "es urgente que",
     "fecha límite",  # generic "deadline" en español
     "plazo se cumple",
+)
+
+# El idiom coercitivo es "llevas X días/sin/mucho..." (reproche por demora),
+# NO el "llevas razón" benigno. Un substring desnudo de "llevas" generaba
+# falsos positivos (§4.5 tracker:384) que degradaban la respuesta al stub.
+# Word-boundary regex que sólo dispara con el reproche temporal.
+_R29_LLEVAS_COERCITIVE = re.compile(
+    r"\bllevas\s+(?:\d+|varios|muchos?|mucho|demasiados?|demasiado|sin|tanto|tantos?)\b",
+    re.IGNORECASE,
 )
 
 # Patrones admin lingo prohibidos cliente-facing (R30 inverso).
@@ -71,6 +80,8 @@ def check_r29_boundaries(response_text: str) -> tuple[bool, str | None]:
     Returns (is_valid, violation_reason).
     """
     text_lower = response_text.lower()
+    if _R29_LLEVAS_COERCITIVE.search(response_text):
+        return False, "R29 violation: coercitive pattern 'llevas <demora>'"
     for pattern in _R29_COERCITIVE_PATTERNS:
         if pattern in text_lower:
             return False, f"R29 violation: coercitive pattern '{pattern}'"

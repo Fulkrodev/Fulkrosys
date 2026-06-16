@@ -195,14 +195,44 @@ def _serialize_conv(c: CopilotConversation) -> dict:
     }
 
 
+def _normalize_citations(raw: dict | None) -> dict | None:
+    """Normaliza la columna citations a la forma canónica {'items': [...]}.
+
+    Filas legacy persistidas por la ruta antigua usaban {'list': [...]}; las
+    canónicas usan {'items': [...]} (conversation_service.persist_message).
+    Esta lectura unifica ambas para que el frontend reciba siempre 'items'.
+    """
+    if not isinstance(raw, dict):
+        return raw
+    if "items" in raw:
+        return raw
+    if "list" in raw:
+        return {"items": raw["list"]}
+    return raw
+
+
+def _normalize_chunk_ids(raw: dict | None) -> dict | None:
+    """Normaliza chunk_ids_used a la forma canónica {'ids': [...]}.
+
+    Legacy: {'list': [...]} · canónica: {'ids': [...]}.
+    """
+    if not isinstance(raw, dict):
+        return raw
+    if "ids" in raw:
+        return raw
+    if "list" in raw:
+        return {"ids": raw["list"]}
+    return raw
+
+
 def _serialize_msg(m: CopilotMessage) -> dict:
     return {
         "id": str(m.id),
         "conversation_id": str(m.conversation_id),
         "role": m.role,
         "content": m.content,
-        "citations": m.citations,
-        "chunk_ids_used": m.chunk_ids_used,
+        "citations": _normalize_citations(m.citations),
+        "chunk_ids_used": _normalize_chunk_ids(m.chunk_ids_used),
         "model_used": m.model_used,
         "tokens_input": m.tokens_input,
         "tokens_output": m.tokens_output,
@@ -802,8 +832,12 @@ async def conversation_chat(
         project_id=project_id,
         role="assistant",
         content=result.answer,
-        citations={"list": result.citations_found},
-        chunk_ids_used={"list": result.chunk_ids_used},
+        # Clave canónica unificada con conversation_service.persist_message:
+        # citations -> {'items': [...]}, chunk_ids_used -> {'ids': [...]}.
+        # Antes esta ruta escribía {'list': ...} → deriva de forma silenciosa
+        # en la misma columna (§4.5 tracker:387).
+        citations={"items": result.citations_found} if result.citations_found else None,
+        chunk_ids_used={"ids": result.chunk_ids_used} if result.chunk_ids_used else None,
         model_used=result.model_used,
         tokens_input=result.tokens_input,
         tokens_output=result.tokens_output,

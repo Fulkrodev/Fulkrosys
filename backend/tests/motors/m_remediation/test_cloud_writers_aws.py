@@ -148,6 +148,82 @@ async def test_versioning_real_state(db: AsyncSession) -> None:
 
 
 @pytest.mark.asyncio
+async def test_cloudtrail_rollback_deletes_custom_trail_not_hardcoded() -> None:
+    """El rollback de CloudTrail borra el trail CREADO en apply (nombre custom),
+    no el literal 'fulkro-ens-trail'. Regresión §4.5 tracker:388b."""
+    with mock_aws():
+        s3 = boto3.client("s3", region_name=REGION)
+        s3.create_bucket(
+            Bucket="ct-logs",
+            CreateBucketConfiguration={"LocationConstraint": REGION},
+        )
+        ct = boto3.client("cloudtrail", region_name=REGION)
+        # Un trail "vecino" con el nombre por defecto que NO debe tocarse.
+        ct.create_trail(
+            Name="fulkro-ens-trail", S3BucketName="ct-logs", IsMultiRegionTrail=True,
+        )
+
+        writer = AwsRemediationWriter(ROLE)
+        # apply con un trail_name custom → devuelve {'applied': 'mi-trail-custom'}.
+        apply_result = writer._apply_cloudtrail(
+            writer._session(),
+            None,
+            {"s3_bucket": "ct-logs", "trail_name": "mi-trail-custom"},
+        )
+        assert apply_result == {"applied": "mi-trail-custom"}
+        names = {t["Name"] for t in ct.describe_trails()["trailList"]}
+        assert names == {"fulkro-ens-trail", "mi-trail-custom"}
+
+        # rollback recibe el state con `applied` fusionado (como hace el servicio).
+        rb = writer._rollback_cloudtrail(writer._session(), None, apply_result)
+        assert rb["deleted_trail"] == "mi-trail-custom"
+        names_after = {t["Name"] for t in ct.describe_trails()["trailList"]}
+        # El trail custom se borró; el vecino por defecto NO se tocó.
+        assert names_after == {"fulkro-ens-trail"}
+
+
+@pytest.mark.asyncio
+async def test_cloudtrail_service_merges_applied_into_snapshot(db: AsyncSession) -> None:
+    """El servicio fusiona apply_result (incl. el nombre creado) en el snapshot,
+    de modo que el rollback dispone del identificador dinámico. §4.5 tracker:388b."""
+    _, pid = await setup_test_project(db)
+    project_uuid = uuid.UUID(pid)
+    connector = await _aws_connector(db, project_uuid)
+    with mock_aws():
+        s3 = boto3.client("s3", region_name=REGION)
+        s3.create_bucket(
+            Bucket="ct-logs",
+            CreateBucketConfiguration={"LocationConstraint": REGION},
+        )
+        svc = RemediationService(db)
+        job = await svc.create_job(
+            project_id=project_uuid, action_type="enable_audit_logging",
+            source_kind="cloud_gap", connector_id=connector.id,
+            target_ref="account",
+            params={"s3_bucket": "ct-logs", "trail_name": "mi-trail-custom"},
+        )
+        job = await svc.execute_job(job.id, writer=AwsRemediationWriter(ROLE))
+        assert job.status == "succeeded"
+        # El snapshot guardado lleva fusionado el nombre creado en apply.
+        from sqlalchemy import select
+
+        from backend.app.motors.m_remediation.models import RemediationSnapshot
+
+        async with _admin_setup(db):
+            snap = (
+                await db.execute(
+                    select(RemediationSnapshot).where(
+                        RemediationSnapshot.job_id == job.id,
+                    ),
+                )
+            ).scalar_one()
+        assert snap.state_before.get("applied") == "mi-trail-custom"
+        ct = boto3.client("cloudtrail", region_name=REGION)
+        names = {t["Name"] for t in ct.describe_trails()["trailList"]}
+        assert "mi-trail-custom" in names
+
+
+@pytest.mark.asyncio
 async def test_password_policy_real_state(db: AsyncSession) -> None:
     _, pid = await setup_test_project(db)
     project_uuid = uuid.UUID(pid)

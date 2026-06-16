@@ -1,4 +1,8 @@
-"""Tool: bloodhound_analyze — Parse BloodHound JSON to extract attack paths."""
+"""Tool: bloodhound_analyze — Parse BloodHound JSON metadata (type + node count).
+
+Nota: la computación de rutas de ataque (graph traversal a Domain Admin / Tier 0)
+está pendiente; hoy solo se leen los metadatos de la colección.
+"""
 import json
 import os
 
@@ -7,7 +11,10 @@ from shared.mcp_protocol import MCPTool
 
 TOOL = MCPTool(
     name="bloodhound_analyze",
-    description="Parse BloodHound collection JSON to surface paths to Domain Admin / Tier 0.",
+    description=(
+        "Parse BloodHound collection metadata (collection type + node count). "
+        "Attack-path computation to Domain Admin / Tier 0 is pending (not yet implemented)."
+    ),
     input_schema={
         "properties": {
             "json_path": {"type": "string", "description": "Path to BloodHound JSON file"},

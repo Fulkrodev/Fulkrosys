@@ -64,6 +64,14 @@ async def _measure_id_for_code(
     return row[0] if row else None
 
 
+def _is_external_run(run: VerificationRun | None) -> bool:
+    """Un run es 'externo' (red team / pentest externo) si su ``mode``
+    no es ``internal`` (external_handoff | external_ingest_pdf |
+    external_ingest_form). Ver VerificationRun.mode.
+    """
+    return bool(run and run.mode and run.mode != "internal")
+
+
 async def create_evidence_for_finding(
     db: AsyncSession, finding: VerificationFinding,
 ) -> Evidence | None:
@@ -72,6 +80,10 @@ async def create_evidence_for_finding(
     Solo los findings classification in {confirmed, probable} y status
     'open' generan evidencia (vigente True). Los demas quedan fuera
     del catalogo.
+
+    El ``evidence_type_id`` se ramifica según el run: ``E-704`` (informe
+    red team) cuando el run es externo, ``E-702`` (informe técnico) en
+    runs internos (§3.2 line 305 · antes siempre E-702).
     """
     if finding.zfp_gate5_classification not in ("confirmed", "probable"):
         return None
@@ -79,6 +91,9 @@ async def create_evidence_for_finding(
         return None
     measure_code = finding.ens_primary_measure
     measure_id = await _measure_id_for_code(db, measure_code)
+
+    run = await db.get(VerificationRun, finding.run_id) if finding.run_id else None
+    evidence_type_id = "E-704" if _is_external_run(run) else "E-702"
 
     now = datetime.now(timezone.utc)
     digest = _finding_hash(finding)
@@ -88,7 +103,7 @@ async def create_evidence_for_finding(
         measure_code=measure_code,
         tipo="verification_finding",
         fuente="m08_verification",
-        evidence_type_id="E-702",
+        evidence_type_id=evidence_type_id,
         nombre_tipo="Hallazgo verificado (v5.1)",
         hash_sha256=digest,
         fecha_evidencia=now.date(),

@@ -197,29 +197,24 @@ async def login(
 
 
 def _bind_ticket_state(user_id: str, state: dict | None, typ: str) -> str:
-    """Issue a JWT ticket whose ``state`` claim holds the WebAuthn state."""
-    from backend.app.auth.crypto import (
-        JWT_ALGORITHM,
-        MFA_TICKET_TTL,
-        REGISTRATION_TICKET_TTL,
-        _PRIVATE_PEM,
-    )
+    """Issue a JWT ticket whose ``state`` claim holds the WebAuthn state.
 
+    Acuña a través de ``crypto.issue_token`` (fuente única del minteo de JWT)
+    en vez de re-implementar ``pyjwt.encode`` y acceder a ``_PRIVATE_PEM``
+    directamente (§4.5 tracker:390a · DRY/encapsulación).
+    """
     ttl = {
-        "mfa_ticket": MFA_TICKET_TTL,
-        "registration_ticket": REGISTRATION_TICKET_TTL,
+        "mfa_ticket": crypto.MFA_TICKET_TTL,
+        "registration_ticket": crypto.REGISTRATION_TICKET_TTL,
     }[typ]
-    now = datetime.now(timezone.utc)
-    payload = {
-        "sub": user_id,
-        "jti": uuid.uuid4().hex,
-        "typ": typ,
-        "iat": int(now.timestamp()),
-        "exp": int((now + ttl).timestamp()),
-    }
-    if state:
-        payload["state"] = state
-    return pyjwt.encode(payload, _PRIVATE_PEM, algorithm=JWT_ALGORITHM)
+    extra_claims = {"state": state} if state else None
+    token, _jti, _exp = crypto.issue_token(
+        user_id=user_id,
+        typ=typ,
+        ttl=ttl,
+        extra_claims=extra_claims,
+    )
+    return token
 
 
 # ──────────────────────────────────────────────────────────────────────
@@ -519,8 +514,9 @@ async def get_public_key():
     """
     import hashlib
 
-    public_pem_str = crypto._PUBLIC_PEM.decode("utf-8")
-    key_id = hashlib.sha256(crypto._PUBLIC_PEM).hexdigest()[:16]
+    public_pem = crypto.get_public_pem()
+    public_pem_str = public_pem.decode("utf-8")
+    key_id = hashlib.sha256(public_pem).hexdigest()[:16]
     return _PublicKeyResponse(
         algorithm="ed25519",
         format="PEM",
@@ -553,7 +549,7 @@ async def verify_signature(body: _VerifySignatureRequest):
     except (ValueError, base64.binascii.Error):
         return _VerifySignatureResponse(valid=False)
 
-    public_key = serialization.load_pem_public_key(crypto._PUBLIC_PEM)
+    public_key = serialization.load_pem_public_key(crypto.get_public_pem())
     try:
         public_key.verify(signature, payload)
         return _VerifySignatureResponse(valid=True)

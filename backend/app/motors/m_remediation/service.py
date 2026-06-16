@@ -376,6 +376,17 @@ class RemediationService:
                 job, writer, snap, f"Apply falló: {exc}",
             )
 
+        # 3.5 · Fusiona el resultado del apply en el snapshot para que el
+        # rollback disponga de los identificadores creados en el apply (p.ej.
+        # el nombre de un recurso CREADO, como el trail de CloudTrail). El
+        # snapshot solo capturó el estado PRE-apply en read_state; sin esto el
+        # rollback no sabría qué recurso revertir cuando el nombre es dinámico.
+        if isinstance(apply_result, dict) and apply_result:
+            merged = dict(snap.state_before or {})
+            merged.update(apply_result)
+            snap.state_before = merged
+            await self.db.flush()
+
         # 4 · VERIFY
         await self._set_status(job, RemediationJobStatus.VERIFYING)
         try:

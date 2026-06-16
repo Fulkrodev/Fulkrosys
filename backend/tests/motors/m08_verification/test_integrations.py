@@ -49,12 +49,13 @@ async def _create_run_with_finding(
     severity="high", classification="confirmed",
     cve_id="CVE-2024-TEST",
     title="Test finding",
+    mode="internal",
 ):
     async with _admin_setup(db):
         run = VerificationRun(
             project_id=uuid.UUID(project_id) if isinstance(project_id, str) else project_id,
             category="BASICO",
-            mode="internal",
+            mode=mode,
             status="completed",
             scope_jsonb={"targets": ["test.example.es"], "web_apps": [], "exclusions": []},
             tools_used=["nuclei"],
@@ -222,9 +223,23 @@ class TestM7Evidence:
         assert ev.tipo == "verification_finding"
         assert ev.measure_code == "op.exp.5"
         assert ev.vigente is True
+        # Run interno → informe técnico E-702.
+        assert ev.evidence_type_id == "E-702"
         # 180 dias
         delta = (ev.fecha_caducidad - ev.fecha_evidencia).days
         assert delta == 180
+
+    @pytest.mark.asyncio
+    async def test_external_run_finding_uses_e704(self, db):
+        """Run externo (red team) → evidencia E-704, no E-702 (§3.2 line 305)."""
+        _, project_id = await setup_test_project(db)
+        _, vf = await _create_run_with_finding(
+            db, project_id, measure_code="op.exp.5", mode="external_handoff",
+        )
+        await _set_tenant(db, project_id)
+        ev = await create_evidence_for_finding(db, vf)
+        assert ev is not None
+        assert ev.evidence_type_id == "E-704"
 
     @pytest.mark.asyncio
     async def test_skips_needs_review(self, db):

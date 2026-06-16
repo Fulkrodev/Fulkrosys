@@ -48,6 +48,23 @@ def test_boundary_check_detects_coercitive_llevas():
     assert "llevas" in violation.lower()
 
 
+def test_boundary_check_llevas_razon_is_not_coercitive():
+    """'llevas razón' es benigno · NO debe disparar R29 (§4.5 tracker:384)."""
+    text = "Tienes toda la razón, llevas razón en tu apreciación · buena observación."
+    ok, violation = check_r29_boundaries(text)
+    assert ok is True
+    assert violation is None
+
+
+def test_boundary_check_llevas_dias_sin_flags():
+    """El reproche temporal 'llevas N días sin...' SÍ es coercitivo R29."""
+    text = "Recuerda que llevas 5 días sin subir la evidencia."
+    ok, violation = check_r29_boundaries(text)
+    assert ok is False
+    assert violation is not None
+    assert "llevas" in violation.lower()
+
+
 def test_boundary_check_detects_deadline_urgente():
     text = "Atención · deadline urgente este viernes."
     ok, violation = check_r29_boundaries(text)

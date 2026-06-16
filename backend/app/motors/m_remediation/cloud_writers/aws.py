@@ -277,8 +277,12 @@ class AwsRemediationWriter:
 
     def _rollback_cloudtrail(self, sess, _target, _state_before) -> dict:
         ct = sess.client("cloudtrail")
-        ct.delete_trail(Name="fulkro-ens-trail")
-        return {"restored": True}
+        # Borra el trail que se CREÓ en _apply (su nombre se persiste en el
+        # snapshot como `applied`), no un literal hardcoded. Si _apply usó un
+        # trail_name custom, el rollback borra ese mismo trail (no el equivocado).
+        name = (_state_before or {}).get("applied") or "fulkro-ens-trail"
+        ct.delete_trail(Name=name)
+        return {"restored": True, "deleted_trail": name}
 
     # ── IAM · rotación de clave (GUARDED) ───────────────────────────────────
 

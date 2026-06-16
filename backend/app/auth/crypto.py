@@ -155,6 +155,15 @@ def decode_token(token: str) -> dict:
     return pyjwt.decode(token, _PUBLIC_PEM, algorithms=[JWT_ALGORITHM])
 
 
+def get_public_pem() -> bytes:
+    """Accesor público de la clave pública Ed25519 (PEM) para JWKS / verificación.
+
+    Evita que otros módulos lean el global "privado" ``_PUBLIC_PEM`` directamente
+    (§4.5 tracker:390a · encapsulación).
+    """
+    return _PUBLIC_PEM
+
+
 def hash_jti(jti: str) -> str:
     """Hash a JTI for DB storage comparisons (unused today, reserved)."""
     return hashlib.sha256(jti.encode("utf-8")).hexdigest()
