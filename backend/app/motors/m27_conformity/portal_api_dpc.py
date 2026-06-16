@@ -25,6 +25,7 @@ from backend.app.database import get_db, set_tenant_context
 from backend.app.models.client_portal import ClientUser
 from backend.app.motors.m05_signing.models import SigningIntent
 from backend.app.motors.m21_portal_cliente.api import get_current_client_user
+from backend.app.motors.m21_portal_cliente.ownership import ensure_owned_via_project
 from backend.app.motors.m27_conformity.dpc_anual_service import (
     ConformidadNotSignedError,
     DpcAlreadySignedError,
@@ -139,7 +140,7 @@ async def _get_declaration_project(
     )
     hit = row.first()
     if hit is None:
-        raise HTTPException(status_code=404, detail="DPC declaration no existe")
+        raise HTTPException(status_code=404, detail="No encontrado")
     return hit[0]
 
 
@@ -203,17 +204,17 @@ async def get_dpc_declaration_detail(
 ) -> DpcContextOut:
     """Detail single DPC declaration · 4 secciones readiness snapshot."""
     project_id = await _get_declaration_project(db, declaration_id)
-    await _ensure_project_belongs_to_client(db, project_id, user)
+    await ensure_owned_via_project(db, project_id, user)
 
     views = await _service(db).list_declarations_for_project(project_id)
     view = next((v for v in views if v.id == declaration_id), None)
     if view is None:
-        raise HTTPException(status_code=404, detail="DPC declaration no existe")
+        raise HTTPException(status_code=404, detail="No encontrado")
 
     from backend.app.models.conformity_lifecycle import BasicDeclarationRow
     decl = await db.get(BasicDeclarationRow, declaration_id)
     if decl is None:
-        raise HTTPException(status_code=404, detail="DPC declaration no existe")
+        raise HTTPException(status_code=404, detail="No encontrado")
     readiness = decl.readiness_snapshot_jsonb or {}
 
     return DpcContextOut(
@@ -237,7 +238,7 @@ async def review_dpc_declaration(
 ) -> DpcDeclarationOut:
     """Cliente review action DPC anual."""
     project_id = await _get_declaration_project(db, declaration_id)
-    await _ensure_project_belongs_to_client(db, project_id, user)
+    await ensure_owned_via_project(db, project_id, user)
 
     try:
         decl = await _service(db).mark_dpc_reviewed(
@@ -269,7 +270,7 @@ async def get_dpc_document_hash(
 ) -> DpcDocumentHashOut:
     """SHA256 deterministic DPC declaration state · input firma M05."""
     project_id = await _get_declaration_project(db, declaration_id)
-    await _ensure_project_belongs_to_client(db, project_id, user)
+    await ensure_owned_via_project(db, project_id, user)
 
     try:
         doc_hash, canonical_length = await _service(db).compute_dpc_document_hash(
@@ -304,7 +305,7 @@ async def finalize_dpc_signoff(
 ) -> DpcFinalizeSignoffOut:
     """Post-firma DPC · link signing_intent_id + signed_at + signed_hash."""
     project_id = await _get_declaration_project(db, declaration_id)
-    await _ensure_project_belongs_to_client(db, project_id, user)
+    await ensure_owned_via_project(db, project_id, user)
 
     intent = await db.get(SigningIntent, body.signing_intent_id)
     if intent is None:

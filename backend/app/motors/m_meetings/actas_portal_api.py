@@ -23,6 +23,7 @@ from backend.app.models.client_portal import ClientUser
 from backend.app.models.governance import CommitteeMeeting, ACTA_SUBTYPE_LABELS
 from backend.app.motors.m05_signing.models import SigningIntent
 from backend.app.motors.m21_portal_cliente.api import get_current_client_user
+from backend.app.motors.m21_portal_cliente.ownership import ensure_owned_via_project
 from backend.app.motors.m_meetings.actas_service import (
     ACTA_SUBTYPES,
     ActaAlreadySignedError,
@@ -141,7 +142,7 @@ async def _get_acta_project(
     )
     hit = row.first()
     if hit is None:
-        raise HTTPException(status_code=404, detail="Acta no existe")
+        raise HTTPException(status_code=404, detail="No encontrado")
     return hit[0]
 
 
@@ -239,7 +240,7 @@ async def get_client_acta_detail(
 ) -> ActaClientOut:
     """Detail single · enforce sent_to_client visibility."""
     project_id = await _get_acta_project(db, meeting_id)
-    await _ensure_project_belongs_to_client(db, project_id, user)
+    await ensure_owned_via_project(db, project_id, user)
 
     meeting = await db.get(CommitteeMeeting, meeting_id)
     if (
@@ -263,7 +264,7 @@ async def review_acta(
 ) -> ActaClientOut:
     """Cliente review action MixinA pattern."""
     project_id = await _get_acta_project(db, meeting_id)
-    await _ensure_project_belongs_to_client(db, project_id, user)
+    await ensure_owned_via_project(db, project_id, user)
 
     try:
         meeting = await _service(db).mark_client_review(
@@ -294,7 +295,7 @@ async def get_acta_hash(
 ) -> ActaDocumentHashOut:
     """SHA256 canonical · pre-firma input M05."""
     project_id = await _get_acta_project(db, meeting_id)
-    await _ensure_project_belongs_to_client(db, project_id, user)
+    await ensure_owned_via_project(db, project_id, user)
 
     try:
         doc_hash, canonical_length = await _service(db).compute_acta_hash(
@@ -332,7 +333,7 @@ async def finalize_acta_signoff(
 ) -> ActaFinalizeSignoffOut:
     """Post-firma cliente · link signing_intent + firmas jsonb multi-sig append."""
     project_id = await _get_acta_project(db, meeting_id)
-    await _ensure_project_belongs_to_client(db, project_id, user)
+    await ensure_owned_via_project(db, project_id, user)
 
     intent = await db.get(SigningIntent, body.signing_intent_id)
     if intent is None:

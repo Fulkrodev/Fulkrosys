@@ -56,6 +56,7 @@ from backend.app.motors.m05_signing.signable_types import (
     SIGNABLE_TYPES,
 )
 from backend.app.motors.m21_portal_cliente.api import get_current_client_user
+from backend.app.motors.m21_portal_cliente.ownership import ensure_owned_via_project
 
 
 logger = logging.getLogger(__name__)
@@ -206,7 +207,7 @@ async def request_step_up_otp(
     """
     try:
         intent = await _service(db)._get_intent_or_404(intent_id)
-        await _ensure_project_belongs_to_client(
+        await ensure_owned_via_project(
             db, intent.project_id, user,
         )
         result = await _service(db).request_otp(
@@ -240,7 +241,7 @@ async def verify_step_up_otp(
     """Verify OTP · max 5 attempts · update intent state si correct."""
     try:
         intent = await _service(db)._get_intent_or_404(intent_id)
-        await _ensure_project_belongs_to_client(
+        await ensure_owned_via_project(
             db, intent.project_id, user,
         )
         valid = await _service(db).verify_otp(
@@ -269,7 +270,7 @@ async def sign_intent(
     """Generate Ed25519 signature · finalize intent · hash chain link."""
     try:
         intent = await _service(db)._get_intent_or_404(intent_id)
-        await _ensure_project_belongs_to_client(
+        await ensure_owned_via_project(
             db, intent.project_id, user,
         )
         event = await _service(db).sign(
@@ -324,7 +325,7 @@ async def reject_intent(
     """Cliente rechaza firma · audit log + canonical Sub-atom 5.A signature.declined."""
     try:
         intent = await _service(db)._get_intent_or_404(intent_id)
-        await _ensure_project_belongs_to_client(
+        await ensure_owned_via_project(
             db, intent.project_id, user,
         )
         await _service(db).reject(
@@ -383,7 +384,7 @@ async def get_signing_intent_detail(
     """Get intent state + ordered events log."""
     try:
         intent = await _service(db)._get_intent_or_404(intent_id)
-        await _ensure_project_belongs_to_client(
+        await ensure_owned_via_project(
             db, intent.project_id, user,
         )
         return await _service(db).get_intent_detail(intent_id)
@@ -592,7 +593,7 @@ async def sign_intent_canvas(
     """
     try:
         intent = await _service(db)._get_intent_or_404(intent_id)
-        await _ensure_project_belongs_to_client(
+        await ensure_owned_via_project(
             db, intent.project_id, user,
         )
         event = await _service(db).sign_canvas(

@@ -23,6 +23,7 @@ from backend.app.models.client_portal import ClientUser
 from backend.app.models.retainer import RetainerQuarterlyReport
 from backend.app.motors.m05_signing.models import SigningIntent
 from backend.app.motors.m21_portal_cliente.api import get_current_client_user
+from backend.app.motors.m21_portal_cliente.ownership import ensure_owned_via_project
 from backend.app.motors.m23_retainer.retainer_checkin_service import (
     CheckinAlreadySignedError,
     CheckinReportNotFoundError,
@@ -134,7 +135,7 @@ async def _get_report_project(
     )
     hit = row.first()
     if hit is None:
-        raise HTTPException(status_code=404, detail="Checkin report no existe")
+        raise HTTPException(status_code=404, detail="No encontrado")
     return hit[0]
 
 
@@ -209,7 +210,7 @@ async def get_client_checkin_detail(
 ) -> CheckinClientOut:
     """Detail single · enforce sent_to_client visibility."""
     project_id = await _get_report_project(db, report_id)
-    await _ensure_project_belongs_to_client(db, project_id, user)
+    await ensure_owned_via_project(db, project_id, user)
 
     report = await db.get(RetainerQuarterlyReport, report_id)
     if report is None or report.admin_curation_status != "sent_to_client":
@@ -229,7 +230,7 @@ async def review_checkin(
 ) -> CheckinClientOut:
     """Cliente review action."""
     project_id = await _get_report_project(db, report_id)
-    await _ensure_project_belongs_to_client(db, project_id, user)
+    await ensure_owned_via_project(db, project_id, user)
 
     try:
         report = await _service(db).mark_client_review(
@@ -260,7 +261,7 @@ async def get_checkin_hash(
 ) -> CheckinDocumentHashOut:
     """SHA256 canonical · pre-firma."""
     project_id = await _get_report_project(db, report_id)
-    await _ensure_project_belongs_to_client(db, project_id, user)
+    await ensure_owned_via_project(db, project_id, user)
 
     try:
         doc_hash, canonical_length = await _service(db).compute_signoff_hash(
@@ -298,7 +299,7 @@ async def finalize_checkin_signoff(
 ) -> CheckinFinalizeSignoffOut:
     """Post-firma · link signing_intent_id."""
     project_id = await _get_report_project(db, report_id)
-    await _ensure_project_belongs_to_client(db, project_id, user)
+    await ensure_owned_via_project(db, project_id, user)
 
     intent = await db.get(SigningIntent, body.signing_intent_id)
     if intent is None:

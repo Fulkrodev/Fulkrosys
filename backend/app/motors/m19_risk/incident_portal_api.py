@@ -30,6 +30,7 @@ from backend.app.motors.m19_risk.incident_workflow_service import (
     InvalidReviewActionError,
 )
 from backend.app.motors.m21_portal_cliente.api import get_current_client_user
+from backend.app.motors.m21_portal_cliente.ownership import ensure_owned_via_project
 
 
 router = APIRouter(
@@ -128,7 +129,7 @@ async def _get_incident_project(
     )
     hit = row.first()
     if hit is None:
-        raise HTTPException(status_code=404, detail="Incident no existe")
+        raise HTTPException(status_code=404, detail="No encontrado")
     return hit[0]
 
 
@@ -197,7 +198,7 @@ async def get_client_incident_detail(
 ) -> IncidentClientOut:
     """Detail single incident · enforce cliente-visible state."""
     project_id = await _get_incident_project(db, incident_id)
-    await _ensure_project_belongs_to_client(db, project_id, user)
+    await ensure_owned_via_project(db, project_id, user)
     try:
         view = await _service(db).get_client_visible_incident(incident_id)
     except IncidentNotFoundError as exc:
@@ -217,7 +218,7 @@ async def review_incident(
 ) -> IncidentClientOut:
     """Cliente review action incident."""
     project_id = await _get_incident_project(db, incident_id)
-    await _ensure_project_belongs_to_client(db, project_id, user)
+    await ensure_owned_via_project(db, project_id, user)
 
     try:
         await _service(db).mark_client_review(
@@ -250,7 +251,7 @@ async def get_incident_close_hash(
 ) -> IncidentDocumentHashOut:
     """SHA256 canonical incident_close state · pre-firma."""
     project_id = await _get_incident_project(db, incident_id)
-    await _ensure_project_belongs_to_client(db, project_id, user)
+    await ensure_owned_via_project(db, project_id, user)
 
     try:
         doc_hash, canonical_length = await _service(db).compute_incident_close_hash(
@@ -288,7 +289,7 @@ async def finalize_incident_close(
 ) -> IncidentFinalizeCloseOut:
     """Post-firma incident_close · workflow_state → closed + link signing_intent."""
     project_id = await _get_incident_project(db, incident_id)
-    await _ensure_project_belongs_to_client(db, project_id, user)
+    await ensure_owned_via_project(db, project_id, user)
 
     intent = await db.get(SigningIntent, body.signing_intent_id)
     if intent is None:

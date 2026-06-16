@@ -35,6 +35,7 @@ from backend.app.database import get_db, set_tenant_context
 from backend.app.models.client_portal import ClientUser
 from backend.app.models.ens import DdaEntry, EnsMeasure
 from backend.app.motors.m21_portal_cliente.api import get_current_client_user
+from backend.app.motors.m21_portal_cliente.ownership import ensure_owned_via_project
 
 
 router = APIRouter(
@@ -190,7 +191,7 @@ async def _get_entry_with_project(
     """Fetch entry · returns (entry, project_id)."""
     entry = await db.get(DdaEntry, entry_id)
     if entry is None:
-        raise HTTPException(status_code=404, detail="Entry no existe")
+        raise HTTPException(status_code=404, detail="No encontrado")
     return entry, entry.project_id
 
 
@@ -492,7 +493,7 @@ async def get_dda_entry_detail(
 ) -> DdaEntryClientView:
     """Detalle de una DdA entry · cliente drawer view."""
     entry, project_id = await _get_entry_with_project(db, entry_id)
-    await _ensure_project_belongs_to_client(db, project_id, user)
+    await ensure_owned_via_project(db, project_id, user)
     measure = await db.get(EnsMeasure, entry.measure_id)
     if measure is None:
         raise HTTPException(status_code=500, detail="Measure huerfano")
@@ -527,7 +528,7 @@ async def review_dda_entry(
         )
 
     entry, project_id = await _get_entry_with_project(db, entry_id)
-    await _ensure_project_belongs_to_client(db, project_id, user)
+    await ensure_owned_via_project(db, project_id, user)
 
     entry.client_review_status = body.action
     entry.client_review_note = body.note

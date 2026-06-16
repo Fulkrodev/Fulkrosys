@@ -32,6 +32,7 @@ from backend.app.motors.m06_document_factory.policy_signoff_service import (
     ProjectNotFoundError,
 )
 from backend.app.motors.m21_portal_cliente.api import get_current_client_user
+from backend.app.motors.m21_portal_cliente.ownership import ensure_owned_via_project
 
 
 router = APIRouter(
@@ -228,9 +229,9 @@ async def review_policy(
     )
     hit = row.first()
     if hit is None:
-        raise HTTPException(status_code=404, detail="Document no existe")
+        raise HTTPException(status_code=404, detail="No encontrado")
     project_id = hit[0]
-    await _ensure_project_belongs_to_client(db, project_id, user)
+    await ensure_owned_via_project(db, project_id, user)
 
     try:
         doc = await _service(db).review_policy(

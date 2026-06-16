@@ -37,6 +37,7 @@ from backend.app.motors.m02_magerit.models import (
     MageritThreatAssessment,
 )
 from backend.app.motors.m21_portal_cliente.api import get_current_client_user
+from backend.app.motors.m21_portal_cliente.ownership import ensure_owned_via_project
 
 
 router = APIRouter(
@@ -566,13 +567,13 @@ async def get_magerit_asset_detail(
     """Detail asset · cliente expand view."""
     asset = await db.get(MageritAsset, asset_id)
     if asset is None or asset.deleted_at is not None:
-        raise HTTPException(status_code=404, detail="Asset no existe")
+        raise HTTPException(status_code=404, detail="No encontrado")
 
     # Resolve project_id via analysis
     analysis = await db.get(MageritAnalysis, asset.analysis_id)
     if analysis is None:
-        raise HTTPException(status_code=500, detail="Analysis huerfano")
-    await _ensure_project_belongs_to_client(db, analysis.project_id, user)
+        raise HTTPException(status_code=404, detail="No encontrado")
+    await ensure_owned_via_project(db, analysis.project_id, user)
 
     return await _to_asset_client_view(asset)
 
@@ -605,12 +606,12 @@ async def review_magerit_asset(
 
     asset = await db.get(MageritAsset, asset_id)
     if asset is None or asset.deleted_at is not None:
-        raise HTTPException(status_code=404, detail="Asset no existe")
+        raise HTTPException(status_code=404, detail="No encontrado")
 
     analysis = await db.get(MageritAnalysis, asset.analysis_id)
     if analysis is None:
-        raise HTTPException(status_code=500, detail="Analysis huerfano")
-    await _ensure_project_belongs_to_client(db, analysis.project_id, user)
+        raise HTTPException(status_code=404, detail="No encontrado")
+    await ensure_owned_via_project(db, analysis.project_id, user)
 
     asset.client_review_status = body.action
     asset.client_review_note = body.note
@@ -729,12 +730,12 @@ async def review_magerit_risk(
 
     assessment = await db.get(MageritThreatAssessment, risk_id)
     if assessment is None:
-        raise HTTPException(status_code=404, detail="Riesgo no existe")
+        raise HTTPException(status_code=404, detail="No encontrado")
 
     analysis = await db.get(MageritAnalysis, assessment.analysis_id)
     if analysis is None:
-        raise HTTPException(status_code=500, detail="Analysis huerfano")
-    await _ensure_project_belongs_to_client(db, analysis.project_id, user)
+        raise HTTPException(status_code=404, detail="No encontrado")
+    await ensure_owned_via_project(db, analysis.project_id, user)
 
     # Cargar asset + threat JUSTO tras fijar el contexto de tenant (RLS recién
     # seteado por _ensure_project_belongs_to_client → current_project_id() está
