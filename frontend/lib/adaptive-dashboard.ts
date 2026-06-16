@@ -24,30 +24,34 @@ export const TIER_COLORS: Record<string, { bg: string; fg: string; label: string
   },
 };
 
+// Etiquetas amigables (R29) alineadas al enum canónico de 10 fases del
+// backend (WorkflowPhase.ordered() · projects.fase). El orden y las claves
+// DEBEN coincidir con backend/app/core/workflow_phase.py para que el
+// stepper resalte la fase actual emitida por el dashboard.
 export const PHASE_LABELS: Record<string, string> = {
+  pre_venta: "Preparación inicial",
   onboarding: "Onboarding",
   diagnostico: "Diagnóstico",
-  magerit: "Análisis MAGERIT",
-  dda: "Declaración de Aplicabilidad",
+  analisis_riesgos: "Análisis de riesgos",
+  adecuacion: "Adecuación",
   implantacion: "Implantación",
+  dda_final: "Declaración de Aplicabilidad",
   verificacion: "Verificación técnica",
-  auditoria: "Auditoría",
   conformidad: "Conformidad ENS",
   retainer_cierre: "Cierre · oferta retainer",
-  retainer_activo: "Retainer activo",
 };
 
 export const PHASE_ORDER: WorkflowPhase[] = [
+  "pre_venta",
   "onboarding",
   "diagnostico",
-  "magerit",
-  "dda",
+  "analisis_riesgos",
+  "adecuacion",
   "implantacion",
+  "dda_final",
   "verificacion",
-  "auditoria",
   "conformidad",
   "retainer_cierre",
-  "retainer_activo",
 ];
 
 export function phaseLabel(phase: string | null | undefined): string {

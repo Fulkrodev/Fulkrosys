@@ -12,6 +12,7 @@ import {
   Timer,
   type LucideIcon,
 } from "lucide-react";
+import { toast } from "sonner";
 
 import { RAGDot } from "@/components/data/RAGBadge";
 import { DevHint } from "@/components/dev/DevHint";
@@ -169,9 +170,7 @@ export function RetainerProjectDashboard({
             action={{
               label: "Contratar retainer",
               onClick: () =>
-                alert(
-                  "Contratación de retainer · próximamente. TODO-FASE-X-RETAINER-CONTRATACION-001",
-                ),
+                toast.info("Contratación de retainer · próximamente"),
               variant: "primary",
             }}
           />

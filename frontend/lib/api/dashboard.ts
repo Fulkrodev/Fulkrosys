@@ -6,17 +6,21 @@
  */
 import { clientApi } from "@/lib/client-portal-api";
 
+// Canonical 10-phase enum · mirror backend/app/core/workflow_phase.py
+// (WorkflowPhase.ordered()). El backend emite projects.fase con estos
+// valores (adaptive_dashboard_service.current_phase). Mantener alineado
+// para que el highlight de WorkflowStepperCard funcione.
 export type WorkflowPhase =
+  | "pre_venta"
   | "onboarding"
   | "diagnostico"
-  | "magerit"
-  | "dda"
+  | "analisis_riesgos"
+  | "adecuacion"
   | "implantacion"
+  | "dda_final"
   | "verificacion"
-  | "auditoria"
   | "conformidad"
-  | "retainer_cierre"
-  | "retainer_activo";
+  | "retainer_cierre";
 
 export interface DashboardContext {
   client_id: string;

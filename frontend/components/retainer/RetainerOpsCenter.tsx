@@ -177,9 +177,12 @@ export function RetainerOpsCenter() {
 
   async function runOperator() {
     setBusy(true);
-    await new Promise((r) => setTimeout(r, 300));
-    setBusy(false);
-    toast.success("Agente 26 — análisis priorizado");
+    try {
+      await Promise.all([overviewQ.refetch(), alertsQ.refetch()]);
+      toast.success("Agente 26 — análisis actualizado");
+    } finally {
+      setBusy(false);
+    }
   }
 
   async function refreshOverview() {
