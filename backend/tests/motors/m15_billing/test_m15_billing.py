@@ -249,6 +249,65 @@ async def test_generate_from_milestone(async_client, db):
 
 
 @pytest.mark.asyncio
+async def test_generate_from_milestone_apendice_m_schema(async_client, db):
+    """Regresión §2.2/223 · billing debe facturar hitos en esquema Apéndice-M.
+
+    Las propuestas generadas por ``generate_proposal_apendice_m`` guardan los
+    hitos como ``{code, description, amount}`` (NO ``{nombre, importe}``). Antes
+    del bridge, billing_service buscaba el hito por ``nombre`` y leía ``importe``
+    → lookup siempre fallaba → ``BillingError('Hito ... no existe')`` y la factura
+    era imposible. Este test siembra el esquema Apéndice-M y exige que la factura
+    se genere sin error.
+    """
+    _, project_id = await setup_test_project(db)
+    lead_id = await _create_lead(db)
+    pid = str(uuid.uuid4())
+    async with _admin_setup(db):
+        await db.execute(text(
+            "INSERT INTO proposals "
+            "(id, lead_id, project_id, pricing_model_id, categoria_objetivo, "
+            " importe_total, hitos_pago, estado, version, superseded, "
+            " created_at, updated_at) "
+            "VALUES (:id, :lead, :proj, 'media_hitos', 'MEDIA', 10700, "
+            " CAST(:hitos AS jsonb), 'won', 1, false, now(), now())"
+        ), {
+            "id": pid, "lead": lead_id, "proj": project_id,
+            # Esquema Apéndice-M: code/description/amount (sin nombre/importe).
+            "hitos": (
+                '{"hitos": ['
+                '{"code": "H1", "description": "Anticipo firma", '
+                '"pct": 30, "amount": 3210.0}, '
+                '{"code": "H2", "description": "Implantación", '
+                '"pct": 40, "amount": 4280.0}, '
+                '{"code": "H3", "description": "Cierre", '
+                '"pct": 30, "amount": 3210.0}]}'
+            ),
+        })
+    await db.flush()
+
+    # Contract
+    r2 = await async_client.post(
+        f"{BASE_CTR}/projects/{project_id}/contracts/generate",
+        json={
+            "proposal_id": pid,
+            "plantilla_id": "C-001",
+            "cliente_firmante_nombre": "Marcos",
+            "cliente_firmante_cargo": "CEO",
+        },
+    )
+    cid = r2.json()["id"]
+
+    # Invoice from milestone "Anticipo firma" (matched via description bridge).
+    r3 = await async_client.post(
+        f"{BASE}/projects/{project_id}/invoices/from-milestone",
+        json={"contract_id": cid, "hito": "Anticipo firma"},
+    )
+    assert r3.status_code == 201, r3.text
+    data = r3.json()
+    assert float(data["base_imponible"]) == 3210.0
+
+
+@pytest.mark.asyncio
 async def test_generate_reminder_valid_days(db):
     client_id, project_id = await _setup_tenant(db)
     svc = BillingService()

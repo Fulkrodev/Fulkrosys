@@ -366,14 +366,21 @@ class BillingService:
             raise BillingError("Proposal origen no encontrada")
 
         hitos_data = (proposal.hitos_pago or {}).get("hitos") or []
-        hito_data = next((h for h in hitos_data if h.get("nombre") == hito), None)
+
+        # Schema bridge: legacy generate_proposal stores {nombre, importe};
+        # Apéndice-M generate_proposal_apendice_m stores {code, description, amount}.
+        # Match by any label key and read amount from either key.
+        def _hito_label(h: dict) -> str:
+            return h.get("nombre") or h.get("description") or h.get("code") or ""
+
+        hito_data = next((h for h in hitos_data if _hito_label(h) == hito), None)
         if not hito_data:
             raise BillingError(
                 f"Hito '{hito}' no existe en la propuesta "
-                f"(disponibles: {[h.get('nombre') for h in hitos_data]})"
+                f"(disponibles: {[_hito_label(h) for h in hitos_data]})"
             )
 
-        importe = float(hito_data.get("importe") or 0)
+        importe = float(hito_data.get("importe") or hito_data.get("amount") or 0)
         if importe <= 0:
             raise BillingError(f"Hito '{hito}' sin importe válido")
 

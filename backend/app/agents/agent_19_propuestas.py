@@ -428,7 +428,7 @@ class Agent19Proposals(AgentBase):
                 )
             ).fetchone()
         except Exception as exc:
-            logger.debug("A21: stakeholders fetch failed: %s", exc)
+            logger.debug("A19: stakeholders fetch failed: %s", exc)
             rows = (0, 0)
         try:
             diag = (
@@ -468,7 +468,7 @@ class Agent19Proposals(AgentBase):
                 ).scalar()
                 counts[key] = int(value or 0)
             except Exception as exc:
-                logger.debug("A22: %s fetch failed: %s", key, exc)
+                logger.debug("A19: %s fetch failed: %s", key, exc)
                 counts[key] = 0
         # sedes_count no siempre existe; default 1
         try:

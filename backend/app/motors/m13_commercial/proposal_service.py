@@ -121,7 +121,7 @@ class ProposalService:
     # #5 cabo N2 · modelo de pricing legacy por categoría (proyecto · NO
     # retainer). SUPERSEDED por BUG5: ``regenerate_for_categoria`` ya NO usa este
     # mapping (cotizaba MEDIA 22.000 vía PRICING_CATALOG['media_hitos']); ahora
-    # delega en ``generate_proposal_apendice_m`` (BASE_PRICES · MEDIA 9.500).
+    # delega en ``generate_proposal_apendice_m`` (BASE_PRICES_CANONICAL · MEDIA 10.700).
     # Conservado solo como referencia histórica.
     _PROJECT_PRICING_MODEL = {
         "BASICA": "basica_fijo",
@@ -162,7 +162,7 @@ class ProposalService:
 
         # BUG5 fix · la elevación de categoría debe cotizar por la MISMA vía
         # canónica que la propuesta inicial (``generate_proposal_apendice_m`` →
-        # ``PricingCalculator`` → BASE_PRICES: MEDIA 9.500), NO por el legacy
+        # ``PricingCalculator`` → BASE_PRICES_CANONICAL: MEDIA 10.700), NO por el legacy
         # ``PRICING_CATALOG['media_hitos']`` (22.000). El alcance viejo guardaba
         # ``sistemas``/``ubicaciones`` (vía legacy); ``sistemas_en_alcance``/
         # ``sedes`` lo respeta si ya viene del Apendice M.
@@ -246,7 +246,8 @@ class ProposalService:
         """Genera una Proposal alineada con el Apendice M v2.2 oficial.
 
         Usa ``backend.app.core.pricing.PricingCalculator`` para aplicar:
-        - Precios base (BASICA 3.900 / MEDIA 9.500 / ALTA 25.000).
+        - Precios base según BASE_PRICES_CANONICAL · fuente única pricing_config
+          (BASICA 3.200 / MEDIA 10.700 / ALTA 22.800).
         - Extras MEDIA (sector_regulado, multi_ubicacion, madurez_l0_l1,
           sistemas_adicionales).
         - Hitos oficiales 30/40/30, 26/21/21/21/11 o 7 hitos ALTA.
@@ -708,8 +709,14 @@ class ProposalService:
 
         doc.add_heading("Hitos de pago", level=1)
         for hito in (p.hitos_pago or {}).get("hitos") or []:
+            # §2.2 audit-2026-06-16 · soporta ambos esquemas de hitos: el legacy
+            # (nombre/importe) y el canónico Apéndice M (code/description/amount).
+            # Antes sólo leía nombre/importe → en propuestas apéndice-M cada hito
+            # salía "• : 0.00 €" (etiqueta en blanco).
+            label = hito.get("nombre") or hito.get("description") or hito.get("code") or ""
+            amount = hito.get("importe", hito.get("amount", 0)) or 0
             doc.add_paragraph(
-                f"• {hito.get('nombre', '')}: {hito.get('pct', 0)}% = {hito.get('importe', 0):.2f} €"
+                f"• {label}: {hito.get('pct', 0)}% = {float(amount):.2f} €"
             )
 
         doc.add_paragraph(f"\nValidez hasta: {p.validez_hasta or '-'}")
