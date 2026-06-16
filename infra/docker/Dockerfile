@@ -57,6 +57,43 @@ RUN (curl -sfL https://github.com/projectdiscovery/subfinder/releases/download/v
 # semgrep (SAST · pip) — sast plan. Best-effort (fallback graceful).
 RUN pip install --no-cache-dir semgrep || echo "WARNING: semgrep install failed"
 
+# ─────────────────────────────────────────────────────────────────────────────
+# Scanners ENS read-only (audit-roundup 2026-06-16 · Opción 1 · pentest funcional
+# en Hetzner). Estos son los binarios que el motor m08 invoca IN-PROCESS (spawn de
+# server.py vía mcp_client cuando USE_MCP_REAL=true) y que faltaban en la imagen:
+#   · trivy  → mcp_servers/vulnscan/tools/trivy_tool.py  (CVE imagen/fs)
+#   · grype  → mcp_servers/vulnscan/tools/grype_tool.py  (CVE SBOM)
+#   · checkov→ mcp_servers/sast/tools/checkov_tool.py    (IaC/cloud config)
+#   · scoutsuite → m08_verification/tools/scoutsuite_runner.py (postura cloud)
+# Alimentan el puente pentest→remediación (cloud writers + agente on-prem · ADR-055).
+# nikto (web) NO se instala: el paquete no existe en python:3.12-slim (Debian trixie)
+# y la remediación no actúa sobre hallazgos web → webpentest/nikto_tool degrada a
+# stub honesto (scanner_capabilities lo refleja). Diferido a la imagen pentest ALTA.
+# Best-effort + versión fijada con fallback: si una release/PyPI falla, el build NO
+# se rompe; scanner_capabilities() lo refleja honesto y el pipeline degrada con stub.
+# trivy + grype: binarios standalone (Go · 0 deps Python) → install script + symlink.
+RUN (curl -sfL https://raw.githubusercontent.com/aquasecurity/trivy/main/contrib/install.sh \
+        | sh -s -- -b /usr/local/bin v0.71.1) \
+    || (curl -sfL https://raw.githubusercontent.com/aquasecurity/trivy/main/contrib/install.sh \
+        | sh -s -- -b /usr/local/bin) \
+    || echo "WARNING: trivy install failed (vulnscan trivy_tool degrada a stub)"
+RUN (curl -sSfL https://raw.githubusercontent.com/anchore/grype/main/install.sh \
+        | sh -s -- -b /usr/local/bin v0.87.0) \
+    || (curl -sSfL https://raw.githubusercontent.com/anchore/grype/main/install.sh \
+        | sh -s -- -b /usr/local/bin) \
+    || echo "WARNING: grype install failed (vulnscan grype_tool degrada a stub)"
+# checkov + scoutsuite: CLIs Python con árboles de deps pesados → pipx (venv AISLADO
+# por herramienta · shim en /usr/local/bin) para NO contaminar ni romper el entorno
+# de la app (uv pip install -e .[runtime] más abajo). Verificado: checkov 3.2.334 +
+# ScoutSuite 5.14.0 instalan y ejecutan (--version) en una capa aislada.
+RUN pip install --no-cache-dir pipx || echo "WARNING: pipx install failed (checkov/scoutsuite degradan a stub)"
+RUN PIPX_HOME=/opt/pipx PIPX_BIN_DIR=/usr/local/bin pipx install "checkov==3.2.334" \
+    || PIPX_HOME=/opt/pipx PIPX_BIN_DIR=/usr/local/bin pipx install checkov \
+    || echo "WARNING: checkov install failed (sast checkov_tool degrada a stub)"
+RUN PIPX_HOME=/opt/pipx PIPX_BIN_DIR=/usr/local/bin pipx install "ScoutSuite==5.14.0" \
+    || PIPX_HOME=/opt/pipx PIPX_BIN_DIR=/usr/local/bin pipx install ScoutSuite \
+    || echo "WARNING: scoutsuite install failed (cloud scoutsuite_runner degrada a stub)"
+
 # Install uv for fast dependency management
 RUN pip install uv
 
@@ -99,6 +136,15 @@ RUN which nmap && \
     which ldapsearch && \
     nuclei -version && \
     nmap --version | head -1
+
+# Reporte SOFT de capacidades de los scanners best-effort (trivy/grype/checkov/
+# scoutsuite/prowler/...): NO rompe el build (un binario ausente degrada a stub
+# vía scanner_capabilities). Sirve para auditar en los logs del build qué arsenal
+# read-only quedó realmente disponible para USE_MCP_REAL=true.
+RUN echo "=== scanner-capabilities (read-only ENS · Opción 1) ===" && \
+    for t in trivy grype checkov scout scoutsuite nikto prowler httpx subfinder semgrep nuclei nmap; do \
+      if command -v "$t" >/dev/null 2>&1; then echo "  $t = OK"; else echo "  $t = ABSENT (degrada a stub)"; fi; \
+    done
 
 # ─────────────────────────────────────────────────────────────────────────────
 # W9-2 hardening (audit-roundup 2026-06-16 · §5) · USUARIO NO-ROOT · DOCUMENTADO,
