@@ -51,7 +51,9 @@ async def test_incident_near_deadline_escalates_and_idempotent(db):
         "trigger = 'incidente_deadline_notificacion_lucia'"
     ), {"pid": project_id})).mappings().all()
     assert len(ev) == 1
-    assert f"id={inc_id}" in ev[0]["descripcion"]
+    # WAVE C1 · §4.4/370: la idempotencia usa el marcador canónico [src:<id>]
+    # (antes un UUID embebido en la prosa como "id=<uuid>").
+    assert f"[src:{inc_id}]" in ev[0]["descripcion"]
 
     # idempotente: segunda corrida no re-escala
     r2 = await _run_check_incident_deadlines(session=db)

@@ -47,6 +47,7 @@ async def _run_check_incident_deadlines(session=None) -> dict:
 
     from backend.app.motors.m18_communication.escalation_service import (
         EscalationService,
+        source_ref_like,
     )
 
     owns_session = session is None
@@ -98,7 +99,8 @@ async def _run_check_incident_deadlines(session=None) -> dict:
             if now < deadline - timedelta(hours=PRE_WARNING_HOURS):
                 continue
 
-            # Idempotencia: ¿ya hay escalado abierto para ESTE incidente?
+            # Idempotencia por origen estructurado (WAVE C1 · §4.4/370): marcador
+            # canónico [src:<id>] en vez de un UUID embebido en la prosa.
             already = (await session.execute(sa_text(
                 "SELECT 1 FROM escalation_events "
                 "WHERE project_id = :pid "
@@ -106,7 +108,7 @@ async def _run_check_incident_deadlines(session=None) -> dict:
                 "  AND resuelto = false "
                 "  AND descripcion LIKE :marker "
                 "LIMIT 1"
-            ), {"pid": str(r["project_id"]), "marker": f"%id={r['id']}%"})).first()
+            ), {"pid": str(r["project_id"]), "marker": source_ref_like(str(r["id"]))})).first()
             if already:
                 skipped_existing += 1
                 continue
@@ -120,9 +122,10 @@ async def _run_check_incident_deadlines(session=None) -> dict:
                 descripcion=(
                     f"Plazo Art.33 de notificación CCN-CERT/LUCIA {estado} "
                     f"({deadline_hours}h) para el incidente {r['severidad']} "
-                    f"(id={r['id']}, vence {deadline.isoformat()}). "
+                    f"(vence {deadline.isoformat()}). "
                     f"Notifica al CCN-CERT/LUCIA cuanto antes."
                 ),
+                source_ref=str(r["id"]),
             )
             escalated += 1
 

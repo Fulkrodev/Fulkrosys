@@ -289,6 +289,10 @@ class ProposalService:
             "is_aapp": result.is_aapp,
             "payment_days": result.payment_days,
             "breakdown_text": result.breakdown_text,
+            # Fuente ESTRUCTURADA de la garantía (WAVE C1 · §4.4/370). El marcador
+            # de texto libre en notas_marcos se mantiene como fallback legacy para
+            # filas antiguas, pero los consumidores (m14/A20) deben leer de aquí.
+            "garantia": result.garantia,
         }
 
         hitos_dict = {

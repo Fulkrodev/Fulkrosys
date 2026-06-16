@@ -132,6 +132,37 @@ class TestDomainValidation:
             )
 
 
+# ── Deliverable E-code hygiene (WAVE C1 · §4.4/364) ─────────────────
+
+
+class TestDeliverableCodeHygiene:
+    """E-050 es canónicamente el "Informe de Auditoría Interna del SGSI"
+    (F3.2 spec · E-050.docx · m09 internal_auditor). NINGUNA obligación de la
+    librería debe (re)usar E-050 para otro entregable distinto."""
+
+    def test_no_obligation_misuses_e050(self):
+        lib = load_library()
+        offenders = [
+            t.id for t in lib.templates
+            if "E-050" in (t.entregable_esperado or "")
+        ]
+        assert offenders == [], (
+            "E-050 está reservado al Informe de Auditoría Interna del SGSI; "
+            f"obligaciones que lo reutilizan mal: {offenders}"
+        )
+
+    def test_risk_analysis_and_inventory_recoded(self):
+        """Las dos obligaciones que colisionaban en E-050 (§4.4/364) ya no lo
+        referencian y describen su entregable real."""
+        ar = get_template_by_id("OBL-op.pl.1-001")
+        assert "E-050" not in ar.entregable_esperado
+        assert "MAGERIT" in ar.entregable_esperado
+
+        inv = get_template_by_id("OBL-op.exp.1-001")
+        assert "E-050" not in inv.entregable_esperado
+        assert "nventario" in inv.entregable_esperado
+
+
 # ── Critical measures coverage ──────────────────────────────────────
 
 

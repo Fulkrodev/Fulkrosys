@@ -747,6 +747,7 @@ class LifecyclePaso4Service:
         *,
         performed_by: str = "celery",
         force: bool = False,
+        confirm_project_name: str | None = None,
     ) -> ProjectLifecycleEvent:
         """Ejecuta borrado honesto del proyecto tras grace period.
 
@@ -759,9 +760,26 @@ class LifecyclePaso4Service:
             client_users del cliente se desactivan (client_portal)
         - RETIENE: audit_log, project_archived_backups, lifecycle_events
           para obligaciones contractuales / evidencia regulatoria.
+
+        Segundo gate destructivo (WAVE C1 · §4.1/339):
+          ``force=True`` salta TODAS las validaciones del grace period, por
+          lo que ya no basta con un único booleano. Para forzar es OBLIGATORIO
+          pasar ``confirm_project_name`` con el nombre EXACTO del proyecto
+          (patrón "escribe el nombre para confirmar"). Si no coincide se
+          rechaza con ``LifecyclePaso4Error``. El path normal de producción
+          (grace period vencido, ``force=False``) no necesita confirmación.
         """
         project = await _get_project_strict(db, project_id)
-        if not force:
+        if force:
+            # Segundo gate: confirmación explícita del nombre del proyecto.
+            expected = (project.nombre or "").strip()
+            provided = (confirm_project_name or "").strip()
+            if not provided or provided != expected:
+                raise LifecyclePaso4Error(
+                    "Borrado forzado requiere confirm_project_name con el "
+                    "nombre EXACTO del proyecto (segundo gate destructivo)."
+                )
+        else:
             if project.deleted_at is not None:
                 raise LifecyclePaso4Error("Proyecto ya borrado")
             if project.grace_period_ends_at is None:
@@ -770,8 +788,8 @@ class LifecyclePaso4Service:
                 )
             if _now() < project.grace_period_ends_at:
                 raise LifecyclePaso4Error(
-                    "Grace period aun no finalizado — usa force=True si "
-                    "realmente quieres forzar"
+                    "Grace period aun no finalizado — usa force=True + "
+                    "confirm_project_name si realmente quieres forzar"
                 )
 
         now = _now()
@@ -829,6 +847,7 @@ class LifecyclePaso4Service:
                     "invoices",
                 ],
                 "forced": bool(force),
+                "force_confirmed_name": bool(force and confirm_project_name),
             },
         )
 

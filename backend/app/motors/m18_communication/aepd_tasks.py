@@ -49,6 +49,7 @@ async def _run_check_aepd_deadlines(session=None) -> dict:
 
     from backend.app.motors.m18_communication.escalation_service import (
         EscalationService,
+        source_ref_like,
     )
 
     owns_session = session is None
@@ -90,7 +91,8 @@ async def _run_check_aepd_deadlines(session=None) -> dict:
             if now < deadline - timedelta(hours=PRE_WARNING_HOURS):
                 continue
 
-            # Idempotencia: ¿ya hay escalado abierto para ESTA notificación?
+            # Idempotencia por origen estructurado (WAVE C1 · §4.4/370): marcador
+            # canónico [src:<id>] en vez de un UUID embebido en la prosa.
             already = (await session.execute(sa_text(
                 "SELECT 1 FROM escalation_events "
                 "WHERE project_id = :pid "
@@ -98,7 +100,7 @@ async def _run_check_aepd_deadlines(session=None) -> dict:
                 "  AND resuelto = false "
                 "  AND descripcion LIKE :marker "
                 "LIMIT 1"
-            ), {"pid": str(r["project_id"]), "marker": f"%id={r['id']}%"})).first()
+            ), {"pid": str(r["project_id"]), "marker": source_ref_like(str(r["id"]))})).first()
             if already:
                 skipped_existing += 1
                 continue
@@ -111,9 +113,10 @@ async def _run_check_aepd_deadlines(session=None) -> dict:
                 "aepd_deadline_notificacion_72h",
                 descripcion=(
                     f"Plazo RGPD Art.33 de notificación a la AEPD {estado} (72h) "
-                    f"para la brecha {r['severity']} (id={r['id']}, vence "
+                    f"para la brecha {r['severity']} (vence "
                     f"{deadline.isoformat()}). Notifica a la AEPD cuanto antes."
                 ),
+                source_ref=str(r["id"]),
             )
             escalated += 1
 

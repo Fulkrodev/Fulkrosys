@@ -73,6 +73,33 @@ class EscalationError(Exception):
     pass
 
 
+# ── Idempotencia por origen estructurado (WAVE C1 · §4.4/370 parte B) ──────
+#
+# Histórico: la deduplicación de escalados se hacía con
+# `descripcion LIKE '%id={uuid}%'`, casando un UUID embebido en la PROSA de la
+# descripción. Frágil: si una plantilla de prosa cambiaba de formato, el dedup
+# se rompía en silencio → escalados duplicados.
+#
+# Sin añadir columna (la tabla no tiene source_id y crearla es el camino
+# "pesado" que aquí evitamos), introducimos un MARCADOR canónico distintivo y
+# un único helper que construye TANTO el texto almacenado como el patrón LIKE,
+# de modo que productor y consumidor NO pueden divergir. El token `[src:<ref>]`
+# no aparece en prosa natural, así que el match es estricto (anclado).
+_SOURCE_REF_PREFIX = "src:"
+
+
+def source_ref_marker(source_ref: str) -> str:
+    """Marcador canónico embebido en la descripción para dedup por origen."""
+    return f"[{_SOURCE_REF_PREFIX}{source_ref}]"
+
+
+def source_ref_like(source_ref: str) -> str:
+    """Patrón LIKE canónico (anclado al marcador) para el WHERE de idempotencia.
+
+    Usa el MISMO helper que el productor → imposible drift entre ambos lados."""
+    return f"%{source_ref_marker(source_ref)}%"
+
+
 class EscalationService:
     """Gestiona escalados por triggers del proyecto."""
 
@@ -82,16 +109,24 @@ class EscalationService:
         project_id: uuid.UUID,
         trigger: str,
         descripcion: str | None = None,
+        source_ref: str | None = None,
     ) -> EscalationEvent:
         if trigger not in TRIGGERS:
             raise EscalationError(
                 f"Trigger desconocido: {trigger}. Válidos: {sorted(TRIGGERS)}"
             )
         cfg = TRIGGERS[trigger]
+        desc = descripcion or cfg["descripcion"]
+        # Embebe el marcador canónico de origen (idempotencia estricta) sin
+        # duplicarlo si ya viniera incluido.
+        if source_ref:
+            marker = source_ref_marker(str(source_ref))
+            if marker not in desc:
+                desc = f"{desc} {marker}"
         event = EscalationEvent(
             project_id=project_id,
             trigger=trigger,
-            descripcion=descripcion or cfg["descripcion"],
+            descripcion=desc,
             notificados=list(cfg["notify"]),
             canal=cfg["canal"],
             resuelto=False,

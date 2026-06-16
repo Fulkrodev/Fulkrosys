@@ -69,6 +69,39 @@ def build_gap_action_index() -> dict[tuple[str, str], list[RemediationActionSpec
 _INDEX = build_gap_action_index()
 
 
+def _target_leaf(target_kind: str) -> str:
+    """Token-hoja canónico de un ``target_kind`` dotted (p.ej.
+    ``asset.storage_bucket`` → ``storage_bucket`` · ``account`` → ``account``)."""
+    return target_kind.lower().rsplit(".", 1)[-1]
+
+
+# Sinónimos canónicos resource_type → token-hoja del target_kind del catálogo.
+# Explícito (no substrings): un gap puede traer el tipo de recurso con nombres
+# de proveedor distintos a la nomenclatura del catálogo. Mantener esta tabla al
+# añadir nuevos target_kind con alias conocidos. Cualquier valor no listado se
+# normaliza tomando su propio token-hoja (rsplit "."), de modo que un caller que
+# pase el target_kind completo (asset.storage_bucket) o sólo la hoja
+# (storage_bucket) mapean igual y SIN falsos positivos por inclusión parcial.
+_RESOURCE_TYPE_ALIASES: dict[str, str] = {
+    "s3_bucket": "storage_bucket",
+    "bucket": "storage_bucket",
+    "storage_account": "storage_account",
+    "blob": "storage_account",
+    "drive": "shared_drive",
+    "shared_drive": "shared_drive",
+    "access_key": "access_key",
+    "iam_user": "identity",
+    "user": "identity",
+}
+
+
+def _normalize_resource_leaf(resource_type: str) -> str:
+    """Normaliza el tipo de recurso a su token-hoja canónico (exacto)."""
+    rt = resource_type.lower().strip()
+    leaf = rt.rsplit(".", 1)[-1]
+    return _RESOURCE_TYPE_ALIASES.get(leaf, _RESOURCE_TYPE_ALIASES.get(rt, leaf))
+
+
 def map_gap_to_action_type(
     provider: str,
     ens_measure_code: str,
@@ -76,17 +109,20 @@ def map_gap_to_action_type(
 ) -> Optional[str]:
     """Resuelve el action_type del catálogo para un gap (determinista).
 
-    Empareja por (provider, medida ENS); si hay varias acciones y se conoce el
-    tipo de recurso, prefiere la cuyo target_kind concuerda; si no, la primera
-    (SAFE_AUTO preferida). None si el catálogo no cubre ese gap (→ guía manual)."""
+    Empareja por (provider, medida ENS) — ambos campos ESTRUCTURADOS, no texto
+    libre. Si hay varias acciones candidatas y se conoce el tipo de recurso,
+    desambigua por IGUALDAD EXACTA del token-hoja del ``target_kind`` (no por
+    inclusión de substrings · WAVE C1 · §4.5/388c — evita falsos positivos del
+    tipo ``rt='account'`` casando con ``asset.storage_account``). Si ningún
+    candidato casa exactamente, devuelve el primero (SAFE_AUTO preferida). None
+    si el catálogo no cubre ese gap (→ guía manual)."""
     candidates = _INDEX.get((provider, ens_measure_code))
     if not candidates:
         return None
     if resource_type:
-        rt = resource_type.lower()
+        wanted = _normalize_resource_leaf(resource_type)
         for spec in candidates:
-            tk = spec.target_kind.lower()
-            if rt in tk or tk.endswith(rt) or rt.endswith(tk.split(".")[-1]):
+            if _target_leaf(spec.target_kind) == wanted:
                 return spec.action_type
     return candidates[0].action_type
 

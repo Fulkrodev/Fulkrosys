@@ -46,6 +46,7 @@ async def _run_check_expiring_evidence(session=None) -> dict:
 
     from backend.app.motors.m18_communication.escalation_service import (
         EscalationService,
+        source_ref_like,
     )
 
     owns_session = session is None
@@ -74,7 +75,8 @@ async def _run_check_expiring_evidence(session=None) -> dict:
 
         svc = EscalationService()
         for eid, project_id, nombre_tipo, fcad in expired_rows:
-            # Idempotencia: ¿ya hay escalado abierto para ESTA evidencia?
+            # Idempotencia por origen estructurado (WAVE C1 · §4.4/370): marcador
+            # canónico [src:<eid>] en vez de un UUID embebido en la prosa.
             already = (await session.execute(sa_text(
                 "SELECT 1 FROM escalation_events "
                 "WHERE project_id = :pid "
@@ -82,7 +84,7 @@ async def _run_check_expiring_evidence(session=None) -> dict:
                 "  AND resuelto = false "
                 "  AND descripcion LIKE :marker "
                 "LIMIT 1"
-            ), {"pid": str(project_id), "marker": f"%id={eid}%"})).first()
+            ), {"pid": str(project_id), "marker": source_ref_like(str(eid))})).first()
             if already:
                 skipped_existing += 1
                 continue
@@ -93,8 +95,9 @@ async def _run_check_expiring_evidence(session=None) -> dict:
                 descripcion=(
                     f"Evidencia caducada sin renovación: "
                     f"{nombre_tipo or 'sin nombre'} "
-                    f"(id={eid}, caducó {fcad})"
+                    f"(caducó {fcad})"
                 ),
+                source_ref=str(eid),
             )
             escalated += 1
 

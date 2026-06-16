@@ -47,3 +47,34 @@ def test_mapper_prefers_safe_auto_on_collision():
             tiers = [s.tier for s in specs]
             if RemediationTier.SAFE_AUTO in tiers:
                 assert specs[0].tier == RemediationTier.SAFE_AUTO
+
+
+def test_mapper_resource_type_matches_by_exact_leaf_not_substring():
+    """WAVE C1 · §4.5/388c — desambiguación por igualdad exacta del token-hoja
+    del target_kind, NO por inclusión de substrings (evita falsos positivos)."""
+    # full dotted target_kind del catálogo == hoja (ambas formas mapean igual)
+    assert map_gap_to_action_type("aws", "mp.si.2", "asset.storage_bucket") == (
+        "enable_bucket_encryption"
+    )
+    assert map_gap_to_action_type("aws", "mp.si.2", "storage_bucket") == (
+        "enable_bucket_encryption"
+    )
+    # alias de proveedor (s3_bucket / bucket) → mismo token-hoja canónico
+    assert map_gap_to_action_type("aws", "mp.si.2", "s3_bucket") == (
+        "enable_bucket_encryption"
+    )
+
+
+def test_mapper_no_false_positive_on_partial_substring():
+    """Un resource_type que antes casaba por substring parcial NO debe forzar
+    una acción equivocada: al no haber igualdad exacta de hoja, cae al
+    candidato preferido (SAFE_AUTO), nunca a uno arbitrario por inclusión."""
+    # 'account' antes hacía `rt in 'asset.storage_account'` (substring) → FP.
+    # Ahora no casa con storage_bucket; único candidato sigue siendo el correcto.
+    result = map_gap_to_action_type("aws", "mp.si.2", "account")
+    assert result == "enable_bucket_encryption"  # fallback al candidato preferido
+
+    # resource_type desconocido → fallback determinista al primero (SAFE_AUTO)
+    assert map_gap_to_action_type("microsoft_365", "op.acc.6", "zzz") == (
+        "require_mfa_conditional_access"
+    )

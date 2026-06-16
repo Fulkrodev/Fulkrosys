@@ -27,6 +27,7 @@ from backend.app.models.commercial import (
     Contract,
     Proposal,
 )
+from backend.app.motors.m13_commercial.garantia import extract_garantia
 
 
 CONTRACT_TEMPLATES: dict[str, dict[str, str]] = {
@@ -230,11 +231,9 @@ class ContractService:
                 "extras": importe_desglose.get("extras", []),
                 "urgency_surcharge": importe_desglose.get("urgency_surcharge", 0),
                 "urgent": importe_desglose.get("urgent", False),
-                "garantia": (
-                    proposal.notas_marcos or ""
-                ).split("Garantia:")[-1].strip()
-                if proposal.notas_marcos and "Garantia:" in (proposal.notas_marcos or "")
-                else "",
+                "garantia": extract_garantia(
+                    importe_desglose, proposal.notas_marcos,
+                ),
                 "hitos": hitos_payload,
             },
             "is_aapp": aapp,

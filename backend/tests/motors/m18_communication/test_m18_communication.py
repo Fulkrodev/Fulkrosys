@@ -19,6 +19,8 @@ from backend.app.motors.m18_communication.escalation_service import (
     EscalationError,
     EscalationService,
     TRIGGERS,
+    source_ref_like,
+    source_ref_marker,
 )
 from backend.app.motors.m18_communication.plan_service import (
     DEFAULT_ESCALATIONS,
@@ -232,6 +234,39 @@ async def test_create_escalation_riesgo_materializado(db):
     assert "direccion" in event.notificados
     assert event.canal == "email_urgente"
     assert event.resuelto is False
+
+
+def test_source_ref_marker_and_like_share_format():
+    """WAVE C1 · §4.4/370: productor y patrón LIKE derivan del MISMO helper →
+    sin posibilidad de drift de formato."""
+    ref = "abc-123"
+    assert source_ref_marker(ref) == "[src:abc-123]"
+    assert source_ref_like(ref) == "%[src:abc-123]%"
+    # El marcador construido está contenido en su propio patrón LIKE.
+    assert source_ref_marker(ref).strip("%") in source_ref_like(ref)
+
+
+@pytest.mark.asyncio
+async def test_create_escalation_embeds_source_ref_marker(db):
+    """source_ref embebe el marcador canónico de forma idempotente (no duplica)."""
+    _, project_id = await _setup_tenant(db)
+    eid = str(uuid.uuid4())
+    event = await EscalationService().create_escalation(
+        db, project_id=uuid.UUID(project_id),
+        trigger="evidencia_critica_caducada",
+        descripcion="Evidencia caducada de prueba",
+        source_ref=eid,
+    )
+    marker = source_ref_marker(eid)
+    assert marker in event.descripcion
+    # Idempotente: si la descripción ya trae el marcador, no se duplica.
+    event2 = await EscalationService().create_escalation(
+        db, project_id=uuid.UUID(project_id),
+        trigger="evidencia_critica_caducada",
+        descripcion=f"Otra cosa {marker}",
+        source_ref=eid,
+    )
+    assert event2.descripcion.count(marker) == 1
 
 
 @pytest.mark.asyncio

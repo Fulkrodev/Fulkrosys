@@ -261,12 +261,12 @@ class Agent20NegociadorContractual(AgentBase):
             razon_social=cliente_ctx.get("razon_social") or cliente_ctx.get("nombre"),
         )
 
-        # Extraer garantia literal del notas_marcos (formato Paso 6 M13)
-        garantia_text = ""
-        if "Garantia:" in notas:
-            garantia_text = notas.split("Garantia:", 1)[1].strip()
-        else:
-            # Fallback: intentar lookup en rules
+        # Garantía: fuente estructurada importe_desglose["garantia"] con fallback
+        # legacy al marcador "Garantia:" en notas_marcos (WAVE C1 · §4.4/370).
+        from backend.app.motors.m13_commercial.garantia import extract_garantia
+        garantia_text = extract_garantia(desglose, notas)
+        if not garantia_text:
+            # Último recurso: catálogo de garantías comerciales por categoría.
             try:
                 from backend.app.core.pricing.rules import GARANTIAS_COMERCIALES
                 garantia_text = GARANTIAS_COMERCIALES.get(categoria, "")

@@ -472,8 +472,10 @@ class TestDeleteProjectData:
         )
         backup_id = backup.id
 
-        # Fuerza delete
-        await svc.delete_project_data(db, project_id, force=True)
+        # Fuerza delete (segundo gate: confirm_project_name exacto)
+        await svc.delete_project_data(
+            db, project_id, force=True, confirm_project_name="Test Project",
+        )
 
         # Backup sigue existiendo
         retained = await get_archived_backup(db, backup_id)
@@ -499,7 +501,9 @@ class TestDeleteProjectData:
             ), {"pid": str(project_id)})
 
         svc = LifecyclePaso4Service()
-        await svc.delete_project_data(db, project_id, force=True)
+        await svc.delete_project_data(
+            db, project_id, force=True, confirm_project_name="Test Project",
+        )
 
         await db.execute(sa_text("SET LOCAL ROLE fulkro_app_bypassrls"))
         try:
@@ -512,6 +516,37 @@ class TestDeleteProjectData:
             assert row.content_hash is None
         finally:
             await db.execute(sa_text("RESET ROLE"))
+
+    @pytest.mark.asyncio
+    async def test_force_delete_requires_confirm_project_name(self, db):
+        """Segundo gate destructivo: force=True sin confirm_project_name
+        correcto debe rechazarse (WAVE C1 · §4.1/339)."""
+        _, project_id = await _setup_project_with_tenant(db, certified=True)
+        svc = LifecyclePaso4Service()
+
+        # 1) force sin confirm -> rechazado
+        with pytest.raises(LifecyclePaso4Error, match="confirm_project_name"):
+            await svc.delete_project_data(db, project_id, force=True)
+
+        # 2) force con nombre erróneo -> rechazado
+        with pytest.raises(LifecyclePaso4Error, match="confirm_project_name"):
+            await svc.delete_project_data(
+                db, project_id, force=True,
+                confirm_project_name="Nombre Incorrecto",
+            )
+
+        # Proyecto intacto (no borrado)
+        project = (await db.execute(
+            select(Project).where(Project.id == project_id),
+        )).scalar_one()
+        assert project.deleted_at is None
+        assert project.lifecycle_state != "PURGED"
+
+        # 3) force con nombre exacto -> procede
+        event = await svc.delete_project_data(
+            db, project_id, force=True, confirm_project_name="Test Project",
+        )
+        assert event.event_type == "data_deleted"
 
 
 # ══════════════════════════════════════════════════════════════════════
