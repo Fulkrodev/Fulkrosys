@@ -249,6 +249,9 @@ services:
       - "backend.app.core.celery_app"
       - "beat"
       - "--loglevel=info"
+      # USER no-root (10001): el schedule DB por defecto se escribe en el CWD
+      # /app (root-owned) → Permission denied. /tmp siempre es escribible.
+      - "--schedule=/tmp/celerybeat-schedule"
     depends_on:
       redis:
         condition: service_healthy
