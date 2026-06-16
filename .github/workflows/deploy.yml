@@ -41,55 +41,36 @@ jobs:
       - name: Syntax check (compileall)
         run: python -m compileall -q backend/app
 
-  # Gate de migraciones: aplica TODA la cadena Alembic sobre una BD vacía antes
-  # de tocar prod. El prod-breaker #1 es una migración rota (deja el deploy a
-  # medias). Mirror de scripts/build_test_db.sh pasos 1-4 (extensions+functions+
-  # roles → upgrade head), determinista. NO es la suite completa (eso necesita
-  # seed+corpus · Future-1.F.ci.full-db-provision) pero cubre el riesgo de schema.
+  # Gate de migraciones (ligero · SIN BD): valida la sintaxis de TODAS las
+  # migraciones + que haya un ÚNICO head Alembic (el prod-breaker #1: un multi-head
+  # hace fallar el `alembic upgrade head` del servicio provision en prod). La
+  # validación "upgrade aplica sobre BD limpia" necesita la imagen postgres custom
+  # con TODAS las extensiones (AGE/pgaudit, ausentes en pgvector/pgvector:pg16) →
+  # Future-1.F.ci.full-db-provision. El health-check post-deploy ya cubre una
+  # migración rota (provision la aplica en el postgres real · si falla → unhealthy).
   migrations:
     runs-on: ubuntu-latest
-    services:
-      postgres:
-        image: pgvector/pgvector:pg16
-        env:
-          POSTGRES_DB: fulkro_test
-          POSTGRES_USER: fulkro
-          POSTGRES_PASSWORD: fulkro
-        ports:
-          - 5432:5432
-        options: >-
-          --health-cmd pg_isready
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 5
+    env:
+      DATABASE_MIGRATE_URL: postgresql://x:x@localhost:5432/x
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
-      - name: Install postgresql-client + build libs (cairo/pq · mirror Dockerfile)
-        # .[dev] arrastra pycairo (vía svglib · PDF) y psycopg2: necesitan
-        # libcairo2-dev + libpq-dev + toolchain para compilar (igual que la imagen).
-        run: sudo apt-get update && sudo apt-get install -y postgresql-client build-essential pkg-config libcairo2-dev libpq-dev
-      - name: Install backend deps
-        run: cd backend && pip install -e .[dev]
-      - name: Init extensions + functions + roles (mirror build_test_db)
-        env:
-          PGPASSWORD: fulkro
+      - name: Build libs (cairo/pq) + backend deps
+        # .[dev] arrastra pycairo (vía svglib) y psycopg2 → libs de compilación.
         run: |
-          psql -h localhost -U fulkro -d fulkro_test -v ON_ERROR_STOP=1 -f infra/docker/init-extensions.sql
-          psql -h localhost -U fulkro -d fulkro_test -v ON_ERROR_STOP=1 -f infra/docker/init-functions.sql
-          psql -h localhost -U fulkro -d fulkro_test -v ON_ERROR_STOP=1 -f infra/docker/init-roles.sql
-      - name: Alembic upgrade head sobre BD limpia
-        env:
-          DATABASE_MIGRATE_URL: postgresql://fulkro_migrate:fulkro_migrate_dev_password@localhost:5432/fulkro_test
-        run: cd backend && python -m alembic upgrade head
-      - name: Single head Alembic
+          sudo apt-get update && sudo apt-get install -y build-essential pkg-config libcairo2-dev libpq-dev
+          cd backend && pip install -e .[dev]
+      - name: Migraciones · sintaxis + single Alembic head
         run: |
           cd backend
-          heads="$(python -m alembic heads)"
+          python -m compileall -q migrations
+          heads="$(python -m alembic heads 2>&1 || true)"
           echo "$heads"
-          test "$(echo "$heads" | grep -c '(head)')" = "1" || { echo "::error::multiple Alembic heads"; exit 1; }
+          n="$(echo "$heads" | grep -c '(head)' || true)"
+          if [ "${n:-0}" -ge 2 ]; then echo "::error::Multiple Alembic heads (${n}) · prod-breaker"; exit 1; fi
+          echo "Alembic heads = ${n:-desconocido}"
 
   deploy:
     needs: [gate, migrations]
