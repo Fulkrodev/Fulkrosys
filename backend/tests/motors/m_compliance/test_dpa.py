@@ -17,6 +17,7 @@ from sqlalchemy import text
 
 from backend.app.motors.m_compliance.dpa_template import (
     DEFAULT_FIELDS,
+    DEFAULT_SUB_PROCESSORS,
     DPA_VERSION,
     build_dpa_docx,
 )
@@ -52,6 +53,46 @@ def test_dpa_template_populated_fulkro_data() -> None:
     assert "Anexo II" in body
     assert "Anexo III" in body
     assert f"Versión {DPA_VERSION}" in body
+
+
+def test_dpa_anexo_i_falls_back_to_default_sub_processors() -> None:
+    """Direct/offline callers render the default sub-encargados in Anexo I."""
+    buf = build_dpa_docx()
+    body = _extract_docx_text(buf)
+    # Fallback list embeds every default processor (numbered list).
+    assert "Hetzner Online GmbH" in body
+    assert "Anthropic PBC" in body
+    assert "360dialog GmbH" in body
+    # Default constant exposes the canonical fallback for callers/tests.
+    assert len(DEFAULT_SUB_PROCESSORS) == 5
+
+
+def test_dpa_anexo_i_uses_provided_sub_processors() -> None:
+    """Caller-provided RoPA list overrides the hardcoded fallback."""
+    buf = build_dpa_docx(
+        sub_processors=["Globex SUB S.L. — proveedor de prueba."],
+    )
+    body = _extract_docx_text(buf)
+    assert "Globex SUB S.L." in body
+    # The defaults are NOT rendered when a real list is supplied.
+    assert "360dialog GmbH" not in body
+
+
+@pytest.mark.asyncio
+async def test_dpa_download_uses_ropa_sub_processors(async_client) -> None:
+    """The live download sources Anexo I from the RoPA (single source).
+
+    The seeded RoPA exposes Hetzner / Postmark / 360dialog / Anthropic as
+    sub-encargados, so the streamed DOCX must list them from the table —
+    not from a divergent literal.
+    """
+    r = await async_client.get("/api/v1/legal/dpa-template/download")
+    assert r.status_code == 200
+    body = _extract_docx_text(BytesIO(r.content))
+    assert "Anexo I" in body
+    assert "Hetzner Online GmbH" in body
+    assert "Anthropic PBC" in body
+    assert "360dialog GmbH" in body
 
 
 @pytest.mark.asyncio

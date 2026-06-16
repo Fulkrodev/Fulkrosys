@@ -77,6 +77,31 @@ export interface VerificationResponse {
   detail: string | null;
 }
 
+export interface EvidenceTypeOption {
+  id: string;
+  label: string;
+  descripcion: string;
+  categoria: string;
+  allowed_mime: string[];
+  allowed_extensions: string[];
+  max_size_mb: number;
+  caducidad_dias: number | null;
+  medidas_asociadas: string[];
+}
+
+export interface MeasureOption {
+  codigo: string;
+  nombre: string;
+  familia: string | null;
+}
+
+export interface UploadCatalogResponse {
+  project_id: string;
+  categoria: string | null;
+  evidence_types: EvidenceTypeOption[];
+  measures: MeasureOption[];
+}
+
 // ─── Filters ─────────────────────────────────────────────────────────
 
 export interface ListEvidenceFilters {
@@ -112,6 +137,15 @@ export async function uploadEvidence(
   return api<UploadResponse>(
     `${BASE}/evidence/projects/${projectId}/upload`,
     { method: "POST", body: fd },
+  );
+}
+
+/** GET /api/v1/evidence/projects/{projectId}/upload-catalog (admin) */
+export async function getUploadCatalog(
+  projectId: string,
+): Promise<UploadCatalogResponse> {
+  return api<UploadCatalogResponse>(
+    `${BASE}/evidence/projects/${projectId}/upload-catalog`,
   );
 }
 

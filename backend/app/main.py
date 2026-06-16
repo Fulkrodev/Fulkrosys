@@ -158,6 +158,9 @@ from backend.app.motors.m_meetings.actas_portal_api import router as m_meetings_
 from backend.app.motors.m07_evidence.antivirus_admin_api import router as m07_antivirus_admin_router
 from backend.app.motors.m19_risk.incident_admin_api import router as m19_incident_admin_router
 from backend.app.motors.m07_evidence.api import router as evidence_router
+from backend.app.motors.m07_evidence.api import (
+    admin_router as evidence_admin_router,
+)
 from backend.app.motors.m07_evidence.public_router import (
     public_router as evidence_public_router,
 )
@@ -613,6 +616,9 @@ app.include_router(clients_router, prefix="/api/v1", tags=["Core - Clients & Pro
 app.include_router(copilot_router, prefix="/api/v1", tags=["Motor 11 - Copiloto ENS"])
 app.include_router(obligations_router, prefix="/api/v1", tags=["Motor 5 - Obligations"])
 app.include_router(evidence_router, prefix="/api/v1", tags=["Motor 7 - Evidence"])
+app.include_router(
+    evidence_admin_router, prefix="/api/v1", tags=["Motor 7 - Evidence (admin)"]
+)
 app.include_router(
     evidence_public_router,
     prefix="/api/v1",

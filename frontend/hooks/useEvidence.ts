@@ -14,6 +14,7 @@ import {
 import {
   getExpiringEvidence,
   getPublicKey,
+  getUploadCatalog,
   listEvidence,
   renewEvidence,
   uploadEvidence,
@@ -29,6 +30,8 @@ export const evidenceKeys = {
     ["evidence", projectId, "list", filters ?? {}] as const,
   expiring: (projectId: string, warningDays: number) =>
     ["evidence", projectId, "expiring", warningDays] as const,
+  uploadCatalog: (projectId: string) =>
+    ["evidence", projectId, "upload-catalog"] as const,
   publicKey: () => ["evidence", "public-key"] as const,
 };
 
@@ -57,6 +60,15 @@ export function useEvidencePublicKey() {
   return useQuery({
     queryKey: evidenceKeys.publicKey(),
     queryFn: () => getPublicKey(),
+  });
+}
+
+/** Admin-only · evidence types catalog + project applicable ENS measures. */
+export function useUploadCatalog(projectId: string, enabled = true) {
+  return useQuery({
+    queryKey: evidenceKeys.uploadCatalog(projectId),
+    queryFn: () => getUploadCatalog(projectId),
+    enabled: !!projectId && enabled,
   });
 }
 

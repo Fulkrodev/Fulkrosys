@@ -25,6 +25,32 @@ from docx.shared import Pt, RGBColor
 
 DPA_VERSION = "1.0"
 
+# Canonical sub-encargados live in the RoPA table (``fulkro_ropa_treatments``
+# rows with ``is_sub_processor=True``). The DPA Anexo I MUST mirror that list
+# (single source of truth · punto #366). When the caller cannot reach the DB
+# (e.g. unit test calling ``build_dpa_docx`` directly), this constant is the
+# graceful-degradation fallback. It is kept in sync with the RoPA seed
+# (``sane_mb9bis_ropa_001``); the live download always passes the DB-derived
+# list via ``sub_processors=`` so the published document tracks admin edits.
+DEFAULT_SUB_PROCESSORS: list[str] = [
+    "Hetzner Online GmbH — hosting (Falkenstein, Alemania · UE).",
+    (
+        "Postmark / ActiveCampaign LLC — envío de emails transaccionales "
+        "(EU Data Region)."
+    ),
+    (
+        "Anthropic PBC — modelo de lenguaje Claude (Estados Unidos, con "
+        "replicación en Frankfurt) bajo DPA + Cláusulas Contractuales "
+        "Tipo 2021/914."
+    ),
+    "360dialog GmbH — gateway WhatsApp Business (Alemania · UE).",
+    (
+        "MinIO — almacenamiento de objetos auto-hospedado por FULKRO en la "
+        "infraestructura de Hetzner (no constituye sub-encargado externo "
+        "independiente)."
+    ),
+]
+
 # Fields that callers can pre-populate. Unknown names render as the
 # placeholder itself so the cliente sees what to fill.
 DEFAULT_FIELDS: dict[str, str] = {
@@ -42,9 +68,19 @@ DEFAULT_FIELDS: dict[str, str] = {
 }
 
 
-def build_dpa_docx(fields: dict[str, str] | None = None) -> BytesIO:
-    """Return a ready-to-download DPA as an in-memory ``.docx`` stream."""
+def build_dpa_docx(
+    fields: dict[str, str] | None = None,
+    sub_processors: list[str] | None = None,
+) -> BytesIO:
+    """Return a ready-to-download DPA as an in-memory ``.docx`` stream.
+
+    ``sub_processors`` is the canonical sub-encargados list (one display
+    line per processor) sourced from the RoPA table. When ``None`` the
+    builder falls back to ``DEFAULT_SUB_PROCESSORS`` so direct/offline
+    callers still render a valid Anexo I.
+    """
     merged = {**DEFAULT_FIELDS, **(fields or {})}
+    subprocs = sub_processors if sub_processors else DEFAULT_SUB_PROCESSORS
 
     def fmt(text: str) -> str:
         for key, value in merged.items():
@@ -396,22 +432,7 @@ def build_dpa_docx(fields: dict[str, str] | None = None) -> BytesIO:
                 "de transferencias internacionales, con Cláusulas "
                 "Contractuales Tipo (Decisión 2021/914 de la Comisión)."
             ),
-            "1. Hetzner Online GmbH — hosting (Falkenstein, Alemania · UE).",
-            (
-                "2. Postmark / ActiveCampaign LLC — envío de emails "
-                "transaccionales (EU Data Region)."
-            ),
-            (
-                "3. Anthropic PBC — modelo de lenguaje Claude (Estados "
-                "Unidos, con replicación en Frankfurt) bajo DPA + Cláusulas "
-                "Contractuales Tipo 2021/914."
-            ),
-            "4. 360dialog GmbH — gateway WhatsApp Business (Alemania · UE).",
-            (
-                "5. MinIO — almacenamiento de objetos auto-hospedado por "
-                "FULKRO en la infraestructura de Hetzner (no constituye "
-                "sub-encargado externo independiente)."
-            ),
+            *[f"{idx}. {line}" for idx, line in enumerate(subprocs, start=1)],
             (
                 "Lista actualizada y permanentemente consultable en "
                 "https://fulkro.es/sub-processors."

@@ -6,12 +6,14 @@ import {
   FileWarning,
   Fingerprint,
   Hash,
+  Loader2,
   Search,
   ShieldOff,
   Upload,
   X,
 } from "lucide-react";
 import * as React from "react";
+import { toast } from "sonner";
 
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
@@ -22,12 +24,15 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { DevHint } from "@/components/dev/DevHint";
 import { InfoTag } from "@/components/ui/info-tag";
 import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
 import { TooltipENS } from "@/components/ui/tooltip-ens";
-import { useEvidenceList } from "@/hooks/useEvidence";
+import {
+  useEvidenceList,
+  useUploadCatalog,
+  useUploadEvidence,
+} from "@/hooks/useEvidence";
 import type { EvidenceListItem } from "@/lib/api/evidence";
 import { cn, formatDay } from "@/lib/utils";
 
@@ -182,7 +187,7 @@ export function EvidenceVault({ projectId }: { projectId: string }) {
             </select>
           </div>
 
-          <DragUploadZone />
+          <AdminUploadForm projectId={projectId} />
 
           {items.length === 0 ? (
             <EmptyState />
@@ -320,29 +325,190 @@ function EmptyState() {
   );
 }
 
-// ─── Drag upload zone ────────────────────────────────────────────────
+// ─── Admin upload form ───────────────────────────────────────────────
 
-function DragUploadZone() {
-  // §3.1 audit-2026-06-15 · esta zona NO subía nada (onDrop/botón sin acción ·
-  // fingía completitud). La subida REAL de evidencias se hace desde el portal del
-  // cliente (EvidenciasUploadPage · requiere tipo de evidencia + medida ENS). Aquí
-  // (vista admin) se muestra informativa y NO accionable hasta cablear el formulario
-  // de subida admin (tipo+medida) · no prometemos una acción que no ocurre.
+const SELECT_CLS = cn(
+  "h-10 w-full rounded-md border px-2 text-sm font-medium",
+  "border-[color:var(--fulkro-surface-glass-border)]",
+  "bg-[color:var(--fulkro-surface-glass)]",
+  "text-[color:var(--fulkro-body)]",
+  "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-fulkro-primary-700",
+  "disabled:cursor-not-allowed disabled:opacity-60",
+);
+
+function AdminUploadForm({ projectId }: { projectId: string }) {
+  // §3.1 audit-2026-06-15 / W9-1 · ANTES esta zona no subía nada (botón
+  // honest-disabled) porque ningún endpoint exponía el catálogo de tipos. Ahora
+  // se cablea el formulario admin real (fichero + tipo + medida) contra
+  // GET upload-catalog + POST .../upload (require_owner · solo Marcos).
+  const { data: catalog, isLoading, error } = useUploadCatalog(projectId);
+  const upload = useUploadEvidence(projectId);
+
+  const [file, setFile] = React.useState<File | null>(null);
+  const [evidenceTypeId, setEvidenceTypeId] = React.useState("");
+  const [measureCode, setMeasureCode] = React.useState("");
+  const fileInputRef = React.useRef<HTMLInputElement | null>(null);
+
+  const selectedType = React.useMemo(
+    () => catalog?.evidence_types.find((t) => t.id === evidenceTypeId) ?? null,
+    [catalog, evidenceTypeId],
+  );
+  const acceptAttr = selectedType?.allowed_extensions.join(",") ?? undefined;
+
+  const canSubmit =
+    !!file && !!evidenceTypeId && !!measureCode && !upload.isPending;
+
+  function reset() {
+    setFile(null);
+    setEvidenceTypeId("");
+    setMeasureCode("");
+    if (fileInputRef.current) fileInputRef.current.value = "";
+  }
+
+  function handleSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    if (!file || !evidenceTypeId || !measureCode) return;
+    upload.mutate(
+      { file, evidence_type_id: evidenceTypeId, measure_code: measureCode },
+      {
+        onSuccess: () => {
+          toast.success(`Evidencia "${file.name}" subida y firmada (Ed25519).`);
+          reset();
+        },
+        onError: (err) =>
+          toast.error(
+            `No se pudo subir la evidencia: ${(err as Error).message}`,
+          ),
+      },
+    );
+  }
+
+  if (error) {
+    return (
+      <Alert variant="danger">
+        <ShieldOff className="h-4 w-4" strokeWidth={2.3} />
+        <AlertTitle>No se pudo cargar el catálogo de subida</AlertTitle>
+        <AlertDescription>{(error as Error).message}</AlertDescription>
+      </Alert>
+    );
+  }
+
   return (
-    <div className="flex items-center justify-between gap-3 rounded-md border border-dashed border-[color:var(--fulkro-surface-glass-border)] bg-[color:var(--fulkro-surface-glass)] px-4 py-3 text-sm">
-      <div className="flex items-center gap-3 text-[color:var(--fulkro-muted)]">
-        <Upload size={18} strokeWidth={2.3} />
-        <span className="font-medium">
-          El cliente sube las evidencias desde su portal{" "}
-          <DevHint>
-            POST /api/v1/evidence/projects/{"{id}"}/upload
-          </DevHint>
-        </span>
+    <form
+      onSubmit={handleSubmit}
+      className="rounded-md border border-dashed border-[color:var(--fulkro-surface-glass-border)] bg-[color:var(--fulkro-surface-glass)] p-3"
+    >
+      <div className="mb-2 flex items-center gap-2 text-sm font-semibold text-[color:var(--fulkro-subtitle)]">
+        <Upload size={16} strokeWidth={2.3} />
+        Subir evidencia (admin)
       </div>
-      <Button variant="outline" size="sm" disabled title="Próximamente · subida admin">
-        Subir (próximamente)
-      </Button>
-    </div>
+
+      <div className="grid gap-2 md:grid-cols-3">
+        <div className="md:col-span-1">
+          <label
+            htmlFor="ev-type"
+            className="mb-1 block text-xs font-semibold text-[color:var(--fulkro-muted)]"
+          >
+            Tipo de <InfoTag term="evidencia" display="evidencia" />
+          </label>
+          <select
+            id="ev-type"
+            aria-label="Tipo de evidencia"
+            className={SELECT_CLS}
+            value={evidenceTypeId}
+            disabled={isLoading || !catalog}
+            onChange={(e) => {
+              setEvidenceTypeId(e.target.value);
+              setFile(null);
+              if (fileInputRef.current) fileInputRef.current.value = "";
+            }}
+          >
+            <option value="">Selecciona un tipo…</option>
+            {(catalog?.evidence_types ?? []).map((t) => (
+              <option key={t.id} value={t.id}>
+                {t.label} ({t.allowed_extensions.join(", ")} · {t.max_size_mb}MB)
+              </option>
+            ))}
+          </select>
+        </div>
+
+        <div className="md:col-span-1">
+          <label
+            htmlFor="ev-measure"
+            className="mb-1 block text-xs font-semibold text-[color:var(--fulkro-muted)]"
+          >
+            Medida ENS{catalog?.categoria ? ` · ${catalog.categoria}` : ""}
+          </label>
+          <select
+            id="ev-measure"
+            aria-label="Medida ENS asociada"
+            className={SELECT_CLS}
+            value={measureCode}
+            disabled={isLoading || !catalog}
+            onChange={(e) => setMeasureCode(e.target.value)}
+          >
+            <option value="">Selecciona una medida…</option>
+            {(catalog?.measures ?? []).map((m) => (
+              <option key={m.codigo} value={m.codigo}>
+                {m.codigo} — {m.nombre}
+              </option>
+            ))}
+          </select>
+        </div>
+
+        <div className="md:col-span-1">
+          <label
+            htmlFor="ev-file"
+            className="mb-1 block text-xs font-semibold text-[color:var(--fulkro-muted)]"
+          >
+            Fichero
+          </label>
+          <input
+            id="ev-file"
+            ref={fileInputRef}
+            type="file"
+            aria-label="Fichero de evidencia"
+            accept={acceptAttr}
+            disabled={isLoading || !catalog}
+            onChange={(e) => setFile(e.target.files?.[0] ?? null)}
+            className={cn(
+              "h-10 w-full rounded-md border px-2 py-1.5 text-sm",
+              "border-[color:var(--fulkro-surface-glass-border)]",
+              "bg-[color:var(--fulkro-surface-glass)]",
+              "text-[color:var(--fulkro-body)]",
+              "file:mr-2 file:rounded file:border-0 file:bg-fulkro-primary-700 file:px-2 file:py-1 file:text-xs file:font-semibold file:text-white",
+              "disabled:cursor-not-allowed disabled:opacity-60",
+            )}
+          />
+        </div>
+      </div>
+
+      <div className="mt-2 flex items-center justify-between gap-3">
+        <p className="text-xs font-medium text-[color:var(--fulkro-muted)]">
+          {selectedType
+            ? selectedType.descripcion
+            : "Selecciona tipo, medida y fichero para subir la evidencia."}
+        </p>
+        <Button
+          type="submit"
+          variant="primary"
+          size="sm"
+          disabled={!canSubmit}
+          data-testid="evidence-admin-upload"
+        >
+          {upload.isPending ? (
+            <>
+              <Loader2 size={16} strokeWidth={2.3} className="animate-spin" />
+              Subiendo…
+            </>
+          ) : (
+            <>
+              <Upload size={16} strokeWidth={2.3} /> Subir evidencia
+            </>
+          )}
+        </Button>
+      </div>
+    </form>
   );
 }
 

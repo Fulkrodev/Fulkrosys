@@ -29,6 +29,7 @@ from backend.app.motors.m_compliance.dpa_template import (
     DPA_VERSION,
     build_dpa_docx,
 )
+from backend.app.motors.m_compliance.ropa_service import RoPAService
 
 
 # ── Public download ────────────────────────────────────────────────────
@@ -43,11 +44,18 @@ async def download_dpa_template(
 ) -> Response:
     """Stream the DPA DOCX template with FULKRO data pre-populated."""
     fi = await get_fiscal_identity(db)
-    buf = build_dpa_docx({
-        "FULKRO_NOMBRE": fi.nombre_fiscal or "Marcos Mata García",
-        "FULKRO_CIF": fi.nif,
-        "FULKRO_DOMICILIO": fi.domicilio_completo or "Madrid (España)",
-    })
+    # Anexo I sub-encargados derive from the canonical RoPA table (single
+    # source of truth · punto #366) so the published DPA never drifts from
+    # the independently-editable RoPA registry.
+    sub_processors = await RoPAService(db).sub_processors_for_dpa()
+    buf = build_dpa_docx(
+        {
+            "FULKRO_NOMBRE": fi.nombre_fiscal or "Marcos Mata García",
+            "FULKRO_CIF": fi.nif,
+            "FULKRO_DOMICILIO": fi.domicilio_completo or "Madrid (España)",
+        },
+        sub_processors=sub_processors or None,
+    )
     headers = {
         "Content-Disposition": (
             f'attachment; filename="DPA_FULKRO_v{DPA_VERSION}.docx"'

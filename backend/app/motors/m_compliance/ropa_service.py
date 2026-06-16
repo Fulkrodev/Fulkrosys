@@ -134,6 +134,45 @@ class RoPAService:
             or 0
         )
 
+    async def list_sub_processors(self) -> list[FulkroRoPATreatment]:
+        """Return treatment rows flagged as involving a sub-encargado.
+
+        Canonical source of the sub-processor registry (Art. 28 GDPR). Both
+        the Trust Center count and the DPA DOCX Anexo I derive from THIS
+        list so the published sub-encargados can never drift from the RoPA
+        the admin edits in ``/admin/compliance`` (single source of truth).
+        """
+        rows = (
+            await self.db.execute(
+                select(FulkroRoPATreatment)
+                .where(FulkroRoPATreatment.is_sub_processor.is_(True))
+                .order_by(FulkroRoPATreatment.treatment_code)
+            )
+        ).scalars().all()
+        return list(rows)
+
+    async def sub_processors_for_dpa(self) -> list[str]:
+        """Render the canonical sub-encargados as DPA Anexo I bullet lines.
+
+        Deduplicates by ``processor_name`` (Hetzner appears in more than one
+        treatment) and annotates EU-transfer safeguards when present. The
+        DPA DOCX builder consumes this so its Anexo I always mirrors the
+        live RoPA table instead of hardcoded literals.
+        """
+        rows = await self.list_sub_processors()
+        lines: list[str] = []
+        seen: set[str] = set()
+        for row in rows:
+            name = (row.processor_name or "").strip()
+            if not name or name in seen:
+                continue
+            seen.add(name)
+            line = name
+            if row.transfers_outside_eu and row.transfer_safeguards:
+                line = f"{name} — {row.transfer_safeguards.strip()}"
+            lines.append(line)
+        return lines
+
     async def export_aepd_excel(self) -> BytesIO:
         """Render the full RoPA into an XLSX file in AEPD-friendly format.
 

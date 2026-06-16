@@ -79,6 +79,46 @@ async def test_mark_reviewed_updates_timestamp(db) -> None:
 
 
 @pytest.mark.asyncio
+async def test_sub_processors_for_dpa_dedupes_by_name(db) -> None:
+    """DPA Anexo I list derives from the RoPA (single source of truth).
+
+    The seed flags 5 treatments as sub-processors, each with a distinct
+    ``processor_name`` (T008 is the Hetzner Storage Box — a separate entry
+    from the T001 hosting). The deduped list therefore has 5 unique names,
+    and this list is exactly what the DPA DOCX renders in Anexo I.
+    """
+    svc = RoPAService(db)
+    lines = await svc.sub_processors_for_dpa()
+    # One line per distinct processor_name in the seed.
+    assert len(lines) == 5
+    assert len(set(lines)) == len(lines)  # no exact duplicate
+    joined = " | ".join(lines)
+    assert "Hetzner Online GmbH" in joined
+    assert "Anthropic PBC" in joined
+    assert "Postmark" in joined
+    assert "360dialog GmbH" in joined
+    assert "Storage Box" in joined
+
+
+@pytest.mark.asyncio
+async def test_sub_processors_for_dpa_tracks_ropa_edits(db) -> None:
+    """Editing the RoPA flips up in the DPA Anexo I list (no drift)."""
+    svc = RoPAService(db)
+    # Demote one sub-processor in the RoPA registry.
+    row = await svc.get_treatment("T003")  # 360dialog GmbH
+    assert row is not None and row.is_sub_processor is True
+    row.is_sub_processor = False
+    await db.flush()
+
+    lines = await svc.sub_processors_for_dpa()
+    assert all("360dialog" not in line for line in lines)
+
+    # Restore so other tests see the seed unchanged.
+    row.is_sub_processor = True
+    await db.flush()
+
+
+@pytest.mark.asyncio
 async def test_update_treatment_rejects_invalid_fields(db) -> None:
     svc = RoPAService(db)
     with pytest.raises(ValueError) as excinfo:

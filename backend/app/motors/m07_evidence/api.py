@@ -23,8 +23,9 @@ from pydantic import BaseModel
 from sqlalchemy import text
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from backend.app.auth.dependencies import require_marcos_or_client
+from backend.app.auth.dependencies import require_marcos_or_client, require_owner
 from backend.app.database import get_db, set_tenant_context
+from backend.app.motors.m07_evidence.catalog_loader import load_catalog
 from backend.app.motors.m07_evidence.ingestion_service import ingest_evidence
 from backend.app.motors.m07_evidence.ingestion_types import (
     IngestionRequest,
@@ -127,6 +128,31 @@ class VerificationResponse(BaseModel):
     hash_matches: bool | None = None
     signature_valid: bool | None = None
     detail: str | None = None
+
+
+class EvidenceTypeOption(BaseModel):
+    id: str
+    label: str
+    descripcion: str
+    categoria: str
+    allowed_mime: list[str]
+    allowed_extensions: list[str]
+    max_size_mb: int
+    caducidad_dias: int | None = None
+    medidas_asociadas: list[str]
+
+
+class MeasureOption(BaseModel):
+    codigo: str
+    nombre: str
+    familia: str | None = None
+
+
+class UploadCatalogResponse(BaseModel):
+    project_id: uuid.UUID
+    categoria: str | None
+    evidence_types: list[EvidenceTypeOption]
+    measures: list[MeasureOption]
 
 
 # ── Helpers ──────────────────────────────────────────────────────────
@@ -371,4 +397,98 @@ async def verify_evidence_endpoint(
         hash_matches=report.hash_matches,
         signature_valid=report.signature_valid,
         detail=report.detail,
+    )
+
+
+# ── Admin-only catalog (powers the admin EvidenceVault upload form) ──
+# Separate router: the upload/list endpoints accept both pools
+# (require_marcos_or_client) so the cliente can aportar pruebas, but the
+# admin upload FORM (file + evidence_type + measure selectors) is Marcos-only,
+# hence require_owner. Returns the evidence_types catalog + the project's
+# applicable ENS measures so the FE can populate both selectors.
+
+
+admin_router = APIRouter(
+    tags=["Motor 7 - Evidence (admin)"],
+    dependencies=[Depends(require_owner)],
+)
+
+
+_CATEGORIA_COLUMN = {
+    "BASICA": "aplica_basica",
+    "MEDIA": "aplica_media",
+    "ALTA": "aplica_alta",
+}
+
+
+@admin_router.get(
+    "/evidence/projects/{project_id}/upload-catalog",
+    response_model=UploadCatalogResponse,
+)
+async def get_upload_catalog(
+    project_id: uuid.UUID,
+    db: AsyncSession = Depends(get_db),
+):
+    """Catalog of evidence types + applicable ENS measures for the admin form."""
+    # Resolve project (existence + category). require_owner already gated auth.
+    row = (
+        await db.execute(
+            text(
+                "SELECT categoria_objetivo FROM projects "
+                "WHERE id = :pid AND deleted_at IS NULL"
+            ),
+            {"pid": str(project_id)},
+        )
+    ).first()
+    if row is None:
+        raise HTTPException(status_code=404, detail="Project not found")
+    categoria = (row[0] or "").upper() or None
+
+    catalog = load_catalog()
+    evidence_types = [
+        EvidenceTypeOption(
+            id=t.id,
+            label=t.nombre,
+            descripcion=t.descripcion,
+            categoria=t.categoria,
+            allowed_mime=t.mime_types_permitidos,
+            allowed_extensions=t.extensiones_permitidas,
+            max_size_mb=t.tamano_max_mb,
+            caducidad_dias=t.caducidad_dias,
+            medidas_asociadas=t.medidas_asociadas,
+        )
+        for t in catalog.types
+    ]
+
+    # Applicable measures for the project's category. When the category is
+    # unknown (project not yet categorized) we return the full set so the
+    # admin is never blocked — ingestion validates the code on upload anyway.
+    col = _CATEGORIA_COLUMN.get(categoria or "")
+    if col:
+        measure_rows = (
+            await db.execute(
+                text(
+                    f"SELECT codigo, nombre, familia FROM ens_measures "
+                    f"WHERE {col} IS TRUE ORDER BY codigo"
+                )
+            )
+        ).fetchall()
+    else:
+        measure_rows = (
+            await db.execute(
+                text(
+                    "SELECT codigo, nombre, familia FROM ens_measures "
+                    "ORDER BY codigo"
+                )
+            )
+        ).fetchall()
+    measures = [
+        MeasureOption(codigo=r[0], nombre=r[1], familia=r[2]) for r in measure_rows
+    ]
+
+    return UploadCatalogResponse(
+        project_id=project_id,
+        categoria=categoria,
+        evidence_types=evidence_types,
+        measures=measures,
     )
