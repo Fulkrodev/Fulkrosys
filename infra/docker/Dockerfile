@@ -12,6 +12,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     tesseract-ocr \
     tesseract-ocr-spa \
     libreoffice-writer-nogui \
+    pandoc \
     nmap \
     testssl.sh \
     lynis \
