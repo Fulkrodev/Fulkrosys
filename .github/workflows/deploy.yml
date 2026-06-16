@@ -41,8 +41,56 @@ jobs:
       - name: Syntax check (compileall)
         run: python -m compileall -q backend/app
 
+  # Gate de migraciones: aplica TODA la cadena Alembic sobre una BD vacía antes
+  # de tocar prod. El prod-breaker #1 es una migración rota (deja el deploy a
+  # medias). Mirror de scripts/build_test_db.sh pasos 1-4 (extensions+functions+
+  # roles → upgrade head), determinista. NO es la suite completa (eso necesita
+  # seed+corpus · Future-1.F.ci.full-db-provision) pero cubre el riesgo de schema.
+  migrations:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: pgvector/pgvector:pg16
+        env:
+          POSTGRES_DB: fulkro_test
+          POSTGRES_USER: fulkro
+          POSTGRES_PASSWORD: fulkro
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install postgresql-client
+        run: sudo apt-get update && sudo apt-get install -y postgresql-client
+      - name: Install backend deps
+        run: cd backend && pip install -e .[dev]
+      - name: Init extensions + functions + roles (mirror build_test_db)
+        env:
+          PGPASSWORD: fulkro
+        run: |
+          psql -h localhost -U fulkro -d fulkro_test -v ON_ERROR_STOP=1 -f infra/docker/init-extensions.sql
+          psql -h localhost -U fulkro -d fulkro_test -v ON_ERROR_STOP=1 -f infra/docker/init-functions.sql
+          psql -h localhost -U fulkro -d fulkro_test -v ON_ERROR_STOP=1 -f infra/docker/init-roles.sql
+      - name: Alembic upgrade head sobre BD limpia
+        env:
+          DATABASE_MIGRATE_URL: postgresql://fulkro_migrate:fulkro_migrate_dev_password@localhost:5432/fulkro_test
+        run: cd backend && python -m alembic upgrade head
+      - name: Single head Alembic
+        run: |
+          cd backend
+          heads="$(python -m alembic heads)"
+          echo "$heads"
+          test "$(echo "$heads" | grep -c '(head)')" = "1" || { echo "::error::multiple Alembic heads"; exit 1; }
+
   deploy:
-    needs: [gate]
+    needs: [gate, migrations]
     runs-on: ubuntu-latest
     steps:
       - name: Deploy (pull + build + up -d) vía SSH
@@ -69,8 +117,20 @@ jobs:
           $DC build
           echo "== up -d --remove-orphans =="
           $DC up -d --remove-orphans
-          sleep 8
+          echo "== esperar healthy (real · no sleep ciego) =="
+          ok=0
+          for i in $(seq 1 60); do
+            bad="$($DC ps -a --format '{{.Name}} {{.Health}}' 2>/dev/null | awk '$2=="unhealthy" || $2=="starting" {print $1}' | tr '\n' ' ')"
+            if [ -z "$bad" ]; then ok=1; break; fi
+            sleep 4
+          done
           echo "== estado =="
           $DC ps --format "table {{.Service}}\t{{.Status}}"
+          if [ "$ok" != "1" ]; then
+            echo "::error::Servicios NO healthy tras la espera: ${bad}"
+            $DC logs --tail=60 || true
+            exit 1
+          fi
+          echo "== todos los servicios healthy =="
           DEPLOY
           echo "Deploy OK en ${HOST}"
