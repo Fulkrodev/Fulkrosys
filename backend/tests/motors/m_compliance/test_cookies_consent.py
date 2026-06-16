@@ -236,6 +236,20 @@ async def test_consent_rls_policy_allows_anon_and_isolates_tenant(db) -> None:
         )
 
 
+def test_cookies_endpoints_are_public_whitelisted() -> None:
+    """audit-roundup 2026-06-16: el banner de cookies de fulkro.es lo usan
+    visitantes ANÓNIMOS (sin sesión). Las rutas /legal/cookies/* deben estar en
+    el whitelist público de la middleware global (auth + CSRF exentos), o el POST
+    anónimo recibe 401 ANTES del handler (verificado empíricamente en prod: 401).
+    Los tests con `async_client` llevan sesión y enmascaraban este requisito."""
+    from backend.app.auth.global_dep import _is_whitelisted
+
+    assert _is_whitelisted("/api/v1/legal/cookies/consent")
+    assert _is_whitelisted("/api/v1/legal/cookies/revoke")
+    # Sanity: un endpoint protegido NO está whitelisted.
+    assert not _is_whitelisted("/api/v1/corpus/search")
+
+
 def test_security_txt_file_has_required_directives() -> None:
     """RFC 9116: Contact + Expires are mandatory."""
     path = (

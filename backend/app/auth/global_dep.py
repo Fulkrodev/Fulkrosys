@@ -123,6 +123,14 @@ WHITELIST_PREFIX: tuple[str, ...] = (
     "/api/v1/contract-signing/",
     # H54 fix continuacion: catalogo LMS individual /lms/courses/{codigo}.
     "/api/v1/onboarding/lms/courses/",
+    # audit-roundup 2026-06-16: consentimiento de cookies PUBLICO (visitantes
+    # anonimos de fulkro.es · m_compliance/cookies_api · /consent GET+POST +
+    # /revoke). Sin esto, el banner anonimo recibia 401 en la middleware ANTES
+    # de llegar al handler (los tests pasaban porque el client de test lleva
+    # sesion → enmascaraba el requisito publico). Exime tambien CSRF, necesario
+    # para el POST cross-origin fulkro.es→app.fulkro.es. La credencial es el
+    # anonymous_session_id generado por el cliente; no expone dato cross-tenant.
+    "/api/v1/legal/cookies/",
     "/docs/",                     # Swagger assets (CSS, JS)
     "/redoc/",                    # ReDoc assets
 )
