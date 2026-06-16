@@ -20,11 +20,11 @@ export default function LegalLayout({
   return (
     <div className="flex min-h-dvh flex-col bg-white text-fulkro-ink-900">
       <header className="border-b border-fulkro-ink-300/60 bg-white">
-        <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-4">
+        <div className="mx-auto flex max-w-6xl flex-col gap-3 px-6 py-4 sm:flex-row sm:items-center sm:justify-between">
           <Link href="/" className="inline-flex">
             <Logo variant="light" size="md" priority />
           </Link>
-          <nav className="flex items-center gap-6 text-sm text-fulkro-ink-700">
+          <nav className="flex flex-wrap items-center gap-x-5 gap-y-1 text-sm text-fulkro-ink-700">
             <Link href="/trust" className="hover:text-fulkro-ink-900">
               Trust Center
             </Link>
@@ -54,7 +54,7 @@ export default function LegalLayout({
               dpo@fulkro.es
             </a>
           </div>
-          <div className="flex gap-4">
+          <div className="flex flex-wrap gap-x-4 gap-y-1">
             <Link href="/privacy" className="hover:text-fulkro-ink-900">
               Privacidad
             </Link>

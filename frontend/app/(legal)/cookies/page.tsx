@@ -64,12 +64,14 @@ export default function CookiesPolicyPage() {
               {category.fixed_on ? " (siempre activas)" : " (opt-in)"}
             </h3>
             <p>{category.description_es}</p>
+            <div style={{ overflowX: "auto" }}>
             <table
               style={{
                 width: "100%",
                 borderCollapse: "collapse",
                 marginTop: "0.5rem",
                 fontSize: "0.85rem",
+                minWidth: "32rem",
               }}
             >
               <thead>
@@ -91,6 +93,7 @@ export default function CookiesPolicyPage() {
                 ))}
               </tbody>
             </table>
+            </div>
           </div>
         ))}
       </section>

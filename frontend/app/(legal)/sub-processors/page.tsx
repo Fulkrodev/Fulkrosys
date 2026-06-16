@@ -47,8 +47,8 @@ export default function SubProcessorsPage() {
       </section>
 
       {/* Table */}
-      <section className="overflow-hidden rounded-md border border-fulkro-ink-200">
-        <table className="w-full text-sm">
+      <section className="overflow-x-auto rounded-md border border-fulkro-ink-200">
+        <table className="w-full min-w-[36rem] text-sm">
           <thead className="bg-fulkro-ink-50">
             <tr className="text-left text-xs uppercase tracking-wide text-fulkro-ink-600">
               <th className="px-4 py-3">Proveedor</th>
