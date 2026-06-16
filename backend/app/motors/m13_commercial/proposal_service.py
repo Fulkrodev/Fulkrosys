@@ -118,17 +118,6 @@ class ProposalService:
         await db.flush()
         return proposal
 
-    # #5 cabo N2 · modelo de pricing legacy por categoría (proyecto · NO
-    # retainer). SUPERSEDED por BUG5: ``regenerate_for_categoria`` ya NO usa este
-    # mapping (cotizaba MEDIA 22.000 vía PRICING_CATALOG['media_hitos']); ahora
-    # delega en ``generate_proposal_apendice_m`` (BASE_PRICES_CANONICAL · MEDIA 10.700).
-    # Conservado solo como referencia histórica.
-    _PROJECT_PRICING_MODEL = {
-        "BASICA": "basica_fijo",
-        "MEDIA": "media_hitos",
-        "ALTA": "alta_fases_exito",
-    }
-
     async def regenerate_for_categoria(
         self,
         db: AsyncSession,

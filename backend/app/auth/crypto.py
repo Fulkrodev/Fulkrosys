@@ -6,7 +6,6 @@ invalidated on process restart. Production MUST set the env var.
 """
 from __future__ import annotations
 
-import hashlib
 import hmac
 import os
 import secrets
@@ -162,8 +161,3 @@ def get_public_pem() -> bytes:
     (§4.5 tracker:390a · encapsulación).
     """
     return _PUBLIC_PEM
-
-
-def hash_jti(jti: str) -> str:
-    """Hash a JTI for DB storage comparisons (unused today, reserved)."""
-    return hashlib.sha256(jti.encode("utf-8")).hexdigest()

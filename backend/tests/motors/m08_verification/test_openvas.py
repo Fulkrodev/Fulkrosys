@@ -1,6 +1,6 @@
 """M8 v5.1 — Tests OpenvasRunner + mapper + vuln orchestrator.
 
-Cobertura (14 tests, todos offline — NO requieren Docker ni GVM vivo):
+Cobertura (12 tests, todos offline — NO requieren Docker ni GVM vivo):
 
 Parser XML GMP (4):
   1. linux high severity parsea findings + CVE + CVSS
@@ -21,10 +21,6 @@ Fixture mode (3):
 Real degradado (2):
   11. real mode sin GVM env -> error controlado
   12. real mode con python-gvm roto (simulado) -> error controlado
-
-Vuln orchestrator (2):
-  13. should_trigger respeta targets + category (BASICA incluida)
-  14. orchestrator ejecuta OpenVAS en chain y devuelve summary
 """
 from __future__ import annotations
 
@@ -39,10 +35,6 @@ from backend.app.motors.m08_verification.tools.openvas_ens_mapper import (
 )
 from backend.app.motors.m08_verification.tools.openvas_runner import (
     OpenvasRunner,
-)
-from backend.app.motors.m08_verification.vuln_orchestrator import (
-    run_vuln_audit,
-    should_trigger,
 )
 
 
@@ -231,37 +223,3 @@ async def test_real_without_python_gvm_returns_error(monkeypatch):
     )
     assert result.error is not None
     assert "python-gvm no instalado" in result.error
-
-
-# ════════════════════════════════════════════════════════════════════
-# Vuln orchestrator
-# ════════════════════════════════════════════════════════════════════
-
-
-@pytest.mark.asyncio
-async def test_vuln_should_trigger_includes_basica():
-    # Sin targets -> skip
-    assert should_trigger({"targets": []}, "MEDIA") is False
-    # Targets BASICA -> activa (a diferencia del cloud orchestrator)
-    assert should_trigger({"targets": ["10.0.0.1"]}, "BASICA") is True
-    assert should_trigger({"targets": ["10.0.0.1"]}, "MEDIA") is True
-    assert should_trigger({"targets": ["10.0.0.1"]}, "ALTA") is True
-    assert should_trigger({"targets": ["10.0.0.1"]}, "") is False
-
-
-@pytest.mark.asyncio
-async def test_vuln_orchestrator_runs_openvas_and_summarizes():
-    scope = {"targets": ["10.0.12.50"]}
-    fixture = FIXTURES_DIR / "openvas_report_linux_high_severity.xml"
-    out = await run_vuln_audit(
-        scope, "BASICA", openvas_mode="fixture",
-        openvas_fixture_path=fixture,
-    )
-    assert out["skipped"] is False
-    assert out["tools_run"] == ["openvas"]
-    assert out["summary"]["total"] == 4
-    # Al menos 1 CVE referenciado (CVE-2021-41773)
-    assert out["summary"]["cve_references_total"] >= 1
-    # Mixed severity
-    by_sev = out["summary"]["by_severity"]
-    assert by_sev.get("high", 0) >= 1

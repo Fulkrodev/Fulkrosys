@@ -107,25 +107,6 @@ class DdaProjectSignature(Base):
     updated_at: Mapped[datetime | None] = mapped_column(TIMESTAMP(timezone=True), nullable=True)
 
 
-class Control(FullMixin, Base):
-    # ESTADO (WAVE C2 · 2026-06-16): clase ORM sin lectores reales (0
-    # select(Control)/Control. en app+tests). NO se elimina: la tabla
-    # ``controls`` tiene un dependiente FK VIVO — ``evidence.control_id ->
-    # controls.id`` (models/documents.py Evidence + migración 1350b2466202,
-    # columna persistida por m07 ingestion/request_service). Dropear la tabla
-    # exigiría primero soltar ese FK de la tabla ``evidence`` (muy usada) y
-    # migrar el schema en prod: cambio estructural arriesgado, se DOCUMENTA y
-    # DIFIERE (no es un fix mecánico seguro).
-    __tablename__ = "controls"
-    project_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("projects.id"), nullable=False)
-    dda_entry_id: Mapped[uuid.UUID | None] = mapped_column(ForeignKey("dda_entries.id"))
-    descripcion: Mapped[str] = mapped_column(Text, nullable=False)
-    tipo: Mapped[str | None] = mapped_column(String(50))
-    estado: Mapped[str | None] = mapped_column(String(50))
-    responsable: Mapped[str | None] = mapped_column(String(255))
-    fecha_objetivo: Mapped[date | None] = mapped_column()
-
-
 class Obligation(FullMixin, Base):
     __tablename__ = "obligations"
     project_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("projects.id"), nullable=False)

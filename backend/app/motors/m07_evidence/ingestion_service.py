@@ -145,7 +145,7 @@ async def ingest_evidence(
     await session.execute(
         text("""
             INSERT INTO evidence (
-                id, project_id, measure_id, control_id,
+                id, project_id, measure_id,
                 tipo, fuente, fichero_path, hash_sha256,
                 fecha_evidencia, fecha_caducidad, vigente,
                 firma_ed25519, metadata_extra,
@@ -155,7 +155,7 @@ async def ingest_evidence(
                 measure_code, obligation_id,
                 created_at
             ) VALUES (
-                :id, :project_id, :measure_id, NULL,
+                :id, :project_id, :measure_id,
                 :tipo, :fuente, :fichero_path, :hash_sha256,
                 :fecha_evidencia, :fecha_caducidad, TRUE,
                 :firma_ed25519, :metadata_extra,

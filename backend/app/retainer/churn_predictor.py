@@ -13,7 +13,6 @@ Reglas:
 - +25 si tasks_overdue_count > 3
 - +25 si invoices_overdue_count > 0
 - +20 si avg_response_time_hours > 48
-- +15 si nps_last_score < 6
 - +10 si renewal_in_days < 90
 
 Persist ``RetainerHealthSignal`` row + alert AlertService category=
@@ -39,7 +38,6 @@ logger = logging.getLogger(__name__)
 THRESHOLD_DAYS_LOGIN = 60
 THRESHOLD_TASKS_OVERDUE = 3
 THRESHOLD_RESPONSE_HOURS = Decimal("48.00")
-THRESHOLD_NPS_LOW = 6
 THRESHOLD_RENEWAL_NEAR = 90
 
 
@@ -50,7 +48,6 @@ class ChurnSignals:
     tasks_overdue_count: int = 0
     invoices_overdue_count: int = 0
     avg_response_time_hours: Decimal | None = None
-    nps_last_score: int | None = None
     renewal_in_days: int | None = None
 
 
@@ -100,15 +97,6 @@ def compute_churn_score(signals: ChurnSignals) -> ChurnComputation:
         factors.append(
             f"avg_response_time_hours>{THRESHOLD_RESPONSE_HOURS} "
             f"(actual: {signals.avg_response_time_hours})"
-        )
-    if (
-        signals.nps_last_score is not None
-        and signals.nps_last_score < THRESHOLD_NPS_LOW
-    ):
-        score += Decimal("15")
-        factors.append(
-            f"nps_last_score<{THRESHOLD_NPS_LOW} "
-            f"(actual: {signals.nps_last_score})"
         )
     if (
         signals.renewal_in_days is not None
@@ -166,8 +154,6 @@ class ChurnPredictor:
       fecha_vencimiento < now AND project_id matches.
     - avg_response_time_hours: chat_threads.last_admin_response_at -
       last_client_message_at (cross MB-14.5).
-    - nps_last_score: NULL si no hay nps_responses table o score
-      reciente.
     - renewal_in_days: retainer.next_renewal_date - now.
     """
 
@@ -288,7 +274,6 @@ class ChurnPredictor:
             tasks_overdue_count=signals.tasks_overdue_count,
             invoices_overdue_count=signals.invoices_overdue_count,
             avg_response_time_hours=signals.avg_response_time_hours,
-            nps_last_score=signals.nps_last_score,
             renewal_in_days=signals.renewal_in_days,
             churn_risk_score=computation.score,
             risk_level=computation.risk_level,
@@ -345,6 +330,5 @@ __all__ = [
     "THRESHOLD_DAYS_LOGIN",
     "THRESHOLD_TASKS_OVERDUE",
     "THRESHOLD_RESPONSE_HOURS",
-    "THRESHOLD_NPS_LOW",
     "THRESHOLD_RENEWAL_NEAR",
 ]

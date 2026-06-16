@@ -4,7 +4,6 @@ import { LogOut, Menu } from "lucide-react";
 import * as React from "react";
 
 import { AlertBell } from "@/components/alerts/AlertBell";
-import { PortalSwitcher } from "@/components/auth/PortalSwitcher";
 import { HeaderProjectChip } from "@/components/layout/HeaderProjectChip";
 // Future: TODO-FE-DARK-MODE-COMPLETO-001 · ThemeToggle oculto hasta implementar
 // dark mode completo (sub-fase dedicada). Tooltip "Próximamente" era visualmente
@@ -55,7 +54,6 @@ export function Header({ onOpenMobileSidebar }: HeaderProps) {
       </div>
 
       <div className="flex items-center gap-3 text-white">
-        <PortalSwitcher />
         {/* Future: TODO-FE-DARK-MODE-COMPLETO-001 · ThemeToggle oculto hasta
             implementar dark mode completo (sub-fase dedicada). Tooltip
             "Próximamente" era visualmente confuso para chrome admin profesional. */}

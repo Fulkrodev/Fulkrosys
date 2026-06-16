@@ -99,13 +99,12 @@ def test_compute_score_critical_all_signals():
             tasks_overdue_count=5,
             invoices_overdue_count=2,
             avg_response_time_hours=Decimal("72"),
-            nps_last_score=4,
             renewal_in_days=30,
         )
     )
     assert result.score == Decimal("100.00")
     assert result.risk_level == "critical"
-    assert len(result.factors) == 6
+    assert len(result.factors) == 5
 
 
 def test_compute_score_capped_at_100():
@@ -115,7 +114,6 @@ def test_compute_score_capped_at_100():
             tasks_overdue_count=20,
             invoices_overdue_count=10,
             avg_response_time_hours=Decimal("999"),
-            nps_last_score=0,
             renewal_in_days=0,
         )
     )

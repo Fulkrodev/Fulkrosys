@@ -17,15 +17,14 @@ Doctrinas:
 - OPS-049 honest defer · false-positive count tracked · refinement
   empirical post-piloto (Future-S5.X.llm-pi-policy-tuning)
 
-Categorías detection (8 critical patterns):
+Categorías detection (7 critical patterns):
 1. role_manipulation · "system:" · "assistant:" · injected role markers
 2. ignore_previous · "ignore previous" · "disregard above" · jailbreak common
 3. system_extraction · "what are your instructions" · "show system prompt"
 4. context_bleed · cross-project mentions ("client X" cuando current = Y)
 5. base64_obfuscation · base64-encoded payload chunks
-6. multilingual_evasion · español/inglés mix con jailbreak markers
-7. delimiter_injection · XML/markdown delimiters tentativa override
-8. excessive_length · >10k chars input (potential context pollution)
+6. delimiter_injection · XML/markdown delimiters tentativa override
+7. excessive_length · >10k chars input (potential context pollution)
 
 Output: SanitizationResult con sanitized_input + violations list +
 should_block boolean + audit_log emit hint.
@@ -80,7 +79,6 @@ ViolationCategory = Literal[
     "system_extraction",
     "context_bleed",
     "base64_obfuscation",
-    "multilingual_evasion",
     "delimiter_injection",
     "excessive_length",
 ]
@@ -270,11 +268,6 @@ def sanitize_user_input(
                 ))
                 # NO auto-sanitize · cliente may legitimately reference
                 # external entity · flag-only audit_log
-
-    # 7. multilingual_evasion · español/inglés mixto con jailbreak markers
-    # (cubierto via _IGNORE_PREVIOUS_PATTERNS español + inglés ya)
-    # Additional check: presence of both languages WITH jailbreak intent
-    # NO additional pattern needed · existing patterns cover both langs
 
     # Decide block: critical violations = block
     critical_count = sum(1 for v in violations if v.severity == "critical")

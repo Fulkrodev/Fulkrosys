@@ -52,7 +52,6 @@ class WbsTask(FullMixin, Base):
     end_date: Mapped[date | None] = mapped_column(Date)
     duration_days: Mapped[int | None] = mapped_column(Integer)
     effort_marcos_hours: Mapped[float | None] = mapped_column(Float)
-    effort_platform: Mapped[str | None] = mapped_column(String(50))
     responsible: Mapped[str | None] = mapped_column(String(255))
     dependencies: Mapped[dict | None] = mapped_column(JSONB)
     deliverable_e_code: Mapped[str | None] = mapped_column(String(20))

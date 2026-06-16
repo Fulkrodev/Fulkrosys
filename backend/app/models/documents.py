@@ -118,7 +118,6 @@ class Evidence(FullMixin, Base):
     )
     project_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("projects.id"), nullable=False)
     measure_id: Mapped[uuid.UUID | None] = mapped_column(ForeignKey("ens_measures.id"))
-    control_id: Mapped[uuid.UUID | None] = mapped_column(ForeignKey("controls.id"))
     tipo: Mapped[str | None] = mapped_column(String(50))
     fuente: Mapped[str | None] = mapped_column(String(100))
     fichero_path: Mapped[str | None] = mapped_column(String(500))
