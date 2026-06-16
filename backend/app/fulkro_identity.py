@@ -27,6 +27,11 @@ FULKRO_WEB_URL: str = "https://www.fulkro.es"
 FULKRO_EMAIL: str = "marcosmata@fulkro.es"
 """Email profesional · corporate domain post-migration de gmail."""
 
+FULKRO_NIF: str = "77171140E"
+"""NIF del titular (Marcos Mata García · consultor autónomo) · fuente única para
+LSSI Art.10 (aviso legal) + RGPD Art.13 (responsable del tratamiento). Sustituye
+los placeholders previos de imprint/privacy + landing aviso-legal/privacidad."""
+
 FULKRO_BRAND_TAGLINE: str = "Rigor · velocidad · proactividad"
 """Tagline interno · 'Fulkro shown not sold' doctrine."""
 

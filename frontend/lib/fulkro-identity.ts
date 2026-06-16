@@ -16,6 +16,8 @@ export const FULKRO_IDENTITY = {
   web: "www.fulkro.es",
   webUrl: "https://www.fulkro.es",
   email: "marcosmata@fulkro.es",
+  // NIF del titular (Marcos Mata García) · LSSI Art.10 + RGPD Art.13. Fuente única.
+  nif: "77171140E",
   taglineInternal: "Rigor · velocidad · proactividad",
   // Color canónico del distintivo de conformidad ENS · Pantone Orange 021C
   // (CCN-STIC 809) · único para todas las categorías. Distinto del violeta UI.

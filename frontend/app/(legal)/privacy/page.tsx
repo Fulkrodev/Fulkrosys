@@ -22,7 +22,7 @@ export default function PrivacyPage() {
           El responsable del tratamiento de tus datos personales es{" "}
           <strong>Marcos Mata García</strong> (en adelante, &laquo;FULKRO&raquo;),
           con domicilio profesional en Madrid, España y CIF/NIF
-          [pendiente · alta autónomo]. Actividad: consultoría de servicios IT
+          77171140E. Actividad: consultoría de servicios IT
           especializada en el Esquema Nacional de Seguridad (RD 311/2022).
         </p>
         <p>

@@ -23,7 +23,7 @@ export default function ImprintPage() {
             <strong>Titular:</strong> Marcos Mata García
           </li>
           <li>
-            <strong>CIF/NIF:</strong> [pendiente · alta autónomo en curso]
+            <strong>CIF/NIF:</strong> 77171140E
           </li>
           <li>
             <strong>Domicilio profesional:</strong> Madrid, España
