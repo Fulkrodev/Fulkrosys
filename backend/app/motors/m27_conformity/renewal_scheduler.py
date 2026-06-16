@@ -98,17 +98,33 @@ async def _evaluate_one_project(
 
     project_id_str = str(project.id)
 
-    # 6m antes -> alerta Marcos (interna, sin campana todavia)
-    if days_to_aniversario == ALERT_6M_BEFORE_DAYS:
-        if not await _campaign_exists(db, project.id, "recertification_bianual"):
-            await _log_renewal_event(
-                db, project_id=project.id, event_type="alert_6m_marcos",
-                details={"days_to_aniversario": days_to_aniversario},
-            )
-            result.alerts_6m.append(project_id_str)
+    # Cruce-de-umbral con guarda de idempotencia por hito (espeja el patrón
+    # correcto de m25 lifecycle_paso4 '>= THRESHOLD and not _has_event_for(...)').
+    # Antes se disparaba por IGUALDAD EXACTA (== N días) sin elif independiente:
+    # si el beat no corría el día exacto (worker caído, deploy), days_to saltaba
+    # de 181→179 y el hito se perdía PARA SIEMPRE. Ahora cada hito cruzado pendiente
+    # dispara una sola vez (sin elif → varios hitos cruzados disparan cada uno).
 
-    # 3m antes -> crear campana + dossier renewal
-    elif days_to_aniversario == ALERT_3M_BEFORE_DAYS:
+    # 6m antes -> alerta Marcos (interna, sin campana todavia). Banda 6m..3m:
+    # una vez cruzado el umbral de 3m la acción relevante es la campaña, no la alerta.
+    if (
+        days_to_aniversario <= ALERT_6M_BEFORE_DAYS
+        and days_to_aniversario > ALERT_3M_BEFORE_DAYS
+        and not await _campaign_exists(db, project.id, "recertification_bianual")
+        and not await _renewal_event_exists(db, project.id, "alert_6m_marcos")
+    ):
+        await _log_renewal_event(
+            db, project_id=project.id, event_type="alert_6m_marcos",
+            details={"days_to_aniversario": days_to_aniversario},
+        )
+        result.alerts_6m.append(project_id_str)
+
+    # 3m antes -> crear campana + dossier renewal. Idempotente vía _get_active_campaign
+    # (solo crea si no hay campaña activa). Banda 3m..1m.
+    if (
+        days_to_aniversario <= ALERT_3M_BEFORE_DAYS
+        and days_to_aniversario > ALERT_1M_BEFORE_DAYS
+    ):
         existing = await _get_active_campaign(db, project.id)
         if existing is None:
             campaign = await _create_renewal_campaign(db, project, today)
@@ -116,13 +132,43 @@ async def _evaluate_one_project(
             # Dossier M9 tipo renewal (best effort - no bloqueante)
             await _try_generate_renewal_dossier(db, project, campaign.id)
 
-    # 1m antes -> segunda alerta Marcos
-    elif days_to_aniversario == ALERT_1M_BEFORE_DAYS:
+    # 1m antes -> segunda alerta Marcos. Guarda de idempotencia explícita.
+    if (
+        days_to_aniversario <= ALERT_1M_BEFORE_DAYS
+        and days_to_aniversario >= 0
+        and not await _renewal_event_exists(db, project.id, "alert_1m_marcos")
+    ):
         await _log_renewal_event(
             db, project_id=project.id, event_type="alert_1m_marcos",
             details={"days_to_aniversario": days_to_aniversario},
         )
         result.alerts_1m.append(project_id_str)
+
+
+async def _renewal_event_exists(
+    db: AsyncSession, project_id: uuid.UUID, renewal_type: str,
+) -> bool:
+    """Guarda de idempotencia: ¿ya se registró este hito de renovación?
+
+    Los eventos de renovación viven en project_lifecycle_events con
+    event_type='warning_sent' (reutilizado) y se distinguen por
+    metadata_jsonb->>'renewal' (e.g. 'alert_6m_marcos'/'alert_1m_marcos').
+    """
+    from backend.app.models.lifecycle import ProjectLifecycleEvent
+
+    await db.execute(sa_text("SET LOCAL ROLE fulkro_app_bypassrls"))
+    try:
+        res = await db.execute(
+            select(ProjectLifecycleEvent.id).where(
+                ProjectLifecycleEvent.project_id == project_id,
+                ProjectLifecycleEvent.event_type == "warning_sent",
+                ProjectLifecycleEvent.metadata_jsonb["renewal"].astext
+                == renewal_type,
+            ).limit(1)
+        )
+        return res.scalar_one_or_none() is not None
+    finally:
+        await db.execute(sa_text("RESET ROLE"))
 
 
 async def _campaign_exists(

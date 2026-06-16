@@ -55,6 +55,19 @@ INCIDENT_STATES: tuple[str, ...] = (
 SEVERIDADES: tuple[str, ...] = ("critical", "high", "medium", "low")
 
 
+# El endpoint /classify acepta severidad en español (UX admin) pero el resto del
+# sistema (decision tree CCN-CERT · IncidentWorkflowService · LUCIA) opera con la
+# vocabulario canónico INGLÉS. Sin esta normalización, un incidente clasificado a
+# 'critica' se persistía literalmente y NO casaba con _SEVERITIES_REQUIRING_ROUTING
+# ({'critical','high'}) → el routing CCN-CERT podía omitir un incidente crítico.
+_SEVERIDAD_ES_TO_EN: dict[str, str] = {
+    "critica": "critical",
+    "alta": "high",
+    "media": "medium",
+    "baja": "low",
+}
+
+
 # ════════════════════════════════════════════════════════════════════
 # Schemas
 # ════════════════════════════════════════════════════════════════════
@@ -76,15 +89,17 @@ class TransitionResponse(BaseModel):
 
 
 class ClassifyRequest(BaseModel):
+    # NOTA: la tabla `incidents` NO tiene columna `tipo` (ver models/operations.py ·
+    # solo severidad/descripcion/resolucion). El campo `tipo` previo del schema +
+    # SQL provocaba un 500 (UndefinedColumnError) en CADA llamada al endpoint. Se
+    # retira para que /classify funcione realmente (audit §2.2/226).
     severidad: Literal["baja", "media", "alta", "critica"] | None = Field(None)
-    tipo: str | None = Field(None, max_length=80)
     descripcion: str | None = Field(None, max_length=4000)
 
 
 class ClassifyResponse(BaseModel):
     incident_id: uuid.UUID
     severidad: str | None
-    tipo: str | None
     admin_user_id: uuid.UUID
 
 
@@ -152,29 +167,33 @@ async def classify_incident(
     db: AsyncSession = Depends(get_db),
     user: User = Depends(require_owner),
 ) -> ClassifyResponse:
-    """Admin classify incident · severidad + tipo + descripcion enriquecida.
+    """Admin classify incident · severidad + descripcion enriquecida.
 
-    Pattern PATCH (NULL fields preservan valor existing).
+    Pattern PATCH (NULL fields preservan valor existing). La severidad española
+    de entrada se normaliza a la vocabulario canónica inglesa antes de persistir.
     """
     row = await db.execute(text(
-        "SELECT id, severidad, tipo, descripcion FROM incidents "
+        "SELECT id, severidad, descripcion FROM incidents "
         "WHERE id = :iid AND deleted_at IS NULL"
     ), {"iid": str(incident_id)})
     hit = row.first()
     if hit is None:
         raise HTTPException(status_code=404, detail="Incident no encontrado")
 
-    new_severidad = body.severidad or hit[1]
-    new_tipo = body.tipo if body.tipo is not None else hit[2]
-    new_descripcion = body.descripcion if body.descripcion is not None else hit[3]
+    # Normaliza la severidad española de entrada a la vocabulario canónica inglesa
+    # ANTES de persistir, para que el decision tree CCN-CERT y LUCIA la reconozcan.
+    if body.severidad is not None:
+        new_severidad = _SEVERIDAD_ES_TO_EN.get(body.severidad, body.severidad)
+    else:
+        new_severidad = hit[1]
+    new_descripcion = body.descripcion if body.descripcion is not None else hit[2]
 
     await db.execute(text(
         "UPDATE incidents SET "
-        "severidad = :sev, tipo = :tipo, descripcion = :desc, "
+        "severidad = :sev, descripcion = :desc, "
         "updated_at = now() WHERE id = :iid"
     ), {
         "sev": new_severidad,
-        "tipo": new_tipo,
         "desc": new_descripcion,
         "iid": str(incident_id),
     })
@@ -183,7 +202,6 @@ async def classify_incident(
     return ClassifyResponse(
         incident_id=incident_id,
         severidad=new_severidad,
-        tipo=new_tipo,
         admin_user_id=user.id,
     )
 

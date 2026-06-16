@@ -24,8 +24,10 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from backend.app.motors.m19_risk.ccn_cert_decision_tree import (
     IncidentEvaluationInput,
+    _SEVERITIES_REQUIRING_ROUTING,
     evaluate_routing,
 )
+from backend.app.motors.m19_risk.incident_admin_api import _SEVERIDAD_ES_TO_EN
 from backend.app.motors.m19_risk.incident_workflow_service import (
     IncidentWorkflowError,
     IncidentWorkflowService,
@@ -255,3 +257,72 @@ async def test_client_review_invalid_action_raises(db: AsyncSession):
 
     with pytest.raises(InvalidReviewActionError):
         await svc.mark_client_review(incident.id, "con_pregunta", None, user_id)
+
+
+# ════════════════════════════════════════════════════════════════════
+# §2.2/226 · classify severidad EN/ES normalization → CCN-CERT routing
+# ════════════════════════════════════════════════════════════════════
+
+
+def test_severidad_es_to_en_map_yields_canonical_english():
+    """El map ES→EN produce exactamente la vocabulario canónica inglesa, y
+    'critica'/'alta' caen en el set que dispara routing CCN-CERT."""
+    assert _SEVERIDAD_ES_TO_EN == {
+        "critica": "critical",
+        "alta": "high",
+        "media": "medium",
+        "baja": "low",
+    }
+    # Las severidades altas (ES) mapean a las que exigen routing CCN-CERT.
+    assert _SEVERIDAD_ES_TO_EN["critica"] in _SEVERITIES_REQUIRING_ROUTING
+    assert _SEVERIDAD_ES_TO_EN["alta"] in _SEVERITIES_REQUIRING_ROUTING
+    # Las bajas NO.
+    assert _SEVERIDAD_ES_TO_EN["media"] not in _SEVERITIES_REQUIRING_ROUTING
+    assert _SEVERIDAD_ES_TO_EN["baja"] not in _SEVERITIES_REQUIRING_ROUTING
+
+
+@pytest.mark.asyncio
+async def test_classify_endpoint_normalizes_spanish_to_canonical_english(
+    async_client, db: AsyncSession,
+):
+    """Un incidente clasificado a 'critica' (ES) se persiste como 'critical' (EN
+    canónico) → casa con _SEVERITIES_REQUIRING_ROUTING y el routing CCN-CERT NO
+    lo omite. Regresión §2.2/226."""
+    _, project_id = await setup_test_project(db)
+
+    # Crea un incidente 'created' directamente (severidad baja inicial).
+    incident_id = uuid.uuid4()
+    await db.execute(
+        sa_text(
+            "INSERT INTO incidents "
+            "(id, project_id, fecha, severidad, descripcion, workflow_state, "
+            " notificado_lucia, created_at) "
+            "VALUES (:id, :pid, now(), 'low', 'Incidente inicial', 'created', "
+            "false, now())"
+        ),
+        {"id": str(incident_id), "pid": project_id},
+    )
+    await db.flush()
+
+    # Clasifica con severidad española 'critica'.
+    r = await async_client.patch(
+        f"/api/v1/admin/incidents/{incident_id}/classify",
+        json={"severidad": "critica"},
+    )
+    assert r.status_code == 200, r.text
+    assert r.json()["severidad"] == "critical"
+
+    # El valor persistido es canónico inglés y exige routing CCN-CERT.
+    stored = (await db.execute(
+        sa_text("SELECT severidad FROM incidents WHERE id = :iid"),
+        {"iid": str(incident_id)},
+    )).scalar()
+    assert stored == "critical"
+    assert stored in _SEVERITIES_REQUIRING_ROUTING
+
+    # Y el decision tree lo enruta como crítico (no internal_only).
+    routing = evaluate_routing(IncidentEvaluationInput(
+        severity=stored, lucia_enabled=False,
+    ))
+    assert routing.route_type != "internal_only"
+    assert routing.deadline_hours == 24

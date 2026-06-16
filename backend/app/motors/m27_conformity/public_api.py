@@ -29,6 +29,9 @@ from fastapi import Depends
 
 public_router = APIRouter(tags=["Motor 27 - Conformity (public)"])
 
+# Tamaño de lote del scan paginado por keyset (overridable en tests).
+_BADGE_SCAN_BATCH = 1000
+
 
 @public_router.get(
     "/public/conformity/badge/{cert_id}/badge.svg",
@@ -61,21 +64,33 @@ async def public_badge_svg(
     # futura, fulkro → rol BYPASSRLS dedicado (mismo patrón que el resto del repo).
     await db.execute(sa_text("SET LOCAL ROLE fulkro_app_bypassrls"))
 
-    # Buscar project cuyo cert_id derivado coincida (linear scan O(n) sobre
-    # projects activos · aceptable para volumen bajo · index futuro vía
-    # tabla materialized si la lista crece).
-    rows = await db.execute(
-        sa_text(
-            "SELECT id FROM projects "
-            "WHERE deleted_at IS NULL "
-            "ORDER BY created_at DESC LIMIT 1000"
-        )
-    )
+    # Buscar project cuyo cert_id derivado coincida. cert_id = uuid5(...) es un
+    # hash one-way → NO invertible en SQL, de ahí el scan en Python. Antes el scan
+    # usaba 'LIMIT 1000', lo que truncaba SILENCIOSAMENTE: con >1000 proyectos
+    # activos, un cert_id válido de un proyecto fuera del top-1000 daba 404 falso.
+    # Ahora se pagina por keyset (id) en lotes hasta agotar → sin truncación
+    # silenciosa, memoria acotada por lote (early-break al encontrar match).
     matched_project_id: uuid.UUID | None = None
-    for (pid,) in rows.fetchall():
-        if derive_cert_id(pid) == cert_id:
-            matched_project_id = pid
+    cursor: str | None = None
+    while matched_project_id is None:
+        rows = await db.execute(
+            sa_text(
+                "SELECT id FROM projects "
+                "WHERE deleted_at IS NULL "
+                "AND (CAST(:cursor AS uuid) IS NULL "
+                "     OR id > CAST(:cursor AS uuid)) "
+                "ORDER BY id ASC LIMIT :batch"
+            ),
+            {"cursor": cursor, "batch": _BADGE_SCAN_BATCH},
+        )
+        batch = rows.fetchall()
+        if not batch:
             break
+        for (pid,) in batch:
+            if derive_cert_id(pid) == cert_id:
+                matched_project_id = pid
+                break
+        cursor = str(batch[-1][0])
 
     if matched_project_id is None:
         raise HTTPException(status_code=404, detail="Cert ID not found")
