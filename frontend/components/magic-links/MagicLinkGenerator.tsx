@@ -23,7 +23,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 
-import { ContactQuickPicker } from "@/app/(admin)/admin/clients/[id]/_components/contacts/ContactQuickPicker";
+import { ContactQuickPicker } from "@/components/admin-clients/contacts/ContactQuickPicker";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import {

@@ -193,7 +193,10 @@ export function EvidenceVault({ projectId }: { projectId: string }) {
             <EmptyState />
           ) : (
             <div className="overflow-x-auto rounded-md border border-[color:var(--fulkro-surface-glass-border)]">
-              <table className="min-w-full divide-y divide-[color:var(--fulkro-surface-glass-border)] text-sm">
+              <table
+                aria-label="Evidencias del proyecto"
+                className="min-w-full divide-y divide-[color:var(--fulkro-surface-glass-border)] text-sm"
+              >
                 <thead className="bg-[color:var(--fulkro-surface-glass-strong)] text-xs font-bold uppercase tracking-wider text-[color:var(--fulkro-subtitle)]">
                   <tr>
                     <th className="px-3 py-2 text-left font-semibold">Tipo</th>

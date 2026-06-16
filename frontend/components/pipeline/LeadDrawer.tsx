@@ -16,6 +16,7 @@ import { toast } from "sonner";
 
 import { RAGBadge } from "@/components/data/RAGBadge";
 import { Button, buttonVariants } from "@/components/ui/button";
+import { useEscapeKey } from "@/hooks/useEscapeKey";
 import { useUpdateLeadStage } from "@/hooks/useLeads";
 import { ROUTES } from "@/lib/constants";
 import type { Lead } from "@/lib/types";
@@ -40,6 +41,7 @@ export function LeadDrawer({
 }) {
   const markLost = useUpdateLeadStage();
   const [busyAgent, setBusyAgent] = React.useState<number | null>(null);
+  useEscapeKey(onClose, open);
 
   if (!open || !lead) return null;
 

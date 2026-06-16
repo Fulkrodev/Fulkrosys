@@ -122,7 +122,7 @@ export function EventsTable({
 
   return (
     <div className="overflow-x-auto" data-testid="events-table">
-      <table className="w-full text-sm">
+      <table aria-label="Eventos de notificación" className="w-full text-sm">
         <thead className="bg-fulkro-ink-50 text-fulkro-ink-700">
           <tr>
             <th className="px-3 py-2 text-left">Evento</th>

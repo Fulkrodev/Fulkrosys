@@ -194,6 +194,7 @@ function ContractsTable({
 }) {
   return (
     <table
+      aria-label="Contratos comerciales"
       className="w-full text-sm"
       data-testid="contracts-table"
     >

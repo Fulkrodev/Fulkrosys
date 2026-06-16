@@ -163,7 +163,7 @@ export default function SiemPage() {
             </CardHeader>
             <CardContent>
               <div className="overflow-x-auto">
-                <table className="w-full text-sm">
+                <table aria-label="Eventos de seguridad (SIEM)" className="w-full text-sm">
                   <thead>
                     <tr className="border-b border-fulkro-ink-200 text-left text-fulkro-ink-500">
                       <th className="px-2 py-2">Fuente</th>

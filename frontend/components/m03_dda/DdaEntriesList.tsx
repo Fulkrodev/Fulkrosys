@@ -149,6 +149,7 @@ export function DdaEntriesList({
         {!isLoading && filteredEntries.length > 0 && (
           <div className="overflow-x-auto">
             <table
+              aria-label="Entradas de la Declaración de Aplicabilidad (DdA)"
               className="w-full text-sm border-separate border-spacing-y-1"
               data-testid="dda-entries-table"
             >

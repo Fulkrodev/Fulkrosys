@@ -40,7 +40,7 @@ export default function LegalLayout({
           </nav>
         </div>
       </header>
-      <main className="flex-1">
+      <main id="main-content" tabIndex={-1} className="flex-1 focus:outline-none">
         <div className="mx-auto max-w-6xl px-6 py-12">{children}</div>
       </main>
       <footer className="border-t border-fulkro-ink-300/60 bg-fulkro-ink-50">

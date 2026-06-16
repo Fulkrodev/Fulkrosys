@@ -10,6 +10,7 @@
 import { useEffect } from "react";
 import { Bot, Loader2, X } from "lucide-react";
 
+import { useEscapeKey } from "@/hooks/useEscapeKey";
 import { useInlineAgent } from "@/lib/client-portal/inline-agents/useInlineAgent";
 import type { InlineAgentSlug } from "@/lib/client-portal/inline-agents/api";
 
@@ -33,6 +34,7 @@ export function AgentSummaryDrawer({
   extraContext,
 }: Props) {
   const { loading, error, result, invoke, reset } = useInlineAgent(slug);
+  useEscapeKey(onClose, open);
 
   useEffect(() => {
     if (open && !result && !loading) {

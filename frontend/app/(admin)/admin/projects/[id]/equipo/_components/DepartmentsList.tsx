@@ -94,7 +94,7 @@ export function DepartmentsList({
   return (
     <>
       <div className="rounded-md border border-fulkro-ink-100 bg-white">
-        <table className="w-full text-sm">
+        <table aria-label="Departamentos del proyecto" className="w-full text-sm">
           <thead className="border-b border-fulkro-ink-100 text-left text-xs uppercase tracking-wide text-fulkro-ink-500">
             <tr>
               <th className="px-3 py-2">Código</th>

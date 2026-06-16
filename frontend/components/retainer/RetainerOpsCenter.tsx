@@ -18,7 +18,6 @@ import { CapacityTile } from "@/components/admin/retainers/CapacityTile";
 import { RAGDot } from "@/components/data/RAGBadge";
 import { DevHint } from "@/components/dev/DevHint";
 import {
-  CapacityBar,
   DriftBadge,
   RenewalClock,
   RetainerPlanBadge,
@@ -392,9 +391,11 @@ function RetainerCard({ item }: { item: RetainerOverviewItem }) {
   const rag = ragFromHealth(item.health_status);
   const renewalDays = item.days_until_renewal;
 
-  // Capacidad placeholder hasta que paso 2 dashboard exponga horas;
-  // se calcula en RetainerProjectDashboard con datos finos del proyecto.
-  const consumedPct = 0;
+  // La vista cross-cliente (RetainerOverviewItem) NO expone horas/capacidad;
+  // el consumo fino se calcula en RetainerProjectDashboard con datos del
+  // proyecto. En vez de pintar una CapacityBar muda al 0% (que implicaría
+  // falsamente "0% consumido"), mostramos un enlace honesto a la consola del
+  // proyecto. §3.2/314.
 
   return (
     <Card className="overflow-hidden">
@@ -470,7 +471,13 @@ function RetainerCard({ item }: { item: RetainerOverviewItem }) {
           )}
         </div>
 
-        <CapacityBar consumedPct={consumedPct} />
+        <Link
+          href={`${ROUTES.projects}/${item.client_id}/retainer`}
+          className="inline-flex items-center gap-1 text-xs font-medium text-[color:var(--fulkro-muted)] hover:text-fulkro-info hover:underline"
+        >
+          Capacidad fina en el dashboard del proyecto
+          <ExternalLink size={11} strokeWidth={2.4} />
+        </Link>
 
         <div className="flex items-center justify-end gap-3">
           {item.retainer_id && (

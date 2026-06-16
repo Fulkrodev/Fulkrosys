@@ -9,14 +9,11 @@
  */
 import { clientApi } from "@/lib/client-portal-api";
 
-export type SignableType =
-  | "dda"
-  | "magerit_validation"
-  | "policy_approval"
-  | "pentest_authorization"
-  | "conformidad_ens"
-  | "dpc_anual"
-  | "retainer_quarterly_signoff";
+// SignableType canónico (18 tipos · espejo backend) vive en un único módulo.
+// Antes este archivo declaraba una unión propia de 7 valores divergente tanto
+// del backend (18) como de signing.ts (12). Unificado (§4.1 line 341-342).
+export type { SignableType } from "@/lib/api/signable-types";
+import type { SignableType } from "@/lib/api/signable-types";
 
 export type SignatureCardStatus =
   | "pending_creation"

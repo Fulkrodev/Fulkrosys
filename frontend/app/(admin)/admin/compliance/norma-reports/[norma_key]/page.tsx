@@ -142,7 +142,7 @@ export default function NormaDetailPage() {
               {history.isLoading ? (
                 <Skeleton className="h-24 w-full" />
               ) : (
-                <table className="w-full text-sm">
+                <table aria-label="Informe de cumplimiento por norma" className="w-full text-sm">
                   <thead>
                     <tr className="border-b border-fulkro-ink-200 text-left text-fulkro-ink-500">
                       <th className="px-2 py-2">Periodo</th>

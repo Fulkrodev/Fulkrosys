@@ -150,6 +150,7 @@ function UsersTable({
     <Card>
       <CardContent className="p-0">
         <table
+          aria-label="Usuarios del cliente"
           className="w-full text-sm"
           data-testid="client-users-table"
         >

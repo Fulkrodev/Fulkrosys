@@ -346,7 +346,11 @@ function ResourcesTab({
       ) : (
         <Card>
           <CardContent className="p-0">
-            <table className="w-full text-sm" data-testid="resources-table">
+            <table
+              aria-label="Recursos cloud descubiertos"
+              className="w-full text-sm"
+              data-testid="resources-table"
+            >
               <thead className="bg-fulkro-ink-50">
                 <tr>
                   <th className="px-3 py-2 text-left">Tipo</th>

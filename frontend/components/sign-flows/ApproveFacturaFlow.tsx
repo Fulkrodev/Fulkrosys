@@ -51,7 +51,7 @@ export function ApproveFacturaFlow({
       </div>
       {scope.conceptos && scope.conceptos.length > 0 ? (
         <div className="rounded-md border border-fulkro-ink-300/60 bg-white">
-          <table className="w-full text-sm">
+          <table aria-label="Detalle de la factura" className="w-full text-sm">
             <thead className="bg-fulkro-ink-100/40 text-xs">
               <tr>
                 <th className="p-2 text-left font-medium">Concepto</th>

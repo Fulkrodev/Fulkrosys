@@ -286,7 +286,10 @@ export function ObligationBoard({ projectId }: { projectId: string }) {
               />
             ) : (
               <div className="overflow-x-auto rounded-md border border-[color:var(--fulkro-surface-glass-border)]">
-                <table className="min-w-full divide-y divide-fulkro-ink-300/60 text-sm">
+                <table
+                  aria-label="Obligaciones y medidas del proyecto"
+                  className="min-w-full divide-y divide-fulkro-ink-300/60 text-sm"
+                >
                   <thead className="bg-[color:var(--fulkro-surface-glass-strong)] text-xs font-bold uppercase tracking-wider text-[color:var(--fulkro-subtitle)]">
                     <tr>
                       <th className="px-3 py-2 text-left font-semibold">

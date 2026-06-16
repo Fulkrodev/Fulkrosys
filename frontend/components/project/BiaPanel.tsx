@@ -107,7 +107,7 @@ export function BiaPanel({ projectId }: Props) {
             </p>
           )}
           {entries && entries.length > 0 && (
-            <table className="w-full text-sm">
+            <table aria-label="Análisis de impacto en el negocio (BIA)" className="w-full text-sm">
               <thead>
                 <tr className="text-left">
                   <th className="py-2">Servicio</th>

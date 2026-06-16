@@ -11,6 +11,7 @@ import { History, Loader2, X } from "lucide-react";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { useEscapeKey } from "@/hooks/useEscapeKey";
 import { ClientApiError } from "@/lib/client-portal-api";
 import {
   type DocumentVersionsResponse,
@@ -36,6 +37,7 @@ export function FileVersionDialog({ open, onClose, documentId }: Props) {
   const [data, setData] = useState<DocumentVersionsResponse | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  useEscapeKey(onClose, open);
 
   useEffect(() => {
     if (!open || !documentId) {

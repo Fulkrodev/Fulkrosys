@@ -14,9 +14,11 @@
  *  - Contactos lista per cliente entity (ContactosTab · 95 LOC existing).
  *  - Suspend/Reactivate cliente action button (SuspendDialog · 135 LOC existing).
  *
- * Reuses existing tab components from /admin/clients/[id]/_components/. Those
- * components live in a private folder (`_components/`) which Next.js does NOT
- * route · they're plain TS modules accessible cross-route.
+ * Reuses shared client-data components from `@/components/admin-clients/`.
+ * Estos componentes vivían antes en la carpeta privada `_components/` de la
+ * ruta `/admin/clients/[id]` y se importaban por path relativo profundo
+ * (acoplamiento cross-route · §4.5/380). Ahora están en una ubicación común no
+ * enrutada y se importan vía alias `@/components/...`.
  *
  * Data flow:
  *  1. projectId from URL param
@@ -39,9 +41,9 @@ import { api, ApiError } from "@/lib/api";
 import { getClientDetail, resumeClient } from "@/lib/admin-clients/api";
 import type { ClientDetail } from "@/lib/admin-clients/schemas";
 
-import { DatosTab } from "../../../clients/[id]/_components/DatosTab";
-import { ContactosTab } from "../../../clients/[id]/_components/ContactosTab";
-import { SuspendDialog } from "../../../clients/[id]/_components/SuspendDialog";
+import { DatosTab } from "@/components/admin-clients/DatosTab";
+import { ContactosTab } from "@/components/admin-clients/ContactosTab";
+import { SuspendDialog } from "@/components/admin-clients/SuspendDialog";
 
 interface ProjectHeaderResponse {
   project: { id: string; nombre: string };

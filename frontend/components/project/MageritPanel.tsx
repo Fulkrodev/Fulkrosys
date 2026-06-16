@@ -244,7 +244,11 @@ function AssetsTab({
 
       <Card>
         <CardContent className="overflow-x-auto p-0">
-          <table className="min-w-full text-sm" data-testid="magerit-assets-table">
+          <table
+            aria-label="Activos MAGERIT del proyecto"
+            className="min-w-full text-sm"
+            data-testid="magerit-assets-table"
+          >
             <thead>
               <tr
                 className="border-b text-left"
@@ -351,7 +355,7 @@ function RisksTab({
   return (
     <Card>
       <CardContent className="overflow-x-auto p-0">
-        <table className="min-w-full text-sm">
+        <table aria-label="Cálculos de riesgo MAGERIT" className="min-w-full text-sm">
           <thead>
             <tr
               className="border-b text-left"

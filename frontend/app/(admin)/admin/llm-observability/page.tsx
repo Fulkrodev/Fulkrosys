@@ -191,7 +191,7 @@ export default function LLMObservabilityPage() {
                     Sin actividad.
                   </p>
                 ) : (
-                  <table className="w-full text-sm">
+                  <table aria-label="Interacciones LLM observadas" className="w-full text-sm">
                     <thead className="text-left text-xs font-bold uppercase text-[color:var(--fulkro-subtitle)]">
                       <tr>
                         <th className="pb-2">Feature</th>

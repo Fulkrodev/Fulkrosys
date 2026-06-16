@@ -12,6 +12,7 @@ import * as React from "react";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
+import { useEscapeKey } from "@/hooks/useEscapeKey";
 import {
   getRemediationGuide,
   markRemediationFixed,
@@ -36,6 +37,7 @@ export function RemediationGuideModal({
   const [guide, setGuide] = React.useState<RemediationGuide | null>(null);
   const [loading, setLoading] = React.useState(true);
   const [applying, setApplying] = React.useState(false);
+  useEscapeKey(onClose);
   const [error, setError] = React.useState<string | null>(null);
 
   React.useEffect(() => {

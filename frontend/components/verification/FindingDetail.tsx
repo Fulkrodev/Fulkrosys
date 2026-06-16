@@ -14,6 +14,7 @@ import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { useEscapeKey } from "@/hooks/useEscapeKey";
 import {
   usePatchFinding,
   useRetestFinding,
@@ -50,6 +51,7 @@ interface Props {
 export function FindingDetail({ projectId, finding, onClose }: Props) {
   const patch = usePatchFinding(projectId);
   const retest = useRetestFinding(projectId);
+  useEscapeKey(onClose);
 
   const [showFP, setShowFP] = React.useState(false);
   const [fpReason, setFpReason] = React.useState("");

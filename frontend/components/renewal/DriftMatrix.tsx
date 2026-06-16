@@ -168,7 +168,10 @@ export function DriftMatrix({ projectId }: DriftMatrixProps) {
       <CardContent>
         {/* Matrix grid */}
         <div className="overflow-x-auto">
-          <table className="w-full border-separate border-spacing-1 text-sm">
+          <table
+            aria-label="Matriz de desviación (drift) de medidas"
+            className="w-full border-separate border-spacing-1 text-sm"
+          >
             <thead>
               <tr>
                 <th className="w-[180px] text-left text-xs font-semibold uppercase tracking-wide text-fulkro-ink-600">

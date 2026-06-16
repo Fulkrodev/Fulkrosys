@@ -105,7 +105,7 @@ export function DepartmentReportPanel({ projectId, reloadKey }: Props) {
           Aún no hay empleados ni áreas configuradas.
         </p>
       ) : (
-        <table className="w-full text-sm">
+        <table aria-label="Informe por departamento" className="w-full text-sm">
           <thead className="border-b border-fulkro-ink-100 text-left text-xs uppercase tracking-wide text-fulkro-ink-500">
             <tr>
               <th className="px-2 py-1">Área</th>

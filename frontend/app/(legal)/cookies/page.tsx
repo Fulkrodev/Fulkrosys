@@ -66,6 +66,7 @@ export default function CookiesPolicyPage() {
             <p>{category.description_es}</p>
             <div style={{ overflowX: "auto" }}>
             <table
+              aria-label={`Cookies de la categoría ${category.label}`}
               style={{
                 width: "100%",
                 borderCollapse: "collapse",

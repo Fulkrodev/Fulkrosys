@@ -17,7 +17,7 @@ import { Mail, User } from "lucide-react";
 import * as React from "react";
 import { toast } from "sonner";
 
-import { ContactQuickPicker } from "@/app/(admin)/admin/clients/[id]/_components/contacts/ContactQuickPicker";
+import { ContactQuickPicker } from "@/components/admin-clients/contacts/ContactQuickPicker";
 import { Button } from "@/components/ui/button";
 import type { MeetingContactSummary } from "@/lib/admin-meetings/schemas";
 

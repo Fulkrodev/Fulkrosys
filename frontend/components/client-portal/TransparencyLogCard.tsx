@@ -78,7 +78,10 @@ export function TransparencyLogCard({ days = 180 }: { days?: number }) {
           className="overflow-x-auto rounded-md border border-fulkro-ink-100"
           data-testid="transparency-list"
         >
-          <table className="min-w-full divide-y divide-fulkro-ink-100 text-sm">
+          <table
+            aria-label="Registro de transparencia de accesos"
+            className="min-w-full divide-y divide-fulkro-ink-100 text-sm"
+          >
             <thead className="bg-fulkro-ink-50 text-left text-xs font-medium uppercase tracking-wide text-fulkro-ink-500">
               <tr>
                 <th className="px-4 py-2">Fecha</th>

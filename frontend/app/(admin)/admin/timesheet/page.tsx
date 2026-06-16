@@ -185,7 +185,11 @@ export default function TimesheetPage() {
               Sin entradas registradas.
             </p>
           ) : (
-            <table className="w-full text-sm" data-testid="timesheet-entries-table">
+            <table
+              aria-label="Registros de horas (timesheet)"
+              className="w-full text-sm"
+              data-testid="timesheet-entries-table"
+            >
               <thead className="text-left text-xs font-bold uppercase text-[color:var(--fulkro-subtitle)]">
                 <tr>
                   <th className="pb-2">Inicio</th>

@@ -442,7 +442,7 @@ function ChecksTable({
     );
   }
   return (
-    <table className="w-full text-sm">
+    <table aria-label="Checks de cumplimiento" className="w-full text-sm">
       <thead>
         <tr className="border-b text-left text-xs uppercase tracking-wide text-fulkro-ink-500">
           <th className="px-4 py-2">Check</th>
@@ -500,7 +500,7 @@ function AlertsTable({
   resolvingId: string | null;
 }) {
   return (
-    <table className="w-full text-sm">
+    <table aria-label="Alertas de cumplimiento" className="w-full text-sm">
       <thead>
         <tr className="border-b text-left text-xs uppercase tracking-wide text-fulkro-ink-500">
           <th className="px-4 py-2">Check</th>

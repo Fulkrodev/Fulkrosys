@@ -74,7 +74,7 @@ export function DocumentList({
 
   return (
     <div className="rounded-lg border border-fulkro-ink-300">
-      <table className="w-full text-sm">
+      <table aria-label="Documentos" className="w-full text-sm">
         <thead className="border-b border-fulkro-ink-300 bg-fulkro-ink-50 text-left text-xs uppercase tracking-wider text-fulkro-ink-500">
           <tr>
             <th className="px-3 py-2">Nombre</th>

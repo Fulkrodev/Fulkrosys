@@ -15,19 +15,10 @@
  */
 import { clientApi } from "@/lib/client-portal-api";
 
-export type SignableType =
-  | "dda"
-  | "magerit_validation"
-  | "pentest_authorization"
-  | "conformidad_ens"
-  | "acta_comite"
-  | "retainer_offer"
-  | "retainer_quarterly_signoff"
-  | "policy_approval"
-  | "incident_close"
-  | "dpc_anual"
-  | "renewal"
-  | "document_generic";
+// SignableType canónico (18 tipos · espejo backend) vive en un único módulo.
+// Re-exportado aquí para no romper los importadores existentes (§4.1 line 341).
+export type { SignableType } from "@/lib/api/signable-types";
+import type { SignableType } from "@/lib/api/signable-types";
 
 export type SigningIntentStatus =
   | "pending"

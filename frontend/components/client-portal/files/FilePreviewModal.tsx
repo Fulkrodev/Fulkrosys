@@ -10,6 +10,7 @@
 import { Download, X } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
+import { useEscapeKey } from "@/hooks/useEscapeKey";
 
 interface Props {
   open: boolean;
@@ -26,6 +27,7 @@ export function FilePreviewModal({
   downloadUrl,
   title,
 }: Props) {
+  useEscapeKey(onClose, open);
   if (!open || !previewUrl) return null;
 
   return (

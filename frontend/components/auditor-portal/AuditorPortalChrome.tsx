@@ -199,7 +199,12 @@ export function AuditorPortalChrome({ token, metadata, children }: Props) {
           </nav>
         </aside>
 
-        <main className="min-w-0 flex-1" data-testid="auditor-portal-main">
+        <main
+          id="main-content"
+          tabIndex={-1}
+          className="min-w-0 flex-1 focus:outline-none"
+          data-testid="auditor-portal-main"
+        >
           {children}
         </main>
       </div>

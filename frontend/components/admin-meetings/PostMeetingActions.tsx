@@ -40,7 +40,7 @@ import type {
   PostActionType,
 } from "@/lib/admin-meetings/schemas";
 
-import { ContactQuickPicker } from "@/app/(admin)/admin/clients/[id]/_components/contacts/ContactQuickPicker";
+import { ContactQuickPicker } from "@/components/admin-clients/contacts/ContactQuickPicker";
 
 interface PostMeetingActionsProps {
   meeting: MeetingDetail;

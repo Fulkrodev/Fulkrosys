@@ -215,7 +215,10 @@ export function ConsolidatedTab({ projectId }: ConsolidatedTabProps) {
           className="overflow-x-auto rounded-md border border-fulkro-ink-200"
           data-testid="consolidated-list"
         >
-          <table className="min-w-full divide-y divide-fulkro-ink-200 text-sm">
+          <table
+            aria-label="Activos consolidados del descubrimiento"
+            className="min-w-full divide-y divide-fulkro-ink-200 text-sm"
+          >
             <thead className="bg-fulkro-ink-50">
               <tr>
                 <th className="px-3 py-2 text-left font-medium text-fulkro-ink-700">

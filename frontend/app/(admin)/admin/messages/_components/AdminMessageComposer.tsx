@@ -36,7 +36,7 @@ import {
   sendAdminMessage,
 } from "@/lib/admin-messages/api";
 
-import { ContactQuickPicker } from "../../clients/[id]/_components/contacts/ContactQuickPicker";
+import { ContactQuickPicker } from "@/components/admin-clients/contacts/ContactQuickPicker";
 
 interface AdminMessageComposerProps {
   mode: "new" | "reply";

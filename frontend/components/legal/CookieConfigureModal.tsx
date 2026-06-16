@@ -9,6 +9,7 @@
 import { ChevronDown, ChevronUp, X } from "lucide-react";
 import { useEffect, useState } from "react";
 
+import { useEscapeKey } from "@/hooks/useEscapeKey";
 import { COOKIE_INVENTORY, type CookieCategoryId } from "@/lib/cookies/inventory";
 
 interface CookieConfigureModalProps {
@@ -31,6 +32,7 @@ export function CookieConfigureModal({
   const [functional, setFunctional] = useState(false);
   const [analytics, setAnalytics] = useState(false);
   const [expanded, setExpanded] = useState<Set<CookieCategoryId>>(new Set());
+  useEscapeKey(onClose, open);
 
   useEffect(() => {
     if (!open) {
@@ -130,7 +132,7 @@ export function CookieConfigureModal({
                     />
                   </div>
                   {isExpanded ? (
-                    <table className="w-full text-xs">
+                    <table aria-label="Cookies de esta categoría" className="w-full text-xs">
                       <thead className="bg-white">
                         <tr className="text-left text-fulkro-ink-600">
                           <th className="px-4 py-2 font-medium">Cookie</th>

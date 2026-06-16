@@ -204,7 +204,7 @@ export function FindingsTable({ projectId }: { projectId: string }) {
           </div>
         )}
         {currentPageFindings.length > 0 && (
-          <table className="w-full min-w-[900px] text-sm">
+          <table aria-label="Hallazgos de verificación" className="w-full min-w-[900px] text-sm">
             <thead>
               <tr className="border-b border-fulkro-ink-300/40 bg-fulkro-ink-100/50 text-left text-[11px] uppercase tracking-wider text-fulkro-ink-500">
                 <th className="px-3 py-2">
