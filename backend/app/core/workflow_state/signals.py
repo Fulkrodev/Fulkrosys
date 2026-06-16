@@ -256,10 +256,15 @@ async def _signal_dda_entries_exist(
 async def _signal_dda_frozen(
     session: AsyncSession, project_id: uuid.UUID
 ) -> bool:
+    # FIX desync: el freeze canonico de la DdA escribe dda_entries.aprobado_por
+    # (freeze_dda). dda_project_signatures SOLO la escribe el flujo OPCIONAL de
+    # firma E-040 → mirarla daba 'no congelada' aunque la DdA SI lo estuviera
+    # (incoherente con items.py, que ya usa aprobado_por).
     row = await session.execute(
         sa_text(
-            "SELECT EXISTS (SELECT 1 FROM dda_project_signatures "
-            "WHERE project_id = :pid)"
+            "SELECT EXISTS (SELECT 1 FROM dda_entries "
+            "WHERE project_id = :pid AND aprobado_por IS NOT NULL "
+            "AND deleted_at IS NULL)"
         ),
         {"pid": str(project_id)},
     )

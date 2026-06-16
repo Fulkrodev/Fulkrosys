@@ -256,6 +256,11 @@ async def update_retainer(
         if body.renovacion_automatica is not None:
             r.renovacion_automatica = body.renovacion_automatica
         if body.estado is not None:
+            if body.estado not in {"active", "paused", "expired", "cancelled"}:
+                raise HTTPException(
+                    status_code=422,
+                    detail="estado invalido · active/paused/expired/cancelled",
+                )
             r.estado = body.estado
         await db.flush()
     except RetainerError as exc:

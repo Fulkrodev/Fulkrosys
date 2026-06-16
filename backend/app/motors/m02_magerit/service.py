@@ -287,8 +287,14 @@ class MageritService:
         calculation_mode: str = "qualitative",
     ) -> MageritAnalysis:
         """Create a new MAGERIT risk analysis for a project."""
-        if calculation_mode not in ("qualitative", "quantitative", "hybrid"):
-            raise ValueError(f"Invalid calculation_mode: {calculation_mode}")  # pragma: no cover  # Pydantic Literal + DB CHECK constraint enforce valid values
+        # MAGERIT v3 Libro III no formaliza un calculo 'hybrid' canonico (ADR-031):
+        # se rechaza en CREACION para no dejar analisis inusables (todos los
+        # dispatch de propagacion/riesgo lanzan NotImplementedError con hybrid).
+        if calculation_mode not in ("qualitative", "quantitative"):
+            raise ValueError(
+                f"calculation_mode invalido: {calculation_mode!r} · usa "
+                "'qualitative' o 'quantitative' (hybrid no soportado · ADR-031)"
+            )
         analysis = MageritAnalysis(
             project_id=project_id,
             name=name,

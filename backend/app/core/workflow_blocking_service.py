@@ -98,7 +98,7 @@ class WorkflowBlockingService:
 
         stmt = (
             select(Project)
-            .where(Project.id == project_id)
+            .where(Project.id == project_id, Project.deleted_at.is_(None))
             .options(selectinload(Project.client))
         )
         result = await self.db.execute(stmt)

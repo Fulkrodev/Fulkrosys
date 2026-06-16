@@ -349,6 +349,21 @@ async def export_processes_to_magerit(
 ):
     """Exporta BusinessProcess a MageritAsset (tipo servicio interno)."""
     await _set_project_rls(project_id, session)
+    from backend.app.motors.m02_magerit.models import MageritAnalysis
+    # IDOR guard: el analisis destino DEBE pertenecer a ESTE proyecto. Sin esto,
+    # un magerit_analysis_id arbitrario inyectaria MageritAsset en el analisis de
+    # otro proyecto/cliente (export cross-tenant).
+    owns_analysis = await session.execute(
+        select(MageritAnalysis.id).where(
+            MageritAnalysis.id == magerit_analysis_id,
+            MageritAnalysis.project_id == project_id,
+        )
+    )
+    if owns_analysis.scalar_one_or_none() is None:
+        raise HTTPException(
+            status_code=http_status.HTTP_404_NOT_FOUND,
+            detail="Analysis no encontrado en este proyecto",
+        )
     res = await session.execute(
         select(BusinessProcess).where(
             BusinessProcess.project_id == project_id,

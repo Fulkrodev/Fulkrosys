@@ -10,6 +10,7 @@ Sub-atom 1.C.0.C.expand v3.9.
 """
 from __future__ import annotations
 
+import json
 from typing import Optional
 
 from sqlalchemy import select, text
@@ -60,7 +61,7 @@ async def list_by_ens_measure(
         .where(
             text(
                 "vinculo_medida_ens @> CAST(:ens_id_json AS jsonb)"
-            ).bindparams(ens_id_json=f'["{ens_measure_id}"]')
+            ).bindparams(ens_id_json=f"[{json.dumps(ens_measure_id)}]")
         )
         .order_by(LegalObligationCatalog.codigo)
     )
@@ -80,7 +81,7 @@ async def list_by_sector(
         .where(
             text(
                 "sector_aplica @> CAST(:sector_json AS jsonb)"
-            ).bindparams(sector_json=f'["{sector}"]')
+            ).bindparams(sector_json=f"[{json.dumps(sector)}]")
         )
         .order_by(LegalObligationCatalog.codigo)
     )

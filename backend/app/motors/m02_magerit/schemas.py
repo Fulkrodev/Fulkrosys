@@ -9,6 +9,10 @@ from pydantic import BaseModel, ConfigDict, EmailStr, Field
 # === ENUMS as Literal types (match CHECK constraints) ===
 
 CalculationMode = Literal["qualitative", "quantitative", "hybrid"]
+# 'hybrid' se ACEPTA en lectura (filas historicas) pero NO en creacion: MAGERIT v3
+# Libro III no formaliza un calculo hibrido canonico (ADR-031) y todos los dispatch
+# de propagacion/riesgo lanzan NotImplementedError. AnalysisCreate usa el subconjunto.
+CalculationModeCreate = Literal["qualitative", "quantitative"]
 AnalysisStatus = Literal["draft", "in_progress", "completed", "approved"]
 ProbabilityLevel = Literal["MB", "B", "M", "A", "MA"]
 RiskLevel = Literal["MB", "B", "M", "A", "MA"]
@@ -23,7 +27,7 @@ TreatmentStatus = Literal["pending", "in_progress", "completed"]
 
 class AnalysisCreate(BaseModel):
     name: str = Field(..., min_length=1, max_length=255)
-    calculation_mode: CalculationMode = "qualitative"
+    calculation_mode: CalculationModeCreate = "qualitative"
     description: str | None = None
 
 

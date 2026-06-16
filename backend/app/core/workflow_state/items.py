@@ -36,10 +36,14 @@ async def _calculate_phase_items_done(
         return await _onboarding_items_done(session, project_id)
     if phase == WorkflowPhase.DIAGNOSTICO:
         return await _diagnostico_items_done(session, project_id)
+    if phase == WorkflowPhase.ANALISIS_RIESGOS:
+        return await _analisis_riesgos_items_done(session, project_id)
     if phase == WorkflowPhase.ADECUACION:
         return await _adecuacion_items_done(session, project_id)
     if phase == WorkflowPhase.IMPLANTACION:
         return await _implantacion_items_done(session, project_id)
+    if phase == WorkflowPhase.DDA_FINAL:
+        return await _dda_final_items_done(session, project_id)
     if phase == WorkflowPhase.VERIFICACION:
         return await _verificacion_items_done(session, project_id)
     if phase == WorkflowPhase.CONFORMIDAD:
@@ -224,6 +228,131 @@ async def _diagnostico_items_done(
         if row.scalar():
             done += 1
 
+    return done
+
+
+async def _analisis_riesgos_items_done(
+    session: AsyncSession, project_id: uuid.UUID
+) -> int:
+    """5 tasks ANALISIS_RIESGOS (M02 MAGERIT · NEW MB-11.1).
+
+    Antes esta fase no tenia helper → caia al ``return 0`` del dispatcher y la
+    UI mostraba 0% aunque el analisis MAGERIT estuviera en curso. Instrumentables:
+    analisis abierto, dimensiones valoradas, amenazas identificadas, riesgo
+    calculado. La task 5 (revision matriz pre-aprobacion) es manual.
+    """
+    pid = {"pid": str(project_id)}
+    done = 0
+
+    # Task 1 · MAGERIT analysis abierto.
+    row = await session.execute(
+        sa_text(
+            "SELECT EXISTS (SELECT 1 FROM magerit_analysis "
+            "WHERE project_id = :pid AND deleted_at IS NULL)"
+        ),
+        pid,
+    )
+    has_analysis = bool(row.scalar())
+    if has_analysis:
+        done += 1
+
+    if has_analysis:
+        # Task 2 · dimensiones D/I/C/A/T valoradas en al menos un activo.
+        row = await session.execute(
+            sa_text(
+                "SELECT EXISTS ("
+                "  SELECT 1 FROM magerit_assets a "
+                "  JOIN magerit_analysis an ON an.id = a.analysis_id "
+                "  WHERE an.project_id = :pid AND a.deleted_at IS NULL "
+                "    AND a.value_d IS NOT NULL)"
+            ),
+            pid,
+        )
+        if row.scalar():
+            done += 1
+
+        # Task 3 · amenazas identificadas (threat assessments).
+        row = await session.execute(
+            sa_text(
+                "SELECT EXISTS ("
+                "  SELECT 1 FROM magerit_threat_assessment t "
+                "  JOIN magerit_analysis an ON an.id = t.analysis_id "
+                "  WHERE an.project_id = :pid)"
+            ),
+            pid,
+        )
+        has_threats = bool(row.scalar())
+        if has_threats:
+            done += 1
+
+            # Task 4 · riesgo residual calculado (alguna degradacion informada).
+            row = await session.execute(
+                sa_text(
+                    "SELECT EXISTS ("
+                    "  SELECT 1 FROM magerit_threat_assessment t "
+                    "  JOIN magerit_analysis an ON an.id = t.analysis_id "
+                    "  WHERE an.project_id = :pid AND ("
+                    "    t.degradation_d IS NOT NULL OR t.degradation_i IS NOT NULL "
+                    "    OR t.degradation_c IS NOT NULL OR t.degradation_a IS NOT NULL "
+                    "    OR t.degradation_t IS NOT NULL))"
+                ),
+                pid,
+            )
+            if row.scalar():
+                done += 1
+
+    # Task 5 (revision pre-aprobacion) es manual · no instrumentable.
+    return done
+
+
+async def _dda_final_items_done(
+    session: AsyncSession, project_id: uuid.UUID
+) -> int:
+    """4 tasks DDA_FINAL (M03 + M07 · NEW MB-11.1).
+
+    Antes sin helper → 0% aunque la DdA estuviera implementada/congelada.
+    Instrumentables: controles implementados, freeze, evidencias. La task 4
+    (sign-off pre-verificacion) es manual.
+    """
+    pid = {"pid": str(project_id)}
+    done = 0
+
+    # Task 1 · DdA controles implementados.
+    row = await session.execute(
+        sa_text(
+            "SELECT EXISTS (SELECT 1 FROM dda_entries "
+            "WHERE project_id = :pid AND deleted_at IS NULL "
+            "  AND estado_implementacion = 'implantada')"
+        ),
+        pid,
+    )
+    if row.scalar():
+        done += 1
+
+    # Task 2 · DdA frozen (aprobado_por · mismo criterio canonico que items/signals).
+    row = await session.execute(
+        sa_text(
+            "SELECT EXISTS (SELECT 1 FROM dda_entries "
+            "WHERE project_id = :pid AND aprobado_por IS NOT NULL "
+            "AND deleted_at IS NULL)"
+        ),
+        pid,
+    )
+    if row.scalar():
+        done += 1
+
+    # Task 3 · evidencias recogidas (M07).
+    row = await session.execute(
+        sa_text(
+            "SELECT EXISTS (SELECT 1 FROM evidence "
+            "WHERE project_id = :pid AND deleted_at IS NULL)"
+        ),
+        pid,
+    )
+    if row.scalar():
+        done += 1
+
+    # Task 4 (sign-off pre-verificacion) es manual · no instrumentable.
     return done
 
 

@@ -1321,20 +1321,41 @@ class TestTreatmentPlan:
 # ================================================================
 
 class TestHybridModeStubs:
-    """Verifica behavior contractual: hybrid calculation_mode lanza
-    NotImplementedError. MAGERIT v3 Libro III no formaliza un cálculo
-    canónico para modo hybrid · decisión arquitectónica permanente
-    per ADR-031 (NO diferimiento temporal · NO se planea implementar).
+    """Contrato hybrid (ADR-031 · MAGERIT v3 Libro III no formaliza un cálculo
+    híbrido canónico):
 
-    Los 3 tests cubren propagate_values, calculate_intrinsic_risk
-    y calculate_effective_risk · protegen contra implementaciones
-    accidentales sin actualización coherente del dispatcher.
+    1. Se RECHAZA en CREACIÓN (create_analysis lanza ValueError) → no se dejan
+       análisis inusables en BD (antes se creaban y petaban en cada dispatch).
+    2. Defensa en profundidad: si una fila legacy tuviera calculation_mode=
+       'hybrid' (CHECK constraint histórico permisivo), cada dispatch sigue
+       lanzando NotImplementedError.
     """
 
     @pytest.mark.asyncio
+    async def test_create_hybrid_rejected(self, analysis_factory):
+        """create_analysis con hybrid lanza ValueError (no se crea inusable)."""
+        with pytest.raises(ValueError, match="hybrid"):
+            await analysis_factory("hybrid")
+
+    @staticmethod
+    async def _hybrid_legacy_analysis(analysis_factory):
+        """Crea un análisis qualitative y fuerza calculation_mode='hybrid' por
+        UPDATE directo (simula una fila legacy) para ejercitar el guard de
+        dispatch sin pasar por la validación de creación."""
+        from sqlalchemy import text as _t
+        analysis, svc = await analysis_factory("qualitative")
+        await svc.db.execute(
+            _t("UPDATE magerit_analysis SET calculation_mode='hybrid' "
+               "WHERE id = :id"),
+            {"id": str(analysis.id)},
+        )
+        await svc.db.refresh(analysis)
+        return analysis, svc
+
+    @pytest.mark.asyncio
     async def test_propagate_hybrid_raises_not_implemented(self, analysis_factory):
-        """propagate_values con calculation_mode='hybrid' lanza NotImplementedError."""
-        analysis, svc = await analysis_factory("hybrid")
+        """propagate_values con fila legacy hybrid lanza NotImplementedError."""
+        analysis, svc = await self._hybrid_legacy_analysis(analysis_factory)
         await svc.build_asset_inventory(analysis.id, [
             {"code": "HYB-1", "name": "Test Hybrid", "asset_type_code": "S",
              "value_d": 5, "value_i": 0, "value_c": 0, "value_a": 0, "value_t": 0}
@@ -1344,15 +1365,15 @@ class TestHybridModeStubs:
 
     @pytest.mark.asyncio
     async def test_calculate_intrinsic_hybrid_raises_not_implemented(self, analysis_factory):
-        """calculate_intrinsic_risk con hybrid lanza NotImplementedError."""
-        analysis, svc = await analysis_factory("hybrid")
+        """calculate_intrinsic_risk con fila legacy hybrid lanza NotImplementedError."""
+        analysis, svc = await self._hybrid_legacy_analysis(analysis_factory)
         with pytest.raises(NotImplementedError, match="hybrid"):
             await svc.calculate_intrinsic_risk(analysis.id)
 
     @pytest.mark.asyncio
     async def test_calculate_effective_hybrid_raises_not_implemented(self, analysis_factory):
-        """calculate_effective_risk con hybrid lanza NotImplementedError."""
-        analysis, svc = await analysis_factory("hybrid")
+        """calculate_effective_risk con fila legacy hybrid lanza NotImplementedError."""
+        analysis, svc = await self._hybrid_legacy_analysis(analysis_factory)
         with pytest.raises(NotImplementedError, match="hybrid"):
             await svc.calculate_effective_risk(analysis.id)
 
