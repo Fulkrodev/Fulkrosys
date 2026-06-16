@@ -16,7 +16,11 @@ from sqlalchemy import select, text
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from backend.app.auth.dependencies import require_owner
-from backend.app.core.timestamping import request_timestamp, verify_timestamp
+from backend.app.core.timestamping import (
+    default_ca_bundle,
+    request_timestamp,
+    verify_timestamp_token,
+)
 from backend.app.database import get_db
 from backend.app.models.auth import User
 from backend.app.models.trusted_timestamp import TrustedTimestamp
@@ -57,6 +61,22 @@ def _to_out(r: TrustedTimestamp, *, verified: Optional[bool] = None) -> Timestam
         verified=verified,
         created_at=r.created_at.isoformat() if r.created_at else None,
     )
+
+
+def _verify_full(row: TrustedTimestamp) -> Optional[bool]:
+    """Verificación COMPLETA del sello · imprint + firma CMS + EKU + cadena X.509.
+
+    Antes solo se comprobaba el message imprint (un token con firma forjada
+    pasaba). Ahora se valida la firma del TSA y, si hay CA de confianza para esa
+    TSA (freeTSA bundled o ``FULKRO_TSA_CA_BUNDLE``), la cadena de certificación.
+    """
+    if row.token is None:
+        return None
+    ok, _reason = verify_timestamp_token(
+        row.token, row.artifact_hash,
+        trusted_ca_pem=default_ca_bundle(row.tsa_url),
+    )
+    return ok
 
 
 async def _load_event_set_rls(
@@ -120,10 +140,7 @@ async def request_event_timestamp(
         logger.exception("audit_log timestamp.requested emit failed")
     await db.commit()
 
-    verified = (
-        verify_timestamp(row.token, row.artifact_hash)
-        if row.token is not None else None
-    )
+    verified = _verify_full(row)
     return _to_out(row, verified=verified)
 
 
@@ -145,8 +162,5 @@ async def get_event_timestamp(
     )).scalar_one_or_none()
     if row is None:
         return None
-    verified = (
-        verify_timestamp(row.token, row.artifact_hash)
-        if row.token is not None else None
-    )
+    verified = _verify_full(row)
     return _to_out(row, verified=verified)

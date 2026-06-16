@@ -175,3 +175,226 @@ async def request_timestamp(
     except Exception:  # pragma: no cover · red / parsing · degradación honesta
         logger.warning("RFC3161 timestamp best-effort failed", exc_info=True)
         return TimestampResult(status="failed", tsa_url=url)
+
+
+# =====================================================================
+# Verificación COMPLETA RFC3161 · firma CMS + EKU + validez + cadena X.509
+# =====================================================================
+
+_HASH_BY_NAME = {
+    "sha1": "SHA1", "sha224": "SHA224", "sha256": "SHA256",
+    "sha384": "SHA384", "sha512": "SHA512",
+}
+
+_TIMESTAMPING_EKU_OID = "1.3.6.1.5.5.7.3.8"  # id-kp-timeStamping (RFC3161 §2.3)
+
+
+def _bundled_freetsa_ca() -> Optional[bytes]:
+    import pathlib
+    p = pathlib.Path(__file__).with_name("freetsa_cacert.pem")
+    try:
+        return p.read_bytes()
+    except OSError:  # pragma: no cover
+        return None
+
+
+def default_ca_bundle(tsa_url: Optional[str] = None) -> Optional[bytes]:
+    """PEM del CA de confianza · env FULKRO_TSA_CA_BUNDLE > freeTSA bundled.
+
+    Permite que la validación de cadena funcione out-of-the-box con freeTSA y
+    que en prod se apunte a la CA de la TSA cualificada vía env.
+    """
+    path = os.environ.get("FULKRO_TSA_CA_BUNDLE")
+    if path:
+        try:
+            with open(path, "rb") as fh:
+                return fh.read()
+        except OSError:  # pragma: no cover
+            return None
+    url = tsa_url or _config()["tsa_url"]
+    if "freetsa.org" in (url or ""):
+        return _bundled_freetsa_ca()
+    return None
+
+
+def _find_signer_cert_der(signed_data, signer_info) -> Optional[bytes]:
+    certs = [c.chosen for c in signed_data["certificates"]]
+    sid = signer_info["sid"]
+    try:
+        if sid.name == "issuer_and_serial_number":
+            ias = sid.chosen
+            serial = ias["serial_number"].native
+            issuer = ias["issuer"]
+            for c in certs:
+                if c.serial_number == serial and c.issuer == issuer:
+                    return c.dump()
+        elif sid.name == "subject_key_identifier":
+            want = sid.chosen.native
+            for c in certs:
+                if c.key_identifier == want:
+                    return c.dump()
+    except Exception:  # pragma: no cover
+        pass
+    # fallback robusto · la hoja = el primer cert no auto-firmado
+    for c in certs:
+        if c.subject != c.issuer:
+            return c.dump()
+    return certs[0].dump() if certs else None
+
+
+def _pubkey_verify(pubkey, signature: bytes, data: bytes, hash_alg) -> None:
+    """Verifica una firma · lanza si inválida (ECDSA / RSA-PKCS1v15 / Ed25519)."""
+    from cryptography.hazmat.primitives.asymmetric import ec, ed25519, padding
+    if isinstance(pubkey, ec.EllipticCurvePublicKey):
+        pubkey.verify(signature, data, ec.ECDSA(hash_alg))
+    elif isinstance(pubkey, ed25519.Ed25519PublicKey):
+        pubkey.verify(signature, data)
+    else:  # RSA
+        pubkey.verify(signature, data, padding.PKCS1v15(), hash_alg)
+
+
+def _cert_signed_by(cert, ca_cert) -> bool:
+    try:
+        _pubkey_verify(
+            ca_cert.public_key(), cert.signature,
+            cert.tbs_certificate_bytes, cert.signature_hash_algorithm,
+        )
+        return True
+    except Exception:
+        return False
+
+
+def verify_timestamp_token(
+    token_der: bytes,
+    digest_hex: str,
+    *,
+    trusted_ca_pem: Optional[bytes] = None,
+) -> tuple[bool, str]:
+    """Verificación COMPLETA del sello RFC3161 · devuelve ``(ok, motivo)``.
+
+    Comprueba, en orden:
+      1. message imprint == digest del artefacto
+      2. messageDigest signed-attr == hash del TSTInfo
+      3. firma CMS del TSA sobre los signed_attrs (ECDSA/RSA) válida
+      4. EKU id-kp-timeStamping en el cert firmante (RFC3161 §2.3)
+      5. cert firmante vigente (no caducado) en gen_time
+      6. (si hay CA de confianza) cadena: el cert firmante llega a la CA
+
+    NUNCA lanza · cualquier fallo de parseo/firma → ``(False, motivo)``. Esto
+    cierra el gap de la verificación previa, que solo comprobaba el imprint y
+    por tanto aceptaba un token con firma forjada.
+    """
+    if not _ASN1_OK:
+        return (False, "asn1crypto no disponible")
+    try:
+        import hashlib as _hl
+
+        from cryptography import x509
+        from cryptography.hazmat.primitives import hashes
+
+        # 1 · imprint (el sello cubre EXACTAMENTE este artefacto)
+        if not verify_timestamp(token_der, digest_hex):
+            return (False, "message imprint no coincide con el artefacto")
+
+        ci = cms.ContentInfo.load(token_der)
+        sd = ci["content"]
+        si = sd["signer_infos"][0]
+
+        signer_der = _find_signer_cert_der(sd, si)
+        if signer_der is None:
+            return (False, "token sin certificado firmante")
+        signer = x509.load_der_x509_certificate(signer_der)
+
+        digest_name = si["digest_algorithm"]["algorithm"].native
+        hcls = getattr(hashes, _HASH_BY_NAME.get(digest_name, ""), None)
+        if hcls is None:
+            return (False, f"digest algo no soportado: {digest_name}")
+        hash_alg = hcls()
+
+        signed_attrs = si["signed_attrs"]
+        if not signed_attrs or len(signed_attrs) == 0:
+            return (False, "token sin signed_attrs")
+
+        # 2 · messageDigest signed-attr == hash(TSTInfo)
+        tst = _extract_tst_info(token_der)
+        if tst is None:
+            return (False, "TSTInfo ilegible")
+        econtent = tst.dump()
+        msg_digest_attr = None
+        for attr in signed_attrs:
+            if attr["type"].native == "message_digest":
+                msg_digest_attr = attr["values"][0].native
+                break
+        if msg_digest_attr is None:
+            return (False, "signed_attrs sin messageDigest")
+        if msg_digest_attr != _hl.new(digest_name, econtent).digest():
+            return (False, "messageDigest no coincide con el TSTInfo")
+
+        # 3 · firma CMS sobre signed_attrs (re-tag [0] IMPLICIT 0xA0 → SET OF 0x31)
+        attrs_der = signed_attrs.dump()
+        attrs_der = b"\x31" + attrs_der[1:]
+        try:
+            _pubkey_verify(
+                signer.public_key(), si["signature"].native, attrs_der, hash_alg,
+            )
+        except Exception:
+            return (False, "firma CMS del TSA inválida")
+
+        # 4 · EKU timeStamping
+        try:
+            eku = signer.extensions.get_extension_for_class(
+                x509.ExtendedKeyUsage,
+            ).value
+            if _TIMESTAMPING_EKU_OID not in [o.dotted_string for o in eku]:
+                return (False, "cert firmante sin EKU timeStamping")
+        except x509.ExtensionNotFound:
+            return (False, "cert firmante sin extendedKeyUsage")
+
+        # 5 · validez en gen_time
+        gen = _gen_time(token_der)
+        if gen is not None:
+            from datetime import timezone as _tz
+            nb = getattr(signer, "not_valid_before_utc", None) or signer.not_valid_before
+            na = getattr(signer, "not_valid_after_utc", None) or signer.not_valid_after
+            g = gen if gen.tzinfo else gen.replace(tzinfo=_tz.utc)
+            nbz = nb if nb.tzinfo else nb.replace(tzinfo=_tz.utc)
+            naz = na if na.tzinfo else na.replace(tzinfo=_tz.utc)
+            if not (nbz <= g <= naz):
+                return (False, "cert firmante no vigente en gen_time")
+
+        # 6 · cadena a CA de confianza (opcional pero recomendado para ENAC)
+        if trusted_ca_pem:
+            try:
+                try:
+                    roots = x509.load_pem_x509_certificates(trusted_ca_pem)
+                except AttributeError:  # cryptography < 39
+                    roots = [x509.load_pem_x509_certificate(trusted_ca_pem)]
+            except Exception:
+                return (False, "CA bundle ilegible")
+            chained = any(
+                ca.subject == signer.issuer and _cert_signed_by(signer, ca)
+                for ca in roots
+            )
+            if not chained:
+                # cadena 2+ niveles: el token puede traer un intermedio
+                embedded = [
+                    x509.load_der_x509_certificate(c.chosen.dump())
+                    for c in sd["certificates"]
+                ]
+                inter = next(
+                    (c for c in embedded
+                     if c.subject == signer.issuer and _cert_signed_by(signer, c)),
+                    None,
+                )
+                if inter is not None and any(
+                    ca.subject == inter.issuer and _cert_signed_by(inter, ca)
+                    for ca in roots
+                ):
+                    chained = True
+            if not chained:
+                return (False, "cadena del firmante no llega a la CA de confianza")
+
+        return (True, "ok")
+    except Exception as exc:  # degradación honesta · nunca rompe
+        logger.warning("RFC3161 verify_timestamp_token error: %s", exc, exc_info=True)
+        return (False, f"error de verificación: {exc}")
