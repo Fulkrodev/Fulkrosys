@@ -92,7 +92,12 @@ class Settings(BaseSettings):
     # Backup (Motor 26)
     pgbackrest_stanza: str = "fulkro"
     backup_s3_endpoint: str = ""
-    backup_s3_bucket: str = "fulkro-backups"
+    # W9-2 (audit-roundup 2026-06-16 · §5): default ALINEADO con el vault offsite
+    # REAL `backup-vault-fulkro` (core/storage/minio_client.BUCKET_BACKUP_VAULT +
+    # provision-minio-buckets.sh + .env.prod). Antes 'fulkro-backups' (bucket que
+    # NUNCA se provisiona) → la LOCATION label de service._default_location()
+    # quedaba incoherente en dev. En prod .env.prod ya lo sobreescribe.
+    backup_s3_bucket: str = "backup-vault-fulkro"
     backup_s3_access_key: str = ""
     backup_s3_secret_key: SecretStr = SecretStr("")
     backup_encryption_key: SecretStr = SecretStr("")

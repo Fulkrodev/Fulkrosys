@@ -1,8 +1,10 @@
 #!/usr/bin/env bash
 set -u
-cd /home/usuario/fulkro
+# W9-2: repo-root relativo al script (backend/scripts/ → ../..), no hardcode WSL.
+REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
+cd "$REPO_ROOT"
 source .venv/bin/activate
-export PYTHONPATH=/home/usuario/fulkro
+export PYTHONPATH="$REPO_ROOT"
 
 DEMOS=(
   demo_s7_paso7_full.py

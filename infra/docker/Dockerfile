@@ -67,7 +67,15 @@ COPY backend/pyproject.toml ./backend/
 # Sin enmascarar el fallo: si una dependencia no resuelve, el build DEBE romper
 # (B2 · antes `2>/dev/null || true` ocultaba py-webauthn inexistente → imagen
 # sin deps Python → backend no arranca en runtime).
-RUN cd backend && uv pip install --system -e ".[dev]"
+#
+# W9-2 hardening (audit-roundup 2026-06-16 · §5): la imagen de PRODUCCIÓN instala
+# `.[runtime]` (NO `.[dev]`) → NO arrastra pytest/ruff/mypy al contenedor (menor
+# superficie de ataque · imagen más ligera). El extra `runtime` (backend/
+# pyproject.toml) conserva las deps de producción que viven aparte del core por
+# ser pesadas/opcionales: moto (lazy-import en prowler/scoutsuite_runner) +
+# python-gvm (lazy-import en openvas_runner). El gate de tests corre LOCAL/CI con
+# `.[dev]` (que incluye `.[runtime]`), no desde esta imagen.
+RUN cd backend && uv pip install --system -e ".[runtime]"
 
 # Copy application code
 COPY backend/ ./backend/
@@ -91,6 +99,35 @@ RUN which nmap && \
     which ldapsearch && \
     nuclei -version && \
     nmap --version | head -1
+
+# ─────────────────────────────────────────────────────────────────────────────
+# W9-2 hardening (audit-roundup 2026-06-16 · §5) · USUARIO NO-ROOT · DOCUMENTADO,
+# NO ACTIVADO. El contenedor corre hoy como root. Pasar a un usuario no-root es
+# deseable (defensa en profundidad) PERO NO se puede activar a ciegas vía CD:
+#
+#   BLOQUEANTE = el volumen Docker `vardata` (docker-compose.prod.yml:166,213,410)
+#   se monta en /app/var COMPARTIDO por backend + celery-worker y YA EXISTE en el
+#   host Hetzner con contenido propiedad de root (evidencias en filesystem,
+#   hf-cache de embeddings, logs). Si se añade `USER fulkro` sin un `chown`
+#   coordinado del volumen EN EL SERVIDOR, los writes a /app/var fallarían con
+#   EACCES (rompería /documents, evidencias, descarga de modelos HF).
+#
+# PASO HETZNER-ONLY requerido ANTES de activar el bloque de abajo (un único
+# operador, con la app parada para evitar writes a medias):
+#   docker compose -f docker-compose.prod.yml stop backend celery-worker
+#   docker run --rm -v fulkro_vardata:/v alpine chown -R 10001:10001 /v
+#   # (sustituir `fulkro_vardata` por el nombre real: `docker volume ls`)
+#   # luego rebuild + up con el Dockerfile que tenga el bloque USER activo.
+#
+# Bind de plantillas DOCX `./var/templates_docx:/app/var/templates_docx:ro` es
+# read-only → no requiere chown. El bind `./infra/docker:ro` (provision) tampoco.
+#
+# Para ACTIVAR (tras el chown de arriba), descomentar:
+#   RUN useradd -m -u 10001 -s /usr/sbin/nologin fulkro \
+#       && mkdir -p /app/var \
+#       && chown -R fulkro:fulkro /app/var
+#   USER fulkro
+# ─────────────────────────────────────────────────────────────────────────────
 
 # Default command: run FastAPI with uvicorn
 CMD ["uvicorn", "backend.app.main:app", "--host", "0.0.0.0", "--port", "8000", "--workers", "4"]

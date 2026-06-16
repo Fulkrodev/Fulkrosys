@@ -22,7 +22,8 @@ from pathlib import Path
 
 from docx import Document
 
-ROOT = Path("/home/usuario/fulkro/var/templates_docx")
+# W9-2: relativo al repo-root (backend/scripts/ → parents[2]), no hardcode WSL.
+ROOT = Path(__file__).resolve().parents[2] / "var" / "templates_docx"
 PATTERNS = [
     (re.compile(r"\bFULKRO\b"), "FULKRO"),
     (re.compile(r"\bMotor\s+\d+\b"), "Motor N"),

@@ -19,6 +19,16 @@ name: Admin + Cliente + Auditor Polish Empirical
 #   - SIN --reporter CLI (pisaría el outputFolder polish-report del config).
 #
 # Gate: axe critical/serious = 0 en cada página + 4 criterios explícitos por spec.
+#
+# W9-2 (audit-roundup 2026-06-16 · §5 · COSMETIC): se evaluó colapsar los 3 jobs
+# (admin/cliente/auditor) en un `strategy.matrix`. DECISIÓN: NO refactorizar.
+# Los jobs NO son idénticos — el job `auditor-polish-empirical` tiene un paso
+# extra ("Mint auditor portal token", crea test-client + acuña token) que los
+# otros dos NO tienen. Un matrix exigiría `if:` condicionales por paso + rutas de
+# specs + sufijos de artefacto parametrizados, lo que añade complejidad y RIESGO
+# a un gate de CI que HOY funciona, sin cambio de comportamiento. CLAUDE.md lo
+# documenta como el "consolidate" deliberado de Ejecutable 7 (Pattern P-CL2-5 ·
+# OPS-026 DRY mirror). Se deja verboso-pero-correcto (prioridad: no romper CI).
 
 on:
   workflow_dispatch:

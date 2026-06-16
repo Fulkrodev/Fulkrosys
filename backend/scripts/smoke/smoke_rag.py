@@ -19,7 +19,8 @@ from typing import NamedTuple
 
 from dotenv import load_dotenv
 
-load_dotenv(dotenv_path=Path("/home/usuario/fulkro/.env"))
+# W9-2: .env relativo al repo-root (backend/scripts/smoke/ → parents[3]).
+load_dotenv(dotenv_path=Path(__file__).resolve().parents[3] / ".env")
 
 from sqlalchemy.ext.asyncio import async_sessionmaker, create_async_engine
 

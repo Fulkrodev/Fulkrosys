@@ -28,12 +28,17 @@ which mc > /dev/null 2>&1 || {
     chmod +x /usr/local/bin/mc
 }
 mc alias set local http://localhost:9000 fulkro changeme123 --quiet 2>/dev/null
-mc cp "/tmp/$BACKUP_NAME" "local/fulkro-backups/postgres_full/$(date +%Y/%m/%d)/" --quiet
+# W9-2 (audit-roundup 2026-06-16 · §5): bucket ALINEADO al vault canónico
+# `backup-vault-fulkro` (el único que provision-minio-buckets.sh crea · antes
+# 'fulkro-backups' nunca se provisionaba). NOTA: este es un script LEGACY de demo
+# one-shot (creds 'changeme123' · /root/fulkro · docker exec manual), NO el cron
+# de producción (ese es el Motor 26 + pgBackRest). Se conserva sólo coherente.
+mc cp "/tmp/$BACKUP_NAME" "local/backup-vault-fulkro/postgres_full/$(date +%Y/%m/%d)/" --quiet
 echo "Uploaded to MinIO"
 
 # 4. Verify in MinIO
 echo "=== Step 4: Verify in MinIO ==="
-mc ls local/fulkro-backups/postgres_full/ --recursive
+mc ls local/backup-vault-fulkro/postgres_full/ --recursive
 
 # 5. Record completion via direct SQL (using docker exec for psql)
 echo "=== Step 5: Record completion ==="
@@ -44,7 +49,7 @@ SET status = 'completed',
     completed_at = now(),
     size_bytes = $BACKUP_SIZE,
     hash_sha256 = '$BACKUP_HASH',
-    location = 's3://fulkro-backups/postgres_full/$(date +%Y/%m/%d)/$BACKUP_NAME'
+    location = 's3://backup-vault-fulkro/postgres_full/$(date +%Y/%m/%d)/$BACKUP_NAME'
 WHERE id = '$JOB_ID'::uuid;
 "
 

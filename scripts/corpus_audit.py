@@ -1,10 +1,12 @@
 """Corpus audit — read-only inspection of knowledge_* tables."""
 import sys
-sys.path.insert(0, '/home/usuario/fulkro')
-import asyncio
 from pathlib import Path
+# W9-2: repo-root relativo al script (scripts/ → parents[1]), no hardcode WSL.
+_REPO_ROOT = Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(_REPO_ROOT))
+import asyncio
 from dotenv import load_dotenv
-load_dotenv(dotenv_path=Path('/home/usuario/fulkro/.env'))
+load_dotenv(dotenv_path=_REPO_ROOT / '.env')
 from sqlalchemy.ext.asyncio import create_async_engine
 from sqlalchemy import text
 import os

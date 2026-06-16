@@ -16,8 +16,10 @@
 
 ```bash
 # pgBackRest snapshot manual production (Motor 26)
-pgbackrest --stanza=fulkro-prod backup --type=full
-pgbackrest --stanza=fulkro-prod info | head -20
+# stanza = fulkro (canónica · .env.prod PGBACKREST_STANZA + deploy-hetzner.sh +
+# infra/docker/pgbackrest.conf · 'fulkro-prod' rompía el restore-test R8).
+pgbackrest --stanza=fulkro backup --type=full
+pgbackrest --stanza=fulkro info | head -20
 # Verificar timestamp del backup < 5 min antes proceder
 ```
 
@@ -221,8 +223,8 @@ systemctl restart fulkro-backend
 systemctl stop fulkro-backend
 systemctl stop fulkro-frontend
 
-# Restore from pre-deploy backup §1.1
-pgbackrest --stanza=fulkro-prod restore --type=time --target="<timestamp-pre-deploy>"
+# Restore from pre-deploy backup §1.1 (stanza = fulkro, canónica)
+pgbackrest --stanza=fulkro restore --type=time --target="<timestamp-pre-deploy>"
 
 # Verify integrity
 psql fulkro_prod -c "SELECT COUNT(*) FROM radar_leads;"

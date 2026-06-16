@@ -16,7 +16,8 @@ from pathlib import Path
 
 from dotenv import load_dotenv
 
-load_dotenv(dotenv_path=Path("/home/usuario/fulkro/.env"))
+# W9-2: .env relativo al repo-root (backend/scripts/ → parents[2]).
+load_dotenv(dotenv_path=Path(__file__).resolve().parents[2] / ".env")
 
 from backend.app.corpus.ccn_pdf_ingest import CORPUS_BATCH_1B5_2, PDF_ROOT
 from backend.app.core.storage.minio_client import (

@@ -14,6 +14,7 @@ Run with::
 """
 from __future__ import annotations
 
+import os
 import sys
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
@@ -24,10 +25,13 @@ from backend.app.motors.m_compliance_monitor.normas import (
 )
 
 
-OUTPUT_DIR = Path(
-    "/mnt/c/Users/Usuario/Desktop/Fulkro compliance/"
-    "08-Self_Monitoring_Reports/per_norma"
+# W9-2: destino configurable vía FULKRO_SAMPLES_DIR (antes hardcodeado al Desktop
+# de Windows /mnt/c/...). Default portable = <repo-root>/out/compliance_samples.
+_REPO_ROOT = Path(__file__).resolve().parents[1]
+_SAMPLES_BASE = Path(
+    os.environ.get("FULKRO_SAMPLES_DIR", str(_REPO_ROOT / "out" / "compliance_samples"))
 )
+OUTPUT_DIR = _SAMPLES_BASE / "08-Self_Monitoring_Reports" / "per_norma"
 
 
 _GREEN_MESSAGES = {

@@ -28,7 +28,8 @@ from uuid import UUID
 
 from dotenv import load_dotenv
 
-load_dotenv(dotenv_path=Path("/home/usuario/fulkro/.env"))
+# W9-2: .env relativo al repo-root (backend/scripts/ → parents[2]).
+load_dotenv(dotenv_path=Path(__file__).resolve().parents[2] / ".env")
 
 from sqlalchemy import text
 from sqlalchemy.ext.asyncio import async_sessionmaker, create_async_engine

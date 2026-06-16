@@ -17,6 +17,7 @@ Run from the project root with ``.venv`` active:
 """
 from __future__ import annotations
 
+import os
 import sys
 from dataclasses import dataclass
 from datetime import datetime, timezone
@@ -27,10 +28,13 @@ from backend.app.motors.m_compliance.email_design.mjml_compiler import (
 )
 
 
-OUTPUT_DIR = Path(
-    "/mnt/c/Users/Usuario/Desktop/Fulkro compliance/"
-    "08-Self_Monitoring_Reports/email_samples"
+# W9-2: destino configurable vía FULKRO_SAMPLES_DIR (antes hardcodeado al Desktop
+# de Windows /mnt/c/...). Default portable = <repo-root>/out/compliance_samples.
+_REPO_ROOT = Path(__file__).resolve().parents[1]
+_SAMPLES_BASE = Path(
+    os.environ.get("FULKRO_SAMPLES_DIR", str(_REPO_ROOT / "out" / "compliance_samples"))
 )
+OUTPUT_DIR = _SAMPLES_BASE / "08-Self_Monitoring_Reports" / "email_samples"
 
 EMAIL_WIDTH = "600px"      # Postmark / Gmail / Outlook real width
 PREVIEW_WIDTH = "840px"    # comfortable desktop browser inspection
@@ -295,7 +299,7 @@ def main() -> int:
             rendered += 1
 
     (OUTPUT_DIR / "README.md").write_text(_README, encoding="utf-8")
-    print(f"  wrote README.md (visual inspection guide)")
+    print("  wrote README.md (visual inspection guide)")
     print(f"\n✓ {rendered} samples + README rendered to {OUTPUT_DIR}")
     return 0
 
