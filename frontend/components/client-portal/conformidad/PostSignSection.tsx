@@ -5,7 +5,7 @@
  *
  * SAN-E v3.MB-5.6.D · BASICA (distintivo + cert-id) vs MEDIA/ALTA (commitment summary).
  */
-import { useEffect, useState } from "react";
+import { useQuery } from "@tanstack/react-query";
 import { Award, CheckCircle2, Download, Mail, Loader2 } from "lucide-react";
 
 import {
@@ -20,27 +20,14 @@ interface Props {
 
 
 export function PostSignSection({ projectId }: Props) {
-  const [data, setData] = useState<PostSignatureResponse | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-
-  useEffect(() => {
-    let cancelled = false;
-    async function load() {
-      try {
-        const res = await getConformidadPostSignature(projectId);
-        if (!cancelled) setData(res);
-      } catch {
-        if (!cancelled) setError("Error cargando estado post-firma");
-      } finally {
-        if (!cancelled) setLoading(false);
-      }
-    }
-    void load();
-    return () => {
-      cancelled = true;
-    };
-  }, [projectId]);
+  const query = useQuery<PostSignatureResponse>({
+    queryKey: ["cliente", "conformidad", "post-signature", projectId],
+    queryFn: () => getConformidadPostSignature(projectId),
+    staleTime: 30_000,
+  });
+  const data = query.data ?? null;
+  const loading = query.isLoading;
+  const error = query.error ? "Error cargando estado post-firma" : null;
 
   if (loading) {
     return (

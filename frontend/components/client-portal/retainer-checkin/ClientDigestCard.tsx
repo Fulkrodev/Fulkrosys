@@ -14,7 +14,7 @@
  * Empty state amable cuando no hay snapshot todavía.
  */
 
-import * as React from "react";
+import { useQuery } from "@tanstack/react-query";
 import { CalendarHeart, Loader2 } from "lucide-react";
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -52,28 +52,17 @@ const TREND_LABEL_FRIENDLY: Record<ClientDigestView["trend_label"], string> = {
 };
 
 export function ClientDigestCard() {
-  const [data, setData] = React.useState<ClientDigestView | null>(null);
-  const [loading, setLoading] = React.useState(true);
-  const [error, setError] = React.useState<string | null>(null);
-
-  React.useEffect(() => {
-    let cancelled = false;
-    cloudConnectorsClientApi
-      .getLatestDigest()
-      .then((res) => {
-        if (cancelled) return;
-        setData(res.digest);
-        setLoading(false);
-      })
-      .catch((err) => {
-        if (cancelled) return;
-        setError(err instanceof Error ? err.message : String(err));
-        setLoading(false);
-      });
-    return () => {
-      cancelled = true;
-    };
-  }, []);
+  const query = useQuery<ClientDigestView | null>({
+    queryKey: ["cliente", "retainer", "digest", "latest"],
+    queryFn: async () => {
+      const res = await cloudConnectorsClientApi.getLatestDigest();
+      return res.digest;
+    },
+    staleTime: 30_000,
+  });
+  const data = query.data ?? null;
+  const loading = query.isLoading;
+  const error = query.error;
 
   if (loading) {
     return (

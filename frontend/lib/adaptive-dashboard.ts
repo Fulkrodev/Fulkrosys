@@ -66,8 +66,8 @@ export function tierConfig(categoria: string | null | undefined): {
 } {
   return (
     TIER_COLORS[categoria ?? ""] ?? {
-      bg: "bg-slate-500/15 ring-slate-500/40",
-      fg: "text-slate-700",
+      bg: "bg-fulkro-ink-500/15 ring-fulkro-ink-500/40",
+      fg: "text-fulkro-ink-700",
       label: "—",
     }
   );
@@ -79,10 +79,10 @@ export function priorityClasses(priority: "high" | "medium" | "low"): {
   label: string;
 } {
   if (priority === "high") {
-    return { bg: "bg-rose-500/15", fg: "text-rose-700", label: "Alta" };
+    return { bg: "bg-fulkro-danger-500/15", fg: "text-fulkro-danger-700", label: "Alta" };
   }
   if (priority === "medium") {
-    return { bg: "bg-amber-500/15", fg: "text-amber-700", label: "Media" };
+    return { bg: "bg-fulkro-warning-500/15", fg: "text-fulkro-warning-700", label: "Media" };
   }
-  return { bg: "bg-slate-500/15", fg: "text-slate-700", label: "Baja" };
+  return { bg: "bg-fulkro-ink-500/15", fg: "text-fulkro-ink-700", label: "Baja" };
 }

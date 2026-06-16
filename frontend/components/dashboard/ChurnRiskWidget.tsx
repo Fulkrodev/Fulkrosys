@@ -14,9 +14,9 @@
  * Reuses ChurnRiskList component data shape · NO new backend endpoints
  * (listChurnRiskAdmin + triggerScanChurnAdmin existing).
  */
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Activity, ChevronRight, Loader2 } from "lucide-react";
 import Link from "next/link";
-import { useCallback, useEffect, useState } from "react";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -51,31 +51,30 @@ function riskVariant(
 }
 
 export function ChurnRiskWidget() {
-  const [rows, setRows] = useState<ChurnRiskRow[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [scanning, setScanning] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const queryClient = useQueryClient();
 
-  const fetchRows = useCallback(async () => {
-    setLoading(true);
-    setError(null);
-    try {
-      const res = await listChurnRiskAdmin();
-      setRows(res);
-    } catch (err) {
-      setError(
-        err instanceof Error
-          ? err.message
-          : "No se pudo cargar churn risk",
-      );
-    } finally {
-      setLoading(false);
-    }
-  }, []);
+  const query = useQuery<ChurnRiskRow[]>({
+    queryKey: ["admin", "churn-risk", "widget"],
+    queryFn: () => listChurnRiskAdmin(),
+    staleTime: 30_000,
+  });
+  const rows = query.data ?? [];
+  const loading = query.isLoading;
+  const error = query.error
+    ? query.error instanceof Error
+      ? query.error.message
+      : "No se pudo cargar churn risk"
+    : null;
 
-  useEffect(() => {
-    void fetchRows();
-  }, [fetchRows]);
+  const scanMut = useMutation({
+    mutationFn: () => triggerScanChurnAdmin(),
+    onSuccess: () => {
+      void queryClient.invalidateQueries({
+        queryKey: ["admin", "churn-risk", "widget"],
+      });
+    },
+  });
+  const scanning = scanMut.isPending;
 
   const topCritical = rows
     .filter((r) => r.risk_level === "critical" || r.risk_level === "high")
@@ -94,15 +93,7 @@ export function ChurnRiskWidget() {
           size="sm"
           aria-label="Re-escanear churn risk"
           disabled={scanning}
-          onClick={async () => {
-            setScanning(true);
-            try {
-              await triggerScanChurnAdmin();
-              await fetchRows();
-            } finally {
-              setScanning(false);
-            }
-          }}
+          onClick={() => scanMut.mutate()}
         >
           {scanning ? (
             <Loader2 className="h-3.5 w-3.5 animate-spin" />

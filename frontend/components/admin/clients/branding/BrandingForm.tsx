@@ -7,6 +7,7 @@
  * Logo upload reuse existing /api/v1/clients/{id}/logo endpoint pattern
  * (out of scope for this atom · documented as follow-up).
  */
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Loader2, Palette, Save, Trash2 } from "lucide-react";
 import { useEffect, useState } from "react";
 
@@ -29,69 +30,83 @@ const FOOTER_MAX = 500;
 
 
 export function BrandingForm({ clientId }: Props) {
-  const [branding, setBranding] = useState<BrandingView | null>(null);
+  const queryClient = useQueryClient();
   const [primary, setPrimary] = useState("");
   const [secondary, setSecondary] = useState("");
   const [footer, setFooter] = useState("");
-  const [loading, setLoading] = useState(true);
-  const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
 
-  const refresh = async () => {
-    setLoading(true);
-    try {
-      const b = await adminGetBranding(clientId);
-      setBranding(b);
-      setPrimary(b.primary_color ?? "");
-      setSecondary(b.secondary_color ?? "");
-      setFooter(b.footer_text ?? "");
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Error cargando branding");
-    } finally {
-      setLoading(false);
+  const brandingQueryKey = ["admin", "branding", clientId] as const;
+
+  const query = useQuery<BrandingView>({
+    queryKey: brandingQueryKey,
+    queryFn: () => adminGetBranding(clientId),
+  });
+  const branding = query.data ?? null;
+  const loading = query.isLoading;
+
+  // Sincroniza el estado local del formulario cuando llegan / cambian los datos.
+  useEffect(() => {
+    if (branding) {
+      setPrimary(branding.primary_color ?? "");
+      setSecondary(branding.secondary_color ?? "");
+      setFooter(branding.footer_text ?? "");
     }
-  };
+  }, [branding]);
 
   useEffect(() => {
-    void refresh();
-  }, [clientId]);
+    if (query.error) {
+      setError(
+        query.error instanceof Error
+          ? query.error.message
+          : "Error cargando branding",
+      );
+    }
+  }, [query.error]);
 
-  const onSave = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setSaving(true);
-    setError(null);
-    setSuccess(false);
-    try {
-      const updated = await adminPatchBranding(clientId, {
+  const saveMut = useMutation({
+    mutationFn: () =>
+      adminPatchBranding(clientId, {
         primary_color: primary.trim() || undefined,
         secondary_color: secondary.trim() || undefined,
         footer_text: footer.trim() || undefined,
         unset_primary: !primary.trim() && Boolean(branding?.primary_color),
         unset_secondary: !secondary.trim() && Boolean(branding?.secondary_color),
         unset_footer: !footer.trim() && Boolean(branding?.footer_text),
-      });
-      setBranding(updated);
+      }),
+    onSuccess: (updated) => {
+      queryClient.setQueryData(brandingQueryKey, updated);
       setSuccess(true);
       window.setTimeout(() => setSuccess(false), 2000);
-    } catch (err) {
+    },
+    onError: (err) => {
       setError(err instanceof Error ? err.message : "Error guardando branding");
-    } finally {
-      setSaving(false);
-    }
+    },
+  });
+
+  const deleteLogoMut = useMutation({
+    mutationFn: () => adminDeleteLogo(clientId),
+    onSuccess: (updated) => {
+      queryClient.setQueryData(brandingQueryKey, updated);
+    },
+    onError: (err) => {
+      setError(err instanceof Error ? err.message : "Error borrando logo");
+    },
+  });
+
+  const saving = saveMut.isPending || deleteLogoMut.isPending;
+
+  const onSave = (e: React.FormEvent) => {
+    e.preventDefault();
+    setError(null);
+    setSuccess(false);
+    saveMut.mutate();
   };
 
-  const onDeleteLogo = async () => {
+  const onDeleteLogo = () => {
     if (!branding?.has_logo) return;
-    setSaving(true);
-    try {
-      const updated = await adminDeleteLogo(clientId);
-      setBranding(updated);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Error borrando logo");
-    } finally {
-      setSaving(false);
-    }
+    deleteLogoMut.mutate();
   };
 
   if (loading) {
@@ -209,12 +224,12 @@ export function BrandingForm({ clientId }: Props) {
       </Card>
 
       {error && (
-        <div className="rounded-md border border-rose-300/40 bg-rose-500/10 px-3 py-2 text-sm font-semibold text-rose-700">
+        <div className="rounded-md border border-fulkro-danger-500/40 bg-fulkro-danger-500/10 px-3 py-2 text-sm font-semibold text-fulkro-danger-700">
           {error}
         </div>
       )}
       {success && (
-        <div className="rounded-md border border-emerald-300/40 bg-emerald-500/10 px-3 py-2 text-sm font-semibold text-emerald-700">
+        <div className="rounded-md border border-fulkro-success-500/40 bg-fulkro-success-500/10 px-3 py-2 text-sm font-semibold text-fulkro-success-700">
           Branding guardado correctamente.
         </div>
       )}

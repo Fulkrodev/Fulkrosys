@@ -172,14 +172,14 @@ export default function RegistroTipoPage() {
       </header>
 
       {notApplicable && categoria && (
-        <Card className="flex items-start gap-3 border-blue-200 bg-blue-50 p-4 text-sm text-blue-900">
+        <Card className="flex items-start gap-3 border-fulkro-info-500/40 bg-fulkro-info-50 p-4 text-sm text-fulkro-info-700">
           <Info className="mt-0.5 h-4 w-4 shrink-0" aria-hidden />
           <div className="space-y-2">
             <p className="flex flex-wrap items-center gap-1.5 font-semibold">
               Este registro ({registerType}) no es obligatorio para su
               categoría <TooltipENS term="ENS" /> {categoria}.
             </p>
-            <p className="text-xs text-blue-800">
+            <p className="text-xs text-fulkro-info-700">
               Aplica a categorías:{" "}
               <span className="font-mono">
                 {REGISTER_TYPE_REQUIRED_CATEGORIES[registerType].join(" · ")}
@@ -189,7 +189,7 @@ export default function RegistroTipoPage() {
             <div>
               <Link
                 href="/client-portal/registros"
-                className="inline-flex items-center gap-1 text-xs font-semibold text-blue-900 underline-offset-2 hover:underline"
+                className="inline-flex items-center gap-1 text-xs font-semibold text-fulkro-info-700 underline-offset-2 hover:underline"
               >
                 <ArrowLeft className="h-3 w-3" aria-hidden />
                 Volver al dashboard
@@ -246,7 +246,7 @@ export default function RegistroTipoPage() {
       </div>
 
       {(error || exportError) && !notApplicable && (
-        <Card className="border-red-300 bg-red-50 p-4 text-sm text-red-800">
+        <Card className="border-fulkro-danger-500/40 bg-fulkro-danger-50 p-4 text-sm text-fulkro-danger-700">
           {error || exportError}
         </Card>
       )}
@@ -359,7 +359,7 @@ function FilterTab({
 function StatusPill({ status }: { status: LiveRecordStatus }) {
   if (status === "active") {
     return (
-      <span className="rounded-full bg-green-100 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-green-800">
+      <span className="rounded-full bg-fulkro-success-50 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-fulkro-success-700">
         activa
       </span>
     );

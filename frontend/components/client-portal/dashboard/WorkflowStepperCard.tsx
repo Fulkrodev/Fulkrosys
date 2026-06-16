@@ -47,7 +47,7 @@ export function WorkflowStepperCard({ currentPhase, phaseStep }: Props) {
                     isCurrent
                       ? "bg-[color:var(--fulkro-accent)] text-white"
                       : isPast
-                      ? "bg-emerald-500/20 text-emerald-700"
+                      ? "bg-fulkro-success-500/20 text-fulkro-success-700"
                       : "bg-fulkro-surface-glass text-[color:var(--fulkro-muted)]"
                   }`}
                 >
@@ -58,7 +58,7 @@ export function WorkflowStepperCard({ currentPhase, phaseStep }: Props) {
                     isCurrent
                       ? "font-bold text-[color:var(--fulkro-title)]"
                       : isPast
-                      ? "text-emerald-700"
+                      ? "text-fulkro-success-700"
                       : "text-[color:var(--fulkro-muted)]"
                   }`}
                 >
