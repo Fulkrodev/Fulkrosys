@@ -112,11 +112,13 @@ if (!ONLY_PUBLIC) {
   const lp = await ctx.newPage();
   let clientOk = false;
   try {
-    await lp.goto(`${FRONT}/client-portal/login`, { waitUntil: "domcontentloaded", timeout: 20000 });
+    await lp.goto(`${FRONT}/client-portal/login`, { waitUntil: "networkidle", timeout: 25000 });
+    await lp.locator("#email").waitFor({ state: "visible", timeout: 15000 });
+    await lp.waitForTimeout(2500); // dejar hidratar el handler JS (dev server)
     await lp.locator("#email").fill("test-client-e2e@example.com");
     await lp.locator("#password").fill("TestP@ssw0rd123!");
     await lp.getByRole("button", { name: /Entrar/i }).click();
-    await lp.waitForURL(/\/client-portal\/(dashboard|account)/, { timeout: 12000 });
+    await lp.waitForURL(/\/client-portal\/(dashboard|account)/, { timeout: 15000 });
     clientOk = true;
   } catch (e) {
     console.log("CLIENT AUTH FAIL", String(e).slice(0, 160));
