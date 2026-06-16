@@ -32,6 +32,22 @@ import {
 import { Textarea } from "@/components/ui/textarea";
 import { idmsApi, type IdmsFolderNode } from "@/lib/api/idms";
 
+/**
+ * Convierte bytes → base64 sin el reduce char-a-char O(n²).
+ * Procesa en chunks de 8KB con String.fromCharCode.apply (lineal · evita
+ * el desbordamiento de la pila al pasar arrays enormes a fromCharCode).
+ * Devuelve base64 "puro" (sin prefijo data:) · mismo contrato que el backend.
+ */
+function bytesToBase64(bytes: Uint8Array): string {
+  const CHUNK = 0x2000; // 8KB
+  let binary = "";
+  for (let i = 0; i < bytes.length; i += CHUNK) {
+    const slice = bytes.subarray(i, i + CHUNK);
+    binary += String.fromCharCode.apply(null, slice as unknown as number[]);
+  }
+  return btoa(binary);
+}
+
 const CLASIFICACIONES = [
   { value: "politica", label: "Política" },
   { value: "procedimiento", label: "Procedimiento" },
@@ -78,12 +94,7 @@ export function UploadDocumentModal({
     mutationFn: async () => {
       if (!file) throw new Error("Selecciona un archivo");
       const buf = await file.arrayBuffer();
-      const base64 = btoa(
-        new Uint8Array(buf).reduce(
-          (acc, byte) => acc + String.fromCharCode(byte),
-          "",
-        ),
-      );
+      const base64 = bytesToBase64(new Uint8Array(buf));
       const tags = tagsRaw
         .split(",")
         .map((t) => t.trim())

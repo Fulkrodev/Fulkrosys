@@ -19,6 +19,7 @@ const config: Config = {
             100: "rgb(var(--fulkro-primary-100-rgb) / <alpha-value>)",
             200: "rgb(var(--fulkro-primary-200-rgb) / <alpha-value>)",
             300: "rgb(var(--fulkro-primary-300-rgb) / <alpha-value>)",
+            400: "rgb(var(--fulkro-primary-400-rgb) / <alpha-value>)",
             500: "rgb(var(--fulkro-primary-500-rgb) / <alpha-value>)",
             600: "rgb(var(--fulkro-primary-600-rgb) / <alpha-value>)",
             700: "rgb(var(--fulkro-primary-700-rgb) / <alpha-value>)",
@@ -97,6 +98,10 @@ const config: Config = {
           title:    "var(--fulkro-title)",
           subtitle: "var(--fulkro-subtitle)",
           body:     "var(--fulkro-body)",
+          // NB: `fulkro.muted` (→ `text-fulkro-muted`, brand text token) is
+          // intentionally distinct from the top-level shadcn `muted` key below
+          // (→ `text-muted`/`bg-muted`). Different class prefixes, no real
+          // collision; kept separate by design (§4.5/379 documented, not renamed).
           muted:    "var(--fulkro-muted)",
         },
         // ── shadcn design system tokens · puente FASE 2 completado (Sub-atom O).

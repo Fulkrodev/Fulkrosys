@@ -11,10 +11,11 @@
  * Endpoint: GET /api/v1/client-portal/compliance-summary
  * Auth: require_client_user (ADR-013 doble pool)
  * Scope: single-project per cliente (Audit Bloque 1 #4 cliente portal · 1 cliente ≈ 1 project)
+ * OPS-044: clientApi wrapper prepends /api/v1 (BASE sin prefijo).
  */
-import { api } from "@/lib/api";
+import { clientApi } from "@/lib/client-portal-api";
 
-const BASE = "/api/v1/client-portal/compliance-summary";
+const BASE = "/client-portal/compliance-summary";
 
 export type HealthIndicator = "ok" | "warning" | "critical" | "unknown";
 
@@ -52,5 +53,5 @@ export const HEALTH_VARIANTS: Record<
 };
 
 export const clientComplianceSummaryApi = {
-  get: () => api<ComplianceSummaryResponse>(BASE),
+  get: () => clientApi<ComplianceSummaryResponse>(BASE),
 };

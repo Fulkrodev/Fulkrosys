@@ -7,10 +7,11 @@
  *   POST /api/v1/client-portal/cloud-gaps/{gid}/reject
  *
  * ADR-013 doble pool · cliente endpoints separate del admin pool.
+ * OPS-044: clientApi wrapper prepends /api/v1 (BASE sin prefijo).
  */
-import { api } from "@/lib/api";
+import { clientApi } from "@/lib/client-portal-api";
 
-const BASE = "/api/v1/client-portal/cloud-gaps";
+const BASE = "/client-portal/cloud-gaps";
 
 export type RemediationApprovalStatus =
   | "detected"
@@ -94,15 +95,15 @@ export const SEVERITY_VARIANTS: Record<
 };
 
 export const clientCloudRemediationsApi = {
-  list: () => api<RemediationListResponse>(BASE),
+  list: () => clientApi<RemediationListResponse>(BASE),
 
   approve: (gapId: string, notes?: string) =>
-    api<RemediationActionResponse>(`${BASE}/${gapId}/approve`, {
+    clientApi<RemediationActionResponse>(`${BASE}/${gapId}/approve`, {
       json: { notes: notes ?? null },
     }),
 
   reject: (gapId: string, notes?: string) =>
-    api<RemediationActionResponse>(`${BASE}/${gapId}/reject`, {
+    clientApi<RemediationActionResponse>(`${BASE}/${gapId}/reject`, {
       json: { notes: notes ?? null },
     }),
 };

@@ -1,6 +1,6 @@
 // API cliente · motor de remediación (ADR-055). Vista R29 friendly.
-// Mirror de client-cloud-remediations: usa `api` con path completo /api/v1/client-portal.
-import { api } from "@/lib/api";
+// OPS-044: clientApi wrapper prepends /api/v1 (BASE sin prefijo).
+import { clientApi } from "@/lib/client-portal-api";
 
 export interface RemediationClienteJob {
   id: string;
@@ -12,12 +12,12 @@ export interface RemediationClienteJob {
   fecha: string | null;
 }
 
-const BASE = "/api/v1/client-portal/remediation";
+const BASE = "/client-portal/remediation";
 
 export const remediationClientApi = {
-  list: () => api<{ jobs: RemediationClienteJob[] }>(`${BASE}/jobs`),
+  list: () => clientApi<{ jobs: RemediationClienteJob[] }>(`${BASE}/jobs`),
   authorize: (jobId: string) =>
-    api<RemediationClienteJob>(`${BASE}/jobs/${jobId}/authorize`, {
+    clientApi<RemediationClienteJob>(`${BASE}/jobs/${jobId}/authorize`, {
       method: "POST",
       json: {},
     }),

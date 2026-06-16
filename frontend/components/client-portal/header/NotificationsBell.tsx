@@ -20,6 +20,9 @@ import {
 
 
 const POLL_INTERVAL_MS = 30_000;
+// Backoff: grow the interval on repeated errors/empty polls (idle tabs, flaky
+// backend), reset to base on real activity. Caps background traffic without SSE.
+const POLL_MAX_INTERVAL_MS = 5 * 60_000; // 5 min ceiling
 
 
 function formatRelative(iso: string): string {
@@ -51,22 +54,62 @@ export function NotificationsBell() {
   const [markingAll, setMarkingAll] = useState(false);
   const containerRef = useRef<HTMLDivElement | null>(null);
 
-  // Poll unread count every 30s + on mount
+  // Poll unread count with backoff: base 30s, doubling on error/no-change up to
+  // a 5min cap, reset to base when the count changes or the tab regains focus.
+  // Skips polling while the tab is hidden (re-polls on visibilitychange).
   useEffect(() => {
     let cancelled = false;
+    let timer: ReturnType<typeof setTimeout> | undefined;
+    let interval = POLL_INTERVAL_MS;
+    let lastCount = -1;
+
+    const schedule = () => {
+      if (cancelled) return;
+      timer = setTimeout(() => void tick(), interval);
+    };
+
     const tick = async () => {
+      if (cancelled) return;
+      if (typeof document !== "undefined" && document.hidden) {
+        // Idle tab: back off and wait for visibilitychange to resume promptly.
+        interval = Math.min(interval * 2, POLL_MAX_INTERVAL_MS);
+        schedule();
+        return;
+      }
       try {
         const n = await fetchUnreadCount();
-        if (!cancelled) setUnread(n);
+        if (cancelled) return;
+        setUnread(n);
+        if (n !== lastCount) {
+          interval = POLL_INTERVAL_MS; // activity → reset cadence
+          lastCount = n;
+        } else {
+          interval = Math.min(interval * 2, POLL_MAX_INTERVAL_MS); // quiet → back off
+        }
       } catch {
-        // ignore · silent failure does not block user
+        // silent failure does not block user; slow down retries
+        if (!cancelled) interval = Math.min(interval * 2, POLL_MAX_INTERVAL_MS);
       }
+      schedule();
     };
+
+    const onVisible = () => {
+      if (cancelled || document.hidden) return;
+      interval = POLL_INTERVAL_MS; // foreground → poll soon
+      if (timer) clearTimeout(timer);
+      void tick();
+    };
+
     void tick();
-    const id = window.setInterval(tick, POLL_INTERVAL_MS);
+    if (typeof document !== "undefined") {
+      document.addEventListener("visibilitychange", onVisible);
+    }
     return () => {
       cancelled = true;
-      window.clearInterval(id);
+      if (timer) clearTimeout(timer);
+      if (typeof document !== "undefined") {
+        document.removeEventListener("visibilitychange", onVisible);
+      }
     };
   }, []);
 

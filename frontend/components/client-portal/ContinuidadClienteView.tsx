@@ -104,7 +104,7 @@ export function ContinuidadClienteView({ projectId }: Props) {
         activos_core: linesToItems(activos),
         rto_horas_tolerancia: rto ? Number(rto) : null,
         rpo_horas_tolerancia: rpo ? Number(rpo) : null,
-        impacto_diario_eur: impacto ? Number(impacto) : null,
+        impacto_diario_eur: impacto && Number.isFinite(Number(impacto)) ? impacto : null,
         notas_cliente: notas || null,
         completed,
       }),

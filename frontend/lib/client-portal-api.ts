@@ -27,16 +27,35 @@ export class ClientApiError extends Error {
   }
 }
 
-type ClientApiInit = RequestInit & { json?: unknown };
+type ClientApiInit = RequestInit & { json?: unknown; timeoutMs?: number };
 
 const API_BASE = "/api/v1";
 const SAFE_METHODS = new Set(["GET", "HEAD", "OPTIONS"]);
+
+/** Default request timeout (ms) before an in-flight fetch is aborted. */
+export const DEFAULT_TIMEOUT_MS = 30_000;
+
+/**
+ * Builds an AbortSignal that aborts on timeout, on caller's signal, or both.
+ * Falls back gracefully when AbortSignal.any/timeout are unavailable.
+ */
+function buildSignal(timeoutMs: number, callerSignal?: AbortSignal | null): AbortSignal | undefined {
+  const hasTimeout = typeof AbortSignal !== "undefined" && typeof AbortSignal.timeout === "function";
+  const timeoutSignal = hasTimeout && timeoutMs > 0 ? AbortSignal.timeout(timeoutMs) : undefined;
+  if (!callerSignal) return timeoutSignal;
+  if (!timeoutSignal) return callerSignal;
+  if (typeof AbortSignal.any === "function") {
+    return AbortSignal.any([callerSignal, timeoutSignal]);
+  }
+  // Older runtimes without AbortSignal.any: prefer caller cancellation.
+  return callerSignal;
+}
 
 export async function clientApi<T = unknown>(
   path: string,
   init: ClientApiInit = {},
 ): Promise<T> {
-  const { json, headers, ...rest } = init;
+  const { json, headers, timeoutMs, signal: callerSignal, ...rest } = init;
   const method = (init.method ?? (json !== undefined ? "POST" : "GET")).toUpperCase();
   const finalHeaders = new Headers(headers);
   finalHeaders.set("Accept", "application/json");
@@ -53,6 +72,7 @@ export async function clientApi<T = unknown>(
     method,
     headers: finalHeaders,
     credentials: "include",
+    signal: buildSignal(timeoutMs ?? DEFAULT_TIMEOUT_MS, callerSignal),
     body: json !== undefined ? JSON.stringify(json) : init.body,
   });
 

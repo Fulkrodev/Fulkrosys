@@ -7,9 +7,9 @@
  *
  * ADR-013 doble pool · /client-portal/* prefix cliente · NO admin endpoints.
  */
-import { api } from "@/lib/api";
+import { clientApi } from "@/lib/client-portal-api";
 
-const BASE = "/api/v1/client-portal/categorizacion";
+const BASE = "/client-portal/categorizacion";
 
 export interface ClientCategorizacionSystem {
   id: string;
@@ -33,7 +33,7 @@ export interface ClientCategorizacionResponse {
 }
 
 export async function getClientCategorizacion(): Promise<ClientCategorizacionResponse> {
-  return api<ClientCategorizacionResponse>(BASE);
+  return clientApi<ClientCategorizacionResponse>(BASE);
 }
 
 // ══════════════════════════════════════════════════════════════════════

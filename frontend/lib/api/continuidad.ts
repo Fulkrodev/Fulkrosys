@@ -40,7 +40,9 @@ export interface ContinuidadQuestionnaireInput {
   procesos_criticos?: ProcesoCritico[];
   rto_horas_tolerancia?: number | null;
   rpo_horas_tolerancia?: number | null;
-  impacto_diario_eur?: number | null;
+  // Same representation as the read model (Numeric serialized as string).
+  // Backend accepts a numeric string for its Decimal field, so read+write agree.
+  impacto_diario_eur?: string | null;
   activos_core?: ActivoCore[];
   notas_cliente?: string | null;
   completed: boolean;

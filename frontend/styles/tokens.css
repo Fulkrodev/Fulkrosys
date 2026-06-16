@@ -14,6 +14,7 @@
   --fulkro-primary-100-rgb: 224 222 255;
   --fulkro-primary-200-rgb: 196 193 255;  /* P1.b · interpolado mid(100,300) */
   --fulkro-primary-300-rgb: 168 163 255;
+  --fulkro-primary-400-rgb: 138 131 255;  /* P1.b · interpolado mid(300,500) · cierra hueco escala */
   --fulkro-primary-500-rgb: 108 99 255;   /* SVG mark izquierda + dot pivot */
   --fulkro-primary-600-rgb: 94 86 230;    /* P1.b · interpolado mid(500,700) */
   --fulkro-primary-700-rgb: 80 72 204;
@@ -66,6 +67,7 @@
   --fulkro-primary-100: rgb(var(--fulkro-primary-100-rgb));
   --fulkro-primary-200: rgb(var(--fulkro-primary-200-rgb));
   --fulkro-primary-300: rgb(var(--fulkro-primary-300-rgb));
+  --fulkro-primary-400: rgb(var(--fulkro-primary-400-rgb));
   --fulkro-primary-500: rgb(var(--fulkro-primary-500-rgb));
   --fulkro-primary-600: rgb(var(--fulkro-primary-600-rgb));
   --fulkro-primary-700: rgb(var(--fulkro-primary-700-rgb));

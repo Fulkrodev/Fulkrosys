@@ -60,6 +60,9 @@ export function TierAwareNextStepSection({ declaration }: Props) {
           <p className="text-xs font-medium uppercase tracking-wide text-[color:var(--fulkro-muted)]">
             Cronograma típico
           </p>
+          {/* Hitos derivados de la prosa backend (next_step_post_signature ·
+              fuente única m27 portal_api): firmar → Marcos envía dossier ·
+              30-60 días certificación. Sin plazos intermedios inventados. */}
           <ol className="space-y-3 text-sm">
             <li className="flex items-start gap-3 rounded-md border bg-background px-3 py-2">
               <span className="flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-full bg-fulkro-primary-700 text-xs font-bold text-white">
@@ -68,7 +71,8 @@ export function TierAwareNextStepSection({ declaration }: Props) {
               <div className="min-w-0 flex-1">
                 <p className="font-medium">Ahora</p>
                 <p className="text-xs text-[color:var(--fulkro-muted)]">
-                  Firmas el compromiso de conformidad
+                  Firmas el compromiso · Marcos envía tu dossier al auditor
+                  ENAC acreditado
                 </p>
               </div>
             </li>
@@ -77,18 +81,7 @@ export function TierAwareNextStepSection({ declaration }: Props) {
                 2
               </span>
               <div className="min-w-0 flex-1">
-                <p className="font-medium">+7 días</p>
-                <p className="text-xs text-[color:var(--fulkro-muted)]">
-                  Marcos envía el dossier al auditor ENAC acreditado
-                </p>
-              </div>
-            </li>
-            <li className="flex items-start gap-3 rounded-md border bg-background px-3 py-2">
-              <span className="flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-full bg-fulkro-primary-700 text-xs font-bold text-white">
-                3
-              </span>
-              <div className="min-w-0 flex-1">
-                <p className="font-medium">+30 a +60 días</p>
+                <p className="font-medium">30 a 60 días</p>
                 <p className="text-xs text-[color:var(--fulkro-muted)]">
                   Auditoría formal · certificación final emitida por el
                   auditor ENAC
