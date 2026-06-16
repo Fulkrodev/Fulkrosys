@@ -86,6 +86,9 @@ try:
             # Sesión 3B-2B.8 CLUSTER 2 Phase 2C · Coach proactivo nudges
             # daily 09:15 ES (15 min after client_inactivity scan).
             "backend.app.motors.m11_copiloto.coach_tasks",
+            # D5 fix auditoría · m28 refresca matview mv_drift_summary_10x4
+            # (lunes 06:45, tras m23 drift 06:00) vía fn_refresh_drift_summary().
+            "backend.app.motors.m28_change_governance.jobs",
         ],
     )
 
@@ -200,6 +203,11 @@ try:
         "retainer-agent26-weekly": {
             "task": "m23.agent_26_weekly_analysis",
             "schedule": crontab(hour=6, minute=30, day_of_week="monday"),
+        },
+        # D5 fix auditoría · refresco matview drift summary (tras drift 06:00)
+        "m28-drift-summary-refresh": {
+            "task": "m28.refresh_drift_summary",
+            "schedule": crontab(hour=6, minute=45, day_of_week="monday"),
         },
         # M25 Paso 4: grace period hitos 150/180/210/240 (diario 04:30)
         "lifecycle-grace-period-check": {

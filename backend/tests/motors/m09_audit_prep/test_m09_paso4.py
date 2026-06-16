@@ -337,6 +337,24 @@ class TestInternalAuditor:
         assert result["recomendacion"] == "requiere_trabajo_adicional"
 
     @pytest.mark.asyncio
+    async def test_d4_run_feeds_build_e701_context(self, async_client, db):
+        # D4 fix campaña auditoría 2026-06-17: el endpoint
+        # POST /audit-prep/projects/{id}/internal-audit/run encadena
+        # run_internal_audit → build_e701_context. Verifica que NO hay desajuste
+        # de claves entre ambos (módulo latente nunca cableado antes).
+        _, project_id = await setup_test_project(db)
+        await _set_tenant(db, project_id)
+        audit = await run_internal_audit(db, uuid.UUID(project_id), "BASICA")
+        ctx = await build_e701_context(
+            db, uuid.UUID(project_id), audit,
+            cliente={"razon_social": "X"}, proyecto={"nombre": "p"},
+            responsables={},
+        )
+        assert ctx["auditoria_interna"]["score"] == audit["score"]
+        assert "nuevas_ncs" in ctx
+        assert len(ctx["nuevas_ncs"]) == len(audit["potential_findings"])
+
+    @pytest.mark.asyncio
     async def test_run_internal_audit_with_verification_passes_Q013(
         self, async_client, db,
     ):

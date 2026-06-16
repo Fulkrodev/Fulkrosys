@@ -123,3 +123,37 @@ export function checkExitReadiness(
     json: {},
   });
 }
+
+// ─── M25 lifecycle transition · S17 fix campaña auditoría (cerrar proyecto) ───
+// GET  /api/v1/lifecycle/projects/{id}/lifecycle/available-transitions
+// POST /api/v1/lifecycle/projects/{id}/lifecycle/transition
+export interface LifecycleTransitionsResponse {
+  transitions: string[];
+}
+
+export interface LifecycleEvent {
+  id: string;
+  from_state: string | null;
+  to_state: string;
+  reason: string | null;
+  created_at?: string;
+}
+
+export function getLifecycleTransitions(
+  projectId: string,
+): Promise<LifecycleTransitionsResponse> {
+  return api<LifecycleTransitionsResponse>(
+    `/lifecycle/projects/${projectId}/lifecycle/available-transitions`,
+  );
+}
+
+export function transitionLifecycle(
+  projectId: string,
+  toState: string,
+  reason?: string | null,
+): Promise<LifecycleEvent> {
+  return api<LifecycleEvent>(
+    `/lifecycle/projects/${projectId}/lifecycle/transition`,
+    { method: "POST", json: { to_state: toState, reason: reason ?? null } },
+  );
+}

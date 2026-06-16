@@ -11,7 +11,7 @@ from datetime import date, datetime
 from decimal import Decimal
 
 from sqlalchemy import (
-    ForeignKey, Index, Numeric, String, Text, Float, Integer, Date,
+    Boolean, ForeignKey, Index, Numeric, String, Text, Float, Integer, Date,
     UniqueConstraint, text,
 )
 from sqlalchemy.dialects.postgresql import UUID, JSONB, TIMESTAMP
@@ -157,6 +157,11 @@ class MageritAsset(ClientReviewMixinA, FullMixin, Base):
     accumulated_c: Mapped[float | None] = mapped_column(Numeric(10, 4))
     accumulated_a: Mapped[float | None] = mapped_column(Numeric(10, 4))
     accumulated_t: Mapped[float | None] = mapped_column(Numeric(10, 4))
+    # op.pl.5 ALTA · producto/servicio CPSTIC certificado (CCN). Alimenta el gate
+    # de transición a CONFORMIDAD para categoría ALTA (feature alta_productos_cpstic).
+    cpstic_certified: Mapped[bool] = mapped_column(
+        Boolean, nullable=False, server_default=text("false"), default=False,
+    )
 
 
 class MageritAssetDependency(UUIDPrimaryKeyMixin, TimestampMixin, Base):

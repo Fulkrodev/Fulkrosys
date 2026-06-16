@@ -332,6 +332,7 @@ class MageritService:
                 value_c=a.get("value_c", 0),
                 value_a=a.get("value_a", 0),
                 value_t=a.get("value_t", 0),
+                cpstic_certified=bool(a.get("cpstic_certified", False)),
                 accumulated_d=a.get("value_d", 0),
                 accumulated_i=a.get("value_i", 0),
                 accumulated_c=a.get("value_c", 0),

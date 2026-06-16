@@ -26,6 +26,7 @@ import {
   Search,
   XCircle,
 } from "lucide-react";
+import { useQuery } from "@tanstack/react-query";
 import { type ColumnDef } from "@tanstack/react-table";
 
 import { Badge } from "@/components/ui/badge";
@@ -58,11 +59,13 @@ import {
 import { Textarea } from "@/components/ui/textarea";
 import { TooltipENS } from "@/components/ui/tooltip-ens";
 import { useExitChecklist } from "@/hooks/useExitChecklist";
+import { getLifecycleTransitions } from "@/lib/admin-exit/api";
 import type {
   ExitCategory,
   ExitChecklistItem,
   ExitStatus,
 } from "@/lib/admin-exit/api";
+import { fulkroToast } from "@/lib/toast";
 
 const CATEGORY_LABELS: Record<ExitCategory, string> = {
   legal: "Legal",
@@ -164,6 +167,18 @@ export function ExitChecklist({ projectId }: { projectId: string }) {
 
   const [closeConfirmOpen, setCloseConfirmOpen] = React.useState(false);
   const [closeAck, setCloseAck] = React.useState(false);
+  const [closeTarget, setCloseTarget] = React.useState<string>("");
+  const [closeReason, setCloseReason] = React.useState("");
+
+  // S17 fix · transiciones terminales válidas (FSM M25) para el cierre real.
+  const closeTransitionsQuery = useQuery({
+    queryKey: ["lifecycle-transitions", projectId],
+    queryFn: () => getLifecycleTransitions(projectId),
+    enabled: closeConfirmOpen,
+  });
+  const terminalTransitions = (
+    closeTransitionsQuery.data?.transitions ?? []
+  ).filter((s) => s.startsWith("ENDED_"));
 
   const items = cl.data?.items ?? [];
   const progress = cl.data?.progress;
@@ -634,6 +649,42 @@ export function ExitChecklist({ projectId }: { projectId: string }) {
               cliente será notificado y el workflow quedará bloqueado.
             </DialogDescription>
           </DialogHeader>
+          <div className="flex flex-col gap-1.5">
+            <Label className="text-xs">Estado de cierre (FSM M25)</Label>
+            <Select value={closeTarget} onValueChange={setCloseTarget}>
+              <SelectTrigger aria-label="Estado terminal de cierre">
+                <SelectValue
+                  placeholder={
+                    closeTransitionsQuery.isPending
+                      ? "Cargando transiciones…"
+                      : terminalTransitions.length === 0
+                        ? "Sin transiciones de cierre disponibles"
+                        : "Selecciona estado"
+                  }
+                />
+              </SelectTrigger>
+              <SelectContent>
+                {terminalTransitions.map((s) => (
+                  <SelectItem key={s} value={s}>
+                    {s === "ENDED_RENEWAL_OK"
+                      ? "Cierre · renovación OK"
+                      : s === "ENDED_CHURN"
+                        ? "Cierre · baja (churn)"
+                        : s}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+          <div className="flex flex-col gap-1.5">
+            <Label className="text-xs">Motivo (log de auditoría)</Label>
+            <Textarea
+              value={closeReason}
+              onChange={(e) => setCloseReason(e.target.value)}
+              placeholder="Motivo del cierre · referencia"
+              rows={2}
+            />
+          </div>
           <label className="flex cursor-pointer items-start gap-2 rounded-md border border-fulkro-ink-200 p-3 text-sm">
             <input
               type="checkbox"
@@ -646,20 +697,45 @@ export function ExitChecklist({ projectId }: { projectId: string }) {
             </span>
           </label>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setCloseConfirmOpen(false)}>
+            <Button
+              variant="outline"
+              onClick={() => setCloseConfirmOpen(false)}
+              disabled={cl.closeProject.isPending}
+            >
               Cancelar
             </Button>
             <Button
               variant="primary"
-              disabled={!closeAck}
-              onClick={() => {
-                // Wired backend M25 lifecycle transition: POST
-                // /api/v1/lifecycle/projects/{id}/lifecycle/transition.
-                // Cabla en MB-3.next con confirmación manual Marcos.
-                setCloseConfirmOpen(false);
-                setCloseAck(false);
+              disabled={!closeAck || !closeTarget || cl.closeProject.isPending}
+              onClick={async () => {
+                // S17 fix · transición lifecycle M25 REAL (antes solo cerraba el
+                // diálogo · POST /lifecycle/projects/{id}/lifecycle/transition).
+                try {
+                  await cl.closeProject.mutateAsync({
+                    toState: closeTarget,
+                    reason: closeReason.trim() || null,
+                  });
+                  fulkroToast.success(
+                    "Proyecto cerrado · transición lifecycle registrada",
+                  );
+                  setCloseConfirmOpen(false);
+                  setCloseAck(false);
+                  setCloseTarget("");
+                  setCloseReason("");
+                  await cl.refetch();
+                  cl.checkReadiness.mutate();
+                } catch (e) {
+                  fulkroToast.error(
+                    e instanceof Error
+                      ? e.message
+                      : "Error al cerrar el proyecto",
+                  );
+                }
               }}
             >
+              {cl.closeProject.isPending ? (
+                <Loader2 size={14} className="animate-spin" strokeWidth={2.4} />
+              ) : null}
               Cerrar proyecto
             </Button>
           </DialogFooter>

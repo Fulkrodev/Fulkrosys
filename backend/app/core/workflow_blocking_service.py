@@ -16,8 +16,8 @@ Completion checks per feature_key:
 - ``media_auditor_enac`` · #17 · ProjectRoleAssignment (M28) role_code
   auditor asignado (contact_id concreto o assigned_at) · autolimpia el
   gate ENAC cuando Marcos asigna el auditor externo al proyecto.
-- ``alta_productos_cpstic`` · stub ``# Future:`` · Asset.cpstic_certified
-  field schema deferrable a MB-19+ inventory enrichment (DEC-2 ADR-036).
+- ``alta_productos_cpstic`` · existe MageritAsset.cpstic_certified=TRUE para el
+  proyecto (resolvable vía inventario MAGERIT o FeatureFlagOverride N/A).
 
 Default unknown feature: completion=False (safe default · cliente nunca
 pasa gate hasta wire-up explícito).
@@ -27,7 +27,7 @@ from __future__ import annotations
 from uuid import UUID
 
 from pydantic import BaseModel
-from sqlalchemy import select
+from sqlalchemy import select, text
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
@@ -175,13 +175,30 @@ class WorkflowBlockingService:
             return await self._has_media_auditor_enac(project_id)
 
         if feature_key == "alta_productos_cpstic":
-            # Future: Asset.cpstic_certified schema migration deferred
-            # to MB-19+ inventory enrichment (DEC-2 ADR-036 Deferrables).
-            # Safe default False · UI bloqueante visible.
-            return False
+            return await self._has_alta_productos_cpstic(project_id)
 
         # Unknown feature: safe default False · forces explicit wire-up
         return False
+
+    async def _has_alta_productos_cpstic(self, project_id: UUID) -> bool:
+        """op.pl.5 ALTA · existe ≥1 activo MAGERIT marcado como producto/servicio
+        CPSTIC certificado (CCN) para el proyecto.
+
+        Resolvable de verdad: el consultor marca el activo ``cpstic_certified=TRUE``
+        en el inventario MAGERIT. Si CPSTIC no aplica al proyecto, se marca la
+        feature como no-aplicable vía FeatureFlagOverride (controla aplicabilidad,
+        no completion) — así el gate NO es un bloqueo permanente irresoluble.
+        """
+        row = (await self.db.execute(
+            text(
+                "SELECT ma.id FROM magerit_assets ma "
+                "JOIN magerit_analysis man ON man.id = ma.analysis_id "
+                "WHERE man.project_id = :pid AND ma.cpstic_certified = TRUE "
+                "AND ma.deleted_at IS NULL LIMIT 1"
+            ),
+            {"pid": str(project_id)},
+        )).first()
+        return row is not None
 
     async def _has_media_vuln_scan(self, project_id: UUID) -> bool:
         """#16 · Vuln-scan Media/Alta ejecutado: existe un VerificationRun

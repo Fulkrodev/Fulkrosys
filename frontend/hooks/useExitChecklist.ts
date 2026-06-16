@@ -15,10 +15,12 @@ import {
   type ExitChecklistResponse,
   type ExitReadiness,
   type ExitStatus,
+  type LifecycleEvent,
   checkExitReadiness,
   completeExitItem,
   getExitChecklist,
   setExitItemStatus,
+  transitionLifecycle,
   uncompleteExitItem,
 } from "@/lib/admin-exit/api";
 
@@ -72,6 +74,17 @@ export function useExitChecklist(projectId: string) {
     mutationFn: () => checkExitReadiness(projectId),
   });
 
+  // S17 fix · cierre real del proyecto vía transición lifecycle M25.
+  const closeProjectMutation = useMutation<
+    LifecycleEvent,
+    Error,
+    { toState: string; reason?: string | null }
+  >({
+    mutationFn: (vars) =>
+      transitionLifecycle(projectId, vars.toState, vars.reason ?? null),
+    onSuccess: invalidate,
+  });
+
   return {
     data: query.data,
     isLoading: query.isLoading,
@@ -82,5 +95,6 @@ export function useExitChecklist(projectId: string) {
     uncompleteItem: uncompleteMutation,
     setStatus: setStatusMutation,
     checkReadiness: readinessMutation,
+    closeProject: closeProjectMutation,
   };
 }

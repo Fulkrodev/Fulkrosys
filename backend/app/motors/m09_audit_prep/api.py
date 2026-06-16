@@ -17,6 +17,7 @@ from . import (
     cleanup_service,
     coaching,
     dossier_generator,
+    internal_auditor,
     matriz_99,
 )
 
@@ -524,3 +525,61 @@ async def readiness_quick_endpoint(
         raise HTTPException(
             status_code=http_status.HTTP_422_UNPROCESSABLE_CONTENT, detail=str(exc),
         )
+
+
+# ============ Auditoría interna virtual · E-701 (D4 fix campaña auditoría) ============
+
+class InternalAuditRunBody(BaseModel):
+    # categoria opcional · si se omite se deriva de projects.categoria_objetivo
+    categoria: Optional[str] = Field(None, max_length=10)
+    generate_document: bool = True
+
+
+@router.post("/projects/{project_id}/internal-audit/run")
+async def run_internal_audit_endpoint(
+    project_id: uuid.UUID,
+    body: InternalAuditRunBody,
+    session: AsyncSession = Depends(get_db),
+):
+    """Ejecuta el auditor interno virtual (15 preguntas tipo ENAC · A11) y,
+    opcionalmente, genera el informe E-701 vía DocumentFactoryService.
+
+    Cierra el cableado del módulo LATENTE ``internal_auditor`` (run_internal_audit
+    + build_e701_context): hasta ahora E-701 no se generaba en ningún flujo real
+    pese a estar reservado en el dossier ENAC (carpeta 13_INFORMES_TECNICOS) y
+    exigido por el checklist para MEDIA/ALTA.
+    """
+    await _set_project_rls(project_id, session)
+
+    categoria = (body.categoria or "").strip().upper()
+    if not categoria:
+        row = (await session.execute(
+            text("SELECT categoria_objetivo FROM projects WHERE id = :pid"),
+            {"pid": str(project_id)},
+        )).first()
+        categoria = row[0] if row and row[0] else "BASICA"
+
+    audit_result = await internal_auditor.run_internal_audit(
+        session, project_id, categoria,
+    )
+
+    document = None
+    if body.generate_document:
+        from backend.app.motors.m06_document_factory.service import (
+            DocumentFactoryService,
+        )
+        from .public_api import _load_client_info, _load_project_info
+
+        cliente = await _load_client_info(session, project_id)
+        proyecto = await _load_project_info(session, project_id)
+        context = await internal_auditor.build_e701_context(
+            session, project_id, audit_result,
+            cliente=cliente, proyecto=proyecto, responsables={},
+        )
+        svc = DocumentFactoryService(session)
+        document = await svc.generate_document(
+            project_id, "E-701", context, generated_by="internal_auditor",
+        )
+        await session.commit()
+
+    return {"audit": audit_result, "document": document}

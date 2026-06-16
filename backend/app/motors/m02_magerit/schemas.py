@@ -58,6 +58,7 @@ class AssetIn(BaseModel):
     value_c: int = Field(0, ge=0, le=10)
     value_a: int = Field(0, ge=0, le=10)
     value_t: int = Field(0, ge=0, le=10)
+    cpstic_certified: bool = False
 
 
 class AssetOut(BaseModel):
@@ -75,6 +76,7 @@ class AssetOut(BaseModel):
     accumulated_c: float | None
     accumulated_a: float | None
     accumulated_t: float | None
+    cpstic_certified: bool = False
 
     model_config = ConfigDict(from_attributes=True)
 
