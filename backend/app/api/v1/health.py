@@ -11,6 +11,6 @@ settings = get_settings()
 async def health_check():
     return {
         "status": "ok",
-        "version": "0.1.0",
+        "version": settings.app_version,
         "environment": settings.app_env,
     }

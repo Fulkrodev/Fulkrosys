@@ -35,13 +35,14 @@ from backend.app.motors.m09_audit_prep.public_api import (
 )
 
 
+from backend.app.motors.m09_audit_prep.audit_events import (
+    ADMIN_DRAFT_REPORT_GENERATED,
+    AUDITOR_DRAFT_REPORT_GENERATED,
+    AUDITOR_DRAFT_REPORT_PREVIEW,
+)
+
+
 logger = logging.getLogger(__name__)
-
-
-# Phase C4 canonical events
-AUDITOR_DRAFT_REPORT_GENERATED = "auditor.draft_report.generated"
-AUDITOR_DRAFT_REPORT_PREVIEW = "auditor.draft_report.preview"
-ADMIN_DRAFT_REPORT_GENERATED = "admin.draft_report.generated"
 
 
 # ════════════════════════════════════════════════════════════════════════

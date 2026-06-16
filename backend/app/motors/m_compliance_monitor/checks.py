@@ -484,8 +484,13 @@ async def check_nis2_vulnerability_inbox(db: AsyncSession) -> CheckResult:
 async def check_rls_coverage_percentage(db: AsyncSession) -> CheckResult:
     """Compute RLS coverage over tenant-sensitive tables.
 
-    Tenant-sensitive = table has a ``project_id`` or ``client_id`` column.
-    Coverage = tables with rowsecurity=true / tenant-sensitive total.
+    Tenant-sensitive = table has a ``project_id``, ``client_id`` or
+    ``tenant_client_id`` column (the latter used by the PII tables fixed by
+    ``fulkro_pii_rls_002``).
+    Coverage = tables with rowsecurity=true AND at least one policy /
+    tenant-sensitive total. A table can have RLS enabled but no policy (which
+    fails closed yet leaves the table effectively unusable), so we require a
+    real policy to count it as covered.
     ``red`` if <70 %, ``yellow`` if <90 %, ``green`` if >=90 %.
     """
     sensitive_rows = await db.execute(
@@ -494,7 +499,7 @@ async def check_rls_coverage_percentage(db: AsyncSession) -> CheckResult:
             SELECT DISTINCT c.table_name
             FROM information_schema.columns c
             WHERE c.table_schema = 'public'
-              AND c.column_name IN ('project_id', 'client_id')
+              AND c.column_name IN ('project_id', 'client_id', 'tenant_client_id')
             """
         )
     )
@@ -505,9 +510,13 @@ async def check_rls_coverage_percentage(db: AsyncSession) -> CheckResult:
     rls_rows = await db.execute(
         text(
             """
-            SELECT relname FROM pg_class
-            WHERE relkind = 'r' AND relrowsecurity = true
-              AND relnamespace = 'public'::regnamespace
+            SELECT cls.relname
+            FROM pg_class cls
+            WHERE cls.relkind = 'r' AND cls.relrowsecurity = true
+              AND cls.relnamespace = 'public'::regnamespace
+              AND EXISTS (
+                  SELECT 1 FROM pg_policy pol WHERE pol.polrelid = cls.oid
+              )
             """
         )
     )

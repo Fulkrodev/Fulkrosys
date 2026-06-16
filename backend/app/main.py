@@ -397,7 +397,7 @@ _prod_docs_off = (
 app = FastAPI(
     title="FULKRO",
     description="Plataforma de implantacion ENS (RD 311/2022)",
-    version="0.1.0",
+    version=settings.app_version,
     lifespan=lifespan,
     # Sub-fase 4.D ADR-021: global dependency cubre 284 endpoints con
     # auth dispatcher dual + CSRF + set_config audit user. Whitelist

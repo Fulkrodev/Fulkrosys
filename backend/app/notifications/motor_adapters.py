@@ -32,7 +32,7 @@ from uuid import UUID
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from backend.app.notifications.deep_links import DeepLinkGenerator
+from backend.app.notifications.deep_links import DeepLinkGenerator, _coerce_id
 from backend.app.notifications.orchestrator import (
     DispatchOutcome,
     NotificationOrchestrator,
@@ -654,12 +654,6 @@ async def notify_acta_signed(
             "acta_subtype": acta_subtype,
         },
     )
-
-
-def _coerce_id(value: UUID | str) -> str:
-    if isinstance(value, UUID):
-        return str(value)
-    return str(value)
 
 
 __all__ = [

@@ -32,15 +32,14 @@ from backend.app.motors.m09_audit_prep.public_api import (
 )
 
 
-logger = logging.getLogger(__name__)
-
-
-# Phase C3 canonical events · added to audit_events.py
-AUDITOR_VIEW_DDA_EVIDENCE_GAPS = "auditor.view.dda_evidence_gaps"
-AUDITOR_VIEW_DDA_EVIDENCE_GAPS_DETAIL = (
-    "auditor.view.dda_evidence_gaps_medida_detail"
+from backend.app.motors.m09_audit_prep.audit_events import (
+    ADMIN_EVIDENCE_REQUEST_TRIGGERED,
+    AUDITOR_VIEW_DDA_EVIDENCE_GAPS,
+    AUDITOR_VIEW_DDA_EVIDENCE_GAPS_DETAIL,
 )
-ADMIN_EVIDENCE_REQUEST_TRIGGERED = "admin.evidence_request.triggered"
+
+
+logger = logging.getLogger(__name__)
 
 
 # ════════════════════════════════════════════════════════════════════════

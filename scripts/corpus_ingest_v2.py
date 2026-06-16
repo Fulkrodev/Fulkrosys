@@ -406,16 +406,16 @@ def main() -> int:
         log.info("  Extracted %s chars → %s chunks. Embedding (batch=32)...", len(text), len(chunks))
         vecs: list[list[float]] = []
         BATCH = 32
-        for i in range(0, len(chunks), BATCH):
-            batch = chunks[i:i + BATCH]
+        for offset in range(0, len(chunks), BATCH):
+            batch = chunks[offset:offset + BATCH]
             try:
                 partial = emb.embed_documents(batch)
             except Exception as exc:
-                log.error("  EMBEDDING FAIL at offset %s: %s", i, exc)
+                log.error("  EMBEDDING FAIL at offset %s: %s", offset, exc)
                 partial = []
                 break
             vecs.extend(partial)
-            if (i // BATCH) % 4 == 0 and i > 0:
+            if (offset // BATCH) % 4 == 0 and offset > 0:
                 log.info("    ...embedded %s/%s chunks", len(vecs), len(chunks))
         if len(vecs) != len(chunks) or (vecs and len(vecs[0]) != EMBEDDING_DIM):
             log.error("  EMBEDDING MISMATCH: got %s vecs dim=%s",

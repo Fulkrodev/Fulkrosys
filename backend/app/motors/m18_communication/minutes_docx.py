@@ -21,6 +21,13 @@ from docx.oxml import OxmlElement
 from docx.oxml.ns import qn
 from docx.shared import Cm, Pt, RGBColor
 
+# Identidad Fulkro · fuente única backend.app.fulkro_identity. Import con alias
+# porque este módulo reserva el prefijo FULKRO_* para sentinels de plantilla docx.
+from backend.app.fulkro_identity import (
+    FULKRO_AUTHOR_NAME as IDENTITY_AUTHOR_NAME,
+    FULKRO_AUTHOR_ROLE as IDENTITY_AUTHOR_ROLE,
+)
+
 
 # Sentinels propios (NO usar FULKRO_* — esos sentinels existen en
 # scripts/fix_docx_templates.py para los templates legacy y son deuda
@@ -100,8 +107,8 @@ def _build_header(doc: Document, codigo: str, titulo: str,
         p_r.alignment = WD_ALIGN_PARAGRAPH.RIGHT
         _style_text(
             p_r.add_run(
-                "Marcos Mata Garcia\n"
-                "Consultor independiente en ENS"
+                f"{IDENTITY_AUTHOR_NAME}\n"
+                f"{IDENTITY_AUTHOR_ROLE}"
             ),
             size=9,
         )

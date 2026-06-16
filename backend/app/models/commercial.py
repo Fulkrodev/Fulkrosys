@@ -253,6 +253,21 @@ class LeadStageHistory(Base):
             "ix_lead_stage_history_lead_recent",
             "lead_id", text("created_at DESC"),
         ),
+        # §2.2: los CHECK existen en BD (sand_crm_lead_extensions) pero faltaban
+        # en el ORM (drift) · declararlos con el mismo nombre alinea modelo↔BD y
+        # elimina el diff de autogenerate.
+        CheckConstraint(
+            "estado_nuevo IN ("
+            "'nuevo', 'enviado', 'respondio', 'reunion_agendada', "
+            "'propuesta_enviada', 'ganado', 'descartado', 'no_interesa')",
+            name="ck_lead_stage_history_estado_nuevo",
+        ),
+        CheckConstraint(
+            "estado_anterior IS NULL OR estado_anterior IN ("
+            "'nuevo', 'enviado', 'respondio', 'reunion_agendada', "
+            "'propuesta_enviada', 'ganado', 'descartado', 'no_interesa')",
+            name="ck_lead_stage_history_estado_anterior",
+        ),
     )
 
     id: Mapped[uuid.UUID] = mapped_column(

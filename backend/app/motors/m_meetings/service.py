@@ -54,10 +54,6 @@ class MeetingStateError(Exception):
     """Transición de status inválida (ej. complete sobre cancelled)."""
 
 
-class MeetingPermissionError(Exception):
-    """Operación no permitida en el contexto actual."""
-
-
 # ====================================================================
 # Helpers internos
 # ====================================================================
