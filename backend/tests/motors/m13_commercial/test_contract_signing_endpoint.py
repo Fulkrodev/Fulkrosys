@@ -184,7 +184,9 @@ async def test_contract_confirm_emits_signing_signed_to_admin(
     # (2) payload ENRIQUECIDO (no "alguien firmó algo").
     data = kw["data"]
     assert data["signer_name"] == "Ana Firmante"
-    assert data["signable_label"] == "Contrato comercial"
+    # cleanup C3: el endpoint resuelve el label desde el catálogo canónico único
+    # SIGNABLE_TYPE_LABELS (no un literal divergente) → label completo canónico.
+    assert data["signable_label"] == "Contrato comercial de servicios FULKRO"
     assert data["plantilla_id"] == "C-001"
     assert data["primary_actor"] == "cliente"
     assert data["contract_id"] == str(contract_id)
