@@ -1,7 +1,11 @@
 /**
- * Frontend API · Admin Copiloto stub · sub-atom 1.C.D.B.3 v3.8.
+ * Frontend API · Admin Copiloto · sub-atom 1.C.D.B.3 v3.8.
  *
- * Schema idéntico a 1.D.B.2 LLM real · swap-in zero refactor UI.
+ * NOTA (audit §3.1): el nombre "stub" es histórico. El endpoint
+ * /api/v1/admin/copilot/chat ejecuta la persona LLM real cuando hay API
+ * key; `is_stub` es un *runtime fallback flag* (true sólo sin API key o
+ * error LLM, sirviendo entonces respuesta-plantilla determinista). NO es
+ * un endpoint placeholder.
  */
 import { api } from "@/lib/api";
 
@@ -28,6 +32,8 @@ export interface CopilotChatRequest {
 export interface CopilotChatResponse {
   action_id: string;
   response_text: string;
+  /** Runtime fallback flag: true = respuesta determinista de fallback
+   * (sin API key / error LLM), NO un endpoint stub permanente. */
   is_stub: boolean;
   next_action_hint: string | null;
   citations: unknown[];

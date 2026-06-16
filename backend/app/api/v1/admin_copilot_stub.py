@@ -94,7 +94,20 @@ class CopilotChatStubResponse(BaseModel):
 
     action_id: str
     response_text: str
-    is_stub: bool = Field(True, description="True · marca stub · UI muestra disclaimer")
+    # NOTA (audit §3.1): `is_stub` NO indica un endpoint stub permanente. El
+    # path vivo (admin sidebar → /admin/copilot/chat) ejecuta la persona LLM
+    # real cuando hay API key. `is_stub=True` es un *runtime fallback flag*:
+    # vale True sólo cuando no hay API key (CI/tests) o el LLM falla en runtime,
+    # y entonces se sirve la respuesta-plantilla determinista. El nombre
+    # "stub" es histórico; semánticamente es "respuesta de fallback".
+    is_stub: bool = Field(
+        True,
+        description=(
+            "Runtime fallback flag: True cuando la respuesta proviene del "
+            "fallback determinista (sin API key o error LLM), NO de un endpoint "
+            "stub permanente. La UI muestra disclaimer en ese caso."
+        ),
+    )
     next_action_hint: str | None = Field(None, description="Hint próxima acción si aplica")
     citations: list[dict[str, Any]] = Field(default_factory=list)
     # 1.D.G.I · rate limit soft-warn surface

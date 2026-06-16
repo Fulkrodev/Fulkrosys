@@ -505,3 +505,168 @@ class TestSoftDelete:
             await svc.soft_delete_message(
                 message_id=msg_b.id, by_user_id=cu_a, by_role="client",
             )
+
+
+# ════════════════════════════════════════════════════════════════════
+# BATCH AGGREGATION PERF — _list_threads N+1 fix (audit §2.7 / 2026-06-16)
+# ════════════════════════════════════════════════════════════════════
+
+
+class _QueryCounter:
+    """Cuenta cursor.execute() sobre client_messages durante un bloque.
+
+    Se engancha al engine sync subyacente de la sesión async vía el
+    evento ``before_cursor_execute``. Sólo cuenta SELECTs que tocan
+    client_messages (las tablas del agregado de _list_threads),
+    ignorando setup transaccional/RLS irrelevante.
+    """
+
+    def __init__(self, target):
+        self._target = target
+        self.count = 0
+
+    def _listener(self, conn, cursor, statement, parameters, context, executemany):  # noqa: ANN001, E501
+        if "client_messages" in statement.lower():
+            self.count += 1
+
+    def __enter__(self):
+        from sqlalchemy import event
+
+        event.listen(self._target, "before_cursor_execute", self._listener)
+        return self
+
+    def __exit__(self, *exc):
+        from sqlalchemy import event
+
+        event.remove(self._target, "before_cursor_execute", self._listener)
+        return False
+
+
+async def _add_attachment(db: AsyncSession, message_id: uuid.UUID) -> None:
+    """Inserta un attachment válido (whitelist MIME + cap 10MB) para
+    el mensaje dado, para ejercitar la rama has_attachments."""
+    from backend.app.motors.m29_client_messaging.models import (
+        ClientMessageAttachment,
+    )
+
+    att = ClientMessageAttachment(
+        message_id=message_id,
+        filename="evidencia.pdf",
+        mime_type="application/pdf",
+        size_bytes=1024,
+        minio_object_key=f"msg/{message_id}/evidencia.pdf",
+    )
+    db.add(att)
+    await db.flush()
+
+
+class TestListThreadsBatchPerf:
+    """_list_threads agrega counts en 1-2 queries GROUP BY (no 4N)."""
+
+    @staticmethod
+    async def _build_three_threads(db: AsyncSession):
+        """3 threads del mismo cliente, varios mensajes + 1 con adjunto.
+
+        Devuelve (svc, client_id) listos para listar como admin.
+        """
+        client_id, _, cu_id = await _create_test_setup(db)
+        admin_id = await _create_admin_user(db)
+        svc = ClientMessagingService(db)
+
+        # Thread A: cliente + reply admin + reply cliente (3 msgs).
+        a1 = await svc.send_as_client(
+            client_id=client_id, client_user_id=cu_id,
+            payload=ClientSendMessageBody(body_markdown="A pregunta"),
+        )
+        await svc.send_as_admin(
+            admin_user_id=admin_id,
+            payload=AdminSendMessageBody(
+                body_markdown="A respuesta", thread_id=a1.thread_id,
+            ),
+        )
+        await svc.send_as_client(
+            client_id=client_id, client_user_id=cu_id,
+            payload=ClientSendMessageBody(
+                body_markdown="A gracias", thread_id=a1.thread_id,
+            ),
+        )
+
+        # Thread B: sólo cliente (1 msg) + adjunto.
+        b1 = await svc.send_as_client(
+            client_id=client_id, client_user_id=cu_id,
+            payload=ClientSendMessageBody(body_markdown="B con adjunto"),
+        )
+        await _add_attachment(db, b1.id)
+
+        # Thread C: cliente + reply admin (admin leyó implícito? no) (2 msgs).
+        c1 = await svc.send_as_client(
+            client_id=client_id, client_user_id=cu_id,
+            payload=ClientSendMessageBody(body_markdown="C pregunta"),
+        )
+        await svc.send_as_admin(
+            admin_user_id=admin_id,
+            payload=AdminSendMessageBody(
+                body_markdown="C respuesta", thread_id=c1.thread_id,
+            ),
+        )
+        return svc, client_id, a1.thread_id, b1.thread_id, c1.thread_id
+
+    @pytest.mark.asyncio
+    async def test_summaries_correct_with_batch_aggregation(
+        self, db: AsyncSession,
+    ):
+        """Equivalencia de resultado: counts/unread/attachments correctos."""
+        svc, client_id, ta, tb, tc = await self._build_three_threads(db)
+
+        threads = await svc.list_threads_for_client(client_id=client_id)
+        # Exactamente 1 summary por thread (sin duplicados por timestamps tie).
+        assert len(threads) == 3
+        by_id = {t.thread_id: t for t in threads}
+        assert set(by_id) == {ta, tb, tc}
+
+        # Thread A: 3 mensajes; 2 del cliente sin leer por admin → unread_admin=2
+        a = by_id[ta]
+        assert a.total_messages == 3
+        assert a.unread_for_admin == 2  # 2 client msgs no leídos por admin
+        # 1 admin reply, cliente lo leyó? no → unread_for_client>=1
+        assert a.unread_for_client == 1
+        assert a.has_attachments is False
+
+        # Thread B: 1 mensaje + adjunto.
+        b = by_id[tb]
+        assert b.total_messages == 1
+        assert b.unread_for_admin == 1
+        assert b.has_attachments is True
+
+        # Thread C: 2 mensajes (1 client + 1 admin).
+        c = by_id[tc]
+        assert c.total_messages == 2
+        assert c.unread_for_admin == 1
+        assert c.unread_for_client == 1
+        assert c.has_attachments is False
+
+    @pytest.mark.asyncio
+    async def test_query_count_constant_not_n_plus_1(
+        self, db: AsyncSession,
+    ):
+        """El nº de queries sobre client_messages NO crece con N threads.
+
+        Pre-fix: 1 (last-msg) + 4N counts → 13 queries para 3 threads.
+        Post-fix: last-msg + 1 counts GROUP BY + 1 attachments GROUP BY = 3.
+        Aserción conservadora: << que la cota N+1 (1 + 4*3 = 13).
+        """
+        svc, client_id, *_ = await self._build_three_threads(db)
+
+        # La sesión async está bound a una Connection sync (greenlet bridge);
+        # enganchamos el contador a esa Connection directamente.
+        sync_conn = db.get_bind()
+        with _QueryCounter(sync_conn) as qc:
+            threads = await svc.list_threads_for_client(client_id=client_id)
+
+        assert len(threads) == 3
+        # Cota dura: como mucho 5 queries (last-msg + counts + attachments,
+        # con holgura para EXISTS/subqueries). NUNCA 1+4N=13.
+        assert qc.count <= 5, (
+            f"_list_threads ejecutó {qc.count} queries sobre client_messages; "
+            "se esperaba agregación batch (<=5), no N+1."
+        )

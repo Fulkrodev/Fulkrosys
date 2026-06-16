@@ -60,8 +60,22 @@ class NmapRunner(BaseRunner):
         ports: str = "-p-",
         scripts: str = "default",
     ) -> RunnerResult:
-        cls.ensure_available()
         started = datetime.now(timezone.utc)
+
+        # SAN-B.MB-7.bis · MCP wire-up · fallback subprocess transparente.
+        # Paralelo a los otros runners (nuclei/testssl/openvas...). Si no
+        # hay tool MCP nmap disponible (flag off / docker ausente), degrada
+        # de forma transparente al subprocess local existente.
+        from backend.app.mcp_client import try_invoke_mcp_or_none
+        mcp_resp = await try_invoke_mcp_or_none(
+            server="recon", tool="nmap_scan",
+            args=cls._mcp_args(targets, ports=ports, scripts=scripts),
+            timeout_seconds=timeout_seconds or cls.DEFAULT_TIMEOUT_SECONDS,
+        )
+        if mcp_resp is not None:
+            return cls.from_mcp_response(mcp_resp, targets, started)
+
+        cls.ensure_available()
         cmd = [
             cls.BINARY, ports, "-sV", "--script", scripts,
             "-oX", "-", *targets,
@@ -81,6 +95,32 @@ class NmapRunner(BaseRunner):
             error=error or (stderr.decode(errors="replace") if rc != 0 else None),
             timed_out=timed_out,
         )
+
+    @staticmethod
+    def _mcp_args(
+        targets: list[str], *, ports: str, scripts: str,
+    ) -> dict:
+        """Mapea los parámetros del runner al esquema del tool MCP
+        ``recon/nmap_scan`` (target + mode + ports opcionales).
+
+        Conservador: deriva ``mode`` de los flags del subprocess local
+        (--script vuln → 'vuln'; -p- → 'full'; resto → 'quick') y pasa
+        un rango de puertos explícito sólo cuando no es un flag nmap.
+        """
+        if "vuln" in (scripts or ""):
+            mode = "vuln"
+        elif ports == "-p-":
+            mode = "full"
+        else:
+            mode = "quick"
+        args: dict = {
+            "target": targets[0] if targets else "",
+            "mode": mode,
+        }
+        # ports sólo si es un rango/lista explícito (no un flag tipo "-p-").
+        if ports and not ports.startswith("-"):
+            args["ports"] = ports
+        return args
 
     @classmethod
     def parse_output(cls, raw: bytes) -> list[FindingCandidate]:

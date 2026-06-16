@@ -17,6 +17,7 @@ from backend.app.motors.m08_verification.tools.ad_password_checker import (
 )
 from backend.app.motors.m08_verification.tools.dns_checker import DnsChecker
 from backend.app.motors.m08_verification.tools.lynis_runner import LynisRunner
+from backend.app.motors.m08_verification.tools.nmap_runner import NmapRunner
 from backend.app.motors.m08_verification.tools.nuclei_runner import NucleiRunner
 from backend.app.motors.m08_verification.tools.testssl_runner import TestsslRunner
 
@@ -90,6 +91,36 @@ async def test_nuclei_runner_uses_mcp_when_available(monkeypatch):
     result = await NucleiRunner.run(["http://example.com"])
     assert result.tool == "nuclei"
     assert len(result.findings) == 1
+
+
+@pytest.mark.asyncio
+async def test_nmap_runner_uses_mcp_when_available(monkeypatch):
+    async def fake_mcp(**_kwargs):
+        return _mcp_success_response("recon", "nmap_scan")
+
+    monkeypatch.setattr(
+        "backend.app.mcp_client.try_invoke_mcp_or_none", fake_mcp,
+    )
+    result = await NmapRunner.run(["10.0.0.5"])
+    assert result.tool == "nmap"
+    assert len(result.findings) == 1
+    assert result.findings[0]["name"] == "MCP-TEST-001"
+
+
+def test_nmap_mcp_args_mapping():
+    """_mcp_args deriva mode/ports del esquema recon/nmap_scan."""
+    # default (-p- + default scripts) → full scan, sin ports explícito
+    a = NmapRunner._mcp_args(["10.0.0.5"], ports="-p-", scripts="default")
+    assert a == {"target": "10.0.0.5", "mode": "full"}
+    # script vuln → mode vuln
+    a = NmapRunner._mcp_args(["h"], ports="-p-", scripts="vuln")
+    assert a["mode"] == "vuln"
+    # rango explícito de puertos → mode quick + ports pasados tal cual
+    a = NmapRunner._mcp_args(["h"], ports="1-1000", scripts="default")
+    assert a["mode"] == "quick"
+    assert a["ports"] == "1-1000"
+    # sin targets → target vacío (best-effort, no crash)
+    assert NmapRunner._mcp_args([], ports="-p-", scripts="default")["target"] == ""
 
 
 @pytest.mark.asyncio

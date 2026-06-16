@@ -35,6 +35,7 @@ from typing import Literal
 
 from sqlalchemy import and_, desc, func, select, text
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.orm import aliased
 
 from backend.app.motors.m29_client_messaging.models import (
     ClientMessage,
@@ -497,81 +498,102 @@ class ClientMessagingService:
                 ClientMessage.to_contact_id == filter_to_contact_id
             )
 
-        # Subquery: last message per thread
-        last_msg_subq = (
-            select(
-                ClientMessage.thread_id,
-                func.max(ClientMessage.created_at).label("last_at"),
-            )
+        # Último mensaje por thread vía DISTINCT ON (thread_id) determinista.
+        # Antes: max(created_at) + self-join, que DUPLICA filas cuando dos
+        # mensajes del mismo thread comparten created_at (timestamps idénticos
+        # dentro de la misma transacción · OPS-047). DISTINCT ON garantiza
+        # exactamente 1 fila por thread, con desempate estable por id.
+        last_per_thread = (
+            select(ClientMessage)
             .where(*conditions)
-            .group_by(ClientMessage.thread_id)
+            .distinct(ClientMessage.thread_id)
+            .order_by(
+                ClientMessage.thread_id,
+                desc(ClientMessage.created_at),
+                desc(ClientMessage.id),
+            )
             .subquery()
         )
-
-        # Join para obtener info completa del último mensaje
+        last_aliased = aliased(ClientMessage, last_per_thread)
         stmt = (
-            select(ClientMessage)
-            .join(
-                last_msg_subq,
-                and_(
-                    ClientMessage.thread_id == last_msg_subq.c.thread_id,
-                    ClientMessage.created_at == last_msg_subq.c.last_at,
-                ),
-            )
-            .where(*conditions)
-            .order_by(desc(ClientMessage.created_at))
+            select(last_aliased)
+            .order_by(desc(last_aliased.created_at))
             .limit(limit)
         )
         result = await self.db.execute(stmt)
         last_messages = list(result.scalars())
 
-        # Para cada thread, calcular agregaciones (count, unread, attachments)
+        if not last_messages:
+            return []
+
+        # Threads visibles en esta página (limit ya aplicado arriba).
+        thread_ids = [m.thread_id for m in last_messages]
+
+        # ── Agregaciones BATCH (perf §2.7 audit-2026-06-16) ──────────────
+        # Antes: 1 + 4N queries (4 counts por thread en bucle). Ahora:
+        # 1 query GROUP BY para total/unread_admin/unread_client + 1 query
+        # GROUP BY para presencia de attachments = O(1) sobre los N threads.
+        counts_stmt = (
+            select(
+                ClientMessage.thread_id,
+                func.count(ClientMessage.id).label("total"),
+                func.count(ClientMessage.id)
+                .filter(
+                    ClientMessage.from_role == "client",
+                    ClientMessage.is_read_by_admin.is_(False),
+                )
+                .label("unread_admin"),
+                func.count(ClientMessage.id)
+                .filter(
+                    ClientMessage.from_role == "admin",
+                    ClientMessage.is_read_by_client.is_(False),
+                )
+                .label("unread_client"),
+            )
+            .where(
+                ClientMessage.thread_id.in_(thread_ids),
+                ClientMessage.deleted_at.is_(None),
+            )
+            .group_by(ClientMessage.thread_id)
+        )
+        counts_rows = (await self.db.execute(counts_stmt)).all()
+        counts_by_thread: dict[uuid.UUID, tuple[int, int, int]] = {
+            row.thread_id: (
+                row.total or 0,
+                row.unread_admin or 0,
+                row.unread_client or 0,
+            )
+            for row in counts_rows
+        }
+
+        # Presencia de attachments por thread (1 query · join messages).
+        attach_stmt = (
+            select(ClientMessage.thread_id)
+            .join(
+                ClientMessageAttachment,
+                ClientMessageAttachment.message_id == ClientMessage.id,
+            )
+            .where(
+                ClientMessage.thread_id.in_(thread_ids),
+                ClientMessage.deleted_at.is_(None),
+                ClientMessageAttachment.deleted_at.is_(None),
+            )
+            .group_by(ClientMessage.thread_id)
+        )
+        threads_with_attachments: set[uuid.UUID] = {
+            row.thread_id
+            for row in (await self.db.execute(attach_stmt)).all()
+        }
+
+        # Ensamblar summaries preservando el orden DESC del último mensaje.
         summaries: list[ThreadSummary] = []
         for last_msg in last_messages:
             thread_id = last_msg.thread_id
-
-            # Total mensajes en thread
-            total_stmt = select(func.count(ClientMessage.id)).where(
-                ClientMessage.thread_id == thread_id,
-                ClientMessage.deleted_at.is_(None),
-            )
-            total = (await self.db.execute(total_stmt)).scalar_one() or 0
-
-            # Unread for admin (mensajes from_role='client' no leídos)
-            ua_stmt = select(func.count(ClientMessage.id)).where(
-                ClientMessage.thread_id == thread_id,
-                ClientMessage.from_role == "client",
-                ClientMessage.is_read_by_admin.is_(False),
-                ClientMessage.deleted_at.is_(None),
-            )
-            ua = (await self.db.execute(ua_stmt)).scalar_one() or 0
-
-            # Unread for client (mensajes from_role='admin' no leídos)
-            uc_stmt = select(func.count(ClientMessage.id)).where(
-                ClientMessage.thread_id == thread_id,
-                ClientMessage.from_role == "admin",
-                ClientMessage.is_read_by_client.is_(False),
-                ClientMessage.deleted_at.is_(None),
-            )
-            uc = (await self.db.execute(uc_stmt)).scalar_one() or 0
+            total, ua, uc = counts_by_thread.get(thread_id, (0, 0, 0))
 
             # Filter only_unread_for_admin si aplica
             if only_unread_for_admin and ua == 0:
                 continue
-
-            # has_attachments check
-            attach_stmt = select(func.count(ClientMessageAttachment.id)).where(
-                ClientMessageAttachment.message_id.in_(
-                    select(ClientMessage.id).where(
-                        ClientMessage.thread_id == thread_id,
-                        ClientMessage.deleted_at.is_(None),
-                    )
-                ),
-                ClientMessageAttachment.deleted_at.is_(None),
-            )
-            attach_count = (
-                await self.db.execute(attach_stmt)
-            ).scalar_one() or 0
 
             summaries.append(
                 ThreadSummary(
@@ -584,7 +606,7 @@ class ClientMessagingService:
                     total_messages=total,
                     unread_for_admin=ua,
                     unread_for_client=uc,
-                    has_attachments=attach_count > 0,
+                    has_attachments=thread_id in threads_with_attachments,
                     last_to_contact_id=last_msg.to_contact_id,
                 )
             )
