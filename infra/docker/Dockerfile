@@ -176,5 +176,14 @@ RUN echo "=== scanner-capabilities (read-only ENS · Opción 1) ===" && \
 #   USER fulkro
 # ─────────────────────────────────────────────────────────────────────────────
 
+# USER NO-ROOT ACTIVADO (audit 2026-06-16): el volumen `vardata` se chowneo a
+# uid 10001 en Hetzner ANTES de este cambio (ver bloque de arriba). Defensa en
+# profundidad: backend/celery/provision corren como 10001, no root. Los binds
+# read-only (templates_docx · infra/docker) son legibles por 10001 (755).
+RUN useradd -m -u 10001 -s /usr/sbin/nologin fulkro \
+    && mkdir -p /app/var \
+    && chown -R fulkro:fulkro /app/var
+USER fulkro
+
 # Default command: run FastAPI with uvicorn
 CMD ["uvicorn", "backend.app.main:app", "--host", "0.0.0.0", "--port", "8000", "--workers", "4"]
