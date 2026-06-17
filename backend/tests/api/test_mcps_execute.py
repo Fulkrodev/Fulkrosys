@@ -76,14 +76,15 @@ def test_catalog_vulnscan_4_tools():
 
 
 def test_catalog_cloud_4_tools():
+    # S12 fix: nombres alineados a los MCPTool.name reales de los server.py.
     assert set(MCP_TOOLS_CATALOG["cloud"].keys()) == {
-        "prowler_scan", "scoutsuite_scan", "pacu_audit", "kube_security_scan",
+        "prowler_audit", "scoutsuite_audit", "pacu_attack", "kube_security_scan",
     }
 
 
 def test_catalog_config_4_tools():
     assert set(MCP_TOOLS_CATALOG["config"].keys()) == {
-        "clara_scan", "cis_cat_scan", "lynis_audit", "openscap_scan",
+        "clara_ccn_audit", "cis_cat_audit", "lynis_audit", "openscap_audit",
     }
 
 
@@ -203,8 +204,8 @@ async def test_list_executions_by_project(db):
     await _wait_completion(e1)
     e2 = await svc.execute_tool(
         db=db, project_id=pid,
-        mcp_name="cloud", tool_name="prowler_scan",
-        params={"aws_account": "123456789012"},
+        mcp_name="cloud", tool_name="prowler_audit",
+        params={"provider": "aws"},
     )
     await _wait_completion(e2)
 

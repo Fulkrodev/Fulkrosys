@@ -59,17 +59,14 @@ class MCPToolDescriptor:
     params: tuple[MCPToolParamSpec, ...]
 
 
-# NOTA(drift · manual /mcps UI · Future-X): este catálogo es la lista curada
-# UI-facing para ejecución MANUAL de tools (NO el autopilot · ese vive en
-# autopilot/orchestrator.py y ya está alineado con el registry real). Algunos
-# tool_name aquí divergen del MCPTool.name real (prowler_scan→prowler_audit,
-# scoutsuite_scan→scoutsuite_audit, pacu_audit→pacu_attack, clara_scan→
-# clara_ccn_audit, cis_cat_scan→cis_cat_audit, openscap_scan→openscap_audit) Y
-# además los params declarados (aws_account/regions/...) NO mapean a las firmas
-# reales (provider/mode/...). Por eso con USE_MCP_REAL la ejecución manual cae a
-# _simulated_result. Alinear nombres SOLO no basta (haría falta una capa de mapeo
-# de params); se difiere a un Future-X dedicado para no dar falsa confianza. El
-# ciclo ENS de verificación (autopilot → dossier ENAC) NO depende de este catálogo.
+# Catálogo UI-facing para ejecución MANUAL de tools desde /mcps (el autopilot vive
+# en autopilot/orchestrator.py · independiente). S12 fix campaña auditoría: los
+# tool_name y params de cloud/* y config/* se ALINEARON con los MCPTool.name reales
+# de cada server.py (prowler_audit, scoutsuite_audit, pacu_attack, clara_ccn_audit,
+# cis_cat_audit, openscap_audit) y con su input_schema (provider/mode/...), de modo
+# que con USE_MCP_REAL la ejecución manual ya NO cae siempre a _simulated_result por
+# nombre/params inválidos. El ciclo ENS (autopilot → dossier ENAC) no depende de
+# este catálogo.
 MCP_TOOLS_CATALOG: dict[str, dict[str, MCPToolDescriptor]] = {
     "vulnscan": {
         "nuclei_scan": MCPToolDescriptor(
@@ -175,72 +172,88 @@ MCP_TOOLS_CATALOG: dict[str, dict[str, MCPToolDescriptor]] = {
         ),
     },
     "cloud": {
-        "prowler_scan": MCPToolDescriptor(
+        "prowler_audit": MCPToolDescriptor(
             mcp_name="cloud",
-            tool_name="prowler_scan",
+            tool_name="prowler_audit",
             label="Prowler",
             description=(
-                "Auditoría AWS · CIS · NIST · ISO 27001 · GDPR · 600+ checks."
+                "Auditoría cloud (AWS/Azure/GCP/K8s) · CIS · ENS · 600+ checks."
             ),
             risk_level="low",
             estimated_duration_s=1800,
             params=(
                 MCPToolParamSpec(
-                    name="aws_account", type="string",
-                    description="ID de cuenta AWS",
-                    required=True, placeholder="123456789012",
+                    name="provider", type="enum",
+                    description="Proveedor cloud",
+                    required=True, default="aws",
+                    enum=("aws", "azure", "gcp", "kubernetes"),
                 ),
                 MCPToolParamSpec(
-                    name="regions", type="string",
-                    description="Regiones AWS (csv)",
-                    default="us-east-1,eu-west-1",
+                    name="mode", type="enum",
+                    description="Modo de ejecución (real requiere credenciales)",
+                    default="real",
+                    enum=("fixture", "mock", "real"),
                 ),
                 MCPToolParamSpec(
-                    name="compliance_check", type="enum",
-                    description="Marco de cumplimiento",
-                    default="cis_2.0",
-                    enum=("cis_2.0", "nist_800_53", "iso_27001", "ens_311"),
+                    name="fixture_name", type="string",
+                    description="Nombre de fixture (solo modo fixture)",
+                    default="",
+                ),
+                MCPToolParamSpec(
+                    name="timeout_seconds", type="integer",
+                    description="Timeout en segundos", default=3600,
                 ),
             ),
         ),
-        "scoutsuite_scan": MCPToolDescriptor(
+        "scoutsuite_audit": MCPToolDescriptor(
             mcp_name="cloud",
-            tool_name="scoutsuite_scan",
+            tool_name="scoutsuite_audit",
             label="ScoutSuite",
-            description="Auditoría multi-cloud (AWS · Azure · GCP).",
+            description="Auditoría multi-cloud (AWS · Azure · GCP · Aliyun · OCI).",
             risk_level="low",
             estimated_duration_s=1200,
             params=(
                 MCPToolParamSpec(
-                    name="cloud_provider", type="enum",
+                    name="provider", type="enum",
                     description="Proveedor cloud",
                     required=True, default="aws",
-                    enum=("aws", "azure", "gcp", "aliyun", "oci"),
+                    enum=("aws", "azure", "gcp", "aliyun", "oracle"),
                 ),
                 MCPToolParamSpec(
-                    name="credentials_profile", type="string",
-                    description="Perfil credentials a usar",
-                    default="default",
+                    name="mode", type="enum",
+                    description="Modo de ejecución (real requiere credenciales)",
+                    default="real",
+                    enum=("fixture", "mock", "real"),
+                ),
+                MCPToolParamSpec(
+                    name="fixture_name", type="string",
+                    description="Nombre de fixture (solo modo fixture)",
+                    default="",
+                ),
+                MCPToolParamSpec(
+                    name="timeout_seconds", type="integer",
+                    description="Timeout en segundos", default=3600,
                 ),
             ),
         ),
-        "pacu_audit": MCPToolDescriptor(
+        "pacu_attack": MCPToolDescriptor(
             mcp_name="cloud",
-            tool_name="pacu_audit",
+            tool_name="pacu_attack",
             label="Pacu",
             description="Exploitation framework AWS (Rhino Security · módulos).",
             risk_level="high",
             estimated_duration_s=1800,
             params=(
                 MCPToolParamSpec(
-                    name="aws_account", type="string",
-                    description="ID cuenta AWS objetivo",
-                    required=True, placeholder="123456789012",
+                    name="module", type="string",
+                    description="Módulo Pacu a ejecutar",
+                    required=True,
+                    placeholder="iam__enum_users_roles_policies_groups",
                 ),
                 MCPToolParamSpec(
-                    name="modules", type="string",
-                    description="Módulos Pacu (csv)",
-                    default="iam__enum_users_roles_policies_groups",
+                    name="aws_account_id", type="string",
+                    description="ID cuenta AWS objetivo",
+                    required=True, placeholder="123456789012",
                 ),
             ),
         ),
@@ -266,45 +279,38 @@ MCP_TOOLS_CATALOG: dict[str, dict[str, MCPToolDescriptor]] = {
         ),
     },
     "config": {
-        "clara_scan": MCPToolDescriptor(
+        "clara_ccn_audit": MCPToolDescriptor(
             mcp_name="config",
-            tool_name="clara_scan",
+            tool_name="clara_ccn_audit",
             label="CLARA",
-            description="Centro Criptológico Nacional auditor (CCN-CERT).",
+            description="Auditor CCN-CERT CLARA · ingiere informe XML de CLARA.",
             risk_level="low",
             estimated_duration_s=600,
             params=(
                 MCPToolParamSpec(
-                    name="target_system", type="string",
-                    description="Host objetivo",
-                    required=True, placeholder="server.fulkro.local",
-                ),
-                MCPToolParamSpec(
-                    name="profile", type="enum",
-                    description="Perfil CLARA",
-                    default="ens_medio",
-                    enum=("ens_basico", "ens_medio", "ens_alto"),
+                    name="report_path", type="string",
+                    description="Ruta al informe XML de CLARA",
+                    required=True, placeholder="/path/to/clara_report.xml",
                 ),
             ),
         ),
-        "cis_cat_scan": MCPToolDescriptor(
+        "cis_cat_audit": MCPToolDescriptor(
             mcp_name="config",
-            tool_name="cis_cat_scan",
+            tool_name="cis_cat_audit",
             label="CIS-CAT",
             description="Auditor configuración CIS Benchmarks.",
             risk_level="low",
             estimated_duration_s=600,
             params=(
                 MCPToolParamSpec(
-                    name="target_system", type="string",
-                    description="Host objetivo",
-                    required=True, placeholder="server.fulkro.local",
+                    name="benchmark", type="string",
+                    description="CIS Benchmark a evaluar",
+                    required=True, placeholder="CIS_Ubuntu_Linux_22.04_LTS",
                 ),
                 MCPToolParamSpec(
-                    name="profile", type="enum",
-                    description="Profile CIS Benchmark",
-                    default="level1",
-                    enum=("level1", "level2"),
+                    name="profile", type="string",
+                    description="Perfil del benchmark",
+                    default="Level 1",
                 ),
             ),
         ),
@@ -329,24 +335,24 @@ MCP_TOOLS_CATALOG: dict[str, dict[str, MCPToolDescriptor]] = {
                 ),
             ),
         ),
-        "openscap_scan": MCPToolDescriptor(
+        "openscap_audit": MCPToolDescriptor(
             mcp_name="config",
-            tool_name="openscap_scan",
+            tool_name="openscap_audit",
             label="OpenSCAP",
-            description="Compliance SCAP (DISA STIG · USGCB · ANSSI).",
+            description="Compliance SCAP (DISA STIG · USGCB · ANSSI · CIS).",
             risk_level="low",
             estimated_duration_s=900,
             params=(
                 MCPToolParamSpec(
-                    name="target_system", type="string",
-                    description="Host objetivo",
-                    required=True, placeholder="server.fulkro.local",
+                    name="datastream", type="string",
+                    description="Ruta al datastream SCAP (SSG)",
+                    required=True,
+                    placeholder="/usr/share/xml/scap/ssg/.../ssg-ubuntu2204-ds.xml",
                 ),
                 MCPToolParamSpec(
-                    name="profile", type="enum",
-                    description="Perfil SCAP",
-                    default="stig_rhel8",
-                    enum=("stig_rhel8", "usgcb_rhel7", "anssi_high"),
+                    name="profile", type="string",
+                    description="Perfil XCCDF",
+                    default="xccdf_org.ssgproject.content_profile_cis",
                 ),
             ),
         ),

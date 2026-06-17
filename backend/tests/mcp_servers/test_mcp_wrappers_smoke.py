@@ -44,15 +44,18 @@ class TestMCPCatalogStructure:
         assert set(MCP_TOOLS_CATALOG["vulnscan"].keys()) == expected_tools
 
     def test_cloud_has_4_tools(self):
+        # S12 fix: nombres alineados a los MCPTool.name reales de los server.py.
         assert len(MCP_TOOLS_CATALOG["cloud"]) == 4
         expected_tools = {
-            "prowler_scan", "scoutsuite_scan", "pacu_audit", "kube_security_scan",
+            "prowler_audit", "scoutsuite_audit", "pacu_attack", "kube_security_scan",
         }
         assert set(MCP_TOOLS_CATALOG["cloud"].keys()) == expected_tools
 
     def test_config_has_4_tools(self):
         assert len(MCP_TOOLS_CATALOG["config"]) == 4
-        expected_tools = {"clara_scan", "cis_cat_scan", "lynis_audit", "openscap_scan"}
+        expected_tools = {
+            "clara_ccn_audit", "cis_cat_audit", "lynis_audit", "openscap_audit",
+        }
         assert set(MCP_TOOLS_CATALOG["config"].keys()) == expected_tools
 
     def test_phishing_has_1_tool(self):
@@ -203,8 +206,8 @@ class TestMCPRiskLevelDistribution:
         assert gophish.risk_level == "high"
 
     def test_pacu_is_high_risk_aws_exploit(self):
-        """pacu_audit · AWS post-exploitation · high risk."""
-        pacu = MCP_TOOLS_CATALOG["cloud"]["pacu_audit"]
+        """pacu_attack · AWS post-exploitation · high risk."""
+        pacu = MCP_TOOLS_CATALOG["cloud"]["pacu_attack"]
         assert pacu.risk_level == "high"
 
     def test_lynis_is_low_risk_local_audit(self):
