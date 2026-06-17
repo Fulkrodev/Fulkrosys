@@ -1,17 +1,22 @@
 """DeliverableTextAuditor golden dataset evaluator · sub-atom 1.E.1.B.3.D Path C-light.
 
-Skeleton evaluator que evalúa golden entries dataset `deliverable_text_auditor`
-(10 entries v1 curated por Marcos en B.3.C). Real LLM wiring DEFERRED a
-Future-1.E.1.dossier-pack-10docs (DeliverableTextAuditor capability build) ·
-HOY: deterministic checks only (key_phrases · forbidden detection) · NO LLM
-en critical path (R1 sostained).
+Evalúa las 10 golden entries del dataset `deliverable_text_auditor` (v1, curadas
+por Marcos en B.3.C). La capability real está construida y cableada (campaña
+auditoría 2026-06-17 · S1): `golden_eval_runs_service.execute_eval_run_sync`
+pasa como `actual_provider` la función que invoca
+`deliverable_text_auditor_capability.audit_deliverable_sync` (LLM Sonnet,
+temp ≤0.2 R3). Con ANTHROPIC_API_KEY presente el provider devuelve el dict
+veredicto y este evaluador ejecuta los checks; sin key devuelve None y el entry
+se salta legítimamente (NO se inventa veredicto · honest path).
+
+El evaluador en sí es DETERMINISTA (R1 sostained · NO llama al LLM): sobre el
+`actual` recibido comprueba verdict_match · key_phrases_required · key_phrases
+prohibidas no-flagged.
 
 Comportamiento:
-  - Si actual_provider is None (default · capability_pending_build) → entry
-    skipped explícito con reason
-  - Si actual_provider provee output dict (mock OR future real LLM) → eval
-    deterministic checks: verdict_match · required_missing · forbidden_present
-    sin estar correctly flagged
+  - actual is None (sin API key o sin texto) → entry skipped explícito con reason
+  - actual=dict (capability real o mock test) → checks deterministas:
+    verdict_match · required_missing · forbidden_present sin flag
 
 Pattern OPS-026 DRY · sostiene _default_skeleton_evaluator existing en
 eval_runner · agrega structured fields (EntryEvalResult extension) +
@@ -73,13 +78,11 @@ def deliverable_text_auditor_evaluator(
 ) -> EntryEvalResult:
     """Structured evaluator · returns EntryEvalResult directo.
 
-    Currently skeleton path (NO real LLM wired):
-      - actual=None significa actual_provider declined → entry SKIPPED
-        con reason explícita (capability_pending_build)
-      - actual=dict (mock OR future real) → deterministic checks ejecutan
-
-    Real LLM wiring activates cuando DeliverableTextAuditor capability
-    construida en Future-1.E.1.dossier-pack-10docs sub-atom.
+    Capability real ya cableada (S1 · ver docstring de módulo):
+      - actual=None significa que el provider declinó (sin ANTHROPIC_API_KEY o
+        sin texto en el entry) → entry SKIPPED con reason explícita
+      - actual=dict (capability real audit_deliverable_sync o mock test) →
+        deterministic checks ejecutan
     """
     if actual is None:
         return EntryEvalResult(
