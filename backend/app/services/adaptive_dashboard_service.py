@@ -73,7 +73,7 @@ class AdaptiveDashboardView:
     new_documents_count: int = 0
     upcoming_invoice: Optional[dict] = None
     notifications_unread: int = 0
-    whatsapp_thread_id: Optional[str] = None  # placeholder · MB-8 wire
+    whatsapp_thread_id: Optional[str] = None  # S23: hilo WhatsApp real del proyecto
 
 
 async def _set_rls_for_client(db: AsyncSession, client_id: uuid.UUID) -> None:
@@ -397,6 +397,43 @@ def _archetype_message(archetype: Optional[str]) -> str:
     return ""
 
 
+async def _fetch_upcoming_invoice(db: AsyncSession, project_id: str) -> Optional[dict]:
+    """S23: próxima factura pendiente/vencida del proyecto (antes None fijo)."""
+    row = (await db.execute(
+        text(
+            "SELECT numero_correlativo, concepto, total, fecha_vencimiento, "
+            "estado_pago FROM invoices "
+            "WHERE project_id = :pid AND deleted_at IS NULL "
+            "AND estado_pago IN ('pendiente', 'vencida') "
+            "ORDER BY fecha_vencimiento ASC NULLS LAST, fecha_emision DESC LIMIT 1"
+        ),
+        {"pid": str(project_id)},
+    )).first()
+    if row is None:
+        return None
+    return {
+        "numero": row[0],
+        "concepto": row[1],
+        "total": float(row[2]) if row[2] is not None else None,
+        "fecha_vencimiento": row[3].isoformat() if row[3] else None,
+        "estado_pago": row[4],
+    }
+
+
+async def _fetch_whatsapp_thread_id(
+    db: AsyncSession, project_id: str, client_user_id: uuid.UUID | None,
+) -> Optional[str]:
+    """S23: id del hilo WhatsApp del proyecto si existe (antes None placeholder)."""
+    sql = "SELECT id FROM whatsapp_threads WHERE project_id = :pid "
+    params: dict = {"pid": str(project_id)}
+    if client_user_id is not None:
+        sql += "AND (client_user_id = :cuid OR client_user_id IS NULL) "
+        params["cuid"] = str(client_user_id)
+    sql += "ORDER BY last_outbound_at DESC NULLS LAST LIMIT 1"
+    row = (await db.execute(text(sql), params)).first()
+    return str(row[0]) if row else None
+
+
 async def get_adaptive_dashboard(
     db: AsyncSession,
     client_id: uuid.UUID,
@@ -451,6 +488,10 @@ async def get_adaptive_dashboard(
     recent_docs = await _count_recent_documents(db, project_id)
     recent_messages = await _fetch_recent_messages(db, project_id)
     unread = await _count_unread_notifications(db, project_id)
+    upcoming_invoice = await _fetch_upcoming_invoice(db, project_id)
+    whatsapp_thread_id = await _fetch_whatsapp_thread_id(
+        db, project_id, client_user_id,
+    )
 
     today_actions = _build_today_actions(
         phase,
@@ -478,7 +519,7 @@ async def get_adaptive_dashboard(
         workflow_summary=workflow_summary,
         recent_messages=recent_messages,
         new_documents_count=recent_docs,
-        upcoming_invoice=None,
+        upcoming_invoice=upcoming_invoice,
         notifications_unread=unread,
-        whatsapp_thread_id=None,
+        whatsapp_thread_id=whatsapp_thread_id,
     )
