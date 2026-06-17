@@ -32,7 +32,11 @@ import {
   useUploadFile,
   useWorkspaceFiles,
 } from "@/hooks/useWorkspace";
-import { fileToBase64, type WorkspaceFile } from "@/lib/admin-workspace/api";
+import {
+  downloadWorkspaceFile,
+  fileToBase64,
+  type WorkspaceFile,
+} from "@/lib/admin-workspace/api";
 
 export interface FilesTabProps {
   projectId: string;
@@ -73,7 +77,32 @@ export function FilesTab({ projectId }: FilesTabProps) {
   const [uploading, setUploading] = React.useState<UploadingFile[]>([]);
   const [detail, setDetail] = React.useState<WorkspaceFile | null>(null);
   const [isDragging, setIsDragging] = React.useState(false);
+  const [downloading, setDownloading] = React.useState(false);
   const inputRef = React.useRef<HTMLInputElement>(null);
+
+  // S28b: descarga real del binario desde MinIO (antes el botón estaba disabled
+  // y, de hecho, el upload ni guardaba el contenido). Obtiene el Blob y dispara
+  // la descarga del navegador con el nombre original.
+  const handleDownload = async (file: WorkspaceFile) => {
+    setDownloading(true);
+    try {
+      const blob = await downloadWorkspaceFile(projectId, file.id);
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = file.nombre;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(url);
+    } catch (err) {
+      toast.error(
+        `No se pudo descargar: ${err instanceof Error ? err.message : "error"}`,
+      );
+    } finally {
+      setDownloading(false);
+    }
+  };
 
   const handleUploadFiles = async (fileList: FileList | File[]) => {
     const arr = Array.from(fileList);
@@ -365,9 +394,18 @@ export function FilesTab({ projectId }: FilesTabProps) {
                   <dd className="break-all font-mono text-xs">{detail.storage_path ?? "—"}</dd>
                 </div>
                 <div className="pt-2">
-                  <Button type="button" variant="outline" disabled>
-                    <Download className="mr-2 size-4" />
-                    Descargar (deferred)
+                  <Button
+                    type="button"
+                    variant="outline"
+                    disabled={downloading}
+                    onClick={() => void handleDownload(detail)}
+                  >
+                    {downloading ? (
+                      <Loader2 className="mr-2 size-4 animate-spin" />
+                    ) : (
+                      <Download className="mr-2 size-4" />
+                    )}
+                    Descargar
                   </Button>
                 </div>
               </dl>

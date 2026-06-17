@@ -286,6 +286,48 @@ async def get_file(
     return _serialize_file(wf)
 
 
+@router.get("/projects/{project_id}/workspace/files/{file_id}/download")
+async def download_file(
+    project_id: uuid.UUID,
+    file_id: uuid.UUID,
+    db: AsyncSession = Depends(get_db),
+):
+    """Descarga el binario del fichero desde MinIO (S28b).
+
+    Antes el botón "Descargar" estaba deshabilitado porque no había endpoint y,
+    de hecho, el upload ni siquiera persistía el binario (S19). Ahora streamea el
+    objeto real desde el bucket documents. RLS + binding cross-project (404).
+    """
+    from fastapi.responses import StreamingResponse
+
+    from backend.app.core.storage.minio_client import (
+        BUCKET_DOCUMENTS,
+        get_object,
+    )
+
+    await _set_project_rls(project_id, db)
+    svc = WorkspaceService()
+    ws = await svc.get_workspace(db, project_id)
+    wf = await svc.get_file(db, file_id)
+    if not wf or not ws or wf.workspace_id != ws.id:
+        raise HTTPException(status_code=404, detail="File not found")
+    if not wf.storage_path:
+        raise HTTPException(status_code=404, detail="Fichero sin contenido almacenado")
+    try:
+        data = get_object(BUCKET_DOCUMENTS, wf.storage_path)
+    except Exception as exc:  # noqa: BLE001
+        raise HTTPException(
+            status_code=404,
+            detail=f"Contenido no disponible en el repositorio: {exc}",
+        )
+    safe_name = (wf.nombre or "archivo").replace('"', "").replace("\n", "")
+    return StreamingResponse(
+        iter([data]),
+        media_type=wf.tipo_mime or "application/octet-stream",
+        headers={"Content-Disposition": f'attachment; filename="{safe_name}"'},
+    )
+
+
 @router.delete("/projects/{project_id}/workspace/files/{file_id}")
 async def delete_file(
     project_id: uuid.UUID,

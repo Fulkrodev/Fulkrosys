@@ -261,10 +261,42 @@ class WorkspaceService:
         ws = await self._get_ws_by_id(db, workspace_id)
         self._ensure_writable(ws)
         hash_sha256 = hashlib.sha256(contenido).hexdigest()
-        storage_path = (
-            f"fulkro/projects/{project_id}/workspace/{carpeta.strip('/')}/"
-            f"{hash_sha256[:12]}_{nombre}"
+        # La key NO puede tener segmentos vacíos: con carpeta="/" el strip dejaba
+        # un "//" y MinIO lo rechaza (XMinioInvalidObjectName). Se construye
+        # uniendo sólo los segmentos no vacíos.
+        carpeta_clean = (carpeta or "").strip("/")
+        _segments = ["fulkro", "projects", str(project_id), "workspace"]
+        if carpeta_clean:
+            _segments.append(carpeta_clean)
+        _segments.append(f"{hash_sha256[:12]}_{nombre}")
+        storage_path = "/".join(_segments)
+
+        # S19/S28b fix (campaña auditoría): ANTES sólo se guardaba storage_path en
+        # BD y el binario se DESCARTABA → la descarga era imposible y el documento
+        # se perdía. Ahora se persiste el contenido en MinIO (bucket documents)
+        # ANTES de crear la fila, para no dejar una fila huérfana si el almacén
+        # falla (el fichero es el dato primario, no un side-effect best-effort).
+        from backend.app.core.storage.minio_client import (
+            BUCKET_DOCUMENTS,
+            put_object,
         )
+
+        try:
+            put_object(
+                BUCKET_DOCUMENTS,
+                storage_path,
+                contenido,
+                content_type=tipo_mime,
+                metadata={
+                    "project_id": str(project_id),
+                    "workspace_id": str(workspace_id),
+                    "nombre": nombre,
+                },
+            )
+        except Exception as exc:  # noqa: BLE001
+            raise WorkspaceError(
+                f"No se pudo almacenar el fichero en el repositorio: {exc}"
+            ) from exc
 
         wf = WorkspaceFile(
             workspace_id=workspace_id,

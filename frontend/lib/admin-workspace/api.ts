@@ -239,6 +239,33 @@ export async function deleteWorkspaceFile(
 }
 
 /**
+ * S28b · descarga el binario del fichero (Blob) desde MinIO. Devuelve Blob (no
+ * JSON) → fetch directo con credentials, igual que generateDeclarationDocx.
+ */
+export async function downloadWorkspaceFile(
+  projectId: string,
+  fileId: string,
+): Promise<Blob> {
+  const response = await fetch(
+    `${BASE}/${projectId}/workspace/files/${fileId}/download`,
+    { method: "GET", credentials: "include" },
+  );
+  if (!response.ok) {
+    let detail = response.statusText;
+    try {
+      const payload = await response.json();
+      if (payload && typeof payload === "object" && "detail" in payload) {
+        detail = String((payload as { detail: unknown }).detail);
+      }
+    } catch {
+      // not JSON · use statusText
+    }
+    throw new Error(detail);
+  }
+  return response.blob();
+}
+
+/**
  * Convierte un File del navegador a base64 string sin prefix data:.
  * Usado por uploadWorkspaceFile (backend espera contenido_base64).
  */

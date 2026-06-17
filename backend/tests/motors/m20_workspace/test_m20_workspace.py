@@ -111,6 +111,27 @@ async def test_upload_file_calculates_hash(db):
 
 
 @pytest.mark.asyncio
+async def test_upload_persists_binary_and_download_roundtrips(db):
+    """S19/S28b: el upload escribe el binario REAL en MinIO y se recupera
+    idéntico (antes el contenido se descartaba y la descarga era imposible)."""
+    from backend.app.core.storage.minio_client import BUCKET_DOCUMENTS, get_object
+
+    _, project_id = await _setup_tenant(db)
+    ws = await _create_ws(db, project_id)
+    contenido = b"contenido binario real de prueba \x00\x01\x02 fin"
+
+    wf = await WorkspaceService().upload_file(
+        db, workspace_id=ws.id, project_id=uuid.UUID(project_id),
+        nombre="roundtrip.bin", carpeta="/",  # carpeta="/" antes rompía la key (//)
+        contenido=contenido, tipo_mime="application/octet-stream",
+    )
+    # storage_path sin doble slash + objeto recuperable idéntico
+    assert "//" not in wf.storage_path
+    fetched = get_object(BUCKET_DOCUMENTS, wf.storage_path)
+    assert fetched == contenido
+
+
+@pytest.mark.asyncio
 async def test_upload_empty_content_rejected(db):
     _, project_id = await _setup_tenant(db)
     ws = await _create_ws(db, project_id)
