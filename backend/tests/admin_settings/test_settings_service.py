@@ -135,6 +135,50 @@ async def test_update_section_branding_persists(
 
 
 @pytest.mark.asyncio
+async def test_update_section_smtp_password_encrypted_at_rest(
+    db: AsyncSession, make_user,
+):
+    """S24: el password SMTP se persiste CIFRADO (enc:v1:) y get_smtp_config lo
+    descifra para uso · nunca en claro at-rest · re-guardar el token no re-cifra."""
+    from backend.app.admin_settings.email_config import get_smtp_config
+    from backend.app.admin_settings.schemas import SmtpSettings
+
+    await ensure_seeded(db)
+    owner = await make_user(role="owner", email="test-owner-smtp@example.com")
+    secret = "sUper-Secr3t-Pwd!"
+
+    updated = await update_section(
+        db=db,
+        section="smtp",
+        payload=SmtpSettings(
+            host="smtp.example.com", port=587,
+            username="bot@example.com", password=secret,
+        ),
+        user=owner,
+    )
+    stored = updated.smtp["password"]
+    assert stored != secret  # NUNCA en claro
+    assert stored.startswith("enc:v1:")
+
+    # get_smtp_config descifra para uso real
+    cfg = await get_smtp_config(db)
+    assert cfg.password == secret
+
+    # re-guardar el token cifrado NO lo vuelve a cifrar (idempotente)
+    again = await update_section(
+        db=db, section="smtp",
+        payload=SmtpSettings(
+            host="smtp.example.com", port=587,
+            username="bot@example.com", password=stored,
+        ),
+        user=owner,
+    )
+    assert again.smtp["password"] == stored
+    cfg2 = await get_smtp_config(db)
+    assert cfg2.password == secret
+
+
+@pytest.mark.asyncio
 async def test_update_section_partial_merges_preserves_other_fields(
     db: AsyncSession, make_user,
 ):

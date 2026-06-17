@@ -519,14 +519,8 @@ async def get_about(
     except Exception:  # pragma: no cover · defensivo entorno sin corpus
         logger.exception("get_about corpus stats query failed · degradando a 0")
 
-    # Suite passing: refleja realidad acotada actual (4.A.2.c).
-    # No hay infra para calcular dinámicamente; valor coherente con
-    # backend/tests/auth + m21_portal_cliente acotada actual = 81.
-    # Cuando suite full sea ejecutable confiable, sustituir por
-    # query a algún tracking real.
-    suite_passing_stub = 81
-    test_loc_ratio_avg_stub = 0.0  # no infra para ratio dinámico
-
+    # S24: suite_passing/test_loc_ratio eliminados (vanity metrics fabricadas ·
+    # ver AdminSettingsAbout). El estado real de la suite se ve en CI, no aquí.
     return AdminSettingsAbout(
         version=get_settings().app_version,
         commit_hash=_git_commit_hash(),
@@ -539,8 +533,6 @@ async def get_about(
         corpus_completion_pct=round(
             min(100.0, (corpus_sources_count / corpus_sources_target) * 100), 1,
         ) if corpus_sources_target else 0.0,
-        suite_passing=suite_passing_stub,
-        test_loc_ratio_avg=test_loc_ratio_avg_stub,
     )
 
 

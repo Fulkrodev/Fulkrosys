@@ -31,11 +31,14 @@ Ver plan v4.2 sección FASE 4 + sub-bloque 4.A.2.b.
 """
 from __future__ import annotations
 
+import logging
 from typing import Literal, Type
 
 from pydantic import BaseModel
 from sqlalchemy import select, text
 from sqlalchemy.ext.asyncio import AsyncSession
+
+logger = logging.getLogger(__name__)
 
 from backend.app.admin_settings.schemas import (
     AnalyticsPrefs,
@@ -170,6 +173,23 @@ async def update_section(
     # Merge con valor actual (preserva fields no enviados)
     current = getattr(settings, section) or {}
     merged = {**current, **new_data}
+
+    # S24 (campaña auditoría): el password SMTP NO se almacena en claro. Se cifra
+    # con Fernet (clave derivada de app_secret_key · reuse token_encryption) y se
+    # marca con prefijo enc:v1: para que el lector (email_config) sepa descifrarlo.
+    # Sólo se (re)cifra si llega un password nuevo en plano (no re-cifrar lo ya cifrado).
+    if section == "smtp" and merged.get("password"):
+        pwd = str(merged["password"])
+        if not pwd.startswith("enc:v1:"):
+            try:
+                from backend.app.motors.m16_onboarding.token_encryption import (
+                    encrypt_str,
+                )
+                merged["password"] = "enc:v1:" + encrypt_str(pwd)
+            except Exception:  # noqa: BLE001
+                # Sin app_secret_key utilizable no se persiste el secreto en claro.
+                logger.warning("SMTP password no cifrable · se descarta del guardado")
+                merged.pop("password", None)
 
     # set_config(..., true) → scope local-to-transaction. El trigger
     # tg_audit_admin_settings (fn_audit_track) lee este setting al

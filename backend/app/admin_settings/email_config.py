@@ -99,7 +99,24 @@ async def get_smtp_config(
         if smtp_custom.get("username"):
             admin_username = smtp_custom["username"]
         if smtp_custom.get("password"):
-            admin_password = smtp_custom["password"]
+            # S24: el password se persiste cifrado con prefijo enc:v1: · se
+            # descifra para uso. Rows legacy en claro (sin prefijo) siguen
+            # funcionando (backward-compat) hasta el próximo guardado.
+            raw_pwd = str(smtp_custom["password"])
+            if raw_pwd.startswith("enc:v1:"):
+                try:
+                    from backend.app.motors.m16_onboarding.token_encryption import (
+                        decrypt_str,
+                    )
+                    admin_password = decrypt_str(raw_pwd[len("enc:v1:"):])
+                except Exception as dexc:  # noqa: BLE001
+                    logger.warning(
+                        "SMTP password cifrado no descifrable (%s) · fallback env",
+                        dexc,
+                    )
+                    admin_password = None
+            else:
+                admin_password = raw_pwd
     except Exception as exc:
         logger.warning(
             "AdminSettings.smtp lookup failed: %s. Using env defaults.", exc,

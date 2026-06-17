@@ -180,8 +180,7 @@ export const adminSettingsAboutSchema = z.object({
   corpus_chunks_total: z.number(),
   corpus_last_updated: z.string().datetime().nullable(),
   corpus_completion_pct: z.number(),
-  suite_passing: z.number(),
-  test_loc_ratio_avg: z.number(),
+  // S24: suite_passing / test_loc_ratio_avg eliminados (vanity metrics fabricadas).
 });
 
 export type AdminSettingsAbout = z.infer<typeof adminSettingsAboutSchema>;

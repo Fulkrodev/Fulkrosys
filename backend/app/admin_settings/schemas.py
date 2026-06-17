@@ -127,7 +127,10 @@ class SmtpSettings(BaseModel):
     password: Optional[str] = Field(
         default=None,
         max_length=500,
-        description="Password en plano (BD-encrypted en sub-bloque posterior si se requiere)",
+        description=(
+            "Password SMTP. Se acepta en plano en el PATCH pero se persiste "
+            "CIFRADO (Fernet · prefijo enc:v1:) y se descifra sólo en uso (S24)."
+        ),
     )
 
 
@@ -248,8 +251,9 @@ class AdminSettingsAbout(BaseModel):
     corpus_chunks_total: int
     corpus_last_updated: Optional[datetime]
     corpus_completion_pct: float
-    suite_passing: int
-    test_loc_ratio_avg: float
+    # S24 (campaña auditoría): se eliminaron suite_passing (=81 fijo, real ~6200)
+    # y test_loc_ratio_avg (=0.0): vanity metrics fabricadas sin fuente runtime.
+    # Mostrar un número de tests falso era peor que no mostrarlo.
 
 
 # ─────────────────────────────────────────────────────────────────

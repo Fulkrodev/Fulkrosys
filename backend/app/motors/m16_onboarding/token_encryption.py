@@ -40,6 +40,19 @@ def decrypt_credentials(encrypted: bytes) -> dict:
         raise ValueError("No se puede descifrar: token invalido o clave cambiada")
 
 
+def encrypt_str(value: str) -> str:
+    """Encrypt a string secret → urlsafe token str (storable en JSON)."""
+    return _get_fernet().encrypt(value.encode("utf-8")).decode("ascii")
+
+
+def decrypt_str(token: str) -> str:
+    """Decrypt a token produced by ``encrypt_str``."""
+    try:
+        return _get_fernet().decrypt(token.encode("ascii")).decode("utf-8")
+    except InvalidToken:
+        raise ValueError("No se puede descifrar: token invalido o clave cambiada")
+
+
 def reset_fernet_cache() -> None:
     """For tests that change app_secret_key."""
     _get_fernet.cache_clear()

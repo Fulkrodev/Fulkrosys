@@ -185,31 +185,9 @@ export function AboutTab({
         </Card>
       )}
 
-      <Card>
-        <CardHeader>
-          <CardTitle>Tests + cobertura</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <dl className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-            <div>
-              <dt className="text-xs uppercase tracking-wider text-fulkro-ink-500">
-                Suite passing
-              </dt>
-              <dd className="mt-1 text-2xl font-semibold text-fulkro-success">
-                {about.suite_passing}
-              </dd>
-            </div>
-            <div>
-              <dt className="text-xs uppercase tracking-wider text-fulkro-ink-500">
-                Test/code ratio
-              </dt>
-              <dd className="mt-1 text-2xl font-bold text-[color:var(--fulkro-title)]">
-                {about.test_loc_ratio_avg.toFixed(2)}
-              </dd>
-            </div>
-          </dl>
-        </CardContent>
-      </Card>
+      {/* S24: card "Tests + cobertura" eliminado · mostraba métricas fabricadas
+          (suite_passing=81 fijo, ratio=0.0) sin fuente runtime. El estado real de
+          la suite vive en CI, no en este panel. */}
 
       <Card>
         <CardHeader>
