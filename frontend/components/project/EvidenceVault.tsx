@@ -32,8 +32,9 @@ import {
   useEvidenceList,
   useUploadCatalog,
   useUploadEvidence,
+  useVerifyEvidence,
 } from "@/hooks/useEvidence";
-import type { EvidenceListItem } from "@/lib/api/evidence";
+import { evidencePreviewUrl, type EvidenceListItem } from "@/lib/api/evidence";
 import { cn, formatDay } from "@/lib/utils";
 
 // ─── Status derivation (from M07 fields) ─────────────────────────────
@@ -294,6 +295,7 @@ export function EvidenceVault({ projectId }: { projectId: string }) {
       </Card>
 
       <EvidenceDetailPanel
+        projectId={projectId}
         item={selected}
         onClose={() => setSelected(null)}
       />
@@ -517,13 +519,51 @@ function AdminUploadForm({ projectId }: { projectId: string }) {
 
 // ─── Detail panel ────────────────────────────────────────────────────
 
+const VERIFY_VERDICT_TOAST: Record<
+  string,
+  { kind: "success" | "error" | "warning"; msg: string }
+> = {
+  ok: { kind: "success", msg: "Firma válida · integridad Ed25519 verificada" },
+  tampered: {
+    kind: "error",
+    msg: "Hash SHA-256 no coincide · el fichero ha sido alterado",
+  },
+  invalid_signature: { kind: "error", msg: "Firma Ed25519 inválida" },
+  missing: {
+    kind: "error",
+    msg: "Fichero no encontrado en el almacenamiento",
+  },
+};
+
 function EvidenceDetailPanel({
+  projectId,
   item,
   onClose,
 }: {
+  projectId: string;
   item: EvidenceListItem | null;
   onClose: () => void;
 }) {
+  const verifyMutation = useVerifyEvidence(projectId);
+
+  // S28a: verifica integridad criptográfica real (GET .../evidence/{id}/verify ·
+  // recomputa SHA-256 + valida firma Ed25519 server-side) y reporta el verdict.
+  function handleVerify(evidenceId: string) {
+    verifyMutation.mutate(evidenceId, {
+      onSuccess: (res) => {
+        const meta = VERIFY_VERDICT_TOAST[res.verdict] ?? {
+          kind: "warning" as const,
+          msg: `Verificación: ${res.verdict}`,
+        };
+        toast[meta.kind](meta.msg);
+      },
+      onError: (err) =>
+        toast.error(
+          `No se pudo verificar la firma: ${(err as Error).message}`,
+        ),
+    });
+  }
+
   return (
     <Card className="xl:sticky xl:top-4 xl:max-h-[calc(100dvh-6rem)] xl:overflow-y-auto">
       <CardHeader className="flex-row items-center justify-between gap-3">
@@ -605,26 +645,36 @@ function EvidenceDetailPanel({
               </div>
             )}
 
-            {/* §3.1 · estos botones no tenían onClick (fingían completitud) ·
-                deshabilitados con tooltip hasta cablear preview/verificación reales. */}
+            {/* S28a · botones funcionales reales: preview streamea el binario
+                (var/evidences inline) · verificar recomputa SHA-256 + firma Ed25519. */}
             <div className="space-y-2">
               <Button
                 variant="primary"
                 size="md"
                 className="w-full"
-                disabled
-                title="Próximamente"
+                onClick={() =>
+                  window.open(
+                    evidencePreviewUrl(projectId, item.id),
+                    "_blank",
+                    "noopener,noreferrer",
+                  )
+                }
               >
-                <ExternalLink size={16} strokeWidth={2.3} /> Abrir preview (próximamente)
+                <ExternalLink size={16} strokeWidth={2.3} /> Abrir preview
               </Button>
               <Button
                 variant="outline"
                 size="md"
                 className="w-full"
-                disabled
-                title="Próximamente"
+                disabled={verifyMutation.isPending}
+                onClick={() => handleVerify(item.id)}
               >
-                <Fingerprint size={16} strokeWidth={2.3} /> Verificar firma (próximamente)
+                {verifyMutation.isPending ? (
+                  <Loader2 size={16} strokeWidth={2.3} className="animate-spin" />
+                ) : (
+                  <Fingerprint size={16} strokeWidth={2.3} />
+                )}
+                Verificar firma
               </Button>
             </div>
           </>

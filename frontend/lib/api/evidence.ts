@@ -196,3 +196,14 @@ export async function verifyEvidence(
     `${BASE}/evidence/projects/${projectId}/evidence/${evidenceId}/verify`,
   );
 }
+
+/**
+ * URL del preview inline (S28a). Streamea el binario almacenado · auth por
+ * cookie de sesión (GET same-origin) · usar con window.open / <a target>.
+ */
+export function evidencePreviewUrl(
+  projectId: string,
+  evidenceId: string,
+): string {
+  return `${BASE}/evidence/projects/${projectId}/evidence/${evidenceId}/preview`;
+}

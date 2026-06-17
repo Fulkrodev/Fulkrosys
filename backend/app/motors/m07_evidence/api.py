@@ -400,6 +400,74 @@ async def verify_evidence_endpoint(
     )
 
 
+# ── 6.bis GET .../evidence/{evidence_id}/preview (stream inline) ──
+# S28a (campaña auditoría): el botón "Abrir preview" del EvidenceVault admin
+# estaba honest-disabled porque NO existía endpoint que sirviera el binario.
+# Sirve el fichero almacenado en var/evidences inline (mismo loader que verify).
+# RLS-scoped (un ClientUser sólo su proyecto) · guard anti path-traversal ·
+# bloquea ficheros en cuarentena/error de antivirus.
+
+
+@router.get("/evidence/projects/{project_id}/evidence/{evidence_id}/preview")
+async def preview_evidence_endpoint(
+    project_id: uuid.UUID,
+    evidence_id: uuid.UUID,
+    db: AsyncSession = Depends(get_db),
+):
+    """Stream the stored evidence file inline (preview)."""
+    from fastapi.responses import StreamingResponse
+
+    from backend.app.motors.m07_evidence.verification_service import (
+        _EVIDENCES_DIR,
+        _REPO_ROOT,
+    )
+
+    await _set_project_rls(project_id, db)
+    row = (await db.execute(
+        text(
+            "SELECT fichero_path, fichero_mime_type, fichero_nombre_original, "
+            "scan_status FROM evidence "
+            "WHERE id = :eid AND project_id = :pid AND deleted_at IS NULL"
+        ),
+        {"eid": str(evidence_id), "pid": str(project_id)},
+    )).fetchone()
+    if row is None:
+        raise HTTPException(status_code=404, detail="Evidencia no encontrada")
+    fichero_path, mime, nombre, scan_status = row[0], row[1], row[2], row[3]
+    if scan_status in ("quarantined", "error"):
+        raise HTTPException(
+            status_code=403,
+            detail=(
+                "Evidencia no disponible para preview · "
+                f"scan_status='{scan_status}'"
+            ),
+        )
+    if not fichero_path:
+        raise HTTPException(
+            status_code=404, detail="Evidencia sin fichero asociado",
+        )
+    resolved = (_REPO_ROOT / fichero_path).resolve()
+    # Guard anti path-traversal: el fichero debe vivir dentro de var/evidences.
+    if not resolved.is_relative_to(_EVIDENCES_DIR.resolve()):
+        raise HTTPException(status_code=400, detail="Ruta de evidencia inválida")
+    if not resolved.exists():
+        raise HTTPException(
+            status_code=404, detail="Fichero no encontrado en almacenamiento",
+        )
+
+    def _iter():
+        with open(resolved, "rb") as fh:
+            while chunk := fh.read(64 * 1024):
+                yield chunk
+
+    safe_name = (nombre or "evidencia").replace('"', "").replace("\n", "")
+    return StreamingResponse(
+        _iter(),
+        media_type=mime or "application/octet-stream",
+        headers={"Content-Disposition": f'inline; filename="{safe_name}"'},
+    )
+
+
 # ── Admin-only catalog (powers the admin EvidenceVault upload form) ──
 # Separate router: the upload/list endpoints accept both pools
 # (require_marcos_or_client) so the cliente can aportar pruebas, but the
