@@ -104,7 +104,7 @@ def test_client_token_based_endpoints_no_require_owner():
 
 
 def test_total_admin_endpoints_count_matches_audit():
-    """Conteo total endpoints con require_owner == 24 (audit empírico).
+    """Conteo total endpoints con require_owner == 25 (audit empírico).
 
     Si este conteo cambia, alguien añadió/quitó endpoint sin clasificar
     correctamente (admin vs token-based vs compute-only). REPORTAR antes
@@ -114,6 +114,10 @@ def test_total_admin_endpoints_count_matches_audit():
     POST /onboarding/precliente/sessions (trigger del cuestionario del lead) →
     23 → 24. Los endpoints account-less del lead (/consume + /me/*) NO llevan
     require_owner (token/secret-based · ver test_client_token_based_*).
+
+    Campaña fix 2026-06-17 (#minor): +1 · GET /onboarding/tools clasificado
+    admin (catálogo PKG interno · no se expone al pool cliente · espejo del POST
+    /tools que ya llevaba require_owner) → 24 → 25.
     """
     count = 0
     for route in m16_router.routes:
@@ -122,7 +126,7 @@ def test_total_admin_endpoints_count_matches_audit():
         dep_funcs = [d.dependency for d in route.dependencies]
         if require_owner in dep_funcs:
             count += 1
-    assert count == 24, (
-        f"Esperaba 24 admin endpoints con require_owner, encontré {count}. "
+    assert count == 25, (
+        f"Esperaba 25 admin endpoints con require_owner, encontré {count}. "
         f"Clasificar nuevo endpoint en docstring de api.py antes de cambiar."
     )

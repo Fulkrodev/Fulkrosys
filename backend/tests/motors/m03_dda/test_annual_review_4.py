@@ -15,7 +15,6 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from backend.app.database import set_tenant_context
 from backend.app.motors.m03_dda.enums import CategoriaSistema
 from backend.app.motors.m03_dda.service import DdaService
-from backend.app.motors.m23_retainer.retainer_service import RetainerService
 from backend.tests.conftest import setup_test_project
 
 
@@ -95,10 +94,14 @@ async def test_annual_review_bumps_version_and_records(db: AsyncSession):
 
 
 def test_revision_ar_dda_wired_in_executors():
-    # #4 · el scheduler reconoce el tipo de actividad
-    assert RetainerService.ACTIVITY_EXECUTORS.get("revision_ar_dda") == (
-        "m03_dda.annual_review"
-    )
+    # #4 · el scheduler reconoce el tipo de actividad.
+    # Fix campaña 2026-06-17: el catálogo ACTIVITY_EXECUTORS se movió de
+    # RetainerService (atributo de clase · eliminado en el fix S4) a
+    # m23_retainer.tasks · fuente veraz del status del scheduler (ver nota S4 en
+    # retainer_service.py). El test apuntaba al atributo viejo → AttributeError.
+    from backend.app.motors.m23_retainer.tasks import ACTIVITY_EXECUTORS
+
+    assert ACTIVITY_EXECUTORS.get("revision_ar_dda") == "m03_dda.annual_review"
 
 
 def test_e808_autoevaluacion_registered():
