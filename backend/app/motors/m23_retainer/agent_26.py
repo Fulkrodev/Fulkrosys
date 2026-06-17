@@ -202,6 +202,123 @@ async def _rule_upgrade_candidate(
     )]
 
 
+async def _rule_no_response(
+    db: AsyncSession, rc: RetainerContract, client_name: str,
+) -> list[RetainerAlert]:
+    """S5 · Cliente sin acceso al portal en >45 días (o nunca) · riesgo de
+    desatención del mantenimiento ENS."""
+    row = (await db.execute(
+        text(
+            "SELECT MAX(last_login) FROM client_users "
+            "WHERE client_id = :cid AND deleted_at IS NULL"
+        ),
+        {"cid": str(rc.client_id)},
+    )).first()
+    last_login = row[0] if row else None
+    threshold = datetime.now(timezone.utc) - timedelta(days=45)
+    if last_login is not None and last_login > threshold:
+        return []
+    dias = (
+        (datetime.now(timezone.utc) - last_login).days
+        if last_login is not None else None
+    )
+    return [RetainerAlert(
+        retainer_contract_id=rc.id,
+        client_name=client_name,
+        tier=rc.perfil or "R_STD",
+        priority="high",
+        code="A26_CLIENT_NO_RESPONSE",
+        title=f"Cliente sin actividad en portal — {client_name}",
+        description=(
+            f"{client_name} no ha accedido al portal "
+            + (f"en {dias} días." if dias is not None else "nunca.")
+            + " Riesgo de desatención del mantenimiento ENS."
+        ),
+        suggested_action=(
+            "Contactar al cliente para reactivar el seguimiento; confirmar "
+            "interlocutor y agendar check-in."
+        ),
+        metadata={"dias_sin_login": dias},
+    )]
+
+
+async def _rule_recurring_incidents(
+    db: AsyncSession, rc: RetainerContract, client_name: str,
+) -> list[RetainerAlert]:
+    """S5 · Reincidencia: drift HIGH/CRITICAL en ≥2 meses distintos de los
+    últimos 90 días (patrón crónico, no incidente puntual)."""
+    since = datetime.now(timezone.utc) - timedelta(days=90)
+    row = (await db.execute(
+        text(
+            "SELECT count(DISTINCT date_trunc('month', created_at)) "
+            "FROM retainer_drift_events "
+            "WHERE retainer_contract_id = :rid "
+            "AND severidad IN ('HIGH', 'CRITICAL') "
+            "AND created_at >= :since AND deleted_at IS NULL"
+        ),
+        {"rid": str(rc.id), "since": since},
+    )).first()
+    months = int(row[0] or 0) if row else 0
+    if months < 2:
+        return []
+    return [RetainerAlert(
+        retainer_contract_id=rc.id,
+        client_name=client_name,
+        tier=rc.perfil or "R_STD",
+        priority="high",
+        code="A26_RECURRING_DRIFT",
+        title=f"Drift recurrente ({months} meses) — {client_name}",
+        description=(
+            f"{client_name} acumula drift HIGH/CRITICAL en {months} meses "
+            "distintos de los últimos 90 días: patrón crónico, no puntual."
+        ),
+        suggested_action=(
+            "Investigar causa raíz recurrente; valorar auditoría extraordinaria "
+            "o ajuste del plan de tratamiento."
+        ),
+        metadata={"months_with_incidents": months},
+    )]
+
+
+async def _rule_downgrade_candidate(
+    db: AsyncSession, rc: RetainerContract, client_name: str,
+) -> list[RetainerAlert]:
+    """S5 · Sobre-dimensionado: R_PLUS/R_CRITICAL con muy poca actividad
+    ejecutada en 90 días · sugerir downgrade (inverso de upgrade_candidate)."""
+    if rc.perfil not in {"R_PLUS", "R_CRITICAL"}:
+        return []
+    since = datetime.now(timezone.utc) - timedelta(days=90)
+    r = await db.execute(
+        select(func.count(RetainerActivity.id)).where(
+            RetainerActivity.retainer_contract_id == rc.id,
+            RetainerActivity.estado == "completada",
+            RetainerActivity.fecha_ejecutada >= since,
+            RetainerActivity.deleted_at.is_(None),
+        )
+    )
+    actividades_90d = r.scalar() or 0
+    if actividades_90d >= 2:
+        return []
+    suggested = "R_STD" if rc.perfil == "R_PLUS" else "R_PLUS"
+    return [RetainerAlert(
+        retainer_contract_id=rc.id,
+        client_name=client_name,
+        tier=rc.perfil,
+        priority="low",
+        code="A26_DOWNGRADE_CANDIDATE",
+        title=f"Candidato downgrade: {client_name} {rc.perfil} -> {suggested}",
+        description=(
+            f"Retainer {rc.perfil} con solo {actividades_90d} actividades "
+            "ejecutadas en 90 días: posible sobre-dimensionado."
+        ),
+        suggested_action=(
+            f"Valorar downgrade a {suggested} o reactivar el uso del retainer "
+            "con el cliente (revisar valor entregado)."
+        ),
+        metadata={"actividades_90d": actividades_90d, "suggested_tier": suggested},
+    )]
+
+
 # ════════════════════════════════════════════════════════════════════
 # Runner
 # ════════════════════════════════════════════════════════════════════
@@ -235,6 +352,9 @@ async def run_weekly_analysis(
         alerts.extend(await _rule_critical_drift(db, rc, client_name))
         alerts.extend(await _rule_renewal_urgent(rc, client_name))
         alerts.extend(await _rule_upgrade_candidate(db, rc, client_name))
+        alerts.extend(await _rule_no_response(db, rc, client_name))
+        alerts.extend(await _rule_recurring_incidents(db, rc, client_name))
+        alerts.extend(await _rule_downgrade_candidate(db, rc, client_name))
 
     # Ordenar por priority
     order = {"critical": 0, "high": 1, "medium": 2, "low": 3}
@@ -294,6 +414,16 @@ def draft_client_email_offline(alert: RetainerAlert) -> dict[str, str]:
                 f"adecuado valorar el upgrade a {alert.metadata.get('suggested_tier')}. "
                 f"Te explico en una llamada breve los motivos tecnicos.\n\n"
                 f"Un saludo,\nMarcos"
+            ),
+        },
+        "A26_CLIENT_NO_RESPONSE": {
+            "subject": f"Seguimiento ENS — {alert.client_name}",
+            "body": (
+                "Estimado responsable de seguridad,\n\n"
+                "Hace tiempo que no registramos actividad por tu parte en el "
+                "portal de seguimiento ENS. Para mantener al dia el mantenimiento "
+                "y la conformidad, me gustaria agendar un breve check-in.\n\n"
+                "Un saludo,\nMarcos"
             ),
         },
     }

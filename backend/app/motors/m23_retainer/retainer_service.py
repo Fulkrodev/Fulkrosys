@@ -416,16 +416,9 @@ class RetainerService:
         return a
 
     # ══════════════════ Sprint C5: Activity executor ══════════════════
-
-    # Mapeo tipo_actividad → función ejecutora (lazy imports)
-    ACTIVITY_EXECUTORS: dict[str, str] = {
-        "vigilancia_vulnerabilidades": "m08_continuous",
-        "auditoria_interna": "m10_audit_sim",
-        "reporte_trimestral": "m18_quarterly",
-        "reporte_anual": "m18_annual",
-        "comite_seguridad": "m18_monthly",
-        "revision_ar_dda": "m03_dda.annual_review",  # #4 · revisión anual AR/DdA
-    }
+    # (S4 fix: se eliminó el dict ACTIVITY_EXECUTORS de clase, que era código
+    #  muerto sin lectores — execute_activity despacha por if/elif explícito.
+    #  El catálogo veraz vive en tasks.py:ACTIVITY_EXECUTORS para el status.)
 
     async def execute_activity(
         self,

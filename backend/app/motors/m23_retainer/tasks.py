@@ -12,19 +12,25 @@ from loguru import logger
 from backend.app.core.celery_app import celery_app
 
 
-# Mapeo tipo_actividad -> motor/funcion
+# Catálogo tipo_actividad -> ejecutor REAL (S4 fix: antes declaraba métodos
+# inexistentes —p.ej. m09_audit_prep.continuity_drill, m21_diagnosis.privilege_review—
+# para los tipos manuales). Los 6 "auto" los ejecuta RetainerService.execute_activity
+# invocando el motor; los 5 "manual" se completan con nota de ejecución manual porque
+# NO hay motor auto-ejecutable sin fabricar datos (campaña phishing, prueba de
+# continuidad, revisiones de privilegios/proveedores y formación requieren ejecución
+# o inputs del consultor · execute_activity cae a "manual" para ellos).
 ACTIVITY_EXECUTORS: dict[str, str] = {
     "vigilancia_vulnerabilidades": "m08_verification.create_run",
     "auditoria_interna": "m10_audit_sim.run_simulation",
-    "reporte_trimestral": "m18_communication.quarterly",
-    "reporte_anual": "m18_communication.annual",
-    "comite_seguridad": "m18_communication.monthly",
-    "simulacro_phishing": "m08_verification.create_run",
-    "prueba_continuidad": "m09_audit_prep.continuity_drill",
-    "revision_privilegios": "m21_diagnosis.privilege_review",
-    "revision_proveedores": "m21_diagnosis.vendor_review",
+    "reporte_trimestral": "m18_communication.generate_report",
+    "reporte_anual": "m18_communication.generate_report",
+    "comite_seguridad": "m18_communication.generate_report",
     "revision_ar_dda": "m03_dda.annual_review",
-    "formacion_anual": "m16_onboarding.training",
+    "simulacro_phishing": "manual",
+    "prueba_continuidad": "manual",
+    "revision_privilegios": "manual",
+    "revision_proveedores": "manual",
+    "formacion_anual": "manual",
 }
 
 
