@@ -111,15 +111,17 @@ def test_format_admin_template_override():
 
 
 @pytest.mark.asyncio
-async def test_send_admin_notification_log_only_no_inbox_yet():
-    """Admin inbox NO yet implemented · expected log_only channel."""
+async def test_send_admin_notification_emails_consultor_or_skips(monkeypatch):
+    """S18 fix: notifica al consultor por email (FULKRO_ADMIN_EMAIL) en lugar de
+    log-only. Sin email configurado → canal 'log' + skip graceful explícito."""
+    monkeypatch.delenv("FULKRO_ADMIN_EMAIL", raising=False)
     db_mock = AsyncMock()
     tmpl = _mk_template(template_id="X")
     result = await send_admin_step_completed_notification(
         db=db_mock, project_id=uuid.uuid4(), template=tmpl,
     )
-    assert "log_only_admin_inbox_not_yet_implemented" in result.channels
-    assert "admin_notifications_pending_T1_polish" in result.skipped_reasons
+    assert "log" in result.channels
+    assert "fulkro_admin_email_not_configured" in result.skipped_reasons
 
 
 # ============= send_client_unblock_notification =============

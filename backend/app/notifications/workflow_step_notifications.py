@@ -205,10 +205,12 @@ async def send_admin_step_completed_notification(
     project_id: uuid.UUID,
     template: TaskTemplate,
 ) -> NotificationDispatchResult:
-    """Fire notifications cuando step actor=admin becomes available (cliente completó).
+    """Fire notification cuando step actor=admin becomes available (cliente completó).
 
-    NO admin_notifications table existing yet (audit-first 1.D.G.F).
-    Solo emite payload logging para futura admin inbox · graceful no-op.
+    S18 fix: antes era log-only (admin_inbox_not_yet_implemented). Ahora notifica
+    de verdad al consultor por EMAIL vía NotificationOrchestrator a
+    FULKRO_ADMIN_EMAIL (Marcos es el único owner · no hay inbox admin in-app
+    por-usuario). Graceful skip + log si FULKRO_ADMIN_EMAIL no está configurado.
     """
     channels: list[str] = []
     skipped: list[str] = []
@@ -218,9 +220,41 @@ async def send_admin_step_completed_notification(
         "workflow_step_unblocked admin · project=%s template=%s message=%s",
         project_id, template.id, message,
     )
-    channels.append("log_only_admin_inbox_not_yet_implemented")
-    skipped.append("admin_notifications_pending_T1_polish")
 
+    admin_email = os.environ.get("FULKRO_ADMIN_EMAIL", "").strip()
+    if not admin_email:
+        skipped.append("fulkro_admin_email_not_configured")
+        return NotificationDispatchResult(
+            channels=["log"], message=message, skipped_reasons=skipped,
+        )
+
+    try:
+        from backend.app.notifications.orchestrator import NotificationOrchestrator
+        orchestrator = NotificationOrchestrator(db)
+        target_url = template.cta_url or "/admin/workflow-command-center"
+        html_body = (
+            f"<p>{message}</p>"
+            f"<p><a href='{target_url}'>Abrir en el panel</a></p>"
+        )
+        await orchestrator.enqueue(
+            event_type="workflow_step_admin_ready",
+            recipient_email=admin_email,
+            recipient_user_id=None,
+            subject="Workflow ENS · es tu turno",
+            html_body=html_body,
+            text_body=message,
+            project_id=project_id,
+            template_used="workflow_step_admin_ready",
+            payload={"template_id": template.id},
+        )
+        channels.append("email")
+    except ImportError:
+        skipped.append("email_orchestrator_unavailable")
+    except Exception as exc:  # noqa: BLE001
+        logger.warning("admin step notify email failed: %s", exc)
+        skipped.append("email_failed")
+
+    channels.append("log")
     return NotificationDispatchResult(
         channels=channels,
         message=message,
