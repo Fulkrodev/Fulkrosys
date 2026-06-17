@@ -369,6 +369,16 @@ async def post_approve(
     project_id, client_id = project_meta
     await _set_project_rls(db, project_id=project_id, client_id=client_id)
 
+    # #minor integridad · el draft_id debe ser un draft REAL del proyecto (no
+    # IDOR: el project_id ya es el del cliente · esto evita registrar una
+    # conformidad contra un draft_id inexistente/ajeno · binding correcto ENS).
+    valid_draft_ids = {
+        d["draft_id"]
+        for d in await list_drafts(db, project_id=uuid.UUID(project_id))
+    }
+    if str(draft_id) not in valid_draft_ids:
+        raise HTTPException(status_code=404, detail="Borrador no encontrado")
+
     row = await record_approval(
         db,
         project_id=uuid.UUID(project_id),

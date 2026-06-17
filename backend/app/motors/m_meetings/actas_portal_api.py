@@ -146,6 +146,23 @@ async def _get_acta_project(
     return hit[0]
 
 
+async def _assert_acta_sent_to_client(
+    db: AsyncSession, meeting_id: uuid.UUID,
+) -> CommitteeMeeting:
+    """#minor · el cliente solo opera (review/hash/firma) actas que el admin ya
+    le ha enviado (``admin_curation_status == 'sent_to_client'``), igual que la
+    vista detalle. Sin este gate el cliente podía revisar/firmar un acta en
+    borrador interno (bypass de workflow · intra-tenant). 404 si no visible."""
+    meeting = await db.get(CommitteeMeeting, meeting_id)
+    if (
+        meeting is None
+        or meeting.deleted_at is not None
+        or meeting.admin_curation_status != "sent_to_client"
+    ):
+        raise HTTPException(status_code=404, detail="Acta no visible")
+    return meeting
+
+
 def _handle_service_error(exc: Exception) -> HTTPException:
     if isinstance(exc, ActaNotFoundError):
         return HTTPException(status_code=404, detail=str(exc))
@@ -265,6 +282,7 @@ async def review_acta(
     """Cliente review action MixinA pattern."""
     project_id = await _get_acta_project(db, meeting_id)
     await ensure_owned_via_project(db, project_id, user)
+    await _assert_acta_sent_to_client(db, meeting_id)
 
     try:
         meeting = await _service(db).mark_client_review(
@@ -296,6 +314,7 @@ async def get_acta_hash(
     """SHA256 canonical · pre-firma input M05."""
     project_id = await _get_acta_project(db, meeting_id)
     await ensure_owned_via_project(db, project_id, user)
+    await _assert_acta_sent_to_client(db, meeting_id)
 
     try:
         doc_hash, canonical_length = await _service(db).compute_acta_hash(
@@ -334,6 +353,7 @@ async def finalize_acta_signoff(
     """Post-firma cliente · link signing_intent + firmas jsonb multi-sig append."""
     project_id = await _get_acta_project(db, meeting_id)
     await ensure_owned_via_project(db, project_id, user)
+    await _assert_acta_sent_to_client(db, meeting_id)
 
     intent = await db.get(SigningIntent, body.signing_intent_id)
     if intent is None:

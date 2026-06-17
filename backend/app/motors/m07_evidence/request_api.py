@@ -652,6 +652,19 @@ async def cliente_upload_request(
     if row is None or str(row.project_id) != project_id_str:
         raise HTTPException(status_code=404, detail="Tarea no encontrada")
 
+    # #minor · la Evidence a vincular DEBE ser del mismo proyecto (el pool cliente
+    # corre con RLS off · sin esto el cliente podía enlazar una evidence_id de otro
+    # proyecto · FK cross-tenant / cruce intra-tenant). Mismo criterio que el request.
+    ev = (await db.execute(
+        text(
+            "SELECT 1 FROM evidence "
+            "WHERE id = :eid AND project_id = :pid AND deleted_at IS NULL"
+        ),
+        {"eid": str(body.evidence_id), "pid": project_id_str},
+    )).scalar()
+    if ev is None:
+        raise HTTPException(status_code=404, detail="Evidencia no encontrada")
+
     try:
         row = await cliente_upload(
             db,
