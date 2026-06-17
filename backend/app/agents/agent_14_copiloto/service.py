@@ -409,6 +409,47 @@ def _normalize_citation_label(raw: str) -> str:
 
 
 # ---------------------------------------------------------------------------
+# S14 · Suggested actions (deterministas · R1 · sin LLM)
+# ---------------------------------------------------------------------------
+
+# Mapa motor activo (derivado del screen actual en el frontend) → siguiente
+# paso lógico del ciclo ENS. Rutas verificadas contra
+# frontend/app/(admin)/admin/projects/[id]/*  (NO fabricadas).
+_ADMIN_NEXT_STEP: dict[str, tuple[str, str]] = {
+    "magerit": ("dda", "Ir a la Declaración de Aplicabilidad"),
+    "obligations": ("evidence", "Ir a evidencias"),
+    "conformity": ("renewal", "Ir a renovación"),
+    "diagnosis": ("plan", "Ir al plan de adecuación"),
+    "evidence": ("dossier", "Ir al dossier ENS"),
+}
+
+
+def suggest_actions(query: CopilotQuery) -> list[dict]:
+    """Acciones sugeridas deterministas, role-aware (R1 · sin LLM).
+
+    Solo el copiloto admin con proyecto activo y un motor reconocido recibe un
+    chip ``navigate`` al siguiente paso del ciclo ENS (sección project-scoped
+    real). Sin contexto suficiente devuelve ``[]`` — nunca fabrica chips.
+    """
+    pc = query.page_context
+    if query.role != "admin" or pc is None or not query.project_id:
+        return []
+    motor = (pc.active_motor or "").strip().lower()
+    nxt = _ADMIN_NEXT_STEP.get(motor)
+    if nxt is None:
+        return []
+    segment, label = nxt
+    return [
+        {
+            "id": f"nav-{segment}",
+            "label": label,
+            "kind": "navigate",
+            "payload": {"url": f"/admin/projects/{query.project_id}/{segment}"},
+        }
+    ]
+
+
+# ---------------------------------------------------------------------------
 # Public API
 # ---------------------------------------------------------------------------
 
@@ -550,6 +591,7 @@ async def answer_question(
         tokens_output=llm_result.completion_tokens,
         latency_ms=int(llm_result.latency_ms),
         interaction_log_id=log_entry.id,
+        actions=suggest_actions(query),
     )
 
 
@@ -745,5 +787,6 @@ async def stream_answer_question(
             "corpus_gap": corpus_gap,
             "model_used": model,
             "interaction_log_id": log_id,
+            "actions": suggest_actions(query),
         },
     })

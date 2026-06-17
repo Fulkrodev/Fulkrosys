@@ -74,3 +74,8 @@ class CopilotResponse:
     tokens_output: int = 0
     latency_ms: int = 0
     interaction_log_id: Optional[int] = None
+    # S14 · acciones sugeridas deterministas (R1 · sin LLM). Cada entry:
+    # {"id": str, "label": str, "kind": "navigate"|"invoke_agent"|
+    #  "generate_doc"|"open_magic_link", "payload": {...}}. El frontend
+    # (ActionChip) las ejecuta de verdad. Vacío = sin sugerencias.
+    actions: list[dict] = field(default_factory=list)

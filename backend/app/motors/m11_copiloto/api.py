@@ -163,6 +163,7 @@ class CopilotChatResponse(BaseModel):
     tokens_output: int
     latency_ms: int
     interaction_log_id: Optional[int] = None
+    actions: list[dict] = Field(default_factory=list)
 
 
 class CreateConversationBody(BaseModel):
@@ -278,6 +279,7 @@ async def copilot_chat(
             tokens_output=result.tokens_output,
             latency_ms=result.latency_ms,
             interaction_log_id=result.interaction_log_id,
+            actions=result.actions,
         )
     except Exception as exc:
         logger.exception("Copilot chat error: {}", exc)

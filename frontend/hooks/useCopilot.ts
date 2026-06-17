@@ -141,7 +141,13 @@ export function useCopilot(projectId?: string) {
                 content: done.answer,
                 streaming: false,
                 citations: finalCitations,
-                actions: [],
+                // S14 · acciones sugeridas reales del backend (antes [] fijo).
+                actions: (done.actions ?? []).map((a) => ({
+                  id: a.id,
+                  label: a.label,
+                  kind: a.kind,
+                  payload: a.payload,
+                })),
                 metadata: {
                   confidence: done.confidence,
                   corpus_gap: done.corpus_gap,

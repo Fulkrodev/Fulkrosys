@@ -146,6 +146,15 @@ export interface CopilotDoneEvent {
   corpus_gap: boolean;
   model_used: string;
   interaction_log_id: number | null;
+  // S14 · acciones sugeridas deterministas del backend (kind navigate/
+  // invoke_agent/generate_doc/open_magic_link + payload). Vacío/ausente = sin
+  // sugerencias (campo opcional para retrocompat con respuestas antiguas).
+  actions?: Array<{
+    id: string;
+    label: string;
+    kind: "invoke_agent" | "open_magic_link" | "generate_doc" | "navigate";
+    payload?: Record<string, unknown>;
+  }>;
 }
 
 export type CopilotStreamEvent =
