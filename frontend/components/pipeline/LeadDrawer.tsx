@@ -16,6 +16,7 @@ import { toast } from "sonner";
 
 import { RAGBadge } from "@/components/data/RAGBadge";
 import { Button, buttonVariants } from "@/components/ui/button";
+import { invokeAgent as invokeAgentApi } from "@/lib/api/agents";
 import { useEscapeKey } from "@/hooks/useEscapeKey";
 import { useUpdateLeadStage } from "@/hooks/useLeads";
 import { ROUTES } from "@/lib/constants";
@@ -48,11 +49,25 @@ export function LeadDrawer({
   async function invokeAgent(agentId: number, label: string) {
     if (!lead) return;
     setBusyAgent(agentId);
-    // Sprint 2: surface the intent; the real agent invocation is wired when
-    // the backend lead model exists.
+    // S15 fix: invocación REAL del agente (antes setTimeout+toast "simulado").
+    // POST /api/v1/agents/{id}/invoke con el contexto del lead como message.
+    const message = [
+      `Lead comercial: ${lead.empresa}`,
+      lead.sector ? `sector ${lead.sector}` : null,
+      lead.cif ? `CIF ${lead.cif}` : null,
+      `score ${lead.score}`,
+      `valor ${lead.value_eur}€`,
+      lead.notes ? `Notas: ${lead.notes}` : null,
+    ]
+      .filter(Boolean)
+      .join(" · ");
     try {
-      await new Promise((r) => setTimeout(r, 350));
-      toast.success(`Agente ${agentId} — ${label} (simulado)`);
+      await invokeAgentApi(agentId, { message });
+      toast.success(`${label} ejecutado · revisa el resultado del agente`);
+    } catch (e) {
+      toast.error(
+        e instanceof Error ? e.message : `No se pudo ejecutar ${label}`,
+      );
     } finally {
       setBusyAgent(null);
     }
