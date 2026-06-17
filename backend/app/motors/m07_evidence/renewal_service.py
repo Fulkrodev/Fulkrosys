@@ -33,19 +33,29 @@ async def create_renewal_request(
     session: AsyncSession,
     evidence_id: uuid.UUID,
     motivo: str | None = None,
+    expected_project_id: uuid.UUID | None = None,
 ) -> RenewalOutcome:
     """Create a renewal request for a single evidence.
 
     Idempotent: if a pending request already exists, returns it.
     Auto-detects motivo from freshness state if not provided.
+
+    M1 IDOR fix: ``expected_project_id`` (siempre, desde el endpoint) ata la
+    evidencia al proyecto de la URL — ya verificado como propio del caller en
+    ``_set_project_rls``. Bajo el pool cliente RLS está OFF, así que sin este
+    filtro un cliente podía crear una renovación sobre una evidencia de otro
+    tenant (write cross-tenant). Mismo contrato que ``preview``.
     """
-    # Check evidence exists
+    # Check evidence exists (acotado al proyecto de la URL si se pasa).
     ev_result = await session.execute(
         text(
             "SELECT id, project_id, measure_code, fecha_caducidad "
-            "FROM evidence WHERE id = :eid AND deleted_at IS NULL"
+            "FROM evidence WHERE id = :eid AND deleted_at IS NULL "
+            "AND (CAST(:pid AS uuid) IS NULL OR project_id = CAST(:pid AS uuid))"
         ),
-        {"eid": str(evidence_id)},
+        {"eid": str(evidence_id), "pid": (
+            str(expected_project_id) if expected_project_id else None
+        )},
     )
     ev_row = ev_result.fetchone()
     if ev_row is None:

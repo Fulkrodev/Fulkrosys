@@ -33,6 +33,7 @@ class VerificationReport:
 async def verify_evidence(
     session: AsyncSession,
     evidence_id: uuid.UUID,
+    expected_project_id: uuid.UUID | None = None,
 ) -> VerificationReport:
     """Verify an evidence's file integrity and Ed25519 signature.
 
@@ -42,15 +43,24 @@ async def verify_evidence(
     3. Recalculate SHA-256 from disk bytes
     4. Compare with stored hash_sha256
     5. Verify Ed25519 signature (firma_ed25519 stored as hex)
+
+    M2 IDOR fix: ``expected_project_id`` (siempre, desde el endpoint) ata la
+    evidencia al proyecto de la URL — ya verificado como propio del caller en
+    ``_set_project_rls``. Bajo el pool cliente RLS está OFF; sin este filtro un
+    cliente podía leer fichero/hash/veredicto de una evidencia de otro tenant.
+    Mismo contrato que ``preview``.
     """
-    # 1. Load evidence from DB
+    # 1. Load evidence from DB (acotado al proyecto de la URL si se pasa).
     result = await session.execute(
         text(
             "SELECT id, fichero_path, hash_sha256, firma_ed25519, firma_payload_sha256, "
             "project_id, evidence_type_id, firma_timestamp "
-            "FROM evidence WHERE id = :eid AND deleted_at IS NULL"
+            "FROM evidence WHERE id = :eid AND deleted_at IS NULL "
+            "AND (CAST(:pid AS uuid) IS NULL OR project_id = CAST(:pid AS uuid))"
         ),
-        {"eid": str(evidence_id)},
+        {"eid": str(evidence_id), "pid": (
+            str(expected_project_id) if expected_project_id else None
+        )},
     )
     row = result.fetchone()
     if row is None:

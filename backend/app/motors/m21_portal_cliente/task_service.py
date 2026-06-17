@@ -268,6 +268,7 @@ class ClientTaskService:
         *,
         client_user_id: UUID,
         client_id: UUID,
+        expected_project_id: Optional[UUID] = None,
     ) -> ClientTask:
         """#27 Ola 6 · aprobación EXPLÍCITA y trazable del Plan de Adecuación.
 
@@ -279,9 +280,20 @@ class ClientTaskService:
 
         Solo aplica a los templates PHASE5_*_APPROVE_PDA. Idempotente (si ya
         está done, no re-loguea).
+
+        Args:
+            expected_project_id: B3 IDOR fix · si se pasa (siempre, desde el
+                endpoint), la tarea DEBE pertenecer a ese proyecto. Bajo el pool
+                cliente RLS está OFF (auth_service bypassrls), así que sin este
+                guard un cliente podía aprobar el PDA de otro tenant + forjar la
+                fila ``audit_log 'plan.approved'`` con el project_id de la víctima
+                (evidencia ENAC falsa). Se propaga también a ``transition``.
         """
         task = await self.db.get(ClientTask, task_id)
         if not task:
+            raise TaskError("Task not found")
+        # B3 · la tarea debe pertenecer al proyecto del cliente (guard cross-tenant).
+        if expected_project_id is not None and task.project_id != expected_project_id:
             raise TaskError("Task not found")
         if "APPROVE_PDA" not in (task.template_id or ""):
             raise TaskError(
@@ -291,7 +303,10 @@ class ClientTaskService:
             return task  # idempotente · ya aprobado
 
         # Estado done + SSE (reuse del state machine · _dispatch_done_and_propagate)
-        task = await self.transition(task_id, "done", enforce_prereqs=False)
+        task = await self.transition(
+            task_id, "done", enforce_prereqs=False,
+            expected_project_id=expected_project_id,
+        )
 
         # R6 audit_log · evento canónico plan.approved · Sub-atom 5.A (3-way OR).
         # Bajo contexto RLS cliente (current_project_id + current_client_id ya

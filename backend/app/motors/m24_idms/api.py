@@ -83,6 +83,30 @@ async def _set_project_rls(project_id: uuid.UUID, db: AsyncSession):
     await set_tenant_context(db, client_id=client_id, project_id=project_id)
 
 
+async def _assert_document_in_project(
+    document_id: uuid.UUID, project_id: uuid.UUID, db: AsyncSession,
+) -> None:
+    """B5 IDOR fix (per-recurso) · el documento DEBE pertenecer al proyecto de
+    la URL. ``_set_project_rls`` ya verifica que el caller es dueño del
+    project_id de la URL, pero las queries del servicio (get_document, get_tags,
+    list_versions, transiciones, permisos…) buscan por ``document_id`` SIN
+    filtrar project_id y bajo el pool cliente RLS está OFF → un cliente podía
+    pasar SU project_id + el ``document_id`` de otro tenant y leer/mutar el
+    documento ajeno. Este guard ata el recurso al proyecto ya verificado.
+    404 (no revela existencia cross-tenant). Idéntico contrato que el filtro que
+    ya aplican ``set_document_visibility`` / ``download_document``.
+    """
+    row = (await db.execute(
+        text(
+            "SELECT 1 FROM documents "
+            "WHERE id = :did AND project_id = :pid AND deleted_at IS NULL"
+        ),
+        {"did": str(document_id), "pid": str(project_id)},
+    )).scalar()
+    if row is None:
+        raise HTTPException(status_code=404, detail="Documento no encontrado")
+
+
 # ─────────── Schemas ───────────
 
 class CreateFolderBody(BaseModel):
@@ -190,6 +214,7 @@ async def move_document(
     db: AsyncSession = Depends(get_db),
 ):
     await _set_project_rls(project_id, db)
+    await _assert_document_in_project(document_id, project_id, db)
     try:
         doc = await IDMSService().move_document_to_folder(db, document_id, folder_id)
     except IDMSError as exc:
@@ -342,6 +367,7 @@ async def add_tag(
     db: AsyncSession = Depends(get_db),
 ):
     await _set_project_rls(project_id, db)
+    await _assert_document_in_project(document_id, project_id, db)
     tag = await IDMSService().add_tag(
         db, document_id=document_id, project_id=project_id,
         tag_type=body.tag_type, tag_value=body.tag_value,
@@ -359,8 +385,11 @@ async def remove_tag(
     db: AsyncSession = Depends(get_db),
 ):
     await _set_project_rls(project_id, db)
+    await _assert_document_in_project(document_id, project_id, db)
     try:
-        await IDMSService().remove_tag(db, tag_id)
+        await IDMSService().remove_tag(
+            db, tag_id, expected_document_id=document_id,
+        )
     except IDMSError as exc:
         raise HTTPException(status_code=404, detail=str(exc))
     await db.commit()
@@ -374,6 +403,7 @@ async def list_tags(
     db: AsyncSession = Depends(get_db),
 ):
     await _set_project_rls(project_id, db)
+    await _assert_document_in_project(document_id, project_id, db)
     tags = await IDMSService().get_tags(db, document_id)
     return {"tags": [_serialize_tag(t) for t in tags]}
 
@@ -396,6 +426,7 @@ async def create_version(
     except Exception as exc:
         raise HTTPException(status_code=400, detail=f"contenido_base64 inválido: {exc}")
     try:
+        await _assert_document_in_project(document_id, project_id, db)
         result = await IDMSService().create_version(
             db, document_id=document_id,
             contenido=contenido,
@@ -418,6 +449,7 @@ async def list_versions(
     db: AsyncSession = Depends(get_db),
 ):
     await _set_project_rls(project_id, db)
+    await _assert_document_in_project(document_id, project_id, db)
     versions = await IDMSService().list_versions(db, document_id)
     return {"versions": [_serialize_version(v) for v in versions]}
 
@@ -484,6 +516,7 @@ async def get_document(
     db: AsyncSession = Depends(get_db),
 ):
     await _set_project_rls(project_id, db)
+    await _assert_document_in_project(document_id, project_id, db)
     svc = IDMSService()
     doc = await svc.get_document(db, document_id)
     if not doc:
@@ -695,6 +728,7 @@ async def submit_document_for_review(
     """Transicion draft -> review."""
     await _set_project_rls(project_id, db)
     try:
+        await _assert_document_in_project(document_id, project_id, db)
         doc = await IDMSService().submit_for_review(db, document_id)
     except IDMSError as exc:
         raise HTTPException(status_code=400, detail=str(exc))
@@ -719,6 +753,7 @@ async def approve_document_endpoint(
     """Transicion review -> approved. Persiste approver + timestamp."""
     await _set_project_rls(project_id, db)
     try:
+        await _assert_document_in_project(document_id, project_id, db)
         doc = await IDMSService().approve_document(
             db, document_id, body.approver_user_id,
         )
@@ -740,6 +775,7 @@ async def archive_document_endpoint(
     """Transicion a archived (caducidad, reemplazo)."""
     await _set_project_rls(project_id, db)
     try:
+        await _assert_document_in_project(document_id, project_id, db)
         doc = await IDMSService().archive_document(db, document_id)
     except IDMSError as exc:
         raise HTTPException(status_code=400, detail=str(exc))
@@ -759,6 +795,7 @@ async def deprecate_document_endpoint(
     """Transicion approved -> deprecated (nueva version lo reemplaza)."""
     await _set_project_rls(project_id, db)
     try:
+        await _assert_document_in_project(document_id, project_id, db)
         doc = await IDMSService().deprecate_document(db, document_id)
     except IDMSError as exc:
         raise HTTPException(status_code=400, detail=str(exc))
@@ -789,6 +826,7 @@ async def set_document_expiration(
     """Establece expires_at + review_period_months."""
     await _set_project_rls(project_id, db)
     try:
+        await _assert_document_in_project(document_id, project_id, db)
         doc = await IDMSService().set_expiration(
             db, document_id,
             expires_at=body.expires_at,
@@ -840,6 +878,7 @@ async def grant_permission_endpoint(
     """Concede permiso granular sobre un documento."""
     await _set_project_rls(project_id, db)
     try:
+        await _assert_document_in_project(document_id, project_id, db)
         perm = await IDMSService().grant_permission(
             db,
             document_id=document_id,
@@ -865,6 +904,7 @@ async def revoke_permission_endpoint(
 ):
     """Revoca permiso granular (soft delete)."""
     await _set_project_rls(project_id, db)
+    await _assert_document_in_project(document_id, project_id, db)
     removed = await IDMSService().revoke_permission(db, document_id, user_id)
     await db.commit()
     return {"removed": removed}
@@ -880,6 +920,7 @@ async def list_permissions_endpoint(
 ):
     """Lista permisos activos sobre el documento."""
     await _set_project_rls(project_id, db)
+    await _assert_document_in_project(document_id, project_id, db)
     perms = await IDMSService().list_permissions(db, document_id)
     return {
         "document_id": str(document_id),

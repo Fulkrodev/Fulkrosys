@@ -168,11 +168,12 @@ async def approve_plan_task(
     Aprobación trazable (audit_log R6 plan.approved + estado done + SSE) · NO
     es firma criptográfica. Doble pool: get_current_client_user + RLS context.
     """
-    await _resolve_project_id(db, user)
+    pid = await _resolve_project_id(db, user)
     service = ClientTaskService(db)
     try:
         task = await service.approve_plan(
             task_id, client_user_id=user.id, client_id=user.client_id,
+            expected_project_id=pid,
         )
     except TaskError as exc:
         raise HTTPException(

@@ -15,7 +15,16 @@ from backend.app.database import get_db, set_tenant_context
 from .billing_service import BillingError, BillingService, IVA_DEFAULT, IRPF_DEFAULT
 
 
-router = APIRouter(prefix="/billing", tags=["Motor 15 - Billing"])
+# ADR-013: la facturación fiscal (VeriFactu) es operación admin (Marcos).
+# require_owner a nivel de router cierra el escalado/IDOR del pool cliente
+# (la dep global autentica ambos pools; sin esto el cliente podía
+# emitir/anular/marcar-pagada facturas de cualquier proyecto). Espejo de
+# invoices_aapp_api / financial_extensions_api.
+router = APIRouter(
+    prefix="/billing",
+    tags=["Motor 15 - Billing"],
+    dependencies=[Depends(require_owner)],
+)
 
 
 async def _set_project_rls(project_id: uuid.UUID, db: AsyncSession):

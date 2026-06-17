@@ -514,11 +514,19 @@ class IDMSService:
         return tag
 
     async def remove_tag(
-        self, db: AsyncSession, tag_id: uuid.UUID,
+        self,
+        db: AsyncSession,
+        tag_id: uuid.UUID,
+        expected_document_id: uuid.UUID | None = None,
     ) -> None:
         res = await db.execute(select(DocumentTag).where(DocumentTag.id == tag_id))
         tag = res.scalar_one_or_none()
         if not tag:
+            raise IDMSError(f"Tag {tag_id} no existe")
+        # B5 IDOR fix · el tag DEBE pertenecer al documento de la URL (que a su
+        # vez ya está atado al proyecto del caller). Sin esto, un cliente con un
+        # documento propio podía borrar un tag de un documento ajeno por tag_id.
+        if expected_document_id is not None and tag.document_id != expected_document_id:
             raise IDMSError(f"Tag {tag_id} no existe")
         await db.delete(tag)
         await db.flush()

@@ -15,7 +15,8 @@ from pydantic import ValidationError
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from backend.app.auth.dependencies import require_marcos_or_client, require_owner
-from backend.app.database import get_db, set_tenant_context
+from backend.app.auth.ownership import ensure_project_access_for_user
+from backend.app.database import get_db
 from backend.app.motors.m_live_records.constants import (
     COUNTS_PER_CATEGORY,
     REGISTER_TYPE_REQUIRED_CATEGORIES,
@@ -40,9 +41,18 @@ router = APIRouter(
 )
 
 
-async def _set_project_context(db: AsyncSession, project_id: uuid.UUID) -> None:
-    """Set app.current_project_id for RLS within this request transaction."""
-    await set_tenant_context(db, project_id=project_id)
+async def _set_project_context(
+    db: AsyncSession, project_id: uuid.UUID, user: object,
+) -> None:
+    """Valida acceso (ownership) y fija el tenant context para RLS.
+
+    B4 IDOR fix: bajo el pool cliente RLS está OFF (auth_service bypassrls); el
+    aislamiento lo impone este check explícito — un ``ClientUser`` solo accede a
+    los registros vivos (E-300..E-325) de proyectos de SU client_id; Marcos
+    accede a todo. Antes ``_set_project_context`` solo fijaba el project_id sin
+    verificar propiedad (IDOR total de lectura/mutación/export cross-tenant).
+    """
+    await ensure_project_access_for_user(db, project_id, user)
 
 
 def _to_read(record) -> LiveRecordRead:
@@ -71,7 +81,7 @@ async def get_required_registers_by_category(
     Sostiene R28 (adaptación per category sistematizada) + R32 (matriz K
     centralizada · NO ad-hoc).
     """
-    await _set_project_context(db, project_id)
+    await _set_project_context(db, project_id, user)
     required = get_required_registers_for_category(category)
     return {
         "project_id": str(project_id),
@@ -93,7 +103,7 @@ async def get_dashboard(
     db: AsyncSession = Depends(get_db),
     user=Depends(require_marcos_or_client),
 ) -> LiveRecordsDashboardResponse:
-    await _set_project_context(db, project_id)
+    await _set_project_context(db, project_id, user)
     svc = LiveRecordsService(db)
     blocks, total_active = await svc.compute_dashboard(project_id=project_id)
     return LiveRecordsDashboardResponse(
@@ -123,7 +133,7 @@ async def list_records(
             detail=f"Unknown register_type {register_type!r}",
         )
 
-    await _set_project_context(db, project_id)
+    await _set_project_context(db, project_id, user)
     svc = LiveRecordsService(db)
     effective_status = None if status_filter == "all" else status_filter
     rows, total = await svc.list_records(
@@ -159,7 +169,7 @@ async def get_record(
             detail=f"Unknown register_type {register_type!r}",
         )
 
-    await _set_project_context(db, project_id)
+    await _set_project_context(db, project_id, user)
     svc = LiveRecordsService(db)
     record = await svc.get_record(project_id=project_id, record_id=record_id)
     if record is None or record.register_type != register_type:
@@ -196,7 +206,7 @@ async def create_record(
             detail="Authenticated user has no id",
         )
 
-    await _set_project_context(db, project_id)
+    await _set_project_context(db, project_id, user)
     svc = LiveRecordsService(db)
     try:
         record = await svc.create_record(
@@ -240,7 +250,7 @@ async def update_record(
             detail="Authenticated user has no id",
         )
 
-    await _set_project_context(db, project_id)
+    await _set_project_context(db, project_id, user)
     svc = LiveRecordsService(db)
     try:
         record = await svc.update_record(
@@ -289,7 +299,7 @@ async def archive_record(
             detail="Authenticated user has no id",
         )
 
-    await _set_project_context(db, project_id)
+    await _set_project_context(db, project_id, user)
     svc = LiveRecordsService(db)
     record = await svc.archive_record(
         project_id=project_id,
@@ -321,7 +331,7 @@ async def export_csv(
             detail=f"Unknown register_type {register_type!r}",
         )
 
-    await _set_project_context(db, project_id)
+    await _set_project_context(db, project_id, user)
     svc = LiveRecordsService(db)
     data = await svc.export_csv(project_id=project_id, register_type=register_type)
     filename = f"{register_type}_{project_id}.csv"
@@ -348,7 +358,7 @@ async def export_xlsx(
             detail=f"Unknown register_type {register_type!r}",
         )
 
-    await _set_project_context(db, project_id)
+    await _set_project_context(db, project_id, user)
     svc = LiveRecordsService(db)
     data = await svc.export_xlsx(project_id=project_id, register_type=register_type)
     filename = f"{register_type}_{project_id}.xlsx"
@@ -382,7 +392,7 @@ async def promote_nc(
     severidad + PAC + plazos consultables y valida PAC ≤90d (NC mayor) / APC
     formal (MEDIA/ALTA). Idempotente.
     """
-    await _set_project_context(db, project_id)
+    await _set_project_context(db, project_id, owner)
     from backend.app.motors.m_live_records.nc_promotion import promote_audit_ncs
 
     result = await promote_audit_ncs(db, project_id)
@@ -399,7 +409,7 @@ async def structured_nc(
     db: AsyncSession = Depends(get_db),
     owner=Depends(require_owner),
 ) -> dict:
-    await _set_project_context(db, project_id)
+    await _set_project_context(db, project_id, owner)
     from backend.app.motors.m_live_records.nc_promotion import list_structured_ncs
 
     items = await list_structured_ncs(db, project_id)

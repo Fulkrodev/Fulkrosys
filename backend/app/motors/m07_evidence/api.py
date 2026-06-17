@@ -358,7 +358,9 @@ async def renew_evidence(
     """Create a renewal request for an evidence item."""
     await _set_project_rls(project_id, db)
 
-    outcome = await create_renewal_request(db, evidence_id, motivo)
+    outcome = await create_renewal_request(
+        db, evidence_id, motivo, expected_project_id=project_id,
+    )
 
     if outcome.error:
         raise HTTPException(status_code=404, detail=outcome.error)
@@ -389,7 +391,7 @@ async def verify_evidence_endpoint(
     """Verify cryptographic integrity of an evidence item."""
     await _set_project_rls(project_id, db)
 
-    report = await verify_evidence(db, evidence_id)
+    report = await verify_evidence(db, evidence_id, expected_project_id=project_id)
 
     return VerificationResponse(
         evidence_id=report.evidence_id,
