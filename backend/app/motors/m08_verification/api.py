@@ -717,4 +717,7 @@ async def kill_run(
         raise HTTPException(status_code=404, detail=str(exc))
     except RunStateError as exc:
         raise HTTPException(status_code=409, detail=str(exc))
+    # M3 · request_kill solo flush · get_db NO auto-commitea → sin esto el run
+    # NO se cancela (200 OK engañoso · el watcher nunca ve cancel_requested_at).
+    await db.commit()
     return _serialize_run_summary(run)

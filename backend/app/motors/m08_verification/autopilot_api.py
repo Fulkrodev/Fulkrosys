@@ -53,14 +53,31 @@ async def _set_project_rls(project_id: uuid.UUID, db: AsyncSession) -> uuid.UUID
 async def _run_autopilot_bg(run_id: uuid.UUID, project_id: uuid.UUID) -> None:
     """Ejecuta el orquestador en una sesión propia (NO la del request)."""
     from .autopilot.orchestrator import orchestrate_run
+    import logging
+    log = logging.getLogger(__name__)
     try:
         async with async_session() as db:
             await _set_project_rls(project_id, db)
             await orchestrate_run(db, run_id)
             await db.commit()
-    except Exception:  # pragma: no cover — el orquestador ya marca status=failed
-        import logging
-        logging.getLogger(__name__).exception("autopilot bg run %s falló", run_id)
+    except Exception:
+        log.exception("autopilot bg run %s falló", run_id)
+        # M4 fail-closed: el orquestador marca autopilot_status='failed' + flush
+        # pero el commit vivía SOLO en la vía de éxito → la excepción revertía el
+        # estado y el run quedaba NO terminal (atascado · UI colgada). Persistimos
+        # el estado terminal 'failed' en una sesión LIMPIA (la del run pudo quedar
+        # en transacción abortada tras la excepción).
+        try:
+            async with async_session() as db_fail:
+                await _set_project_rls(project_id, db_fail)
+                run = await VerificationService(db_fail).get_run(run_id)
+                if run.autopilot_status not in ("completed", "failed", "partial"):
+                    run.autopilot_status = "failed"
+                    await db_fail.commit()
+        except Exception:
+            log.exception(
+                "autopilot bg run %s · no se pudo marcar 'failed'", run_id,
+            )
 
 
 # ════════════════════════════════════════════════════════════════════
