@@ -10,6 +10,7 @@ Pattern: consistent with M19 and M3.
 - no internal commits (delegate to caller)
 - RLS enforced via set_tenant_context in middleware/endpoint
 """
+import logging
 from datetime import datetime, timezone
 from typing import Any
 from uuid import UUID
@@ -45,6 +46,8 @@ from backend.app.motors.m04_gap.exceptions import (
     DdANotReadyError,
     GapAlreadyAnalyzedError,
 )
+
+logger = logging.getLogger(__name__)
 
 FUENTE_GAP = "gap_analysis"
 
@@ -88,7 +91,13 @@ async def effective_cmm_level(
         if ev.semaforo == "verde":
             return "L4"
     except Exception:
-        pass
+        # checklist#6: el upgrade L3→L4 (evidencia operativa) es best-effort ·
+        # si falla, se mantiene L3 conservador (NO infla madurez), pero el fallo
+        # se registra a nivel debug para no enmascarar bugs de compute_control_status.
+        logger.debug(
+            "effective_cmm_level · upgrade L3→L4 no evaluable para %s (project=%s)",
+            measure_code, project_id, exc_info=True,
+        )
     return "L3"
 
 
@@ -134,7 +143,12 @@ async def get_measure_cmm_detail(
         )
         target_level = CATEGORY_TARGET_LEVEL.get(categoria)
     except Exception:
-        pass
+        # checklist#6: target_level best-effort (sin categoría → None) · se
+        # registra a debug en vez de tragar mudo el fallo de _detect_categoria.
+        logger.debug(
+            "get_measure_cmm_detail · target_level no resoluble (project=%s)",
+            project_id, exc_info=True,
+        )
 
     return {
         "measure_code": measure_code,
@@ -179,6 +193,13 @@ def _m5_template_effort_for_measure(measure_code: str) -> float | None:
                     effort = 0.0
                 agg[mc] = agg.get(mc, 0.0) + effort
         except Exception:
+            # checklist#6: si la library M5 no carga (fichero corrupto/ausente),
+            # el esfuerzo por medida queda sin datos (None) en vez de fabricar 0 ·
+            # registrado para no ocultar un catálogo roto.
+            logger.warning(
+                "No se pudo cargar obligations_library.json · esfuerzo M5 sin datos",
+                exc_info=True,
+            )
             agg = {}
         _M5_EFFORT_CACHE = agg
     val = _M5_EFFORT_CACHE.get(measure_code)
@@ -624,8 +645,15 @@ class GapAnalysisService:
                 project_id, categoria,
             )
         except Exception:
-            # Log silencioso; el gap analysis se completa igualmente
-            pass
+            # checklist#6: ANTES era un swallow mudo ("Log silencioso" sin loguear)
+            # → si el hook M4→M5 fallaba, obligations_auto_created=0 sin rastro.
+            # El gap analysis se completa igualmente (best-effort), pero ahora el
+            # fallo queda en el log con stacktrace para diagnóstico.
+            logger.exception(
+                "M4→M5 obligations hook falló · project=%s categoria=%s "
+                "· gaps creados OK · obligations_auto_created=0",
+                project_id, categoria,
+            )
 
         return {
             "project_id": str(project_id),
@@ -656,6 +684,9 @@ class GapAnalysisService:
                 ClientContext, GapInput, ProjectContext,
             )
         except Exception:
+            # checklist#6: import de M5 no disponible → 0 obligaciones, pero
+            # registrado (antes silencioso · un import roto era invisible).
+            logger.exception("M5 instantiation import falló · obligations=0")
             return 0
 
         # Cargar gaps recién creados
