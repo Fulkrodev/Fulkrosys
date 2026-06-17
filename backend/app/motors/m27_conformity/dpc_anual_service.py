@@ -270,7 +270,11 @@ class DpcAnualService:
             "last_bia_update": (
                 sla_hit[1].isoformat() if sla_hit and sla_hit[1] else None
             ),
-            "uptime_committed_pct": 99.5,  # default · placeholder M23 retainer SLA
+            # S8 fix: antes 99.5 fijo en un documento firmado por el cliente/ENAC.
+            # No hay fuente estructurada del SLA de uptime del cliente → se declara
+            # no documentado (honesto) en vez de un número fabricado.
+            "uptime_committed_pct": None,
+            "uptime_source": "no_documentado",
         }
 
         # Recovery section · M26 backup + M25 lifecycle
@@ -287,6 +291,20 @@ class DpcAnualService:
             )
         )
         recovery_hit = recovery_row.first()
+        # S8 fix: RTO/RPO reales desde la BIA del proyecto (antes 24/4 fijos en un
+        # documento firmado). Si no hay BIA se declara explícito (no se fabrican).
+        bia_rr = (await self.db.execute(
+            sa_text(
+                "SELECT rto_hours, rpo_hours FROM bia_analyses "
+                "WHERE project_id = :pid "
+                "ORDER BY updated_at DESC NULLS LAST, created_at DESC LIMIT 1"
+            ),
+            {"pid": str(project_id)},
+        )).first()
+        if bia_rr is not None:
+            rto_h, rpo_h, rr_source = int(bia_rr[0]), int(bia_rr[1]), "bia"
+        else:
+            rto_h, rpo_h, rr_source = None, None, "no_bia"
         recovery_section = {
             "backup_scope": "platform",
             "backup_jobs_last_12m": int(recovery_hit[0] or 0) if recovery_hit else 0,
@@ -294,10 +312,9 @@ class DpcAnualService:
                 recovery_hit[1].isoformat()
                 if recovery_hit and recovery_hit[1] else None
             ),
-            # Valores por defecto del servicio · pendiente afinar por proyecto (BIA).
-            "rto_documented_hours": 24,
-            "rpo_documented_hours": 4,
-            "rto_rpo_source": "platform_default",
+            "rto_documented_hours": rto_h,
+            "rpo_documented_hours": rpo_h,
+            "rto_rpo_source": rr_source,
         }
 
         # Incidents section · M19 incidents últimos 12m
@@ -316,10 +333,20 @@ class DpcAnualService:
         for sev, cnt in incidents_row:
             severity_histogram[sev or "unknown"] = int(cnt)
             total_incidents += int(cnt)
+        # S8 fix: lecciones aprendidas reales = incidentes cerrados en 12m (antes 0
+        # fijo). Proxy honesto: cada incidente cerrado conlleva lección aprendida.
+        lessons_row = (await self.db.execute(
+            sa_text(
+                "SELECT count(*) FROM incidents WHERE project_id = :pid "
+                "AND fecha >= :since AND deleted_at IS NULL "
+                "AND workflow_state IN ('cerrado','closed','resuelto','resolved')"
+            ),
+            {"pid": str(project_id), "since": twelve_months_ago},
+        )).first()
         incidents_section = {
             "total_incidents_last_12m": total_incidents,
             "severity_histogram": severity_histogram,
-            "lessons_learned_count": 0,  # placeholder · M19 lessons_learned TBD
+            "lessons_learned_count": int(lessons_row[0] or 0) if lessons_row else 0,
         }
 
         # Roadmap section · M28 change_governance + M07 evidence recientes
@@ -466,6 +493,11 @@ class DpcAnualService:
             f"sla_bia_count:{readiness.get('sla_section', {}).get('bia_analyses_count', 0)}",
             f"recovery_backup_count:{readiness.get('recovery_section', {}).get('backup_jobs_last_12m', 0)}",
             f"incidents_total:{readiness.get('incidents_section', {}).get('total_incidents_last_12m', 0)}",
+            # S8 fix: la firma ahora cubre RTO/RPO y lecciones reales (antes el hash
+            # no los incluía → el JSONB podía alterarse post-firma sin romper la cadena).
+            f"incidents_lessons:{readiness.get('incidents_section', {}).get('lessons_learned_count', 0)}",
+            f"recovery_rto:{readiness.get('recovery_section', {}).get('rto_documented_hours', '')}",
+            f"recovery_rpo:{readiness.get('recovery_section', {}).get('rpo_documented_hours', '')}",
             f"roadmap_new_evidences:{readiness.get('roadmap_section', {}).get('new_evidences_last_12m', 0)}",
             f"client_reviewed_at:{decl.client_reviewed_at.isoformat() if decl.client_reviewed_at else ''}",
         ]

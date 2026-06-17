@@ -202,6 +202,42 @@ async def build_distintivo_context(
     except Exception:
         assets_essential_count = 0
 
+    # S10 fix: servicios e información reales desde M01 (antes literales fijos
+    # "Servicios identificados en M01..." en el distintivo DOCX cliente/ENAC).
+    try:
+        svc_rows = (await db.execute(
+            sa_text(
+                "SELECT s.nombre FROM services s "
+                "JOIN systems sys ON sys.id = s.system_id "
+                "WHERE sys.project_id = :pid AND s.deleted_at IS NULL "
+                "ORDER BY s.created_at LIMIT 30"
+            ),
+            {"pid": str(project_id)},
+        )).all()
+        svc_list = [r[0] for r in svc_rows if r[0]]
+    except Exception:
+        svc_list = []
+    services_summary = (
+        ", ".join(svc_list) if svc_list else "Sin servicios registrados en M01"
+    )
+    try:
+        info_rows = (await db.execute(
+            sa_text(
+                "SELECT it.nombre FROM information_types it "
+                "JOIN systems sys ON sys.id = it.system_id "
+                "WHERE sys.project_id = :pid AND it.deleted_at IS NULL "
+                "ORDER BY it.created_at LIMIT 30"
+            ),
+            {"pid": str(project_id)},
+        )).all()
+        info_list = [r[0] for r in info_rows if r[0]]
+    except Exception:
+        info_list = []
+    information_summary = (
+        ", ".join(info_list)
+        if info_list else "Sin tipos de información registrados en M01"
+    )
+
     cert_id = derive_cert_id(project_id)
     today = date.today()
     expiry = today + timedelta(days=365 * DEFAULT_VALIDITY_YEARS)
@@ -224,8 +260,8 @@ async def build_distintivo_context(
         today=today.isoformat(),
         expiry_date=expiry.isoformat(),
         public_badge_url=public_badge_url,
-        services_summary="Servicios identificados en M01 categorización",
-        information_summary="Información identificada en M01 categorización",
+        services_summary=services_summary,
+        information_summary=information_summary,
         assets_essential_count=int(assets_essential_count),
         dda_total=dda_total,
         dda_aplicables=dda_aplicables,

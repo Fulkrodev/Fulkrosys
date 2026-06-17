@@ -134,8 +134,46 @@ async def collect_ines_data(
     except Exception:
         logger.exception("INES incidents query failed (year=%s)", year)
 
-    # Madurez avg cross-projects (placeholder · 0.0 si no hay datos)
-    maturity_avg = 0.0
+    # S9 fix: madurez media real (CMM 0-5) promediando m21 calculate_maturity sobre
+    # los sistemas del año (antes 0.0 fijo en el JSON regulatorio CCN-STIC 824).
+    maturity_levels: list[int] = []
+    try:
+        from backend.app.motors.m21_diagnosis.maturity_service import (
+            calculate_maturity,
+        )
+        for pid in seen_pids:
+            try:
+                m = await calculate_maturity(db, uuid.UUID(pid))
+                lvl = m.get("overall", {}).get("level")
+                if isinstance(lvl, (int, float)):
+                    maturity_levels.append(int(lvl))
+            except Exception:
+                logger.exception("INES maturity calc failed pid=%s", pid)
+    except Exception:
+        logger.exception("INES maturity import failed")
+    maturity_avg = (
+        round(sum(maturity_levels) / len(maturity_levels), 2)
+        if maturity_levels else 0.0
+    )
+
+    # S9 fix: inversión en seguridad real desde facturación m15 (base imponible de
+    # las facturas del ejercicio · antes None fijo).
+    investment_eur: float | None = None
+    try:
+        inv_row = (await db.execute(
+            sa_text(
+                "SELECT COALESCE(SUM(COALESCE(base_imponible, total)), 0) "
+                "FROM invoices "
+                "WHERE client_id = :cid "
+                "AND extract(year from fecha_emision) = :y "
+                "AND deleted_at IS NULL"
+            ),
+            {"cid": str(organization_id), "y": year},
+        )).first()
+        if inv_row and inv_row[0] is not None:
+            investment_eur = float(inv_row[0])
+    except Exception:
+        logger.exception("INES investment query failed (year=%s)", year)
 
     return InesYearReport(
         organization_name=str(org[0]),
@@ -145,6 +183,7 @@ async def collect_ines_data(
         systems=systems,
         incidents_summary=incidents_summary,
         maturity_avg=maturity_avg,
+        investment_eur=investment_eur,
     )
 
 

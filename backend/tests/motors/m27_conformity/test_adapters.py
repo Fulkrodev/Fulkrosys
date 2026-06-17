@@ -31,7 +31,12 @@ def test_ines_adapter_includes_period():
 def test_registry_adapter_zip():
     out = registry_adapter.export(uuid.uuid4(), {"target": "REGISTRO_ENS"})
     assert out["tool"] == "Registro"
-    assert out["artifact_path"].endswith(".zip")
+    # S10 fix: ya no se fabrica un .zip fantasma · el paquete real es el dossier
+    # firmado de m09 (artifact_source); artifact_path None hasta el ensamblado.
+    assert out["artifact_path"] is None
+    assert out["artifact_source"] == "m09_signed_dossier_zip"
+    assert out["artifact_hash"]
+    assert isinstance(out["checklist"], list) and out["checklist"]
 
 
 def test_each_adapter_produces_unique_hash():

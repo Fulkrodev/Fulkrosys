@@ -7,6 +7,16 @@ import uuid
 
 
 def export(project_id: uuid.UUID, params: dict) -> dict:
+    """Descriptor de presentación al registro ENS (formulario + checklist).
+
+    S10 fix: antes devolvía un ``artifact_path`` a un ``.zip`` que NINGÚN código
+    generaba (referencia a un fichero inexistente que el admin "descargaba"). El
+    paquete real de presentación es el DOSSIER FIRMADO de m09
+    (POST /audit-prep/projects/{id}/dossier/generate-signed-zip), que el admin
+    descarga y sube al registro. Este adapter produce solo el descriptor + el
+    checklist; ``artifact_path`` es None (no se fabrica un ZIP fantasma) y
+    ``artifact_source`` apunta al artefacto real.
+    """
     payload = {
         "project_id": str(project_id),
         "registry_target": params.get("target", "REGISTRO_ENS"),
@@ -18,12 +28,13 @@ def export(project_id: uuid.UUID, params: dict) -> dict:
     return {
         "tool": "Registro",
         "project_id": project_id,
-        "artifact_path": f"exports/registry/{project_id}/submission_{artifact_hash[:8]}.zip",
+        "artifact_path": None,
+        "artifact_source": "m09_signed_dossier_zip",
         "artifact_hash": artifact_hash,
         "checklist": [
-            "Verificar que el ZIP contiene formularios y anexos requeridos",
+            "Generar/descargar el dossier firmado (m09 · dossier/generate-signed-zip)",
             "Acceder al registro electronico correspondiente",
-            "Subir el ZIP firmado con certificado digital",
+            "Subir el dossier firmado con certificado digital",
             "Guardar el justificante de presentacion (CSV / PDF firmado)",
             "Adjuntar el justificante como proof",
         ],
