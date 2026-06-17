@@ -2,6 +2,7 @@
 
 Usa celery_app (Sprint C5). Stub si Celery no está instalado (dev/tests).
 """
+import json
 import subprocess
 from datetime import datetime, timezone
 
@@ -11,6 +12,54 @@ from backend.app.core.celery_app import celery_app
 
 # Alias compat con patrón original @shared_task
 shared_task = celery_app.task
+
+
+def _restore_readiness_check() -> dict:
+    """I4 (campaña auditoría): verificación REAL de restaurabilidad sin servidor
+    efímero. Usa los propios comandos de pgBackRest:
+      1. ``pgbackrest check`` valida config + comunicación con el repo + archiving.
+      2. ``pgbackrest info --output=json`` confirma que existe ≥1 backup y su fecha.
+    Degrada con gracia si el binario no está (dev) → status 'skipped'.
+    El failover completo a sitio DR (Terraform/Ansible) sigue siendo infra-gated.
+    """
+    try:
+        check = subprocess.run(
+            ["pgbackrest", "--stanza=fulkro", "check"],
+            capture_output=True, text=True, timeout=600,
+        )
+        check_ok = check.returncode == 0
+
+        info = subprocess.run(
+            ["pgbackrest", "--stanza=fulkro", "--output=json", "info"],
+            capture_output=True, text=True, timeout=120,
+        )
+        backups_count = 0
+        latest_backup_epoch = None
+        if info.returncode == 0 and info.stdout:
+            for stanza in json.loads(info.stdout):
+                for b in stanza.get("backup", []):
+                    backups_count += 1
+                    stop = (b.get("timestamp") or {}).get("stop")
+                    if stop and (latest_backup_epoch is None or stop > latest_backup_epoch):
+                        latest_backup_epoch = stop
+
+        passed = check_ok and backups_count > 0
+        return {
+            "status": "passed" if passed else "failed",
+            "check_ok": check_ok,
+            "backups_count": backups_count,
+            "latest_backup_epoch": latest_backup_epoch,
+            "check_error": None if check_ok else (check.stderr or "")[:500],
+            "timestamp": datetime.now(timezone.utc).isoformat(),
+        }
+    except subprocess.TimeoutExpired:
+        return {"status": "failed", "error": "timeout"}
+    except FileNotFoundError:
+        logger.warning("pgbackrest not installed — restore-readiness skipped (dev)")
+        return {"status": "skipped", "reason": "pgbackrest not installed"}
+    except Exception as exc:  # noqa: BLE001
+        logger.error("restore-readiness check error: {}", exc)
+        return {"status": "failed", "error": str(exc)[:500]}
 
 
 @shared_task(name="backup.run_pgbackrest_full")
@@ -117,12 +166,10 @@ def monthly_restore_test(test_id: str | None = None) -> dict:  # pragma: no cove
       5. Record results
     """
     logger.info("Monthly restore test triggered (test_id={})", test_id)
-    return {
-        "status": "scheduled",
-        "test_id": test_id,
-        "message": "Pending Hetzner provisioning — orchestration with Terraform + Ansible",
-        "timestamp": datetime.now(timezone.utc).isoformat(),
-    }
+    result = _restore_readiness_check()
+    result["test_id"] = test_id
+    logger.info("Monthly restore test result: {}", result.get("status"))
+    return result
 
 
 @shared_task(name="backup.run_dr_drill")
@@ -135,8 +182,12 @@ def run_dr_drill(drill_id: str | None = None) -> dict:  # pragma: no cover
     the run via the Operations dashboard.
     """
     logger.info("DR drill triggered (drill_id={})", drill_id)
-    return {
-        "status": "scheduled",
-        "drill_id": drill_id,
-        "timestamp": datetime.now(timezone.utc).isoformat(),
-    }
+    # I4: el drill ejecuta la verificación REAL de restaurabilidad del repo
+    # (check + info). El failover completo a sitio DR (spin-up servidor efímero,
+    # validación, failback) requiere el stack Terraform/Ansible de Hetzner y queda
+    # como fase infra documentada: `failover_orchestration`.
+    result = _restore_readiness_check()
+    result["drill_id"] = drill_id
+    result["failover_orchestration"] = "infra_gated_terraform_ansible"
+    logger.info("DR drill restore-readiness: {}", result.get("status"))
+    return result

@@ -63,6 +63,8 @@ try:
             "backend.app.motors.m25_lifecycle.tasks",
             "backend.app.motors.m26_backup.tasks",
             "backend.app.motors.m29_client_messaging.tasks",
+            # I8 (campaña auditoría) · purga OAuth state tokens expirados (diario)
+            "backend.app.motors.m16_onboarding.tasks",
             "backend.app.motors.m27_conformity.biannual_alert_task",
             # MB-6 atom 2 · DPC anual anniversary check art.25 RD 311/2022
             "backend.app.motors.m27_conformity.dpc_anual_alert_task",
@@ -402,6 +404,8 @@ def get_beat_schedule() -> dict:
         "lifecycle-grace-period-check": {"task": "m25.lifecycle_grace_period_check", "cron": "30 4 * * *"},
         "lifecycle-backup-expiration-check": {"task": "m25.lifecycle_backup_expiration_check", "cron": "0 5 * * *"},
         "m29-cleanup-expired-attachments": {"task": "m29.cleanup_expired_attachments", "cron": "0 4 * * 0"},
+        # I8 · purga diaria de OAuth state tokens expirados/consumidos (04:15)
+        "m16-cleanup-expired-oauth-states": {"task": "m16.cleanup_expired_oauth_states", "cron": "15 4 * * *"},
         "m29-digest-unread-admin": {"task": "m29.digest_unread_admin", "cron": "0 8 * * *"},
         "notifications-scan-client-inactivity": {"task": "notifications.scan_client_inactivity", "cron": "0 9 * * *"},
         "retainer-scan-churn-weekly": {"task": "retainer.scan_churn_risk", "cron": "30 9 * * 1"},
