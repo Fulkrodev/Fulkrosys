@@ -51,10 +51,11 @@ class ControlStatusResult:
     missing_reasons: list[str] = field(default_factory=list)
     # Explicit pre-req check booleans (debug + audit)
     requirements_met: dict[str, bool] = field(default_factory=dict)
-    # #minor honest path · "measure" = semáforo POR MEDIDA (measure_code) ·
-    # "project_aggregate" = agregado de TODO el proyecto (vía control_id, que NO
-    # filtra por control · Document no tiene columna control_id · filtro real
-    # diferido). El consumidor sabe que el control_id-only NO es por-control.
+    # #minor honest path · "measure" = semáforo POR MEDIDA (measure_code, vía
+    # Evidence) · "project_aggregate" = rollup de TODO el proyecto cuando sólo se
+    # pasa control_id. NO es un filtro pendiente: el concepto "control" se retiró
+    # con la tabla `controls` (Document nunca tuvo columna control_id); la unidad
+    # ENS filtrable es measure_code. El consumidor distingue ambos por `scope`.
     scope: str = "project_aggregate"
 
     def to_dict(self) -> dict:
@@ -111,8 +112,9 @@ async def compute_control_status(
     #    respalda la declaración de la SoA · vía Evidence.measure_code, el
     #    vínculo real · Document NO tiene columna measure_code).
     #  - control_id (measure_code=None) → lógica Document anti-falso-verde
-    #    existente, agregado de proyecto (sin cambios · el filtro real por
-    #    control_id queda como Future, fuera del alcance de #20).
+    #    existente, rollup de proyecto (scope='project_aggregate'). NO hay filtro
+    #    por control_id pendiente: la tabla `controls` se retiró y Document nunca
+    #    tuvo esa columna; la unidad ENS filtrable es measure_code.
     if measure_code is not None:
         return await _compute_measure_evidence_status(
             db, project_id=project_id, measure_code=measure_code,

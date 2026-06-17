@@ -8,7 +8,7 @@ Aglutinador cross-motor que combina:
 - current_phase ← workflow_state.get_current_phase (existing) + label
 - blocking_issues ← _collect_blockers desde checklist_results
 - estimated_days_to_certification ← lookup table per categoria + readiness
-- active_alerts ← deferred MB-13.4 (placeholder schema-stable [] · count 0)
+- active_alerts ← AlertService.list_active_alerts (m18 alert_queue · real · S26)
 
 Scope ADR-035 Opción B confirmada Marcos: NO upcoming_milestones (deferred MB-18) ·
 NO maturity_breakdown (cliente puede invocar GET /m21/projects/{id}/maturity

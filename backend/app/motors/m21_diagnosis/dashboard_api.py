@@ -36,7 +36,7 @@ async def get_project_dashboard(
     (lookup table per categoría + ajuste por readiness) + bloqueantes
     extraídos del checklist de auditoría.
 
-    ``active_alerts`` permanece vacío hasta MB-13.4 · schema estable.
+    ``active_alerts`` se puebla desde m18 alert_queue (AlertService · S26).
 
     Consumido por ``frontend/components/dashboard/NextActionCard`` y otros
     components home admin (MB-13.5 rediseño completo).

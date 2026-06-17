@@ -63,9 +63,9 @@ RLS por `magic_links` + `client_interactions`.
 
 ## Limitaciones conocidas
 
-### Geo-restriction prepared but NOT enforced
+### Geo-restriction activa (opt-in · fail-open sin BD MaxMind)
 
-`allowed_countries` JSONB existe en schema y se persiste, pero el enforcement runtime NO está activo. Decisión: feature preparada para activación post-cliente con compliance requirement geo-specific.
+`allowed_countries` JSONB se persiste **y el enforcement runtime está activo** (S27, campaña 2026-06-17): `confirm()` resuelve el país del IP vía `_geolocate_ip` (geoip2 + MaxMind) y rechaza si el país no está en `allowed_countries`. Es **opt-in** (solo actúa si el link define `allowed_countries`) y **fail-open con warning** si la BD MaxMind no está disponible (geo es defensa-en-profundidad sobre OTP + token Ed25519). Requiere `pip install geoip2` + `FULKRO_GEOIP_DB_PATH=/ruta/GeoLite2-Country.mmdb`; sin ello es no-op seguro.
 
 ## ADRs referenced
 

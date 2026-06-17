@@ -17,7 +17,7 @@ from datetime import datetime, timezone
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from backend.app.models.m14_providers import Provider, ProviderC002
+from backend.app.models.m14_providers import Provider, ProviderAddendum, ProviderC002
 
 
 class ProvidersError(Exception):
@@ -178,23 +178,53 @@ class M14ProvidersService:
             raise ProvidersError(f"Provider {provider_id} not found en project {project_id}")
         return row
 
+    async def _get_latest_addendum(
+        self, project_id: uuid.UUID, provider_id: uuid.UUID,
+    ) -> ProviderAddendum | None:
+        """Última adenda E-604 generada para el proveedor: el artefacto REAL que
+        materializa la cláusula C-002 (vive en el bucket fulkro-documents)."""
+        return (await self.db.execute(
+            select(ProviderAddendum)
+            .where(
+                ProviderAddendum.project_id == project_id,
+                ProviderAddendum.provider_id == provider_id,
+                ProviderAddendum.deleted_at.is_(None),
+            )
+            .order_by(ProviderAddendum.created_at.desc())
+            .limit(1)
+        )).scalars().first()
+
     async def get_c002_status(
         self, project_id: uuid.UUID, provider_id: uuid.UUID,
     ) -> dict:
         await self.get_provider(project_id, provider_id)
         c002 = await self._get_c002(provider_id)
+        addendum = await self._get_latest_addendum(project_id, provider_id)
+        # M8 · el artefacto REAL de la C-002 es la adenda E-604 (ProviderAddendum,
+        # bucket fulkro-documents). `evidence_id` (FK a la tabla m07 `evidence`)
+        # NO aplica a este flujo —una adenda contractual no es evidencia ENS de
+        # m07/WORM— y permanece null a propósito; la trazabilidad documental se
+        # expone vía addendum_id + minio_object_key (antes la status sólo
+        # mostraba evidence_id=null y parecía que no había documento).
+        addendum_block = {
+            "addendum_id": str(addendum.id) if addendum else None,
+            "addendum_code": addendum.addendum_code if addendum else None,
+            "minio_object_key": addendum.minio_object_key if addendum else None,
+        }
         if c002 is None:
             return {
                 "provider_id": str(provider_id),
                 "status": "pendiente",
                 "generated_at": None,
                 "evidence_id": None,
+                **addendum_block,
             }
         return {
             "provider_id": str(provider_id),
             "status": c002.status,
             "generated_at": c002.generated_at.isoformat() if c002.generated_at else None,
             "evidence_id": str(c002.evidence_id) if c002.evidence_id else None,
+            **addendum_block,
         }
 
     async def get_gaps(

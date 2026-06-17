@@ -126,15 +126,25 @@ async def _ensure_project_belongs_to_client(
 async def _get_report_project(
     db: AsyncSession, report_id: uuid.UUID,
 ) -> uuid.UUID:
+    """Devuelve el project_id del report + GATE #34 (espejo de list_for_client):
+    el proyecto debe estar en lifecycle_state='RETAINER'. Un cliente que terminó
+    o rechazó el retainer (ENDED_CHURN/ENDED_RENEWAL_OK/…) NO puede ver/revisar/
+    firmar un report aunque conozca su ID — la RLS por project_id sola no basta.
+    Chokepoint de todos los endpoints por-report (detail/review/hash/signoff).
+    404 'No encontrado' tanto si no existe como si el proyecto no está en
+    retainer (sin oráculo de existencia)."""
     from sqlalchemy import text as sa_text
     row = await db.execute(
         sa_text(
-            "SELECT project_id FROM retainer_quarterly_reports WHERE id = :rid"
+            "SELECT r.project_id, p.lifecycle_state "
+            "FROM retainer_quarterly_reports r "
+            "JOIN projects p ON p.id = r.project_id "
+            "WHERE r.id = :rid"
         ),
         {"rid": str(report_id)},
     )
     hit = row.first()
-    if hit is None:
+    if hit is None or hit[1] != "RETAINER":
         raise HTTPException(status_code=404, detail="No encontrado")
     return hit[0]
 

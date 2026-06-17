@@ -71,3 +71,47 @@ async def test_list_for_client_gated_by_lifecycle_state(db: AsyncSession):
 
     gated = await svc.list_for_client(uuid.UUID(project_id))
     assert gated == []  # #34 gate cierra el gap
+
+
+@pytest.mark.asyncio
+async def test_get_report_project_gated_by_lifecycle_state(db: AsyncSession):
+    """#6 minor · el chokepoint `_get_report_project` (detail/review/hash/signoff)
+    aplica el MISMO gate RETAINER que `list_for_client`: un cliente fuera del
+    retainer obtiene 404 aunque conozca el report_id (antes el gate sólo vivía
+    en el listado · el detalle quedaba accesible)."""
+    from fastapi import HTTPException
+
+    from backend.app.motors.m23_retainer.retainer_checkin_portal_api import (
+        _get_report_project,
+    )
+
+    client_id, project_id = await setup_test_project(db)
+    await _seed_active_retainer(db, client_id, project_id)
+    svc = RetainerCheckinService(db)
+    report = await svc.generate_quarterly_report_draft(
+        project_id=uuid.UUID(project_id),
+        period_quarter=compute_quarter_label(date.today()),
+    )
+
+    async with _admin_setup(db):
+        await db.execute(
+            sa_text("UPDATE projects SET lifecycle_state='RETAINER' WHERE id=:pid"),
+            {"pid": project_id},
+        )
+    await db.flush()
+
+    # En RETAINER → devuelve el project_id
+    got = await _get_report_project(db, report.id)
+    assert str(got) == project_id
+
+    # Fuera del retainer (churn) → 404 aunque conozca el ID
+    async with _admin_setup(db):
+        await db.execute(
+            sa_text("UPDATE projects SET lifecycle_state='ENDED_CHURN' WHERE id=:pid"),
+            {"pid": project_id},
+        )
+    await db.flush()
+
+    with pytest.raises(HTTPException) as exc:
+        await _get_report_project(db, report.id)
+    assert exc.value.status_code == 404
