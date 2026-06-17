@@ -276,7 +276,10 @@ export function RenewalWarRoom({ projectId }: { projectId: string }) {
   // Status global derivado: BÁSICA derivation simplificado
   // CRITICAL si days_until < 30 + drift critico open · WARNING si days_until < 60 ·
   // ON_TRACK resto.
-  const criticalDrift = status.drift.data?.open_by_severity?.CRITICA ?? 0;
+  // S28d/e: el backend emite severidades reales (CRITICAL, no CRITICA) ·
+  // antes esta clave nunca casaba → criticalDrift siempre 0 → el badge CRÍTICO
+  // del war-room nunca se activaba.
+  const criticalDrift = status.drift.data?.open_by_severity?.CRITICAL ?? 0;
   let overallStatus: "ON_TRACK" | "WARNING" | "BEHIND" | "CRITICAL" = "ON_TRACK";
   if (days !== null) {
     if (days < 30 && criticalDrift > 0) overallStatus = "CRITICAL";
