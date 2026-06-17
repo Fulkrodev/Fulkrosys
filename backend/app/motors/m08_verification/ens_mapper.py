@@ -16,6 +16,7 @@ from __future__ import annotations
 import logging
 from typing import Any
 
+from sqlalchemy import text as sa_text
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from backend.app.motors.m08_verification.zfp_engine import ZfpFinding
@@ -338,22 +339,48 @@ class EnsMapper:
     async def _semantic_match(
         self, finding: ZfpFinding,
     ) -> list[dict[str, Any]]:
-        """Busqueda semantica contra ens_measures (pgvector).
+        """Búsqueda semántica finding→medida ENS (pgvector cosine sobre
+        ens_measures.embedding · S11 fix).
 
-        Si el repo no tiene embeddings de medidas pre-calculados o el
-        modulo de embeddings no esta disponible, devuelve []. La
-        Sesion 2 ya integro pgvector + corpus normativo, asi que en
-        produccion aqui se hace la query real.
-
-        Por simplicidad en Checkpoint 2: devuelve [] a menos que las
-        medidas ENS tengan embeddings (lo verificamos consultando una
-        columna 'embedding' que en Sesion 2 se anadio para corpus pero
-        no necesariamente para medidas).
+        Devuelve [] de forma graceful si (a) las medidas aún no tienen embeddings
+        pre-calculados (script backend/scripts/embed_ens_measures.py · infra
+        fastembed) o (b) el provider de embeddings no está disponible. La Capa 3
+        LLM cubre el fallback. Filtra por cos_sim >= 0.65 para no falsear
+        confidence con resultados pobres.
         """
-        # Future: busqueda semantica real cuando se embeddean las 80 medidas
-        # ENS en ens_measures (M8 Checkpoint 3+). Hasta entonces devolvemos
-        # vacio para no falsear confidence con resultados pobres.
-        return []
+        text_q = f"{finding.title} {finding.description}".strip()
+        if not text_q:
+            return []
+        try:
+            from backend.app.core.ai.embeddings import (
+                get_default_embedding_provider,
+            )
+            provider = get_default_embedding_provider()
+            qemb = provider.embed_query("query: " + text_q)
+        except Exception as exc:  # noqa: BLE001 — fastembed infra-gated
+            logger.warning("ENS semantic: embeddings no disponibles: %s", exc)
+            return []
+        rows = (await self.db.execute(
+            sa_text(
+                "SELECT codigo, nombre, "
+                "1 - (embedding <=> CAST(:qemb AS vector)) AS cos_sim "
+                "FROM ens_measures WHERE embedding IS NOT NULL "
+                "ORDER BY embedding <=> CAST(:qemb AS vector) LIMIT 5"
+            ),
+            {"qemb": str(qemb)},
+        )).all()
+        out: list[dict[str, Any]] = []
+        for codigo, nombre, cos_sim in rows:
+            if cos_sim is None or float(cos_sim) < 0.65:
+                continue
+            out.append({
+                "measure": codigo,
+                "title": nombre,
+                "citation": f"RD 311/2022 Anexo II {codigo}",
+                "method": "semantic",
+                "confidence": round(float(cos_sim), 3),
+            })
+        return out
 
     async def _llm_mapping(
         self, finding: ZfpFinding,

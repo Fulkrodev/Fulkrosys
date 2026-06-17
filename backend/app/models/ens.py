@@ -6,6 +6,11 @@ from sqlalchemy import ForeignKey, String, Text, Float, Integer, Boolean, text a
 from sqlalchemy.dialects.postgresql import UUID, JSONB, TIMESTAMP
 from sqlalchemy.orm import Mapped, mapped_column
 
+try:  # pgvector opcional en dev (S11 · embeddings de medidas ENS)
+    from pgvector.sqlalchemy import Vector
+except ImportError:  # pragma: no cover — fallback dev sin pgvector
+    from sqlalchemy import LargeBinary as Vector
+
 from backend.app.models.base import (
     Base,
     ClientReviewMixinA,
@@ -21,6 +26,9 @@ class EnsMeasure(FullMixin, Base):
     marco: Mapped[str] = mapped_column(String(20), nullable=False)
     familia: Mapped[str | None] = mapped_column(String(20))
     descripcion: Mapped[str | None] = mapped_column(Text)
+    # S11 · embedding pgvector para mapeo semántico finding→medida ENS (m08
+    # ens_mapper Capa 2). Poblado por scripts/embed_ens_measures.py (fastembed).
+    embedding = mapped_column(Vector(1024), nullable=True)
     requisito_base: Mapped[str | None] = mapped_column(Text)
     fuente_oficial: Mapped[str | None] = mapped_column(String(255))
     version_ens: Mapped[str | None] = mapped_column(String(20), default="RD 311/2022")
