@@ -26,8 +26,10 @@ Diseno:
 """
 from __future__ import annotations
 
+import asyncio
 import hashlib
 import html
+import json
 import logging
 import uuid
 import xml.etree.ElementTree as ET
@@ -180,6 +182,70 @@ def _parse_dt(value: str | None) -> datetime | None:
 # ══════════════════════════════════════════════════════════════════════
 
 
+async def classify_relevance(item: FeedItem) -> dict[str, Any]:
+    """Clasificación de relevancia con LLM barato (Claude Haiku 4.5 · R3 temp 0)
+    con fallback determinista a la heurística de keywords.
+
+    S6 fix campaña auditoría: el docstring del módulo prometía clasificación LLM
+    pero solo corría ``classify_relevance_heuristic``. Ahora intenta el LLM real
+    (LLMRouter de FULKRO) y degrada con gracia a la heurística si no hay API key
+    o falla — registrando el clasificador usado en metadata.
+    """
+    try:
+        from backend.app.core.ai.llm_router import get_default_llm_router
+
+        router = get_default_llm_router()
+        sys_prompt = (
+            "Eres un clasificador de vigilancia normativa para una consultoría "
+            "ENS (RD 311/2022). Clasifica si una alerta es RELEVANTE para clientes "
+            "que implantan el ENS (ciberseguridad sector público español, "
+            "RGPD/LOPDGDD, NIS2, CCN-STIC, vulnerabilidades críticas). Responde "
+            "SOLO JSON: {\"relevant\": bool, \"severity\": "
+            "\"low|medium|high|critical\", \"summary\": \"<=300 chars\", "
+            "\"matched_keywords\": [\"...\"]}."
+        )
+        user = (
+            f"Fuente: {item.source}\nTítulo: {item.title}\n"
+            f"Descripción: {(item.description or '')[:1500]}"
+        )
+        loop = asyncio.get_event_loop()
+        resp = await loop.run_in_executor(
+            None,
+            lambda: router.complete(
+                messages=[
+                    {"role": "system", "content": sys_prompt},
+                    {"role": "user", "content": user},
+                ],
+                model="claude-haiku-4-5",
+                max_tokens=400,
+                temperature=0.0,
+            ),
+        )
+        text = resp.content.strip()
+        if text.startswith("```json"):
+            text = text[7:]
+        elif text.startswith("```"):
+            text = text[3:]
+        if text.endswith("```"):
+            text = text[:-3]
+        parsed = json.loads(text.strip())
+        sev = str(parsed.get("severity") or "low").lower()
+        if sev not in ("low", "medium", "high", "critical"):
+            sev = "low"
+        return {
+            "relevant": bool(parsed.get("relevant", False)),
+            "severity": sev,
+            "summary": (parsed.get("summary") or "")[:300],
+            "matched_keywords": list(parsed.get("matched_keywords") or []),
+            "classifier": "llm_haiku",
+        }
+    except Exception as exc:  # noqa: BLE001 — fallback determinista garantizado
+        logger.warning("agent_15 LLM classify fallback heurística: %s", exc)
+        verdict = classify_relevance_heuristic(item)
+        verdict["classifier"] = "heuristic_v1_fallback"
+        return verdict
+
+
 def classify_relevance_heuristic(item: FeedItem) -> dict[str, Any]:
     """Clasificacion heuristica basada en keywords. Fallback si LLM no disponible.
 
@@ -300,7 +366,7 @@ class Agente15Vigilancia:
                     skipped_existing += 1
                     continue
 
-                verdict = classify_relevance_heuristic(item)
+                verdict = await classify_relevance(item)
                 if not verdict["relevant"]:
                     skipped_irrelevant += 1
                     continue
@@ -319,7 +385,7 @@ class Agente15Vigilancia:
                     status="classified",
                     metadata_jsonb={
                         "matched_keywords": verdict["matched_keywords"],
-                        "classifier": "heuristic_v1",
+                        "classifier": verdict.get("classifier", "heuristic_v1"),
                     },
                     created_at=datetime.now(timezone.utc),
                 )

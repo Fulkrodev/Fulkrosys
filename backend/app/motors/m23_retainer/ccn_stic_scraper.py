@@ -16,15 +16,16 @@ Falls back to scraping-disabled mode if robots.txt forbids /series-ccn-stic.
 """
 from __future__ import annotations
 
+import asyncio
 import hashlib
 import logging
 import re
-import time
 import urllib.parse
 import urllib.request
 from dataclasses import dataclass
 from datetime import datetime, timezone
 from typing import Optional
+from urllib import robotparser
 
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -75,6 +76,20 @@ def _http_get(url: str) -> tuple[Optional[bytes], dict[str, str]]:
     except Exception as exc:  # noqa: BLE001
         logger.warning("CCN-STIC fetch %s failed: %s", url, exc)
         return None, {}
+
+
+def _default_robots_allows() -> bool:
+    """Comprueba robots.txt de ccn-cert.cni.es para INDEX_URL (S7 fix · antes
+    prometido en docstring pero no implementado). Fail-open ante error de red
+    (mismo criterio tolerante que _http_get)."""
+    rp = robotparser.RobotFileParser()
+    rp.set_url("https://www.ccn-cert.cni.es/robots.txt")
+    try:
+        rp.read()
+    except Exception as exc:  # noqa: BLE001
+        logger.warning("CCN-STIC robots.txt no accesible (%s) · fail-open", exc)
+        return True
+    return rp.can_fetch(USER_AGENT, INDEX_URL)
 
 
 def _http_head(url: str) -> dict[str, str]:
@@ -175,6 +190,7 @@ async def scrape_and_persist(
     *,
     fetch_html=None,
     head_url=None,
+    robots_allows=None,
     rate_limit: float = RATE_LIMIT_SECONDS,
 ) -> dict:
     """Run a full CCN-STIC scrape cycle.
@@ -189,6 +205,21 @@ async def scrape_and_persist(
     """
     fetcher = fetch_html or (lambda u: _http_get(u))
     head_fetch = head_url or (lambda u: _http_head(u))
+
+    # S7 fix · robots.txt: solo en modo real (fetcher por defecto · prod via
+    # Celery). En tests con fetcher inyectado se omite (no hay red). El check
+    # bloqueante (urllib.robotparser) corre en executor para no bloquear el loop.
+    if fetch_html is None or robots_allows is not None:
+        robots_check = robots_allows or _default_robots_allows
+        allowed = await asyncio.get_running_loop().run_in_executor(None, robots_check)
+        if not allowed:
+            logger.warning(
+                "CCN-STIC robots.txt prohíbe %s · scraping omitido", INDEX_URL,
+            )
+            return {
+                "indexed": 0, "new": 0, "skipped": 0, "errors": 0,
+                "robots_blocked": True,
+            }
 
     body, _headers = fetcher(INDEX_URL)
     if not body:
@@ -206,7 +237,7 @@ async def scrape_and_persist(
         head_headers = head_fetch(guide.url)
         last_mod = _parse_last_modified(head_headers.get("last-modified"))
         if rate_limit:
-            time.sleep(rate_limit)
+            await asyncio.sleep(rate_limit)
 
         alert = NormativaAlert(
             source=SOURCE,
