@@ -271,6 +271,14 @@ async def iter_gaps_for_plan_actions(
         sev for sev, order in _SEVERITY_PRIORITY_ORDER.items() if order <= min_order
     }
 
+    # #minor (coherencia) · ordenar por RANGO de severidad (critical→low), no
+    # alfabéticamente (severity ASC daba critical,high,low,medium · 'low' antes que
+    # 'medium'). Mismo criterio que el resto de queries de gaps.
+    _sev_rank = case(
+        *[(CloudGap.severity == sev, order)
+          for sev, order in _SEVERITY_PRIORITY_ORDER.items()],
+        else_=99,
+    )
     q = await db.execute(
         select(CloudGap)
         .where(
@@ -280,7 +288,7 @@ async def iter_gaps_for_plan_actions(
                 CloudGap.severity.in_(allowed),
             ),
         )
-        .order_by(CloudGap.severity, CloudGap.detected_at.desc()),
+        .order_by(_sev_rank, CloudGap.detected_at.desc()),
     )
     for gap in q.scalars().all():
         yield PlanActionSuggestion(

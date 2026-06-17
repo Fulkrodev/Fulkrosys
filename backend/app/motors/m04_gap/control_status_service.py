@@ -51,6 +51,11 @@ class ControlStatusResult:
     missing_reasons: list[str] = field(default_factory=list)
     # Explicit pre-req check booleans (debug + audit)
     requirements_met: dict[str, bool] = field(default_factory=dict)
+    # #minor honest path · "measure" = semáforo POR MEDIDA (measure_code) ·
+    # "project_aggregate" = agregado de TODO el proyecto (vía control_id, que NO
+    # filtra por control · Document no tiene columna control_id · filtro real
+    # diferido). El consumidor sabe que el control_id-only NO es por-control.
+    scope: str = "project_aggregate"
 
     def to_dict(self) -> dict:
         return {
@@ -64,6 +69,7 @@ class ControlStatusResult:
             "expired_count": self.expired_count,
             "missing_reasons": list(self.missing_reasons),
             "requirements_met": dict(self.requirements_met),
+            "scope": self.scope,
         }
 
 
@@ -259,6 +265,7 @@ async def compute_control_status(
         expired_count=expired_count,
         missing_reasons=missing_reasons,
         requirements_met=requirements_met,
+        scope="project_aggregate",
     )
 
 
@@ -352,6 +359,7 @@ async def _compute_measure_evidence_status(
         expired_count=caducadas_count,
         missing_reasons=missing_reasons,
         requirements_met=requirements_met,
+        scope="measure",
     )
 
 

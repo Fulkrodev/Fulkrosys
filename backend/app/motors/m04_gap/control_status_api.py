@@ -50,6 +50,9 @@ class ControlStatusResponse(BaseModel):
     expired_count: int
     missing_reasons: list[str]
     requirements_met: dict[str, bool]
+    # #minor honest path · "measure" (por medida) | "project_aggregate" (todo el
+    # proyecto · el control_id NO filtra por control · ver compute_control_status).
+    scope: str = "project_aggregate"
 
 
 class MeasureCmmResponse(BaseModel):

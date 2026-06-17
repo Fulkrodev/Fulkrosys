@@ -11,15 +11,23 @@ BackupPolicy321Panel.
 """
 from __future__ import annotations
 
-from fastapi import APIRouter
+from fastapi import APIRouter, Depends
 from pydantic import BaseModel, Field
 
+from backend.app.auth.dependencies import require_owner
 from backend.app.motors.m26_backup.backup_policy_3_2_1 import (
     BackupCopy,
     evaluate_3_2_1,
 )
 
-router = APIRouter(prefix="/backup-policy", tags=["M26 - 3-2-1 Policy (MB-11.5)"])
+# #minor · operación de gestión backup (admin) · require_owner a nivel de router
+# (era accesible por el pool cliente · aunque es función pura sin datos, cierra
+# la superficie · coherente con el resto de routers backup).
+router = APIRouter(
+    prefix="/backup-policy",
+    tags=["M26 - 3-2-1 Policy (MB-11.5)"],
+    dependencies=[Depends(require_owner)],
+)
 
 
 class BackupCopyInput(BaseModel):

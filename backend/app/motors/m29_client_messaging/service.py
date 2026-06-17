@@ -138,6 +138,20 @@ class ClientMessagingService:
                     f"{client_id} o no existe."
                 )
 
+        # #minor integridad · si se asocia a un proyecto, ese proyecto DEBE ser del
+        # cliente (client_id viene de sesión · RLS filtra por client_id, pero
+        # persistir un project_id ajeno corrompería la traza del mensaje).
+        if payload.project_id is not None:
+            owner = (await self.db.execute(
+                text("SELECT get_project_owner(:pid)"),
+                {"pid": str(payload.project_id)},
+            )).scalar()
+            if owner is None or str(owner) != str(client_id):
+                raise ThreadOwnershipError(
+                    f"project_id {payload.project_id} no pertenece al cliente "
+                    f"{client_id}."
+                )
+
         message = ClientMessage(
             client_id=client_id,
             project_id=payload.project_id,

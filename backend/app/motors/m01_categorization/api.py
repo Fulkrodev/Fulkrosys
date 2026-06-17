@@ -1149,6 +1149,10 @@ async def signature_status_endpoint(
     db: AsyncSession = Depends(get_db),
 ) -> SignatureStatusResponse:
     """Estado actual de la solicitud de firma del Acta E-012."""
+    # #minor · faltaba fijar el contexto RLS del sistema (como TODOS los endpoints
+    # hermanos system-scoped) → la categorización es RLS fail-closed bajo
+    # fulkro_app y get_signature_status devolvía 404 falso al admin.
+    await _get_system_with_rls(system_id, db)
     try:
         result = await get_signature_status(db, system_id)
     except SignatureIntegrationError as exc:

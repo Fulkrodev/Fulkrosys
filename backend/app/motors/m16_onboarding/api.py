@@ -725,9 +725,13 @@ async def pkg_ingest_onboarding_endpoint(
 from .pkg_tools_registry import call_tool as _call_tool, list_tools as _list_tools
 
 
-@router.get("/tools")
+@router.get("/tools", dependencies=[Depends(require_owner)])
 async def list_pkg_tools_endpoint():
-    """List PKG tools available for M11 Copiloto. Anthropic tool-use format."""
+    """List PKG tools available for M11 Copiloto. Anthropic tool-use format.
+
+    #minor · admin-only (require_owner): el catálogo de herramientas PKG es
+    superficie interna · no se expone al pool cliente (igual que el POST hermano).
+    """
     tools = _list_tools()
     return {"tools": tools, "total": len(tools)}
 
