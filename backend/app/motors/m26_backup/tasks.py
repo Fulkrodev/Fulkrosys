@@ -1,18 +1,42 @@
 """Celery tasks for Motor 26 scheduled backup operations.
 
-Usa celery_app (Sprint C5). Stub si Celery no está instalado (dev/tests).
+Persisten su resultado en BD (BackupJob / IntegrityVerification /
+BackupRestoreTest / DrDrill) — antes lanzaban el subprocess y devolvían un dict
+pero NUNCA tocaban la tabla → los jobs quedaban eternamente 'pending', el
+dashboard de salud 'red'/'never' y la evidencia R8/CCN de restore mensual sin
+persistir (M10/M11/M12).
+
+Doble vía de invocación:
+  - API admin (create_* endpoint) → crea la fila + despacha con su id → la task
+    hace start/complete sobre ESA fila.
+  - Celery beat (sin args) → la task crea la fila on-the-fly y la completa.
+
+Patrón async-en-task-sync: ``asyncio.run(_coro())`` + ``async_session`` (igual a
+m07/m16). Las tablas backup son platform-global (sin tenant) · admin infra →
+``SET LOCAL ROLE fulkro_app_bypassrls`` controlado fuera del request.
 """
+from __future__ import annotations
+
+import asyncio
+import hashlib
 import json
 import subprocess
+import time
+import uuid
 from datetime import datetime, timezone
 
 from loguru import logger
+from sqlalchemy import text
 
 from backend.app.core.celery_app import celery_app
 
 # Alias compat con patrón original @shared_task
 shared_task = celery_app.task
 
+
+# ════════════════════════════════════════════════════════════════════
+# Helpers (sin DB · ejecutan pgbackrest)
+# ════════════════════════════════════════════════════════════════════
 
 def _restore_readiness_check() -> dict:
     """I4 (campaña auditoría): verificación REAL de restaurabilidad sin servidor
@@ -62,132 +86,270 @@ def _restore_readiness_check() -> dict:
         return {"status": "failed", "error": str(exc)[:500]}
 
 
-@shared_task(name="backup.run_pgbackrest_full")
-def run_pgbackrest_full(job_id: str | None = None) -> dict:  # pragma: no cover
-    """Execute a full PostgreSQL backup via pgBackRest.
+def _parse_latest_backup(info_stdout: str) -> dict:
+    """Extrae size + huella del backup más reciente de ``pgbackrest info --json``.
 
-    Scheduled: weekly (Sunday 02:00 via Celery beat).
+    ``fingerprint`` = sha256 del descriptor del backup que reporta pgBackRest
+    (huella verificable de la metadata/manifest summary · NO se afirma que sea el
+    hash del dato completo · honest path).
     """
-    logger.info("Starting pgBackRest full backup")
+    size_bytes = 0
+    fingerprint = ""
+    label = ""
+    latest_stop = None
+    try:
+        for stanza in json.loads(info_stdout or "[]"):
+            for b in stanza.get("backup", []):
+                stop = (b.get("timestamp") or {}).get("stop")
+                if stop is not None and (latest_stop is None or stop > latest_stop):
+                    latest_stop = stop
+                    info = b.get("info") or {}
+                    size_bytes = int(
+                        info.get("size")
+                        or (info.get("repository") or {}).get("size")
+                        or 0
+                    )
+                    label = str(b.get("label") or "")
+                    fingerprint = hashlib.sha256(
+                        json.dumps(b, sort_keys=True).encode("utf-8")
+                    ).hexdigest()
+    except (ValueError, TypeError) as exc:
+        logger.warning("pgbackrest info parse error: {}", exc)
+    return {
+        "size_bytes": size_bytes,
+        "fingerprint": fingerprint,
+        "label": label,
+        "stop_epoch": latest_stop,
+    }
+
+
+def _exec_backup(type_flag: str, timeout: int) -> dict:
+    """Lanza ``pgbackrest backup`` (full|incr) + info. NO persiste (lo hace el
+    wrapper async). status ∈ completed|failed|skipped."""
     try:
         result = subprocess.run(
-            ["pgbackrest", "--stanza=fulkro", "--type=full", "backup"],
-            capture_output=True,
-            text=True,
-            timeout=3600,  # 1 hour max
+            ["pgbackrest", "--stanza=fulkro", f"--type={type_flag}", "backup"],
+            capture_output=True, text=True, timeout=timeout,
         )
         if result.returncode != 0:
-            logger.error("pgBackRest full backup failed: {}", result.stderr)
-            return {"status": "failed", "error": result.stderr[:500]}
-
-        # Get backup info
-        info_result = subprocess.run(
+            logger.error("pgBackRest {} backup failed: {}", type_flag, result.stderr)
+            return {"status": "failed", "error": (result.stderr or "")[:500]}
+        info = subprocess.run(
             ["pgbackrest", "--stanza=fulkro", "--output=json", "info"],
-            capture_output=True,
-            text=True,
+            capture_output=True, text=True, timeout=120,
         )
-
-        logger.info("pgBackRest full backup completed successfully")
-        return {
-            "status": "completed",
-            "type": "postgres_full",
-            "timestamp": datetime.now(timezone.utc).isoformat(),
-            "info": info_result.stdout[:2000] if info_result.returncode == 0 else None,
-        }
+        parsed = _parse_latest_backup(info.stdout if info.returncode == 0 else "")
+        return {"status": "completed", **parsed}
     except subprocess.TimeoutExpired:
-        logger.error("pgBackRest full backup timed out after 1 hour")
+        logger.error("pgBackRest {} backup timed out", type_flag)
         return {"status": "failed", "error": "timeout"}
     except FileNotFoundError:
         logger.warning("pgBackRest not installed — skipping backup (dev mode)")
         return {"status": "skipped", "reason": "pgbackrest not installed"}
 
 
+# ════════════════════════════════════════════════════════════════════
+# Backup jobs (full / incremental) · M10 + M11
+# ════════════════════════════════════════════════════════════════════
+
+@shared_task(name="backup.run_pgbackrest_full")
+def run_pgbackrest_full(job_id: str | None = None) -> dict:  # pragma: no cover
+    """Full PostgreSQL backup via pgBackRest (beat: domingo 02:00)."""
+    logger.info("Starting pgBackRest full backup (job_id={})", job_id)
+    return asyncio.run(_run_backup("postgres_full", "full", 3600, job_id))
+
+
 @shared_task(name="backup.run_pgbackrest_incremental")
 def run_pgbackrest_incremental(job_id: str | None = None) -> dict:  # pragma: no cover
-    """Execute an incremental PostgreSQL backup.
+    """Incremental backup (beat: diario 03:00)."""
+    logger.info("Starting pgBackRest incremental backup (job_id={})", job_id)
+    return asyncio.run(_run_backup("postgres_incremental", "incr", 1800, job_id))
 
-    Scheduled: daily at 03:00 via Celery beat.
-    """
-    logger.info("Starting pgBackRest incremental backup")
-    try:
-        result = subprocess.run(
-            ["pgbackrest", "--stanza=fulkro", "--type=incr", "backup"],
-            capture_output=True,
-            text=True,
-            timeout=1800,
-        )
-        if result.returncode != 0:
-            logger.error("pgBackRest incremental backup failed: {}", result.stderr)
-            return {"status": "failed", "error": result.stderr[:500]}
 
-        logger.info("pgBackRest incremental backup completed")
-        return {"status": "completed", "type": "postgres_incremental"}
-    except FileNotFoundError:
-        return {"status": "skipped", "reason": "pgbackrest not installed"}
+async def _run_backup(
+    backup_type: str, type_flag: str, timeout: int, job_id: str | None,
+) -> dict:
+    outcome = _exec_backup(type_flag, timeout)
+    if outcome["status"] == "skipped":
+        return outcome  # dev sin pgbackrest → no se persiste fila engañosa
+    from backend.app.database import async_session
+    from backend.app.motors.m26_backup.service import BackupService
 
+    async with async_session() as db:
+        await db.execute(text("SET LOCAL ROLE fulkro_app_bypassrls"))
+        svc = BackupService(db)
+        if job_id:
+            jid = uuid.UUID(str(job_id))
+            await svc.start_backup(jid)
+        else:
+            job = await svc.create_backup_job(backup_type)
+            await svc.start_backup(job.id)
+            jid = job.id
+        if outcome["status"] == "completed":
+            await svc.complete_backup(
+                jid,
+                size_bytes=outcome.get("size_bytes", 0),
+                hash_sha256=outcome.get("fingerprint", ""),
+            )
+        else:
+            await svc.complete_backup(
+                jid, size_bytes=0, hash_sha256="",
+                error_message=outcome.get("error", "unknown error"),
+            )
+        await db.commit()
+        outcome["job_id"] = str(jid)
+    logger.info(
+        "pgBackRest {} → {} (job_id={})",
+        backup_type, outcome["status"], outcome.get("job_id"),
+    )
+    return outcome
+
+
+# ════════════════════════════════════════════════════════════════════
+# Integrity verification · M12
+# ════════════════════════════════════════════════════════════════════
 
 @shared_task(name="backup.verify_integrity")
 def verify_backup_integrity(check_id: str | None = None) -> dict:  # pragma: no cover
-    """Verify integrity of the latest backup.
+    """Verifica integridad del último backup (beat: tras full semanal)."""
+    logger.info("Starting backup integrity verification (check_id={})", check_id)
+    return asyncio.run(_run_integrity(check_id))
 
-    Scheduled: weekly after full backup.
-    """
-    logger.info("Starting backup integrity verification")
+
+async def _run_integrity(check_id: str | None) -> dict:
     try:
         result = subprocess.run(
             ["pgbackrest", "--stanza=fulkro", "verify"],
-            capture_output=True,
-            text=True,
-            timeout=1800,
+            capture_output=True, text=True, timeout=1800,
         )
-        passed = result.returncode == 0
-        logger.info("Backup integrity verification: {}", "passed" if passed else "FAILED")
-        return {
-            "status": "passed" if passed else "failed",
-            "output": result.stdout[:1000],
-        }
+    except subprocess.TimeoutExpired:
+        outcome = {"status": "failed", "output": "timeout", "discrepancies": 1}
     except FileNotFoundError:
+        logger.warning("pgbackrest not installed — integrity skipped (dev)")
         return {"status": "skipped", "reason": "pgbackrest not installed"}
+    else:
+        passed = result.returncode == 0
+        outcome = {
+            "status": "passed" if passed else "failed",
+            "output": (result.stdout or result.stderr or "")[:1000],
+            "discrepancies": 0 if passed else 1,
+        }
+    from backend.app.database import async_session
+    from backend.app.motors.m26_backup.service import BackupService
 
+    async with async_session() as db:
+        await db.execute(text("SET LOCAL ROLE fulkro_app_bypassrls"))
+        svc = BackupService(db)
+        cid = uuid.UUID(str(check_id)) if check_id else (
+            await svc.create_integrity_check("full")
+        ).id
+        await svc.complete_integrity_check(
+            cid,
+            discrepancies_found=outcome["discrepancies"],
+            report={
+                "output": outcome["output"],
+                "verified_at": datetime.now(timezone.utc).isoformat(),
+            },
+        )
+        await db.commit()
+    outcome["check_id"] = str(cid)
+    logger.info("Backup integrity verification: {}", outcome["status"])
+    return outcome
+
+
+# ════════════════════════════════════════════════════════════════════
+# Restore test (mensual) · M12
+# ════════════════════════════════════════════════════════════════════
 
 @shared_task(name="backup.monthly_restore_test")
 def monthly_restore_test(test_id: str | None = None) -> dict:  # pragma: no cover
-    """Monthly automated restore test.
+    """Restore test mensual (beat). Persiste el resultado real del readiness check.
 
-    Per v2.1 Parte 4.2: the platform restores itself on a temporary
-    server, validates it boots, destroys the temp server, and logs results.
-
-    Future hardening (post-Hetzner provisioning): orchestrate with
-    Terraform + Ansible the five-step flow:
-      1. Spin up ephemeral Hetzner server
-      2. Restore latest backup
-      3. Run health checks
-      4. Destroy ephemeral server
-      5. Record results
+    El failover completo a servidor efímero (Terraform/Ansible) sigue infra-gated;
+    el ``validation_report`` lo marca explícitamente (``kind`` = readiness_check).
     """
     logger.info("Monthly restore test triggered (test_id={})", test_id)
+    return asyncio.run(_run_restore_test(test_id))
+
+
+async def _run_restore_test(test_id: str | None) -> dict:
+    started = time.monotonic()
     result = _restore_readiness_check()
-    result["test_id"] = test_id
+    rto_seconds = int(time.monotonic() - started)
+    if result["status"] == "skipped":
+        return result  # dev sin pgbackrest → no se persiste
+    from backend.app.database import async_session
+    from backend.app.motors.m26_backup.service import BackupService
+
+    passed = result["status"] == "passed"
+    validation_report = {
+        "all_checks_passed": passed,
+        "kind": "restore_readiness_check",  # honest: NO full restore (infra-gated)
+        **result,
+    }
+    async with async_session() as db:
+        await db.execute(text("SET LOCAL ROLE fulkro_app_bypassrls"))
+        svc = BackupService(db)
+        tid = uuid.UUID(str(test_id)) if test_id else (
+            await svc.create_restore_test("monthly_automated")
+        ).id
+        await svc.complete_restore_test(
+            tid, rto_seconds=rto_seconds, validation_report=validation_report,
+        )
+        await db.commit()
+    result["test_id"] = str(tid)
+    result["rto_seconds"] = rto_seconds
     logger.info("Monthly restore test result: {}", result.get("status"))
     return result
 
 
+# ════════════════════════════════════════════════════════════════════
+# DR drill (trigger manual admin · trimestral) · M12
+# ════════════════════════════════════════════════════════════════════
+
 @shared_task(name="backup.run_dr_drill")
 def run_dr_drill(drill_id: str | None = None) -> dict:  # pragma: no cover
-    """Disaster Recovery drill orchestrator.
-
-    Triggered by ``POST /backup/dr-drills``. The full drill (failover to
-    DR site, validation, failback) requires the Hetzner Terraform stack;
-    until then this task records the request so the operator can track
-    the run via the Operations dashboard.
-    """
+    """DR drill. Ejecuta la verificación REAL de restaurabilidad y persiste el
+    resultado (RTO = duración del check · RPO = antigüedad del último backup).
+    El failover completo a sitio DR sigue infra-gated (Terraform/Ansible)."""
     logger.info("DR drill triggered (drill_id={})", drill_id)
-    # I4: el drill ejecuta la verificación REAL de restaurabilidad del repo
-    # (check + info). El failover completo a sitio DR (spin-up servidor efímero,
-    # validación, failback) requiere el stack Terraform/Ansible de Hetzner y queda
-    # como fase infra documentada: `failover_orchestration`.
+    return asyncio.run(_run_dr_drill(drill_id))
+
+
+async def _run_dr_drill(drill_id: str | None) -> dict:
+    started = time.monotonic()
     result = _restore_readiness_check()
-    result["drill_id"] = drill_id
     result["failover_orchestration"] = "infra_gated_terraform_ansible"
+    rto_actual = int(time.monotonic() - started)
+    if result["status"] == "skipped":
+        return result  # dev sin pgbackrest → no se persiste
+    # RPO proxy = antigüedad del backup más reciente (ventana de pérdida de datos).
+    latest = result.get("latest_backup_epoch")
+    now_epoch = datetime.now(timezone.utc).timestamp()
+    rpo_actual = int(now_epoch - latest) if latest else 86400
+    from backend.app.database import async_session
+    from backend.app.motors.m26_backup.service import BackupService
+
+    async with async_session() as db:
+        await db.execute(text("SET LOCAL ROLE fulkro_app_bypassrls"))
+        svc = BackupService(db)
+        did = uuid.UUID(str(drill_id)) if drill_id else (
+            await svc.create_dr_drill()
+        ).id
+        await svc.complete_dr_drill(
+            did,
+            rto_actual_seconds=rto_actual,
+            rpo_actual_seconds=rpo_actual,
+            report_path=f"readiness:{result.get('status')}",
+            issues_found=(
+                {}
+                if result["status"] == "passed"
+                else {"check_error": result.get("check_error") or result.get("error")}
+            ),
+        )
+        await db.commit()
+    result["drill_id"] = str(did)
+    result["rto_actual_seconds"] = rto_actual
+    result["rpo_actual_seconds"] = rpo_actual
     logger.info("DR drill restore-readiness: {}", result.get("status"))
     return result
