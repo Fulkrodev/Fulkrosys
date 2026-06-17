@@ -138,13 +138,25 @@ async def compute_compliance_snapshot(
 
 
 async def list_retainer_active_project_ids(db: AsyncSession) -> list[uuid.UUID]:
-    """Project ids en fase RETAINER (post-certification monitoring)."""
-    res = await db.execute(text(
-        "SELECT id FROM projects "
-        "WHERE lifecycle_state = 'RETAINER' "
-        "AND deleted_at IS NULL"
-    ))
-    return [uuid.UUID(str(row[0])) for row in res.all()]
+    """Project ids en fase RETAINER (post-certification monitoring).
+
+    M5: ``projects`` es FORCE RLS por ``app.current_project_id``; el task corre
+    con async_session (rol fulkro_app, SIN contexto de proyecto) → sin elevar, el
+    SELECT devuelve 0 filas y el digest mensual NUNCA se generaba. Elevamos a
+    bypassrls SOLO para el inventario cross-tenant; el bucle posterior fija
+    ``set_tenant_context`` por proyecto (mismo patrón que
+    ``list_projects_with_active_connectors``).
+    """
+    await db.execute(text("SET LOCAL ROLE fulkro_app_bypassrls"))
+    try:
+        res = await db.execute(text(
+            "SELECT id FROM projects "
+            "WHERE lifecycle_state = 'RETAINER' "
+            "AND deleted_at IS NULL"
+        ))
+        return [uuid.UUID(str(row[0])) for row in res.all()]
+    finally:
+        await db.execute(text("RESET ROLE"))
 
 
 # ==================================================================

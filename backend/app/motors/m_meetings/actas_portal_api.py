@@ -351,6 +351,15 @@ async def finalize_acta_signoff(
                 f"esperado 'acta_comite'"
             ),
         )
+    # M6 · binding firma↔documento: el intent DEBE referenciar ESTA acta. Sin
+    # esto un cliente podía firmar el acta A y cerrar el acta B con el intent de
+    # A (mismo tenant, mismo signable_type) → la firma quedaba ligada a un hash
+    # de documento que NO es el de B · rompe la traza ENAC (no-repudio).
+    if intent.signable_ref_id != meeting_id:
+        raise HTTPException(
+            status_code=400,
+            detail="SigningIntent no corresponde a esta acta",
+        )
     if intent.status != "signed":
         raise HTTPException(
             status_code=409,
