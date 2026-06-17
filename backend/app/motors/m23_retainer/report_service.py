@@ -343,6 +343,31 @@ class ReportService:
         )
         drift_score_val = float(_drift or 0)
 
+        # checklist#2 (campaña 2026-06-17): la lista de detalle de incidencias iba
+        # vacía (incidents=[]) aunque el KPI incidents_trimestre era un conteo real
+        # → el informe decía "N incidencias" sin detalle. Se puebla con datos reales
+        # de m19 (mismo filtro que el conteo) para coherencia conteo↔detalle.
+        incidents_list: list[dict[str, Any]] = []
+        if project_id:
+            incidents_list = await self._safe_list(
+                db,
+                "SELECT id::text, severidad, descripcion, workflow_state, "
+                "fecha, created_at FROM incidents WHERE project_id = :pid "
+                "AND created_at BETWEEN :i AND :f AND deleted_at IS NULL "
+                "ORDER BY created_at DESC LIMIT 20",
+                {"pid": str(project_id), "i": periodo_inicio, "f": periodo_fin},
+                lambda r: {
+                    "id": r.id,
+                    "severidad": r.severidad,
+                    "descripcion": (r.descripcion or "")[:200],
+                    "estado": r.workflow_state,
+                    "fecha": (
+                        (r.fecha or r.created_at).isoformat()
+                        if (r.fecha or r.created_at) else None
+                    ),
+                },
+            )
+
         kpis = ReportKPIs(
             actividades_completadas=len([
                 a for a in actividades_list if a.get("estado") == "completada"
@@ -375,7 +400,7 @@ class ReportService:
             actividades=actividades_list,
             vulnerabilidades=vulns_list,
             normativa_cambios=normativa_list,
-            incidents=[],
+            incidents=incidents_list,
             proximas_actividades=[],
             recomendaciones=(
                 f"Mantenimiento continuado en marcha. RAG global: {rag}."

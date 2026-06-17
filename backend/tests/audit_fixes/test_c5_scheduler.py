@@ -49,7 +49,12 @@ def test_c5_m26_task_defined():
 
 def test_c5_retainer_has_execute_activity_method():
     from backend.app.motors.m23_retainer.retainer_service import RetainerService
+    from backend.app.motors.m23_retainer.tasks import ACTIVITY_EXECUTORS
+
+    # execute_activity es el dispatcher real (despacha por if/elif sobre
+    # tipo_actividad invocando M8/M10/M18 · verificado en código).
     assert hasattr(RetainerService, "execute_activity")
-    # Mapping de executors
-    assert hasattr(RetainerService, "ACTIVITY_EXECUTORS")
-    assert len(RetainerService.ACTIVITY_EXECUTORS) >= 5
+    # S4 (campaña auditoría): el dict ACTIVITY_EXECUTORS de CLASE en
+    # RetainerService era código muerto sin lectores y se eliminó. El catálogo
+    # veraz de tipos de actividad vive en tasks.py (status + executors_available).
+    assert len(ACTIVITY_EXECUTORS) >= 5
