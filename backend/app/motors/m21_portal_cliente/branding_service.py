@@ -158,14 +158,10 @@ class ClientBrandingService:
         await db.flush()
         return _to_view(client)
 
-    def build_logo_url(self, logo_path: Optional[str]) -> Optional[str]:
-        """Return a URL for the cliente to fetch the logo.
-
-        For MVP this returns the existing API endpoint /api/v1/clients/{id}/logo
-        which already proxies MinIO. Signed URLs deferred.
-        """
-        if not logo_path:
-            return None
-        # logo_path is stored as relative storage path · return null marker
-        # so caller infers via API endpoint instead.
-        return None
+    # S20 (campaña auditoría 2026-06-17): se eliminó ``build_logo_url`` — era un
+    # stub muerto que devolvía siempre None y no tenía ningún llamador. La URL
+    # real del logo la deriva el propio frontend (ClientBrandingProvider →
+    # /api/v1/client-portal/branding/logo cuando has_logo=True) y el binario lo
+    # sirve el endpoint portal GET /branding/logo (api.py · portal_branding_logo)
+    # desde MinIO vía logo_path. El admin construye URLs absolutas con
+    # admin_settings.storage.build_logo_url(path) (función distinta, sí real).
