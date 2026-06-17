@@ -34,6 +34,14 @@ from backend.app.models.conformity_lifecycle import BasicDeclarationRow
 
 DPC_DECLARATION_TYPE = "dpc_anual"
 
+# BACKLOG 2027-06-17 (campaña auditoría 2026-06-17 · checklist#5): el SLA de
+# uptime comprometido NO tiene aún una fuente estructurada (requiere conectar la
+# monitorización de disponibilidad del sistema del cliente). En lugar de un "TBD"
+# eterno o un número fabricado, el DPC declara el dato como pendiente CON FECHA
+# objetivo (≈12 meses · antes del primer aniversario de conformidad real). Al
+# llegar la fecha se cablea uptime_committed_pct desde la fuente real.
+UPTIME_SLA_SOURCE_BACKLOG_DUE = "2027-06-17"
+
 
 def add_years_safe(base: date, years: int) -> date:
     """Suma `years` a `base` siendo seguro con el 29-feb.
@@ -273,8 +281,11 @@ class DpcAnualService:
             # S8 fix: antes 99.5 fijo en un documento firmado por el cliente/ENAC.
             # No hay fuente estructurada del SLA de uptime del cliente → se declara
             # no documentado (honesto) en vez de un número fabricado.
+            # checklist#5: no es un "TBD" eterno · queda en backlog CON FECHA
+            # objetivo (UPTIME_SLA_SOURCE_BACKLOG_DUE) para cablear la fuente real.
             "uptime_committed_pct": None,
-            "uptime_source": "no_documentado",
+            "uptime_source": "pendiente_monitorizacion",
+            "uptime_sla_backlog_due": UPTIME_SLA_SOURCE_BACKLOG_DUE,
         }
 
         # Recovery section · M26 backup + M25 lifecycle
