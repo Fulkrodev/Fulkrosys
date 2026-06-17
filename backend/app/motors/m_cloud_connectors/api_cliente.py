@@ -227,6 +227,20 @@ async def list_my_cloud_connectors(
 # ==================================================================
 
 
+# B1 · mapeo del provider del catálogo cliente (CloudConnectorProvider) al
+# connector_type de M16 onboarding (SUPPORTED_OAUTH_PROVIDERS). El flujo OAuth
+# real (state + authorize_url + callback) vive ÍNTEGRAMENTE en M16 portal_api:
+# el frontend llama a POST /portal/onboarding/projects/{pid}/connectors/
+# {connector_type}/oauth-init con este connector_type y obtiene el authorize_url
+# real. ADR-025: NO duplicar el OAuth state aquí.
+_M16_OAUTH_CONNECTOR_TYPE: dict[str, str] = {
+    CloudConnectorProvider.MICROSOFT_365.value: "microsoft",
+    CloudConnectorProvider.GOOGLE_WORKSPACE.value: "google",
+    CloudConnectorProvider.AZURE.value: "azure",
+    CloudConnectorProvider.GITHUB.value: "github",
+}
+
+
 @router.post("/connect/{provider}", status_code=201)
 async def init_connect_flow(
     provider: str,
@@ -286,13 +300,34 @@ async def init_connect_flow(
             "message": "Sube tu Excel/CSV en la siguiente pantalla.",
         }
 
-    # Para OAuth providers delega a M16 portal_api authorize endpoint
-    # (NO replicar PKCE · NO replicar state · ADR-025 ADR-014 sostenidos)
+    # AWS usa credenciales (Access Key solo-lectura), NO OAuth · el flujo real
+    # vive en M16 awsCredentials (pestaña Conexiones). Indicamos al frontend que
+    # pida las credenciales en vez de redirigir a un authorize_url inexistente.
+    if provider_enum == CloudConnectorProvider.AWS:
+        return {
+            "connector_id": str(connector.id),
+            "provider": provider,
+            "next_step": "aws_credentials",
+            "message": (
+                "AWS se conecta pegando una Access Key con permisos de solo "
+                "lectura · lo hacemos en la pestaña Conexiones."
+            ),
+        }
+
+    # OAuth providers · el frontend llama al endpoint M16 oauth-init REAL con el
+    # connector_type mapeado + su redirect_uri y obtiene el authorize_url (el
+    # state OAuth lo crea M16, fuente única · ADR-025 ADR-014 sostenidos).
+    m16_connector_type = _M16_OAUTH_CONNECTOR_TYPE.get(provider)
+    if m16_connector_type is None:
+        raise HTTPException(
+            status_code=400,
+            detail=f"Provider {provider} no soporta conexión OAuth desde el portal.",
+        )
     return {
         "connector_id": str(connector.id),
         "provider": provider,
         "next_step": "oauth_redirect",
-        "m16_portal_init_path": f"/api/v1/portal/connectors/{provider}/authorize",
+        "m16_connector_type": m16_connector_type,
         "message": "Te llevamos a autorizar de forma segura · solo lectura.",
     }
 

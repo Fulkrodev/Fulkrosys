@@ -14,7 +14,9 @@
  * Flow:
  *   1. Carga catalog providers + lista de conectores existentes
  *   2. Click en card → POST /connect/{provider} → backend devuelve next_step
- *      - oauth_redirect → window.location a m16_portal_init_path
+ *      - oauth_redirect → POST M16 oauth-init (m16_connector_type) → redirect
+ *        al authorize_url real del proveedor
+ *      - aws_credentials → guía a la pestaña Conexiones (Access Key)
  *      - manual_upload → muestra UI subir Excel/CSV
  *   3. Sync progress feedback via list re-fetch (SSE wire en 1.D.G existing)
  */
@@ -44,6 +46,7 @@ import {
   type CloudConnectorPublicSummary,
   ClientApiError,
 } from "@/lib/api/cloud-connectors-client";
+import { oauthInit } from "@/lib/client-onboarding/api";
 
 interface Props {
   projectId: string;
@@ -101,8 +104,27 @@ export function CloudConnectFirstStep({ projectId, onSkip }: Props) {
     setError(null);
     try {
       const res = await cloudConnectorsClientApi.initConnect(provider);
-      if (res.next_step === "oauth_redirect" && res.m16_portal_init_path) {
-        window.location.href = res.m16_portal_init_path;
+      if (res.next_step === "oauth_redirect" && res.m16_connector_type) {
+        // B1 · OAuth real vía M16 oauth-init: obtenemos el authorize_url del
+        // proveedor y redirigimos. (Antes navegaba a una ruta inexistente → 404.)
+        const connectorType = res.m16_connector_type;
+        const redirectUri =
+          `${window.location.origin}/client-portal/onboarding/oauth-callback` +
+          `?project_id=${projectId}&connector=${connectorType}`;
+        const init = await oauthInit(projectId, connectorType, {
+          redirect_uri: redirectUri,
+        });
+        window.location.href = init.authorize_url;
+        return;
+      }
+      if (res.next_step === "aws_credentials") {
+        // AWS usa credenciales (Access Key), no OAuth · el formulario vive en la
+        // pestaña Conexiones. Guiamos al cliente sin dejarlo en un callejón.
+        setError(
+          "AWS se conecta desde la pestaña «Conexiones» pegando una Access Key " +
+            "con permisos de solo lectura.",
+        );
+        await loadAll();
         return;
       }
       if (res.next_step === "manual_upload") {

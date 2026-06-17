@@ -147,11 +147,25 @@ export async function mockCloudConnectClientBase(
 
 /**
  * Mock connect-flow init · responde según provider.
+ *
+ * B1: el oauth_redirect ahora devuelve `m16_connector_type` (el short name de
+ * M16) y el front llama al endpoint REAL M16 oauth-init para obtener el
+ * authorize_url. Mockeamos ambos pasos (connect + oauth-init).
  */
+const _M16_CONNECTOR_TYPE: Record<string, string> = {
+  microsoft_365: "microsoft",
+  google_workspace: "google",
+  azure: "azure",
+  github: "github",
+};
+
 export async function mockCloudConnectInitFlow(
   page: Page,
   opts: { provider: string; nextStep: "oauth_redirect" | "manual_upload" },
 ) {
+  const connectorType =
+    _M16_CONNECTOR_TYPE[opts.provider] ?? opts.provider;
+
   await page.route(
     `**/api/v1/client-portal/cloud-connectors/connect/${opts.provider}`,
     async (route) => {
@@ -161,7 +175,7 @@ export async function mockCloudConnectInitFlow(
               connector_id: "11111111-1111-1111-1111-111111111111",
               provider: opts.provider,
               next_step: "oauth_redirect",
-              m16_portal_init_path: `/api/v1/portal/connectors/${opts.provider}/authorize`,
+              m16_connector_type: connectorType,
               message: "Te llevamos a autorizar de forma segura · solo lectura.",
             }
           : {
@@ -177,6 +191,24 @@ export async function mockCloudConnectInitFlow(
       });
     },
   );
+
+  if (opts.nextStep === "oauth_redirect") {
+    // Paso 2 · M16 oauth-init real → authorize_url. Apuntamos a una ruta
+    // same-origin benigna para que la navegación final no rompa el test.
+    await page.route(
+      `**/portal/onboarding/projects/*/connectors/${connectorType}/oauth-init`,
+      async (route) => {
+        await route.fulfill({
+          status: 200,
+          contentType: "application/json",
+          body: JSON.stringify({
+            authorize_url: "/client-portal/onboarding?oauth=mock",
+            state: "test-state-token",
+          }),
+        });
+      },
+    );
+  }
 }
 
 export { CONNECTORS_EMPTY, CONNECTORS_WITH_M365_CONNECTED, PROVIDERS_CATALOG };

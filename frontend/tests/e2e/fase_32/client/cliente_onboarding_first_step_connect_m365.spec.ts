@@ -73,14 +73,17 @@ test.describe("fase_32 · cliente onboarding cloud-first", () => {
     await page.goto("/client-portal/onboarding");
     await expect(page.getByTestId("cloud-connect-card-microsoft_365")).toBeVisible();
 
-    // Click "Conectar" en M365
-    const navWait = page.waitForRequest(
+    // B1 · el flujo real: POST connect/microsoft_365 → next_step oauth_redirect
+    // con m16_connector_type="microsoft" → POST M16 oauth-init real (microsoft)
+    // → redirect al authorize_url. Verificamos que se alcanza el oauth-init real
+    // (antes navegaba a una ruta /authorize inexistente → 404).
+    const initWait = page.waitForRequest(
       (req) =>
-        req.url().includes("/api/v1/portal/connectors/microsoft_365/authorize")
-        || req.url().includes("/api/v1/client-portal/cloud-connectors/connect/microsoft_365"),
+        req.url().includes("/connectors/microsoft/oauth-init")
+        && req.method() === "POST",
     );
 
     await page.getByTestId("cloud-connect-action-microsoft_365").click();
-    await navWait;
+    await initWait;
   });
 });

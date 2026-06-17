@@ -51,8 +51,12 @@ export interface CloudConnectorPublicSummary {
 export interface ConnectInitResponse {
   connector_id: string;
   provider: string;
-  next_step: "oauth_redirect" | "manual_upload";
-  m16_portal_init_path?: string;
+  next_step: "oauth_redirect" | "manual_upload" | "aws_credentials";
+  // B1 · connector_type de M16 para el OAuth real (microsoft/google/azure/github).
+  // El frontend llama a M16 oauth-init con este valor + redirect_uri y redirige
+  // al authorize_url devuelto. (Antes había un m16_portal_init_path inexistente
+  // → GET 404 · el cliente nunca llegaba a autorizar.)
+  m16_connector_type?: string;
   message: string;
 }
 
