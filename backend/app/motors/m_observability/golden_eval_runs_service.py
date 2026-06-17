@@ -203,7 +203,36 @@ async def execute_eval_run_sync(
         from backend.app.motors.m_observability import (
             evaluators,  # noqa: F401
         )
-        report = run_eval(agent_name, version)
+        # S1 fix: cablea la capability real DeliverableTextAuditor como
+        # actual_provider (antes run_eval sin provider → todas las entradas
+        # skipped → golden eval vacuo). Sin ANTHROPIC_API_KEY el provider
+        # devuelve None y el entry se salta legítimamente.
+        actual_provider = None
+        if agent_name == "deliverable_text_auditor":
+            from backend.app.motors.m_observability.deliverable_text_auditor_capability import (  # noqa: E501
+                audit_deliverable_sync,
+            )
+
+            def actual_provider(entry):  # type: ignore[misc]
+                inp = entry.input or {}
+                text = inp.get("deliverable_text", "")
+                ctx = inp.get("context") or {}
+                cat = (
+                    ctx.get("ens_category")
+                    or getattr(entry, "ens_category", None)
+                    or "BASICA"
+                )
+                if not text:
+                    return None
+                return audit_deliverable_sync(text, cat)
+
+        import asyncio
+
+        loop = asyncio.get_event_loop()
+        report = await loop.run_in_executor(
+            None,
+            lambda: run_eval(agent_name, version, actual_provider=actual_provider),
+        )
         return await persist_eval_completion(
             db, run_id=run_id, report=report,
         )
