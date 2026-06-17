@@ -14,6 +14,7 @@ import {
   Sparkles,
   type LucideIcon,
 } from "lucide-react";
+import { useQueryClient } from "@tanstack/react-query";
 import * as React from "react";
 import { toast } from "sonner";
 
@@ -31,12 +32,15 @@ import {
 } from "@/components/ui/card";
 import { InfoTag } from "@/components/ui/info-tag";
 import {
+  conformityKeys,
   useConformity,
   useExternalExports,
   useRenewal,
+  useRevalidateRoute,
   useRouteHistory,
   useConformitySubmissionsList,
 } from "@/hooks/useConformity";
+import { getConformityStatusLifecycle } from "@/lib/api/conformity";
 import { cn, formatDay } from "@/lib/utils";
 
 type UiState =
@@ -158,9 +162,10 @@ export function ConformityConsole({ projectId }: { projectId: string }) {
   const { data: exports } = useExternalExports(projectId);
   const { data: renewal } = useRenewal(projectId);
   const { data: routeHistory } = useRouteHistory(projectId);
+  const revalidate = useRevalidateRoute(projectId);
+  const qc = useQueryClient();
 
-  const [busy, setBusy] = React.useState(false);
-
+  const busy = revalidate.isPending;
   const isLoading = loadingStatus;
 
   if (isLoading || !status) {
@@ -195,11 +200,31 @@ export function ConformityConsole({ projectId }: { projectId: string }) {
 
   const timeline = buildTimelineFromHistory(routeHistory?.history ?? []);
 
+  // S16 fix: antes era un stub (setTimeout + toast). El "asistente" re-valida
+  // la ruta de conformidad contra sus invariantes (revalidate · endpoint real
+  // POST /conformity/projects/{id}/route/revalidate) y devuelve al usuario las
+  // incidencias detectadas, que es exactamente la consulta que aporta valor.
   async function runAssistant() {
-    setBusy(true);
-    await new Promise((r) => setTimeout(r, 400));
-    setBusy(false);
-    toast.success("Asistente de Conformidad consultado");
+    try {
+      await revalidate.mutateAsync();
+      const fresh = await qc.fetchQuery({
+        queryKey: conformityKeys.status(projectId),
+        queryFn: () => getConformityStatusLifecycle(projectId),
+      });
+      if (fresh.invariants_ok) {
+        toast.success("Ruta de conformidad revalidada · sin incidencias");
+      } else {
+        const detail =
+          fresh.invariant_violations.length > 0
+            ? fresh.invariant_violations.join(" · ")
+            : "incidencias detectadas en la ruta";
+        toast.warning(`Revisar conformidad: ${detail}`);
+      }
+    } catch (e) {
+      toast.error(
+        e instanceof Error ? e.message : "No se pudo revalidar la conformidad",
+      );
+    }
   }
 
   return (
