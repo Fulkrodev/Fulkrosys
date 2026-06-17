@@ -33,7 +33,9 @@ from backend.app.motors.m09_audit_prep.checklist_service import (
     list_runs as m09_list_runs,
     _collect_blockers,
 )
+from backend.app.motors.m18_communication.alert_service import AlertService
 from backend.app.motors.m21_diagnosis.dashboard_schemas import (
+    ActiveAlert,
     DashboardData,
     NextActionItem,
 )
@@ -97,6 +99,21 @@ class ProjectDashboardService:
             readiness=readiness_score,
         )
 
+        # S26 (campaña auditoría): alertas activas REALES desde m18 (antes []
+        # placeholder fijo · count 0). Son las alertas no-acknowledged del proyecto.
+        alerts_raw = await AlertService(self.db).list_active_alerts(project_id)
+        active_alerts = [
+            ActiveAlert(
+                id=a.id,
+                severity=a.severity,
+                title=a.title,
+                description=a.description or "",
+                action_url=a.action_url or "",
+                triggered_at=a.triggered_at,
+            )
+            for a in alerts_raw
+        ]
+
         return DashboardData(
             project_id=project_id,
             project_name=proj["nombre"] or "Sin nombre",
@@ -108,8 +125,8 @@ class ProjectDashboardService:
             phase_total=10,
             next_actions=next_actions,
             readiness_score=readiness_score,
-            active_alerts=[],
-            active_alerts_count=0,
+            active_alerts=active_alerts,
+            active_alerts_count=len(active_alerts),
             estimated_days_to_certification=estimated_days,
             blocking_issues=blocking_from_checklist,
             last_updated=datetime.now(timezone.utc),

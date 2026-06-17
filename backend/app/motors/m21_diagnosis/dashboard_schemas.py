@@ -47,7 +47,7 @@ class NextActionItem(BaseModel):
 
 
 class ActiveAlert(BaseModel):
-    """Alerta activa que admin debe ver (placeholder hasta MB-13.4)."""
+    """Alerta activa que admin debe ver (m18 alert_queue · no-acknowledged)."""
 
     id: UUID
     severity: str = Field(..., description="info | warning | critical")
@@ -88,7 +88,7 @@ class DashboardData(BaseModel):
 
     active_alerts: list[ActiveAlert] = Field(
         default_factory=list,
-        description="Placeholder hasta MB-13.4 · schema-stable",
+        description="Alertas activas (no-acknowledged) del proyecto · m18 alert_queue (S26)",
     )
     active_alerts_count: int = Field(default=0)
 
