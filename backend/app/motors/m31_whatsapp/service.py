@@ -148,6 +148,21 @@ class WhatsAppService:
         if user is None:
             raise WhatsAppError(f"ClientUser {client_user_id} not found")
 
+        # M13 · sin proveedor real (modo mock/demo) el OTP NUNCA llega al móvil:
+        # send_text devuelve ok=True sin enviar nada → la UI avanzaba a pedir un
+        # OTP que jamás llegaba (callejón sin salida). Cortamos honestamente:
+        # otp_sent=False + error explícito · NO persistimos un OTP inútil.
+        if getattr(self._client, "mock_mode", False):
+            return OptInInitiationResult(
+                client_user_id=str(client_user_id),
+                phone_e164=phone_e164,
+                otp_sent=False,
+                error=(
+                    "WhatsApp todavía no está disponible (modo demo · sin "
+                    "proveedor real configurado). Te avisaremos cuando se active."
+                ),
+            )
+
         otp = _generate_otp()
         now = datetime.now(timezone.utc)
         user.whatsapp_number = phone_e164

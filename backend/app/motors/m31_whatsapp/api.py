@@ -154,10 +154,17 @@ portal_router = APIRouter(
 async def portal_whatsapp_status(
     user: ClientUser = Depends(get_current_client_user),
 ) -> dict:
+    # M13 · provider_available=False en modo demo/mock (sin 360dialog real) → el
+    # frontend muestra "próximamente" en vez del formulario de opt-in que nunca
+    # podría completarse (el OTP no llegaría al móvil).
+    from backend.app.motors.m31_whatsapp.dialog_360_client import (
+        get_default_client,
+    )
     return {
         "whatsapp_number": user.whatsapp_number,
         "verified": user.whatsapp_verified_at is not None,
         "opt_in_active": user.whatsapp_opt_in_at is not None,
+        "provider_available": not get_default_client().mock_mode,
         "verified_at": (
             user.whatsapp_verified_at.isoformat()
             if user.whatsapp_verified_at else None

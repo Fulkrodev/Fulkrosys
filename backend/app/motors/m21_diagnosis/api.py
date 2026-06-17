@@ -423,6 +423,8 @@ class IsoCoverageResponse(BaseModel):
     coverage_percent: float
     effort_hours_saved_estimate: float
     coverage_per_family: dict
+    # M9 · True → el mapeo ISO→ENS no está cargado (0% NO es real · falta de datos).
+    mapping_table_empty: bool = False
 
 
 @router.post(
@@ -458,4 +460,5 @@ async def calculate_iso27001_coverage_endpoint(
         coverage_percent=result.coverage_percent,
         effort_hours_saved_estimate=result.effort_hours_saved_estimate,
         coverage_per_family=result.coverage_per_family,
+        mapping_table_empty=result.mapping_table_empty,
     )

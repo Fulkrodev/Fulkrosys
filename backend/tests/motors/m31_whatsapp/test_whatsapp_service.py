@@ -6,7 +6,10 @@ import pytest
 from sqlalchemy import select, text
 
 from backend.app.models.client_portal import ClientUser
-from backend.app.motors.m31_whatsapp.dialog_360_client import Dialog360Client
+from backend.app.motors.m31_whatsapp.dialog_360_client import (
+    Dialog360Client,
+    SendMessageResult,
+)
 from backend.app.motors.m31_whatsapp.service import (
     WhatsAppError,
     WhatsAppService,
@@ -16,6 +19,27 @@ from backend.tests.conftest import _admin_setup
 
 
 pytestmark = pytest.mark.asyncio
+
+
+class _LiveLikeClient(Dialog360Client):
+    """Proveedor 'real' simulado: ``mock_mode=False`` (NO dispara el gate M13 de
+    'modo demo') pero ``send_*`` devuelve ok sin tocar la red. Permite testear el
+    flujo OTP real (generación + verificación) como en producción con 360dialog."""
+
+    def __init__(self) -> None:
+        super().__init__(api_key="test", phone_number_id="test", mock_mode=False)
+
+    async def send_text(self, to: str, body: str) -> SendMessageResult:
+        return SendMessageResult(ok=True, whatsapp_message_id="live-text", status="sent")
+
+    async def send_template(
+        self, to: str, template_name: str, lang: str = "es", params=None,
+    ) -> SendMessageResult:
+        return SendMessageResult(ok=True, whatsapp_message_id="live-tpl", status="sent")
+
+
+def _live_service() -> WhatsAppService:
+    return WhatsAppService(client=_LiveLikeClient())
 
 
 async def _seed_client_project_user(
@@ -80,9 +104,25 @@ async def test_initiate_opt_in_invalid_phone_returns_error(db):
     assert result.error is not None
 
 
-async def test_initiate_opt_in_valid_phone_sends_otp(db):
+async def test_initiate_opt_in_mock_provider_returns_not_available(db):
+    # M13 · en modo demo (mock) el OTP nunca llegaría → otp_sent=False + error
+    # explícito y SIN persistir un OTP inútil (evita el callejón sin salida).
     _, _, user_id = await _seed_client_project_user(db)
     svc = WhatsAppService(client=Dialog360Client(mock_mode=True))
+    result = await svc.initiate_opt_in(
+        db, client_user_id=user_id, phone_raw="+34666555444",
+    )
+    assert result.otp_sent is False
+    assert result.error is not None
+    user = (await db.execute(
+        select(ClientUser).where(ClientUser.id == user_id)
+    )).scalar_one()
+    assert user.whatsapp_verification_otp is None  # NO se persistió OTP
+
+
+async def test_initiate_opt_in_valid_phone_sends_otp(db):
+    _, _, user_id = await _seed_client_project_user(db)
+    svc = _live_service()
     result = await svc.initiate_opt_in(
         db, client_user_id=user_id, phone_raw="+34666555444",
     )
@@ -100,7 +140,7 @@ async def test_initiate_opt_in_valid_phone_sends_otp(db):
 
 async def test_verify_otp_correct_marks_verified(db, monkeypatch):
     _, _, user_id = await _seed_client_project_user(db)
-    svc = WhatsAppService(client=Dialog360Client(mock_mode=True))
+    svc = _live_service()
     # El OTP se persiste HASHEADO; fijamos uno conocido para poder verificarlo.
     import backend.app.motors.m31_whatsapp.service as wa_service
     monkeypatch.setattr(wa_service, "_generate_otp", lambda *a, **k: "123456")
@@ -125,7 +165,7 @@ async def test_verify_otp_lockout_after_max_attempts(db, monkeypatch):
     """Tras MAX_OTP_ATTEMPTS fallos el OTP queda bloqueado · ni el correcto pasa
     (anti-brute-force del espacio 10^6 dentro del TTL)."""
     _, _, user_id = await _seed_client_project_user(db)
-    svc = WhatsAppService(client=Dialog360Client(mock_mode=True))
+    svc = _live_service()
     import backend.app.motors.m31_whatsapp.service as wa_service
     monkeypatch.setattr(wa_service, "_generate_otp", lambda *a, **k: "123456")
     await svc.initiate_opt_in(
@@ -143,7 +183,7 @@ async def test_verify_otp_lockout_after_max_attempts(db, monkeypatch):
 
 async def test_verify_otp_wrong_returns_false(db):
     _, _, user_id = await _seed_client_project_user(db)
-    svc = WhatsAppService(client=Dialog360Client(mock_mode=True))
+    svc = _live_service()
     await svc.initiate_opt_in(
         db, client_user_id=user_id, phone_raw="+34666555444",
     )

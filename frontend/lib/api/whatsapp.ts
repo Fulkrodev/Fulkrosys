@@ -12,6 +12,9 @@ export interface WhatsAppStatus {
   opt_in_active: boolean;
   verified_at: string | null;
   opt_in_at: string | null;
+  // M13 · false en modo demo (sin proveedor real) → mostrar "próximamente",
+  // no el formulario de opt-in (el OTP nunca llegaría).
+  provider_available?: boolean;
 }
 
 

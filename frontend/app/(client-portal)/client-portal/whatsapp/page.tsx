@@ -116,8 +116,29 @@ export default function ClientWhatsAppPage() {
         </p>
       </header>
 
+      {/* M13 · proveedor no disponible (modo demo) → "próximamente", NO el
+          formulario de opt-in (el OTP nunca llegaría · callejón sin salida). */}
+      {status?.provider_available === false && !status?.opt_in_active && (
+        <Card data-testid="whatsapp-coming-soon">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2 text-base">
+              <ShieldCheck className="h-5 w-5 text-fulkro-muted" />
+              WhatsApp · próximamente
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p className="text-sm text-[color:var(--fulkro-body)]">
+              Las notificaciones por WhatsApp todavía no están activas en tu
+              entorno. Te avisaremos en cuanto se habiliten · mientras tanto
+              recibes todo por el portal y por email.
+            </p>
+          </CardContent>
+        </Card>
+      )}
+
       {/* State machine: opt-in → otp → active thread */}
-      {!status?.whatsapp_number && pendingPhone === null && (
+      {status?.provider_available !== false
+        && !status?.whatsapp_number && pendingPhone === null && (
         <WhatsAppOptInCard onOtpSent={(p) => setPendingPhone(p)} />
       )}
 

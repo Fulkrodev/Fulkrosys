@@ -583,6 +583,15 @@ async def seed_evidence_catalog(engine, report: SeedReport) -> None:
     run_external_script("seed_ens_evidence_catalog.py", report)
 
 
+async def seed_iso27001_mapping(engine, report: SeedReport) -> None:
+    """M9 · puebla ens_iso27001_mapping (~137 pares ISO27001:2022 → ENS).
+
+    Sin este seed la tabla queda vacía y M21 iso27001_coverage devuelve 0%
+    cobertura para CUALQUIER cliente (panel comercial engañoso). Idempotente
+    (INSERT ... ON CONFLICT en el script)."""
+    run_external_script("seed_ens_iso27001_mapping.py", report)
+
+
 async def seed_age_kg(engine, report: SeedReport, skip: bool = False) -> None:
     if skip:
         # KG demo (Apache AGE) requiere superuser real para `LOAD 'age'`
@@ -707,6 +716,7 @@ async def main(skip_corpus: bool = False, skip_age_kg: bool = False) -> int:
     # E + F + G via scripts externos
     await seed_fake_clients(engine, report)
     await seed_evidence_catalog(engine, report)
+    await seed_iso27001_mapping(engine, report)
     await seed_age_kg(engine, report, skip=skip_age_kg)
     await seed_pricing(engine, report)
     await seed_templates(engine, report)

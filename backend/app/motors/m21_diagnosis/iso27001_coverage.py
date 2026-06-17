@@ -40,6 +40,10 @@ class IsoCoverageResult:
     coverage_percent: float
     effort_hours_saved_estimate: float
     coverage_per_family: dict[str, dict[str, int]]
+    # M9 · True si ens_iso27001_mapping está vacía (seed no ejecutado) → la
+    # cobertura 0% NO es real, es falta de datos. El consumidor debe avisar
+    # ("mapeo no cargado") en vez de mostrar un 0% mudo y engañoso.
+    mapping_table_empty: bool = False
 
 
 async def calculate_iso27001_coverage(
@@ -54,6 +58,12 @@ async def calculate_iso27001_coverage(
     Anexo A (e.g. ``{"A.5.1", "A.8.5", "A.5.24"}``).
     """
     iso_set = {c.strip() for c in iso_controls_implemented if c}
+
+    # M9 · ¿está poblada la tabla de mapeo? (seed encadenado en seed_all_fulkro).
+    mapping_count = (await db.execute(
+        sa_text("SELECT COUNT(*) FROM ens_iso27001_mapping")
+    )).scalar() or 0
+    mapping_empty = mapping_count == 0
 
     # Mapeo: ¿qué medidas ENS quedan cubiertas?
     if iso_set:
@@ -105,4 +115,5 @@ async def calculate_iso27001_coverage(
             len(covered) * HOURS_PER_ENS_MEASURE, 1
         ),
         coverage_per_family=per_family,
+        mapping_table_empty=mapping_empty,
     )
