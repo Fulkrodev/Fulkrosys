@@ -29,6 +29,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Textarea } from "@/components/ui/textarea";
+import { documentDownloadUrl } from "@/lib/api/files-extended";
 import {
   type IncidentClient,
   type IncidentReviewAction,
@@ -186,21 +187,24 @@ export function IncidentDetail({
 
         {isManualNotification && incident.manual_notification_doc_id && (
           <div className="mt-4">
-            {/* §3.1 audit-2026-06-15 · el botón no descargaba (no hay endpoint de
-                descarga en incidents.ts) y el texto contradecía la condición de
-                render (sólo aparece SI el doc ya existe). Deshabilitado + honesto
-                hasta cablear la descarga del documento (IDMS/documents). */}
+            {/* S28c (campaña 2026-06-17): descarga REAL del documento E-CCN-NOTIFY
+                vía el endpoint cliente /client-portal/documents/{id}/download
+                (cross-tenant check + MinIO). El botón sólo aparece si el doc ya
+                existe (manual_notification_doc_id != null). */}
             <Button
               size="sm"
               variant="outline"
               data-testid="incident-manual-notification-download"
-              disabled
-              title="Descarga próximamente"
+              onClick={() =>
+                window.open(
+                  documentDownloadUrl(incident.manual_notification_doc_id!),
+                  "_blank",
+                  "noopener,noreferrer",
+                )
+              }
             >
               <Download className="h-3 w-3" />
-              <span className="ml-1.5">
-                E-CCN-NOTIFY (descarga próximamente)
-              </span>
+              <span className="ml-1.5">Descargar E-CCN-NOTIFY</span>
             </Button>
           </div>
         )}
