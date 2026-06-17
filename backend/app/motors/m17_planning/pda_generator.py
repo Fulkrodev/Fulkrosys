@@ -214,7 +214,10 @@ async def build_pda_context(
             "priority": row[4] or "—",
             "effort_hours": int(row[7] or 0),
             "target_date": row[6].isoformat() if row[6] else "—",
-            "cost_eur": 0,  # wbs_tasks no almacena coste · TODO post-MB-10
+            # S25 (campaña 2026-06-17): NO se incluye coste por tarea. wbs_tasks
+            # no almacena coste y el modelo de pricing es por proyecto fijo (no
+            # tarifa/hora), así que un "Coste: 0€" en cada acción era completitud
+            # falsa. El dato real y trazable es el esfuerzo en horas (arriba).
         })
 
     return PdaContext(
@@ -327,8 +330,7 @@ def generate_pda_docx(ctx: PdaContext) -> io.BytesIO:
             doc.add_paragraph(
                 f"Medida ENS: {task['ens_measure']} · Responsable: "
                 f"{task['responsible_role']} · Prioridad: {task['priority']}\n"
-                f"Esfuerzo: {task['effort_hours']}h · Plazo: {task['target_date']} "
-                f"· Coste: {task['cost_eur']}€\n"
+                f"Esfuerzo: {task['effort_hours']}h · Plazo: {task['target_date']}\n"
                 f"{task['description']}"
             )
     else:
