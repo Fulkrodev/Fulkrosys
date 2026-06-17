@@ -11,7 +11,8 @@ Security model:
 - OTP (6-digit TOTP) sent via separate channel when purpose requires it
 - OTP hash stored, never plaintext
 - Rate limiting: 3 OTP failures → link permanently invalidated
-- Geo-restriction: allowed_countries JSONB (prepared, not enforced yet)
+- Geo-restriction: allowed_countries JSONB · ENFORCED opt-in (S27 · sólo si el
+  link define allowed_countries Y hay BD GeoIP · fail-open sin BD · ver confirm())
 - Audit trail: every action logged to client_interactions (append-only)
 
 References:
@@ -21,6 +22,7 @@ References:
 import hashlib
 import os
 from datetime import datetime, timedelta, timezone
+from functools import lru_cache
 from uuid import uuid4
 
 import jwt as pyjwt
@@ -54,6 +56,46 @@ OTP_DIGITS = 6
 # §1.5: expiración propia del OTP, corta e independiente del TTL del link
 # (que puede llegar a 120 días). Reduce la ventana de fuerza bruta del OTP.
 OTP_TTL_MINUTES = 15
+
+
+# ================================================================
+# S27 · GeoIP geo-restriction (opt-in · defensa en profundidad)
+# ================================================================
+# El enforcement (en confirm()) sólo actúa si: (1) el link tiene
+# allowed_countries (restricción explícita) Y (2) se puede resolver el país de
+# la IP (lib geoip2 + BD MaxMind GeoLite2 presentes). Si la BD no está
+# (FULKRO_GEOIP_DB_PATH ausente/ilegible) o la IP es privada/no resoluble →
+# fail-open con warning: NO bloquea (geo es secundario al OTP + token Ed25519;
+# bloquear por una BD ausente dejaría sin acceso al cliente legítimo).
+# ACTIVACIÓN (Marcos): descargar GeoLite2-Country.mmdb (MaxMind · cuenta gratis)
+# y fijar FULKRO_GEOIP_DB_PATH=/ruta/GeoLite2-Country.mmdb. `pip install geoip2`.
+
+
+@lru_cache(maxsize=1)
+def _geoip_reader():
+    """Reader MaxMind cacheado · None si lib/BD ausente (grácil)."""
+    path = os.environ.get("FULKRO_GEOIP_DB_PATH", "").strip()
+    if not path or not os.path.exists(path):
+        return None
+    try:
+        import geoip2.database  # type: ignore
+        return geoip2.database.Reader(path)
+    except Exception as exc:  # noqa: BLE001
+        logger.warning("GeoIP reader no disponible ({}): {}", path, exc)
+        return None
+
+
+def _geolocate_ip(ip: str | None) -> str | None:
+    """ISO-3166 alpha-2 del país de la IP, o None si no resoluble (grácil)."""
+    if not ip:
+        return None
+    reader = _geoip_reader()
+    if reader is None:
+        return None
+    try:
+        return reader.country(ip).country.iso_code
+    except Exception:  # noqa: BLE001 · IP privada / no en BD / formato inválido
+        return None
 
 
 # ================================================================
@@ -426,11 +468,24 @@ class MagicLinkService:
                 )
                 raise MagicLinkInvalidOTPError("Codigo incorrecto")
 
-        # Step 9: Geo check (skipped until geo lib is installed)
-        # if link.allowed_countries:
-        #     country = _geolocate_ip(request.client_ip)
-        #     if country not in link.allowed_countries:
-        #         raise MagicLinkError("Acceso no permitido desde su ubicacion")
+        # Step 9: Geo check (S27 · opt-in · sólo si allowed_countries definido).
+        # Fail-open si el país no es resoluble (BD GeoIP ausente) · ver helper.
+        if link.allowed_countries:
+            country = _geolocate_ip(request.client_ip)
+            if country is None:
+                logger.warning(
+                    "magic-link {} con geo-restriction pero país no resoluble "
+                    "(IP {}) · permitido (fail-open · ¿GeoIP DB ausente?)",
+                    link.id, request.client_ip,
+                )
+            elif country not in link.allowed_countries:
+                logger.warning(
+                    "magic-link {} BLOQUEADO por geo · país {} no en {}",
+                    link.id, country, link.allowed_countries,
+                )
+                raise MagicLinkError(
+                    "Acceso no permitido desde su ubicación"
+                )
 
         # SUCCESS: increment uses and log
         link.usos += 1
