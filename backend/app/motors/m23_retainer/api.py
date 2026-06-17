@@ -465,11 +465,13 @@ async def list_drifts(
     project_id: uuid.UUID,
     severidad: Optional[str] = None,
     estado: Optional[str] = None,
+    dimension: Optional[str] = None,
     db: AsyncSession = Depends(get_db),
 ):
     await _set_project_rls(project_id, db)
     drifts = await RetainerService().list_drifts(
         db, project_id=project_id, severidad=severidad, estado=estado,
+        dimension=dimension,
     )
     return {"drifts": [_serialize_drift(d) for d in drifts]}
 

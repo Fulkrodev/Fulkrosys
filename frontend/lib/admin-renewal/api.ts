@@ -17,39 +17,56 @@ export type MilestoneStatus =
   | "bloqueado"
   | "no_aplica";
 
-export type DriftSeverity = "CRITICA" | "ALTA" | "MEDIA" | "BAJA";
+// S28d FIX: los enums DEBEN coincidir con los valores REALES almacenados en
+// retainer_drift_events (la matview mv_drift_summary_10x4 es un GROUP BY directo,
+// sin mapeo). Antes el frontend usaba auth/cifrado/... + CRITICA/ALTA/... que NO
+// existen en BD → cellLookup nunca casaba → la matriz mostraba siempre ceros.
+// Fuente: backend m23 retainer_service.DRIFT_DIMENSIONS / DRIFT_SEVERITIES.
+export type DriftSeverity = "CRITICAL" | "HIGH" | "MEDIUM" | "LOW";
 
 export type DriftDimension =
-  | "auth"
-  | "cifrado"
-  | "backups"
-  | "monitoring"
-  | "personal"
+  | "infraestructura"
+  | "identidad"
   | "proveedores"
-  | "acceso"
-  | "fisico"
-  | "contingencia"
-  | "auditoria";
+  | "normativa"
+  | "overlay"
+  | "cpstic"
+  | "roles"
+  | "continuidad"
+  | "evidencias"
+  | "contratos";
 
 export const DRIFT_DIMENSIONS: DriftDimension[] = [
-  "auth",
-  "cifrado",
-  "backups",
-  "monitoring",
-  "personal",
+  "infraestructura",
+  "identidad",
   "proveedores",
-  "acceso",
-  "fisico",
-  "contingencia",
-  "auditoria",
+  "normativa",
+  "overlay",
+  "cpstic",
+  "roles",
+  "continuidad",
+  "evidencias",
+  "contratos",
 ];
 
+// Orden de mayor a menor severidad (para columnas de la matriz).
 export const DRIFT_SEVERITIES: DriftSeverity[] = [
-  "CRITICA",
-  "ALTA",
-  "MEDIA",
-  "BAJA",
+  "CRITICAL",
+  "HIGH",
+  "MEDIUM",
+  "LOW",
 ];
+
+export interface DriftEvent {
+  id: string;
+  dimension: string;
+  descripcion: string | null;
+  severidad: string;
+  impacto: string | null;
+  estado: string;
+  resuelto_at: string | null;
+  created_at: string | null;
+}
 
 export interface RenewalMilestone {
   id: string;
@@ -145,4 +162,24 @@ export function contactAuditor(
     `${projectBase(projectId)}/renewal/contact-auditor`,
     { method: "POST", json: payload },
   );
+}
+
+/**
+ * S28d · drill-down de una celda de la matriz: lista los drift events de una
+ * (dimension, severidad). Endpoint m23 GET /api/v1/retainer/projects/{id}/retainer/drifts
+ * (filtros dimension+severidad+estado · valores idénticos a los de la matview).
+ */
+export async function listDriftEvents(
+  projectId: string,
+  opts: { dimension?: string; severidad?: string; estado?: string } = {},
+): Promise<DriftEvent[]> {
+  const qs = new URLSearchParams();
+  if (opts.dimension) qs.set("dimension", opts.dimension);
+  if (opts.severidad) qs.set("severidad", opts.severidad);
+  if (opts.estado) qs.set("estado", opts.estado);
+  const suffix = qs.toString() ? `?${qs}` : "";
+  const res = await api<{ drifts: DriftEvent[] }>(
+    `/api/v1/retainer/projects/${projectId}/retainer/drifts${suffix}`,
+  );
+  return res.drifts;
 }

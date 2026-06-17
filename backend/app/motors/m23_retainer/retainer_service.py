@@ -649,6 +649,7 @@ class RetainerService:
         project_id: uuid.UUID | None = None,
         estado: str | None = None,
         severidad: str | None = None,
+        dimension: str | None = None,
     ) -> list[RetainerDriftEvent]:
         stmt = select(RetainerDriftEvent)
         if retainer_id:
@@ -659,6 +660,9 @@ class RetainerService:
             stmt = stmt.where(RetainerDriftEvent.estado == estado)
         if severidad:
             stmt = stmt.where(RetainerDriftEvent.severidad == severidad)
+        # S28d: filtro por dimensión para el drill-down del drawer de la matriz.
+        if dimension:
+            stmt = stmt.where(RetainerDriftEvent.dimension == dimension)
         stmt = stmt.order_by(RetainerDriftEvent.created_at.desc())
         res = await db.execute(stmt)
         return list(res.scalars().all())

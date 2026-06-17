@@ -7,6 +7,7 @@
  * Click cell con count > 0 abre Sheet drawer con items detected (futuro
  * endpoint detail · placeholder por ahora con mensaje).
  */
+import { useQuery } from "@tanstack/react-query";
 import * as React from "react";
 import {
   Activity,
@@ -16,6 +17,7 @@ import {
   Database,
   Key,
   LifeBuoy,
+  Loader2,
   Lock,
   RefreshCw,
   Shield,
@@ -40,28 +42,31 @@ import { useRenewalStatus } from "@/hooks/useRenewalStatus";
 import {
   DRIFT_DIMENSIONS,
   DRIFT_SEVERITIES,
+  listDriftEvents,
   type DriftDimension,
   type DriftSeverity,
 } from "@/lib/admin-renewal/api";
 
+// S28d FIX: dimensiones REALES de retainer_drift_events (antes auth/cifrado/...
+// inexistentes en BD). Etiquetas legibles + icono por dimensión.
 const DIMENSION_META: Record<DriftDimension, { label: string; icon: LucideIcon }> = {
-  auth: { label: "Autenticación", icon: Lock },
-  cifrado: { label: "Cifrado", icon: Shield },
-  backups: { label: "Backups", icon: Database },
-  monitoring: { label: "Monitorización", icon: Activity },
-  personal: { label: "Datos personales", icon: Users },
+  infraestructura: { label: "Infraestructura", icon: Cpu },
+  identidad: { label: "Identidad", icon: Key },
   proveedores: { label: "Proveedores", icon: Building },
-  acceso: { label: "Control acceso", icon: Key },
-  fisico: { label: "Seguridad física", icon: Cpu },
-  contingencia: { label: "Continuidad", icon: LifeBuoy },
-  auditoria: { label: "Auditoría", icon: ClipboardCheck },
+  normativa: { label: "Normativa", icon: ClipboardCheck },
+  overlay: { label: "Overlay sectorial", icon: Shield },
+  cpstic: { label: "Productos CPSTIC", icon: Lock },
+  roles: { label: "Roles y funciones", icon: Users },
+  continuidad: { label: "Continuidad", icon: LifeBuoy },
+  evidencias: { label: "Evidencias", icon: Database },
+  contratos: { label: "Contratos", icon: Activity },
 };
 
 const SEVERITY_META: Record<
   DriftSeverity,
   { label: string; bgClass: (count: number) => string; textClass: string }
 > = {
-  CRITICA: {
+  CRITICAL: {
     label: "Crítica",
     bgClass: (n: number) =>
       n === 0
@@ -73,7 +78,7 @@ const SEVERITY_META: Record<
         : "bg-fulkro-danger/15",
     textClass: "text-fulkro-danger",
   },
-  ALTA: {
+  HIGH: {
     label: "Alta",
     bgClass: (n: number) =>
       n === 0
@@ -85,7 +90,7 @@ const SEVERITY_META: Record<
         : "bg-fulkro-warning/15",
     textClass: "text-fulkro-warning",
   },
-  MEDIA: {
+  MEDIUM: {
     label: "Media",
     bgClass: (n: number) =>
       n === 0
@@ -95,7 +100,7 @@ const SEVERITY_META: Record<
         : "bg-fulkro-info/15",
     textClass: "text-fulkro-info",
   },
-  BAJA: {
+  LOW: {
     label: "Baja",
     bgClass: (n: number) =>
       n === 0 ? "bg-fulkro-ink-50" : "bg-fulkro-ink-100",
@@ -311,24 +316,86 @@ export function DriftMatrix({ projectId }: DriftMatrixProps) {
                 </SheetDescription>
               </SheetHeader>
 
-              <div className="mt-6 rounded-md border border-fulkro-ink-200 bg-fulkro-ink-50 p-4 text-sm text-fulkro-ink-500">
-                <p className="mb-2 font-bold text-fulkro-ink-700">
-                  Detalle items
-                </p>
-                <p className="text-xs">
-                  El listado granular per item (descripción · evidencia
-                  vinculada · fecha exacta · responsable resolución) se cabla
-                  en SAN-E.MB-7 cuando se exponga el endpoint M28
-                  <code className="mx-1 rounded bg-white px-1 py-0.5 font-mono text-[11px]">
-                    GET /drift-events?dimension=&severidad=
-                  </code>
-                  · por ahora la matriz agregada ya permite priorizar acciones.
-                </p>
-              </div>
+              <DriftCellDetail
+                projectId={projectId}
+                dimension={selected.dimension}
+                severity={selected.severity}
+              />
             </>
           ) : null}
         </SheetContent>
       </Sheet>
     </Card>
+  );
+}
+
+/**
+ * S28d · drill-down real: lista los drift events abiertos de la celda
+ * (dimension, severidad) seleccionada. Fetch on-open con tanstack-query.
+ */
+function DriftCellDetail({
+  projectId,
+  dimension,
+  severity,
+}: {
+  projectId: string;
+  dimension: DriftDimension;
+  severity: DriftSeverity;
+}) {
+  const { data, isLoading, isError } = useQuery({
+    queryKey: ["drift-events", projectId, dimension, severity],
+    queryFn: () =>
+      listDriftEvents(projectId, {
+        dimension,
+        severidad: severity,
+        estado: "open",
+      }),
+  });
+
+  if (isLoading) {
+    return (
+      <div className="mt-6 flex items-center gap-2 text-sm text-fulkro-ink-500">
+        <Loader2 size={14} className="animate-spin" /> cargando items…
+      </div>
+    );
+  }
+  if (isError) {
+    return (
+      <div className="mt-6 rounded-md border border-fulkro-danger/30 bg-fulkro-danger/5 p-4 text-sm text-fulkro-danger">
+        No se pudieron cargar los items de esta celda.
+      </div>
+    );
+  }
+  const items = data ?? [];
+  if (items.length === 0) {
+    return (
+      <div className="mt-6 rounded-md border border-fulkro-ink-200 bg-fulkro-ink-50 p-4 text-sm text-fulkro-ink-500">
+        Sin items abiertos en esta combinación.
+      </div>
+    );
+  }
+  return (
+    <ul className="mt-6 space-y-2">
+      {items.map((it) => (
+        <li
+          key={it.id}
+          className="rounded-md border border-fulkro-ink-200 bg-white p-3 text-sm"
+        >
+          <div className="flex items-center justify-between gap-2">
+            <span className="font-semibold text-fulkro-ink-800">
+              {it.impacto ?? "drift"}
+            </span>
+            <span className="text-xs text-fulkro-ink-500">
+              {it.created_at
+                ? new Date(it.created_at).toLocaleDateString("es-ES")
+                : "—"}
+            </span>
+          </div>
+          {it.descripcion && (
+            <p className="mt-1 text-xs text-fulkro-ink-600">{it.descripcion}</p>
+          )}
+        </li>
+      ))}
+    </ul>
   );
 }
