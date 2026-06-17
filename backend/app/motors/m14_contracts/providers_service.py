@@ -220,18 +220,49 @@ class M14ProvidersService:
     async def generate_c002(
         self, project_id: uuid.UUID, provider_id: uuid.UUID,
     ) -> dict:
+        """Genera el documento REAL de la cláusula de seguridad C-002 (adenda
+        E-604) vía AdendaGenerator: render DOCX + upload MinIO + fila
+        ProviderAddendum. Antes solo ponía ``status='firmado'`` SIN producir nada
+        (firma fingida · hueco de trazabilidad ENS/ENAC). El estado pasa a
+        'generado' (NO 'firmado': la firma real es un paso aparte sobre la adenda).
+        """
         provider = await self.get_provider(project_id, provider_id)
         c002 = await self._get_c002(provider_id)
         if c002 is None:
             raise ProvidersError("ProviderC002 row missing · provider state corrupt")
-        c002.status = "firmado"
-        c002.generated_at = datetime.now(timezone.utc)
+
+        # Normativas a materializar = frameworks de los gaps detectados.
+        gaps = detect_cross_compliance_gaps(provider.type, provider.criticality)
+        framework_to_normativa = {
+            "ENS": "ENS", "GDPR": "RGPD", "NIS2": "NIS2", "DORA": "DORA",
+        }
+        normativas = sorted({
+            framework_to_normativa.get(g.framework, g.framework) for g in gaps
+        }) or ["ENS"]
+
+        from backend.app.motors.m14_contracts.adenda_generator import (
+            AdendaGenerator,
+        )
+        result = await AdendaGenerator(self.db).generate(
+            project_id=project_id,
+            provider_id=provider_id,
+            normativas_aplicables=normativas,
+        )
+
+        c002.status = "generado"
+        c002.generated_at = result.generated_at
+        c002.gaps_json = [g.to_dict() for g in gaps] if gaps else None
+        c002.last_gap_check_at = datetime.now(timezone.utc)
         await self.db.flush()
         return {
             "provider_id": str(provider_id),
             "status": c002.status,
             "generated_at": c002.generated_at.isoformat(),
             "covered_gaps": c002.gaps_json or [],
+            "addendum_id": str(result.addendum_id),
+            "addendum_code": result.addendum_code,
+            "minio_object_key": result.minio_object_key,
+            "signed_url": result.signed_url,
         }
 
     async def mark_reviewed(

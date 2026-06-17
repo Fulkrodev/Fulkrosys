@@ -133,7 +133,10 @@ async def test_get_gaps_recomputes(async_client, db):
 
 
 @pytest.mark.asyncio
-async def test_generate_c002_marks_firmado(async_client, db):
+async def test_generate_c002_generates_real_addendum(async_client, db):
+    # M8 · generate_c002 produce el documento REAL (adenda E-604) y deja el
+    # estado 'generado' (NO 'firmado': la firma es un paso aparte). Antes fingía
+    # 'firmado' sin generar nada (este test aseveraba el bug).
     _, project_id = await setup_test_project(db)
     create = await async_client.post(
         f"{BASE}/{project_id}/providers",
@@ -143,9 +146,13 @@ async def test_generate_c002_marks_firmado(async_client, db):
     r = await async_client.post(f"{BASE}/{project_id}/providers/{pid}/c002/generate")
     assert r.status_code == 200, r.text
     body = r.json()
-    assert body["status"] == "firmado"
+    assert body["status"] == "generado"
     assert body["generated_at"] is not None
     assert len(body["covered_gaps"]) == 2
+    # Documento real persistido (adenda E-604 en MinIO + ProviderAddendum).
+    assert body["addendum_id"]
+    assert body["addendum_code"]
+    assert body["minio_object_key"].endswith(".docx")
 
 
 @pytest.mark.asyncio

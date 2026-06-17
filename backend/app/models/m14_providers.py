@@ -74,7 +74,7 @@ class ProviderC002(FullMixin, Base):
     __tablename__ = "provider_c002"
     __table_args__ = (
         CheckConstraint(
-            "status IN ('pendiente','firmado','no_aplica','revocado')",
+            "status IN ('pendiente','generado','firmado','no_aplica','revocado')",
             name="ck_provider_c002_status",
         ),
     )

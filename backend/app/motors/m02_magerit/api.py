@@ -861,29 +861,20 @@ async def get_analysis_snapshot(
 
 
 # ================================================================
-# ENDPOINT 17: MAGERIT report as PDF
+# Shared report context (PDF + DOCX) · M7 DRY
 # ================================================================
 
-@router.get(
-    "/analysis/{analysis_id}/report.pdf",
-)
-async def get_magerit_report_pdf(
-    analysis_id: uuid.UUID,
-    db: AsyncSession = Depends(get_db),
-):
-    """Genera el informe MAGERIT completo en PDF."""
-    from fastapi.responses import Response as FastAPIResponse
-    from backend.app.core.pdf_renderer import PDFRenderer, PDFRenderError
-    from pathlib import Path
+async def _build_magerit_report_context(db: AsyncSession, analysis) -> dict:
+    """Contexto COMPLETO del informe MAGERIT · consumido por report.pdf Y
+    report.docx (M7: antes el DOCX hardcodeaba cliente='', threats=[],
+    safeguards=[], total_calcs=0, treatment_plan=[] → se servía un informe vacío
+    aunque el análisis tuviera datos; el PDF sí los cargaba). Fuente única."""
     from datetime import date
 
-    analysis = await _get_analysis_with_rls(analysis_id, db)
-
-    # Determine frozen vs draft
+    analysis_id = analysis.id
     is_frozen = analysis.snapshot_frozen_at is not None
     draft_watermark = "" if is_frozen else "BORRADOR - Analisis no firmado"
 
-    # Load data
     assets = (await db.execute(
         select(MageritAsset).where(
             MageritAsset.analysis_id == analysis_id,
@@ -916,7 +907,6 @@ async def get_magerit_report_pdf(
         )
     )).scalars().all()
 
-    # Client/project names
     proj_row = await db.execute(
         text("SELECT nombre FROM projects WHERE id = :pid"),
         {"pid": str(analysis.project_id)},
@@ -929,14 +919,12 @@ async def get_magerit_report_pdf(
     )
     client_data = client_row.mappings().first()
 
-    # Asset map for threat display
     asset_map = {str(a.id): a.code for a in assets}
 
-    # Risk level distribution
     risk_levels = [c.risk_level for c in calcs if c.risk_level]
     max_risk = max(risk_levels, key=lambda x: LEVEL_TO_INDEX.get(x, 0)) if risk_levels else "N/A"
 
-    context = {
+    return {
         "draft_watermark": draft_watermark,
         "fecha_informe": date.today().isoformat(),
         "cliente_nombre": client_data["nombre"] if client_data else "",
@@ -973,6 +961,28 @@ async def get_magerit_report_pdf(
         ],
     }
 
+
+# ================================================================
+# ENDPOINT 17: MAGERIT report as PDF
+# ================================================================
+
+@router.get(
+    "/analysis/{analysis_id}/report.pdf",
+)
+async def get_magerit_report_pdf(
+    analysis_id: uuid.UUID,
+    db: AsyncSession = Depends(get_db),
+):
+    """Genera el informe MAGERIT completo en PDF."""
+    from fastapi.responses import Response as FastAPIResponse
+    from backend.app.core.pdf_renderer import PDFRenderer, PDFRenderError
+    from pathlib import Path
+
+    analysis = await _get_analysis_with_rls(analysis_id, db)
+
+    # M7 · contexto COMPLETO compartido (fuente única PDF + DOCX).
+    context = await _build_magerit_report_context(db, analysis)
+
     template_path = Path(__file__).resolve().parents[2] / "templates" / "magerit_informe_provisional.docx"
 
     try:
@@ -1003,33 +1013,12 @@ async def get_magerit_report_docx(
     from fastapi.responses import Response as FastAPIResponse
     from backend.app.core.pdf_renderer import PDFRenderer, PDFRenderError
     from pathlib import Path
-    from datetime import date
 
     analysis = await _get_analysis_with_rls(analysis_id, db)
-    is_frozen = analysis.snapshot_frozen_at is not None
 
-    # Reuse same data loading as PDF (DRY would suggest a helper, but
-    # keeping it inline for now to match Motor 1 pattern)
-    assets = (await db.execute(
-        select(MageritAsset).where(
-            MageritAsset.analysis_id == analysis_id,
-            MageritAsset.deleted_at.is_(None),
-        ).order_by(MageritAsset.code)
-    )).scalars().all()
-
-    context = {
-        "draft_watermark": "" if is_frozen else "BORRADOR - Analisis no firmado",
-        "fecha_informe": date.today().isoformat(),
-        "cliente_nombre": "", "cliente_cif": "",
-        "proyecto_nombre": "", "analisis_nombre": analysis.name,
-        "calculation_mode": analysis.calculation_mode,
-        "resumen_ejecutivo": f"Analisis con {len(assets)} activos.",
-        "assets": [{"code": a.code, "name": a.name, "asset_type_code": a.asset_type_code,
-                     "value_d": a.value_d, "value_i": a.value_i, "value_c": a.value_c,
-                     "value_a": a.value_a, "value_t": a.value_t} for a in assets],
-        "threats": [], "safeguards": [], "total_calcs": 0,
-        "max_risk_level": "N/A", "treatment_plan": [],
-    }
+    # M7 · MISMO contexto completo que el PDF (antes el DOCX hardcodeaba
+    # cliente='', threats/safeguards/plan vacíos → informe vacío engañoso).
+    context = await _build_magerit_report_context(db, analysis)
 
     template_path = Path(__file__).resolve().parents[2] / "templates" / "magerit_informe_provisional.docx"
 
