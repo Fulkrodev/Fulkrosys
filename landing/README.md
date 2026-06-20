@@ -20,7 +20,7 @@ landing/
 ├── faq.html              # Preguntas frecuentes
 ├── contacto.html         # Contacto / reservar demo
 ├── nosotros.html         # Sobre Fulkro
-├── soporte.html          # Soporte 24/7
+├── soporte.html          # Soporte
 ├── aviso-legal.html      # Aviso legal
 ├── privacidad.html       # Política de privacidad
 ├── cookies.html          # Política de cookies
