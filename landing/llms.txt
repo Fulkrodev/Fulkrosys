@@ -1,6 +1,6 @@
 # Fulkro
 
-> Fulkro implanta el Esquema Nacional de Seguridad (ENS, RD 311/2022) para pymes españolas que necesitan acreditar conformidad para licitar y ejecutar contratos del sector público. Una plataforma realiza el trabajo técnico de forma mayoritariamente automática y un experto humano valida y atestigua los dos puntos que la auditoría exige. El cliente queda listo para la auditoría ENAC en semanas, con un precio adaptado al nivel exigido (Básica, Media o Alta).
+> Fulkro implanta el Esquema Nacional de Seguridad (ENS, RD 311/2022) para pymes españolas que necesitan acreditar conformidad para licitar y ejecutar contratos del sector público. Una plataforma realiza el trabajo técnico de forma mayoritariamente automática y un experto humano valida y atestigua los dos puntos que la auditoría exige. El cliente queda listo para la auditoría ENAC en días, con un precio adaptado al nivel exigido (Básica, Media o Alta).
 
 ## Qué es el ENS y a quién aplica
 - [Qué es el ENS y por qué te lo piden](https://fulkro.es/ens.html): definición del Esquema Nacional de Seguridad, marco RD 311/2022, por qué es requisito en la contratación pública y cómo afecta a la solvencia.
@@ -15,7 +15,6 @@
 ## Por qué Fulkro
 - [Ventajas](https://fulkro.es/ventajas.html): más adaptado y más rentable que la consultoría ENS tradicional.
 - [Comparativa](https://fulkro.es/comparativa.html): Fulkro frente a la consultoría ENS convencional.
-- [Sobre Fulkro](https://fulkro.es/nosotros.html): especialistas en ENS; quién está detrás.
 
 ## Contacto
 - [Contacto](https://fulkro.es/contacto.html): diagnóstico gratuito. Email marcosmata@fulkro.es · Tel +34 637 165 328 · Madrid, España.
@@ -24,5 +23,10 @@
 - ENS Básica: sistemas de impacto limitado.
 - ENS Media: el grueso de los contratos públicos relevantes; el nivel más demandado.
 - ENS Alta: información o servicios críticos; incluye test de intrusión con metodología PTES / OWASP WSTG / OSSTMM.
+- Acreditación por nivel: la Básica puede cerrarse con declaración de conformidad (autodeclaración); Media y Alta exigen certificación por una entidad acreditada por ENAC.
+- Pentest vs escaneo: el test de intrusión (pentest) por un equipo externo independiente solo es obligatorio en nivel Alta. En Media se hace verificación técnica mediante escaneo de vulnerabilidades, que no es un pentest.
+- Plazo: Fulkro deja al cliente listo para la auditoría en días (implantación del ENS + dossier completo); la fecha de la auditoría la fija la entidad certificadora acreditada por ENAC.
+- Vigencia: el certificado de conformidad ENS dura dos años y su renovación exige una nueva auditoría externa. A diferencia de la ISO/IEC 27001, el ENS no conlleva auditorías de vigilancia anuales.
+- ENS vs ISO/IEC 27001: comparten buena parte de los controles, pero no son equivalentes ni intercambiables; el ENS (RD 311/2022) es el marco obligatorio para contratar con el sector público español.
 - El trabajo técnico es mayoritariamente automático; el cliente solo autoriza el alcance y firma. En nivel Alto interviene además personal cualificado para la validación y atestación que exige la norma.
 - El valor de auditoría no es "detectar todo", sino producir un rastro de evidencia reproducible y trazable que supera la auditoría ENAC.

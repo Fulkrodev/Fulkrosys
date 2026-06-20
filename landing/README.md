@@ -19,7 +19,7 @@ landing/
 ├── comparativa.html      # Fulkro vs. la competencia
 ├── faq.html              # Preguntas frecuentes
 ├── contacto.html         # Contacto / reservar demo
-├── nosotros.html         # Sobre Fulkro
+├── nosotros.html         # (retirada) stub noindex que redirige a la home — fuera de nav/sitemap/llms.txt
 ├── soporte.html          # Soporte
 ├── aviso-legal.html      # Aviso legal
 ├── privacidad.html       # Política de privacidad
