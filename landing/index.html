@@ -162,7 +162,7 @@
   :root{
     --violet:#6C63FF; --violet-lt:#8B83FF; --violet-glow:#aba4ff; --indigo:#5b4fe6; --magenta:#c77dff; --rose:#e879f9; --cyan:#7dd3fc;
     --ink:#1a1a2e; --bg:#110b28; --card:rgba(32,25,60,.5); --card-solid:#1a1438;
-    --text:#FCFCFF; --text-dim:#E4E1F6; --text-faint:#ABA5CC;
+    --text:#FFFFFF; --text-dim:#EFEDFB; --text-faint:#C7C2E4;
     --line:rgba(139,131,255,.15); --line-strong:rgba(171,164,255,.32);
     --ok:#5eead4; --warn:#fbbf24; --bad:#fb7185;
     --maxw:1200px; --e:cubic-bezier(.16,1,.3,1);
@@ -170,19 +170,21 @@
   *{box-sizing:border-box;margin:0;padding:0}
   html{scroll-behavior:smooth;-webkit-text-size-adjust:100%}
   body{background:var(--bg);color:var(--text);font-family:"Sora",system-ui,sans-serif;-webkit-font-smoothing:antialiased;overflow-x:hidden;position:relative}
+  .wrap p,.lead,.sub,.ans,.bx p,.tcard p,.step p,.mod p,.gpoint p{text-align:justify;text-justify:inter-word;-webkit-hyphens:auto;hyphens:auto}
+  .final p,.final .lead,.gbox p,.gbox .lead,.support p,.support .lead,.pullquote,.pullquote p,.expert p,.expert .lead,.imgnote,.chainnode p,.stat p,.bigstat p,.mq-label,.nivnote{text-align:center}
   body::before{content:"";position:fixed;inset:0;z-index:0;pointer-events:none;
-    background:radial-gradient(1100px 800px at 80% 8%,rgba(199,125,255,.14),transparent 58%),radial-gradient(900px 700px at 10% 80%,rgba(108,99,255,.02),transparent 60%)}
+    background:radial-gradient(1100px 800px at 80% 8%,rgba(199,125,255,.05),transparent 58%),radial-gradient(900px 700px at 10% 80%,rgba(108,99,255,.02),transparent 60%)}
 
   /* ===== ATMÓSFERA ===== */
-  .aurora{position:fixed;inset:-20%;z-index:0;pointer-events:none;filter:blur(100px);opacity:.45}
+  .aurora{position:fixed;inset:-20%;z-index:0;pointer-events:none;filter:blur(100px);opacity:.12}
   .aurora b{position:absolute;border-radius:50%;display:block}
-  .a1{width:48vw;height:48vw;left:50%;top:0;background:radial-gradient(circle,rgba(139,131,255,.34),transparent 64%);animation:drift1 26s ease-in-out infinite}
-  .a2{width:42vw;height:42vw;left:2%;top:46%;background:radial-gradient(circle,rgba(91,79,230,.28),transparent 64%);animation:drift2 32s ease-in-out infinite}
-  .a3{width:38vw;height:38vw;right:0;top:58%;background:radial-gradient(circle,rgba(232,121,249,.24),transparent 64%);animation:drift1 30s ease-in-out infinite reverse}
+  .a1{width:48vw;height:48vw;left:50%;top:0;background:radial-gradient(circle,rgba(139,131,255,.24),transparent 64%);animation:drift1 26s ease-in-out infinite}
+  .a2{width:42vw;height:42vw;left:2%;top:46%;background:radial-gradient(circle,rgba(91,79,230,.18),transparent 64%);animation:drift2 32s ease-in-out infinite}
+  .a3{width:38vw;height:38vw;right:0;top:58%;background:radial-gradient(circle,rgba(232,121,249,.14),transparent 64%);animation:drift1 30s ease-in-out infinite reverse}
   .a4{width:30vw;height:30vw;left:30%;top:30%;background:radial-gradient(circle,rgba(108,99,255,.03),transparent 64%);animation:drift2 38s ease-in-out infinite}
   .grain{position:fixed;inset:0;z-index:1;pointer-events:none;opacity:.04;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")}
-  .spot{position:fixed;width:640px;height:640px;border-radius:50%;pointer-events:none;z-index:2;
-    background:radial-gradient(circle,rgba(255,255,255,.09),rgba(199,180,255,.05) 36%,transparent 62%);transform:translate(-50%,-50%);mix-blend-mode:screen;opacity:0}
+  .spot{position:fixed;width:360px;height:360px;border-radius:50%;pointer-events:none;z-index:2;
+    background:radial-gradient(circle,rgba(255,255,255,.06),rgba(199,180,255,.035) 36%,transparent 62%);transform:translate(-50%,-50%);mix-blend-mode:screen;opacity:0}
   @media(hover:hover) and (pointer:fine){.spot{opacity:1}}
   .wrap{position:relative;z-index:5;max-width:var(--maxw);margin:0 auto;padding:0 clamp(20px,5vw,28px)}
   a{color:inherit}
@@ -438,7 +440,7 @@
   .ci a{color:var(--violet-lt);text-decoration:none}.ci a:hover{text-decoration:underline}
 
   /* ===== FOOTER ===== */
-  footer{position:relative;z-index:5;border-top:1px solid var(--line);padding:64px 0 40px;margin-top:20px}
+  footer{position:relative;z-index:5;border-top:1px solid rgba(139,131,255,.16);padding:64px 0 40px;margin-top:20px;background:linear-gradient(180deg,rgba(110,118,235,.05),rgba(3,4,11,.55))}footer::before{content:"";position:absolute;left:0;right:0;top:-1px;height:1px;background:linear-gradient(90deg,transparent,rgba(139,131,255,.55) 30%,rgba(232,121,249,.45) 70%,transparent)}
   .fgrid{display:grid;grid-template-columns:1.5fr 1fr 1fr 1fr;gap:40px}
   .fbrand p{margin-top:16px;color:var(--text-faint);font-size:14px;max-width:30ch;line-height:1.6}
   .fcol h4{font-size:13px;letter-spacing:.1em;text-transform:uppercase;color:var(--text-faint);margin-bottom:16px}
@@ -625,8 +627,8 @@
   .support{position:relative;overflow:hidden;display:grid;grid-template-columns:auto 1.05fr .95fr;gap:32px;align-items:center;margin-top:52px;
     border-radius:24px;border:1px solid var(--line-strong);padding:clamp(26px,3.4vw,40px);
     background:linear-gradient(150deg,rgba(108,99,255,.15),rgba(232,121,249,.05) 60%,transparent);box-shadow:0 30px 80px rgba(6,4,22,.5)}
-  .support::before{content:"";position:absolute;inset:0;background:radial-gradient(60% 130% at 0% 0%,rgba(94,234,212,.1),transparent 60%);pointer-events:none}
-  .sup-pulse{position:relative;width:72px;height:72px;flex:none;border-radius:50%;background:radial-gradient(circle at 50% 45%,var(--ok),rgba(94,234,212,.12) 70%,transparent);box-shadow:0 0 26px rgba(94,234,212,.4)}
+  .support::before{content:"";position:absolute;inset:0;background:radial-gradient(60% 130% at 0% 0%,rgba(40,92,120,.07),transparent 60%);pointer-events:none}
+  .sup-pulse{position:relative;width:72px;height:72px;flex:none;border-radius:50%;background:radial-gradient(circle at 50% 45%,var(--ok),rgba(94,234,212,.12) 70%,transparent);box-shadow:0 0 16px rgba(94,234,212,.22)}
   .sup-pulse::before{content:"";position:absolute;inset:25px;border-radius:50%;background:var(--ok);box-shadow:0 0 16px var(--ok)}
   .sup-pulse::after{content:"";position:absolute;inset:0;border-radius:50%;border:2px solid rgba(94,234,212,.55);animation:supring 2.4s ease-out infinite}
   @keyframes supring{0%{transform:scale(.65);opacity:.85}100%{transform:scale(1.8);opacity:0}}
@@ -657,7 +659,7 @@
   .chain{display:grid;grid-template-columns:repeat(6,1fr);gap:0;margin-top:54px;position:relative}
   .chainnode{position:relative;padding:0 12px;text-align:center}
   .chainnode .cn-dot{width:54px;height:54px;margin:0 auto 16px;border-radius:15px;display:grid;place-items:center;position:relative;z-index:2;
-    background:linear-gradient(150deg,rgba(232,121,249,.24),rgba(108,99,255,.12)),radial-gradient(120% 120% at 30% 18%,rgba(255,255,255,.08),transparent 55%),#1b1340;border:1px solid var(--line-strong);box-shadow:0 10px 24px rgba(108,99,255,.26),inset 0 1px 0 rgba(255,255,255,.08)}
+    background:linear-gradient(150deg,rgba(232,121,249,.14),rgba(108,99,255,.12)),radial-gradient(120% 120% at 30% 18%,rgba(255,255,255,.08),transparent 55%),#1b1340;border:1px solid var(--line-strong);box-shadow:0 10px 24px rgba(108,99,255,.26),inset 0 1px 0 rgba(255,255,255,.08)}
   .chainnode .cn-dot svg{width:24px;height:24px;fill:none;stroke:url(#icoGrad);stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
   .chainnode:not(:last-child)::after{content:"";position:absolute;top:27px;left:50%;width:100%;height:2px;z-index:1;
     background:linear-gradient(90deg,var(--violet-lt),var(--line-strong))}
@@ -686,9 +688,9 @@
      V3 PACK · topbar, footer+, panel de contacto, cookies, dashboard, tercera vía
      ============================================================ */
   /* —— barra superior —— */
-  .topbar{position:relative;z-index:6;border-bottom:1px solid var(--line);background:rgba(15,10,35,.5);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px)}
+  .topbar{position:relative;z-index:6;border-bottom:1px solid rgba(139,131,255,.16);background:linear-gradient(180deg,rgba(124,110,255,.10),rgba(13,10,32,.62));backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px)}.topbar::after{content:"";position:absolute;left:0;right:0;bottom:-1px;height:1px;background:linear-gradient(90deg,transparent,rgba(139,131,255,.55) 30%,rgba(232,121,249,.45) 70%,transparent)}
   .tb-in{display:flex;align-items:center;justify-content:space-between;height:38px;font-size:12.5px}
-  .tb-msg{color:var(--text-faint);letter-spacing:.01em}
+  .tb-msg{color:var(--text-dim);letter-spacing:.01em}
   .tb-links{display:flex;align-items:center;gap:18px}
   .tb-links a{display:inline-flex;align-items:center;gap:6px;color:var(--text-dim);text-decoration:none;transition:.2s}
   .tb-links a:hover{color:var(--text)}
@@ -962,7 +964,7 @@
 
 
   /* ===== Iconos más chulos (contenedores opacos con brillo, coherentes) ===== */
-  .ico{border-radius:16px;background:linear-gradient(155deg,rgba(232,121,249,.24),rgba(108,99,255,.1)),radial-gradient(120% 120% at 28% 16%,rgba(255,255,255,.08),transparent 56%),#171036;box-shadow:inset 0 1px 0 rgba(255,255,255,.08),inset 0 0 22px rgba(139,131,255,.13),0 9px 24px rgba(108,99,255,.24)}
+  .ico{border-radius:16px;background:linear-gradient(155deg,rgba(232,121,249,.14),rgba(108,99,255,.1)),radial-gradient(120% 120% at 28% 16%,rgba(255,255,255,.08),transparent 56%),#171036;box-shadow:inset 0 1px 0 rgba(255,255,255,.08),inset 0 0 22px rgba(139,131,255,.13),0 9px 24px rgba(108,99,255,.24)}
   .bx .ico,.gbox .ico{box-shadow:inset 0 1px 0 rgba(255,255,255,.08),inset 0 0 20px rgba(139,131,255,.12),0 8px 20px rgba(108,99,255,.2)}
   .chainnode:hover .cn-dot{transform:translateY(-3px);box-shadow:0 14px 30px rgba(108,99,255,.38),inset 0 1px 0 rgba(255,255,255,.1);border-color:rgba(232,121,249,.55)}
   .chainnode .cn-dot{transition:.35s var(--e)}
@@ -998,7 +1000,7 @@
   .tb-links a{white-space:nowrap}
 
   /* ===== Fondo aurora: multicolor, vivo y distinto por página ===== */
-  :root{--au1:139,131,255;--au2:91,79,230;--au3:232,121,249;--au4:125,211,252;--au5:199,125,255}
+  :root{--au1:124,110,255;--au2:91,79,230;--au3:99,102,241;--au4:88,108,235;--au5:139,131,255}
   .aurora{opacity:.42;filter:blur(100px) saturate(106%)}
   .a1{background:radial-gradient(circle,rgba(var(--au1),.38),transparent 64%);animation:drift1 23s ease-in-out infinite}
   .a2{background:radial-gradient(circle,rgba(var(--au2),.3),transparent 64%);animation:drift2 31s ease-in-out infinite}
@@ -1021,7 +1023,7 @@
   @media(max-width:560px){.aurora{filter:blur(80px) saturate(104%);opacity:.3}}
 
   /* ===== Cambios de color por página MÁS marcados + animación más intensa ===== */
-  :root{--bg:#0f0a24}
+  :root{--bg:#050711}
   .thm-plataforma{--bg:#06101f}
   .thm-ventajas{--bg:#170a23}
   .thm-seguridad{--bg:#04150f}
@@ -1034,14 +1036,14 @@
   .thm-soporte{--bg:#05141f}
   /* glow de color del tema, fijo, para que el tinte se note en todo el scroll (sin cortes) */
   body::before{content:"";position:fixed;inset:0;z-index:0;pointer-events:none;
-    background:radial-gradient(85% 60% at 50% -8%,rgba(var(--au1),.22),transparent 60%),radial-gradient(70% 55% at 100% 108%,rgba(var(--au3),.16),transparent 58%),radial-gradient(60% 50% at 0% 100%,rgba(var(--au4),.12),transparent 60%)}
+    background:radial-gradient(125% 92% at 50% 28%,transparent 52%,rgba(2,1,8,.55) 100%)}
   /* aurora más viva */
-  .aurora{opacity:.94;filter:blur(72px) saturate(152%)}
-  .a1{background:radial-gradient(circle,rgba(var(--au1),.82),transparent 62%);animation-duration:18s}
-  .a2{background:radial-gradient(circle,rgba(var(--au2),.7),transparent 62%);animation-duration:23s}
-  .a3{background:radial-gradient(circle,rgba(var(--au3),.74),transparent 62%);animation-duration:20s}
-  .a4{background:radial-gradient(circle,rgba(var(--au4),.6),transparent 62%);animation-duration:27s}
-  .a5{background:radial-gradient(circle,rgba(var(--au5),.58),transparent 62%);animation-duration:30s}
+  .aurora{opacity:.3;filter:blur(84px) saturate(122%)}
+  .a1{background:radial-gradient(circle,rgba(var(--au1),.5),transparent 62%);animation-duration:18s}
+  .a2{background:radial-gradient(circle,rgba(var(--au2),.45),transparent 62%);animation-duration:23s}
+  .a3{background:radial-gradient(circle,rgba(var(--au3),.45),transparent 62%);animation-duration:20s}
+  .a4{background:radial-gradient(circle,rgba(var(--au4),.42),transparent 62%);animation-duration:27s}
+  .a5{background:radial-gradient(circle,rgba(var(--au5),.34),transparent 62%);animation-duration:30s}
   @keyframes drift1{0%,100%{transform:translate(-50%,0) scale(1);opacity:.5}50%{transform:translate(-30%,16%) scale(1.42);opacity:1}}
   @keyframes drift2{0%,100%{transform:translate(0,0) scale(1);opacity:.46}50%{transform:translate(22%,-16%) scale(1.36);opacity:1}}
   @keyframes drift3{0%,100%{transform:translate(0,0) scale(1.12);opacity:.44}50%{transform:translate(-20%,-12%) scale(.82);opacity:1}}
@@ -1075,9 +1077,9 @@
   <linearGradient id="icoGrad" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#aba4ff"/><stop offset="1" stop-color="#e879f9"/></linearGradient>
 </defs></svg>
 <div class="scrollprog" id="scrollprog"></div>
-<div class="aurora"><b class="a1"></b><b class="a2"></b><b class="a3"></b><b class="a4"></b><b class="a5"></b></div>
+<div class="mesh"></div><style>.mesh{position:fixed;inset:-12%;z-index:0;pointer-events:none;filter:blur(16px) saturate(116%);background:radial-gradient(46% 42% at 88% 8%,rgba(92,98,225,.22),transparent 62%),radial-gradient(50% 46% at 50% 104%,rgba(70,82,210,.20),transparent 62%),radial-gradient(42% 40% at 92% 72%,rgba(84,96,225,.16),transparent 60%),radial-gradient(40% 38% at 6% 88%,rgba(56,84,198,.14),transparent 60%),radial-gradient(44% 40% at 12% 6%,rgba(78,90,215,.10),transparent 60%);animation:meshDrift1 36s ease-in-out infinite}.mesh::after{content:"";position:absolute;inset:0;mix-blend-mode:screen;background:radial-gradient(40% 36% at 70% 30%,rgba(88,98,228,.11),transparent 62%),radial-gradient(38% 34% at 30% 60%,rgba(70,84,210,.09),transparent 62%);animation:meshDrift2 48s ease-in-out infinite}@keyframes meshDrift1{0%,100%{transform:translate(0,0) scale(1)}50%{transform:translate(-2%,2%) scale(1.05)}}@keyframes meshDrift2{0%,100%{transform:translate(1.5%,-1.5%) scale(1.03)}50%{transform:translate(-2%,2%) scale(1)}}@media(prefers-reduced-motion:reduce){.mesh,.mesh::after{animation:none}}</style>
 <div class="grain"></div>
-<div class="spot" id="spot"></div>
+
 <div class="orbfield" aria-hidden="true">
   <span class="orb glow" data-px="-0.05" style="width:120px;height:120px;left:5%;top:13%;background:radial-gradient(circle,rgba(232,121,249,.5),transparent 70%)"></span>
   <span class="orb ringo" data-px="0.06" style="width:170px;height:170px;right:7%;top:24%"></span>
@@ -1547,11 +1549,11 @@
   <div class="wrap">
     <div class="reveal"><div class="kicker">Lo que Fulkro hace por ti</div><h2>No te dejamos un PDF. Te damos una plataforma.</h2><p class="lead">Todo el cumplimiento ENS vive en un único sitio, conectado de principio a fin: lo que decides en riesgos se refleja en las medidas, las medidas piden sus evidencias, y las evidencias llegan listas al auditor.</p></div>
     <div class="bento">
-      <div class="bx glass wide reveal"><div class="ico"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="14" rx="2"/><path d="M8 21h8M12 18v3"/><path d="M7 9h6M7 13h4"/></svg></div><h3>Tu portal de cliente</h3><p>Un espacio claro y sin jerga donde ves el avance, revisas las decisiones técnicas, autorizas las verificaciones y firmas con validez electrónica. Tú decides; nosotros operamos la parte difícil.</p></div>
+      <div class="bx glass reveal"><div class="ico"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="14" rx="2"/><path d="M8 21h8M12 18v3"/><path d="M7 9h6M7 13h4"/></svg></div><h3>Tu portal de cliente</h3><p>Un espacio claro y sin jerga donde ves el avance, revisas las decisiones técnicas, autorizas las verificaciones y firmas con validez electrónica. Tú decides; nosotros operamos la parte difícil.</p></div>
       <div class="bx glass reveal"><div class="ico"><svg viewBox="0 0 24 24"><path d="M12 3l8 3v5c0 5-3.4 8.5-8 10-4.6-1.5-8-5-8-10V6z"/></svg></div><h3>Evidencias con custodia</h3><p>Análisis antivirus, verificación criptográfica y almacenamiento inmutable de cada prueba.</p></div>
       <div class="bx glass reveal"><div class="ico"><svg viewBox="0 0 24 24"><path d="M3 3v18h18"/><path d="M7 14l4-4 3 3 5-6"/></svg></div><h3>Riesgos MAGERIT</h3><p>El análisis de riesgos integrado y conectado con las medidas que aplican a tu sistema.</p></div>
       <div class="bx glass reveal"><div class="ico"><svg viewBox="0 0 24 24"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><rect x="8" y="2" width="8" height="4" rx="1"/><path d="M9 12l2 2 4-4"/></svg></div><h3>Fábrica documental</h3><p>Más de 50 entregables ENS generados y versionados por la plataforma, y revisados por un experto antes de que los firmes.</p></div>
-      <div class="bx glass wide reveal"><div class="ico"><svg viewBox="0 0 24 24"><path d="M12 3l7 4v5c0 4.5-3 7.6-7 9-4-1.4-7-4.5-7-9V7z"/><path d="M9.5 12l1.8 1.8L15 10"/></svg></div><h3>Portal para el auditor ENAC y simulacro previo</h3><p>El auditor recibe un acceso de solo lectura con todo el expediente ordenado. Y antes de la auditoría real, hacemos un simulacro para que no haya sorpresas el día clave.</p></div>
+      <div class="bx glass reveal"><div class="ico"><svg viewBox="0 0 24 24"><path d="M12 3l7 4v5c0 4.5-3 7.6-7 9-4-1.4-7-4.5-7-9V7z"/><path d="M9.5 12l1.8 1.8L15 10"/></svg></div><h3>Portal para el auditor ENAC y simulacro previo</h3><p>El auditor recibe un acceso de solo lectura con todo el expediente ordenado. Y antes de la auditoría real, hacemos un simulacro para que no haya sorpresas el día clave.</p></div>
     </div>
     <div class="ctas reveal" style="margin-top:40px"><a href="plataforma.html" class="btn btn-ghost lg">Ver todo lo que hace la plataforma →</a></div>
   </div>
@@ -1785,7 +1787,7 @@ const spot=$('#spot');
 if(spot&&canHover){
   let mx=innerWidth*.72,my=innerHeight*.4,sx=mx,sy=my;
   addEventListener('mousemove',e=>{mx=e.clientX;my=e.clientY});
-  (function l(){sx+=(mx-sx)*.1;sy+=(my-sy)*.1;spot.style.transform=`translate(${sx-320}px,${sy-320}px)`;requestAnimationFrame(l)})();
+  (function l(){sx+=(mx-sx)*.1;sy+=(my-sy)*.1;spot.style.transform=`translate(${sx-180}px,${sy-180}px)`;requestAnimationFrame(l)})();
 }
 
 /* reveal on scroll + contadores + cascada */
