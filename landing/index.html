@@ -1023,7 +1023,7 @@
   @media(max-width:560px){.aurora{filter:blur(80px) saturate(104%);opacity:.3}}
 
   /* ===== Cambios de color por página MÁS marcados + animación más intensa ===== */
-  :root{--bg:#050711}
+  :root{--bg:#050a18}
   .thm-plataforma{--bg:#06101f}
   .thm-ventajas{--bg:#170a23}
   .thm-seguridad{--bg:#04150f}
@@ -1036,7 +1036,7 @@
   .thm-soporte{--bg:#05141f}
   /* glow de color del tema, fijo, para que el tinte se note en todo el scroll (sin cortes) */
   body::before{content:"";position:fixed;inset:0;z-index:0;pointer-events:none;
-    background:radial-gradient(125% 92% at 50% 28%,transparent 52%,rgba(2,1,8,.55) 100%)}
+    background:radial-gradient(125% 92% at 50% 28%,transparent 52%,rgba(2,5,14,.55) 100%)}
   /* aurora más viva */
   .aurora{opacity:.3;filter:blur(84px) saturate(122%)}
   .a1{background:radial-gradient(circle,rgba(var(--au1),.5),transparent 62%);animation-duration:18s}
@@ -1077,8 +1077,9 @@
   <linearGradient id="icoGrad" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#aba4ff"/><stop offset="1" stop-color="#e879f9"/></linearGradient>
 </defs></svg>
 <div class="scrollprog" id="scrollprog"></div>
-<div class="mesh"></div><style>.mesh{position:fixed;inset:-12%;z-index:0;pointer-events:none;filter:blur(16px) saturate(116%);background:radial-gradient(46% 42% at 88% 8%,rgba(92,98,225,.22),transparent 62%),radial-gradient(50% 46% at 50% 104%,rgba(70,82,210,.20),transparent 62%),radial-gradient(42% 40% at 92% 72%,rgba(84,96,225,.16),transparent 60%),radial-gradient(40% 38% at 6% 88%,rgba(56,84,198,.14),transparent 60%),radial-gradient(44% 40% at 12% 6%,rgba(78,90,215,.10),transparent 60%);animation:meshDrift1 36s ease-in-out infinite}.mesh::after{content:"";position:absolute;inset:0;mix-blend-mode:screen;background:radial-gradient(40% 36% at 70% 30%,rgba(88,98,228,.11),transparent 62%),radial-gradient(38% 34% at 30% 60%,rgba(70,84,210,.09),transparent 62%);animation:meshDrift2 48s ease-in-out infinite}@keyframes meshDrift1{0%,100%{transform:translate(0,0) scale(1)}50%{transform:translate(-2%,2%) scale(1.05)}}@keyframes meshDrift2{0%,100%{transform:translate(1.5%,-1.5%) scale(1.03)}50%{transform:translate(-2%,2%) scale(1)}}@media(prefers-reduced-motion:reduce){.mesh,.mesh::after{animation:none}}</style>
+<div class="mesh"></div><style>.mesh{position:fixed;inset:-12%;z-index:0;pointer-events:none;filter:blur(16px) saturate(122%);background:radial-gradient(46% 42% at 88% 8%,rgba(64,120,238,.22),transparent 62%),radial-gradient(50% 46% at 50% 104%,rgba(50,96,222,.20),transparent 62%),radial-gradient(42% 40% at 92% 72%,rgba(78,128,242,.16),transparent 60%),radial-gradient(40% 38% at 6% 88%,rgba(48,88,210,.14),transparent 60%),radial-gradient(44% 40% at 12% 6%,rgba(86,98,228,.11),transparent 60%);animation:meshDrift1 36s ease-in-out infinite}.mesh::after{content:"";position:absolute;inset:0;mix-blend-mode:screen;background:radial-gradient(40% 36% at 70% 30%,rgba(72,124,240,.12),transparent 62%),radial-gradient(38% 34% at 30% 60%,rgba(56,100,222,.10),transparent 62%);animation:meshDrift2 48s ease-in-out infinite}@keyframes meshDrift1{0%,100%{transform:translate(0,0) scale(1)}50%{transform:translate(-2%,2%) scale(1.05)}}@keyframes meshDrift2{0%,100%{transform:translate(1.5%,-1.5%) scale(1.03)}50%{transform:translate(-2%,2%) scale(1)}}@media(prefers-reduced-motion:reduce){.mesh,.mesh::after{animation:none}}</style>
 <div class="grain"></div>
+<div class="spot" id="spot"></div>
 
 <div class="orbfield" aria-hidden="true">
   <span class="orb glow" data-px="-0.05" style="width:120px;height:120px;left:5%;top:13%;background:radial-gradient(circle,rgba(232,121,249,.5),transparent 70%)"></span>
