@@ -1,0 +1,36 @@
+# Configuración de gitleaks para FULKRO.
+#
+# POR QUÉ EXISTE. El escaneo por defecto devuelve 11 hallazgos y los 11 son
+# falsos positivos, verificados uno a uno el 9 sep 2026. Un escáner que avisa
+# once veces sin motivo es un escáner que se deja de leer, y entonces la fuga
+# de verdad pasa desapercibida entre el ruido. Cada entrada lleva su razón.
+# El allowlist es por patrón concreto, NO por ruta ni por directorio: excluir
+# "los tests" entero taparía un secreto real metido en un test.
+
+[extend]
+useDefault = true
+
+[allowlist]
+description = "Falsos positivos verificados · 9 sep 2026"
+regexes = [
+  # Plantillas de entorno: el bloque PEM va vacío, dentro solo hay una
+  # instrucción para el operador (.env.example:38, .env.prod.template:75).
+  '''REPLACE_ME_GENERATED_BY_SCRIPT''',
+  '''<salida openssl genpkey''',
+
+  # Anotación de tipo de Python, no un valor: es la clase de cryptography.
+  '''Ed25519PrivateKey''',
+
+  # Identificadores de dominio normativo, no credenciales.
+  '''RGPD_UE_2016_679''',
+  '''alta_criptografia_807''',
+
+  # Marcador de posición de AWS: veinte equis literales, entropía 1.02.
+  '''AKIAXXXXXXXXXXXXXXXX''',
+
+  # Secreto inválido a propósito: el test verifica que se RECHAZA.
+  '''wrong_secret_1234567890''',
+
+  # Acceso a atributo, no asignación de secreto.
+  '''s1\.sector_industrial''',
+]
