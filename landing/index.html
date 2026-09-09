@@ -1195,7 +1195,7 @@
     <div class="cards3">
       <div class="pcard glass reveal"><div class="ico"><svg viewBox="0 0 24 24"><path d="M14 3H6a1 1 0 0 0-1 1v16a1 1 0 0 0 1 1h8"/><path d="M13 12h8"/><path d="M18 9l3 3-3 3"/></svg></div><h3>Exclusión de salida</h3><p>Contratos que antes se ganaban dejan fuera a quien no acredita el ENS. Y no compite quien no entra.</p></div>
       <div class="pcard glass reveal"><div class="ico"><svg viewBox="0 0 24 24"><path d="M12 3l8 3v5c0 5-3.4 8.5-8 10-4.6-1.5-8-5-8-10V6z"/><path d="M9 12l2.2 2.2L16 9.5"/></svg></div><h3>Es requisito previo a la solvencia</h3><p>Cuando el ENS se exige como solvencia o habilitación, hay que acreditarlo con la oferta. Sin él, no se llega a valorar la oferta económica ni la propuesta técnica.</p></div>
-      <div class="pcard glass reveal"><div class="ico"><svg viewBox="0 0 24 24"><circle cx="12" cy="14" r="7"/><path d="M12 14V10"/><path d="M12 14l3 2"/><path d="M9 3h6"/></svg></div><h3>Empezar tarde es perder</h3><p>La consultoría tradicional tarda de 4 a 12 meses. Cuando sale el pliego, ya no llegas. La conformidad hay que anticiparla.</p></div>
+      <div class="pcard glass reveal"><div class="ico"><svg viewBox="0 0 24 24"><circle cx="12" cy="14" r="7"/><path d="M12 14V10"/><path d="M12 14l3 2"/><path d="M9 3h6"/></svg></div><h3>Empezar tarde es perder</h3><p>La consultoría tradicional tarda meses. Cuando sale el pliego, ya no llegas. La conformidad hay que anticiparla.</p></div>
     </div>
     <div class="callout reveal">
       <div class="ct"><svg viewBox="0 0 24 24" fill="none" stroke="#aba4ff" stroke-width="1.9" style="width:16px;height:16px" stroke-linecap="round"><path d="M12 16v-4M12 8h.01"/><circle cx="12" cy="12" r="9"/></svg>Lo que dice la norma</div>
@@ -1357,8 +1357,9 @@
       <div class="bigstat reveal"><div class="n"><span class="count" data-to="44">44</span></div><div class="k">motores del ciclo ENS que componían la plataforma</div></div>
       <!-- 268 = ls backend/migrations/versions/*.py | wc -l -->
       <div class="bigstat reveal"><div class="n"><span class="count" data-to="268">268</span></div><div class="k">migraciones con las que evolucionó su base de datos</div></div>
-      <!-- 135 = ls var/templates_docx/*.docx | wc -l -->
-      <div class="bigstat reveal"><div class="n"><span class="count" data-to="135">135</span></div><div class="k">plantillas de documentos ENS que generaba la fábrica documental</div></div>
+      <!-- 131 = find backend/app/motors/m06_document_factory/templates -name '*.md' | wc -l
+             (commercial 3 + deliverables 46 + policies 42 + procedures 40) -->
+      <div class="bigstat reveal"><div class="n"><span class="count" data-to="131">131</span></div><div class="k">plantillas de documento de la fábrica documental</div></div>
       <!-- 73 = TOTAL_MEDIDAS en backend/app/motors/m03_dda/anexo2_rd311_2022.py:117 (4 org + 33 op + 36 mp) -->
       <div class="bigstat reveal"><div class="n"><span class="count" data-to="73">73</span></div><div class="k">medidas del Anexo II (RD 311/2022) a cubrir en el nivel más exigente</div></div>
     </div>
@@ -1394,7 +1395,7 @@
             <tr>
               <td>Tiempo hasta la certificación</td>
               <td class="us"><span class="cmp-tag y"><svg viewBox="0 0 24 24"><path d="M5 13l4 4L19 7"/></svg></span> Días (proceso afinado y automatizado)</td>
-              <td class="them">De 4 a 12 meses según fuentes del sector</td>
+              <td class="them">Meses de trabajo por horas de consultoría</td>
             </tr>
             <tr>
               <td>Modelo económico</td>
@@ -1403,7 +1404,8 @@
             </tr>
             <tr>
               <td>Documentación ENS</td>
-              <td class="us"><span class="cmp-tag y"><svg viewBox="0 0 24 24"><path d="M5 13l4 4L19 7"/></svg></span> 50+ entregables generados por la plataforma</td>
+              <!-- 46 = ls backend/app/motors/m06_document_factory/templates/deliverables/*.md | wc -l -->
+              <td class="us"><span class="cmp-tag y"><svg viewBox="0 0 24 24"><path d="M5 13l4 4L19 7"/></svg></span> 46 entregables ENS generados por la plataforma</td>
               <td class="them">Plantillas genéricas que rellenas tú</td>
             </tr>
             <tr>
@@ -1450,7 +1452,6 @@
         </table>
       </div>
     </div>
-    <p class="tagline reveal" style="margin-top:16px">Plazos del sector según los plazos que publican las consultoras especializadas del sector · el alcance y el plazo finales dependen de tu punto de partida.</p>
     <div class="ctas reveal" style="margin-top:26px"><a href="https://github.com/Fulkrodev/Fulkrosys" class="btn btn-ghost lg" target="_blank" rel="noopener">Ver el código en GitHub →</a></div>
   </div>
 </section>
@@ -1482,7 +1483,7 @@
       <div class="bx glass reveal"><div class="ico"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="14" rx="2"/><path d="M8 21h8M12 18v3"/><path d="M7 9h6M7 13h4"/></svg></div><h3>Tu portal de cliente</h3><p>Un espacio claro y sin jerga donde ves el avance, revisas las decisiones técnicas, autorizas las verificaciones y firmas con validez electrónica. Tú decides; nosotros operamos la parte difícil.</p></div>
       <div class="bx glass reveal"><div class="ico"><svg viewBox="0 0 24 24"><path d="M12 3l8 3v5c0 5-3.4 8.5-8 10-4.6-1.5-8-5-8-10V6z"/></svg></div><h3>Evidencias con custodia</h3><p>Análisis antivirus, verificación criptográfica y almacenamiento inmutable de cada prueba.</p></div>
       <div class="bx glass reveal"><div class="ico"><svg viewBox="0 0 24 24"><path d="M3 3v18h18"/><path d="M7 14l4-4 3 3 5-6"/></svg></div><h3>Riesgos MAGERIT</h3><p>El análisis de riesgos integrado y conectado con las medidas que aplican a tu sistema.</p></div>
-      <div class="bx glass reveal"><div class="ico"><svg viewBox="0 0 24 24"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><rect x="8" y="2" width="8" height="4" rx="1"/><path d="M9 12l2 2 4-4"/></svg></div><h3>Fábrica documental</h3><p>Más de 50 entregables ENS generados y versionados por la plataforma, y revisados por un experto antes de que los firmes.</p></div>
+      <div class="bx glass reveal"><div class="ico"><svg viewBox="0 0 24 24"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><rect x="8" y="2" width="8" height="4" rx="1"/><path d="M9 12l2 2 4-4"/></svg></div><h3>Fábrica documental</h3><p>Los 46 entregables ENS del expediente, generados y versionados por la plataforma a partir de sus 131 plantillas de documento, y revisados por un experto antes de la firma.</p></div>
       <div class="bx glass reveal"><div class="ico"><svg viewBox="0 0 24 24"><path d="M12 3l7 4v5c0 4.5-3 7.6-7 9-4-1.4-7-4.5-7-9V7z"/><path d="M9.5 12l1.8 1.8L15 10"/></svg></div><h3>Portal para el auditor ENAC y simulacro previo</h3><p>El auditor recibe un acceso de solo lectura con todo el expediente ordenado. Y antes de la auditoría real, hacemos un simulacro para que no haya sorpresas el día clave.</p></div>
     </div>
     <div class="ctas reveal" style="margin-top:40px"><a href="#capturas" class="btn btn-ghost lg">Ver las pantallas del producto →</a></div>
@@ -1522,8 +1523,9 @@
   <div class="wrap"><div class="stats">
     <!-- 73 = TOTAL_MEDIDAS en backend/app/motors/m03_dda/anexo2_rd311_2022.py:117 (4 org + 33 op + 36 mp) -->
     <div class="stat glass reveal"><div class="big"><span class="count" data-to="73">73</span></div><div class="lbl">medidas del Anexo II del ENS implementadas en el código</div></div>
-    <!-- 135 = ls var/templates_docx/*.docx | wc -l -->
-    <div class="stat glass reveal"><div class="big"><span class="count" data-to="135">135</span></div><div class="lbl">plantillas de documentos ENS en la fábrica documental</div></div>
+    <!-- 131 = find backend/app/motors/m06_document_factory/templates -name '*.md' | wc -l
+           (commercial 3 + deliverables 46 + policies 42 + procedures 40) -->
+    <div class="stat glass reveal"><div class="big"><span class="count" data-to="131">131</span></div><div class="lbl">plantillas de documento de la fábrica documental</div></div>
     <!-- 5789 = grep -rhoE "^\s*(async )?def test_" --include="*.py" backend/tests | wc -l -->
     <div class="stat glass reveal"><div class="big"><span class="count" data-to="5789">5789</span></div><div class="lbl">pruebas automatizadas en el repositorio</div></div>
   </div></div>
