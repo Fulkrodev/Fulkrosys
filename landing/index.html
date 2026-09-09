@@ -1355,7 +1355,9 @@
     <div class="bigstats">
       <div class="bigstat reveal"><div class="n"><span class="count" data-to="100">100</span><span class="u">%</span></div><div class="k">de las ofertas quedan fuera si el pliego exige ENS y no se acredita</div></div>
       <div class="bigstat reveal"><div class="n">4&ndash;12<span class="u">meses</span></div><div class="k">es lo que tarda la consultoría tradicional, según fuentes del sector</div></div>
-      <div class="bigstat reveal"><div class="n"><span class="count" data-to="131">131</span></div><div class="k">plantillas de documentos ENS que generaba la fábrica documental</div></div>
+      <!-- 135 = ls var/templates_docx/*.docx | wc -l -->
+      <div class="bigstat reveal"><div class="n"><span class="count" data-to="135">135</span></div><div class="k">plantillas de documentos ENS que generaba la fábrica documental</div></div>
+      <!-- 73 = TOTAL_MEDIDAS en backend/app/motors/m03_dda/anexo2_rd311_2022.py:117 (4 org + 33 op + 36 mp) -->
       <div class="bigstat reveal"><div class="n"><span class="count" data-to="73">73</span></div><div class="k">medidas del Anexo II (RD 311/2022) a cubrir en el nivel más exigente</div></div>
     </div>
   </div>
@@ -1516,9 +1518,12 @@
 
 <section class="block tight" id="stats">
   <div class="wrap"><div class="stats">
+    <!-- 73 = TOTAL_MEDIDAS en backend/app/motors/m03_dda/anexo2_rd311_2022.py:117 (4 org + 33 op + 36 mp) -->
     <div class="stat glass reveal"><div class="big"><span class="count" data-to="73">73</span></div><div class="lbl">medidas del Anexo II del ENS implementadas en el código</div></div>
-    <div class="stat glass reveal"><div class="big"><span class="count" data-to="131">131</span></div><div class="lbl">plantillas de documentos ENS en la fábrica documental</div></div>
-    <div class="stat glass reveal"><div class="big"><span class="count" data-to="5786">5786</span></div><div class="lbl">pruebas automatizadas en el repositorio</div></div>
+    <!-- 135 = ls var/templates_docx/*.docx | wc -l -->
+    <div class="stat glass reveal"><div class="big"><span class="count" data-to="135">135</span></div><div class="lbl">plantillas de documentos ENS en la fábrica documental</div></div>
+    <!-- 5789 = grep -rhoE "^\s*(async )?def test_" --include="*.py" backend/tests | wc -l -->
+    <div class="stat glass reveal"><div class="big"><span class="count" data-to="5789">5789</span></div><div class="lbl">pruebas automatizadas en el repositorio</div></div>
   </div></div>
 </section>
 
