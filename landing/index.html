@@ -452,6 +452,11 @@
     background:radial-gradient(360px circle at var(--mx,50%) var(--my,50%),rgba(255,255,255,.12),rgba(199,180,255,.05) 34%,transparent 56%)}
   .pcard,.bx,.mod{position:relative;transform-style:preserve-3d}
   .pcard>*:not(.gloss),.bx>*:not(.gloss),.mod>*:not(.gloss){position:relative;z-index:1}
+  .pcard:hover>.gloss,.bx:hover>.gloss,.mod:hover>.gloss{opacity:1}
+  /* el JS lee prefers-reduced-motion una sola vez al cargar y no escucha
+     sus cambios: esta regla es la que apaga el brillo si la preferencia
+     se activa con la pagina ya abierta */
+  @media(prefers-reduced-motion:reduce){.pcard:hover>.gloss,.bx:hover>.gloss,.mod:hover>.gloss{opacity:0;transition:none}}
 
   /* —— divisor con brillo central —— */
   .hr-glow{position:relative;z-index:5;height:1px;border:none;max-width:var(--maxw);margin:0 auto;
