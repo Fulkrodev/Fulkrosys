@@ -26,21 +26,15 @@
   "@context": "https://schema.org",
   "@graph": [
     {
-      "@type": ["Organization","ProfessionalService"],
+      "@type": "Organization",
       "@id": "https://fulkro.es/#org",
       "name": "Fulkro",
       "url": "https://fulkro.es",
-      "description": "El Esquema Nacional de Seguridad (ENS, RD 311/2022) como servicio de resultado para pymes españolas que licitan con el sector público: una plataforma aplica las reglas del ENS de forma determinista y un experto las revisa y firma, e incluso la implantación técnica y la remediación las ejecuta Fulkro. El cliente ve, aprueba, firma y da permisos, y queda listo para la auditoría ENAC en días.",
-      "email": "marcosmata@fulkro.es",
-      "telephone": "+34637165328",
+      "description": "Fulkro fue un proyecto de software para la implantación del Esquema Nacional de Seguridad (ENS, RD 311/2022) en empresas que contrataban con el sector público. La actividad comercial cesó en septiembre de 2026. El código de la plataforma se está liberando como open source.",
+      "dissolutionDate": "2026-09",
       "areaServed": { "@type": "Country", "name": "España" },
-      "address": { "@type": "PostalAddress", "addressLocality": "Madrid", "addressCountry": "ES" },
-      "sameAs": [ "https://www.linkedin.com/company/fulkro" ],
-      "founder": { "@type": "Person", "name": "Marcos Mata", "jobTitle": "Fundador y consultor ENS" },
-      "knowsAbout": [
-        "Esquema Nacional de Seguridad","ENS","RD 311/2022","CCN-STIC","MAGERIT","ENAC",
-        "ciberseguridad","contratación pública","ISO 27001","test de intrusión","Compliance as a Service"
-      ],
+      "sameAs": [ "https://github.com/Fulkrodev/Fulkrosys" ],
+      "founder": { "@type": "Person", "name": "Marcos Mata" },
       "logo": "https://fulkro.es/og-image.png"
     },
     {
@@ -62,90 +56,22 @@
       "@type": "WebPage",
       "@id": "https://fulkro.es/#webpage",
       "url": "https://fulkro.es/",
-      "name": "Fulkro · El Esquema Nacional de Seguridad, hecho por una plataforma y revisado por expertos",
-      "description": "Una plataforma hace el trabajo pesado del Esquema Nacional de Seguridad de tu empresa y lo revisan expertos. Listo para la auditoría en días, a un precio adaptado a tus exigencias.",
+      "name": "Fulkro · Plataforma de implantación del Esquema Nacional de Seguridad",
+      "description": "Descripción de lo que hacía la plataforma Fulkro. El proyecto cerró en septiembre de 2026 y no presta ningún servicio.",
       "inLanguage": "es-ES",
       "isPartOf": { "@id": "https://fulkro.es/#website" },
       "about": { "@id": "https://fulkro.es/#org" },
       "primaryImageOfPage": "https://fulkro.es/og-image.png"
     },
     {
-      "@type": "SoftwareApplication",
-      "@id": "https://fulkro.es/#software",
+      "@type": "SoftwareSourceCode",
+      "@id": "https://fulkro.es/#source",
       "name": "Fulkro",
-      "applicationCategory": "BusinessApplication",
-      "applicationSubCategory": "Cumplimiento normativo y ciberseguridad (Esquema Nacional de Seguridad)",
-      "operatingSystem": "Web",
-      "url": "https://fulkro.es/",
+      "description": "Código de la plataforma de implantación del Esquema Nacional de Seguridad (RD 311/2022). Proyecto archivado; se está liberando como open source.",
+      "codeRepository": "https://github.com/Fulkrodev/Fulkrosys",
+      "programmingLanguage": [ "Python", "TypeScript" ],
       "inLanguage": "es-ES",
-      "provider": { "@id": "https://fulkro.es/#org" },
-      "description": "Plataforma de implantación del Esquema Nacional de Seguridad (ENS, RD 311/2022) que automatiza el trabajo de cumplimiento —categorización del nivel, análisis de riesgos, documentación, evidencias y verificación técnica— y lo deja revisado por un experto, hasta dejar a la empresa lista para la auditoría de conformidad.",
-      "featureList": [
-        "Determinación del nivel ENS (Básica, Media o Alta)",
-        "Análisis de riesgos con metodología MAGERIT",
-        "Declaración de Aplicabilidad y plan de adecuación",
-        "Generación de la documentación ENS con firma electrónica",
-        "Escaneo de vulnerabilidades y vigilancia continua de la nube (Microsoft 365, AWS, Azure y Google)",
-        "Test de intrusión (pentest) externo independiente en nivel Alto",
-        "Gestión de evidencias selladas e inalterables",
-        "Portal del cliente y acceso de solo lectura para el auditor",
-        "Acompañamiento en la auditoría de certificación acreditada por ENAC"
-      ],
-      "audience": { "@type": "BusinessAudience", "name": "Pymes que licitan con el sector público en España" }
-    },
-    {
-      "@type": "FAQPage",
-      "@id": "https://fulkro.es/#faq",
-      "mainEntity": [
-        {
-          "@type": "Question",
-          "name": "¿Qué es el Esquema Nacional de Seguridad (ENS) y por qué lo necesito para licitar?",
-          "acceptedAnswer": {
-            "@type": "Answer",
-            "text": "El Esquema Nacional de Seguridad (ENS), regulado por el Real Decreto 311/2022, es el marco español de ciberseguridad obligatorio para los sistemas que tratan información o prestan servicios al sector público. En la mayoría de las licitaciones públicas, acreditar la conformidad con el ENS es requisito para que tu oferta se valore: sin él, la mesa de contratación no entra a valorarte."
-          }
-        },
-        {
-          "@type": "Question",
-          "name": "¿En cuánto tiempo estaré listo para la auditoría del ENS?",
-          "acceptedAnswer": {
-            "@type": "Answer",
-            "text": "En días, no en semanas ni meses. La plataforma implanta el ENS de forma determinista y un experto lo revisa manualmente, lo que acorta los plazos frente a la consultoría tradicional. El plazo exacto depende de tu nivel (Básica, Media o Alta) y te lo cerramos por escrito en el diagnóstico gratuito."
-          }
-        },
-        {
-          "@type": "Question",
-          "name": "¿Cuánto cuesta certificarse en el ENS con Fulkro?",
-          "acceptedAnswer": {
-            "@type": "Answer",
-            "text": "El precio depende de tu nivel ENS y del alcance de tu contrato, y se cierra antes de empezar, sin sorpresas ni presupuestos que crecen por el camino. En un diagnóstico gratuito determinamos tu nivel exacto y te damos un precio a tu medida. El nivel Básico es el más económico (sin auditoría externa) y el Alto el más exigente."
-          }
-        },
-        {
-          "@type": "Question",
-          "name": "¿Tengo que entender de seguridad o de informática para usar Fulkro?",
-          "acceptedAnswer": {
-            "@type": "Answer",
-            "text": "No. La plataforma hace el trabajo técnico y un experto lo valida; tú solo ves el avance, apruebas y firmas desde tu portal, en lenguaje claro y sin jerga. Lo difícil lo operamos nosotros."
-          }
-        },
-        {
-          "@type": "Question",
-          "name": "¿Fulkro emite el certificado del ENS?",
-          "acceptedAnswer": {
-            "@type": "Answer",
-            "text": "No. En los niveles Medio y Alto, el certificado de conformidad lo emite una entidad de certificación independiente acreditada por ENAC, ajena a Fulkro, lo que evita conflictos de interés. Fulkro implanta, prepara y acompaña hasta la auditoría; el nivel Básico se acredita por declaración de conformidad, sin auditoría externa."
-          }
-        },
-        {
-          "@type": "Question",
-          "name": "¿En qué se diferencia Fulkro de una consultora de ciberseguridad tradicional?",
-          "acceptedAnswer": {
-            "@type": "Answer",
-            "text": "Una consultora tradicional entrega documentos de Word y depende de horas de personas. Fulkro es una plataforma: aplica el ENS de forma determinista y conecta riesgos, medidas, evidencias y dossier de principio a fin, escanea tus sistemas y vigila tu nube, y un experto revisa el resultado. Es más rápido, más completo y normalmente más barato."
-          }
-        }
-      ]
+      "author": { "@id": "https://fulkro.es/#org" }
     }
   ]
 }
@@ -1100,14 +1026,16 @@
         <circle cx="48" cy="26" r="5" fill="#6C63FF"/>
       </svg></span>fulkro
     </a>
-    <div class="navlinks"><a href="plataforma.html" class="">La plataforma</a><a href="como-funciona.html" class="">Cómo funciona</a><a href="ventajas.html" class="">Por qué Fulkro</a><a href="seguridad.html" class="">Pentest y nube</a><a href="ens.html" class="">El ENS</a><a href="comparativa.html" class="">Comparativa</a></div>
+    <div class="navlinks"><a href="#problema" class="">El problema</a><a href="#como" class="">Cómo funcionaba</a><a href="#plataforma" class="">La plataforma</a><a href="#capturas" class="">Capturas</a><a href="#comparativa" class="">Comparativa</a><a href="#faq" class="">Preguntas</a></div>
     <div class="navright">
+      <a href="https://github.com/Fulkrodev/Fulkrosys" class="btn btn-primary navcta" target="_blank" rel="noopener">Ver en GitHub</a>
       <button class="burger" id="burger" aria-label="Abrir menú"><span></span><span></span><span></span></button>
     </div>
   </nav>
 </div>
 <div class="mobilemenu">
-  <a href="plataforma.html">La plataforma</a><a href="como-funciona.html">Cómo funciona</a><a href="ventajas.html">Por qué Fulkro</a><a href="seguridad.html">Pentest y nube</a><a href="ens.html">El ENS</a><a href="comparativa.html">Comparativa</a><a href="faq.html">Preguntas</a>
+  <a href="#problema">El problema</a><a href="#como">Cómo funcionaba</a><a href="#plataforma">La plataforma</a><a href="#capturas">Capturas</a><a href="#comparativa">Comparativa</a><a href="#faq">Preguntas</a>
+  <a href="https://github.com/Fulkrodev/Fulkrosys" class="btn btn-primary" target="_blank" rel="noopener">Ver en GitHub</a>
 </div>
 <section class="hero">
     <span class="eyebrow"><span class="dot"></span>Proyecto cerrado en septiembre de 2026 · Código abierto</span>
@@ -1248,7 +1176,7 @@
       <div class="pcard glass reveal"><div class="ico"><svg viewBox="0 0 24 24"><path d="M13 2L4.5 13H11l-1 9 8.5-11H12z"/></svg></div><h3>Días, no meses</h3><p>Lo que la consultoría tradicional tarda medio año, aquí se mide en días, con revisión manual experta y plazo por escrito.</p></div>
       <div class="pcard glass reveal"><div class="ico"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3"/></svg></div><h3>Nube vigilada y escaneo de seguridad</h3><p>La plataforma vigila tu nube en continuo y escanea tus sistemas en busca de fallos de forma periódica, y un experto valida los hallazgos y descarta las falsas alarmas. En nivel Alta, además, un pentester externo hace el test de intrusión. Tú no tienes que ser técnico.</p></div>
     </div>
-    <div class="ctas reveal" style="margin-top:42px"><a href="comparativa.html" class="btn btn-primary lg">Comparación con la competencia</a><a href="plataforma.html" class="btn btn-ghost lg">Cómo funciona por dentro →</a></div>
+    <div class="ctas reveal" style="margin-top:42px"><a href="https://github.com/Fulkrodev/Fulkrosys" class="btn btn-primary lg" target="_blank" rel="noopener">Ver el código en GitHub</a><a href="#capturas" class="btn btn-ghost lg">Verlo por dentro →</a></div>
   </div>
 </section>
 
@@ -1319,16 +1247,16 @@
   <div class="wrap">
     <div class="reveal shots-intro">
       <div class="kicker">Imágenes reales del producto</div>
-      <h2>Míralo por dentro: los tres portales, pantalla a pantalla.</h2>
-      <p class="lead">Esto no es un render: es el producto. La plataforma y tu experto hacen el trabajo pesado en el <b>portal de administración</b>; tú apenas tocas nada en el <b>portal del cliente</b> —ves, apruebas y firmas—; y el <b>portal del auditor</b> es lo que recibe quien te certifica.</p>
+      <h2>Por dentro: los tres portales, pantalla a pantalla.</h2>
+      <p class="lead">No son renders: son capturas del producto. El trabajo pesado ocurría en el <b>portal de administración</b>; el cliente apenas tocaba nada en el <b>portal del cliente</b> —veía, aprobaba y firmaba—; y el <b>portal del auditor</b> era lo que recibía la entidad certificadora.</p>
       <div class="demo-tag"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 8v4M12 16h.01"/></svg>Imágenes reales del producto · datos de demostración</div>
     </div>
 
     <div id="cw" class="reveal" tabindex="0" aria-roledescription="carrusel" aria-label="Capturas reales de los tres portales">
       <div class="cw-portals" role="tablist" aria-label="Elige portal">
-        <button class="cw-portal on" type="button" data-jump="0"><b>Portal de administración</b><span>La plataforma y el experto construyen tu ENS</span></button>
-        <button class="cw-portal" type="button" data-jump="3"><b>Portal del cliente</b><span>Tú solo ves, apruebas y firmas</span></button>
-        <button class="cw-portal" type="button" data-jump="6"><b>Portal del auditor</b><span>Lo que recibe quien te certifica</span></button>
+        <button class="cw-portal on" type="button" data-jump="0"><b>Portal de administración</b><span>Donde la plataforma y el experto construían el ENS</span></button>
+        <button class="cw-portal" type="button" data-jump="3"><b>Portal del cliente</b><span>El cliente solo veía, aprobaba y firmaba</span></button>
+        <button class="cw-portal" type="button" data-jump="6"><b>Portal del auditor</b><span>Lo que recibía la entidad certificadora</span></button>
       </div>
       <div class="cw-stagewrap">
         <button class="cw-arrow prev" type="button" aria-label="Captura anterior"><svg viewBox="0 0 24 24"><path d="M15 18l-6-6 6-6"/></svg></button>
@@ -1348,7 +1276,7 @@
 
     <div class="compliance-trust reveal">
       <svg viewBox="0 0 24 24"><path d="M12 3l8 3v5c0 5-3.4 8.5-8 10-4.6-1.5-8-5-8-10V6z"/><path d="M9 12l2 2 4-4"/></svg>
-      <p><b>Fulkro cumple el ENS sobre sí misma.</b> Mantenemos nuestro propio cumplimiento al día y bajo el mismo rigor que implantamos en ti, para no introducir ningún riesgo en tu organización.</p>
+      <p><b>Fulkro aplicaba el ENS sobre sí misma.</b> La plataforma mantenía su propio cumplimiento bajo el mismo rigor que implantaba en el cliente, para no introducir riesgo en su organización.</p>
     </div>
   </div>
 
@@ -1357,14 +1285,14 @@
     var B="assets/capturas/marketing/";
     var S=[
       {img:"admin-mando",url:"app.fulkro.es · administración",k:"Portal de administración",t:"Centro de mando del proyecto",c:"Desde un solo panel se gobernaba todo el ENS de un cliente: la ficha del proyecto, el nivel, la conformidad objetivo y los cinco ejes — categorización, evidencias, obligaciones, conformidad y riesgos MAGERIT.",alt:"Portal de administración de Fulkro: panel de mando del proyecto demo NovaEdge con nivel ENS Medio, conformidad ENAC y los cinco ejes del Esquema Nacional de Seguridad"},
-      {img:"admin-plan",url:"app.fulkro.es · administración",k:"Portal de administración",t:"El plan, planificado por la plataforma",c:"El cronograma completo de tu adecuación — tareas, fases e hitos — lo genera y mantiene Fulkro. Tú no construyes nada: lo operamos nosotros de principio a fin.",alt:"Portal de administración de Fulkro: plan de proyecto del ENS en formato cronograma con tareas, fases e hitos, generado por la plataforma"},
-      {img:"admin-dda",url:"app.fulkro.es · administración",k:"Portal de administración",t:"Declaración de Aplicabilidad al 100%",c:"Las 73 medidas del Anexo II gestionadas: cuáles aplican a tu sistema y cuáles no, con su justificación, conforme con el Esquema Nacional de Seguridad.",alt:"Portal de administración de Fulkro: Declaración de Aplicabilidad con las 73 medidas del Anexo II al 100% de cobertura"},
-      {img:"cliente-inicio",url:"app.fulkro.es · portal del cliente",k:"Portal del cliente",t:"Tu inicio, de un vistazo",c:"Ves tu avance en tiempo real y sin jerga técnica. Con la certificación completa, tu única acción son unos minutos: aceptar el mantenimiento. Casi no tocas nada.",alt:"Portal del cliente de Fulkro: pantalla de inicio con la certificación ENS completa, el avance del proyecto y los pasos del proceso"},
-      {img:"cliente-firmas",url:"app.fulkro.es · portal del cliente",k:"Portal del cliente",t:"Tú solo apruebas y firmas",c:"Tu único trabajo real: revisar y firmar los entregables con validez legal desde tu portal. Aquí, todas las firmas completadas al 100%.",alt:"Portal del cliente de Fulkro: centro de firmas con todos los entregables firmados al 100%, incluida la Declaración de Aplicabilidad"},
-      {img:"cliente-certificacion",url:"app.fulkro.es · portal del cliente",k:"Portal del cliente",t:"Tu camino hasta el certificado",c:"Sigues en tiempo real cada hito hasta tu certificado ENS, con la auditoría acreditada por ENAC ya superada. Tu experto va marcando los avances.",alt:"Portal del cliente de Fulkro: línea de tiempo de la certificación ENS con la auditoría ENAC superada y el certificado vigente"},
-      {img:"auditor-resumen",url:"app.fulkro.es · acceso del auditor · solo lectura",k:"Portal del auditor",t:"El expediente, ordenado",c:"El auditor entra a un acceso de solo lectura con todo tu expediente preparado: 73 medidas, 204 evidencias y el resultado de la auditoría, sin tener que pedirte nada.",alt:"Portal del auditor de Fulkro: resumen del expediente del proyecto con 73 medidas, 204 evidencias y resultado de auditoría aprobado"},
-      {img:"auditor-cobertura",url:"app.fulkro.es · acceso del auditor · solo lectura",k:"Portal del auditor",t:"Cobertura medida a medida",c:"La cobertura de la Declaración de Aplicabilidad frente a las evidencias, al 100% y sin ninguna medida crítica sin cubrir. El auditor lo comprueba de un vistazo.",alt:"Portal del auditor de Fulkro: mapa de cobertura de la Declaración de Aplicabilidad frente a evidencias, al 100%"},
-      {img:"auditor-registro",url:"app.fulkro.es · acceso del auditor · solo lectura",k:"Portal del auditor",t:"Trazabilidad a prueba de manipulación",c:"Un registro de auditoría inmutable, encadenado con hash SHA-256: cada acción sobre el expediente queda verificable de forma independiente.",alt:"Portal del auditor de Fulkro: registro de auditoría inmutable con cadena de hash SHA-256 verificable"}
+      {img:"admin-plan",url:"app.fulkro.es · administración",k:"Portal de administración",t:"El plan, planificado por la plataforma",c:"El cronograma completo de la adecuación — tareas, fases e hitos — lo generaba y mantenía la plataforma. El cliente no construía nada.",alt:"Portal de administración de Fulkro: plan de proyecto del ENS en formato cronograma con tareas, fases e hitos, generado por la plataforma"},
+      {img:"admin-dda",url:"app.fulkro.es · administración",k:"Portal de administración",t:"Declaración de Aplicabilidad al 100%",c:"Las 73 medidas del Anexo II gestionadas: cuáles aplicaban al sistema y cuáles no, con su justificación, conforme con el Esquema Nacional de Seguridad.",alt:"Portal de administración de Fulkro: Declaración de Aplicabilidad con las 73 medidas del Anexo II al 100% de cobertura"},
+      {img:"cliente-inicio",url:"app.fulkro.es · portal del cliente",k:"Portal del cliente",t:"Tu inicio, de un vistazo",c:"El avance en tiempo real y sin jerga técnica. Con la certificación completa, la única acción pendiente del cliente eran unos minutos: aceptar el mantenimiento.",alt:"Portal del cliente de Fulkro: pantalla de inicio con la certificación ENS completa, el avance del proyecto y los pasos del proceso"},
+      {img:"cliente-firmas",url:"app.fulkro.es · portal del cliente",k:"Portal del cliente",t:"Tú solo apruebas y firmas",c:"El único trabajo real del cliente: revisar y firmar los entregables con validez legal desde su portal. Aquí, todas las firmas completadas al 100%.",alt:"Portal del cliente de Fulkro: centro de firmas con todos los entregables firmados al 100%, incluida la Declaración de Aplicabilidad"},
+      {img:"cliente-certificacion",url:"app.fulkro.es · portal del cliente",k:"Portal del cliente",t:"Tu camino hasta el certificado",c:"Cada hito hasta el certificado ENS, en tiempo real, con la auditoría acreditada por ENAC ya superada. El experto iba marcando los avances.",alt:"Portal del cliente de Fulkro: línea de tiempo de la certificación ENS con la auditoría ENAC superada y el certificado vigente"},
+      {img:"auditor-resumen",url:"app.fulkro.es · acceso del auditor · solo lectura",k:"Portal del auditor",t:"El expediente, ordenado",c:"El auditor entraba a un acceso de solo lectura con todo el expediente preparado: 73 medidas, 204 evidencias y el resultado de la auditoría, sin tener que pedir nada.",alt:"Portal del auditor de Fulkro: resumen del expediente del proyecto con 73 medidas, 204 evidencias y resultado de auditoría aprobado"},
+      {img:"auditor-cobertura",url:"app.fulkro.es · acceso del auditor · solo lectura",k:"Portal del auditor",t:"Cobertura medida a medida",c:"La cobertura de la Declaración de Aplicabilidad frente a las evidencias, al 100% y sin ninguna medida crítica sin cubrir. El auditor lo comprobaba de un vistazo.",alt:"Portal del auditor de Fulkro: mapa de cobertura de la Declaración de Aplicabilidad frente a evidencias, al 100%"},
+      {img:"auditor-registro",url:"app.fulkro.es · acceso del auditor · solo lectura",k:"Portal del auditor",t:"Trazabilidad a prueba de manipulación",c:"Un registro de auditoría inmutable, encadenado con hash SHA-256: cada acción sobre el expediente quedaba verificable de forma independiente.",alt:"Portal del auditor de Fulkro: registro de auditoría inmutable con cadena de hash SHA-256 verificable"}
     ];
     var img=document.getElementById("cw-img"),url=document.getElementById("cw-url"),
         kEl=document.getElementById("cw-k"),tEl=document.getElementById("cw-title"),
@@ -1514,7 +1442,7 @@
       </div>
     </div>
     <p class="tagline reveal" style="margin-top:16px">Plazos del sector según los plazos que publican las consultoras especializadas del sector · el alcance y el plazo finales dependen de tu punto de partida.</p>
-    <div class="ctas reveal" style="margin-top:26px"><a href="ventajas.html" class="btn btn-ghost lg">Ver la comparativa completa →</a></div>
+    <div class="ctas reveal" style="margin-top:26px"><a href="https://github.com/Fulkrodev/Fulkrosys" class="btn btn-ghost lg" target="_blank" rel="noopener">Ver el código en GitHub →</a></div>
   </div>
 </section>
 
@@ -1548,7 +1476,7 @@
       <div class="bx glass reveal"><div class="ico"><svg viewBox="0 0 24 24"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><rect x="8" y="2" width="8" height="4" rx="1"/><path d="M9 12l2 2 4-4"/></svg></div><h3>Fábrica documental</h3><p>Más de 50 entregables ENS generados y versionados por la plataforma, y revisados por un experto antes de que los firmes.</p></div>
       <div class="bx glass reveal"><div class="ico"><svg viewBox="0 0 24 24"><path d="M12 3l7 4v5c0 4.5-3 7.6-7 9-4-1.4-7-4.5-7-9V7z"/><path d="M9.5 12l1.8 1.8L15 10"/></svg></div><h3>Portal para el auditor ENAC y simulacro previo</h3><p>El auditor recibe un acceso de solo lectura con todo el expediente ordenado. Y antes de la auditoría real, hacemos un simulacro para que no haya sorpresas el día clave.</p></div>
     </div>
-    <div class="ctas reveal" style="margin-top:40px"><a href="plataforma.html" class="btn btn-ghost lg">Ver todo lo que hace la plataforma →</a></div>
+    <div class="ctas reveal" style="margin-top:40px"><a href="#capturas" class="btn btn-ghost lg">Ver las pantallas del producto →</a></div>
   </div>
 </section>
 
@@ -1566,7 +1494,7 @@
       <details class="faq reveal"><summary>¿Fulkro emitía el certificado del ENS?<span class="pl"></span></summary><div class="ans"><p>No, nunca. En los niveles Medio y Alto, el certificado de conformidad lo emite una <b>entidad de certificación independiente acreditada por ENAC</b>, ajena a Fulkro, lo que evita conflictos de interés. Fulkro implantaba, preparaba y acompañaba hasta la auditoría; el nivel Básico se acredita por declaración de conformidad, sin auditoría externa.</p></div></details>
       <details class="faq reveal"><summary>¿En qué se diferenciaba de una consultora de ciberseguridad tradicional?<span class="pl"></span></summary><div class="ans"><p>Una consultora tradicional entrega documentos de Word y depende de horas de personas. <b>Fulkro era una plataforma</b>: aplicaba el ENS de forma determinista y conectaba riesgos, medidas, evidencias y dossier de principio a fin, escaneaba los sistemas del cliente y vigilaba su nube, y un experto revisaba el resultado.</p></div></details>
     </div>
-    <p style="margin-top:22px;font-size:14.5px;color:var(--text-dim)">¿Más dudas? Tienes más respuestas en la <a href="faq.html" style="color:var(--violet-lt);text-decoration:underline;text-underline-offset:3px">página de preguntas frecuentes</a> y en la <a href="ens.html" style="color:var(--violet-lt);text-decoration:underline;text-underline-offset:3px">guía del ENS</a>.</p>
+    <p style="margin-top:22px;font-size:14.5px;color:var(--text-dim)">El detalle de como estaba construido todo esto está en el <a href="https://github.com/Fulkrodev/Fulkrosys" target="_blank" rel="noopener" style="color:var(--violet-lt);text-decoration:underline;text-underline-offset:3px">repositorio del proyecto</a>.</p>
   </div>
 </section>
 
@@ -1604,9 +1532,9 @@
         <p>Plataforma de implantación del Esquema Nacional de Seguridad para empresas que competían por contratos públicos. El proyecto cerró en septiembre de 2026; su código se está liberando como open source.</p>
         <a class="fsocial" href="https://www.linkedin.com/company/fulkro" target="_blank" rel="noopener" aria-label="Fulkro en LinkedIn"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M4.98 3.5a2.5 2.5 0 1 1 0 5 2.5 2.5 0 0 1 0-5zM3 9h4v12H3zM9 9h3.8v1.7h.05c.53-1 1.83-2.05 3.76-2.05C20.4 8.65 22 10.6 22 14v7h-4v-6.2c0-1.5-.03-3.4-2.08-3.4-2.08 0-2.4 1.62-2.4 3.3V21H9z"/></svg>Fulkro en LinkedIn</a>
       </div>
-      <div class="fcol"><h4>Producto</h4><a href="plataforma.html">La plataforma</a><a href="ventajas.html">Por qué Fulkro</a><a href="seguridad.html">Pentest y nube</a><a href="soporte.html">Soporte</a><a href="como-funciona.html">Cómo funciona</a></div>
-      <div class="fcol"><h4>Recursos</h4><a href="ens.html">Guía del ENS</a><a href="faq.html">Preguntas frecuentes</a><a href="comparativa.html">Fulkro vs. la competencia</a><a href="contacto.html">Contáctanos</a></div>
-      <div class="fcol"><h4>Empresa</h4><a href="contacto.html">Contacto</a></div>
+      <div class="fcol"><h4>El proyecto</h4><a href="#problema">El problema</a><a href="#como">Cómo funcionaba</a><a href="#plataforma">La plataforma</a><a href="#capturas">Capturas</a></div>
+      <div class="fcol"><h4>Contenido</h4><a href="#comparativa">Comparativa</a><a href="#paraquien">Para quién era</a><a href="#faq">Preguntas frecuentes</a><a href="#stats">El sistema en cifras</a></div>
+      <div class="fcol"><h4>Código</h4><a href="https://github.com/Fulkrodev/Fulkrosys" target="_blank" rel="noopener">Repositorio en GitHub</a></div>
       <div class="fcol"><h4>Legal</h4><a href="aviso-legal.html">Aviso legal</a><a href="privacidad.html">Privacidad</a><a href="cookies.html">Cookies</a></div>
     </div>
     <div class="fbot">
