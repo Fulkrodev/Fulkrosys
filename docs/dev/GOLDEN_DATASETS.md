@@ -21,8 +21,10 @@ range (verdict `listo_auditar` → `muy_lejos`).
 ```
 docs/catalogs/golden_datasets/
 ├── README.md
-├── agent_11_auditor_virtual/
+├── deliverable_text_auditor/
 │   └── v1.json                                # primer dataset · curation B.3.C
+│                                              # (carpeta renombrada 2026-05-23:
+│                                              #  antes agent_11_auditor_virtual)
 ├── agent_04_redactor/                         # Future-B.3 demand-driven
 ├── agent_06_contratos/                        # Future-B.3
 └── ...
@@ -35,7 +37,7 @@ Loader cached singleton · OPS-026 DRY.
 
 ```json
 {
-  "agent_name": "agent_11_auditor_virtual",
+  "agent_name": "deliverable_text_auditor",
   "version": "v1",
   "created_at": "YYYY-MM-DD",
   "curated_by": "marcos",
@@ -88,16 +90,16 @@ python -m backend.app.motors.m_observability.eval_runner --list
 
 # Ejecutar eval skeleton (sin LLM · 0 entries · vacuously OK)
 python -m backend.app.motors.m_observability.eval_runner \
-    --agent agent_11_auditor_virtual --version v1
+    --agent deliverable_text_auditor --version v1
 
 # Con report file output
 python -m backend.app.motors.m_observability.eval_runner \
-    --agent agent_11_auditor_virtual --version v1 \
+    --agent deliverable_text_auditor --version v1 \
     --report-out /tmp/a11_eval.md
 
 # JSON format para CI artifact
 python -m backend.app.motors.m_observability.eval_runner \
-    --agent agent_11_auditor_virtual --version v1 \
+    --agent deliverable_text_auditor --version v1 \
     --format json --report-out /tmp/a11_eval.json
 ```
 
@@ -150,14 +152,14 @@ def a11_evaluator(entry, actual):
         return False, f"verdict mismatch · expected={entry.expected_output.verdict}"
     return True, "ok"
 
-register_evaluator("agent_11_auditor_virtual", a11_evaluator)
+register_evaluator("deliverable_text_auditor", a11_evaluator)
 
 def real_actual_provider(entry):
     agent = Agent11AuditorVirtual(...)
     return agent.run(entry.input)
 
 report = run_eval(
-    "agent_11_auditor_virtual", "v1",
+    "deliverable_text_auditor", "v1",
     actual_provider=real_actual_provider,
 )
 ```

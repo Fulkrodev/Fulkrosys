@@ -62,7 +62,7 @@ from backend.app.motors.m_observability.golden_datasets_loader import (
     list_available_datasets,
 )
 
-ds = load_golden_dataset("agent_11_auditor_virtual", version="v1")
+ds = load_golden_dataset("deliverable_text_auditor", version="v1")
 # ds.entries → list[GoldenDatasetEntry]
 ```
 
@@ -73,7 +73,7 @@ OPS-026 DRY sostener).
 
 ```bash
 python -m backend.app.motors.m_observability.eval_runner \
-    --agent agent_11_auditor_virtual \
+    --agent deliverable_text_auditor \
     --version v1 \
     --skip-llm-if-no-key \
     --report-out /tmp/a11_eval_report.md
