@@ -102,3 +102,11 @@ out/
 frontend/tests/e2e/screenshots/
 docs/audits/screenshots/
 out/
+
+# Ordenes de trabajo de la reconversion de la landing (2026-09).
+# Son instrucciones dirigidas al asistente, no documentacion del proyecto,
+# y VERIFICACION_ESTETICA.md ademas contiene un error conocido: sus puntos
+# 3 y 5 dan por hecho que index.html tiene fondo .aurora y glows .winwrap /
+# .scanner, y ninguno de los tres existe ahi. Se conservan en local.
+ORDEN_LANDING.md
+VERIFICACION_ESTETICA.md
