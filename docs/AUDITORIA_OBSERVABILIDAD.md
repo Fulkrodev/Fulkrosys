@@ -191,11 +191,17 @@ quien clona el repositorio.
 
 ### 3 · Latencia de recuperación por etapa
 
-`backend/app/corpus/retrieval.py` cronometra las cuatro etapas por separado:
-`bm25`, `vectorial_con_embebido`, `fusion` e `hidratado`. Por etapa y no sólo el
-total, porque el total no dice dónde está el problema. La etiqueta
-`vectorial_con_embebido` avisa en su propio nombre de que incluye el embebido de
-la consulta, que es lo que suele dominar.
+`backend/app/corpus/retrieval.py` cronometra las etapas por separado —hoy
+`embebido` y `vectorial`— y no sólo el total, porque el total no dice dónde está
+el problema.
+
+**Actualizado el 2026-09-11**: hasta esa fecha las etapas eran cuatro (`bm25`,
+`vectorial_con_embebido`, `fusion` e `hidratado`), porque el buscador fusionaba
+dos ramas. La fusión se retiró tras medirla (ver `docs/EVAL_RECUPERACION.md`) y
+con ella se fueron dos de las series. Queda además una etiqueta menos ambigua:
+`vectorial_con_embebido` mezclaba en una sola serie el embebido de la consulta
+—que se lleva el 80 % del reloj— con la consulta a Postgres; ahora son dos series
+separadas y se ve cuál es cuál sin tener que leerse el código.
 
 ---
 

@@ -2,7 +2,7 @@
 
 Verifica que los turnos previos del hilo se inyectan en el prompt del LLM
 ENTRE el system prompt y la pregunta actual, y que sin historial el prompt
-queda intacto (solo system + user). Patchea hybrid_search (sin fastembed) y
+queda intacto (solo system + user). Patchea corpus_search (sin fastembed) y
 el router (sin LLM real) para capturar los mensajes ensamblados.
 """
 from __future__ import annotations
@@ -46,7 +46,7 @@ async def test_e4_history_injected_between_system_and_user(db):
     )
 
     with patch(
-        "backend.app.agents.agent_14_copiloto.service.hybrid_search",
+        "backend.app.agents.agent_14_copiloto.service.corpus_search",
         new=AsyncMock(return_value=[]),
     ), patch(
         "backend.app.agents.agent_14_copiloto.service.get_default_llm_router",
@@ -68,7 +68,7 @@ async def test_e4_empty_history_keeps_prompt_intact(db):
     query = CopilotQuery(question="¿Qué es el ENS?")  # history default []
 
     with patch(
-        "backend.app.agents.agent_14_copiloto.service.hybrid_search",
+        "backend.app.agents.agent_14_copiloto.service.corpus_search",
         new=AsyncMock(return_value=[]),
     ), patch(
         "backend.app.agents.agent_14_copiloto.service.get_default_llm_router",

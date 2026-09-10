@@ -44,7 +44,7 @@ def detect_filters(question: str) -> DetectedFilters:
 
     Detects ENS measure codes, RD 311/2022 references, CCN-STIC guide
     numbers, and other framework keywords. Returns a DetectedFilters
-    object that can be unpacked into hybrid_search() parameters.
+    object that can be unpacked into corpus_search() parameters.
     """
     result = DetectedFilters()
 

@@ -1,16 +1,18 @@
-"""Tests for hybrid BM25 + vector + RRF retrieval.
+"""Tests de la recuperacion sobre el corpus (ranking vectorial).
 
-Verifies that hybrid_search returns correct results with proper
-RRF scoring, filtering, and ranking.
+Se llamaba `test_hybrid_search.py` y probaba la fusion RRF. La fusion se quito
+el 2026-09-11 porque se midio que perdia (ver el docstring de
+backend/app/corpus/retrieval.py y docs/EVAL_RECUPERACION.md), asi que el test
+unitario de `_rrf_fuse` se fue con ella: probaba aritmetica de una funcion que
+ya no existe, no una propiedad del producto.
+
+Lo que sustituye a aquel test unitario esta un nivel mas arriba y es mejor
+prueba: `test_orden_es_por_coseno_descendente` comprueba la propiedad que
+importa de verdad, que la lista sale ordenada por similitud.
 """
 import pytest
 
-from backend.app.corpus.retrieval import (
-    HybridResult,
-    hybrid_search,
-    _rrf_fuse,
-    RRF_K,
-)
+from backend.app.corpus.retrieval import CorpusResult, corpus_search
 
 
 # ── Integration tests (require live DB with ingested corpus) ──────
@@ -19,11 +21,11 @@ from backend.app.corpus.retrieval import (
 @pytest.mark.asyncio
 async def test_hybrid_returns_results(db):
     """Smoke: basic query returns top_k results without errors."""
-    results = await hybrid_search(db, "seguridad de la informacion", top_k=5)
+    results = await corpus_search(db, "seguridad de la informacion", top_k=5)
     assert len(results) == 5
     for r in results:
-        assert isinstance(r, HybridResult)
-        assert r.rrf_score > 0
+        assert isinstance(r, CorpusResult)
+        assert 0.0 <= r.score <= 1.0
         assert r.content
 
 
@@ -31,7 +33,7 @@ async def test_hybrid_returns_results(db):
 async def test_hybrid_authentication_finds_op_acc_5_or_6(db):
     """Query about authentication should return op.acc.5 (mecanismo de
     autenticación) or op.acc.6 (acceso local) in top 5 — both are valid."""
-    results = await hybrid_search(
+    results = await corpus_search(
         db,
         "autenticacion multifactor de usuarios de la organizacion",
         top_k=5,
@@ -46,7 +48,7 @@ async def test_hybrid_authentication_finds_op_acc_5_or_6(db):
 @pytest.mark.asyncio
 async def test_hybrid_incidents_finds_op_exp_7(db):
     """Query about incidents should return op.exp.7 in top 5."""
-    results = await hybrid_search(
+    results = await corpus_search(
         db,
         "gestion de incidentes de seguridad",
         top_k=5,
@@ -60,7 +62,7 @@ async def test_hybrid_incidents_finds_op_exp_7(db):
 @pytest.mark.asyncio
 async def test_hybrid_filter_source_codes(db):
     """source_codes filter restricts to the specified source."""
-    results = await hybrid_search(
+    results = await corpus_search(
         db, "seguridad", top_k=10, source_codes=["RD_311_2022"]
     )
     assert len(results) > 0
@@ -71,7 +73,7 @@ async def test_hybrid_filter_source_codes(db):
 @pytest.mark.asyncio
 async def test_hybrid_filter_measure_code(db):
     """only_with_measure_code=True returns only measure chunks."""
-    results = await hybrid_search(
+    results = await corpus_search(
         db, "control de acceso", top_k=10, only_with_measure_code=True
     )
     assert len(results) > 0
@@ -82,34 +84,28 @@ async def test_hybrid_filter_measure_code(db):
 @pytest.mark.asyncio
 async def test_hybrid_top_k_respected(db):
     """top_k=3 returns exactly 3 results."""
-    results = await hybrid_search(db, "seguridad", top_k=3)
+    results = await corpus_search(db, "seguridad", top_k=3)
     assert len(results) == 3
 
 
-# ── Unit tests (no DB required) ──────────────────────────────────
+@pytest.mark.asyncio
+async def test_orden_es_por_coseno_descendente(db):
+    """La lista sale ordenada por similitud, y `vector_rank` la sigue.
+
+    Es la propiedad que el consumidor da por hecha: A14 lee `results[0]` como
+    «el mejor». Si el orden dejara de cumplirse, el repliegue por confianza
+    (umbral 0,45 sobre `confidence`) estaria mirando un fragmento cualquiera.
+    """
+    results = await corpus_search(db, "gestion de incidentes", top_k=10)
+    assert len(results) > 1
+    scores = [r.score for r in results]
+    assert scores == sorted(scores, reverse=True)
+    assert [r.vector_rank for r in results] == list(range(1, len(results) + 1))
 
 
-def test_rrf_fuse_basic():
-    """RRF fusion calculates correct scores."""
-    bm25 = {"a": 1, "b": 2, "c": 3}
-    vector = {"b": 1, "c": 2, "d": 3}
-    scores = _rrf_fuse(bm25, vector, k=RRF_K)
-
-    # 'b' in BM25 rank 2 + vector rank 1
-    expected_b = 1 / (RRF_K + 2) + 1 / (RRF_K + 1)
-    assert abs(scores["b"] - expected_b) < 1e-9
-
-    # 'a' only in BM25 rank 1
-    expected_a = 1 / (RRF_K + 1)
-    assert abs(scores["a"] - expected_a) < 1e-9
-
-    # 'b' should have highest score (appears in both lists with good ranks)
-    best = max(scores, key=lambda k: scores[k])
-    assert best == "b"
-
-
-def test_rrf_fuse_empty():
-    """RRF with empty inputs returns empty dict."""
-    assert _rrf_fuse({}, {}) == {}
-    result = _rrf_fuse({"a": 1}, {})
-    assert abs(result["a"] - 1 / (RRF_K + 1)) < 1e-9
+@pytest.mark.asyncio
+async def test_confidence_es_el_coseno_del_primero(db):
+    """`confidence` es la senal global que consume el repliegue de A14."""
+    results = await corpus_search(db, "analisis de riesgos", top_k=5)
+    assert results
+    assert all(r.confidence == pytest.approx(results[0].score) for r in results)

@@ -1,7 +1,7 @@
 """Sub-lote 1.B.5.2 PASO 7 · smoke RAG sobre el corpus ingerido.
 
 6 queries representativas que cubren los 14 PDFs del batch 1.B.5.2.
-Valida que hybrid_search devuelve resultados relevantes con citation.
+Valida que corpus_search devuelve resultados relevantes con citation.
 
 Q6 es BASELINE NO-PRESENTE intencionado (MAGERIT no esta en este batch ·
 debe disparar corpus_gap con confidence < 0.45).
@@ -24,7 +24,7 @@ load_dotenv(dotenv_path=Path(__file__).resolve().parents[3] / ".env")
 
 from sqlalchemy.ext.asyncio import async_sessionmaker, create_async_engine
 
-from backend.app.corpus.retrieval import hybrid_search
+from backend.app.corpus.retrieval import corpus_search
 
 
 CORPUS_GAP_THRESHOLD = 0.45  # alineado con A14 Copiloto fallback
@@ -91,14 +91,14 @@ async def run() -> int:
         for q in QUERIES:
             print(f"\n=== {q.qid} · {q.text!r} ===")
             try:
-                results = await hybrid_search(
+                results = await corpus_search(
                     session=session,
                     query=q.text,
                     top_k=5,
                     sector_aplicacion=["publico", "privado"],
                 )
             except Exception as exc:
-                print(f"  ✗ hybrid_search raised: {type(exc).__name__}: {exc}")
+                print(f"  ✗ corpus_search raised: {type(exc).__name__}: {exc}")
                 failed += 1
                 continue
 
@@ -108,7 +108,7 @@ async def run() -> int:
             print(f"  results: {len(results)}  confidence: {confidence:.3f}  sources: {sorted(sources_seen)}")
             for r in results[:3]:
                 citation = f"{r.source_code} · {r.heading_path or '-'} · article {r.article_ref or '-'}"
-                print(f"    [rrf={r.rrf_score:.4f}] {citation}")
+                print(f"    [cos={r.score:.4f}] {citation}")
 
             if q.expects_results:
                 # Esperamos chunks relevantes Y confidence sobre threshold

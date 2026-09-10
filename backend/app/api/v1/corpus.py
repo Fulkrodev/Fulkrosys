@@ -9,7 +9,7 @@ from fastapi import APIRouter, Depends, Query
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from backend.app.auth.dependencies import require_owner
-from backend.app.corpus.retrieval import hybrid_search
+from backend.app.corpus.retrieval import corpus_search
 from backend.app.database import get_db
 
 router = APIRouter(
@@ -30,10 +30,14 @@ async def search_corpus(
     """
     Hybrid search over the normative corpus.
 
-    BM25 (PostgreSQL ts_rank over content_tsvector) + pgvector cosine + RRF
-    (Reciprocal Rank Fusion) per ENS Platform Master Spec sec 4.5.
+    Ranking lexico de PostgreSQL (`ts_rank_cd` sobre `content_tsvector`) +
+    coseno de pgvector + fusion RRF, per ENS Platform Master Spec sec 4.5.
+
+    Esta rama se llamo BM25 hasta 2026-09-11 y NO lo es: `ts_rank_cd` no tiene
+    IDF global ni normalizacion frente a la longitud media del corpus. El campo
+    `bm25_rank` de cada resultado pasa a llamarse `lexical_rank` por lo mismo.
     """
-    results = await hybrid_search(db, query=q, top_k=limit)
+    results = await corpus_search(db, query=q, top_k=limit)
     return {
         "query": q,
         "results_count": len(results),

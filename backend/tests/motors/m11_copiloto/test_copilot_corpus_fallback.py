@@ -18,7 +18,7 @@ from typing import Iterator
 import pytest
 
 from backend.app.agents.agent_14_copiloto import service as a14_service
-from backend.app.corpus.retrieval import HybridResult
+from backend.app.corpus.retrieval import CorpusResult
 
 
 class _CapturingFakeLLMResponse:
@@ -48,8 +48,8 @@ class _CapturingFakeRouter:
         return _CapturingFakeLLMResponse("".join(self._tokens))
 
 
-def _stub_chunk(confidence: float) -> HybridResult:
-    return HybridResult(
+def _stub_chunk(confidence: float) -> CorpusResult:
+    return CorpusResult(
         chunk_id="00000000-0000-0000-0000-000000000001",
         content="contenido stub para test",
         measure_code="op.acc.6",
@@ -57,22 +57,21 @@ def _stub_chunk(confidence: float) -> HybridResult:
         source_code="RD-311-2022",
         heading_path=None,
         article_ref=None,
-        bm25_rank=1,
         vector_rank=1,
-        rrf_score=0.05,
+        score=0.42,
         confidence=confidence,
     )
 
 
-async def _stub_hybrid_search_low(*_args, **_kwargs):
+async def _stub_corpus_search_low(*_args, **_kwargs):
     return [_stub_chunk(0.30)]
 
 
-async def _stub_hybrid_search_high(*_args, **_kwargs):
+async def _stub_corpus_search_high(*_args, **_kwargs):
     return [_stub_chunk(0.85)]
 
 
-async def _stub_hybrid_search_empty(*_args, **_kwargs):
+async def _stub_corpus_search_empty(*_args, **_kwargs):
     return []
 
 
@@ -100,7 +99,7 @@ async def test_corpus_gap_branch_active_when_low_confidence(
         a14_service, "get_default_llm_router", lambda: fake_router,
     )
     monkeypatch.setattr(
-        a14_service, "hybrid_search", _stub_hybrid_search_low,
+        a14_service, "corpus_search", _stub_corpus_search_low,
     )
 
     payload = {"question": "pregunta off-corpus de prueba"}
@@ -154,7 +153,7 @@ async def test_corpus_gap_real_llm_does_not_hallucinate(
         return [_stub_chunk(0.30)]
 
     monkeypatch.setattr(
-        a14_service, "hybrid_search", _stub_low_confidence,
+        a14_service, "corpus_search", _stub_low_confidence,
     )
 
     full_text = ""
@@ -237,7 +236,7 @@ async def test_corpus_gap_branch_inactive_when_high_confidence(
         a14_service, "get_default_llm_router", lambda: fake_router,
     )
     monkeypatch.setattr(
-        a14_service, "hybrid_search", _stub_hybrid_search_high,
+        a14_service, "corpus_search", _stub_corpus_search_high,
     )
 
     payload = {"question": "qué exige op.acc.6"}
@@ -279,7 +278,7 @@ async def test_corpus_gap_prompt_contains_official_urls(
         a14_service, "get_default_llm_router", lambda: fake_router,
     )
     monkeypatch.setattr(
-        a14_service, "hybrid_search", _stub_hybrid_search_empty,
+        a14_service, "corpus_search", _stub_corpus_search_empty,
     )
 
     payload = {"question": "pregunta sin chunks en absoluto"}

@@ -1,6 +1,6 @@
 """Core service for Agent 14 — ENS Copilot.
 
-Pipeline: detect_filters -> hybrid_search -> build_messages -> LLM -> validate -> log.
+Pipeline: detect_filters -> corpus_search -> build_messages -> LLM -> validate -> log.
 
 Sub-fase 5.5.F integración M30 (plan v4.2 5.5.4.1): si
 ``query.project_id`` está presente, se deriva ``client_id`` via
@@ -20,7 +20,7 @@ from sqlalchemy import text as sa_text
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from backend.app.core.ai.llm_router import get_default_llm_router
-from backend.app.corpus.retrieval import hybrid_search, HybridResult
+from backend.app.corpus.retrieval import corpus_search, CorpusResult
 from backend.app.models.knowledge import LLMInteractionLog
 
 from backend.app.agents.agent_14_copiloto.prompts import (
@@ -87,7 +87,7 @@ logger = logging.getLogger(__name__)
 # Helpers
 # ---------------------------------------------------------------------------
 
-def _build_user_message(question: str, chunks: list[HybridResult]) -> str:
+def _build_user_message(question: str, chunks: list[CorpusResult]) -> str:
     """Build the user message with RAG context chunks."""
     context_parts = ["CONTEXTO RAG:\n"]
     for i, c in enumerate(chunks, 1):
@@ -348,8 +348,8 @@ def _build_system_prompt(
     return base
 
 
-def _chunk_to_preview(chunk: HybridResult, preview_chars: int = 200) -> dict:
-    """Serialize a HybridResult into the compact preview form used in done frames.
+def _chunk_to_preview(chunk: CorpusResult, preview_chars: int = 200) -> dict:
+    """Serialize a CorpusResult into the compact preview form used in done frames.
 
     Multi-tenant note: ``knowledge_chunks`` es corpus público compartido
     (RD 311/2022, CCN-STIC, BOE, eIDAS) — el modelo en
@@ -371,13 +371,13 @@ def _chunk_to_preview(chunk: HybridResult, preview_chars: int = 200) -> dict:
         "chunk_id": chunk.chunk_id,
         "source": source,
         "preview": (chunk.content or "")[:preview_chars],
-        "score": round(chunk.rrf_score, 6),
+        "score": round(chunk.score, 6),
     }
 
 
 def _match_citation_to_chunk(
-    raw: str, chunks: list[HybridResult]
-) -> tuple[HybridResult | None, str | None]:
+    raw: str, chunks: list[CorpusResult]
+) -> tuple[CorpusResult | None, str | None]:
     """Best-effort match of a raw citation string to one of the RAG chunks.
 
     Tries measure_code first, then article_ref, then heading_path, then
@@ -500,7 +500,7 @@ async def answer_question(
     if filters.source_codes:
         search_kwargs["source_codes"] = filters.source_codes
 
-    chunks = await hybrid_search(**search_kwargs)
+    chunks = await corpus_search(**search_kwargs)
 
     # 3. Build messages
     model = query.requested_model or DEFAULT_MODEL
@@ -640,7 +640,7 @@ async def stream_answer_question(
             search_kwargs["only_with_measure_code"] = True
         if filters.source_codes:
             search_kwargs["source_codes"] = filters.source_codes
-        chunks = await hybrid_search(**search_kwargs)
+        chunks = await corpus_search(**search_kwargs)
     except Exception as exc:
         logger.exception("Copilot retrieval failed")
         yield _frame({"type": "error", "error": f"retrieval_failed: {exc}"})

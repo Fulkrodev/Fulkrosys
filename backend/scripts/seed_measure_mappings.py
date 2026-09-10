@@ -2,7 +2,7 @@
 
 Para cada medida ENS (73 del Anexo II RD 311/2022):
   query = "{codigo} {nombre}"
-  results = hybrid_search(query, top_k=5, sector_aplicacion=['publico','privado'])
+  results = corpus_search(query, top_k=5, sector_aplicacion=['publico','privado'])
   if confidence > THRESHOLD:
     group by document_id
     INSERT ON CONFLICT DO NOTHING (ens_medida_id, document_id, chunk_ids[], relevance_score, curated_by='auto-rag')
@@ -34,7 +34,7 @@ load_dotenv(dotenv_path=Path(__file__).resolve().parents[2] / ".env")
 from sqlalchemy import text
 from sqlalchemy.ext.asyncio import async_sessionmaker, create_async_engine
 
-from backend.app.corpus.retrieval import hybrid_search
+from backend.app.corpus.retrieval import corpus_search
 
 
 logger = logging.getLogger(__name__)
@@ -74,14 +74,14 @@ async def seed_all(
         for codigo, nombre in medidas:
             query = f"{codigo} {nombre}"
             try:
-                results = await hybrid_search(
+                results = await corpus_search(
                     session=session,
                     query=query,
                     top_k=top_k,
                     sector_aplicacion=["publico", "privado"],
                 )
             except Exception as exc:
-                logger.warning("[%s] hybrid_search FAIL: %s", codigo, exc)
+                logger.warning("[%s] corpus_search FAIL: %s", codigo, exc)
                 continue
 
             if not results:

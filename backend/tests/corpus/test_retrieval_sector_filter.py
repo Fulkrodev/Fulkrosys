@@ -1,6 +1,6 @@
 """Tests retrieval sector_aplicacion filter · sub-lote 1.B.5.2 PASO 5.
 
-Valida que hybrid_search(sector_aplicacion=...) filtra correctamente por
+Valida que corpus_search(sector_aplicacion=...) filtra correctamente por
 array overlap sobre knowledge_documents.sector_aplicacion. Backward-compat:
 sector_aplicacion=None devuelve TODOS los docs (sin filtro).
 
@@ -12,13 +12,13 @@ from __future__ import annotations
 import pytest
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from backend.app.corpus.retrieval import hybrid_search
+from backend.app.corpus.retrieval import corpus_search
 
 
 @pytest.mark.asyncio
 async def test_sector_none_default_backward_compat(db: AsyncSession):
     """sector_aplicacion=None devuelve resultados sin filtrar (backward compat)."""
-    results = await hybrid_search(
+    results = await corpus_search(
         db, "resiliencia operativa digital", top_k=5,
     )
     assert len(results) > 0
@@ -28,7 +28,7 @@ async def test_sector_none_default_backward_compat(db: AsyncSession):
 @pytest.mark.asyncio
 async def test_sector_privado_includes_dora(db: AsyncSession):
     """DORA (sector_aplicacion=['privado']) debe aparecer en query relevante."""
-    results = await hybrid_search(
+    results = await corpus_search(
         db, "DORA resiliencia operativa digital sector financiero",
         top_k=10, sector_aplicacion=["privado"],
     )
@@ -45,7 +45,7 @@ async def test_sector_solo_publico_excluye_dora(db: AsyncSession):
     Verifica el caso edge donde DORA es el unico doc del corpus marcado solo
     como 'privado' · no debe aparecer si filtramos por 'publico' exclusivo.
     """
-    results = await hybrid_search(
+    results = await corpus_search(
         db, "DORA resiliencia operativa digital sector financiero",
         top_k=10, sector_aplicacion=["publico"],
     )
@@ -68,7 +68,7 @@ async def test_sector_ambos_incluye_todos(db: AsyncSession):
     no se versiona. La consulta es "notificacion de incidentes" porque cubre
     los dos cubos de forma estable.
     """
-    results = await hybrid_search(
+    results = await corpus_search(
         db, "notificacion de incidentes", top_k=10,
         sector_aplicacion=["publico", "privado"],
     )

@@ -21,80 +21,193 @@ conjunto etiquetado, que es el dato de entrada y lo único que hay que creerse.
 
 ## Lo primero, porque es lo que cambia una decisión
 
-**La fusión RRF no gana a la búsqueda vectorial sola. En ninguna métrica.**
+**La fusión RRF se ha quitado del producto.** No por criterio arquitectónico:
+porque se midió que perdía, se arregló la rama que estaba rota, se volvió a
+medir, y perdía más.
 
-| rama | acierto@5 | recall@5 | MRR |
+Esta sección se ha reescrito el **2026-09-11**. La versión anterior sacaba la
+conclusión antes de tiempo y hay que decir en qué: concluía que la fusión no
+servía teniendo la rama léxica **rota por el analizador**. Descartar una
+arquitectura con una de sus dos mitades desenchufada no es una medición, es un
+accidente con suerte. Lo que sigue es la medición con las dos mitades
+enchufadas.
+
+### El defecto que estaba desactivando media recuperación en silencio
+
+`plainto_tsquery('spanish', …)` une **todos** los lexemas con `&`, es decir con
+AND. Una pregunta natural de diez palabras exigía que **un mismo fragmento**
+contuviera las diez. Medido sobre las 49 consultas etiquetadas:
+
+| analizador | consultas sin UN SOLO candidato léxico |
+|---|---|
+| `plainto_tsquery` (AND) — lo que corría hasta 2026-09-11 | **27 de 49** |
+| operador reescrito a OR — lo que corre ahora | **0 de 49** |
+
+```
+$ python3 -c "import json;d=json.load(open('out/eval_recuperacion.json'));\
+print({k:v['n'] for k,v in d['lexico_sin_candidatos'].items()})"
+{'or_produccion': 0, 'and_anterior': 27}
+```
+
+El arreglo es una línea, y consiste en reescribir el operador del tsquery **ya
+analizado**, que conserva el lematizado y las palabras vacías del analizador
+`spanish` en vez de volver a trocear la cadena a mano:
+
+```sql
+replace(plainto_tsquery('spanish', :q)::text, '&', '|')::tsquery
+```
+
+Y funciona: la rama léxica mejora de verdad, con las tres diferencias pareadas
+excluyendo el cero.
+
+| contraste (léxico OR − léxico AND) | diferencia | IC 95 % | ¿excluye el 0? |
 |---|---|---|---|
-| BM25 sola | 0,163 | 0,134 | 0,107 |
+| hitrate@5 | +0,265 | [+0,102, +0,429] | **SÍ** |
+| recall@5 | +0,180 | [+0,041, +0,313] | **SÍ** |
+| MRR | +0,137 | [+0,035, +0,236] | **SÍ** |
+
+### Y con la rama arreglada, la fusión pierde más
+
+| rama | hitrate@5 | recall@5 | MRR |
+|---|---|---|---|
+| léxica sola, AND (el defecto) | 0,163 | 0,134 | 0,107 |
+| léxica sola, OR (arreglada) | 0,429 | 0,315 | 0,244 |
 | **vectorial sola** | **0,959** | **0,824** | **0,752** |
-| fusión RRF (lo que corre hoy) | 0,898 | 0,786 | 0,679 |
+| fusión RRF con la léxica arreglada | 0,857 | 0,667 | 0,627 |
+| fusión RRF con la léxica rota | 0,898 | 0,786 | 0,679 |
 
-Comparar los tres intervalos de confianza por separado no responde a la
-pregunta, porque las tres ramas se miden sobre las **mismas** 49 consultas. La
-comparación tiene que ser pareada, y lo es:
-
-| contraste | diferencia | IC 95 % | ¿excluye el 0? |
-|---|---|---|---|
-| vectorial − RRF · acierto@5 | +0,061 | [+0,000, +0,143] | no |
-| vectorial − RRF · recall@5 | +0,038 | [−0,020, +0,109] | no |
-| **vectorial − RRF · MRR** | **+0,072** | **[+0,020, +0,133]** | **SÍ** |
-
-Leído con honestidad: en acierto@5 y recall@5 la diferencia **no se distingue
-del ruido** con 49 consultas — y eso es un empate, no una victoria de la
-fusión. En MRR la fusión es **medidamente peor**: pone el primer documento
-relevante más abajo, y ese intervalo no toca el cero.
-
-O sea: la fusión cuesta código, cuesta una consulta más a Postgres y **no
-compra nada**; en la métrica donde sí hay señal, resta. La arquitectura
-híbrida, tal y como está hoy sobre este corpus y este tipo de pregunta, **no
-está justificada**.
-
-**Por qué**, y esto es lo accionable: `_bm25_search` usa
-`plainto_tsquery('spanish', …)`, que une **todos** los términos con AND. Una
-pregunta de doce palabras solo casa con un fragmento que contenga las doce.
-Medido: **27 de las 49 consultas devuelven CERO candidatos BM25**.
-
-```
-$ python3 -c "import json;d=json.load(open('out/eval_recuperacion.json'));print(d['bm25_sin_candidatos'])"
-```
-
-En esas 27 la «fusión» no fusiona nada: es la lista vectorial con otro nombre.
-En las 22 restantes, BM25 aporta una lista tan mala (acierto@5 = 0,163) que
-mezclarla empeora el orden. La rama BM25 no está aportando robustez léxica:
-está aportando ruido en una cuarta parte de los casos y nada en el resto.
-
-### ¿Y si se arregla el AND? También medido, y tampoco
-
-Se probó una variante de **diagnóstico** (no es lo que corre en producción) con
-los mismos lexemas unidos por OR en vez de por AND:
-
-| rama | acierto@5 | recall@5 | MRR |
-|---|---|---|---|
-| BM25 con OR | 0,469 | 0,349 | 0,231 |
-| fusión RRF sobre esa BM25 | 0,837 | 0,656 | 0,633 |
-
-El OR arregla la rama BM25 (0,163 → 0,469 de acierto@5, casi el triple) y aun
-así **la fusión sigue perdiendo contra la vectorial sola**:
+Las tres ramas se miden sobre las **mismas** 49 consultas, así que la
+comparación es pareada o no es comparación:
 
 | contraste | diferencia | IC 95 % | ¿excluye el 0? |
 |---|---|---|---|
-| vectorial − RRF(OR) · acierto@5 | +0,122 | [+0,041, +0,224] | SÍ |
-| vectorial − RRF(OR) · recall@5 | +0,167 | [+0,072, +0,265] | SÍ |
-| vectorial − RRF(OR) · MRR | +0,119 | [+0,004, +0,247] | SÍ |
-| RRF(OR) − RRF(AND) · recall@5 | −0,129 | [−0,211, −0,034] | SÍ |
+| vectorial − fusión · hitrate@5 | +0,102 | [+0,020, +0,204] | **SÍ** |
+| vectorial − fusión · recall@5 | +0,157 | [+0,065, +0,255] | **SÍ** |
+| vectorial − fusión · MRR | +0,125 | [+0,013, +0,246] | **SÍ** |
+| fusión(OR) − fusión(AND) · recall@5 | −0,119 | [−0,204, −0,027] | **SÍ** |
 
-La última fila es la contraintuitiva y por eso se publica: **arreglar BM25
-empeora la fusión** en recall@5. Tiene sentido una vez visto: con AND, BM25
-estaba callado en 27 consultas y la fusión heredaba el orden vectorial intacto;
-con OR, BM25 habla en las 49 y mete candidatos mediocres que desplazan a los
-buenos. Una rama léxica a medias es peor que ninguna.
+Antes del arreglo, sólo el MRR distinguía la vectorial de la fusión y las otras
+dos métricas eran un empate dentro del ruido. **Con la rama léxica funcionando,
+las tres excluyen el cero.** Y la última fila es la contraintuitiva, que es
+justo la que hay que publicar: **arreglar la rama léxica empeora la fusión**.
+Tiene sentido una vez visto — con AND, la rama estaba callada en 27 consultas y
+la fusión heredaba el orden vectorial intacto; con OR habla en las 49 y mete
+candidatos mediocres que desplazan a los buenos.
 
-**Lo que este bloque NO dice**: no dice que la recuperación híbrida sea mala
-idea en general, ni que BM25 no sirva. Dice que **sobre este corpus (1.031
-fragmentos de normativa) y este tipo de consulta (preguntas largas en lenguaje
-natural), medido con 49 consultas, no aporta**. Con consultas cortas y llenas
-de términos exactos («op.acc.6», «artículo 33»), que es justo donde BM25 luce,
-el resultado podría ser el contrario. Ese conjunto no existe y no se ha medido.
+### El dato que cierra la puerta
+
+Las medias no bastan para quitar una rama: una rama puede tener peor media y
+aun así ser la única que rescata ciertas consultas. Así que se midió eso
+directamente — cuántos fragmentos **relevantes** aparecen entre los candidatos
+léxicos y **no** entre los vectoriales:
+
+| | fragmentos relevantes aportados en exclusiva | consultas |
+|---|---|---|
+| sólo la rama léxica | **0 de 96** | **0 de 49** |
+| sólo la rama vectorial | 25 de 96 | 19 de 49 |
+
+Y consultas en las que el único relevante recuperado lo trae la rama léxica:
+**ninguna**.
+
+```
+$ python3 -c "import json;d=json.load(open('out/eval_recuperacion.json'));\
+a=d['f2c_aporte_unico_de_cada_rama'];\
+print(a['relevantes_solo_lexico'],'/',a['relevantes_totales'],\
+      '· rescates:',a['consultas_que_SOLO_rescata_la_rama_lexica'])"
+0 / 96 · rescates: []
+```
+
+No es que la rama léxica pese poco. Es que **no aporta nada que el vector no
+traiga ya**, y desplaza lo que sí aporta. Eso es lo que convierte «quitarla» en
+una decisión medida en vez de una preferencia.
+
+### Y no hay peso que la salve
+
+Antes de borrar se barrió el peso de la rama léxica en la fusión, de 0 a 1 de
+0,1 en 0,1, donde **w = 0 es exactamente no fusionar** y w = 0,5 es el RRF
+clásico que corría. Si la fusión valiera algo con otro reparto, saldría aquí.
+
+| w (peso de la léxica) | hitrate@5 | recall@5 | MRR |
+|---|---|---|---|
+| **0,0 — sin fusión** | **0,959** | **0,824** | 0,752 |
+| 0,1 | 0,959 | 0,783 | **0,770** |
+| 0,2 | 0,918 | 0,750 | 0,759 |
+| 0,3 | 0,878 | 0,721 | 0,711 |
+| 0,4 | 0,878 | 0,694 | 0,701 |
+| 0,5 — el RRF que corría | 0,857 | 0,667 | 0,627 |
+| 0,6 | 0,837 | 0,656 | 0,556 |
+| 0,7 | 0,837 | 0,636 | 0,538 |
+| 0,8 | 0,796 | 0,585 | 0,506 |
+| 0,9 | 0,633 | 0,473 | 0,437 |
+| 1,0 — sólo léxica | 0,429 | 0,315 | 0,247 |
+
+La curva es monótona decreciente y su máximo está en w = 0. De los **30
+contrastes pareados** de cada peso contra w = 0, **ninguno** excluye el cero en
+la dirección de mejorar.
+
+Hay una excepción que merece decirse en voz alta porque va en contra de la
+conclusión: en **MRR**, w = 0,1 da 0,770 frente a 0,752 de w = 0. Es el único
+número de toda la tabla que apunta a favor de fusionar. Y no se ha usado para
+decidir, porque su contraste pareado **no excluye el cero**: es exactamente el
+máximo puntual de una curva ruidosa contra el que este bloque avisa. Si la
+conclusión se hubiera querido invertir, ese es el número que habría que haber
+pescado.
+
+### Qué se ha hecho, en el código
+
+- La rama léxica se arregló (OR) **y luego se quitó**, junto con la fusión.
+  `backend/app/corpus/retrieval.py` hace ahora una sola cosa: ranking vectorial.
+- `hybrid_search` → `corpus_search`, `HybridResult` → `CorpusResult`,
+  `rrf_score` → `score` (el coseno de ese fragmento). Un nombre que promete una
+  fusión que no existe es la misma clase de defecto que llamar BM25 a lo que no
+  lo es.
+- El arnés de evaluación **sigue midiendo las cinco ramas**, incluidas las dos
+  que ya no corren. Es deliberado: 1.031 fragmentos, un modelo y 49 consultas es
+  el alcance de esta evidencia, y `make eval-recuperacion` es lo que debe volver
+  a responder la pregunta cuando el corpus crezca o cambie el modelo. Medir la
+  rama que se quitó es la única forma de saber cuándo habría que devolverla.
+
+**Lo que esto NO dice**: no dice que la recuperación híbrida sea mala idea, ni
+que un ranking léxico no sirva. Dice que **sobre este corpus (1.031 fragmentos
+de normativa), con este modelo (e5-large) y este tipo de consulta (preguntas
+largas en lenguaje natural), medido con 49 consultas, no aporta**. Con consultas
+cortas de términos exactos («op.acc.6», «artículo 33»), que es donde un ranking
+léxico luce, el resultado podría ser el contrario — y para ese caso concreto ya
+existe una vía que no depende de acertar el ranking: el filtro `measure_codes`
+de `corpus_search`, que va por igualdad sobre la columna. Ese conjunto de
+consultas cortas no existe y no se ha medido.
+
+---
+
+## No era BM25, y el código lo llamaba así
+
+Hasta el 2026-09-11 el módulo, la API y este informe llamaban «BM25» a la rama
+léxica. No lo era, y no es un detalle de nombres.
+
+PostgreSQL **no implementa BM25**. `ts_rank_cd` puntúa la *densidad de
+coincidencias dentro del documento*: cuenta las apariciones, las pondera por
+etiqueta de posición (A/B/C/D) y premia que los términos estén cerca unos de
+otros. Le faltan las dos mitades que hacen que BM25 funcione:
+
+1. **La IDF — la rareza del término en el corpus entero.** Para `ts_rank_cd`,
+   que un fragmento contenga «seguridad» (presente en casi todos los 1.031) pesa
+   igual que si contiene «eIDAS» (presente en 115). BM25 hace lo contrario, y
+   ese es su mecanismo central: lo raro discrimina, lo común no informa. Un
+   ranking sin IDF, ante una pregunta larga en lenguaje natural, se deja
+   arrastrar por las palabras vacías de contenido, que son la mayoría.
+2. **La normalización contra la longitud MEDIA del corpus** (el término
+   `b·|d|/avgdl`). `ts_rank_cd` admite banderas de normalización, pero todas
+   dividen por la longitud del *propio* documento; ninguna la compara con la
+   media, que es lo que impide que los fragmentos largos ganen por acumulación.
+
+El nombre importaba porque hacía esperar de esa rama un comportamiento que no
+tenía, y porque durante meses tapó el defecto real: si crees que tienes BM25,
+que devuelva pocos resultados parece rigor. Sabiendo que es `ts_rank_cd` con los
+términos en AND, que devuelva cero en 27 de 49 consultas es lo que es.
+
+Si algún día hiciera falta BM25 de verdad sobre Postgres, existe la extensión
+`pg_search`/`ParadeDB`; con la extensión pelada no se puede. Eso no se ha
+probado y no se afirma que haga falta.
 
 ---
 
@@ -155,103 +268,129 @@ favor. No hay un segundo etiquetador independiente que lo corrija.
 
 ---
 
-## F2 · Métricas y las tres ramas
+## F2 · Métricas y las ramas
 
-**Por qué relevancia binaria y no graduada**: la media es de 1,96 fragmentos
-relevantes por consulta, y 19 de las 49 tienen exactamente uno. Con uno o dos
-relevantes, un nDCG no tiene grados que ordenar — se reduce a una función del
-rango del primer acierto, que es lo que ya mide el MRR, pero con un logaritmo
-por medio que lo hace más difícil de leer y no añade información. Graduar
-exigiría además una escala («responde del todo» / «responde en parte») que este
-etiquetador aplicaría con un criterio propio no auditable. Binaria es menos
-sofisticada y más honesta.
+### Dos métricas que no son la misma, y hasta ahora se llamaban igual
 
-**Se publican dos lecturas de «recall@k», porque significan cosas distintas:**
+Este informe llamaba «acierto@k» a una de ellas, y ese nombre no distinguía. Se
+renombra, en el informe y en el JSON:
 
-- **acierto@k**: ¿hay **al menos un** relevante en el top-k? Es la que importa
-  para un RAG: basta con que un fragmento bueno llegue al modelo.
-- **recall@k**: fracción de los relevantes recuperada. Es la definición
-  estricta. Con 2 relevantes, recall@1 no puede pasar de 0,5, así que sus
-  valores bajos en k pequeños son aritmética, no un fallo.
+- **hitrate@k**: fracción de **consultas** con **al menos un** relevante en el
+  top-k. Vale 0 o 1 por consulta. Responde *«¿le llegó algo útil al modelo?»*, y
+  es la que importa para un RAG.
+- **recall@k**: fracción media de **los relevantes de cada consulta** que caen
+  en el top-k. Responde *«¿le llegó todo lo útil?»*.
 
-n = 49 consultas. `RRF_K = 60`, `bm25_top = 30`, `vector_top = 30` (los valores
-de producción).
+Con 96 etiquetas sobre 49 consultas —1,96 relevantes de media, hasta 4 en
+algunas— divergen: una consulta con 4 relevantes de los que entra 1 en el top-5
+puntúa hitrate@5 = 1,000 y recall@5 = 0,250. Con 2 relevantes, recall@1 no puede
+pasar de 0,5, así que sus valores bajos en k pequeños son aritmética y no un
+fallo.
+
+### Por qué relevancia binaria y no graduada
+
+La media es de 1,96 fragmentos relevantes por consulta, y 19 de las 49 tienen
+exactamente uno. Con uno o dos relevantes, un nDCG no tiene grados que ordenar —
+se reduce a una función del rango del primer acierto, que es lo que ya mide el
+MRR, pero con un logaritmo por medio que lo hace más difícil de leer y no añade
+información. Graduar exigiría además una escala («responde del todo» / «responde
+en parte») que este etiquetador aplicaría con un criterio propio no auditable.
+Binaria es menos sofisticada y más honesta.
+
+### Las cifras
+
+n = **49** consultas (el conjunto tiene 50; ver F1 para por qué una se excluye).
+`vector_top = 30`, `lexico_top = 30`. Las filas marcadas ya **no corren en
+producción**: la léxica y las dos fusiones se conservan en el arnés para poder
+volver a decidir cuando cambie el corpus.
 
 ```
-rama          acierto@1   acierto@3   acierto@5   acierto@10     MRR
-BM25              0,061       0,143       0,163        0,163    0,107
-vectorial         0,612       0,878       0,959        0,980    0,752
-fusión RRF        0,531       0,776       0,898        0,980    0,679
-  · diagnóstico, NO es lo que corre en producción ·
-BM25 (OR)         0,061       0,286       0,469        0,633    0,231
-RRF sobre OR      0,449       0,796       0,837        0,939    0,633
+rama            hitrate@1   hitrate@3   hitrate@5   hitrate@10     MRR
+vectorial  ★        0,612       0,878       0,959        0,980    0,752
+  · ya no corren en producción, se siguen midiendo ·
+lexico (OR)         0,082       0,286       0,429        0,673    0,244
+lexico (AND)        0,061       0,143       0,163        0,163    0,107
+rrf   (OR)          0,429       0,816       0,857        0,939    0,627
+rrf   (AND)         0,531       0,776       0,898        0,980    0,679
 
-rama           recall@1    recall@3    recall@5    recall@10
-BM25              0,026       0,128       0,134        0,134
-vectorial         0,379       0,688       0,824        0,904
-fusión RRF        0,352       0,619       0,786        0,921
-BM25 (OR)         0,048       0,196       0,349        0,526
-RRF sobre OR      0,298       0,582       0,656        0,801
+rama             recall@1    recall@3    recall@5    recall@10
+vectorial  ★        0,379       0,688       0,824        0,904
+lexico (OR)         0,044       0,192       0,315        0,553
+lexico (AND)        0,026       0,128       0,134        0,134
+rrf   (OR)          0,281       0,592       0,667        0,794
+rrf   (AND)         0,352       0,619       0,786        0,921
 ```
 
-**El único sitio donde la fusión aporta algo**: recall@10, donde la fusión
-(0,921) queda por encima de la vectorial (0,904). Es coherente — a profundidad
-10 los pocos candidatos de BM25 añaden algún relevante que la vectorial no
-traía. Pero el acierto@10 está empatado (0,980 las dos) y la diferencia de
-recall@10 es de 0,017 en la media de fracciones, sin contraste pareado que la
-respalde (no se calculó para k=10). No sostiene la arquitectura.
+**El único sitio donde la fusión gana, y por qué no sostiene la arquitectura**:
+en recall@10 la fusión con la léxica **rota** (0,921) queda por encima de la
+vectorial (0,904). Ese número existe y hay que enseñarlo. Lo que le quita peso
+no es una opinión sino F2c: la rama léxica aporta **0 de 96** relevantes que la
+vectorial no traiga en su top-30. Si no aporta ningún relevante propio, ese
++0,017 de recall@10 sólo puede venir de reordenar dentro de lo que la vectorial
+ya tenía — y a cambio la fusión pierde en hitrate@5, recall@5 y MRR con los tres
+intervalos excluyendo el cero. Además desaparece en cuanto se arregla la rama
+(la fusión OR baja a 0,794).
 
 Intervalos de confianza de cada rama por separado (remuestreo de las 49
-consultas, 1.000 repeticiones, percentiles 2,5/97,5):
+consultas, 1.000 repeticiones, percentiles 2,5/97,5). **No se comparan entre sí**
+—para eso están los contrastes pareados de la cabecera—, sirven para ver la
+anchura que impone una muestra de 49:
 
 ```
-rama          acierto@5   IC 95 %             MRR     IC 95 %
-BM25              0,163   [0,061, 0,265]    0,107   [0,036, 0,189]
-vectorial         0,959   [0,898, 1,000]    0,752   [0,660, 0,844]
-fusión RRF        0,898   [0,816, 0,980]    0,679   [0,576, 0,778]
-BM25 (OR)         0,469   [0,327, 0,612]    0,231   [0,166, 0,302]
-RRF sobre OR      0,837   [0,735, 0,939]    0,633   [0,528, 0,739]
+rama            hitrate@5   IC 95 %             MRR     IC 95 %
+vectorial  ★        0,959   [0,898, 1,000]    0,752   [0,660, 0,844]
+lexico (OR)         0,429   [0,286, 0,571]    0,244   [0,175, 0,318]
+lexico (AND)        0,163   [0,061, 0,265]    0,107   [0,036, 0,189]
+rrf   (OR)          0,857   [0,755, 0,959]    0,627   [0,529, 0,728]
+rrf   (AND)         0,898   [0,816, 0,980]    0,679   [0,576, 0,778]
 ```
 
 ---
 
-## F3 · Barrido de RRF_K, y la decisión
+## F3 · Barrido de RRF_K, y por qué la respuesta cambió
 
-`RRF_K` en {1, 5, 10, 20, 30, 60, 100, 200}. Cada punto con su intervalo de
-confianza por remuestreo de las consultas (bootstrap, 1.000 repeticiones,
-percentiles 2,5/97,5).
+`RRF_K` en {1, 5, 10, 20, 30, 60, 100, 200}, sobre la fusión con la rama léxica
+**arreglada**. Cada punto con su intervalo por remuestreo de las consultas
+(bootstrap, 1.000 repeticiones, percentiles 2,5/97,5).
 
 ```
-   k    acierto@5   IC 95 %              MRR     IC 95 %
-   1       0,898    [0,816, 0,980]     0,678    [0,577, 0,776]
-   5       0,898    [0,816, 0,980]     0,679    [0,576, 0,778]
-  10       0,898    [0,816, 0,980]     0,679    [0,576, 0,778]
-  20       0,898    [0,816, 0,980]     0,679    [0,576, 0,778]
-  30       0,898    [0,816, 0,980]     0,679    [0,576, 0,778]
-  60       0,898    [0,816, 0,980]     0,679    [0,576, 0,778]   <- producción
- 100       0,898    [0,816, 0,980]     0,679    [0,576, 0,778]
- 200       0,898    [0,816, 0,980]     0,679    [0,576, 0,778]
+   k    hitrate@5   IC 95 %              MRR     IC 95 %
+   1       0,878    [0,776, 0,959]     0,653    [0,553, 0,748]
+   5       0,918    [0,837, 0,980]     0,650    [0,557, 0,746]   <- máximo puntual
+  10       0,878    [0,776, 0,959]     0,662    [0,567, 0,760]
+  20       0,857    [0,755, 0,959]     0,655    [0,555, 0,755]
+  30       0,857    [0,755, 0,959]     0,651    [0,551, 0,752]
+  60       0,857    [0,755, 0,959]     0,627    [0,529, 0,728]   <- el que corría
+ 100       0,857    [0,755, 0,959]     0,627    [0,529, 0,728]
+ 200       0,857    [0,755, 0,959]     0,627    [0,529, 0,728]
 ```
 
-La curva no es ruidosa: es **plana**. El acierto@5 es idéntico en los ocho
-valores, de 1 a 200. El MRR se mueve una milésima entre k=1 (0,678) y el resto
-(0,679).
+**Este barrido también estaba contaminado por el defecto del analizador, y la
+conclusión anterior era falsa.** La versión anterior de este informe publicaba
+una curva **plana** —hitrate@5 idéntico en los ocho valores— y concluía que «k es
+una palanca desconectada». Lo era, pero no por lo que decía: era plana porque
+con el AND, 27 de 49 consultas tenían **una sola lista**, y con una sola lista el
+orden del RRF es el de esa lista sea cual sea k. La palanca no estaba
+desconectada: estaba desconectada la de al lado.
 
-**Decisión: se queda el 60.** El máximo puntual está en k=1 (por esa milésima
-de MRR), y el 60 cae holgadamente dentro de su intervalo de confianza. La regla
-acordada dice que en ese caso se elige por parsimonia, y eso es lo que se hace:
-no se toca una constante para perseguir una milésima de una curva plana.
+Con la rama léxica funcionando, k **sí** hace algo: hitrate@5 va de 0,918 en k=5
+a 0,857 de k≥20 en adelante. Sigue siendo un efecto pequeño frente a la anchura
+de los intervalos con 49 consultas, y el 60 cae dentro del intervalo del máximo
+(k=5), así que por parsimonia el 60 se habría quedado.
 
-**Pero la conclusión honesta del barrido no es «60 está bien»: es que k da
-igual.** Y da igual por la misma razón que hunde a la fusión — en 27 de 49
-consultas solo hay una lista, y con una sola lista el orden del RRF es el de esa
-lista sea cual sea k. En las 22 con dos listas, k solo decide empates de tercer
-orden que no llegan a cambiar el top-5. Ajustar `RRF_K` en este sistema es una
-palanca desconectada; el problema está aguas arriba.
+**Pero la decisión de k ya no aplica**, y esta es la conclusión que se lleva el
+apartado: la fusión se ha quitado (ver la cabecera), así que `RRF_K` no existe en
+producción. El barrido se conserva porque es lo que habría que volver a mirar si
+la fusión regresara, y porque enseña de qué forma un defecto aguas arriba
+falsifica una curva entera sin que salte ningún error.
 
 ---
 
 ## F4 · La no monotonía del RRF, demostrada (y qué no demuestra)
+
+Este apartado se mantiene aunque la fusión ya no corra, por dos razones: es lo
+que se pidió demostrar, y explica una parte de por qué fusionar por rango salía
+caro. Todas las cifras son de la fusión **con la rama léxica arreglada**.
 
 El RRF puntúa por **rango**, no por puntuación. Quitar un documento de la lista
 de candidatos desplaza el rango de todos los que van por debajo **en esa lista**,
@@ -272,91 +411,89 @@ documentos que siguen estando** en la lista, al quitar un tercero no relevante.
 Sobre las 49 consultas, quitando de una en una **cada** documento no relevante
 del conjunto de candidatos:
 
-| | consultas |
-|---|---|
-| exploradas | 49 |
-| con al menos una inversión | **12** |
-| con al menos una inversión **estricta** (desigualdad real de puntuación) | **1** |
-| sin ninguna inversión | 37 |
+| | con la léxica arreglada (OR) | con la léxica rota (AND) |
+|---|---|---|
+| consultas exploradas | 49 | 49 |
+| con al menos una inversión | **49** | 12 |
+| con al menos una inversión **estricta** | **38** | 1 |
+| en las que la inversión llega al top-5 | **31** | — |
+| sin ninguna inversión | **0** | 37 |
 
-Las dos cifras en negrita son exhaustivas: para cada consulta se prueba a quitar
-**cada uno** de sus candidatos no relevantes, uno a uno. Las 37 sin inversión
-son, casi todas, las que se quedan sin candidatos BM25: con una sola lista el
-RRF no puede invertir nada.
+La columna de la derecha es la que publicaba la versión anterior de este
+informe, y **también estaba falseada por el defecto del analizador**: las 37
+consultas «sin inversión» eran, casi todas, las que se quedaban sin candidatos
+léxicos. Con una sola lista el RRF no puede invertir nada, así que aquello no
+medía el RRF: medía cuántas veces la fusión no fusionaba. La conclusión
+anterior —«existe pero es raro, 1 de 49»— era falsa.
 
-Y aquí la distinción que hace falta para no vender humo: de las 12 consultas con
-inversión, **11 la tienen por un empate**. La puntuación de A y la de B acaban
-siendo *exactamente* la misma, y quién va delante lo decide el criterio de
-desempate, no el RRF. Eso es un hallazgo, pero es otro (ver «los empates», más
-abajo). **Una sola de las 49 consultas tiene una inversión estricta**: A
-puntuaba más que B de verdad, y después puntúa menos que B de verdad.
+Con las dos listas de verdad, la respuesta es la contraria y mucho más fuerte:
+**la no monotonía no es rara, es la norma.** Las 49 consultas tienen al menos
+una inversión, **38** tienen una inversión *estricta* —A puntuaba más que B de
+verdad y después puntúa menos que B de verdad, sin empates de por medio— y en
+**31** el vuelco llega al top-5, que es lo único que ve el usuario.
 
-Así que la respuesta honesta a F4 es: **sí existe, se ha encontrado, y es raro**
-— 1 de 49 consultas exploradas. Quien esperara que la no monotonía del RRF
-zarandee los resultados a todas horas se lleva un chasco; lo que hace es
-morderte una vez de cada cincuenta, y ahí va esa vez.
+Que una fusión cuyo orden depende de documentos que el usuario nunca verá sea la
+norma y no la excepción es, por sí solo, un argumento contra fusionar por rango.
+No es el argumento que la quitó —eso fue F2c—, pero apunta al mismo sitio.
 
 ### El ejemplo trabajado
 
-**Consulta `eidas-02`**: *«¿Qué requisitos debe cumplir un prestador cualificado
-de servicios de confianza?»*
+**Consulta `rgpd-01`**: *«¿Qué plazo hay para notificar una violación de
+seguridad de datos personales a la autoridad de control?»*
 
-**Documento que se quita**: `27ef0472` — **no relevante**, y **no estaba en el
-top-5** (iba 8.º en la lista vectorial). Es el caso fuerte: un documento que el
-usuario nunca habría visto y que a nadie le importa.
-
-> `(45) A fin de permitir un proceso de puesta en marcha eficiente, que lleve a
-> la inclusión de los prestadores cualificados de servicios de confianza…`
+**Documento que se quita**: `1c488d03` — **no relevante**, y **no estaba en el
+top-5**. Es el caso fuerte: un documento que el usuario nunca habría visto y que
+a nadie le importa.
 
 **Top-5 ANTES** (`RRF_K = 60`):
 
-| # | fragmento | rango BM25 | rango vect. | puntuación RRF | ¿relevante? |
+| # | fragmento | rango léxico | rango vect. | puntuación RRF | ¿relevante? |
 |---|---|---|---|---|---|
-| 1 | `5b1a0bf8` | 3 | 7 | **0,03079839** | no |
-| 2 | `d9be4303` | 1 | 10 | **0,03067916** | no |
-| 3 | `3fbb833e` | 4 | 11 | 0,02970951 | **sí** |
-| 4 | `e45c0bee` | — | 1 | 0,01639344 | **sí** |
-| 5 | `63c9ea3c` | — | 2 | 0,01612903 | no |
+| 1 | `273d4c8b` | 5 | 1 | 0,01588903 | **sí** |
+| 2 | `fc496f85` | 9 | 2 | 0,01531089 | **sí** |
+| 3 | `10482c6e` | 12 | 7 | 0,01440713 | no |
+| 4 | `72368708` | 21 | 8 | 0,01352578 | no |
+| 5 | `b5b1a2f5` | 17 | 12 | **0,01343795** | no |
 
-**Top-5 DESPUÉS de quitar `27ef0472`**:
+**Top-5 DESPUÉS de quitar `1c488d03`**:
 
-| # | fragmento | rango BM25 | rango vect. | puntuación RRF | ¿relevante? |
+| # | fragmento | rango léxico | rango vect. | puntuación RRF | ¿relevante? |
 |---|---|---|---|---|---|
-| 1 | `d9be4303` | 1 | **9** | **0,03088620** | no |
-| 2 | `5b1a0bf8` | 3 | 7 | **0,03079839** | no |
-| 3 | `3fbb833e` | 4 | 10 | 0,02991071 | **sí** |
-| 4 | `e45c0bee` | — | 1 | 0,01639344 | **sí** |
-| 5 | `63c9ea3c` | — | 2 | 0,01612903 | no |
+| 1 | `273d4c8b` | 5 | 1 | 0,01588903 | **sí** |
+| 2 | `fc496f85` | 9 | 2 | 0,01531089 | **sí** |
+| 3 | `10482c6e` | 12 | 7 | 0,01440713 | no |
+| 4 | `72368708` | 21 | 8 | 0,01352578 | no |
+| 5 | `a0fc381d` | **7** | 23 | **0,01348678** | no |
 
-**Los puestos 1 y 2 se han intercambiado**, y la aritmética se puede seguir a
-mano:
+`b5b1a2f5` sale del top-5 y entra `a0fc381d`, y la aritmética se sigue a mano:
 
 ```
 ANTES
-  5b1a0bf8 = 1/(60+3) + 1/(60+7)  = 0,01587302 + 0,01492537 = 0,03079839
-  d9be4303 = 1/(60+1) + 1/(60+10) = 0,01639344 + 0,01428571 = 0,03067916
-                                     5b1a0bf8  >  d9be4303      (por 0,00011923)
+  b5b1a2f5 = 1/(60+17) + 1/(60+12) = 0,01298701 + 0,01388889 = 0,01343795
+  a0fc381d = 1/(60+ 8) + 1/(60+23) = 0,01470588 + 0,01204819 = 0,01341507
+                                      b5b1a2f5  >  a0fc381d     (por 0,00002288)
 
-Se quita 27ef0472, que iba 8.º en la lista vectorial.
-  · 5b1a0bf8 iba 7.º: está POR ENCIMA del que se ha ido, no se mueve.
-  · d9be4303 iba 10.º: está POR DEBAJO, sube al 9.º.
+Se quita 1c488d03, que iba por delante de a0fc381d en la lista LÉXICA
+y por detrás de b5b1a2f5 en la vectorial.
+  · a0fc381d sube del 8.º al 7.º en la lista léxica.
+  · b5b1a2f5 no se mueve en ninguna de las dos.
 
 DESPUÉS
-  5b1a0bf8 = 1/(60+3) + 1/(60+7)  = 0,03079839   (igual)
-  d9be4303 = 1/(60+1) + 1/(60+9)  = 0,01639344 + 0,01449275 = 0,03088620
-                                     d9be4303  >  5b1a0bf8      (por 0,00008781)
+  b5b1a2f5 = 1/(60+17) + 1/(60+12) = 0,01343795   (igual)
+  a0fc381d = 1/(60+ 7) + 1/(60+23) = 0,01492537 + 0,01204819 = 0,01348678
+                                      a0fc381d  >  b5b1a2f5     (por 0,00004883)
 ```
 
-Ahí está la no monotonía, sin metáforas: **el orden relativo de `5b1a0bf8` y
-`d9be4303` lo decidió un tercer documento que no es ninguno de los dos, que no
-es relevante, y que ni siquiera aparecía en el resultado.** Basta con que ese
-tercero se cuele entre ellos en una de las dos listas para que el que va por
-debajo gane un puesto —y con él un `1/(60+r)` un pelín mayor— mientras el que va
-por encima se queda igual.
+Ahí está la no monotonía, sin metáforas: **el orden relativo de `b5b1a2f5` y
+`a0fc381d` lo decidió un tercer documento que no es ninguno de los dos, que no
+es relevante, y que ni siquiera aparecía en el resultado.** Y esta vez el efecto
+no es cosmético: **cambia la composición del top-5**, que es lo único que llega
+al modelo.
 
-En este caso concreto el daño es cosmético: los dos que se intercambian son no
-relevantes y el conjunto de cinco no cambia. Pero la propiedad es la que es, y
-donde muerde de verdad es en la frontera del top-k, en el puesto 5 contra el 6.
+En este caso concreto los dos que se intercambian son no relevantes, así que la
+calidad de la respuesta no cambia. Pero de las 49 consultas hay **31** donde el
+vuelco alcanza el top-5, y nada garantiza que en todas ellas los afectados sean
+irrelevantes.
 
 Reproducirlo:
 
@@ -369,15 +506,17 @@ print(e['consulta'], e['quitado'], e['inversiones_estrictas'])"
 
 ### Los empates: un hallazgo que salió buscando otra cosa
 
-Persiguiendo la no monotonía apareció algo que no se buscaba. En 11 de las 12
-inversiones, las puntuaciones RRF de dos documentos coinciden **exactamente**.
-No es casualidad: el RRF sólo puede tomar valores de la forma `1/(60+r)` y
-sumas de dos de ellos, así que un documento que va 3.º en la lista vectorial y
-otro que va 3.º en la lista BM25 puntúan **lo mismo**, `1/63`, y los empates son
-frecuentes por construcción.
+Persiguiendo la no monotonía apareció algo que no se buscaba, y que **ya no
+afecta al producto porque la fusión se ha ido** — pero que hay que dejar escrito,
+porque es la clase de defecto que vuelve en cuanto alguien reintroduzca un
+`sorted` sobre un `set`.
 
-¿Cómo se deshace ese empate en producción? Así
-(`backend/app/corpus/retrieval.py`):
+El RRF sólo puede tomar valores de la forma `1/(60+r)` y sumas de dos de ellos,
+así que un documento que va 3.º en una lista y otro que va 3.º en la otra puntúan
+**exactamente lo mismo**, `1/63`. Los empates son frecuentes por construcción,
+no por casualidad.
+
+¿Cómo se deshacía ese empate? Así, en el `retrieval.py` de antes del 2026-09-11:
 
 ```python
 all_chunks = set(bm25_ranks) | set(vector_ranks)      # un set
@@ -385,22 +524,22 @@ all_chunks = set(bm25_ranks) | set(vector_ranks)      # un set
 top_ids = sorted(rrf_scores, key=lambda c: rrf_scores[c], reverse=True)[:top_k]
 ```
 
-`sorted` es estable, así que ante un empate respeta el orden de iteración del
-diccionario, que viene del orden de iteración de un **`set` de cadenas**. Ese
+`sorted` es estable, así que ante un empate respetaba el orden de iteración del
+diccionario, que venía del orden de iteración de un **`set` de cadenas**. Ese
 orden depende del `hash()` de cada cadena, y en CPython el hash de las cadenas
 está **aleatorizado por proceso** salvo que se fije `PYTHONHASHSEED`.
 
-Consecuencia, que no se ha medido y por tanto no se afirma como fallo
-observado: **ante un empate, dos procesos distintos del backend pueden devolver
-el top-5 en distinto orden para la misma consulta y el mismo corpus.** Es una
-hipótesis con una base de código clara, no una medición: para confirmarla haría
-falta ejecutar la misma consulta en dos procesos con `PYTHONHASHSEED` distinto y
-comparar, y eso **no se ha hecho**. Queda anotado en «lo que no se ha medido».
+Consecuencia, que no se llegó a medir y por tanto no se afirma como fallo
+observado: **ante un empate, dos procesos distintos del backend podían devolver
+el top-5 en distinto orden para la misma consulta y el mismo corpus.** Con dos
+réplicas —que es el montaje que mide el bloque H— eso es dos respuestas
+distintas a la misma pregunta según a qué réplica te toque.
 
-El arnés de evaluación de este documento **sí** desempata de forma
-determinista (por `chunk_id`), porque una medición que cambia entre ejecuciones
-no es una medición. Esa es una diferencia deliberada entre el arnés y
-producción, y está escrita en el código del arnés.
+Hoy no puede pasar: el ranking es por coseno, que es un flotante continuo, y los
+empates exactos entre fragmentos distintos son prácticamente imposibles. El
+arnés de evaluación, que sí sigue calculando RRF para las ramas de diagnóstico,
+desempata **por id** de forma explícita, para que sus cifras sean reproducibles
+entre ejecuciones.
 
 ---
 
@@ -490,13 +629,18 @@ compara. La búsqueda vectorial se hace en numpy en los dos lados, para que sea
 exactamente la misma operación; antes de usarla se comprueba que reproduce
 pgvector: **top-5 idéntico en 49/49 consultas**.
 
+Nota de fecha: esta tabla es de la ejecución del 2026-09-10, **anterior** al
+arreglo del analizador, así que sus filas de «fusión» son la fusión con la rama
+léxica rota. Las de «vectorial» no dependen de ese arreglo y siguen valiendo tal
+cual, que son las que sostienen la conclusión.
+
 | métrica | con `passage: ` | sin prefijo | diferencia | IC 95 % | ¿excluye el 0? |
 |---|---|---|---|---|---|
-| vectorial · acierto@1 | 0,612 | 0,653 | −0,041 | [−0,102, +0,000] | no |
-| vectorial · acierto@5 | 0,959 | 0,939 | +0,020 | [+0,000, +0,061] | no |
+| vectorial · hitrate@1 | 0,612 | 0,653 | −0,041 | [−0,102, +0,000] | no |
+| vectorial · hitrate@5 | 0,959 | 0,939 | +0,020 | [+0,000, +0,061] | no |
 | **vectorial · recall@5** | **0,824** | **0,795** | **+0,029** | **[+0,005, +0,061]** | **SÍ** |
 | vectorial · MRR | 0,752 | 0,755 | −0,003 | [−0,039, +0,026] | no |
-| fusión · acierto@5 | 0,898 | 0,857 | +0,041 | [+0,000, +0,102] | no |
+| fusión · hitrate@5 | 0,898 | 0,857 | +0,041 | [+0,000, +0,102] | no |
 | fusión · MRR | 0,679 | 0,683 | −0,003 | [−0,028, +0,014] | no |
 
 **Y aquí toca no vender el resultado.** El titular vendible sería «poner el
@@ -528,15 +672,19 @@ se cuele en la primera muestra.
 
 Tres ejecuciones de la misma medición en el mismo equipo:
 
-| etapa | ejec. 1 p50 | p95 | ejec. 2 p50 | p95 | ejec. 3 p50 | p95 |
-|---|---|---|---|---|---|---|
-| embebido de la consulta | 30,66 | 45,82 | 148,95 | 316,99 | 33,09 | 54,00 |
-| BM25 (Postgres) | 0,52 | 0,68 | 0,76 | 4,71 | 0,54 | 0,71 |
-| vectorial (pgvector) | 3,05 | 4,19 | 5,18 | 12,03 | 3,14 | 4,24 |
-| fusión RRF (Python) | 0,03 | 0,04 | 0,04 | 0,07 | 0,03 | 0,05 |
-| **TOTAL** | **34,56** | **50,14** | **160,42** | **323,85** | **36,96** | **58,65** |
+| etapa | ejec. 1 p50 | p95 | ejec. 2 p50 | p95 | ejec. 3 p50 | p95 | ejec. 5 p50 | p95 |
+|---|---|---|---|---|---|---|---|---|
+| embebido de la consulta | 30,66 | 45,82 | 148,95 | 316,99 | 33,09 | 54,00 | 32,82 | 47,16 |
+| léxica (Postgres) | 0,52 | 0,68 | 0,76 | 4,71 | 0,54 | 0,71 | 4,66 | 6,68 |
+| vectorial (pgvector) | 3,05 | 4,19 | 5,18 | 12,03 | 3,14 | 4,24 | 2,95 | 4,23 |
+| fusión RRF (Python) | 0,03 | 0,04 | 0,04 | 0,07 | 0,03 | 0,05 | 0,05 | 0,06 |
+| **TOTAL** | **34,56** | **50,14** | **160,42** | **323,85** | **36,96** | **58,65** | **41,18** | **54,75** |
 
-Todo en milisegundos.
+Todo en milisegundos. La ejecución 5 es la del 2026-09-11, ya con la rama léxica
+en OR, y tiene una lectura propia: **la rama léxica pasa de 0,5 ms a 4,7 ms**, un
+factor de 9. Es lo esperable —con AND, en 27 de 49 consultas Postgres cortaba
+casi sin trabajo; con OR tiene que puntuar de verdad—, y sigue siendo un 11 % del
+total. No fue eso lo que la quitó.
 
 **La ejecución 2 se sale por un factor de 4,3 y no sé por qué.** Eso es el
 resultado, y va aquí en vez de en una nota al pie.
@@ -576,11 +724,15 @@ Y esto se sostiene en las tres ejecuciones, que es lo accionable:
 - **El embebido de la consulta se lleva entre el 89 % y el 93 % del tiempo**
   (30,66 de 34,56 = 88,7 %; 148,95 de 160,42 = 92,9 %; 33,09 de 36,96 = 89,5 %).
   Todo lo demás es ruido a su lado.
-- **La fusión RRF es gratis**: 0,03 ms, un 0,09 % del total. Quitarla no
-  ahorraría tiempo — el argumento para quitarla es de calidad (F2), no de
-  latencia.
-- **Las dos consultas a Postgres juntas son ~3,6 ms**, un 10 % del total. El
-  índice vectorial no es el cuello de botella con 1.031 fragmentos.
+- **La fusión RRF era gratis**: 0,03-0,05 ms, menos del 0,15 % del total.
+  Quitarla **no ahorra tiempo**, y hay que decirlo así: el argumento para
+  quitarla fue de calidad (F2 y F2c), no de latencia. Lo que sí se ahorra es la
+  consulta léxica a Postgres, 4,7 ms de p50 con el OR, un 11 % del total. Es una
+  mejora real pero menor, y no habría bastado por sí sola para justificar el
+  cambio.
+- **Las consultas a Postgres juntas eran ~7,6 ms**, un 18 % del total (con el
+  AND anterior eran 3,6 ms, un 10 %). El índice vectorial no es el cuello de
+  botella con 1.031 fragmentos: son 2,95 ms.
 
 Si alguna vez hay que bajar la latencia de este camino, el sitio donde mirar es
 el embebido de la consulta, no la base de datos ni la fusión.
@@ -592,22 +744,34 @@ viene después. Es el tiempo de **recuperar los fragmentos**, no el de responder
 
 ## Qué hacer con todo esto
 
-Las decisiones, separadas de las conjeturas:
+Las decisiones, separadas de las conjeturas. **Todo lo de esta lista está hecho,
+no propuesto.**
 
-1. **`RRF_K` se queda en 60.** Cae dentro del intervalo del máximo puntual y el
-   barrido es plano. Se elige por parsimonia, como estaba acordado. Lo que
-   cambia es el comentario de `backend/app/corpus/retrieval.py`, que decía
-   «Standard constant (Cormack et al.)» y ahora dice lo que se ha medido: que el
-   acierto@5 es idéntico en los ocho valores probados y que el 60 se conserva
-   por parsimonia, no porque gane.
-2. **La fusión híbrida queda en entredicho, con número.** No gana a la vectorial
-   sola en ninguna métrica y pierde en MRR con un intervalo que no toca el cero.
-   La decisión de retirarla o de arreglar la rama léxica **no se toma en este
-   bloque** —cambiar el buscador de producción es otro trabajo, con sus tests—
-   pero queda medida y documentada, que es lo que faltaba.
-3. **Dos agujeros del prefijo de e5, tapados** (ingestor v2 y suelo de
+1. **La rama léxica se arregló.** `plainto_tsquery` unía los términos con AND y
+   dejaba 27 de 49 consultas sin un solo candidato. Ahora el operador se
+   reescribe a OR sobre el tsquery ya analizado y son 0 de 49. La mejora de la
+   rama está medida y las tres diferencias pareadas excluyen el cero.
+2. **La fusión RRF se quitó del producto.** Con la rama arreglada, la vectorial
+   sola gana en hitrate@5, recall@5 y MRR con los tres intervalos excluyendo el
+   cero; la rama léxica aporta **0 de 96** relevantes que la vectorial no traiga;
+   y el barrido de peso tiene su máximo en «no fusionar», sin que ninguno de los
+   30 contrastes contra ese punto excluya el cero.
+3. **`RRF_K` deja de existir en producción**, porque se fue con la fusión. El
+   barrido se conserva en el arnés. La conclusión anterior —«k es una palanca
+   desconectada»— era falsa: la curva era plana porque la mitad de las consultas
+   no tenían segunda lista.
+4. **Los nombres se corrigieron.** No era BM25 (`ts_rank_cd` no tiene IDF ni
+   normalización contra la longitud media del corpus), y `hybrid_search` /
+   `HybridResult` / `rrf_score` prometían una fusión que ya no existe. Ahora son
+   `corpus_search` / `CorpusResult` / `score`.
+5. **Dos agujeros del prefijo de e5, tapados** (ingestor v2 y suelo de
    fastembed), con la honestidad de que el A/B **no** demuestra una mejora
    grande.
+
+Y una cosa que **no** se ha hecho y podría parecer que sí: no se ha tocado nada
+para mejorar la recuperación por encima de lo que ya daba la rama vectorial. El
+sistema recupera hoy exactamente lo mismo que recuperaba la rama vectorial antes
+del cambio; lo que se ha quitado es lo que la empeoraba.
 
 ## Lo que NO se ha medido, y por tanto no se afirma
 
@@ -615,13 +779,20 @@ Las decisiones, separadas de las conjeturas:
   llegan al modelo. Que el modelo responda bien con ellos es otra cosa, y no se
   ha tocado.
 - **Consultas cortas con términos exactos** («op.acc.6», «artículo 33»), que son
-  justo donde BM25 debería lucir. El conjunto son 49 preguntas largas en
-  lenguaje natural. Es plausible que con consultas de ese otro tipo la fusión
-  gane; **plausible no es medido**, y hacerlo exige otro conjunto etiquetado.
-- **El no determinismo del desempate en producción.** Hay una base de código
+  justo donde un ranking léxico debería lucir. El conjunto son 49 preguntas
+  largas en lenguaje natural. Es plausible que con consultas de ese otro tipo la
+  fusión gane; **plausible no es medido**, y hacerlo exige otro conjunto
+  etiquetado. Es la limitación más seria de la decisión de quitar la fusión, y
+  por eso el arnés sigue midiendo las ramas retiradas.
+- **Corpus grandes.** 1.031 fragmentos es un corpus donde el vector cabe entero
+  en memoria y la búsqueda es exacta, no aproximada. Con dos órdenes de magnitud
+  más, con índice HNSW y con vocabulario más disperso, el reparto de fuerzas
+  entre las dos ramas puede ser otro. No se ha medido y no se afirma.
+- **El no determinismo del desempate en el código anterior.** Había una base
   clara para sospecharlo (orden de iteración de un `set` + hash aleatorizado por
-  proceso), pero no se ha ejecutado la comprobación con dos `PYTHONHASHSEED`
-  distintos. Es una hipótesis, no un hallazgo.
+  proceso), pero no se ejecutó la comprobación con dos `PYTHONHASHSEED` distintos
+  antes de que ese código desapareciera. Fue una hipótesis, y se queda en
+  hipótesis: ya no hay dónde comprobarla.
 - **El coste de mezclar agrupamiento CLS y media.** Exigiría instalar fastembed
   0.5.1 y volver a medir. No se ha hecho.
 - **Un segundo etiquetador.** Las 96 etiquetas las puso un solo etiquetador
@@ -634,8 +805,9 @@ Las decisiones, separadas de las conjeturas:
   salió 4,3 veces más lenta y la carga media del anfitrión no lo explica. La
   conjetura (un `docker build` simultáneo) no se ha comprobado: haría falta
   repetir la medición con y sin build en paralelo.
-- **Reranking con cross-encoder.** El propio `retrieval.py` lo menciona como
-  paso 4 pendiente. No existe, así que no se ha medido.
+- **Reranking con cross-encoder.** No existe, así que no se ha medido. La
+  mención a un «paso 4 · rerank» que arrastraba `retrieval.py` se ha quitado del
+  código con la reescritura: era una promesa en un docstring, no un plan.
 
 ## Cómo repetirlo entero
 
@@ -648,12 +820,19 @@ make eval-recuperacion    # ~13 min: descarga el modelo la primera vez,
 Con `EVAL_AB_PREFIJO=no` se salta el A/B de F5 (el re-embebido de los 1.031
 fragmentos, que es lo que más tarda) y baja a un par de minutos.
 
-Comprobado que reproduce: las tablas de F2, F2b y F3 de este documento salieron
-idénticas en **cinco ejecuciones**, **tres de ellas sobre una pila levantada de
-cero** con `make clean && make demo` (contenedores nuevos, volúmenes nuevos,
-corpus resembrado desde el volcado, modelo descargado otra vez). También salió
-idéntica la tabla de cosenos de F5, que es la que dice con qué prefijo está
-embebido el corpus.
+Comprobado que reproduce: las tablas de F2, F2b y F3 salieron idénticas en
+**cinco ejecuciones**, **tres de ellas sobre una pila levantada de cero** con
+`make clean && make demo` (contenedores nuevos, volúmenes nuevos, corpus
+resembrado desde el volcado, modelo descargado otra vez). También salió idéntica
+la tabla de cosenos de F5, que es la que dice con qué prefijo está embebido el
+corpus.
+
+Las cinco ejecuciones son de **antes** del arreglo del analizador. Las cifras de
+la cabecera, de F2, de F3, de F3b y de F4 son de las **dos ejecuciones del
+2026-09-11** con la rama léxica en OR, y las dos dieron lo mismo (la segunda
+sólo añadía la medida F2c del aporte único). Que la reproducibilidad de las
+tablas nuevas se apoye en dos ejecuciones y no en cinco es una diferencia real
+frente a la versión anterior de este informe, y se dice.
 
 Aviso para quien lo repita: el primer intento de `make eval-recuperacion` sobre
 un contenedor recién construido **falló** después de doce minutos de cálculo,

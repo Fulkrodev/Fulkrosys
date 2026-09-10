@@ -98,7 +98,7 @@ def resolve_location(classname: str, name: str) -> tuple[str, str, str]:
 
     pytest emite en el XML solo classname/name/time: no hay atributos file ni
     line, asi que hay que reconstruirlos. El classname es la ruta del modulo con
-    puntos ("tests.corpus.test_hybrid_search") y, si el test vive en una clase,
+    puntos ("tests.corpus.test_corpus_search") y, si el test vive en una clase,
     esa clase va al final en CamelCase. La linea se busca en el fuente porque no
     viaja en el informe.
     """

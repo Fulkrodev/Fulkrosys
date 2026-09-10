@@ -41,7 +41,6 @@ Hay dos clases de metrica aqui, y NO se comportan igual:
 """
 from __future__ import annotations
 
-import math
 import os
 import threading
 import time
@@ -115,7 +114,7 @@ _ARRANQUE = time.time()
 
 
 def observar_recuperacion(rama: str, segundos: float) -> None:
-    """Anota lo que ha tardado una rama del buscador (bm25 · vectorial · fusion)."""
+    """Anota lo que ha tardado una rama del buscador (lexico · vectorial · fusion)."""
     RECUPERACION_DURACION.observar((rama,), segundos)
 
 

@@ -104,11 +104,11 @@ help:
 	@echo "                 informe  docs/PRUEBA_DE_CARGA.md"
 	@echo
 	@echo "  make eval-recuperacion   MIDE si el buscador del corpus recupera lo que"
-	@echo "               debe: acierto@k, recall@k y MRR de las TRES ramas (BM25 sola,"
-	@echo "               vectorial sola y la fusión RRF) sobre 49 consultas etiquetadas"
-	@echo "               a mano, más el barrido de RRF_K con intervalos de confianza y"
-	@echo "               la latencia por etapa. NO mide la calidad de la RESPUESTA del"
-	@echo "               modelo, sólo qué fragmentos le llegan. Necesita el demo en pie."
+	@echo "               debe: hitrate@k, recall@k y MRR sobre 49 consultas etiquetadas"
+	@echo "               a mano. Mide la rama que corre (vectorial) Y las que se"
+	@echo "               retiraron (léxica y fusión RRF), para poder volver a decidir"
+	@echo "               cuando cambie el corpus. NO mide la calidad de la RESPUESTA"
+	@echo "               del modelo, sólo qué fragmentos le llegan. Necesita el demo."
 	@echo "                 informe con las conclusiones  docs/EVAL_RECUPERACION.md"
 	@echo
 
@@ -404,11 +404,23 @@ recorrido:
 # ───────────────────────────────────────────────────────────────────────────
 # Evaluación de la recuperación del corpus (BLOQUE F).
 #
-# QUÉ MIDE: acierto@k, recall@k y MRR de las tres ramas del buscador (BM25
-# sola, vectorial sola y la fusión RRF), el barrido de la constante RRF_K con
-# intervalo de confianza por remuestreo, un ejemplo trabajado de la no
-# monotonía del RRF, si los embeddings guardados llevan el prefijo 'passage: '
-# que espera e5, y la latencia p50/p95 desglosada por etapa.
+# QUÉ MIDE: hitrate@k, recall@k y MRR de CINCO ramas del buscador. Sólo una de
+# ellas corre en producción desde el 2026-09-11 (la vectorial); las otras
+# cuatro —léxica con AND, léxica con OR, y las dos fusiones RRF— se siguen
+# midiendo A PROPÓSITO, porque son las que se retiraron y este comando es lo
+# que debe volver a responder si retirarlas sigue siendo lo correcto cuando el
+# corpus crezca o cambie el modelo de embeddings.
+# Mide además: el barrido de RRF_K, el barrido del PESO de la rama léxica en la
+# fusión (w=0 es no fusionar), cuántos relevantes aporta cada rama en
+# exclusiva, un ejemplo trabajado de la no monotonía del RRF, si los embeddings
+# guardados llevan el prefijo 'passage: ' que espera e5, y la latencia p50/p95
+# desglosada por etapa.
+#
+# hitrate@k y recall@k NO son lo mismo: hitrate@k es la fracción de CONSULTAS
+# con al menos un relevante en el top-k; recall@k es la fracción media de LOS
+# RELEVANTES de cada consulta que caen ahí. Con 96 etiquetas sobre 49 consultas
+# divergen, y hasta el 2026-09-11 el informe llamaba «acierto@k» al primero,
+# que no distinguía.
 #
 # QUÉ **NO** MIDE, y conviene tenerlo delante al leer los números:
 #   - La calidad de la RESPUESTA del copiloto. Esto mide qué fragmentos llegan

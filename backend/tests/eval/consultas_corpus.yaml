@@ -31,9 +31,10 @@
 #   un fragmento es relevante si, leído solo, responde la pregunta.
 #
 # EL SESGO EVIDENTE: lo etiqueta quien conoce el corpus Y el sistema que se evalúa.
-# Quien etiqueta sabe que hay un buscador BM25 detrás, y al buscar candidatos por
-# palabras clave está usando una herramienta emparentada con una de las tres ramas
-# que se miden. Eso puede favorecer sistemáticamente a BM25 en el etiquetado: un
+# Quien etiqueta sabe que hay un buscador léxico detrás (`ts_rank_cd`; se llamó
+# «BM25» hasta 2026-09-11 y no lo es), y al buscar candidatos por palabras clave
+# está usando una herramienta emparentada con una de las tres ramas que se miden.
+# Eso puede favorecer sistemáticamente a la rama léxica en el etiquetado: un
 # fragmento que responde la pregunta pero NO comparte vocabulario con ella tiene
 # más probabilidad de no haber sido encontrado por el etiquetador, y por tanto de
 # faltar en `relevantes`. La rama vectorial es la que más pierde con ese sesgo.
