@@ -70,6 +70,67 @@ dependencies = [
     # libphonenumber port · m31_whatsapp/service.py (normalización E.164). Igual que
     # minio: importado por el grafo de backend.app.main → requerido para arrancar.
     "phonenumbers>=8.13",
+
+    # ---------------------------------------------------------------------
+    # 2026-09-10 · C0.2 · dependencias que el código YA importaba sin declarar.
+    # Criterio: va a `dependencies` (base) todo lo que se importa a nivel de
+    # módulo, o sin `try/except ImportError`, dentro del paquete `app`. Sin
+    # declararlas, `pip install -e backend` producía un entorno que NO puede
+    # ni coleccionar los tests ni ejecutar el motor MAGERIT.
+    # ---------------------------------------------------------------------
+
+    # Import DURO a nivel de módulo en app/corpus/rd311_parser.py:22
+    # (`from bs4 import BeautifulSoup, Tag`). Es el parser determinista del
+    # RD 311/2022 consolidado del BOE → 73 medidas del Anexo II. Sin él,
+    # `backend/tests/corpus/test_rd311_parser.py` ni siquiera se colecciona.
+    # Medido: command grep -rEn "^[[:space:]]*(from|import)[[:space:]]+bs4\b" backend/ --include=*.py
+    "beautifulsoup4>=4.12",
+
+    # Import DURO a nivel de módulo en app/corpus/ccn_pdf_ingest.py:43
+    # (`import pypdf`). Ingesta del corpus CCN-STIC en PDF. NO llega por
+    # transitividad: pdfplumber usa pdfminer.six, no pypdf.
+    # Medido: command grep -rEn "^[[:space:]]*(from|import)[[:space:]]+pypdf\b" backend/ --include=*.py
+    "pypdf>=4.0",
+
+    # Import perezoso pero SIN GUARDA en app/motors/m02_magerit/service.py:542
+    # (`import networkx as nx`, dentro del cálculo de valor acumulado MAGERIT v3
+    # Libro III sec 2.2.2). A diferencia de ldap3/qrcode/xmlsec, aquí NO hay
+    # try/except ImportError: sin networkx el motor m02 revienta en ejecución.
+    # Motor de núcleo → dependencia base, no opcional.
+    "networkx>=3.0",
+
+    # ---- Las cuatro siguientes ya llegaban, pero DE REBOTE ----
+    # Se importan directamente desde `app` y hoy sólo aparecen porque las
+    # arrastran extras de terceros. Se declaran explícitamente para que el
+    # arranque no dependa de decisiones de empaquetado ajenas.
+
+    # 18 ficheros de app/ la importan a nivel de módulo (Ed25519 en
+    # m07_evidence/signing.py, m_remediation/agent_protocol.py,
+    # m25_lifecycle/backup_builder.py; Fernet en m26_backup/encryption.py y
+    # m16_onboarding/token_encryption.py). Sostiene las firmas Ed25519 y la
+    # cadena de hash inmutable (R6). Hoy entra por el extra de
+    # python-jose[cryptography] / PyJWT[crypto] — dos paquetes con 0 imports
+    # directos en el repo y, por tanto, candidatos naturales a una poda futura
+    # que decapitaría el arranque en silencio.
+    # Medido: 18 ficheros en app/, 9 en tests/.
+    "cryptography>=42.0",
+
+    # 2 ficheros de app/ lo importan directamente. Hoy entra por el extra
+    # passlib[bcrypt] (passlib: 0 imports directos). Mismo razonamiento.
+    "bcrypt>=4.0",
+
+    # 2 ficheros de app/ lo importan directamente. Hoy entra de rebote por
+    # python-docx / docxtpl / mjml-python.
+    "lxml>=5.0",
+
+    # 3 ficheros de app/ lo importan directamente. Hoy entra de rebote por
+    # fastembed; si fastembed cambiara de backend de inferencia, desaparecería.
+    "numpy>=1.26",
+
+    # 4 ficheros de app/ lo importan directamente (middlewares, responses).
+    # FastAPI lo garantiza hoy; se declara sin techo para no pelearse con el
+    # rango que fije fastapi, pero dejando constancia del import directo.
+    "starlette>=0.37",
 ]
 
 [project.optional-dependencies]
@@ -87,7 +148,80 @@ runtime = [
     # m08_verification/tools/openvas_runner.py (gvm.connections/protocols) en
     # RUNTIME → dep de producción del escáner.
     "python-gvm>=27.0",
+
+    # ---------------------------------------------------------------------
+    # 2026-09-10 · C0.2 · funcionalidad de producción no crítica para arrancar.
+    # Las cinco se importan perezosamente (dentro de la función que las usa),
+    # ninguna está en el grafo de import de backend.app.main. Van aquí (y no en
+    # `dependencies`) porque el backend arranca y sirve sin ellas; van aquí (y
+    # no en `dev`) porque lo que habilitan es funcionalidad de producción, no de
+    # test — y la imagen de prod instala `.[runtime]`. Ninguna de las cinco
+    # necesita cabeceras de sistema ausentes en infra/docker/Dockerfile.
+    # Cuatro (ldap3, pytesseract, qrcode, signxml) están además bajo
+    # `try/except ImportError` con rama de "no disponible". google-auth NO lo
+    # está: sin ella, usar el escritor de Google Workspace lanza ImportError.
+    # Se queda en [runtime] igualmente porque sólo es alcanzable si el cliente
+    # conecta ese proveedor concreto, y [runtime] SÍ se instala en producción.
+    # (Contraste deliberado con networkx, que sí subió a `dependencies`: aquél
+    # está en el camino obligatorio del análisis de riesgos de todo proyecto.)
+    # ---------------------------------------------------------------------
+
+    # app/motors/m08_verification/tools/ad_password_checker.py:25, dentro de
+    # try/except que fija HAS_LDAP3. Auditoría de contraseñas contra Active
+    # Directory. Pure python.
+    "ldap3>=2.9",
+
+    # app/motors/m07_evidence/content_extraction_service.py:101 y :116, ambos
+    # bajo try/except. Es un binding: necesita el binario `tesseract`, que SÍ
+    # está en el apt de infra/docker/Dockerfile:21 (tesseract-ocr y
+    # tesseract-ocr-spa). Habilita el OCR de imágenes subidas como evidencia.
+    "pytesseract>=0.3.10",
+
+    # app/motors/m15_billing/billing_service.py:582, bajo try/except e
+    # `if include_qr`. QR de la factura. Pure python.
+    "qrcode>=7.4",
+
+    # app/motors/m_remediation/cloud_writers/google_workspace.py:38 y :45
+    # (`from google.oauth2 import service_account` / `google.auth.transport`).
+    # La distribución se llama google-auth. Pure python.
+    "google-auth>=2.28",
+
+    # app/motors/m15_billing/xades_signer.py:40. Es el SEGUNDO intento de la
+    # cascada de firma XAdES: el primero es `xmlsec`, que NO se declara (ver
+    # nota abajo). signxml firma con `cryptography` puro, sin la extensión C.
+    "signxml>=3.2",
 ]
+
+# ---------------------------------------------------------------------------
+# 2026-09-10 · C0.2 · NO DECLARADAS A PROPÓSITO (cuatro imports vivos que se
+# quedan fuera). Se documentan aquí para que nadie las "arregle" añadiéndolas
+# sin arreglar antes lo que de verdad falta.
+#
+# · xmlsec — app/motors/m15_billing/xades_signer.py:37. Es una extensión en C
+#   que compila contra libxmlsec1-dev y libxml2-dev, y el `apt-get install` de
+#   infra/docker/Dockerfile:21 NO instala ninguno de los dos. Declararla en
+#   [runtime] rompería en duro el `uv pip install --system -e ".[runtime]"` de
+#   la imagen de producción. El código ya la trata como opcional y cae a
+#   signxml, que sí se declara.
+#
+# · pdf2image — app/motors/m07_evidence/content_extraction_service.py:117. El
+#   paquete de Python es un envoltorio del binario `pdftoppm` de poppler-utils,
+#   que tampoco está en el apt del Dockerfile. Declararla no rompería la
+#   instalación, pero convertiría un "OCR de PDF escaneado no disponible"
+#   honesto (rama ImportError) en un fallo en tiempo de ejecución capturado más
+#   abajo: misma degradación, peor diagnóstico. Se declarará cuando el
+#   Dockerfile traiga poppler-utils.
+#
+# · geoip2 — app/motors/m12_magic_link/service.py:81. El código sale antes de
+#   importarla si FULKRO_GEOIP_DB_PATH no apunta a un fichero existente, y esa
+#   base de datos de MaxMind no está en el repo ni se descarga en ningún sitio.
+#   Declararla instalaría un cliente que nunca puede tener datos que leer.
+#
+# · shodan — backend/mcp_servers/recon/tools/shodan_tool.py:30. Vive fuera del
+#   paquete instalado: [tool.setuptools.packages.find] incluye sólo "app*", así
+#   que mcp_servers/ no se empaqueta. Además está condicionada a SHODAN_API_KEY.
+#   Su sitio es el requirements propio del servidor MCP, no este pyproject.
+# ---------------------------------------------------------------------------
 dev = [
     # dev incluye runtime para que CI (`pip install -e .[dev]`) y el dev local
     # sigan teniendo moto + python-gvm disponibles para los tests del motor m08.
@@ -100,6 +234,11 @@ dev = [
     "ruff>=0.7",
     "mypy>=1.11",
     "httpx>=0.27",
+    # 2026-09-10 · C0.2 · `import respx` a nivel de módulo en 4 ficheros de
+    # test (m16_onboarding: test_m16_connectors, test_oauth_service,
+    # test_m16_cierre; m_remediation: test_cloud_writers_simulator). Simula
+    # respuestas de httpx. Sólo tests → sólo dev.
+    "respx>=0.21",
 ]
 
 [tool.setuptools.packages.find]
