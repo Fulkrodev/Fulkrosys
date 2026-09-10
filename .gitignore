@@ -22,6 +22,10 @@ env/
 .env
 .env.local
 .env.*.local
+# Entorno del DEMO local · lo genera `make demo` (contraseñas aleatorias y
+# tres claves Ed25519). NUNCA se commitea: sin él, docker-compose.demo.yml no
+# arranca, que es justamente lo que impide heredar credenciales conocidas.
+.env.demo
 # Production secrets · NEVER commit (Task B · generate-prod-secrets.sh output)
 .env.prod
 .env.prod.*
