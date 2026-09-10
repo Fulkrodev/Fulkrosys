@@ -258,6 +258,15 @@ jobs:
           openssl pkey -in /tmp/auth_priv.pem -pubout -out /tmp/auth_pub.pem
           openssl genpkey -algorithm ed25519 -out /tmp/ml_priv.pem
           openssl genpkey -algorithm ed25519 -out /tmp/backup_priv.pem
+          # Enmascarar antes de exportarlas: al escribirlas en $GITHUB_ENV, el
+          # runner las imprime enteras en la cabecera de cada paso posterior, y
+          # este repositorio es publico. Son claves efimeras de un solo uso, asi
+          # que el riesgo real es nulo, pero un PEM privado a la vista en un log
+          # publico se lee mal y no cuesta nada evitarlo.
+          # Solo el cuerpo en base64: enmascarar tambien las lineas -----BEGIN/END-----
+          # convertiria en *** una cadena comunisima y llenaria el log de ruido.
+          grep -hvE '^-----|^$' /tmp/auth_priv.pem /tmp/ml_priv.pem /tmp/backup_priv.pem \
+            | while IFS= read -r _linea; do echo "::add-mask::${_linea}"; done
           {
             echo 'FULKRO_AUTH_PRIVATE_KEY<<__PEM__';   cat /tmp/auth_priv.pem;   echo '__PEM__'
             echo 'FULKRO_AUTH_PUBLIC_KEY<<__PEM__';    cat /tmp/auth_pub.pem;    echo '__PEM__'
@@ -303,18 +312,33 @@ jobs:
         # test_legal_audit_score_100 muere con FileNotFoundError.
         run: mkdir -p progress
 
-      - name: Contar la suite completa (denominador del resumen)
-        run: |
-          set -euo pipefail
-          python -m pytest backend/tests/ --collect-only -q \
-            | tail -1 | grep -oE '^[0-9]+' > /tmp/total_tests.txt
-          echo "suite completa: $(cat /tmp/total_tests.txt) tests"
-
+      # Los TESTS van primero. Antes el conteo iba delante y, al ser un paso
+      # normal, si fallaba dejaba `Run tests` en skipped: un contador tumbaba el
+      # gate entero sin ejecutar ni un test. Paso en CI el 2026-09-10.
       - name: Run tests (-m "not requires_db")
         run: |
           # Sin --timeout: backend/pyproject.toml ya fija timeout=300 por test.
           python -m pytest backend/tests/ -m "not requires_db" \
             -q --tb=short --junitxml=/tmp/junit.xml
+
+      - name: Contar la suite completa (denominador del resumen)
+        # Es informativo: nunca debe tumbar el job. Si no se puede contar, se dice.
+        if: always()
+        continue-on-error: true
+        run: |
+          set -uo pipefail
+          python -m pytest backend/tests/ --collect-only -q > /tmp/collect.txt 2>&1 || true
+          # La linea del recuento NO es necesariamente la ultima: pytest puede
+          # imprimir despues el resumen de warnings. Se busca en toda la salida.
+          TOTAL="$(grep -oE '^[0-9]+ tests? collected' /tmp/collect.txt \
+                   | grep -oE '^[0-9]+' | tail -1 || true)"
+          if [ -z "${TOTAL}" ]; then
+            echo "AVISO: no se pudo contar la suite completa. Ultimas lineas:"
+            tail -20 /tmp/collect.txt
+          else
+            echo "${TOTAL}" > /tmp/total_tests.txt
+            echo "suite completa: ${TOTAL} tests"
+          fi
 
       - name: Publicar cuántos tests corren de los que hay
         if: always()
@@ -323,7 +347,16 @@ jobs:
           import xml.etree.ElementTree as ET
           from pathlib import Path
 
-          total = int(Path("/tmp/total_tests.txt").read_text().strip())
+          # El denominador es informativo: si no se pudo contar, el resumen se
+          # publica igual diciendo que no se midio, en vez de reventar.
+          f_total = Path("/tmp/total_tests.txt")
+          total = int(f_total.read_text().strip()) if f_total.exists() else None
+          f_junit = Path("/tmp/junit.xml")
+          if not f_junit.exists():
+              print("## pytest en CI")
+              print()
+              print("No hay `junit.xml`: el paso de tests no llego a producir informe.")
+              raise SystemExit(0)
           raiz = ET.parse("/tmp/junit.xml").getroot()
           suite = raiz if raiz.tag == "testsuite" else raiz[0]
           a = suite.attrib
@@ -336,14 +369,18 @@ jobs:
           print()
           print("| concepto | tests |")
           print("|---|---:|")
-          print(f"| suite completa (`pytest --collect-only`) | {total} |")
+          print(f"| suite completa (`pytest --collect-only`) | {total if total else 'no medido'} |")
           print(f"| seleccionados por `-m \"not requires_db\"` | {recogidos} |")
           print(f"| **ejecutados** (seleccionados menos saltados) | **{ejecutados}** |")
           print(f"| saltados | {saltados} |")
           print(f"| fallidos + errores | {fallos} |")
           print()
-          print(f"**Cobertura real de este job: {ejecutados}/{total} "
-                f"= {100 * ejecutados / total:.1f}% de la suite.**")
+          if total:
+              print(f"**Cobertura real de este job: {ejecutados}/{total} "
+                    f"= {100 * ejecutados / total:.1f}% de la suite.**")
+          else:
+              print(f"**Ejecutados {ejecutados} tests.** El denominador no se pudo "
+                    f"medir en esta ejecucion (ver el paso de conteo)." )
           print()
           print(f"Los {total - recogidos} restantes llevan la marca `requires_db`: "
                 "necesitan la base SEMBRADA (catálogos ENS + fixture de corpus), "

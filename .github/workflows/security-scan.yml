@@ -103,15 +103,31 @@ jobs:
         with:
           python-version: '3.12'
 
-      - name: Install safety + project deps
+      - name: Instalar las dependencias del proyecto y volcar la lista
         run: |
           # pycairo (dep transitiva) compila desde fuente → necesita cairo dev libs
           sudo apt-get update -qq && sudo apt-get install -y -qq libcairo2-dev pkg-config
+          cd backend && pip install -e .
+          # Lo que safety tiene que analizar es esta lista, no su propio entorno.
+          pip freeze --exclude-editable > "${RUNNER_TEMP}/deps-proyecto.txt"
+          echo "paquetes a analizar: $(wc -l < "${RUNNER_TEMP}/deps-proyecto.txt")"
+
+      - name: Instalar safety AISLADO (no comparte entorno con el proyecto)
+        run: |
+          # Esto no es puntillismo. Medido el 2026-09-10 en CI: instalando safety
+          # en el MISMO entorno que el proyecto, `fastapi[standard]` sube typer a
+          # 0.27.2 y safety revienta al importarse con
+          #   RuntimeError: Type not yet supported: <class 'safety.cli_util.CustomContext'>
+          # o sea que la herramienta no analiza NADA. El gate lo caza y bloquea
+          # (que es lo correcto), pero la causa se arregla aislandola.
+          # Reproducido en local: safety solo -> 3.8.1 ok · tras fastapi[standard]
+          # -> crash · en venv aparte con el mismo typer fuera -> ok.
+          python -m venv "${RUNNER_TEMP}/safety-venv"
           # Pin a la versión sobre la que se midió el formato del informe. Subirla
           # es bienvenido: si el esquema cambia, el gate BLOQUEA y lo dice, en vez
           # de leer el informe nuevo como si estuviera limpio.
-          pip install 'safety==3.8.1'
-          cd backend && pip install -e .
+          "${RUNNER_TEMP}/safety-venv/bin/pip" install -q 'safety==3.8.1'
+          "${RUNNER_TEMP}/safety-venv/bin/safety" --version
 
       - name: Run safety (captura el código de salida, SIN `|| true`)
         id: safety
@@ -121,7 +137,9 @@ jobs:
           # tumbaría el paso con código 64 (= «corrió y encontró vulnerabilidades»),
           # que es un desenlace legítimo y no un fallo de la herramienta.
           set +e
-          safety check --output json --save-json safety-report.json
+          "${RUNNER_TEMP}/safety-venv/bin/safety" check \
+            -r "${RUNNER_TEMP}/deps-proyecto.txt" \
+            --output json --save-json safety-report.json
           rc=$?
           set -e
           echo "rc=${rc}" >> "$GITHUB_OUTPUT"
@@ -155,20 +173,23 @@ jobs:
           cache: 'npm'
           cache-dependency-path: frontend/package-lock.json
 
-      - name: Run npm audit · gate critical
+      - name: Run npm audit (captura el informe, sin `|| true`)
         run: |
           cd frontend
-          # Gate en CRITICAL (bloquea merge). Los advisories HIGH actuales son de
-          # Next.js (14.x) y su único fix es `next@16` (cambio MAYOR que rompería
-          # el App Router) → NO se aplica en piloto. Quedan registrados como
-          # Future-1.F.frontend.next16-upgrade (revisar tras piloto). CRITICAL sí
-          # corta. --production = solo dependencias de runtime.
-          npm audit \
-            --audit-level=critical \
-            --production \
-            --json \
-            > npm-audit-report.json \
-            || (cat npm-audit-report.json && exit 1)
+          # --production = solo dependencias de runtime. El codigo de salida de
+          # npm audit NO decide nada aqui: lo decide el gate del paso siguiente,
+          # que distingue "aviso conocido y acotado por escrito" de "critico
+          # nuevo" y de "la herramienta se ha roto". Se captura, no se ignora.
+          npm audit --production --json > npm-audit-report.json 2>/dev/null
+          echo "npm audit exit=$? (informativo · gatea el paso siguiente)"
+          wc -c npm-audit-report.json
+
+      - name: Gate npm audit (critico nuevo → falla · acotado → avisa · roto → falla)
+        run: |
+          python3 ../.github/scripts/npm_audit_gate.py \
+            npm-audit-report.json \
+            ../.github/npm-audit-allowlist.json
+        working-directory: frontend
 
       - name: Upload npm audit report
         if: always()

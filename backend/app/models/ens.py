@@ -9,7 +9,9 @@ from sqlalchemy.orm import Mapped, mapped_column
 try:  # pgvector opcional en dev (S11 · embeddings de medidas ENS)
     from pgvector.sqlalchemy import Vector
 except ImportError:  # pragma: no cover — fallback dev sin pgvector
-    from sqlalchemy import LargeBinary as Vector
+    # type: ignore[assignment] · ver la nota en models/knowledge.py: el alias del
+    # fallback tiene otro tipo que el import real y la degradacion es deliberada.
+    from sqlalchemy import LargeBinary as Vector  # type: ignore[assignment]
 
 from backend.app.models.base import (
     Base,

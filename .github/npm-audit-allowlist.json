@@ -1,0 +1,33 @@
+{
+  "_comentario": [
+    "Avisos de npm audit que NO tumban el build, con su motivo y su fecha de revision.",
+    "Cualquier aviso CRITICAL que NO este en esta lista SI tumba el build.",
+    "Esto no es una excusa para ignorar hallazgos: es la unica forma de que un rojo",
+    "permanente no se convierta en ruido que la gente aprende a ignorar, que es la",
+    "misma enfermedad que un verde que no comprueba nada.",
+    "Reglas: cada entrada lleva por que se acepta, en que version se arregla y cuando",
+    "se revisa. Una entrada caducada se trata como fallo (el gate lo avisa)."
+  ],
+  "avisos_aceptados": [
+    {
+      "ghsa": "GHSA-p293-qw3h-jr36",
+      "paquete": "next",
+      "severidad": "critical",
+      "titulo": "Unauthenticated Remote Code Execution on windows-hosted servers",
+      "version_instalada": "14.2.33",
+      "arreglado_en": ">=15.5.24",
+      "por_que_se_acepta": "El unico arreglo es saltar de Next 14 a 15.5.24, un cambio de version MAYOR que toca el App Router entero y exige reverificar los cinco grupos de ruta. No es un parche: es un proyecto. Atenuante que NO lo anula: el vector es servidores alojados en Windows, y el despliegue de referencia es Linux en contenedor.",
+      "revisar_antes_de": "2026-12-31"
+    },
+    {
+      "ghsa": "GHSA-2xp9-vwfh-vxw4",
+      "paquete": "next",
+      "severidad": "critical",
+      "titulo": "Unauthenticated RCE in Image Optimization API when AVIF files are used",
+      "version_instalada": "14.2.33",
+      "arreglado_en": ">=15.5.24",
+      "por_que_se_acepta": "Mismo salto mayor que el anterior. Atenuante que NO lo anula: requiere que la API de optimizacion de imagenes sirva AVIF de origen no confiable.",
+      "revisar_antes_de": "2026-12-31"
+    }
+  ]
+}
