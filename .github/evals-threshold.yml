@@ -16,13 +16,39 @@ version: 1
 cobertura:
   # Medido: command grep -rn "(AgentBase)" backend/app --include=*.py | wc -l  →  13
   clases_de_agente_implementadas: 13
-  # Medido: find docs/catalogs/golden_datasets/ -name '*.json' | wc -l  →  1
-  agentes_con_golden_dataset: 1
-  # 1 de 13. El README dice "uno de doce"; son 13 clases.
+
+  # Medido: find docs/catalogs/golden_datasets/ -name '*.json' | wc -l  →  4
+  # Cuenta DATASETS, que no es lo mismo que clases de agente cubiertas: ver
+  # `clases_de_agente_con_golden_dataset` justo debajo.
+  agentes_con_golden_dataset: 4
+
+  # Medido: de los 4 datasets, cuántos llevan el nombre de una de las 13 clases.
+  #   $ for d in docs/catalogs/golden_datasets/*/; do basename "$d"; done
+  #   agent_06_contratos · agent_18_reunion · agent_27_clasificador ·
+  #   deliverable_text_auditor
+  #   $ command grep -rn "(AgentBase)" backend/app --include=*.py \
+  #       | sed 's#.*/##; s#\.py.*##' | sort
+  #   → agent_06_contratos, agent_18_reunion y agent_27_clasificador están;
+  #     deliverable_text_auditor NO (es una capability, su módulo no declara
+  #     ninguna clase y no hereda de AgentBase).
+  clases_de_agente_con_golden_dataset: 3
+
+  # BLOQUE D · D2 (2026-09-10). Antes ponía 1 y decía "1 de 13"; la auditoría
+  # de 2026-09 lo corrigió a 0 de 13 porque el único dataset no era un agente.
   nota: >-
-    La cobertura de evaluaciones es 1 de 13 clases de agente. El único dataset
-    curado es deliverable_text_auditor/v1 (10 entradas). Los otros 12 agentes NO
-    tienen evaluación de ningún tipo: no hay número que enseñar sobre ellos.
+    Hay 4 golden datasets con 10 entradas cada uno, 40 en total. Tres de ellos
+    son clases de agente: agent_27_clasificador, agent_18_reunion y
+    agent_06_contratos. El cuarto, deliverable_text_auditor, es una capability
+    y NO hereda de AgentBase, así que no cuenta como clase de agente cubierta.
+    Por tanto la cobertura sobre las 13 clases es 3 de 13, y el total de
+    objetivos evaluados es 4. Las otras 10 clases de agente NO tienen
+    evaluación de ningún tipo: no hay número que enseñar sobre ellas, ni bueno
+    ni malo. Los tres agentes nuevos se eligieron porque su salida es
+    estructura verificable sin juicio —clasificación sobre catálogo cerrado
+    (A27), extracción con enumerados y rangos (A18) y mapeo sobre catálogo de
+    cláusulas dependiente de la categoría ENS (A6)—; los que producen prosa
+    (A4 redactor, A19 propuestas, A20 negociación, A14 copiloto) siguen sin
+    dataset a propósito, porque evaluarlos exigiría un criterio subjetivo.
 
 # ─────────────────────────────────────────────────────────────────────────────
 # Gates
@@ -30,19 +56,24 @@ cobertura:
 gates:
 
   # Gate 1 · arnés. Determinista, sin red y sin clave de API. Corre SIEMPRE y
-  # puede tumbar el build. Es el gate que de verdad protege hoy: comprueba que el
-  # dataset carga, que valida contra su esquema, que hay un evaluador registrado
-  # y que dataset y evaluador siguen siendo compatibles entre sí.
+  # puede tumbar el build. Es el gate que de verdad protege hoy: para CADA
+  # dataset comprueba que carga, que valida contra su esquema, que hay un
+  # evaluador registrado, que hay un constructor de salida sintética registrado
+  # (D2) y que dataset y evaluador siguen siendo compatibles entre sí.
   arnes:
-    datasets_minimos: 1
-    # Por qué 1: hoy hay exactamente 1 dataset. Este número existe para que
-    # borrar el único dataset que hay rompa el build en vez de pasar en verde.
+    datasets_minimos: 4
+    # Por qué 4: hoy hay exactamente 4 datasets descubribles
+    # (find docs/catalogs/golden_datasets/ -name '*.json' | wc -l → 4). Este
+    # número existe para que borrar cualquiera de ellos rompa el build en vez
+    # de pasar en verde con menos cobertura de la declarada. Sube cuando suba
+    # la cobertura; nunca baja sin escribir aquí por qué.
     obligatorio: true
 
   # Gate 2 · evaluación real contra el LLM. Necesita ANTHROPIC_API_KEY porque el
-  # LLM ES lo que se está midiendo (deliverable_text_auditor_capability llama a
-  # Sonnet). Sin secreto NO se puede evaluar: el workflow lo declara como NO
-  # EJECUTADA y no finge un verde.
+  # LLM ES lo que se está midiendo: los cuatro proveedores llaman al modelo
+  # (deliverable_text_auditor_capability a Sonnet; A27 a Haiku 4.5; A18 y A6 a
+  # Sonnet 4.6). Sin secreto NO se puede evaluar: el job queda SALTADO y no
+  # finge un verde.
   llm:
     secreto_requerido: ANTHROPIC_API_KEY
     # D6 (2026-09-10): cuando el secreto no está, el job `evals-llm` queda
@@ -105,3 +136,105 @@ datasets:
     # varianza de muestreo por defecto. Si en el futuro se observa oscilación
     # real medida entre ejecuciones idénticas, se sube este número Y se escribe
     # aquí la medición que lo justifica.
+
+  # ───────────────────────────────────────────────────────────────────────────
+  # BLOQUE D · D2 (2026-09-10) · tres agentes nuevos
+  #
+  # Los tres se eligieron por el mismo motivo: su salida es estructura, no
+  # prosa, y por tanto se comprueba con igualdad, pertenencia a conjunto
+  # cerrado y rangos numéricos. Los umbrales de los tres son idénticos a los
+  # del dataset que ya existía (0.80 / 0.60) y NO por comodidad: son los que
+  # el propio JSON declara en regression_thresholds, y el gate del arnés
+  # verifica que ambos siguen coincidiendo. No hay medición que justifique
+  # apartarse de ellos, porque no hay todavía ni una sola ejecución real
+  # contra el modelo de la que sacar una tasa base (ver `tolerancia_de_reintento`).
+  # ───────────────────────────────────────────────────────────────────────────
+
+  agent_27_clasificador/v1:
+
+    entradas_curadas: 10
+    # Medido: python3 -c "import json;print(len(json.load(open('docs/catalogs/golden_datasets/agent_27_clasificador/v1.json'))['entries']))" → 10
+    # 5 fáciles (señal unívoca en el contenido) + 3 límite (documento que cabe
+    # de verdad en dos carpetas del catálogo §2.15) + 2 que deben fallar si el
+    # modelo adivina (fichero equivocado con nombre engañoso, y extracción OCR
+    # que sólo recuperó cabeceras).
+
+    min_entradas_evaluadas: 10
+    # Mismo papel que en deliverable_text_auditor: es el número que impide el
+    # verde vacuo. Sin él, cero entradas evaluadas dan pass_rate 1.0 por
+    # convenio (una tasa sobre denominador vacío) y el gate pasaría con el
+    # dataset entero saltado. Se exigen las 10 porque el proveedor de este
+    # agente no puede declinar ninguna: no hay entradas sin texto que enviar.
+
+    min_pass_rate: 0.80
+    # De dónde sale: es el mismo 0.8 que el JSON declara en
+    # regression_thresholds.pass_rate_warn_below, copiado aquí para poder
+    # aplicarlo como gate. El job `evals-arnes` verifica que ambos siguen
+    # siendo iguales (guardia anti-deriva).
+    # Qué significa con 10 entradas: 8 aciertos pasan y 7 no, o sea que el
+    # gate tolera exactamente 2 fallos de 10. Cada entrada vale 10 puntos, así
+    # que un verde por los pelos hay que mirarlo a mano antes de fusionar.
+
+    pass_rate_alerta: 0.60
+    # Mismo origen: regression_thresholds.pass_rate_alert_below del JSON. Por
+    # debajo de esto no es una regresión, es que el agente ha dejado de
+    # clasificar.
+
+    tolerancia_de_reintento: 0
+    # No se reintenta. El agente corre a temperature 0.1 (R3), así que un
+    # fallo NO se atribuye por defecto a varianza de muestreo. Este cero es
+    # además honesto en un segundo sentido: NO se ha ejecutado todavía ninguna
+    # evaluación real contra el modelo para este dataset (hace falta
+    # ANTHROPIC_API_KEY), así que no existe ninguna medición de oscilación
+    # entre ejecuciones idénticas de la que sacar otro número. Si algún día se
+    # observa esa oscilación, se sube este valor Y se escribe aquí la medición.
+
+  agent_18_reunion/v1:
+
+    entradas_curadas: 10
+    # Medido: python3 -c "import json;print(len(json.load(open('docs/catalogs/golden_datasets/agent_18_reunion/v1.json'))['entries']))" → 10
+    # 4 fáciles + 4 límite (información parcial, plazo imposible, contradicción
+    # entre lo que dice dirección y lo que dice el técnico, cliente que pide
+    # una categoría que no le corresponde) + 2 que deben fallar si el modelo
+    # adivina (los seis bloques vacíos, y seis bloques llenos de ruido).
+
+    min_entradas_evaluadas: 10
+    # Igual que arriba: es lo que convierte "0 evaluadas, 100%" en rojo. Las
+    # 10 son evaluables siempre; la entrada de bloques vacíos también, porque
+    # lo que se mide ahí es precisamente que el modelo conteste UNKNOWN en vez
+    # de inventarse una categoría.
+
+    min_pass_rate: 0.80
+    # Copiado de regression_thresholds.pass_rate_warn_below del JSON; el gate
+    # del arnés comprueba que no se separen. Tolera 2 fallos de 10.
+
+    pass_rate_alerta: 0.60
+    # Copiado de regression_thresholds.pass_rate_alert_below del JSON.
+
+    tolerancia_de_reintento: 0
+    # temperature 0.1 en el agente (R3) y, otra vez, cero ejecuciones reales
+    # medidas: no hay dato de varianza que justifique reintentar.
+
+  agent_06_contratos/v1:
+
+    entradas_curadas: 10
+    # Medido: python3 -c "import json;print(len(json.load(open('docs/catalogs/golden_datasets/agent_06_contratos/v1.json'))['entries']))" → 10
+    # 4 fáciles (incluidas las dos anclas de la escala: un contrato que cubre
+    # las diez cláusulas exigibles en MEDIA y otro que no cubre ninguna) +
+    # 4 límite (cláusula que existe y no cumple, hueco sectorial de sanidad,
+    # contrato administrativo mudo en lo técnico, auditoría cosmética) + 2 que
+    # deben fallar si el modelo alucina (un contrato de suministro eléctrico y
+    # una extracción OCR rota).
+
+    min_entradas_evaluadas: 10
+    # Igual que arriba.
+
+    min_pass_rate: 0.80
+    # Copiado de regression_thresholds.pass_rate_warn_below del JSON; el gate
+    # del arnés comprueba que no se separen. Tolera 2 fallos de 10.
+
+    pass_rate_alerta: 0.60
+    # Copiado de regression_thresholds.pass_rate_alert_below del JSON.
+
+    tolerancia_de_reintento: 0
+    # temperature 0.1 en el agente (R3) y cero ejecuciones reales medidas.

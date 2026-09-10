@@ -15,6 +15,79 @@ Al terminar imprime la URL y las credenciales. Después:
 make smoke     # comprueba que hay datos reales en los tres portales
 ```
 
+Cuando esté levantado, [`USAGE.md`](USAGE.md) es el recorrido guiado de diez minutos.
+
+---
+
+## Esto es un demo local. No lo exponga a internet
+
+`make demo` monta un entorno para **evaluar el producto en su propio equipo**. No es un despliegue
+de producción y no está endurecido para vivir en una IP pública. No hace falta creerlo: los cinco
+motivos siguientes están medidos sobre esta misma pila, y cada uno lleva el comando que lo
+comprueba.
+
+**1. Las credenciales del operador son fijas y están publicadas en este repositorio.**
+`demo@fulkro.es` / `fulkro-demo-2026` para administración y `cliente@fulkro.es` / la misma
+contraseña para el portal de cliente. No son un descuido: son el valor por defecto escrito en
+`Makefile:44-45`, para que quien clona pueda entrar sin buscar nada. Cualquiera que lea el repo las
+conoce.
+
+```bash
+grep -n "FULKRO_DEMO_OWNER" Makefile
+#  44:FULKRO_DEMO_OWNER_EMAIL    ?= demo@fulkro.es
+#  45:FULKRO_DEMO_OWNER_PASSWORD ?= fulkro-demo-2026
+```
+
+Las contraseñas de PostgreSQL y MinIO sí son aleatorias por instalación (`make demo` las genera con
+`/dev/urandom`), y `.env.demo` está ignorado por git. Las del operador, no.
+
+**2. La documentación de la API responde sin autenticación.** `APP_ENV` no es `production` en el
+demo, así que Swagger y el esquema completo quedan abiertos:
+
+```bash
+curl -s -o /dev/null -w "%{http_code}\n" http://127.0.0.1:18000/docs          # 200
+curl -s -o /dev/null -w "%{http_code}\n" http://127.0.0.1:18000/openapi.json  # 200
+```
+
+**3. Se publican cinco puertos, y tres de ellos son infraestructura.** Además de la aplicación
+(`3000`) y la API (`18000`), quedan accesibles PostgreSQL (`15432`), la API S3 de MinIO (`19000`) y
+su consola web (`19001`).
+
+**4. Los cinco van atados a `127.0.0.1`, y eso es justo lo que no hay que tocar.** De fábrica, nada
+del demo se alcanza desde la red local: sólo desde el propio equipo.
+
+```bash
+docker ps --format 'table {{.Names}}\t{{.Ports}}'
+#  fulkro-demo-frontend-1   127.0.0.1:3000->3000/tcp
+#  fulkro-demo-backend-1    127.0.0.1:18000->8000/tcp
+#  fulkro-demo-postgres-1   127.0.0.1:15432->5432/tcp
+#  fulkro-demo-minio-1      127.0.0.1:19000->9000/tcp, 127.0.0.1:19001->9001/tcp
+```
+
+Cambiar ese `127.0.0.1:` por `0.0.0.0:`, o poner un proxy delante, publica de golpe los puntos 1, 2
+y 3. Y ese prefijo es la única barrera: los procesos de dentro no se protegen solos. El backend
+arranca con `uvicorn --host 0.0.0.0`, y `next start` escucha por su cuenta en todas las interfaces
+—dentro del contenedor, `/proc/net/tcp6` da el puerto 3000 atado a `::`—, así que lo único que los
+mantiene fuera de la red local es la publicación de puertos de Docker. Tampoco hay TLS: el demo no
+lleva Caddy a propósito, así que se entra por `http://` en claro, contraseñas incluidas.
+
+**5. Quedan dos ejecuciones remotas de código sin autenticación pendientes en Next.js 14.2.33.**
+`GHSA-p293-qw3h-jr36` (CVE-2026-75604) y `GHSA-2xp9-vwfh-vxw4`, ambas críticas, sin arreglar hasta
+Next 15.5.24. Están acotadas por escrito y con fecha de revisión en
+`.github/npm-audit-allowlist.json`. Se midió si esta aplicación las alcanza y la respuesta, para el
+demo tal y como se entrega, es que no: el informe con los comandos y sus salidas está en
+[`docs/MEDICION_NEXTJS_15.md`](docs/MEDICION_NEXTJS_15.md). «Acotado y no alcanzable en esta
+configuración» no es lo mismo que «arreglado»: la segunda depende de que nadie instale el paquete
+`sharp`, cosa que el propio Next.js recomienda por consola en cada arranque.
+
+```bash
+cd frontend && npm audit --json | grep -c GHSA-p293-qw3h-jr36   # 1
+```
+
+Si lo que quiere es desplegarlo de verdad, el punto de partida es `docker-compose.prod.yml` (con
+Caddy y TLS), credenciales propias, `APP_ENV=production` y el salto de Next.js resuelto — no este
+fichero.
+
 > Si prefiere leer antes de ejecutar: `make demo` construye dos imágenes Docker, levanta siete
 > contenedores en `localhost`, migra la base, la siembra y crea un operador con su segundo factor.
 > No toca nada fuera de Docker salvo un fichero `.env.demo` en el directorio del clon, que está

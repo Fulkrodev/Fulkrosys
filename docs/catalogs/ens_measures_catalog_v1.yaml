@@ -1,14 +1,32 @@
 version: '1.0'
 fecha: '2026-04-13'
 fuentes:
-  descripciones: CCN-STIC 804 v2017 (junio 2017) - Centro Criptológico Nacional
+  descripciones: >-
+    Redacción propia de FULKRO. Cada campo `descripcion` de este catálogo está escrito con
+    lenguaje propio; no reproduce el texto de ninguna guía. La referencia normativa de lo que
+    exige cada medida es el RD 311/2022, Anexo II (BOE-A-2022-7191). La guía CCN-STIC 804 se
+    cita en el campo `fuente_oficial` de cada medida como fuente de consulta, para poder
+    localizar la sección correspondiente, no como origen del texto.
   aplicabilidad_y_refuerzos: RD 311/2022 Anexo II - Medidas de seguridad ENS
   codigos_validados_contra: magerit_ens_mapping (73 códigos confirmados en DB)
 notas_importantes:
-- CCN-STIC 804 v2017 está basado en RD 3/2010 (versión anterior del ENS).
-- Las descripciones de las medidas son casi idénticas entre RD 3/2010 y RD 311/2022.
+- 'Cambio 2026-09-10: las 79 descripciones se reescribieron con redacción propia. Antes eran
+  extractos literales de la guía CCN-STIC 804 v2017, obtenidos además por extracción automática,
+  y arrastraban su ruido (encabezados de sección, notas al pie y referencias sueltas incrustadas
+  en mitad del texto). Se reescriben por dos motivos: este repositorio es público y no procede
+  redistribuir texto ajeno, y el texto extraído era de mala calidad para mostrarlo en la interfaz.'
+- 'Trazabilidad: no se pierde. `fuente_oficial` sigue apuntando a la sección concreta de la guía
+  de cada medida, y `codigo`, `nombre`, aplicabilidad por categoría, `dimensiones_aplicables` y
+  `refuerzos` no se tocaron en ese cambio.'
+- 'Guardia: scripts/verificar_catalogo_sin_copia_literal.py compara contra la versión anterior en
+  git y falla si alguna descripción comparte 8 o más palabras consecutivas con la original o si
+  cambió algún campo distinto de `descripcion`. El test permanente
+  backend/tests/scripts/test_catalogo_sin_copia_literal.py comprueba que no reaparecen los
+  marcadores de la extracción (encabezados tipo "3.1 [ORG.1]").'
+- CCN-STIC 804 v2017 está basado en RD 3/2010 (versión anterior del ENS); por eso 6 códigos del
+  catálogo (op.exp.11, mp.com.9, mp.if.9, mp.per.9, mp.s.8, mp.s.9) son heredados y no figuran en
+  el Anexo II del RD 311/2022. El loader canónico los descarta y carga 73.
 - Aplicabilidad por categoría y refuerzos están actualizados al RD 311/2022 Anexo II.
-- Algunas medidas nuevas (op.nub.1, op.mon.3, mp.s.3) tienen TODO de descripción pendiente CCN-STIC 804 v2025.
 medidas_count: 79
 medidas:
 - codigo: org.1
@@ -16,12 +34,11 @@ medidas:
   marco: org
   familia: org
   familia_nombre: Marco organizativo
-  descripcion: '3.1 [ORG.1] POLÍTICA DE SEGURIDAD Es un documento de alto nivel que define el significado de “seguridad de
-    la información” en una organización. El documento debe estar accesible y ser conocido por todos los miembros de la organización
-    y redactado de forma sencilla, precisa y comprensible. Conviene que sea breve, dejando los detalles técnicos para otros
-    documentos normativos. Establece las autoridades dentro de la organización: roles y funciones. La política tiene carácter
-    de obligado cumplimiento. de Implantación. TIC Son de especial relevancia los siguientes principios básicos:  Artículo
-    La '
+  descripcion: >-
+    Exige aprobar y mantener vigente un documento rector, de alcance corporativo, en el que la dirección fija qué
+    entiende por proteger la información y quién responde de ello. Debe asignar roles y responsabilidades con nombre y
+    ámbito, y resultar de obligado cumplimiento para toda la organización. Se redacta en términos comprensibles y sin
+    detalle técnico, que se remite a la normativa y a los procedimientos que cuelgan de ella.
   aplica_basica: true
   aplica_media: true
   aplica_alta: true
@@ -35,12 +52,11 @@ medidas:
   marco: org
   familia: org
   familia_nombre: Marco organizativo
-  descripcion: 3.2 [ORG.2] NORMATIVA DE SEGURIDAD Conjunto de documentos que, sin entrar en detalles, establecen la forma
-    de afrontar un cierto tema en materia de seguridad. Definen la posición del organismo Nacional sirven para indicar cómo
-    se debe actuar en CLASIFICAR caso de que una cierta circunstancia no esté recogida en un procedimiento explícito o que
-    el procedimiento pueda ser impreciso o contradictorio en sus términos. A veces se denominan “policies” (en inglés). A
-    veces se denominan “standards” (en inglés). International Organization for Standardization. Organización internacional
-    de normalización.
+  descripcion: >-
+    Reúne las reglas de uso que traducen la política a criterios concretos por materia o por servicio. Fija qué está
+    permitido, qué está prohibido y a quién corresponde decidir cuando el caso no encaja en ningún procedimiento
+    previsto. Sirve así de referencia estable ante situaciones no contempladas o instrucciones que se contradicen entre
+    sí.
   aplica_basica: true
   aplica_media: true
   aplica_alta: true
@@ -54,11 +70,11 @@ medidas:
   marco: org
   familia: org
   familia_nombre: Marco organizativo
-  descripcion: '3.3 [ORG.3] PROCEDIMIENTOS OPERATIVOS DE SEGURIDAD Conjunto de documentos que describen paso a paso cómo realizar
-    una cierta actividad. Facilitan las tareas rutinarias evitando que se olviden pasos importantes. Lo que nunca debe ocurrir
-    es que una cierta actividad sólo sepa hacerla una determinada persona; debe estar escrito cómo se hace para que la persona
-    pueda ser remplazada. de Implantación. Un procedimiento puede estar definido (es comunicado a los organismos implicadas,
-    se comprende por su parte y se ejecuta regularmente conforme a lo definido) y un procedimiento puede estar documentado '
+  descripcion: >-
+    Documenta, paso a paso, cómo se ejecutan las tareas con repercusión en la seguridad. Su finalidad es que la
+    operación no dependa del conocimiento personal de nadie: cualquier persona con la formación adecuada debe poder
+    relevar a otra siguiendo lo escrito. Han de estar difundidos entre quienes los aplican y revisarse cuando cambie la
+    actividad que describen.
   aplica_basica: true
   aplica_media: true
   aplica_alta: true
@@ -72,12 +88,11 @@ medidas:
   marco: org
   familia: org
   familia_nombre: Marco organizativo
-  descripcion: '3.4 [ORG.4] PROCESO DE AUTORIZACIÓN Ningún sistema de información con responsabilidades sobre la información
-    que maneja o los servicios que presta debería admitir elementos no autorizados por cuanto la libre incorporación de elementos
-    socavaría de raíz la confianza en el sistema, al modificar la superficie de ataque y dar pie a nuevas vulnerabilidades
-    susceptibles de ser explotadas. El ENS singulariza una serie de elementos, sin perjuicio de que se aplique siempre la
-    regla de ‘se requiere autorización previa’ con carácter general a todos los componentes durante todo su ciclo de vida:
-    a. Utiliz'
+  descripcion: >-
+    Somete a aprobación previa la incorporación de cualquier elemento al sistema: equipos, aplicaciones, soportes,
+    locales, servicios contratados y vías de acceso remoto. El objetivo es que nada entre en producción sin que un
+    responsable identificado haya valorado el riesgo que añade y la superficie de exposición que abre. La regla rige
+    durante todo el ciclo de vida del componente, no sólo en el alta inicial.
   aplica_basica: true
   aplica_media: true
   aplica_alta: true
@@ -91,12 +106,10 @@ medidas:
   marco: op
   familia: op.acc
   familia_nombre: Control de acceso
-  descripcion: '4.2.1 [OP.ACC.1] IDENTIFICACIÓN Se debe asignar un identificador singular para cada entidad (usuario o proceso)
-    que accede al sistema y para cada rol de cada entidad frente al sistema (administrador, usuario, etc.). De esta manera:
-     se puede saber quién recibe qué derechos de acceso,  se puede saber quién ha hecho qué, y qué ha hecho para corregir
-    o para perseguir. La identificación de usuarios suele ir asociada a una "cuenta de usuario". A menudo se habla de "derechos
-    de una cuenta" para referirse a los derechos del titular de la cuenta. Se dice que los derechos de un usuario son los
-    de su '
+  descripcion: >-
+    Cada usuario, proceso o servicio que accede al sistema recibe un identificador único, que ni se comparte ni se
+    reutiliza para otra entidad. Sin esa singularidad no se puede saber quién posee cada permiso ni atribuir después una
+    actuación concreta a nadie. Las cuentas se inhabilitan o se dan de baja cuando su titular deja de necesitarlas.
   aplica_basica: true
   aplica_media: true
   aplica_alta: true
@@ -113,12 +126,11 @@ medidas:
   marco: op
   familia: op.acc
   familia_nombre: Control de acceso
-  descripcion: 4.2.2 [OP.ACC.2] REQUISITOS DE ACCESO Es necesario que tanto los sistemas en producción como los previos a
-    su puesta en explotación cuenten con un mecanismo de control de acceso, basado en el identificador asignado a cada entidad
-    (usuario o proceso) y un mecanismo de autenticación. Para definir este control de accesos, debe definirse un documento
-    o matriz donde se especifique cuáles son los componentes del sistema y sus ficheros o registros de configuración y se
-    relacionen con los diferentes permisos de usuario, de manera que únicamente puedan acceder a los recursos los usuarios
-    autorizados. S
+  descripcion: >-
+    Los recursos del sistema quedan detrás de un control que sólo deja pasar a quien esté autorizado, tanto en
+    producción como en los entornos previos a ella. Exige dejar por escrito la correspondencia entre recursos y
+    permisos, de forma que la autorización sea comprobable y no dependa de la configuración heredada. Los derechos los
+    concede el responsable de la información, no quien administra la máquina.
   aplica_basica: true
   aplica_media: true
   aplica_alta: true
@@ -135,11 +147,11 @@ medidas:
   marco: op
   familia: op.acc
   familia_nombre: Control de acceso
-  descripcion: '4.2.3 [OP.ACC.3] SEGREGACIÓN DE FUNCIONES Y TAREAS La segregación de funciones tiene dos objetivos:  prevenir
-    errores  impedir el abuso de privilegios por parte de los usuarios autorizados Debe documentarse un esquema de funciones
-    y tareas en el que se contemplan las que son incompatibles en una misma persona. La incompatibilidad debe garantizar que
-    para llevar a cabo un proceso o actividad crítica siempre se requieren al menos 2 personas. Debe establecerse un procedimiento
-    de asignación de personas a funciones y tareas a personas que garantice que no se viola el esquema anterior, ni cuando '
+  descripcion: >-
+    Reparte entre personas distintas aquellas funciones cuya acumulación permitiría cometer o encubrir un abuso, de modo
+    que las actividades críticas exijan la intervención de al menos dos. Persigue dos fines: reducir el error y evitar
+    que un privilegio se ejerza sin contrapeso. Debe existir un esquema documentado de incompatibilidades y un
+    procedimiento de asignación que lo respete.
   aplica_basica: false
   aplica_media: true
   aplica_alta: true
@@ -156,11 +168,11 @@ medidas:
   marco: op
   familia: op.acc
   familia_nombre: Control de acceso
-  descripcion: 4.2.4 [OP.ACC.4] PROCESO DE GESTIÓN DE DERECHOS DE ACCESO En la estructuración de los derechos de acceso se
-    deben en cuenta las necesidades de cada usuario según su función en la organización y las tareas que tiene encomendadas.
-    La necesidad de acceso debe venir por escrito de parte del responsable de la información o proceso al que va a concedérsele
-    acceso. El reconocimiento de la necesidad de acceso debe ser reasegurado periódicamente, extinguiéndose cuando no se demuestre
-    positivamente que la necesidad perdura. Deberá prestarse una especial atención a las cuentas de administración del siste
+  descripcion: >-
+    Los permisos se otorgan en función de lo que cada persona necesita para su cometido y se limitan a lo mínimo
+    imprescindible. La concesión nace de una solicitud del responsable de la información afectada y se revisa con
+    periodicidad: si la necesidad ya no se sostiene, el derecho se retira. Merecen vigilancia reforzada las cuentas con
+    privilegios de administración.
   aplica_basica: true
   aplica_media: true
   aplica_alta: true
@@ -177,12 +189,11 @@ medidas:
   marco: op
   familia: op.acc
   familia_nombre: Control de acceso
-  descripcion: '4.2.5 [OP.ACC.5] MECANISMO DE AUTENTICACIÓN Es el mecanismo que permite validar la identidad de un usuario.
-    Es crítico por cuanto la identificación del usuario es, en general, fácilmente accesible. Típicamente los mecanismos de
-    autenticación recurren:  a algo que se conoce (un secreto, por ejemplo, una contraseña)  a algo que se tiene (un objeto,
-    por ejemplo, una tarjeta o una llave)  a algo que es propio del usuario (características biométricas) A veces estos mecanismos
-    se emplean por pares para dificultar la falsificación y ganar tiempo frente a la pérdida de alguno de los mecanismos.
-    Com'
+  descripcion: >-
+    Comprueba que quien presenta un identificador es realmente su titular, antes de concederle acceso. Los mecanismos se
+    apoyan en algo que se sabe, algo que se posee o algo que se es, y se combinan entre sí cuando el riesgo lo
+    justifica. La robustez exigida crece con la categoría del sistema y con la exposición del canal; las credenciales se
+    activan, entregan, renuevan y revocan conforme a un procedimiento definido.
   aplica_basica: true
   aplica_media: true
   aplica_alta: true
@@ -204,11 +215,12 @@ medidas:
   marco: op
   familia: op.acc
   familia_nombre: Control de acceso
-  descripcion: 4.2.6 [OP.ACC.6] ACCESO LOCAL (LOCAL LOGON) La mayor parte de las medidas requeridas se pueden conseguir simplemente
-    configurando los puestos de usuario según se indica.  Como manera preventiva, la información que se visualiza antes de
-    acceder a un sistema deberá procurar ser la menos posible para evitar dar a conocer qué información puede encontrar dentro
-    alguien pueda estar tentado de vulnerar el sistema. Por tanto, es recomendable que se muestre meramente el diálogo de
-    acceso y en todo caso algo de información comercial sin valor relacionada con la información manejada. Por ejemplo, deberá
+  descripcion: >-
+    Regula el acceso desde los puestos de la propia organización: intentos fallidos tolerados, registro de los mismos,
+    horario en que se permite trabajar e información que se muestra antes de autenticar. Conviene revelar lo mínimo
+    sobre el sistema mientras no se haya validado la identidad, para no orientar a quien intente entrar sin permiso. Una
+    vez dentro, se informa a la persona de su conexión anterior y de los intentos fallidos, de modo que pueda advertir
+    un uso indebido de su cuenta.
   aplica_basica: true
   aplica_media: true
   aplica_alta: true
@@ -230,12 +242,11 @@ medidas:
   marco: op
   familia: op.cont
   familia_nombre: Continuidad del servicio
-  descripcion: '4.5.1 [OP.CONT.1] ANÁLISIS DE IMPACTO Un análisis de impacto es un estudio pormenorizado de cómo afectaría
-    un desastre a la prestación de servicios, identificando los elementos del sistema de información que son necesarios para
-    la prestación de cada servicio. Un análisis de impacto es una actividad metódica que sigue los siguientes pasos:  se
-    identifican los servicios, procesos o actividades críticos,  se valora el impacto de la interrupción de dichos servicios,
-    procesos o actividades en función del tiempo que dure la interrupción; sin perjuicio de que en cada caso se elija la escala
-    más ade'
+  descripcion: >-
+    Determina qué servicios no pueden dejar de prestarse, cuánto tiempo resisten interrumpidos y qué elementos del
+    sistema hacen falta para sostenerlos. De ahí salen los plazos máximos de recuperación y el volumen de información
+    cuya pérdida se puede asumir. Es el punto de partida del plan de continuidad: sin este estudio, los medios de
+    reserva se dimensionan a ciegas.
   aplica_basica: false
   aplica_media: true
   aplica_alta: true
@@ -249,11 +260,10 @@ medidas:
   marco: op
   familia: op.cont
   familia_nombre: Continuidad del servicio
-  descripcion: '4.5.2 [OP.CONT.2] PLAN DE CONTINUIDAD Se debe identificar funciones, responsabilidades y actividades a realizar
-    en caso de desastre que impida prestar el servicio en las condiciones habituales y con los medios habituales, pudiendo
-    diferenciarse para los distintos escenarios de continuidad que se identifiquen. En particular:  quiénes componen el comité
-    de crisis que toma la decisión de aplicar los planes de continuidad tras analizar el desastre y evaluar las consecuencias
-     quiénes se encargarán de la comunicación con las partes afectadas en caso de crisis  quiénes se encargan de reconstruir '
+  descripcion: >-
+    Recoge por escrito quién hace qué si una interrupción grave impide prestar el servicio con los medios habituales.
+    Debe designar a quien decide activarlo, a quien comunica con los afectados y a quien se ocupa de reponer los medios,
+    y contemplar los escenarios identificados. Ha de estar accesible incluso cuando el sistema principal no lo esté.
   aplica_basica: false
   aplica_media: false
   aplica_alta: true
@@ -267,12 +277,10 @@ medidas:
   marco: op
   familia: op.cont
   familia_nombre: Continuidad del servicio
-  descripcion: '4.5.3 [OP.CONT.3] PRUEBAS PERIÓDICAS Se deben realizar pruebas periódicas para localizar (y corregir en su
-    caso) los errores o deficiencias que puedan existir en el plan de acción en caso de desastre. Se diseñarán pruebas que,
-    aunque traten las acciones a realizar en base a pruebas parciales independientes, terminen cubriendo todo el espectro
-    de acciones que tendrían que realizarse en caso de una situación de continuidad. Estas pruebas deberán involucrar a los
-    responsables de su ejecución en caso de producirse y podrán ser de diversa tipología como:  Pruebas de validación: Validan
-    el conocimi'
+  descripcion: >-
+    Somete el plan de continuidad a ejercicios regulares, para comprobar que funciona antes de necesitarlo de verdad.
+    Las pruebas pueden ser parciales, pero en conjunto han de cubrir todas las actuaciones previstas e involucrar a
+    quienes tendrían que ejecutarlas. Los fallos que se detecten se corrigen y el plan se actualiza en consecuencia.
   aplica_basica: false
   aplica_media: false
   aplica_alta: true
@@ -286,7 +294,11 @@ medidas:
   marco: op
   familia: op.cont
   familia_nombre: Continuidad del servicio
-  descripcion: 'Se dispondrán medios alternativos para garantizar la prestación de servicios en caso de indisponibilidad de los medios habituales, con capacidades equivalentes y activación dentro de los plazos comprometidos.'
+  descripcion: >-
+    Prevé recursos de sustitución —instalaciones, equipos, comunicaciones o personas— capaces de sostener el servicio
+    mientras se recuperan los habituales. Han de ofrecer garantías de protección equivalentes y estar disponibles dentro
+    del plazo que fije el análisis de impacto. Su viabilidad se comprueba en las pruebas del plan y no se da por
+    supuesta.
   aplica_basica: false
   aplica_media: false
   aplica_alta: true
@@ -300,12 +312,11 @@ medidas:
   marco: op
   familia: op.exp
   familia_nombre: Explotación
-  descripcion: '4.3.1 [OP.EXP.1] INVENTARIO DE ACTIVOS El inventario debe cubrir todo el dominio de seguridad del responsable
-    de la seguridad del sistema de información, hasta alcanzar los puntos de interconexión y los servicios prestados por terceros.
-    La granularidad debe ser suficiente para cubrir las necesidades de reporte de incidentes y para hacer un seguimiento,
-    tanto formal (auditorías) como reactivo en el proceso de gestión de incidentes.  Identificación del activo: fabricante,
-    modelo, número de serie  Configuración del activo: perfil, política, software instalado  Software instalado: fabricante,
-    p'
+  descripcion: >-
+    Mantiene un registro actualizado de cuanto compone el sistema —equipos, aplicaciones, servicios, soportes y
+    conexiones con terceros— con la persona responsable de cada elemento. Debe abarcar el dominio de seguridad completo,
+    sin dejar fuera los enlaces con otras redes ni lo que aportan proveedores externos. El grado de detalle ha de bastar
+    para gestionar incidentes y para sostener una auditoría.
   aplica_basica: true
   aplica_media: true
   aplica_alta: true
@@ -319,12 +330,11 @@ medidas:
   marco: op
   familia: op.exp
   familia_nombre: Explotación
-  descripcion: '4.3.10 [OP.EXP.10] PROTECCIÓN DE LOS REGISTROS DE ACTIVIDAD Se deberán retener los registros de manera adecuada:
-     existe una declaración formal de los periodos de retención habituales  existe un plan para garantizar la capacidad
-    de almacenamiento de registros atendiendo a su volumen y política de retención  existe un procedimiento formal para la
-    retención de evidencias tras un incidente Existen mecanismos que garanticen la corrección de la hora a la que se realiza
-    el registro, en prevención de manipulaciones de los relojes Únicamente el personal autorizado podrá modificar o eliminar
-    los reg'
+  descripcion: >-
+    Protege las trazas frente a alteración o borrado: sólo el personal autorizado puede modificarlas y su acceso queda
+    controlado. Requiere fijar por escrito los plazos de conservación, prever capacidad de almacenamiento acorde con
+    ellos y asegurar la exactitud de la hora que se estampa, para que el registro sirva como prueba. Debe existir un
+    procedimiento para preservar evidencias cuando se produce un incidente.
   aplica_basica: true
   aplica_media: true
   aplica_alta: true
@@ -338,11 +348,12 @@ medidas:
   marco: op
   familia: op.exp
   familia_nombre: Explotación
-  descripcion: 4.3.11 [OP.EXP.11] PROTECCIÓN DE LAS CLAVES CRIPTOGRÁFICAS Las claves deben generarse en un equipo y después
-    trasladarse al equipo en el que se van a usar. Los elementos de generación que no son necesarios para el uso se quedarán
-    en el equipo de generación. Es muy recomendable emplear un soporte de información (por ejemplo, un disco USB o una tarjeta
-    de memoria) para trasladar las claves. Cuando una clave se retira de explotación, la política marcará durante cuánto tiempo
-    se debe retener, bien por razones operativas, bien como prueba de auditoría. Nacional habitual se da en claves de descifrad
+  descripcion: >-
+    Cubre el ciclo de vida completo del material criptográfico: generación, distribución, custodia, empleo, renovación y
+    retirada. Las claves se producen y se guardan con medios acordes al riesgo, separando los elementos que sólo hacen
+    falta para generarlas de los que intervienen en explotación. Al retirar una clave hay que decidir cuánto tiempo se
+    conserva, sea por necesidad operativa o como prueba para una auditoría. Código heredado del Esquema anterior: en el
+    Anexo II del RD 311/2022 esta materia corresponde a op.exp.10.
   aplica_basica: false
   aplica_media: true
   aplica_alta: true
@@ -360,11 +371,11 @@ medidas:
   marco: op
   familia: op.exp
   familia_nombre: Explotación
-  descripcion: '4.3.2 [OP.EXP.2] CONFIGURACIÓN DE SEGURIDAD Todos los sistemas deben ser configurados de forma sistemática
-    antes de entrar en producción. El organismo debe elaborar unos pocos perfiles de configuración para las diferentes actividades
-    a que pueden ser dedicados, siendo típicos los siguientes:  usuarios normales (uso administrativo)  atención a clientes
-     gestión de proveedores (incluidos bancos)  desarrollo  operadores y administradores (técnicos de sistemas)  responsable
-    de seguridad (consola de configuración)  auditoría La medida se instrumenta por medio de una lista de verificación (ch'
+  descripcion: >-
+    Antes de pasar a producción, todo componente se configura de forma reglada: se retiran cuentas y servicios que no se
+    usan, se sustituyen las credenciales que trae de fábrica y se aplica el principio de mínima funcionalidad. Conviene
+    apoyarse en unos pocos perfiles tipo según el uso al que se destine el equipo, verificados con una lista de
+    comprobación. Se evita así que la seguridad dependa de cómo venga ajustado el producto de origen.
   aplica_basica: true
   aplica_media: true
   aplica_alta: true
@@ -378,12 +389,11 @@ medidas:
   marco: op
   familia: op.exp
   familia_nombre: Explotación
-  descripcion: '4.3.3 [OP.EXP.3] GESTIÓN DE LA CONFIGURACIÓN Por encima de la configuración de cada equipo, hay que tener
-    una visión integral del sistema, de los equipos que trabajan coordinadamente, de la estructura de líneas de defensa en
-    profundidad y de la dinámica del sistema: su evolución temporal desde el punto de vista de arquitectura del sistema y
-    desde el punto de vista de actualizaciones de los componentes. Los cambios deben ser controlados y la configuración debe
-    ir a la par. NIST SP 800-53 rev4:  [CM-3] Configuration Change Control  [CM-9] Configuration Management Plan Otras referencias:
-     SANS'
+  descripcion: >-
+    Mantiene la configuración bajo control a lo largo del tiempo, de manera continuada y no como una foto del día de la
+    puesta en marcha. Requiere una visión integral: cómo encajan los equipos entre sí, cómo se sostienen las líneas de
+    defensa y cómo evoluciona el conjunto con cada actualización. Toda modificación deja rastro y la documentación se
+    pone al día a la vez que el sistema.
   aplica_basica: true
   aplica_media: true
   aplica_alta: true
@@ -397,12 +407,11 @@ medidas:
   marco: op
   familia: op.exp
   familia_nombre: Explotación
-  descripcion: '4.3.4 [OP.EXP.4] MANTENIMIENTO Proactivamente se deberá estar informado de los defectos anunciados por parte
-    del fabricante o proveedor (como por ejemplo mediante suscripciones a listas de correo o RSS, consultando noticias en
-    webs de tecnología, seguridad o fabricantes, etc.). de Implantación. Deberá existir un procedimiento para establecer cuándo
-    implantar los cambios y determinar su prioridad y urgencia proporcionada al riesgo que implica su no aplicación (cambios
-    preaprobados, cambios de emergencia, etc.). ISO/IEC 27000  27002:2013: o 11.2.4 - Mantenimiento de los equipos o 12.6.1
-    - Gesti'
+  descripcion: >-
+    Obliga a seguir de forma activa los defectos y vulnerabilidades que publican fabricantes y proveedores de los
+    productos en uso. Las correcciones se aplican conforme a un procedimiento que fija plazos y prioridades
+    proporcionados al riesgo de no aplicarlas, con una vía específica para los casos urgentes. Cubre asimismo el
+    mantenimiento del equipamiento en las condiciones que marque el fabricante.
   aplica_basica: true
   aplica_media: true
   aplica_alta: true
@@ -421,12 +430,11 @@ medidas:
   marco: op
   familia: op.exp
   familia_nombre: Explotación
-  descripcion: '4.3.5 [OP.EXP.5] GESTIÓN DE CAMBIOS Debe existir un procedimiento para cambiar componentes del sistema que
-    requiere:  la aprobación del responsable,  la documentación del cambio,  pruebas de la seguridad del sistema tras el
-    cambio, en un entorno equivalente que no esté en producción (o se encuentre aislado del mismo)  la retención de una copia
-    del componente previo por un tiempo prestablecido de Implantación.  copias de seguridad de los componentes software,
-    cubriendo al menos la versión actual y la inmediata anterior  se actualiza el inventario de activos  se actualizan los
-    procedimien'
+  descripcion: >-
+    Ninguna modificación de los componentes llega a producción sin aprobación del responsable, constancia documental de
+    lo que se altera y pruebas previas en un entorno equivalente. Debe conservarse la versión anterior durante un plazo
+    fijado, para poder volver atrás si el cambio sale mal. Concluido el cambio se ponen al día el inventario, la
+    configuración y los procedimientos afectados.
   aplica_basica: false
   aplica_media: true
   aplica_alta: true
@@ -440,11 +448,11 @@ medidas:
   marco: op
   familia: op.exp
   familia_nombre: Explotación
-  descripcion: '4.3.6 [OP.EXP.6] PROTECCIÓN FRENTE A CÓDIGO DAÑINO Deben monitorizarse los puntos de entrada y de salida de
-    código dañino, primero para no vernos afectados y segundo para no expandir la infección. Debe concienciarse al personal
-    para detectar comportamiento sospechoso y establecer canales para reportarlo. Deben establecerse procedimientos para reaccionar
-    prestamente a detecciones o simples sospechas, aislar el problema recopilando evidencias suficientes para el análisisNacional
-    proceso de gestión de incidencias. ISO/IEC 27000  27002:2013: o 12.2.1 Controles contra el código malicioso NIST SP 8'
+  descripcion: >-
+    Despliega defensas contra software malicioso en los puntos por donde puede entrar o salir: correo, navegación,
+    soportes extraíbles y ficheros compartidos. Las herramientas se mantienen al día y sus avisos se tratan dentro del
+    proceso de incidentes. Se completa capacitando al personal para que reconozca comportamientos sospechosos y sepa por
+    dónde comunicarlos.
   aplica_basica: true
   aplica_media: true
   aplica_alta: true
@@ -458,12 +466,11 @@ medidas:
   marco: op
   familia: op.exp
   familia_nombre: Explotación
-  descripcion: '4.3.7 [OP.EXP.7] GESTIÓN DE INCIDENTES Hay que establecer un proceso de gestión que instrumente las siguientes
-    actividades:  reporte de eventos de seguridad y debilidades detectados por los usuarios, detallando los criterios de
-    clasificación y el escalado de la notificación  reporte de incidentes reportados por proveedores externos (terceras partes)
-     se informa a los usuarios potencialmente afectados  se informa a los proveedores potencialmente afectados  se toman
-    medidas urgentes para contener el problema, evitar que crezca dentro de la organización e impedir que se transmita a otras
-    org'
+  descripcion: >-
+    Establece cómo se detecta, comunica, clasifica, contiene y resuelve un incidente de seguridad, y quién decide en
+    cada paso. Comprende avisar a los afectados —personas usuarias, proveedores y organismos competentes— y actuar
+    pronto para que el problema no se propague. Cerrado el caso, se analizan las causas para corregirlas y se revisan
+    las medidas que no funcionaron.
   aplica_basica: true
   aplica_media: true
   aplica_alta: true
@@ -477,12 +484,10 @@ medidas:
   marco: op
   familia: op.exp
   familia_nombre: Explotación
-  descripcion: '4.3.8 [OP.EXP.8] REGISTRO DE LA ACTIVIDAD DE LOS USUARIOS Se realiza una inspección regular de los registros
-    para identificar anomalías en el uso de los sistemas (uso irregular o no previsto) Se utilizan herramientas automáticas
-    para recoger y analizar los registros en busca de actividades fuera de lo normal (por ejemplo: consola de seguridad centralizada,
-    SIEM13). Nacional ISO/IEC 27000  27002:2013: o 12.4.1 - Registro de eventos o 12.4.3 - Registros de administración y
-    operación Security Information and Event Mangement de Implantación. NIST SP 800-53 rev4:  [AU] Audit and Accountability
-    Ot'
+  descripcion: >-
+    Recoge quién hizo qué, cuándo y sobre qué recurso, con detalle bastante para reconstruir después una secuencia de
+    hechos. Los registros se examinan con regularidad, preferiblemente con herramientas de correlación, para localizar
+    usos irregulares o no previstos. Su tratamiento respeta la normativa de protección de datos aplicable al personal.
   aplica_basica: true
   aplica_media: true
   aplica_alta: true
@@ -498,11 +503,11 @@ medidas:
   marco: op
   familia: op.exp
   familia_nombre: Explotación
-  descripcion: '4.3.9 [OP.EXP.9] REGISTRO DE LA GESTIÓN DE INCIDENTES Categoría MEDIA Se registrarán todas las actuaciones
-    relacionadas con la gestión de incidentes: el reporte inicial, las actuaciones de emergencia y las modificaciones del
-    sistema derivadas del incidente. Temprana (SAT) ISO/IEC 27000  27002:2013: o 16.1.5 - Respuesta a incidentes de seguridad
-    de la información o 16.1.7 - Recopilación de evidencias NIST SP 800-53 rev4: Otras referencias:  SANS - CIS Critical
-    Security Controls - Version 6.1 o CSC.19 - Incident Response and Management'
+  descripcion: >-
+    Deja constancia documental del ciclo completo de cada incidente: la comunicación inicial, las decisiones adoptadas,
+    las actuaciones de emergencia y los cambios que se derivaron de ellas. Ese histórico permite valorar el daño real,
+    sostener una reclamación o una actuación disciplinaria y aprender de lo sucedido. Se conserva durante el plazo que
+    fije la organización.
   aplica_basica: false
   aplica_media: true
   aplica_alta: true
@@ -516,12 +521,11 @@ medidas:
   marco: op
   familia: op.ext
   familia_nombre: Servicios externos
-  descripcion: '4.4.1 [OP.EXT.1] CONTRATACIÓN Y ACUERDOS DE NIVEL DE SERVICIO Debe realizarse un análisis de riesgos que identifique
-    los riesgos asociados al proveedor externo. Debe establecerse un contrato formal, aprobado por ambas partes y actualizado
-    periódicamente estableciendo:  detalle por parte del proveedor de las características del servicio a prestar, de modo
-    que quede constancia de que abarca los requisitos de servicio y seguridad requeridos  roles y funciones en ambas partes,
-    en materia de seguridad, incluyendo los mecanismos de contacto (teléfono, e-mail, etc.)  obligaciones de cada parte 
-    r'
+  descripcion: >-
+    Antes de contratar un servicio externo se valoran los riesgos que aporta y se llevan a contrato los requisitos de
+    seguridad exigibles. El acuerdo recoge el alcance de lo prestado, los niveles comprometidos, las obligaciones y
+    responsabilidades de cada parte y las vías de contacto ante un incidente. Debe prever además las consecuencias del
+    incumplimiento y las condiciones en que termina la relación.
   aplica_basica: false
   aplica_media: true
   aplica_alta: true
@@ -535,12 +539,10 @@ medidas:
   marco: op
   familia: op.ext
   familia_nombre: Servicios externos
-  descripcion: '4.4.2 [OP.EXT.2] GESTIÓN DIARIA A partir de una serie de indicadores, se establece un plan de reporte y seguimiento
-    con puntos de alarma cuando se superen ciertos umbrales. Estas alarmas dispararán procedimientos de resolución y de escalado,
-    tratándose como una incidencia que debe resolverse. El proceso de resolución de la incidencia levantada por una alarma
-    se regirá según [op.exp.7] y [op.exp.9] ISO/IEC 27000  27002:2013: o 15.2 – Gestión de la provisión de servicios del
-    proveedor NIST SP 800-53 rev4:  [SA-9] Nacional SINServices CLASIFICAR Otras referencias:  NIST SP 800-35 – Guide to
-    In'
+  descripcion: >-
+    Establece el seguimiento ordinario del servicio prestado por el tercero mediante indicadores y umbrales acordados.
+    Cuando un indicador se sale de rango salta un aviso que activa la resolución y el escalado previstos, tratándose el
+    caso como una incidencia más. Las desviaciones se documentan y se revisan periódicamente con el proveedor.
   aplica_basica: false
   aplica_media: true
   aplica_alta: true
@@ -554,7 +556,11 @@ medidas:
   marco: op
   familia: op.ext
   familia_nombre: Servicios externos
-  descripcion: 'Se identificarán los elementos de la cadena de suministro relevantes para el sistema y se establecerán requisitos y medidas de control para asegurar que los productos y servicios adquiridos o utilizados satisfacen los niveles de seguridad requeridos.'
+  descripcion: >-
+    Extiende la exigencia de seguridad a los proveedores y a los productos que llegan por medio de ellos,
+    subcontratistas incluidos. Hay que conocer de quién depende cada elemento relevante del sistema y qué garantías
+    ofrece, y trasladarle por contrato los requisitos que correspondan. Se busca que un eslabón débil aguas arriba no
+    rebaje el nivel de seguridad exigido al conjunto.
   aplica_basica: false
   aplica_media: false
   aplica_alta: true
@@ -568,7 +574,10 @@ medidas:
   marco: op
   familia: op.ext
   familia_nombre: Servicios externos
-  descripcion: 'Cuando el sistema se conecte con otros sistemas externos, se identificarán los riesgos derivados de la interconexión y se aplicarán los controles necesarios para mantener los niveles de seguridad exigidos a ambos lados de la conexión.'
+  descripcion: >-
+    Antes de enlazar el sistema con otro ajeno se analiza qué riesgo introduce esa unión y se acuerdan las condiciones
+    bajo las que opera. La conexión se protege con los controles adecuados y queda documentada, con un responsable
+    identificado a cada lado. Se vigila mientras esté activa y se desmonta en cuanto deje de ser necesaria.
   aplica_basica: false
   aplica_media: false
   aplica_alta: true
@@ -582,12 +591,11 @@ medidas:
   marco: op
   familia: op.mon
   familia_nombre: Monitorización del sistema
-  descripcion: '4.6.1 [OP.MON.1] DETECCIÓN DE INTRUSIÓN Estas actividades permiten instrumentar los principios de seguridad:
-     Artículo 7 – Prevención, reacción y recuperación.  Artículo 8 – Líneas de defensa. La monitorización del sistema permite
-    detectar ataques e incidentes en general habilitando las medidas de reacción y recopilando información para analizar el
-    incidente. Las herramientas de monitorización pueden observar el tráfico en la red o los registros de actividad en los
-    equipos. En este segundo caso, hay que organizar un sistema de recopilación de información desde los puntos en que se
-    genera. Es'
+  descripcion: >-
+    Despliega mecanismos que adviertan intentos de intrusión y actividad hostil, observando el tráfico de la red o las
+    trazas de los equipos. Su valor está en avisar a tiempo para poder reaccionar y en reunir información que permita
+    analizar después lo ocurrido. Exige organizar la recogida de datos desde los puntos donde se generan y atender de
+    forma efectiva los avisos que produce.
   aplica_basica: true
   aplica_media: true
   aplica_alta: true
@@ -603,12 +611,11 @@ medidas:
   marco: op
   familia: op.mon
   familia_nombre: Monitorización del sistema
-  descripcion: 4.6.2 [OP.MON.2] SISTEMA DE MÉTRICAS Estas actividades permiten instrumentar los principios de seguridad 
-    Artículo 7 – Prevención, reacción y recuperación.  Artículo 9 – Reevaluación periódica. Se debe disponer de métricas
-    predictivas que anuncian posibles incidentes antes de que estos se produzcan. Típicamente se recurre a indicadores de
-    cumplimiento y medidas de los recursos dedicados a la seguridad del sistema y a los resultados de las auditorías o autoevaluaciones
-    realizadas. Se debe disponer de métricas de eficiencia que miden si los recursos dedicados a la seguridad son de un volumen
-    a
+  descripcion: >-
+    Recoge de forma sistemática datos sobre el estado de la seguridad para poder dirigirla con criterio: incidentes
+    registrados, tiempo de respuesta, grado de implantación de las medidas y recursos dedicados. Los indicadores deben
+    permitir ver la evolución en el tiempo y sostener las decisiones ante la dirección. Se revisan de vez en cuando para
+    confirmar que siguen midiendo algo útil.
   aplica_basica: true
   aplica_media: true
   aplica_alta: true
@@ -622,7 +629,11 @@ medidas:
   marco: op
   familia: op.mon
   familia_nombre: Monitorización del sistema
-  descripcion: 'Se establecerá una vigilancia continuada del sistema orientada a detectar actividades anómalas o comportamientos que puedan indicar incidentes de seguridad, con capacidad de reacción proporcionada al nivel de amenaza.'
+  descripcion: >-
+    Mantiene una supervisión continuada del sistema orientada a advertir comportamientos anómalos que puedan anticipar
+    un incidente. Combina la observación de los indicadores propios con la información sobre amenazas que llega del
+    exterior. La capacidad de reacción asociada debe guardar proporción con el nivel de amenaza y con la categoría del
+    sistema.
   aplica_basica: true
   aplica_media: true
   aplica_alta: true
@@ -636,7 +647,12 @@ medidas:
   marco: op
   familia: op.nub
   familia_nombre: Servicios en la nube
-  descripcion: 'Cuando se utilicen servicios en la nube para dar soporte al sistema, se identificarán, evaluarán y tratarán los riesgos específicos asociados a estos servicios, aplicando los controles necesarios para mantener los niveles de seguridad exigidos por la categoría del sistema.'
+  descripcion: >-
+    Cuando parte del sistema descansa en servicios en la nube, hay que evaluar los riesgos propios de ese modelo y
+    delimitar qué protege el proveedor y qué sigue correspondiendo a la organización. Esa frontera se documenta y se
+    lleva al contrato, junto con las exigencias sobre ubicación de los datos, cifrado, registro de actividad y
+    recuperación. El nivel de seguridad exigible es el que marca la categoría del sistema, con independencia de dónde se
+    ejecute.
   aplica_basica: true
   aplica_media: true
   aplica_alta: true
@@ -650,12 +666,11 @@ medidas:
   marco: op
   familia: op.pl
   familia_nombre: Planificación
-  descripcion: '4.1.1 [OP.PL.1] ANÁLISIS DE RIESGOS Empleamos la expresión “análisis de riesgos” en el sentido de “risk assessment”4
-    en la terminología de ISO. El análisis de riesgos permite:  validar el conjunto de medidas de seguridad implantado, 
-    detectar la necesidad de medidas adicionales y  justificar el uso de medidas de protección alternativas. Todo análisis
-    de riesgos debe identificar y priorizar los riesgos más significativos a fin de conocer los riesgos a los que estamos
-    sometidos y tomar las medidas oportunas, técnicas o de otro tipo. El análisis de riesgos debe ser una actividad recurrente;
-    es'
+  descripcion: >-
+    Obliga a identificar los activos, las amenazas que les afectan y el riesgo resultante, para decidir con criterio qué
+    salvaguardas se implantan y cuáles se sustituyen por alternativas. El resultado justifica el conjunto de medidas
+    elegido y señala dónde faltan. Es una tarea recurrente: se repite cuando cambian el sistema, el servicio prestado o
+    el entorno de amenaza.
   aplica_basica: true
   aplica_media: true
   aplica_alta: true
@@ -674,12 +689,11 @@ medidas:
   marco: op
   familia: op.pl
   familia_nombre: Planificación
-  descripcion: '4.1.2 [OP.PL.2] ARQUITECTURA DE SEGURIDAD Lo que se busca con esta medida de seguridad es tener una visión
-    global, íntegra e integradora de cómo es el sistema de información, cómo se gestiona y cómo se defiende. Esta medida es
-    básicamente documental y descriptiva. La arquitectura de seguridad es elaborada bajo la dirección del Responsable del
-    Sistema, y es aprobada por el Responsable de la Seguridad. Son de especial relevancia los siguientes principios básicos:
-     Artículo Prevención, reacción y recuperación.  Artículo Líneas de defensa. ISO 27000  27002:2013 o 8.1.1 - Inventario
-    de activos o'
+  descripcion: >-
+    Exige mantener una descripción documental del sistema entendido como un todo: sus componentes, sus zonas, las líneas
+    de defensa y la forma en que se gestiona y se supervisa. Aporta la visión de conjunto que ninguna medida aislada
+    proporciona, y sirve de referencia al análisis de riesgos y a los cambios posteriores. Su elaboración la dirige el
+    responsable del sistema y corresponde al responsable de seguridad aprobarla.
   aplica_basica: true
   aplica_media: true
   aplica_alta: true
@@ -695,11 +709,11 @@ medidas:
   marco: op
   familia: op.pl
   familia_nombre: Planificación
-  descripcion: '4.1.3 [OP.PL.3] ADQUISICIÓN DE NUEVOS COMPONENTES La adquisición de nuevos componentes debe:  tener en cuenta
-    el análisis de riesgos [op.pl.1]  ajustarse a la arquitectura de seguridad [op.pl.2]  prever los recursos necesarios,
-    esfuerzo y medios económicos para: o la implantación inicial. o el mantenimiento a lo largo de su vida útil. o atender
-    a la evolución de la tecnología.  en todo momento se atenderá tanto a las necesidades técnicas como a la necesaria concienciación
-    y formación de las personas que van a trabajar con los componentes. de Implantación. Son de especial relevancia los sig'
+  descripcion: >-
+    Regula la compra o incorporación de componentes para que responda al riesgo evaluado y encaje en la arquitectura
+    definida. Antes de adquirir hay que prever el coste completo: puesta en marcha, sostenimiento durante la vida útil y
+    relevo cuando la tecnología quede obsoleta. Incluye anticipar la capacitación de quienes vayan a operar el
+    componente.
   aplica_basica: true
   aplica_media: true
   aplica_alta: true
@@ -713,12 +727,11 @@ medidas:
   marco: op
   familia: op.pl
   familia_nombre: Planificación
-  descripcion: 4.1.4 [OP.PL.4] DIMENSIONAMIENTO / GESTIÓN DE CAPACIDADES Conviene destacar que esta medida de seguridad no
-    es meramente técnica, sino que tiene implicaciones presupuestarias y por ello debe gestionarse con tiempo para que las
-    necesidades queden debidamente recogidas en los presupuestos. Si en todas las medidas de seguridad hay que huir de la
-    improvisación, en esta con mayor razón. Nótese que en entornos flexibles como es el empleo de recursos en la nube, el
-    dimensionado efectivo del sistema puede ser dinámico, adecuándose a las necesidades del servicio. ISO/IEC 27000  27002:2013
-    o 12.1.3 - G
+  descripcion: >-
+    Requiere estimar por adelantado las necesidades de proceso, almacenamiento, comunicaciones y personal, de modo que
+    el sistema soporte la demanda prevista sin degradarse. Tiene alcance presupuestario, así que esas necesidades han de
+    recogerse en la planificación económica y no resolverse sobre la marcha. En entornos elásticos el dimensionado puede
+    ajustarse de forma dinámica a la carga real.
   aplica_basica: true
   aplica_media: true
   aplica_alta: true
@@ -732,12 +745,11 @@ medidas:
   marco: op
   familia: op.pl
   familia_nombre: Planificación
-  descripcion: 4.1.5 [OP.PL.5] COMPONENTES CERTIFICADOS Todas las palabras se quedan cortas para insistir en la necesidad
-    de recurrir a componentes probados, evaluados y certificados. Desarrollar los propios componentes exige un apreciable
-    nivel de formación, un considerable esfuerzo y una capacidad de mantenimiento de la seguridad frente a vulnerabilidades,
-    defectos y nuevas amenazas. Todo esto se simplifica notablemente recurriendo a componentes de terceras partes siempre
-    y cuando dichos componentes estén asegurados para protegernos de acuerdo a nuestras necesidades y frente a nuestras amenazas.
-    Esto quier
+  descripcion: >-
+    Da preferencia a productos evaluados y certificados por un tercero competente frente a desarrollos propios o
+    soluciones sin acreditación. La razón es práctica: sostener por cuenta propia el nivel de seguridad de un componente
+    exige una capacidad de análisis y corrección continua que pocas organizaciones mantienen. La certificación invocada
+    debe cubrir precisamente la función de seguridad que se espera del producto.
   aplica_basica: false
   aplica_media: true
   aplica_alta: true
@@ -751,12 +763,11 @@ medidas:
   marco: mp
   familia: mp.com
   familia_nombre: Protección de las comunicaciones
-  descripcion: '5.4.1 [MP.COM.1] PERÍMETRO SEGURO Se debe delimitar el perímetro lógico del sistema; es decir, los puntos
-    de interconexión con el exterior. Este perímetro deberá estar reflejado en la documentación de la arquitectura del sistema
-    (por ejemplo, el esquema de red). Se debe disponer de cortafuegos que separen la red interna del exterior. Todo el tráfico
-    deberá atravesar dichos cortafuegos que sólo dejaran transitar los flujos previamente autorizados. Cuando se requiera
-    niveles de seguridad ALTA, el sistema de cortafuegos constará de dos o más equipos de diferente fabricante dispuestos
-    en cascada. '
+  descripcion: >-
+    Obliga a delimitar por dónde se conecta el sistema con el exterior y a reflejarlo en la documentación de
+    arquitectura. Ese límite se protege con cortafuegos por los que pasa todo el tráfico y que sólo dejan circular los
+    flujos autorizados de antemano. En los niveles más exigentes se emplean equipos de distinto fabricante dispuestos en
+    cascada, para que un mismo defecto no franquee las dos barreras.
   aplica_basica: true
   aplica_media: true
   aplica_alta: true
@@ -770,11 +781,11 @@ medidas:
   marco: mp
   familia: mp.com
   familia_nombre: Protección de las comunicaciones
-  descripcion: 5.4.2 [MP.COM.2] PROTECCIÓN DE LA CONFIDENCIALIDAD Es frecuente que autenticidad, integridad y confidencialidad
-    se traten de forma conjunta Nacional parámetros y las claves en la fase de CLASIFICAR establecimiento. Es por ello que
-    esta medida suele implementarse a la par que [mp.com.3]. garanticen el secreto de los datos transmitidos. En conexiones
-    establecidas fuera del dominio de seguridad de la organización, se recurrirá a redes privadas virtuales que, con métodos
-    criptográficos y tras una autenticación fiable (ver [mp.com.3]), establecen una clave de cifrado para la sesión. de Implantación
+  descripcion: >-
+    Impide que la información transmitida pueda ser leída por terceros, empleando cifrado con algoritmos y longitudes de
+    clave acreditados. Cuando el canal sale del ámbito que la organización controla, se recurre a cifrado extremo a
+    extremo, por ejemplo mediante una red privada virtual establecida tras autenticar al otro lado. Suele implantarse a
+    la vez que la protección de la autenticidad y la integridad, porque comparten la negociación de claves.
   aplica_basica: true
   aplica_media: true
   aplica_alta: true
@@ -793,11 +804,11 @@ medidas:
   marco: mp
   familia: mp.com
   familia_nombre: Protección de las comunicaciones
-  descripcion: 5.4.3 [MP.COM.3] PROTECCIÓN DE LA AUTENTICIDAD Y DE LA INTEGRIDAD Es frecuente que autenticidad, integridad
-    y confidencialidad se traten de forma conjunta negociando los protocolos, los parámetros y las claves en la fase de establecimiento.
-    Es por ello que esta medida suele implementarse a la par que [mp.com.2]. Se debe establecer de forma fehaciente la autenticidad
-    del otro extremo de un canal de comunicación antes de intercambiar información alguna. Se debe evitar la utilización de
-    mecanismos de autenticación y protocolos no contemplados en la normativa de la organización. Se deben usar prot
+  descripcion: >-
+    Antes de intercambiar información hay que acreditar de manera fehaciente con quién se está hablando, y garantizar
+    después que lo transmitido no se altera por el camino. Se emplean protocolos y mecanismos recogidos en la normativa
+    de la organización, descartando los desaconsejados u obsoletos. Toda alteración detectada debe provocar el rechazo
+    de los datos y quedar registrada.
   aplica_basica: true
   aplica_media: true
   aplica_alta: true
@@ -817,12 +828,10 @@ medidas:
   marco: mp
   familia: mp.com
   familia_nombre: Protección de las comunicaciones
-  descripcion: '5.4.4 [MP.COM.4] SEGREGACIÓN DE REDES La segregación de redes acota el acceso a la información y acota la
-    propagación de los incidentes de seguridad que quedan restringidos al entorno donde ocurren. Esta deberá quedar reflejada
-    en documentación de la arquitectura del sistema (por ejemplo, el esquema de red) [op.pl.2]. Se debe segmentar la red de
-    forma que haya:  control (de entrada) de los usuarios que pueden trabajar en cada segmento, en particular si el acceso
-    se realiza desde el exterior del segmento, tanto si es desde otro segmento de la red corporativa como si el acceso procede
-    del exter'
+  descripcion: >-
+    Divide la red en segmentos con control de entrada, de modo que cada uno agrupe recursos con necesidades de
+    protección semejantes. Se acota así a qué puede llegar cada quien y se limita la propagación de un incidente al
+    ámbito donde se produjo. La segmentación debe figurar en la documentación de arquitectura del sistema.
   aplica_basica: false
   aplica_media: true
   aplica_alta: true
@@ -836,12 +845,11 @@ medidas:
   marco: mp
   familia: mp.com
   familia_nombre: Protección de las comunicaciones
-  descripcion: 5.4.5 [MP.COM.9] MEDIOS ALTERNATIVOS Se debe prever medios alternativos de comunicación para el caso de que
-    fallen los medios habituales. Estos medios alternativos deben proporcionar las mismas garantías de seguridad que los medios
-    habituales y deberá establecerse un tiempo máximo de entrada en funcionamiento que esté aprobado por su responsable. En
-    todo caso, el tiempo de entrada en servicio debe estar respaldado por un análisis de impacto (ver [op.cont.1]), ser parte
-    del plan de continuidad probado (ver [op.cont.2]) y ser objeto de pruebas regulares para validar la viabilidad del plan
-    (ver [
+  descripcion: >-
+    Prevé vías de comunicación de reserva para cuando fallen las habituales. Han de ofrecer las mismas garantías de
+    seguridad que aquellas a las que sustituyen y contar con un plazo máximo de entrada en servicio aprobado por el
+    responsable. Ese plazo se sostiene en el análisis de impacto, forma parte del plan de continuidad y se comprueba en
+    sus pruebas. Código heredado del Esquema anterior: no figura en el Anexo II del RD 311/2022.
   aplica_basica: false
   aplica_media: false
   aplica_alta: true
@@ -855,12 +863,10 @@ medidas:
   marco: mp
   familia: mp.eq
   familia_nombre: Protección de los equipos
-  descripcion: '5.3.1 [MP.EQ.1] PUESTO DE TRABAJO DESPEJADO Se debe exigir que los puestos de trabajo permanezcan despejados,
-    sin más material encima de la mesa que el requerido para la actividad que se está realizando en cada momento. Según se
-    termine una tarea, el material se retirará a de Implantación. otra zona: cajones, estanterías personales o comunes, cuarto
-    de almacenamiento, etc. El material de trabajo se guardará en lugar cerrado. Pueden ser cajones o armarios con llave,
-    o un cuarto separado cerrado con llave al menos fuera del horario de trabajo. ISO/IEC 27000  ISO/IEC 27002:2013: o 11.2.9
-    - Polít'
+  descripcion: >-
+    Exige que sobre la mesa no quede más material del que la tarea en curso requiere. Al terminar, la documentación y
+    los soportes vuelven a un armario o cajón que se cierra bajo llave, al menos cuando la jornada acaba. Reduce la
+    exposición de información ante quien pase por la zona y las pérdidas por simple descuido.
   aplica_basica: true
   aplica_media: true
   aplica_alta: true
@@ -874,12 +880,10 @@ medidas:
   marco: mp
   familia: mp.eq
   familia_nombre: Protección de los equipos
-  descripcion: 5.3.2 [MP.EQ.2] BLOQUEO DE PUESTO DE TRABAJO Se debe bloquear automáticamente el puesto de trabajo desde el
-    que se accede a servicios o datos de nivel medio o superior al cabo de un tiempo de inactividad, que se marcará por parte
-    de la entidad o compañía. Se debe requerir al usuario autenticarse de nuevo para reanudar la actividad en curso. El tiempo
-    mencionado será parte de la configuración del equipo y no podrá ser alterado por el usuario. Se cancelarán las sesiones
-    abiertas tanto desde dicho puesto de trabajo como las remotas al cabo de un tiempo de inactividad (superior al bloqueo
-    del pues
+  descripcion: >-
+    El equipo se bloquea por sí solo tras un periodo de inactividad fijado por la organización, y reanudar el trabajo
+    exige autenticarse de nuevo. Ese plazo forma parte de la configuración y la persona usuaria no puede alterarlo.
+    Pasado un tiempo mayor, las sesiones abiertas se cierran, tanto las locales como las remotas.
   aplica_basica: false
   aplica_media: true
   aplica_alta: true
@@ -893,12 +897,12 @@ medidas:
   marco: mp
   familia: mp.eq
   familia_nombre: Protección de los equipos
-  descripcion: 5.3.3 [MP.EQ.3] PROTECCIÓN DE EQUIPOS PORTÁTILES Debe existir un inventario de los equipos portátiles, que
-    identifique el equipo portátil junto a la persona responsable del mismo. Se debe verificar regularmente en el inventario
-    que el equipo permanece bajo control del usuario al que está asignado. Se recomienda que los equipos portátiles tengan
-    instalado y activado un sistema de protección perimetral (cortafuegos personal) configurado para bloquear de Implantación.
-    accesos salvo los autorizados. Los accesos autorizados seguirán los procedimientos de autorización del organismo (ver
-    [org.4]). Lo
+  descripcion: >-
+    Los dispositivos que salen de las instalaciones se inventarían junto a la persona responsable de cada uno, y se
+    comprueba con regularidad que siguen bajo su control. Deben llevar cifrada la información que albergan y disponer de
+    un mecanismo que permita bloquearlos o borrarlos si se pierden o los sustraen. Conviene que cuenten con protección
+    perimetral propia que sólo admita las conexiones autorizadas, y debe existir una vía para comunicar el extravío sin
+    demora.
   aplica_basica: true
   aplica_media: true
   aplica_alta: true
@@ -913,7 +917,11 @@ medidas:
   marco: mp
   familia: mp.eq
   familia_nombre: Protección de los equipos
-  descripcion: 'Se identificarán y protegerán los dispositivos distintos de los puestos de trabajo estándar que se conecten a la red del sistema (equipos portátiles, dispositivos móviles, equipos de impresión, equipos IoT u otros), aplicando controles equivalentes a los del sistema principal.'
+  descripcion: >-
+    Alcanza a los equipos que no son puestos de trabajo estándar pero comparten la red: impresoras, dispositivos
+    móviles, sistemas de control, cámaras o equipamiento del llamado internet de las cosas. Han de estar inventariados,
+    con las credenciales de fábrica sustituidas y su exposición reducida a lo que necesiten para funcionar. Cuando no
+    admitan los mismos controles que el resto, se aíslan en segmentos separados.
   aplica_basica: true
   aplica_media: true
   aplica_alta: true
@@ -927,12 +935,11 @@ medidas:
   marco: mp
   familia: mp.if
   familia_nombre: Protección de las instalaciones e infraestructuras
-  descripcion: 5.1.1 [MP.IF.1] ÁREAS SEPARADAS Y CON CONTROL DE ACCESO Se deben delimitar las áreas de trabajo y de equipos,
-    disponiendo de un inventario actualizado que para cada área determine su función y las personas responsables de su seguridad
-    y de autorizar el acceso. Cuando el acceso se controle por medio de llaves o dispositivos equivalentes, se dispondrá de
-    un inventario de llaves junto con un registro de quién las toma, quién las devuelve y en manos de quién hay copias en
-    cada momento. En caso de sustracción o pérdida, se procederá al cambio con diligencia para evitar el riesgo. Se dispondrá
-    de me
+  descripcion: >-
+    Delimita las zonas donde hay equipamiento o se maneja información protegida y restringe la entrada a quien esté
+    autorizado. Debe existir un inventario de esas áreas con su función y su responsable, y control de los medios de
+    apertura: si son llaves o dispositivos equivalentes, se anota quién los tiene y se reponen sin demora ante una
+    pérdida. El nivel de protección se ajusta a lo que se guarda dentro.
   aplica_basica: true
   aplica_media: true
   aplica_alta: true
@@ -946,11 +953,11 @@ medidas:
   marco: mp
   familia: mp.if
   familia_nombre: Protección de las instalaciones e infraestructuras
-  descripcion: 5.1.2 [MP.IF.2] IDENTIFICACIÓN DE LAS PERSONAS Para las áreas de acceso restringido, se debe mantener una relación
-    de personas autorizadas y un sistema de control de acceso que verifique la identidad y la autorización y deje registro
-    de todos los accesos de personas (por ejemplo, persona o identificador corporativo, fecha y hora de cada entrada y salida).
-    Se recomienda que exista segregación de funciones en el proceso de gestión de acceso a los locales con equipamiento (solicitud
-    y autorización). Dichas funciones deben recaer en al menos dos personas. Debe realizarse periódicamente una revisió
+  descripcion: >-
+    En las áreas de acceso restringido se mantiene la relación de personas autorizadas y un sistema que verifique
+    identidad y autorización en cada entrada. Queda constancia de entradas y salidas, con identificación de la persona y
+    marca de tiempo. La relación de autorizados se revisa con periodicidad y se depura cuando alguien deja de necesitar
+    el acceso.
   aplica_basica: true
   aplica_media: true
   aplica_alta: true
@@ -964,11 +971,11 @@ medidas:
   marco: mp
   familia: mp.if
   familia_nombre: Protección de las instalaciones e infraestructuras
-  descripcion: '5.1.3 [MP.IF.3] ACONDICIONAMIENTO DE LOS LOCALES Se debe disponer de unas instalaciones adecuadas para el
-    eficaz desempeño del equipamiento que se instala en ellas. Sin perjuicio de lo dispuesto en otras medidas más específicas,
-    los locales deben:  garantizar que la temperatura se encuentra en el margen especificado por los fabricantes de los equipos
-     garantizar que la humedad se encuentra dentro del margen especificado por los fabricantes de los equipos  se debe proteger
-    el local frente a las amenazas identificadas en el análisis de riesgos, tanto de índole natural, como derivadas del ento'
+  descripcion: >-
+    Los locales que alojan equipamiento deben reunir condiciones apropiadas para su funcionamiento: temperatura y
+    humedad dentro del margen que indique el fabricante, cableado ordenado y protección frente a las amenazas del
+    entorno recogidas en el análisis de riesgos. Se atiende tanto a los riesgos de origen natural como a los que
+    provienen de las actividades vecinas.
   aplica_basica: true
   aplica_media: true
   aplica_alta: true
@@ -982,11 +989,11 @@ medidas:
   marco: mp
   familia: mp.if
   familia_nombre: Protección de las instalaciones e infraestructuras
-  descripcion: '5.1.4 [MP.IF.4] ENERGÍA ELÉCTRICA Se deben prever medidas para atajar un posible corte de suministro eléctrico
-    y un correcto funcionamiento de las luces de emergencia. Prevención de problemas de origen interno:  dimensionado y protección
-    del cableado de potencia  dimensionado y protección de los cuadros y armarios de potencia Reacción a problemas de origen
-    externo:  suministro alternativo: UPS19, generadores, proveedor alternativo Se debe disponer de un plan de emergencia,
-    de reacción y de recuperación de desastres. Hay que disponer de una alimentación suficiente para apagar los equipos de '
+  descripcion: >-
+    Garantiza que los equipos cuentan con suministro eléctrico suficiente y estable, y que un corte no acarrea pérdida
+    de información. Se dimensionan y protegen el cableado y los cuadros de potencia, y se prevén fuentes de respaldo
+    capaces de sostener el servicio o, al menos, de permitir un apagado ordenado. Comprende también el alumbrado de
+    emergencia y su comprobación periódica.
   aplica_basica: true
   aplica_media: true
   aplica_alta: true
@@ -1000,12 +1007,11 @@ medidas:
   marco: mp
   familia: mp.if
   familia_nombre: Protección de las instalaciones e infraestructuras
-  descripcion: '5.1.5 [MP.IF.5] PROTECCIÓN FRENTE A INCENDIOS Se debe realizar un estudio del riesgo de incendios, tanto de
-    origen natural como industrial:  entorno natural proclive a incendios  entorno industrial que pudiera incendiarse 
-    instalaciones propias con riesgo de incendio Si el fuego no se puede evitar, hay que desplegar medidas de prevención,
-    monitorización y limitación del impacto  disponer de carteles para evacuación  evitar el uso de materiales inflamables
-     aislamiento (cortafuegos, puertas ignífugas)  sistema de detección conectado a central de alarmas 24x7  medios de
-    reacción: medios '
+  descripcion: >-
+    Exige valorar el riesgo de incendio, tanto por el entorno como por las instalaciones propias, y desplegar medidas de
+    prevención, detección y extinción proporcionadas. Se evitan materiales inflamables, se compartimenta el local y la
+    detección se conecta a un servicio de alarma permanente. Han de respetarse además las obligaciones de la normativa
+    sectorial de protección contra incendios.
   aplica_basica: true
   aplica_media: true
   aplica_alta: true
@@ -1019,12 +1025,11 @@ medidas:
   marco: mp
   familia: mp.if
   familia_nombre: Protección de las instalaciones e infraestructuras
-  descripcion: '5.1.6 [MP.IF.6] PROTECCIÓN FRENTE A INUNDACIONES Se debe realizar un estudio del riesgo de inundaciones, tanto
-    de origen natural como industrial:  cercanía a ríos o corrientes de agua especialmente Si el riesgo no se puede evitar,
-    hay que desplegar medidas de prevención, monitorización y limitación del impacto  aislamiento de humedades  canalización
-    de desagüe con procedimientos regulares de limpieza  sistema de detección conectado a central de alarmas 24x7  plan
-    de reacción y recuperación de desastres; en el caso de canalizaciones industriales, el plan de reacción puede incluir
-    el cierre'
+  descripcion: >-
+    Requiere estudiar la exposición del local al agua, por su ubicación o por las canalizaciones que lo atraviesan, y
+    actuar en consecuencia. Entre las medidas habituales figuran el aislamiento frente a humedades, el desagüe con
+    limpieza programada y la detección conectada a un servicio de alarma. Debe existir asimismo un plan de reacción y
+    recuperación para el caso de que llegue a ocurrir.
   aplica_basica: false
   aplica_media: true
   aplica_alta: true
@@ -1038,12 +1043,11 @@ medidas:
   marco: mp
   familia: mp.if
   familia_nombre: Protección de las instalaciones e infraestructuras
-  descripcion: '5.1.7 [MP.IF.7] REGISTRO DE ENTRADA Y SALIDA DE EQUIPAMIENTO Se debe llevar un registro pormenorizado de toda
-    entrada y salida de equipamiento, haciendo constar en el mismo:  fecha y hora  identificación inequívoca del equipamiento
-    (servidores, portátiles, equipos de comunicaciones, soportes de información, etc.)  persona que realiza la entrada o
-    salida  persona que autoriza la entrada o salida  persona que realiza el registro Se recomienda que exista segregación
-    de funciones en el proceso de gestión de entrada y salida de equipamiento en los locales (solicitud y autorización). Dichas
-    fun'
+  descripcion: >-
+    Toda entrada o salida de equipamiento del local queda anotada, con fecha y hora, identificación inequívoca del
+    elemento y las personas que lo mueven, lo autorizan y lo registran. El registro permite saber en cada momento qué
+    hay dentro y determinar responsabilidades si algo desaparece. Es recomendable que quien solicita el movimiento y
+    quien lo autoriza sean personas distintas.
   aplica_basica: true
   aplica_media: true
   aplica_alta: true
@@ -1057,12 +1061,11 @@ medidas:
   marco: mp
   familia: mp.if
   familia_nombre: Protección de las instalaciones e infraestructuras
-  descripcion: 5.1.8 [MP.IF.9] INSTALACIONES ALTERNATIVAS Se debe disponer de planes para poder prestar los servicios en un
-    lugar alternativo en caso de indisponibilidad de las instalaciones actuales. Las instalaciones alternativas deben garantizar
-    las mismas medidas de protección que las habituales. En particular, en lo que respecta a control de acceso de personas
-    y entrada y salida de equipos. Las instalaciones alternativas pueden estar dispuestas para entrar en servicio inmediatamente
-    (hot site) o requerir un tiempo de personalización (cold site). En todo caso el tiempo de entrada en servicio debe estar
-    r
+  descripcion: >-
+    Prevé locales de sustitución desde los que seguir prestando el servicio si los habituales quedan indisponibles. Han
+    de ofrecer las mismas garantías que los principales, en particular en control de acceso de personas y de entrada y
+    salida de equipos. El tiempo que tarden en entrar en servicio debe estar acordado con el responsable y respaldado
+    por el análisis de impacto. Código heredado del Esquema anterior: no figura en el Anexo II del RD 311/2022.
   aplica_basica: false
   aplica_media: false
   aplica_alta: true
@@ -1076,12 +1079,12 @@ medidas:
   marco: mp
   familia: mp.info
   familia_nombre: Protección de la información
-  descripcion: 5.7.1 [MP.INFO.1] DATOS DE CARÁCTER PERSONAL Es obligatorio el cumplimiento de la regulación de protección
-    de información personal que esté vigente, ya sean las medidas de protección determinadas para cada nivel en el Real Decreto
-    1720/2007 o las especificaciones del Reglamento General de Protección de Datos. Referencias  Reglamento (UE) 2016/679
-    del Parlamento Europeo y del Consejo, de 27 de abril de 2016, relativo a la protección de las personas físicas en lo que
-    respecta al tratamiento de datos personales y a la libre circulación de estos datos  Ley Orgánica 15/1999, de 13 de diciembre,
-    d
+  descripcion: >-
+    Cuando el sistema trata datos personales es obligado cumplir la normativa de protección de datos vigente, que se
+    aplica junto a las exigencias del Esquema Nacional de Seguridad y no en lugar de ellas. Hay que saber qué datos se
+    tratan, con qué base jurídica y durante cuánto tiempo, y aplicar las medidas que correspondan al riesgo para los
+    derechos de las personas afectadas. La referencia es el Reglamento (UE) 2016/679 y la legislación española que lo
+    desarrolla.
   aplica_basica: true
   aplica_media: true
   aplica_alta: true
@@ -1095,12 +1098,11 @@ medidas:
   marco: mp
   familia: mp.info
   familia_nombre: Protección de la información
-  descripcion: '5.7.2 [MP.INFO.2] CALIFICACIÓN DE LA INFORMACIÓN Se debe establecer un esquema para asignar un nivel de calificación
-    a la información, en función de sus necesidades de confidencialidad. El sistema de calificación:  debe ser acorde con
-    otros sistemas de calificación propios del entorno en el que desarrolla su actividad la organización  debe ser acorde
-    con lo indicado en el Anexo I del ENS sobre calificación de la información y categorización de los sistemas de información
-     debe establecer las responsabilidades para adscribir inicialmente una cierta información a una cierta calificación y
-    par'
+  descripcion: >-
+    Establece un esquema para asignar a cada información un nivel según su necesidad de confidencialidad, y designa
+    quién puede asignarlo y quién puede modificarlo. Ese esquema debe encajar con el que rige en el entorno de la
+    organización y con los criterios de categorización del propio Esquema Nacional de Seguridad. De la calificación se
+    derivan las reglas de uso, copia, difusión y destrucción aplicables.
   aplica_basica: false
   aplica_media: true
   aplica_alta: true
@@ -1114,12 +1116,11 @@ medidas:
   marco: mp
   familia: mp.info
   familia_nombre: Protección de la información
-  descripcion: 5.7.4 [MP.INFO.4] FIRMA ELECTRÓNICA Todas las actividades relacionadas con la firma electrónica y el sellado
-    de tiempo deben regirse por un marco técnico y procedimental aprobado formalmente. Se suele denominar Política de Firma.
-    En el caso de que se utilicen otros mecanismos de firma electrónica sujetos a derecho, el sistema debe incorporar medidas
-    compensatorias suficientes que ofrezcan garantías equivalentes o superiores en lo relativo a prevención del repudio. de
-    Implantación. Política de firma electrónica Política de firma electrónica. En el caso de la Administración General del
-    Estado, d
+  descripcion: >-
+    Cuando se firman documentos por medios electrónicos, las condiciones de uso se recogen en un marco técnico y
+    procedimental aprobado formalmente, conocido habitualmente como política de firma. Ese marco fija qué certificados y
+    formatos se admiten, cómo se verifica una firma y qué se conserva para poder comprobarla más adelante. Si se emplean
+    otros mecanismos admitidos en derecho, han de acompañarse de garantías equivalentes frente al repudio.
   aplica_basica: true
   aplica_media: true
   aplica_alta: true
@@ -1137,12 +1138,11 @@ medidas:
   marco: mp
   familia: mp.info
   familia_nombre: Protección de la información
-  descripcion: 5.7.5 [MP.INFO.5] SELLOS DE TIEMPO Los sellos de tiempo previenen la posibilidad de un repudio posterior de
-    la información que sea susceptible de ser utilizada como evidencia en el futuro, o que requiera capacidad probatoria según
-    la ley de procedimiento administrativo. Por ello, todas las actividades relacionadas con la firma electrónica y el sellado
-    de tiempo deben regirse por un marco técnico y procedimental aprobado formalmente. Se suele denominar Política de Firma.
-    Debe identificarse y establecerse el tiempo de retención de la información. Se fechan electrónicamente los documentos
-    cuya fe
+  descripcion: >-
+    Acreditan el momento en que existió un documento, de manera que después no pueda negarse su fecha. Se aplican a la
+    información llamada a servir como prueba o que deba conservar capacidad probatoria, y se rigen por el mismo marco
+    formal que la firma electrónica. Hay que fijar cuánto tiempo se conserva la información fechada y verificar que los
+    sellos siguen siendo comprobables durante ese plazo.
   aplica_basica: false
   aplica_media: false
   aplica_alta: true
@@ -1156,11 +1156,11 @@ medidas:
   marco: mp
   familia: mp.info
   familia_nombre: Protección de la información
-  descripcion: '5.7.6 [MP.INFO.6] LIMPIEZA DE DOCUMENTOS Se debe retirar de los documentos que van a ser trasferido a un ámbito
-    fuera del dominio de seguridad toda la información adicional contenida en campos ocultos, meta-datos, comentarios, revisiones
-    anteriores, etc. salvo cuando dicha información sea pertinente para el receptor del documento. Esta medida es especialmente
-    relevante cuando el documento se difunde ampliamente, como ocurre cuando se ofrece al público en un servidor web u otro
-    tipo de repositorios de información. El incumplimiento de esta medida puede perjudicar:  al mantenimiento de la confi'
+  descripcion: >-
+    Antes de entregar un documento fuera del dominio de seguridad se le retira la información accesoria que arrastra sin
+    verse: metadatos, campos ocultos, comentarios y versiones anteriores. Importa en especial cuando el documento se
+    difunde de forma amplia, por ejemplo al publicarlo en un sitio web. Omitir este paso puede revelar datos
+    confidenciales o personales sin que nadie lo advierta.
   aplica_basica: true
   aplica_media: true
   aplica_alta: true
@@ -1174,12 +1174,12 @@ medidas:
   marco: mp
   familia: mp.info
   familia_nombre: Protección de la información
-  descripcion: '5.7.7 [MP.INFO.9] COPIAS DE SEGURIDAD (BACKUP) Se deben realizar copias de respaldo que permitan recuperar
-    datos perdidos accidental o intencionadamente con una antigüedad a determinar por la organización. Las copias de respaldo
-    poseerán el mismo nivel de seguridad que los datos integridad, trazabilidad. En particular, debe considerarse la conveniencia
-    o necesidad de que las copias de seguridad estén cifradas para garantizar la confidencialidad (en cuyo caso se estará
-    a lo dispuesto en [op.exp.11]). Se recomienda establecer un proceso de autorización para la recuperación de información
-    de las '
+  descripcion: >-
+    Exige respaldar la información y el software necesarios para recuperar el servicio, con la frecuencia y la
+    antigüedad que fije la organización. Las copias reciben el mismo nivel de protección que los datos originales,
+    cifrado incluido cuando la confidencialidad lo requiera, y se guardan de modo que un mismo suceso no destruya a la
+    vez el original y su respaldo. La restauración se prueba de forma periódica: una copia que nunca se ha restaurado no
+    está comprobada.
   aplica_basica: true
   aplica_media: true
   aplica_alta: true
@@ -1195,12 +1195,11 @@ medidas:
   marco: mp
   familia: mp.per
   familia_nombre: Gestión del personal
-  descripcion: 5.2.1 [MP.PER.1] CARACTERIZACIÓN DEL PUESTO DE TRABAJO Se deben definir las responsabilidades relacionadas
-    con cada puesto de trabajo en materia de seguridad. La definición debe venir respaldada por el análisis de riesgos en
-    la medida en que afecta a cada puesto de trabajo. Se deben definir los requisitos que deben satisfacer las personas que
-    vayan a ocupar el puesto de trabajo, en particular en términos de confidencialidad. Se deben tener en cuenta dichos requisitos
-    en la selección de la persona que va a ocuparlo, incluyendo la verificación de sus antecedentes laborales, formación y
-    otras ref
+  descripcion: >-
+    Define, para cada puesto, qué responsabilidades de seguridad conlleva y qué requisitos debe reunir quien lo ocupe,
+    partiendo del riesgo asociado a sus funciones. Esos requisitos se comprueban durante la selección, con las
+    verificaciones que resulten pertinentes y proporcionadas. La caracterización se revisa cuando el puesto cambia de
+    contenido.
   aplica_basica: false
   aplica_media: true
   aplica_alta: true
@@ -1214,12 +1213,11 @@ medidas:
   marco: mp
   familia: mp.per
   familia_nombre: Gestión del personal
-  descripcion: 5.2.2 [MP.PER.2] DEBERES Y OBLIGACIONES Se debe informar a cada persona relacionada con el sistema de los deberes
-    y responsabilidades de su puesto de trabajo en materia de seguridad, incluyendo las medidas disciplinarias a que haya
-    lugar. Se debe cubrir tanto el periodo durante el cual se desempeña el puesto como las obligaciones en caso de terminación
-    de la asignación, incluyendo el caso de traslado a otro puesto de trabajo. de Implantación. Es de especial relevancia
-    el deber de confidencialidad respecto de los datos a los que tengan acceso, tanto durante el periodo durante el que estén
-    adscr
+  descripcion: >-
+    Cada persona relacionada con el sistema debe conocer por escrito qué se espera de ella en materia de seguridad y qué
+    consecuencias acarrea incumplirlo. Se cubre tanto el tiempo en el puesto como las obligaciones que perduran al cesar
+    o al cambiar de destino, con atención particular al deber de confidencialidad. Alcanza también al personal de
+    terceros que opere sobre el sistema.
   aplica_basica: true
   aplica_media: true
   aplica_alta: true
@@ -1233,11 +1231,10 @@ medidas:
   marco: mp
   familia: mp.per
   familia_nombre: Gestión del personal
-  descripcion: '5.2.3 [MP.PER.3] CONCIENCIACIÓN Se debe concienciar regularmente al personal acerca de su papel y responsabilidad
-    para que la seguridad del sistema alcance los niveles exigidos. En particular hay que refrescar regularmente:  la normativa
-    al CLASIFICAR buen uso de los sistemas  la identificación de incidentes, actividades o comportamientos sospechosos que
-    deban ser reportados para su tratamiento por personal especializado  el procedimiento de reporte de incidentes de seguridad,
-    seas reales o falsas alarmas Todo el personal debe recibir inicial y regularmente información acerca de los puntos '
+  descripcion: >-
+    Recuerda al personal, con regularidad, cómo debe usar los sistemas, qué señales apuntan a un posible incidente y por
+    dónde comunicarlo. No busca formar técnicamente, sino sostener la atención a lo largo del tiempo, porque muchos
+    incidentes empiezan en un descuido cotidiano. De las acciones realizadas queda constancia documental.
   aplica_basica: true
   aplica_media: true
   aplica_alta: true
@@ -1251,12 +1248,11 @@ medidas:
   marco: mp
   familia: mp.per
   familia_nombre: Gestión del personal
-  descripcion: '5.2.4 [MP.PER.4] FORMACIÓN Se debe formar regularmente a las personas en aquellas técnicas que requieran para
-    el desempeño de sus funciones. Es de destacar, sin perjuicio de otros aspectos:  configuración de sistemas  gestión
-    de incidentes (detección y reacción)  procedimientos relativos a sus funciones sobre la gestión de la información (almacenamiento,
-    transferencia, copias, distribución y destrucción) La formación debe actualizarse cada vez que cambian los componentes
-    del sistema de información, introduciéndose nuevos equipos, nuevo software, nuevas instalaciones, etc. ISO/IEC 27000 
-    27'
+  descripcion: >-
+    Proporciona a cada persona la capacitación técnica que su cometido requiere: configuración de los sistemas que
+    maneja, detección y respuesta ante incidentes, y tratamiento correcto de la información que custodia. Se actualiza
+    cuando cambian los componentes, las herramientas o los procedimientos. Debe quedar registro de quién la ha recibido
+    y cuándo.
   aplica_basica: true
   aplica_media: true
   aplica_alta: true
@@ -1270,12 +1266,11 @@ medidas:
   marco: mp
   familia: mp.per
   familia_nombre: Gestión del personal
-  descripcion: '5.2.5 [MP.PER.9] PERSONAL ALTERNATIVO Se debe prever la existencia de otras personas que se puedan hacer cargo
-    de las funciones en caso de indisponibilidad del personal habitual. El personal alternativo deberá ofrecer las mismas
-    garantías de seguridad que el personal habitual. Este personal alternativo puede ser, por ejemplo:  Personal del mismo
-    equipo sobredimensionado con capacidad de asumir el trabajo  Personal de otros turnos 24x7 que puedan cubrir bajas eventuales
-     Personal de otros departamentos con los conocimientos necesarios (respetando la segregación)  Personal de un tercero
-    cont'
+  descripcion: >-
+    Prevé quién puede asumir las funciones críticas si el personal habitual no está disponible. Los sustitutos han de
+    ofrecer las mismas garantías de seguridad y contar con los conocimientos necesarios, ya procedan del propio equipo,
+    de otros turnos, de otras áreas o de un tercero contratado. Conviene comprobar de vez en cuando que ese relevo es
+    realmente viable. Código heredado del Esquema anterior: no figura en el Anexo II del RD 311/2022.
   aplica_basica: false
   aplica_media: false
   aplica_alta: true
@@ -1289,12 +1284,11 @@ medidas:
   marco: mp
   familia: mp.s
   familia_nombre: Protección de los servicios
-  descripcion: '5.8.1 [MP.S.1] PROTECCIÓN DEL CORREO ELECTRÓNICO (E-MAIL) Cuando se ofrezca correo electrónico como parte
-    del sistema, deberá protegerse frente a las amenazas que le son propias mediante:  Protección del cuerpo de los mensajes
-    y documentos adjuntos que pueda contener el correo electrónico de Implantación.  Protección del encaminamiento de mensajes
-    (por ejemplo, protegiendo el servidor DNS24 y su configuración) y del establecimiento de las conexiones (impidiendo que
-    el usuario final pueda conectarse a un servidor de correo que no sea el corporativo)  Protección de la organización frente
-    a co'
+  descripcion: >-
+    Protege el servicio de correo frente a los riesgos característicos de este canal: contenido dañino en el cuerpo o en
+    los adjuntos, mensajes no solicitados y suplantación del remitente. Comprende asegurar el encaminamiento de los
+    mensajes y el establecimiento de las conexiones, impidiendo que las personas usuarias recurran a servidores ajenos
+    al corporativo. Se completa con reglas de uso conocidas por el personal.
   aplica_basica: true
   aplica_media: true
   aplica_alta: true
@@ -1308,12 +1302,11 @@ medidas:
   marco: mp
   familia: mp.s
   familia_nombre: Protección de los servicios
-  descripcion: 5.8.2 [MP.S.2] PROTECCIÓN DE SERVICIOS Y APLICACIONES WEB Se debe proteger a los subsistemas dedicados a la
-    publicación de información frente a los ataques o amenazas que les son propias. Una serie de medidas son preventivas,
-    poniendo el énfasis en los procesos de  desarrollo (mp.sw),  configuración de seguridad (op.exp.2 y op.exp.3),  en
-    los controles de mantenimiento (op.exp.4) y  en las protecciones de separación de tareas (op.acc.3) Domain Name System
-    Programa empotrado en una página web. Cuando se accede a la página con un navegador, dicho programa se descarga y ejecuta
-    automáticament
+  descripcion: >-
+    Protege los servicios publicados frente a los ataques característicos de la web, como la manipulación de las
+    entradas, la inyección de código o el secuestro de sesión. Buena parte del esfuerzo es preventivo y recae en el
+    desarrollo, la configuración segura y el mantenimiento al día de los componentes. Cuando el servicio admite datos de
+    quien lo usa, se validan antes de tratarlos y se registran los intentos anómalos.
   aplica_basica: true
   aplica_media: true
   aplica_alta: true
@@ -1327,7 +1320,11 @@ medidas:
   marco: mp
   familia: mp.s
   familia_nombre: Protección de los servicios
-  descripcion: 'Se protegerán los mecanismos de navegación web utilizados desde el sistema frente a amenazas transmitidas a través de la red, incluyendo el filtrado de contenidos, la prevención de ejecución de código malicioso y la detección de intentos de explotación.'
+  descripcion: >-
+    Protege a quien navega desde el sistema frente a lo que llega por el navegador: sitios maliciosos, descargas dañinas
+    y código que intenta aprovechar un fallo del cliente. Se apoya en el filtrado de contenidos, el bloqueo de destinos
+    desaconsejados y el mantenimiento actualizado de navegadores y complementos. Los avisos que genera se tratan dentro
+    del proceso de incidentes.
   aplica_basica: true
   aplica_media: true
   aplica_alta: true
@@ -1341,7 +1338,11 @@ medidas:
   marco: mp
   familia: mp.s
   familia_nombre: Protección de los servicios
-  descripcion: 'Se dispondrán medidas de protección frente a ataques de denegación de servicio orientadas a garantizar la disponibilidad del sistema, incluyendo mecanismos de detección, mitigación y escalado de capacidad cuando sea necesario.'
+  descripcion: >-
+    Prepara el sistema para resistir intentos de dejarlo fuera de servicio por saturación. Combina el dimensionado
+    holgado de los elementos expuestos, la detección temprana del ataque y la capacidad de mitigar o desviar el tráfico,
+    a menudo en colaboración con el proveedor de conectividad. Debe estar previsto a quién se avisa y cómo se opera
+    mientras el ataque dura.
   aplica_basica: false
   aplica_media: true
   aplica_alta: true
@@ -1355,12 +1356,11 @@ medidas:
   marco: mp
   familia: mp.s
   familia_nombre: Protección de los servicios
-  descripcion: 5.8.3 [MP.S.8] PROTECCIÓN FRENTE A LA DENEGACIÓN DE SERVICIO Se deben establecer medidas preventivas y reactivas
-    frente a ataques de denegación de servicio (DoS28). Los ataques de denegación de servicio pueden prevenirse dimensionando
-    con holgura los elementos susceptibles de ser atacados desde el exterior, aunque poco se puede hacer frente a un ataque
-    con suficientes recursos por parte del atacante. Múltiples ataques de denegación de servicio son facilitados por un software
-    deficiente por parte del servidor, bien porque no se han actualizado las versiones, bien porque la configuración no es
-    i
+  descripcion: >-
+    Exige medidas preventivas y de reacción frente a los ataques que buscan dejar un servicio inoperativo por
+    saturación. La prevención pasa por dimensionar con holgura lo que queda expuesto al exterior y por mantener el
+    software actualizado y bien configurado, ya que muchos de estos ataques se apoyan en defectos evitables. Código
+    heredado del Esquema anterior: en el Anexo II del RD 311/2022 esta materia corresponde a mp.s.4.
   aplica_basica: false
   aplica_media: false
   aplica_alta: true
@@ -1374,11 +1374,11 @@ medidas:
   marco: mp
   familia: mp.s
   familia_nombre: Protección de los servicios
-  descripcion: '5.8.4 [MP.S.9] MEDIOS ALTERNATIVOS Centro Se debeNacional Criptológico prever medios alternativos SIN para
-    ofrecer los servicios en el caso de que CLASIFICAR fallen los medios habituales, mientras se recupera la disponibilidad
-    de éstos (como por ejemplo una instancia alternativa a un portal). Estos medios alternativos estarán sujetos a las mismas
-    garantías de protección. Se debe establecer un tiempo máximo para que los servicios alternativos entren en funcionamiento.
-    Computer Emergency Response Team Intrusion Detection System de Implantación. Los servicios alternativos pueden estar dispuestos '
+  descripcion: >-
+    Prevé una forma alternativa de seguir ofreciendo el servicio mientras se recupera la habitual, por ejemplo una
+    instancia de respaldo del portal. Los medios sustitutos quedan sujetos a las mismas garantías de protección y con un
+    plazo máximo fijado para entrar en funcionamiento. Código heredado del Esquema anterior: no figura en el Anexo II
+    del RD 311/2022.
   aplica_basica: false
   aplica_media: false
   aplica_alta: true
@@ -1392,12 +1392,11 @@ medidas:
   marco: mp
   familia: mp.si
   familia_nombre: Protección de los soportes de información
-  descripcion: 5.5.1 [MP.SI.1] ETIQUETADO Se debe etiquetar de forma que, sin revelar su contenido, se indique el nivel de
-    calificación más alto de la información contenida. Una opción es que el propio soporte, en su exterior, lleve escrito
-    el nivel de información que contiene o puede contener. Una alternativa es que el soporte sea identificable por medio de
-    algún código o referencia y que el usuario pueda acceder a un repositorio de información donde se indica el nivel de información
-    que el soporte contiene o puede contener. La etiqueta del soporte determina las normativas y los procedimientos que deben
-    apl
+  descripcion: >-
+    Los soportes se marcan de manera que se reconozca el nivel de calificación más alto de cuanto contienen, sin
+    desvelar la información en sí. La marca puede ir en el propio soporte o resolverse con un código que remita a un
+    registro consultable por la persona usuaria. De esa marca dependen las normas y los procedimientos de manejo que le
+    corresponden.
   aplica_basica: false
   aplica_media: true
   aplica_alta: true
@@ -1411,12 +1410,11 @@ medidas:
   marco: mp
   familia: mp.si
   familia_nombre: Protección de los soportes de información
-  descripcion: '5.5.2 [MP.SI.2] CRIPTOGRAFÍA Este requisito se aplica, en particular, a todos los dispositivos removibles
-    (como CD, DVD, discos USB, etc.). En lo referente a claves criptográficas, se debe aplicar [op.exp.11]. Una opción es
-    asegurarse que los datos se protegen antes de copiarse al soporte; es decir, se cifran o se firman exteriormente. Otra
-    opción es proteger todo el soporte instalando en el mismo un disco virtual que se encarga de acoger todo lo que se copie
-    en el mismo, así como controlar el acceso al mismo. Otra opción es emplear soportes con cifrado incorporado por hardware
-    que se encarga '
+  descripcion: >-
+    Exige cifrar la información almacenada en soportes, en particular los extraíbles, para que su pérdida o sustracción
+    no se convierta en una fuga. Puede protegerse el dato antes de copiarlo, cifrarse un volumen completo o emplearse
+    soportes con cifrado incorporado por hardware. La gestión de las claves empleadas se somete a la medida específica
+    de protección de claves criptográficas.
   aplica_basica: false
   aplica_media: true
   aplica_alta: true
@@ -1431,11 +1429,11 @@ medidas:
   marco: mp
   familia: mp.si
   familia_nombre: Protección de los soportes de información
-  descripcion: '5.5.3 [MP.SI.3] CUSTODIA Se debe aplicar la debida diligencia y control a los soportes de información (tanto
-    en soporte electrónico como no electrónico) que permanecen bajo la responsabilidad de la organización:  garantizando
-    el control de acceso con medidas físicas ([mp.if.1] y [mp.if.7) o lógicas ([mp.si.2]) o ambas  garantizando que se respetan
-    las exigencias de mantenimiento del fabricante, en especial en lo referente a temperatura, humedad y otros agresores medioambientales
-    Se recomienda conservar la historia de cada dispositivo, desde su primer uso hasta la terminación de su vida útil '
+  descripcion: >-
+    Los soportes bajo responsabilidad de la organización se guardan con la diligencia que corresponde a lo que
+    contienen, controlando el acceso por medios físicos, lógicos o ambos. Se respetan además las condiciones de
+    conservación que indique el fabricante, en especial de temperatura y humedad. Conviene mantener el historial de cada
+    soporte desde su primer uso hasta su retirada.
   aplica_basica: true
   aplica_media: true
   aplica_alta: true
@@ -1449,12 +1447,11 @@ medidas:
   marco: mp
   familia: mp.si
   familia_nombre: Protección de los soportes de información
-  descripcion: '5.5.4 [MP.SI.4] TRANSPORTE Se debe garantizar que los dispositivos permanecen bajo control y se satisfacen
-    sus requisitos de seguridad mientras están siendo desplazados de un lugar a otro. Se debe:  disponer de un registro de
-    salida que identifica al menos la etiqueta y al transportista que recibe el soporte para su traslado (tanto electrónico
-    como no electrónico)  disponer de un registro de entrada que identifica al menos la etiqueta y al transportista que lo
-    entrega  disponer de un procedimiento rutinario que coteja las salidas con las llegadas y levanta las alarmas pertinentes
-    cuando se '
+  descripcion: >-
+    Cuando un soporte se desplaza, ha de seguir protegido y bajo control durante todo el trayecto. Se lleva registro de
+    salida y de entrada, identificando el soporte y a quien lo transporta, y un procedimiento rutinario coteja lo
+    enviado con lo recibido y da la alarma cuando algo no cuadra. Quien transporta debe conocer sus obligaciones y dejar
+    constancia de la entrega.
   aplica_basica: true
   aplica_media: true
   aplica_alta: true
@@ -1468,12 +1465,10 @@ medidas:
   marco: mp
   familia: mp.si
   familia_nombre: Protección de los soportes de información
-  descripcion: '5.5.5 [MP.SI.5] BORRADO Y DESTRUCCIÓN Se debe aplicar un mecanismo de borrado seguro a los soportes extraíbles
-    (electrónicos y no electrónicos) que vayan a ser reutilizados para otra información o liberados a otra organización. El
-    mecanismo de borrado será proporcionado a la clasificación de la información que ha estado presente en el soporte. Se
-    deben destruir los soportes, de forma segura:  cuando la naturaleza del soporte no permita un borrado seguro  cuando
-    el procedimiento asociado al nivel de clasificación de la información contenida así lo requiera El mecanismo de destrucción
-    será pro'
+  descripcion: >-
+    Antes de reutilizar un soporte para otra información o de cederlo fuera, se le aplica un borrado seguro
+    proporcionado a la calificación de lo que contuvo. Si el soporte no admite un borrado fiable, o si el nivel de
+    calificación así lo exige, se destruye por un método acorde. La operación queda documentada.
   aplica_basica: true
   aplica_media: true
   aplica_alta: true
@@ -1487,12 +1482,11 @@ medidas:
   marco: mp
   familia: mp.sw
   familia_nombre: Protección de las aplicaciones informáticas
-  descripcion: 5.6.1 [MP.SW.1] DESARROLLO El desarrollo de aplicaciones se realizará sobre un sistema diferente y separado
-    del de producción, no debiendo existir herramientas o datos de desarrollo en el entorno de producción. Ver [op.acc.3]
-    sobre segregación de funciones. Para que la segregación sea creíble, se deben separar los entornos y controlar los mecanismos
-    de identificación, autenticación y control de acceso de los usuarios diferenciando rigurosamente los privilegios de cada
-    uno. La metodología de desarrollo conviene que sea un estándar reconocido que incluya la seguridad como parte integral
-    del desa
+  descripcion: >-
+    El desarrollo se lleva a cabo en un entorno separado del de producción, sin que existan en producción herramientas
+    ni datos de desarrollo. La metodología empleada debe incorporar la seguridad desde el principio y no como añadido
+    final, tratando los requisitos de seguridad igual que los funcionales. Para las pruebas no se emplean datos reales;
+    si no hay alternativa, se protegen al nivel que les corresponda.
   aplica_basica: false
   aplica_media: true
   aplica_alta: true
@@ -1506,11 +1500,11 @@ medidas:
   marco: mp
   familia: mp.sw
   familia_nombre: Protección de las aplicaciones informáticas
-  descripcion: 5.6.2 [MP.SW.2] ACEPTACIÓN Y PUESTA EN SERVICIO Categoría BÁSICA Se realizan pruebas estándar de aceptación
-    para que un nuevo software se integre Esto incluye verificar que se satisfacen los requisitos de seguridad, que hay mecanismos
-    que detectan y registran los fallos reales o sospechas de violación de la seguridad y que están preparados los procedimientos
-    de gestión de incidentes. Las pruebas deben hacerse en un entorno separado para no causar problemas a la producción, ni
-    alterando datos, ni abriendo brechas de seguridad por defectos de convivencia. Es conveniente utilizar un entorno de pr
+  descripcion: >-
+    Antes de poner un programa en explotación se comprueba que satisface los requisitos de seguridad exigidos, que
+    registra los fallos y las sospechas de violación, y que están listos los procedimientos para gestionarlos. Las
+    pruebas se realizan en un entorno separado, para no alterar datos ni abrir brechas en producción. El resultado se
+    documenta y la puesta en servicio la aprueba el responsable.
   aplica_basica: true
   aplica_media: true
   aplica_alta: true

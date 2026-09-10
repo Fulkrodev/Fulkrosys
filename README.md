@@ -437,26 +437,32 @@ Un efecto colateral que merece figurar aquí: `backend/tests/corpus/test_rd311_p
 **vacuamente verdadero** fuera de esa máquina —14 saltos silenciosos, porque la ruta absoluta nunca
 existía—. La misma clase de bug que el hallazgo 3, escondida detrás de una ruta.
 
-**La evaluación de agentes cubre uno de trece.** Hay un arnés completo de 2.428 líneas en
-`backend/app/motors/m_observability/`, y un solo dataset, con 10 ejemplos:
+**La evaluación de agentes cubre 3 de las 13 clases de agente** —`agent_27_clasificador`,
+`agent_18_reunion` y `agent_06_contratos`— con 10 entradas curadas cada una. Hay un cuarto golden
+dataset, `deliverable_text_auditor`, que no es una clase de agente sino una capability: en total,
+**4 objetivos evaluados y 40 entradas**.
 
 ```bash
 $ ls -d docs/catalogs/golden_datasets/*/ | xargs -n1 basename
+agent_06_contratos
+agent_18_reunion
+agent_27_clasificador
 deliverable_text_auditor
-$ python3 -c "import json; print(len(json.load(open('docs/catalogs/golden_datasets/deliverable_text_auditor/v1.json'))['entries']))"
-10
+$ command grep -rn "(AgentBase)" --include=*.py backend/app | wc -l
+13
 ```
 
-Frente a doce clases de agente implementadas:
+Antes de septiembre de 2026 esto decía «uno de trece», y era **generoso con la verdad**: el único
+dataset que había medía una capability, no un agente. La cobertura de clases de agente era **0**.
 
-```bash
-$ grep -rhoE "^class [A-Za-z0-9_]*Agent[A-Za-z0-9_]*" backend/app/agents/*.py \
-    | grep -vE "Error$|^class AgentBase$" | sort -u | wc -l
-12
-```
+Los tres nuevos se eligieron porque su salida es **estructura verificable sin juicio** —códigos de
+un catálogo cerrado, enumerados, intervalos, recuentos—; los que producen prosa siguen sin dataset
+a propósito, porque evaluarlos exige un criterio subjetivo que un gate no puede aplicar.
 
-La infraestructura de evaluación está construida; los datos para usarla, no. Es el hueco más
-grande del proyecto: sin datasets, no hay forma de saber si un cambio de prompt mejora o empeora.
+**Lo que este número NO dice**: ninguno de los cuatro tiene todavía una tasa de aciertos real,
+porque el gate contra el modelo necesita `ANTHROPIC_API_KEY` y no se ha ejecutado. Lo verde hoy
+mide el arnés y el cableado, no al modelo. Los umbrales de 0,80 son los que declara cada dataset,
+**no una medición calibrada**.
 
 **Nueve cadenas de modelo sueltas por el código**, sin registro central:
 
@@ -501,9 +507,29 @@ Es una decisión de ingeniería antes que un trámite: el fixture pesa la mitad,
 clonarlo y ejecutarlo sin heredar material que no es suyo para redistribuir, y el corpus completo
 sigue siendo reproducible en local para quien tenga las fuentes.
 
-**Frente abierto, y se dice:** `docs/catalogs/ens_measures_catalog_v1.yaml` declara en su cabecera
-«descripciones: CCN-STIC 804 v2017» y contiene párrafos copiados de esa guía en 79 medidas. Sigue
-en el repositorio y hay que reescribirlo.
+**Cerrado el 2026-09-10:** `docs/catalogs/ens_measures_catalog_v1.yaml` contenía párrafos copiados
+literalmente de la CCN-STIC 804 en las 79 medidas. Las 79 descripciones están **reescritas con
+lenguaje propio**; la cabecera ya no atribuye las descripciones a la guía, y `fuente_oficial`
+sigue apuntando a la sección concreta para no perder la trazabilidad. Lo vigila un umbral medible:
+
+```bash
+$ python3 scripts/verificar_catalogo_sin_copia_literal.py
+Medidas comparadas:        79
+Coincidencia máxima:       7 palabras consecutivas (en mp.if.2)
+Medidas en el umbral o por encima (8+): 0
+RESULTADO: VERDE
+```
+
+Ese script compara contra la versión anterior en git y falla si alguna descripción vuelve a
+compartir 8 palabras seguidas con el original. `backend/tests/scripts/test_catalogo_sin_copia_literal.py`
+lo cubre en CI sin necesitar git. **Lo que ninguno de los dos verifica** es que la descripción sea
+normativamente exacta: eso lo revisa una persona.
+
+**Frente abierto, y se dice:** `backend/app/corpus/data/CCN_STIC_809.md` es el mismo problema un
+nivel peor. Son 103 líneas que **dicen ser la guía** («# CCN-STIC-809 — Declaración, Certificación
+y Aprobación Provisional… Centro Criptológico Nacional»), con 17 párrafos de más de 400 caracteres,
+y se ingestan declarando al CCN como editor. Sigue en el repositorio y hay que retirarlo o
+reescribirlo.
 
 ### Terceros que requieren atribución
 

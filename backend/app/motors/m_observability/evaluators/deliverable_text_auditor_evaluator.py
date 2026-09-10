@@ -32,6 +32,7 @@ from typing import Any
 from backend.app.motors.m_observability.eval_runner import (
     EntryEvalResult,
     register_evaluator,
+    register_synthetic_output,
 )
 from backend.app.motors.m_observability.golden_datasets_loader import (
     GoldenDatasetEntry,
@@ -175,5 +176,29 @@ def deliverable_text_auditor_evaluator(
     )
 
 
+def salida_sintetica(entry: GoldenDatasetEntry) -> dict[str, Any]:
+    """Salida perfecta para `entry` con la forma de `audit_deliverable_sync`.
+
+    BLOQUE D · D2. Este diccionario estaba escrito a mano dentro de
+    `.github/workflows/evals.yml`, en el gate de auto-consistencia del
+    arnés. Se ha traído aquí sin cambiar un solo campo: la forma de la
+    salida de un agente es conocimiento de su evaluador, no del fichero de
+    CI, y con cuatro datasets el YAML no puede conocer cuatro esquemas.
+
+    Lo usa el gate del arnés para comprobar que dataset y evaluador siguen
+    siendo compatibles. NO llama al modelo ni pretende parecerse a lo que
+    el modelo respondería: es el techo, la respuesta que aprueba por
+    construcción.
+    """
+    esperado = entry.expected_output
+    return {
+        "verdict": esperado.verdict,
+        "issues_critical": list(esperado.issues_critical),
+        "issues_moderate": list(esperado.issues_moderate),
+        "key_phrases_found": list(esperado.key_phrases_required),
+    }
+
+
 # Side-effect registration · activated al importar el package
 register_evaluator(_AGENT_NAME, deliverable_text_auditor_evaluator)
+register_synthetic_output(_AGENT_NAME, salida_sintetica)

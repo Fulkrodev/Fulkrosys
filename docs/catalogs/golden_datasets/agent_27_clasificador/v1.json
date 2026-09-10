@@ -1,0 +1,388 @@
+{
+  "agent_name": "agent_27_clasificador",
+  "version": "v1",
+  "created_at": "2026-09-10",
+  "curated_by": "marcos",
+  "purpose": "10 entradas curadas para Agent27ClasificadorIDMS (backend/app/agents/agent_27_clasificador.py). Se eligió este agente porque su salida es una CLASIFICACIÓN sobre un catálogo cerrado de 15 códigos de carpeta más una confianza numérica: se comprueba con igualdad y con rangos, no con juicio. Mezcla: 5 fáciles (señal unívoca), 3 límite (documento genuinamente ambiguo entre dos carpetas del catálogo §2.15) y 2 que deben fallar si el modelo adivina (fichero equivocado con nombre engañoso, y extracción OCR que sólo recuperó cabeceras). INVARIANTE de curación: en las entradas con requiere_revision_humana=false la banda de confianza empieza en 0.85 o más, y en las de true termina por debajo de 0.85. Es la misma frontera que aplica _enforce_review_flag en el agente (_AUTO_APPROVABLE_THRESHOLD = 0.85), así que la banda y la bandera nunca pueden pedir cosas contradictorias.",
+  "capability_required": "Agent27ClasificadorIDMS.invoke(structured_output=True) · se evalúa resultado['parsed'], es decir el JSON crudo del modelo ANTES de _enforce_review_flag y ANTES del fallback a 99_Misc. Evaluar el post-proceso sería evaluar código determinista ya cubierto por pytest; lo que aquí se mide es al modelo.",
+  "schema_version": "1.1",
+  "regression_thresholds": {
+    "pass_rate_warn_below": 0.8,
+    "pass_rate_alert_below": 0.6
+  },
+  "entries": [
+    {
+      "id": "a27-001",
+      "category": "acta_comite_seguridad",
+      "dificultad": "facil",
+      "nota_curacion": "Senal univoca: organo colegiado + aprobacion formal + nombramiento de rol. Es 01_Gobierno por el catalogo §2.15 sin ambiguedad posible.",
+      "input": {
+        "document_name": "ACTA_20250312_ses_ordinaria.pdf",
+        "content_excerpt": "ACTA DE LA SESIÓN ORDINARIA DEL COMITÉ DE SEGURIDAD DE LA INFORMACIÓN\n\nEn la sede del organismo, siendo las 10:00 horas del 12 de marzo de 2025, se reúne el Comité de Seguridad de la Información con la asistencia de la Secretaría General, la Jefatura del Servicio de Informática y la persona designada como Responsable de Seguridad.\n\nORDEN DEL DÍA\n1. Aprobación, si procede, del acta de la sesión anterior.\n2. Aprobación de la Política de Seguridad de la Información.\n3. Nombramiento del Responsable de Seguridad y del Responsable del Sistema.\n4. Ruegos y preguntas.\n\nACUERDOS\nPRIMERO. Se aprueba por unanimidad la Política de Seguridad de la Información, que entrará en vigor al día siguiente de su publicación en la intranet corporativa.\nSEGUNDO. Se designa Responsable de Seguridad a la persona titular de la Jefatura del Servicio de Informática, con las funciones de seguimiento del cumplimiento del Esquema Nacional de Seguridad.\nTERCERO. Se acuerda revisar los acuerdos adoptados en la próxima sesión ordinaria, prevista para el mes de junio.",
+        "deterministic_attempt": {
+          "suggested_folder": "99",
+          "confidence": 0.2
+        },
+        "client_context": {
+          "sector": "aapp",
+          "ens_category": "MEDIA"
+        }
+      },
+      "expected_output": {
+        "carpetas_aceptables": [
+          "01"
+        ],
+        "confianza_minima": 0.85,
+        "confianza_maxima": 1.0,
+        "requiere_revision_humana": false,
+        "alternativas_minimas": 0,
+        "key_phrases_required": [],
+        "key_phrases_forbidden": []
+      },
+      "rubric": {
+        "structure_check": true,
+        "ens_coverage_required_pct": 0,
+        "codigo_en_catalogo_15_carpetas": true,
+        "nombre_coherente_con_codigo": true,
+        "confianza_calibrada": true,
+        "revision_humana_derivada_de_umbrales": true
+      }
+    },
+    {
+      "id": "a27-002",
+      "category": "informe_magerit",
+      "dificultad": "facil",
+      "nota_curacion": "Catálogo de activos + amenazas + riesgo residual = 03. El vocabulario MAGERIT no aparece en ninguna otra carpeta del catálogo.",
+      "input": {
+        "document_name": "entregable_fase2_rev4.docx",
+        "content_excerpt": "ANÁLISIS Y GESTIÓN DE RIESGOS · METODOLOGÍA MAGERIT v3\n\n1. Inventario de activos\n[ACT-001] Servidor de aplicaciones de la sede electrónica (esencial).\n[ACT-002] Base de datos del registro de entrada y salida.\n[ACT-003] Enlace de comunicaciones con la red SARA.\n\n2. Valoración de activos\nSe valoran las dimensiones disponibilidad, integridad, confidencialidad, autenticidad y trazabilidad en escala de 0 a 10. [ACT-002] obtiene 8 en integridad por su carácter de registro con efectos jurídicos.\n\n3. Amenazas consideradas\n[E.1] Errores de los usuarios. [E.8] Difusión de software dañino. [A.11] Acceso no autorizado. [I.5] Avería de origen físico o lógico.\n\n4. Riesgo residual\nTras aplicar las salvaguardas previstas, el riesgo residual de [ACT-002] desciende de nivel alto a nivel medio. La Dirección acepta formalmente el riesgo residual medio.",
+        "deterministic_attempt": {
+          "suggested_folder": "99",
+          "confidence": 0.15
+        },
+        "client_context": {
+          "sector": "aapp",
+          "ens_category": "MEDIA"
+        }
+      },
+      "expected_output": {
+        "carpetas_aceptables": [
+          "03"
+        ],
+        "confianza_minima": 0.85,
+        "confianza_maxima": 1.0,
+        "requiere_revision_humana": false,
+        "alternativas_minimas": 0,
+        "key_phrases_required": [],
+        "key_phrases_forbidden": []
+      },
+      "rubric": {
+        "structure_check": true,
+        "ens_coverage_required_pct": 0,
+        "codigo_en_catalogo_15_carpetas": true,
+        "nombre_coherente_con_codigo": true,
+        "confianza_calibrada": true,
+        "revision_humana_derivada_de_umbrales": true
+      }
+    },
+    {
+      "id": "a27-003",
+      "category": "declaracion_aplicabilidad",
+      "dificultad": "facil",
+      "nota_curacion": "Matriz medida a medida del Anexo II con estado de aplicabilidad = 04. Trampa evitada: menciona el Plan de Adecuación (05) de pasada, pero el cuerpo del documento es la matriz.",
+      "input": {
+        "document_name": "matriz_v7.xlsx",
+        "content_excerpt": "DECLARACIÓN DE APLICABILIDAD · ANEXO II DEL REAL DECRETO 311/2022\nSistema: plataforma de tramitación electrónica. Categoría: MEDIA.\n\nCÓDIGO | MEDIDA | APLICA | JUSTIFICACIÓN\norg.1 | Política de seguridad | SÍ | Aprobada por el Comité de Seguridad.\norg.2 | Normativa de seguridad | SÍ | En elaboración, recogida en el Plan de Adecuación.\nop.acc.5 | Mecanismo de autenticación | SÍ | Refuerzo obligatorio en categoría MEDIA.\nop.exp.8 | Registro de la actividad | SÍ | Retención de 24 meses.\nmp.si.5 | Borrado y destrucción | SÍ | Procedimiento documentado.\nmp.s.1 | Protección del correo electrónico | NO APLICA | El servicio de correo está fuera del alcance declarado y lo presta un tercero certificado.\n\nLas medidas marcadas como no aplicables se justifican una a una en el apartado 4 de este documento.",
+        "deterministic_attempt": {
+          "suggested_folder": "99",
+          "confidence": 0.3
+        },
+        "client_context": {
+          "sector": "aapp",
+          "ens_category": "MEDIA"
+        }
+      },
+      "expected_output": {
+        "carpetas_aceptables": [
+          "04"
+        ],
+        "confianza_minima": 0.85,
+        "confianza_maxima": 1.0,
+        "requiere_revision_humana": false,
+        "alternativas_minimas": 0,
+        "key_phrases_required": [],
+        "key_phrases_forbidden": []
+      },
+      "rubric": {
+        "structure_check": true,
+        "ens_coverage_required_pct": 0,
+        "codigo_en_catalogo_15_carpetas": true,
+        "nombre_coherente_con_codigo": true,
+        "confianza_calibrada": true,
+        "revision_humana_derivada_de_umbrales": true
+      }
+    },
+    {
+      "id": "a27-004",
+      "category": "informe_pentest",
+      "dificultad": "facil",
+      "nota_curacion": "Hallazgos con CVE + CVSS + herramienta de escaneo = 13. El catálogo cita explícitamente OpenVAS y escaneos de vulnerabilidades en 13_Informes_Tecnicos.",
+      "input": {
+        "document_name": "informe_final_2025.pdf",
+        "content_excerpt": "INFORME DE TEST DE INTRUSIÓN EXTERNO\nVentana de ejecución: del 3 al 7 de febrero de 2025. Herramientas: OpenVAS, nmap y revisión manual.\n\nRESUMEN DE HALLAZGOS\nH-01 CRÍTICO (CVSS 9.1). Servicio de administración expuesto a Internet en el puerto 8443 con credenciales por defecto.\nH-02 ALTO (CVSS 7.5). Versión de la librería afectada por CVE-2024-21762 sin parchear en el balanceador perimetral.\nH-03 MEDIO (CVSS 5.3). Cabeceras de seguridad HTTP ausentes (Strict-Transport-Security, Content-Security-Policy).\nH-04 BAJO. Divulgación de la versión del servidor web en la cabecera Server.\n\nNo se ha conseguido acceso a datos de carácter personal durante la ejecución. Se recomienda repetir la prueba tras la remediación de H-01 y H-02.",
+        "deterministic_attempt": {
+          "suggested_folder": "99",
+          "confidence": 0.25
+        },
+        "client_context": {
+          "sector": "fintech",
+          "ens_category": "ALTA"
+        }
+      },
+      "expected_output": {
+        "carpetas_aceptables": [
+          "13"
+        ],
+        "confianza_minima": 0.85,
+        "confianza_maxima": 1.0,
+        "requiere_revision_humana": false,
+        "alternativas_minimas": 0,
+        "key_phrases_required": [],
+        "key_phrases_forbidden": []
+      },
+      "rubric": {
+        "structure_check": true,
+        "ens_coverage_required_pct": 0,
+        "codigo_en_catalogo_15_carpetas": true,
+        "nombre_coherente_con_codigo": true,
+        "confianza_calibrada": true,
+        "revision_humana_derivada_de_umbrales": true
+      }
+    },
+    {
+      "id": "a27-005",
+      "category": "plan_continuidad_nombre_enganoso",
+      "dificultad": "facil",
+      "nota_curacion": "El nombre del fichero no dice nada (por eso la heurística determinista falló) pero el contenido es RTO/RPO/BIA sin ambigüedad. Mide si el modelo lee el contenido en vez del nombre.",
+      "input": {
+        "document_name": "Anexo_III_v2_final_final.pdf",
+        "content_excerpt": "PLAN DE CONTINUIDAD DE LA ACTIVIDAD\n\n2. Análisis de impacto en el negocio (BIA)\nProceso crítico: emisión de certificados a la ciudadanía. Impacto de una interrupción superior a 8 horas: alto (incumplimiento de plazos administrativos).\n\n3. Objetivos de recuperación\nRTO del servicio de tramitación: 4 horas.\nRPO de la base de datos del registro: 15 minutos.\n\n4. Estrategia de recuperación\nRéplica asíncrona a un segundo centro de proceso de datos situado en territorio de la Unión Europea. Conmutación manual autorizada por el Responsable del Sistema.\n\n5. Pruebas\nSe realizará una prueba de conmutación anual documentada, con acta de resultados y registro de desviaciones respecto a los objetivos RTO y RPO declarados.",
+        "deterministic_attempt": {
+          "suggested_folder": "99",
+          "confidence": 0.1
+        },
+        "client_context": {
+          "sector": "aapp",
+          "ens_category": "MEDIA"
+        }
+      },
+      "expected_output": {
+        "carpetas_aceptables": [
+          "10"
+        ],
+        "confianza_minima": 0.85,
+        "confianza_maxima": 1.0,
+        "requiere_revision_humana": false,
+        "alternativas_minimas": 0,
+        "key_phrases_required": [],
+        "key_phrases_forbidden": []
+      },
+      "rubric": {
+        "structure_check": true,
+        "ens_coverage_required_pct": 0,
+        "codigo_en_catalogo_15_carpetas": true,
+        "nombre_coherente_con_codigo": true,
+        "confianza_calibrada": true,
+        "revision_humana_derivada_de_umbrales": true
+      }
+    },
+    {
+      "id": "a27-006",
+      "category": "contrato_proveedor_hosting",
+      "dificultad": "limite",
+      "nota_curacion": "Genuinamente ambiguo: el catálogo mete 'contratos cliente <-> proveedores' en 00_Contractual y 'DPAs firmados / dependencias TIC' en 12_Proveedores. Ambas son defendibles, así que se aceptan las dos y se exige que el modelo declare la duda (confianza < 0,85 y al menos una alternativa).",
+      "input": {
+        "document_name": "doc_firmado_20240918.pdf",
+        "content_excerpt": "CONTRATO DE PRESTACIÓN DE SERVICIOS DE ALOJAMIENTO Y TRATAMIENTO DE DATOS\n\nREUNIDOS: de una parte la entidad contratante y de otra el prestador del servicio de alojamiento.\n\nCLÁUSULA TERCERA. Condición de encargado del tratamiento.\nEl prestador tendrá la condición de encargado del tratamiento a los efectos del artículo 28 del Reglamento (UE) 2016/679, y tratará los datos únicamente conforme a las instrucciones documentadas del responsable.\n\nCLÁUSULA SEXTA. Subcontratación.\nEl prestador no podrá subcontratar la totalidad ni parte del servicio sin autorización previa y por escrito.\n\nCLÁUSULA NOVENA. Devolución de la información.\nA la finalización del contrato, el prestador devolverá la información en formato estándar y destruirá las copias en un plazo máximo de treinta días naturales, emitiendo certificado de destrucción.",
+        "deterministic_attempt": {
+          "suggested_folder": "00",
+          "confidence": 0.45
+        },
+        "client_context": {
+          "sector": "otro",
+          "ens_category": "MEDIA"
+        }
+      },
+      "expected_output": {
+        "carpetas_aceptables": [
+          "00",
+          "12"
+        ],
+        "confianza_minima": 0.45,
+        "confianza_maxima": 0.84,
+        "requiere_revision_humana": true,
+        "alternativas_minimas": 1,
+        "key_phrases_required": [],
+        "key_phrases_forbidden": []
+      },
+      "rubric": {
+        "structure_check": true,
+        "ens_coverage_required_pct": 0,
+        "codigo_en_catalogo_15_carpetas": true,
+        "nombre_coherente_con_codigo": true,
+        "confianza_calibrada": true,
+        "revision_humana_derivada_de_umbrales": true
+      }
+    },
+    {
+      "id": "a27-007",
+      "category": "captura_consola_dentro_de_revision",
+      "dificultad": "limite",
+      "nota_curacion": "Documento mixto: capturas de consola (09_Evidencias) dentro de un informe de revisión periódica (08_Registros_Operativos). Se aceptan ambas y se exige alternativa declarada.",
+      "input": {
+        "document_name": "revision_Q1.docx",
+        "content_excerpt": "REVISIÓN TRIMESTRAL DE CONTROLES · PRIMER TRIMESTRE 2025\n\nControl op.acc.6 (autenticación reforzada). Se adjunta captura de la consola de administración de identidades en la que se observa la directiva de acceso condicional aplicada al grupo 'Administradores', con exigencia de segundo factor y bloqueo de protocolos heredados. Fecha de la captura: 04/04/2025.\n\nControl op.exp.8 (registro de actividad). Captura del panel de retención de registros: 24 meses configurados, almacenamiento inmutable activado.\n\nIndicadores del trimestre: 3 incidentes de categoría baja, 0 de categoría alta, 100% de los servidores dentro de la ventana de parcheo acordada.\n\nConclusión de la revisión: los controles verificados se consideran eficaces. Próxima revisión: julio de 2025.",
+        "deterministic_attempt": {
+          "suggested_folder": "09",
+          "confidence": 0.4
+        },
+        "client_context": {
+          "sector": "sanidad",
+          "ens_category": "ALTA"
+        }
+      },
+      "expected_output": {
+        "carpetas_aceptables": [
+          "08",
+          "09"
+        ],
+        "confianza_minima": 0.45,
+        "confianza_maxima": 0.84,
+        "requiere_revision_humana": true,
+        "alternativas_minimas": 1,
+        "key_phrases_required": [],
+        "key_phrases_forbidden": []
+      },
+      "rubric": {
+        "structure_check": true,
+        "ens_coverage_required_pct": 0,
+        "codigo_en_catalogo_15_carpetas": true,
+        "nombre_coherente_con_codigo": true,
+        "confianza_calibrada": true,
+        "revision_humana_derivada_de_umbrales": true
+      }
+    },
+    {
+      "id": "a27-008",
+      "category": "normativa_o_procedimiento",
+      "dificultad": "limite",
+      "nota_curacion": "El título dice 'Normativa' (06) pero el cuerpo son pasos operativos numerados con responsable y plazo (07). Es la confusión clásica política/normativa vs procedimiento. Se aceptan 06 y 07 exigiendo duda declarada.",
+      "input": {
+        "document_name": "NOR-014_uso_aceptable.docx",
+        "content_excerpt": "NORMATIVA DE USO ACEPTABLE DE LOS RECURSOS TIC\n\n5. Alta de una cuenta de usuario\n5.1 La persona responsable de la unidad remite el formulario F-014 al Servicio de Informática. Plazo: 2 días hábiles.\n5.2 El Servicio de Informática verifica que el perfil solicitado consta en la matriz de perfiles vigente.\n5.3 Se crea la cuenta con la contraseña de un solo uso y se fuerza el cambio en el primer inicio de sesión.\n5.4 Se registra el alta en la herramienta de tiques dejando traza del solicitante, del aprobador y de la fecha.\n\n6. Baja de una cuenta de usuario\n6.1 Recursos Humanos comunica la baja el mismo día de efectividad.\n6.2 El Servicio de Informática deshabilita la cuenta en un plazo máximo de 24 horas y conserva el buzón 90 días.",
+        "deterministic_attempt": {
+          "suggested_folder": "06",
+          "confidence": 0.5
+        },
+        "client_context": {
+          "sector": "otro",
+          "ens_category": "MEDIA"
+        }
+      },
+      "expected_output": {
+        "carpetas_aceptables": [
+          "06",
+          "07"
+        ],
+        "confianza_minima": 0.45,
+        "confianza_maxima": 0.84,
+        "requiere_revision_humana": true,
+        "alternativas_minimas": 1,
+        "key_phrases_required": [],
+        "key_phrases_forbidden": []
+      },
+      "rubric": {
+        "structure_check": true,
+        "ens_coverage_required_pct": 0,
+        "codigo_en_catalogo_15_carpetas": true,
+        "nombre_coherente_con_codigo": true,
+        "confianza_calibrada": true,
+        "revision_humana_derivada_de_umbrales": true
+      }
+    },
+    {
+      "id": "a27-009",
+      "category": "fichero_equivocado_nombre_enganoso",
+      "dificultad": "debe_fallar",
+      "nota_curacion": "El cliente ha subido el fichero equivocado: el nombre promete una política de seguridad (06) y el contenido es una convocatoria de elecciones sindicales. Un modelo que se deje llevar por el nombre y devuelva 06 con confianza alta FALLA esta entrada, que es exactamente lo que se quiere detectar.",
+      "input": {
+        "document_name": "Politica_Seguridad_Informacion_v3.docx",
+        "content_excerpt": "CONVOCATORIA DE ELECCIONES SINDICALES\n\nDe conformidad con lo previsto en el Estatuto de los Trabajadores, se convoca la celebración de elecciones para la renovación del comité de empresa.\n\nCenso laboral: se expone en el tablón de anuncios durante los próximos diez días hábiles a efectos de posibles reclamaciones.\nMesa electoral: quedará constituida por la persona de mayor antigüedad y las dos de menor edad de la plantilla.\nUrnas: se habilitarán dos puntos de votación, uno por cada centro de trabajo, en horario de 9:00 a 17:00.\nReclamaciones: se dirigirán por escrito a la mesa electoral en el plazo de un día hábil desde la proclamación de resultados.",
+        "deterministic_attempt": {
+          "suggested_folder": "06",
+          "confidence": 0.6
+        },
+        "client_context": {
+          "sector": "otro",
+          "ens_category": "BASICA"
+        }
+      },
+      "expected_output": {
+        "carpetas_aceptables": [
+          "99"
+        ],
+        "confianza_minima": 0.0,
+        "confianza_maxima": 0.6,
+        "requiere_revision_humana": true,
+        "alternativas_minimas": 0,
+        "key_phrases_required": [],
+        "key_phrases_forbidden": []
+      },
+      "rubric": {
+        "structure_check": true,
+        "ens_coverage_required_pct": 0,
+        "codigo_en_catalogo_15_carpetas": true,
+        "nombre_coherente_con_codigo": true,
+        "confianza_calibrada": true,
+        "revision_humana_derivada_de_umbrales": true
+      }
+    },
+    {
+      "id": "a27-010",
+      "category": "ocr_solo_cabecera",
+      "dificultad": "debe_fallar",
+      "nota_curacion": "La extracción de texto sólo recuperó la cabecera y el pie: hay más de 20 caracteres (así que el corte determinista del agente no salta y el modelo SÍ recibe la petición) pero no hay cuerpo clasificable. La respuesta honesta es 99 con confianza baja; adivinar una carpeta concreta es el fallo que se busca.",
+      "input": {
+        "document_name": "expediente_2025_0473.pdf",
+        "content_excerpt": "AYUNTAMIENTO DE [MUNICIPIO] · EXPEDIENTE 2025/0473\nPágina 1 de 14\n- - - - - - - - - - - - - - - - - - - - - - - - - - - - - -\nPágina 2 de 14\nPágina 3 de 14",
+        "deterministic_attempt": {
+          "suggested_folder": "99",
+          "confidence": 0.1
+        },
+        "client_context": {
+          "sector": "aapp",
+          "ens_category": "BASICA"
+        }
+      },
+      "expected_output": {
+        "carpetas_aceptables": [
+          "99"
+        ],
+        "confianza_minima": 0.0,
+        "confianza_maxima": 0.55,
+        "requiere_revision_humana": true,
+        "alternativas_minimas": 0,
+        "key_phrases_required": [],
+        "key_phrases_forbidden": []
+      },
+      "rubric": {
+        "structure_check": true,
+        "ens_coverage_required_pct": 0,
+        "codigo_en_catalogo_15_carpetas": true,
+        "nombre_coherente_con_codigo": true,
+        "confianza_calibrada": true,
+        "revision_humana_derivada_de_umbrales": true
+      }
+    }
+  ]
+}

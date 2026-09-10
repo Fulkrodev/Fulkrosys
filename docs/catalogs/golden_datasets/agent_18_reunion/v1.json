@@ -1,0 +1,591 @@
+{
+  "agent_name": "agent_18_reunion",
+  "version": "v1",
+  "created_at": "2026-09-10",
+  "curated_by": "marcos",
+  "purpose": "10 entradas curadas para Agent18ReunionExploratoria (backend/app/agents/agent_18_reunion.py). Se eligió este agente porque sus 9 claves obligatorias son casi todas enumerados cerrados (categoria_ens, madurez_actual L0-L5, viabilidad_temporal, impacto, esfuerzo) más un rango numérico de horas y unas cardinalidades máximas: se comprueba con pertenencia a conjunto y con solape de intervalos, sin juicio sobre la prosa. Mezcla: 4 fáciles, 4 límite (información parcial, plazo imposible, contradicción entre bloques, cliente que pide una categoría que no le corresponde) y 2 que deben fallar si el modelo adivina (bloques vacíos y bloques llenos de ruido). Criterio de curación de las horas: se exige SOLAPE con la banda, no igualdad, porque una estimación de esfuerzo no es determinista y exigir el número exacto mediría ruido de muestreo, no calidad.",
+  "capability_required": "Agent18ReunionExploratoria.invoke(structured_output=True) · se evalúa resultado['parsed'], el JSON crudo del modelo ANTES del fallback determinista a UNKNOWN. Si se evaluase el fallback, las dos entradas 'debe_fallar' pasarían siempre aunque el modelo no hubiese respondido nada, que es justo el verde vacuo que se quiere evitar.",
+  "schema_version": "1.1",
+  "regression_thresholds": {
+    "pass_rate_warn_below": 0.8,
+    "pass_rate_alert_below": 0.6
+  },
+  "entries": [
+    {
+      "id": "a18-001",
+      "category": "licitacion_media_con_iso27001",
+      "dificultad": "facil",
+      "nota_curacion": "El pliego dice literalmente la categoría, así que MEDIA no es una inferencia: es una lectura. Con ISO 27001 viva la madurez no puede ser L0/L1 y con 5 meses de plazo la viabilidad no puede ser inviable.",
+      "input": {
+        "blocks": {
+          "A_contexto": "Integradora de software, 45 empleados, sede en Sevilla. Factura el 60% a administraciones autonómicas.",
+          "B_informacion": "Se licita el mantenimiento de la plataforma de expedientes de una consejería. El pliego exige en el criterio de solvencia técnica 'certificación del Esquema Nacional de Seguridad de categoría MEDIA' para el sistema desde el que se presta el servicio.",
+          "C_madurez": "Tienen ISO 27001 certificada desde 2022, con su SGSI vivo y auditoría de seguimiento superada en marzo. No han mirado nunca el Anexo II.",
+          "D_plazos": "La adjudicación se resuelve en octubre y hay que acreditar la certificación antes de la formalización. Cinco meses desde hoy.",
+          "E_presupuesto": "Han reservado partida para consultoría y auditoría. No dan cifra pero dicen que 'lo que valga una ISO'.",
+          "F_equipo": "Responsable de sistemas con dos técnicos. La dirección general firma. Hay interlocutor asignado a tiempo parcial."
+        },
+        "blocks_filled": [
+          "A",
+          "B",
+          "C",
+          "D",
+          "E",
+          "F"
+        ]
+      },
+      "expected_output": {
+        "categorias_aceptables": [
+          "MEDIA"
+        ],
+        "confianza_minima": 0.75,
+        "confianza_maxima": 1.0,
+        "madurez_aceptable": [
+          "L2",
+          "L3",
+          "L4"
+        ],
+        "viabilidades_aceptables": [
+          "holgada",
+          "ajustada"
+        ],
+        "horas_rango_esperado": [
+          40,
+          110
+        ],
+        "riesgos_minimos": 0,
+        "riesgos_maximos": 3,
+        "quick_wins_minimas": 0,
+        "preguntas_minimas": 0,
+        "preguntas_maximas": 5,
+        "key_phrases_required": [],
+        "key_phrases_forbidden": []
+      },
+      "rubric": {
+        "structure_check": true,
+        "ens_coverage_required_pct": 0,
+        "categoria_en_enum_cerrado": true,
+        "viabilidad_en_enum_cerrado": true,
+        "horas_solapan_banda_curada": true,
+        "cardinalidades_respetadas": true
+      }
+    },
+    {
+      "id": "a18-002",
+      "category": "sanidad_datos_salud_alta",
+      "dificultad": "facil",
+      "nota_curacion": "Historia clínica + continuidad asistencial + parada de 30 minutos con impacto en la atención: es el caso de manual de categoría ALTA. Aceptamos también MEDIA porque la categorización formal la fija el Anexo I sobre el sistema concreto y en una exploratoria todavía no hay valoración firmada; lo que NO se acepta es BÁSICA.",
+      "input": {
+        "blocks": {
+          "A_contexto": "Empresa de 120 personas que opera el sistema de gestión de citas y la historia clínica de una red de centros concertados.",
+          "B_informacion": "El sistema trata datos de salud de unos 300.000 pacientes y está conectado con el sistema autonómico. Una parada de más de 30 minutos deja a los centros sin acceso a la historia clínica durante la consulta.",
+          "C_madurez": "Tienen políticas escritas de 2019 sin revisar, copias de seguridad probadas y ningún análisis de riesgos formal.",
+          "D_plazos": "El concierto se renueva en un año y la administración ya ha avisado de que exigirá ENS.",
+          "E_presupuesto": "Presupuesto por confirmar en el consejo de administración de octubre.",
+          "F_equipo": "Un responsable de sistemas, un DPD externo compartido y soporte de un proveedor para la infraestructura."
+        },
+        "blocks_filled": [
+          "A",
+          "B",
+          "C",
+          "D",
+          "E",
+          "F"
+        ]
+      },
+      "expected_output": {
+        "categorias_aceptables": [
+          "ALTA",
+          "MEDIA"
+        ],
+        "confianza_minima": 0.6,
+        "confianza_maxima": 1.0,
+        "madurez_aceptable": [
+          "L1",
+          "L2",
+          "L3"
+        ],
+        "viabilidades_aceptables": [
+          "holgada",
+          "ajustada"
+        ],
+        "horas_rango_esperado": [
+          60,
+          200
+        ],
+        "riesgos_minimos": 1,
+        "riesgos_maximos": 3,
+        "quick_wins_minimas": 0,
+        "preguntas_minimas": 0,
+        "preguntas_maximas": 5,
+        "key_phrases_required": [],
+        "key_phrases_forbidden": []
+      },
+      "rubric": {
+        "structure_check": true,
+        "ens_coverage_required_pct": 0,
+        "categoria_en_enum_cerrado": true,
+        "viabilidad_en_enum_cerrado": true,
+        "horas_solapan_banda_curada": true,
+        "cardinalidades_respetadas": true
+      }
+    },
+    {
+      "id": "a18-003",
+      "category": "basica_web_informativa",
+      "dificultad": "facil",
+      "nota_curacion": "Sistema sin datos especiales, sin tramitación y con impacto limitado: BÁSICA. Aceptamos MEDIA por prudencia del modelo, pero ALTA sería una sobrecategorización que encarece el proyecto al cliente sin motivo.",
+      "input": {
+        "blocks": {
+          "A_contexto": "Consultora de formación, 8 personas, contrato menor con una diputación.",
+          "B_informacion": "Sólo entra en el alcance la web corporativa informativa y el correo. No hay tramitación, no hay datos de salud ni financieros, no hay integración con sistemas de la administración.",
+          "C_madurez": "Nada documentado. Usan un SaaS de correo y un hosting compartido.",
+          "D_plazos": "El contrato menor se firma en dos meses y la cláusula pide 'cumplimiento del ENS en la categoría que corresponda'.",
+          "E_presupuesto": "Muy justo. Hablan de cuatro mil euros.",
+          "F_equipo": "El gerente es el interlocutor y no hay equipo técnico propio."
+        },
+        "blocks_filled": [
+          "A",
+          "B",
+          "C",
+          "D",
+          "E",
+          "F"
+        ]
+      },
+      "expected_output": {
+        "categorias_aceptables": [
+          "BASICA",
+          "MEDIA"
+        ],
+        "confianza_minima": 0.55,
+        "confianza_maxima": 1.0,
+        "madurez_aceptable": [
+          "L0",
+          "L1"
+        ],
+        "viabilidades_aceptables": [
+          "holgada",
+          "ajustada"
+        ],
+        "horas_rango_esperado": [
+          15,
+          70
+        ],
+        "riesgos_minimos": 0,
+        "riesgos_maximos": 3,
+        "quick_wins_minimas": 0,
+        "preguntas_minimas": 0,
+        "preguntas_maximas": 5,
+        "key_phrases_required": [],
+        "key_phrases_forbidden": []
+      },
+      "rubric": {
+        "structure_check": true,
+        "ens_coverage_required_pct": 0,
+        "categoria_en_enum_cerrado": true,
+        "viabilidad_en_enum_cerrado": true,
+        "horas_solapan_banda_curada": true,
+        "cardinalidades_respetadas": true
+      }
+    },
+    {
+      "id": "a18-004",
+      "category": "solo_bloques_A_y_B",
+      "dificultad": "limite",
+      "nota_curacion": "Hay contexto y sistema pero no hay plazo, ni dinero, ni equipo. La categoría se puede estimar; la viabilidad temporal NO, y decir 'holgada' sin fecha sería inventar. Por eso viabilidad queda restringida a 'desconocida' y se exigen al menos dos preguntas pendientes.",
+      "input": {
+        "blocks": {
+          "A_contexto": "Empresa de logística que presta servicio a un puerto de titularidad pública.",
+          "B_informacion": "El alcance sería el sistema de gestión de entradas y salidas de mercancía, integrado con la aduana. Datos personales de transportistas y matrículas.",
+          "C_madurez": "",
+          "D_plazos": "",
+          "E_presupuesto": "",
+          "F_equipo": ""
+        },
+        "blocks_filled": [
+          "A",
+          "B"
+        ]
+      },
+      "expected_output": {
+        "categorias_aceptables": [
+          "MEDIA",
+          "BASICA",
+          "ALTA"
+        ],
+        "confianza_minima": 0.0,
+        "confianza_maxima": 0.7,
+        "madurez_aceptable": [
+          "L0",
+          "L1",
+          "L2"
+        ],
+        "viabilidades_aceptables": [
+          "desconocida"
+        ],
+        "horas_rango_esperado": [
+          0,
+          150
+        ],
+        "riesgos_minimos": 0,
+        "riesgos_maximos": 3,
+        "quick_wins_minimas": 0,
+        "preguntas_minimas": 2,
+        "preguntas_maximas": 5,
+        "key_phrases_required": [],
+        "key_phrases_forbidden": []
+      },
+      "rubric": {
+        "structure_check": true,
+        "ens_coverage_required_pct": 0,
+        "categoria_en_enum_cerrado": true,
+        "viabilidad_en_enum_cerrado": true,
+        "horas_solapan_banda_curada": true,
+        "cardinalidades_respetadas": true
+      }
+    },
+    {
+      "id": "a18-005",
+      "category": "plazo_imposible",
+      "dificultad": "limite",
+      "nota_curacion": "Tres semanas para una MEDIA partiendo de cero es inviable, y decirlo es el valor del panel. Un modelo complaciente que responda 'ajustada' falla esta entrada. Se exige además al menos un riesgo detectado.",
+      "input": {
+        "blocks": {
+          "A_contexto": "Empresa de 30 personas, primer contrato público.",
+          "B_informacion": "Aplicación de gestión de subvenciones alojada en la nube que va a manejar datos de solicitantes.",
+          "C_madurez": "Cero. No hay política, ni inventario, ni responsable de seguridad nombrado, ni copias probadas.",
+          "D_plazos": "La entidad contratante ha comunicado que exige el certificado ENS MEDIA en tres semanas o decae la adjudicación.",
+          "E_presupuesto": "Quieren gastar lo mínimo.",
+          "F_equipo": "Un informático que además lleva el soporte de usuario."
+        },
+        "blocks_filled": [
+          "A",
+          "B",
+          "C",
+          "D",
+          "E",
+          "F"
+        ]
+      },
+      "expected_output": {
+        "categorias_aceptables": [
+          "MEDIA"
+        ],
+        "confianza_minima": 0.55,
+        "confianza_maxima": 1.0,
+        "madurez_aceptable": [
+          "L0",
+          "L1"
+        ],
+        "viabilidades_aceptables": [
+          "inviable"
+        ],
+        "horas_rango_esperado": [
+          40,
+          160
+        ],
+        "riesgos_minimos": 1,
+        "riesgos_maximos": 3,
+        "quick_wins_minimas": 0,
+        "preguntas_minimas": 0,
+        "preguntas_maximas": 5,
+        "key_phrases_required": [],
+        "key_phrases_forbidden": []
+      },
+      "rubric": {
+        "structure_check": true,
+        "ens_coverage_required_pct": 0,
+        "categoria_en_enum_cerrado": true,
+        "viabilidad_en_enum_cerrado": true,
+        "horas_solapan_banda_curada": true,
+        "cardinalidades_respetadas": true
+      }
+    },
+    {
+      "id": "a18-006",
+      "category": "contradiccion_direccion_vs_ti",
+      "dificultad": "limite",
+      "nota_curacion": "Dirección dice que no tratan datos personales y el bloque técnico describe el padrón municipal. La contradicción tiene que salir como riesgo y como pregunta pendiente; si el modelo la ignora y responde tan tranquilo, falla.",
+      "input": {
+        "blocks": {
+          "A_contexto": "Empresa que presta el servicio de atención ciudadana de varios ayuntamientos pequeños. Dirección insiste en que 'nosotros no tratamos datos personales, sólo damos soporte'.",
+          "B_informacion": "El técnico describe que su aplicación consulta y actualiza el padrón municipal de habitantes y emite volantes de empadronamiento con firma electrónica.",
+          "C_madurez": "Hay copias de seguridad y control de acceso por usuario. Sin documentación formal.",
+          "D_plazos": "Sin fecha comprometida todavía; quieren estar listos 'para la próxima licitación'.",
+          "E_presupuesto": "No se ha hablado de dinero.",
+          "F_equipo": "Dos técnicos y un gerente que decide."
+        },
+        "blocks_filled": [
+          "A",
+          "B",
+          "C",
+          "D",
+          "E",
+          "F"
+        ]
+      },
+      "expected_output": {
+        "categorias_aceptables": [
+          "MEDIA",
+          "ALTA"
+        ],
+        "confianza_minima": 0.4,
+        "confianza_maxima": 1.0,
+        "madurez_aceptable": [
+          "L0",
+          "L1",
+          "L2"
+        ],
+        "viabilidades_aceptables": [
+          "desconocida",
+          "holgada"
+        ],
+        "horas_rango_esperado": [
+          30,
+          160
+        ],
+        "riesgos_minimos": 1,
+        "riesgos_maximos": 3,
+        "quick_wins_minimas": 0,
+        "preguntas_minimas": 1,
+        "preguntas_maximas": 5,
+        "key_phrases_required": [],
+        "key_phrases_forbidden": []
+      },
+      "rubric": {
+        "structure_check": true,
+        "ens_coverage_required_pct": 0,
+        "categoria_en_enum_cerrado": true,
+        "viabilidad_en_enum_cerrado": true,
+        "horas_solapan_banda_curada": true,
+        "cardinalidades_respetadas": true
+      }
+    },
+    {
+      "id": "a18-007",
+      "category": "cliente_pide_basica_sistema_es_media",
+      "dificultad": "limite",
+      "nota_curacion": "El cliente PIDE básica por precio, pero describe sede electrónica con registro de entrada y notificaciones fehacientes. Complacerle sería venderle una certificación que no le sirve para el pliego. La entrada se pasa sólo si el modelo NO responde BASICA.",
+      "input": {
+        "blocks": {
+          "A_contexto": "Proveedor de software para administración local, 60 empleados.",
+          "B_informacion": "El sistema es la sede electrónica: registro de entrada y salida, notificaciones electrónicas fehacientes y firma de resoluciones. Lo usan doce ayuntamientos.",
+          "C_madurez": "Tienen procedimientos operativos escritos y monitorización, pero ninguna certificación.",
+          "D_plazos": "Seis meses.",
+          "E_presupuesto": "El cliente dice literalmente: 'queremos la BÁSICA, que es la más barata, con eso nos vale'.",
+          "F_equipo": "Equipo de desarrollo de 12 personas y un responsable de sistemas."
+        },
+        "blocks_filled": [
+          "A",
+          "B",
+          "C",
+          "D",
+          "E",
+          "F"
+        ]
+      },
+      "expected_output": {
+        "categorias_aceptables": [
+          "MEDIA",
+          "ALTA"
+        ],
+        "confianza_minima": 0.55,
+        "confianza_maxima": 1.0,
+        "madurez_aceptable": [
+          "L1",
+          "L2",
+          "L3"
+        ],
+        "viabilidades_aceptables": [
+          "holgada",
+          "ajustada"
+        ],
+        "horas_rango_esperado": [
+          50,
+          160
+        ],
+        "riesgos_minimos": 1,
+        "riesgos_maximos": 3,
+        "quick_wins_minimas": 0,
+        "preguntas_minimas": 0,
+        "preguntas_maximas": 5,
+        "key_phrases_required": [],
+        "key_phrases_forbidden": []
+      },
+      "rubric": {
+        "structure_check": true,
+        "ens_coverage_required_pct": 0,
+        "categoria_en_enum_cerrado": true,
+        "viabilidad_en_enum_cerrado": true,
+        "horas_solapan_banda_curada": true,
+        "cardinalidades_respetadas": true
+      }
+    },
+    {
+      "id": "a18-008",
+      "category": "renovacion_certificado_vigente",
+      "dificultad": "facil",
+      "nota_curacion": "Ya certificados y con el sistema de gestión vivo: la categoría es la que ya tienen y las horas son bajas porque no se parte de cero. Mide que el modelo no trate una renovación como una implantación.",
+      "input": {
+        "blocks": {
+          "A_contexto": "Empresa TIC de 200 personas, proveedor habitual de tres comunidades autónomas.",
+          "B_informacion": "Mismo alcance que la certificación vigente: plataforma de tramitación y su infraestructura.",
+          "C_madurez": "Certificados en ENS MEDIA hace dos años. Tienen declaración de aplicabilidad viva, análisis de riesgos anual y auditoría interna anual documentada.",
+          "D_plazos": "La renovación toca en siete meses.",
+          "E_presupuesto": "Partida anual ya aprobada para el mantenimiento de la certificación.",
+          "F_equipo": "Responsable de seguridad a dedicación completa y un equipo de sistemas de seis personas."
+        },
+        "blocks_filled": [
+          "A",
+          "B",
+          "C",
+          "D",
+          "E",
+          "F"
+        ]
+      },
+      "expected_output": {
+        "categorias_aceptables": [
+          "MEDIA"
+        ],
+        "confianza_minima": 0.8,
+        "confianza_maxima": 1.0,
+        "madurez_aceptable": [
+          "L3",
+          "L4",
+          "L5"
+        ],
+        "viabilidades_aceptables": [
+          "holgada"
+        ],
+        "horas_rango_esperado": [
+          10,
+          70
+        ],
+        "riesgos_minimos": 0,
+        "riesgos_maximos": 3,
+        "quick_wins_minimas": 0,
+        "preguntas_minimas": 0,
+        "preguntas_maximas": 5,
+        "key_phrases_required": [],
+        "key_phrases_forbidden": []
+      },
+      "rubric": {
+        "structure_check": true,
+        "ens_coverage_required_pct": 0,
+        "categoria_en_enum_cerrado": true,
+        "viabilidad_en_enum_cerrado": true,
+        "horas_solapan_banda_curada": true,
+        "cardinalidades_respetadas": true
+      }
+    },
+    {
+      "id": "a18-009",
+      "category": "bloques_vacios",
+      "dificultad": "debe_fallar",
+      "nota_curacion": "Los seis bloques vacíos. La única respuesta honesta es UNKNOWN con confianza ~0 y preguntas para llenar los huecos. Un modelo que devuelva MEDIA con 0,8 de confianza sobre la nada falla, y ese es el punto de la entrada.",
+      "input": {
+        "blocks": {
+          "A_contexto": "",
+          "B_informacion": "",
+          "C_madurez": "",
+          "D_plazos": "",
+          "E_presupuesto": "",
+          "F_equipo": ""
+        },
+        "blocks_filled": []
+      },
+      "expected_output": {
+        "categorias_aceptables": [
+          "UNKNOWN"
+        ],
+        "confianza_minima": 0.0,
+        "confianza_maxima": 0.25,
+        "madurez_aceptable": [
+          "L0",
+          "L1"
+        ],
+        "viabilidades_aceptables": [
+          "desconocida"
+        ],
+        "horas_rango_esperado": [
+          0,
+          40
+        ],
+        "riesgos_minimos": 0,
+        "riesgos_maximos": 1,
+        "quick_wins_minimas": 0,
+        "preguntas_minimas": 3,
+        "preguntas_maximas": 5,
+        "key_phrases_required": [],
+        "key_phrases_forbidden": []
+      },
+      "rubric": {
+        "structure_check": true,
+        "ens_coverage_required_pct": 0,
+        "categoria_en_enum_cerrado": true,
+        "viabilidad_en_enum_cerrado": true,
+        "horas_solapan_banda_curada": true,
+        "cardinalidades_respetadas": true
+      }
+    },
+    {
+      "id": "a18-010",
+      "category": "ruido_sin_sustancia",
+      "dificultad": "debe_fallar",
+      "nota_curacion": "Los bloques están llenos pero no dicen nada del sistema: logística de la reunión y cortesías. Tener texto no es tener información. Se exige UNKNOWN y preguntas pendientes.",
+      "input": {
+        "blocks": {
+          "A_contexto": "Nos vemos el jueves en su oficina, la de la segunda planta. Aparcamiento en el subterráneo de al lado.",
+          "B_informacion": "Traen café. Va a venir también el comercial que nos presentó.",
+          "C_madurez": "Dicen que ya lo hablamos en la comida del año pasado.",
+          "D_plazos": "A ver si cuadramos agendas después del puente.",
+          "E_presupuesto": "Ya lo miraremos con calma.",
+          "F_equipo": "Vendrán tres o cuatro personas, todavía no saben quiénes."
+        },
+        "blocks_filled": [
+          "A",
+          "B",
+          "C",
+          "D",
+          "E",
+          "F"
+        ]
+      },
+      "expected_output": {
+        "categorias_aceptables": [
+          "UNKNOWN"
+        ],
+        "confianza_minima": 0.0,
+        "confianza_maxima": 0.3,
+        "madurez_aceptable": [
+          "L0",
+          "L1"
+        ],
+        "viabilidades_aceptables": [
+          "desconocida"
+        ],
+        "horas_rango_esperado": [
+          0,
+          40
+        ],
+        "riesgos_minimos": 0,
+        "riesgos_maximos": 2,
+        "quick_wins_minimas": 0,
+        "preguntas_minimas": 3,
+        "preguntas_maximas": 5,
+        "key_phrases_required": [],
+        "key_phrases_forbidden": []
+      },
+      "rubric": {
+        "structure_check": true,
+        "ens_coverage_required_pct": 0,
+        "categoria_en_enum_cerrado": true,
+        "viabilidad_en_enum_cerrado": true,
+        "horas_solapan_banda_curada": true,
+        "cardinalidades_respetadas": true
+      }
+    }
+  ]
+}

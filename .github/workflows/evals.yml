@@ -3,10 +3,11 @@
 # Dos jobs, y la diferencia entre ellos es lo importante:
 #
 #   evals-arnes  Determinista. Sin red, sin clave de API. Corre SIEMPRE y puede
-#                tumbar el build. Comprueba que el dataset carga y valida, que hay
-#                un evaluador registrado, que los umbrales del JSON y los de
-#                .github/evals-threshold.yml no se han separado, y que dataset y
-#                evaluador siguen siendo compatibles entre sí.
+#                tumbar el build. Para CADA dataset de la política comprueba que
+#                carga y valida, que hay un evaluador registrado, que hay un
+#                constructor de salida sintética registrado, que los umbrales del
+#                JSON y los de .github/evals-threshold.yml no se han separado, y
+#                que dataset y evaluador siguen siendo compatibles entre sí.
 #
 #   evals-llm    Evaluación real: llama al modelo, que es LO QUE SE MIDE. Necesita
 #                el secreto ANTHROPIC_API_KEY. Sin secreto NO SE EJECUTA: el job
@@ -35,6 +36,14 @@
 # Es decir: el CLI del arnés declara 100% habiendo evaluado CERO entradas. Por eso
 # este workflow NO usa ese CLI como gate; ver docs/CI.md, sección "El CLI del
 # arnés no sirve como gate".
+#
+# BLOQUE D · D2 (2026-09-10) · cuántos agentes se cubren ahora:
+#   $ find docs/catalogs/golden_datasets/ -name '*.json' | wc -l          ->  4
+#   $ command grep -rn "(AgentBase)" backend/app --include=*.py | wc -l   -> 13
+# De esos 4 datasets, 3 son clases de agente (agent_27_clasificador,
+# agent_18_reunion, agent_06_contratos) y el cuarto, deliverable_text_auditor,
+# es una capability que NO hereda de AgentBase. Los números y su procedencia
+# están en .github/evals-threshold.yml, sección `cobertura`.
 
 name: Evaluaciones de agentes
 
@@ -147,10 +156,21 @@ jobs:
             3. Los umbrales del JSON del dataset y los de la política coinciden
                (guardia anti-deriva: si alguien afloja uno de los dos, salta).
             4. Hay un evaluador registrado para el agente del dataset.
-            5. Auto-consistencia: si al evaluador se le devuelve la salida que el
+            5. Hay un constructor de salida sintética registrado para ese agente.
+            6. Auto-consistencia: si al evaluador se le devuelve la salida que el
                propio dataset declara como esperada, TIENE que aprobar. Si no,
                dataset y evaluador se han separado y el gate del LLM estaría
                midiendo contra un baremo imposible de cumplir.
+
+          BLOQUE D · D2 (2026-09-10) · de dónde sale la salida sintética.
+          Antes se escribía a mano AQUÍ, con la forma concreta de un agente
+          (verdict / issues_critical / issues_moderate / key_phrases_found). Con
+          cuatro datasets eso deja de valer: cada agente tiene su esquema y este
+          fichero no tiene por qué conocer ninguno. Ahora cada evaluador registra
+          su propio constructor `entrada -> dict` y aquí se pide por nombre. Un
+          dataset cuyo agente no registre constructor FALLA el gate en vez de
+          pasar con una forma por defecto: una forma genérica no puede ser
+          correcta para un esquema que no conoce.
           """
           import os
           import sys
@@ -163,7 +183,10 @@ jobs:
           from backend.app.motors.m_observability import evaluators  # noqa: F401
           from backend.app.motors.m_observability.eval_runner import (
               _AGENT_EVALUATORS,
+              _AGENT_SYNTHETIC_OUTPUTS,
               EntryEvalResult,
+              build_synthetic_output,
+              get_synthetic_output_builder,
           )
           from backend.app.motors.m_observability.golden_datasets_loader import (
               list_available_datasets,
@@ -221,21 +244,22 @@ jobs:
                   f"{clave}: evaluador registrado para '{agente}' "
                   f"(registrados: {sorted(_AGENT_EVALUATORS)})",
               )
-              if agente not in _AGENT_EVALUATORS:
+              comprobar(
+                  get_synthetic_output_builder(agente) is not None,
+                  f"{clave}: constructor de salida sintética registrado para "
+                  f"'{agente}' (registrados: "
+                  f"{sorted(_AGENT_SYNTHETIC_OUTPUTS)})",
+              )
+              if (agente not in _AGENT_EVALUATORS
+                      or get_synthetic_output_builder(agente) is None):
                   continue
 
               evaluador = _AGENT_EVALUATORS[agente]
               fallidas: list[str] = []
               for entrada in ds.entries:
-                  # Misma forma que devuelve audit_deliverable_sync.
-                  sintetico = {
-                      "verdict": entrada.expected_output.verdict,
-                      "issues_critical": list(entrada.expected_output.issues_critical),
-                      "issues_moderate": list(entrada.expected_output.issues_moderate),
-                      "key_phrases_found": list(
-                          entrada.expected_output.key_phrases_required,
-                      ),
-                  }
+                  # La forma de la salida es conocimiento del evaluador del
+                  # agente, no de este fichero: se pide al registro (D2).
+                  sintetico = build_synthetic_output(agente, entrada)
                   bruto = evaluador(entrada, sintetico)
                   if isinstance(bruto, EntryEvalResult):
                       ok = bruto.passed and not bruto.skipped
@@ -324,9 +348,18 @@ jobs:
         # anthropic + python-dotenv + pydantic-settings los arrastra
         # backend.app.core.ai.llm_router (importado en caliente por la capability).
         # loguru lo importa la propia capability a nivel de módulo.
+        #
+        # sqlalchemy (D2): los tres agentes nuevos son subclases de AgentBase y
+        # tanto base.py como cada agent_XX.py hacen
+        # `from sqlalchemy.ext.asyncio import AsyncSession` a nivel de módulo.
+        # No se usa ninguna base de datos —el proveedor pasa una sesión espía—
+        # pero el import tiene que resolver. Medido en python:3.12-slim:
+        #   sin sqlalchemy -> ModuleNotFoundError al importar
+        #                     backend.app.agents.agent_27_clasificador
+        #   con sqlalchemy -> los tres módulos importan y `invoke` completa.
         run: |
           pip install 'pydantic>=2,<3' 'pyyaml>=6' pydantic-settings \
-                      python-dotenv loguru anthropic
+                      python-dotenv loguru anthropic 'sqlalchemy>=2,<3'
 
       - name: Evaluación real contra el modelo (gate)
         env:
@@ -345,7 +378,22 @@ jobs:
           de datos y una fila en golden_eval_runs. Aquí se replica ESA misma
           conexión (capability -> actual_provider) sin base de datos.
           Ver docs/CI.md y `necesita_de_otros` del informe de la tarea.
+
+          BLOQUE D · D2 (2026-09-10) · los otros tres agentes.
+          agent_27_clasificador, agent_18_reunion y agent_06_contratos NO son
+          capabilities: son subclases de AgentBase, y su `invoke(db, ...)` pide
+          una sesión. Con `project_id=None` el agente no construye contexto de
+          proyecto, así que lo único que toca la sesión es `_log_interaction`, y
+          sólo con `begin_nested()`, `add()` y `flush()`. Se le pasa una sesión
+          espía que implementa esos tres métodos y no habla con nadie (el patrón
+          está tomado de backend/tests/agents/test_agent_base_no_finge_exito.py).
+          Se evalúa `resultado["parsed"]`, es decir la salida estructurada del
+          modelo ANTES del post-proceso y del fallback determinista de cada
+          agente: si se evaluase el fallback, las entradas cuyo acierto consiste
+          precisamente en no adivinar pasarían siempre sin que el modelo hubiese
+          acertado nada.
           """
+          import asyncio
           import os
           import sys
           from pathlib import Path
@@ -359,6 +407,7 @@ jobs:
               audit_deliverable_sync,
           )
           from backend.app.motors.m_observability.eval_runner import (
+              SALIDA_SIN_JSON,
               format_eval_report_markdown,
               run_eval,
           )
@@ -368,23 +417,168 @@ jobs:
           )
           CFG = yaml.safe_load(Path(RUTA_CFG).read_text(encoding="utf-8"))
 
-          PROVEEDORES = {"deliverable_text_auditor": audit_deliverable_sync}
+
+          # ── Sesión espía ────────────────────────────────────────────────────
+          # Sustituto de AsyncSession con lo justo que usa `_log_interaction`.
+          class _SavepointFalso:
+              async def __aenter__(self):
+                  return self
+
+              async def __aexit__(self, *exc):
+                  return False
 
 
-          def hacer_proveedor(auditar):
-              def proveedor(entrada):
-                  datos = entrada.input or {}
-                  texto = datos.get("deliverable_text", "")
-                  contexto = datos.get("context") or {}
-                  categoria = (
-                      contexto.get("ens_category")
-                      or getattr(entrada, "ens_category", None)
-                      or "BASICA"
+          class _SesionEspia:
+              def begin_nested(self):
+                  return _SavepointFalso()
+
+              def add(self, fila):
+                  return None
+
+              async def flush(self):
+                  return None
+
+
+          def _invocar(agente, mensaje, contexto):
+              """Llama al agente de verdad y devuelve su JSON estructurado.
+
+              Tres caminos y sólo tres:
+
+              * el modelo responde JSON        -> se devuelve el dict.
+              * el modelo responde otra cosa   -> se devuelve un dict marcado
+                con SALIDA_SIN_JSON; el evaluador lo cuenta como FALLO, no como
+                salto. El modelo tuvo su turno y no entregó estructura.
+              * la llamada falla               -> D1 hace que `invoke` lance
+                LLMCallFailed y aquí NO se captura. Taparlo devolvería None, la
+                entrada se saltaría y un dataset entero saltado con exit 0 es
+                justo el verde vacuo que este gate existe para impedir.
+
+              Si el agente contesta en modo degradado (sin clave efectiva) se
+              revienta a propósito: no ha habido llamada al modelo, así que no
+              hay nada que evaluar y decir otra cosa sería mentir.
+              """
+              resultado = asyncio.run(agente.invoke(
+                  _SesionEspia(),
+                  project_id=None,
+                  user_message=mensaje,
+                  context=contexto,
+                  structured_output=True,
+              ))
+              if resultado.get("mock"):
+                  raise RuntimeError(
+                      f"{type(agente).__name__} ha respondido en modo "
+                      "degradado: no se ha llamado al modelo (clave ausente o "
+                      "vacía). No hay nada que evaluar.",
                   )
-                  if not texto:
-                      return None
-                  return auditar(texto, categoria)
-              return proveedor
+              parsed = resultado.get("parsed")
+              if isinstance(parsed, dict):
+                  return parsed
+              return {SALIDA_SIN_JSON: str(resultado.get("response") or "")[:300]}
+
+
+          def proveedor_a27(entrada):
+              """agent_27_clasificador · clasificación de documento en carpeta."""
+              from backend.app.agents.agent_27_clasificador import (
+                  Agent27ClasificadorIDMS,
+              )
+              datos = entrada.input or {}
+              contexto_cliente = datos.get("client_context") or {}
+              # Se reutiliza el constructor de mensaje del propio agente para
+              # que lo que se mida sea el prompt de producción y no uno de CI.
+              mensaje = Agent27ClasificadorIDMS._build_user_message(
+                  document_name=datos.get("document_name", ""),
+                  content_excerpt=datos.get("content_excerpt", ""),
+                  deterministic_attempt=datos.get("deterministic_attempt"),
+                  client_context=contexto_cliente,
+              )
+              contexto = {
+                  "document_name": datos.get("document_name"),
+                  "document_id": None,
+                  "content_chars": len(datos.get("content_excerpt", "")),
+                  "deterministic_attempt": datos.get("deterministic_attempt"),
+                  "client_context": contexto_cliente,
+              }
+              return _invocar(Agent27ClasificadorIDMS(), mensaje, contexto)
+
+
+          def proveedor_a18(entrada):
+              """agent_18_reunion · panel de la reunión exploratoria."""
+              from backend.app.agents.agent_18_reunion import (
+                  Agent18ReunionExploratoria,
+              )
+              datos = entrada.input or {}
+              bloques = Agent18ReunionExploratoria._normalize_blocks(
+                  datos.get("blocks") or {},
+              )
+              llenos = datos.get("blocks_filled")
+              if llenos is None:
+                  llenos = [
+                      k[0].upper() for k, v in bloques.items()
+                      if isinstance(v, str) and len(v.strip()) >= 5
+                  ]
+              mensaje = Agent18ReunionExploratoria._build_user_message(
+                  bloques, llenos,
+              )
+              contexto = {
+                  "blocks": bloques,
+                  "blocks_filled": llenos,
+                  "meeting_id": None,
+              }
+              return _invocar(Agent18ReunionExploratoria(), mensaje, contexto)
+
+
+          def proveedor_a06(entrada):
+              """agent_06_contratos · mapeo del contrato sobre el catálogo."""
+              from backend.app.agents.agent_06_contratos import (
+                  Agent06AnalistaContratos,
+                  _MAX_CONTRACT_CHARS,
+              )
+              datos = entrada.input or {}
+              texto = (datos.get("contract_text") or "")[:_MAX_CONTRACT_CHARS]
+              mensaje = Agent06AnalistaContratos._build_user_message(
+                  contract_text=texto,
+                  provider_name=datos.get("provider_name", ""),
+                  provider_role=datos.get("provider_role", "otro"),
+                  criticality=datos.get("criticality", "media"),
+                  data_processed=datos.get("data_processed", ""),
+                  ens_category=datos.get("ens_category", "BASICA"),
+                  client_sector=datos.get("client_sector", "otro"),
+              )
+              contexto = {
+                  "provider_name": datos.get("provider_name"),
+                  "provider_role": datos.get("provider_role"),
+                  "criticality": datos.get("criticality"),
+                  "data_processed": datos.get("data_processed"),
+                  "ens_category": datos.get("ens_category"),
+                  "client_sector": datos.get("client_sector"),
+                  "contract_chars": len(texto),
+              }
+              return _invocar(Agent06AnalistaContratos(), mensaje, contexto)
+
+
+          def proveedor_auditor(entrada):
+              """deliverable_text_auditor · capability, no subclase de AgentBase."""
+              datos = entrada.input or {}
+              texto = datos.get("deliverable_text", "")
+              contexto = datos.get("context") or {}
+              categoria = (
+                  contexto.get("ens_category")
+                  or getattr(entrada, "ens_category", None)
+                  or "BASICA"
+              )
+              if not texto:
+                  return None
+              return audit_deliverable_sync(texto, categoria)
+
+
+          # Un proveedor por dataset de la política. Si falta uno, el gate NO
+          # pasa en verde: sin proveedor no hay nada que medir.
+          PROVEEDORES = {
+              "deliverable_text_auditor": proveedor_auditor,
+              "agent_27_clasificador": proveedor_a27,
+              "agent_18_reunion": proveedor_a18,
+              "agent_06_contratos": proveedor_a06,
+          }
 
 
           def decidir(clave, informe, politica):
@@ -436,18 +630,18 @@ jobs:
 
           for clave, politica in CFG["datasets"].items():
               agente, version = clave.split("/")
-              auditar = PROVEEDORES.get(agente)
-              if auditar is None:
+              proveedor = PROVEEDORES.get(agente)
+              if proveedor is None:
                   todo_ok = False
                   resumen_lineas.append(
-                      "FALLO · " + f"{clave}: no hay capability cableada para "
+                      "FALLO · " + f"{clave}: no hay proveedor cableado para "
                       f"'{agente}' en este workflow. Sin proveedor real, evaluar "
                       "es imposible y el gate NO pasa en verde.",
                   )
                   continue
 
               informe = run_eval(
-                  agente, version, actual_provider=hacer_proveedor(auditar),
+                  agente, version, actual_provider=proveedor,
               )
               ok, lineas = decidir(clave, informe, politica)
               todo_ok = todo_ok and ok

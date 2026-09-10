@@ -110,6 +110,78 @@ def register_evaluator(agent_name: str, fn: EvaluatorFn) -> None:
     _AGENT_EVALUATORS[agent_name] = fn
 
 
+# ════════════════════════════════════════════════════════════════════
+# Registro de salidas sintéticas · BLOQUE D · D2
+# ════════════════════════════════════════════════════════════════════
+#
+# Para qué sirve. El gate del arnés (job `evals-arnes` de
+# .github/workflows/evals.yml) comprueba la auto-consistencia entre dataset
+# y evaluador: si al evaluador se le entrega la salida que el propio dataset
+# declara como esperada, TIENE que aprobar. Si no, el gate del LLM estaría
+# midiendo contra un baremo imposible de cumplir y sus fallos no dirían nada
+# sobre el modelo.
+#
+# Hasta D2, ese gate construía la salida sintética escribiendo a mano, dentro
+# del YAML, un diccionario con la forma concreta de UN agente
+# (verdict / issues_critical / issues_moderate / key_phrases_found). Con más
+# de un agente eso deja de valer: cada agente tiene su propio esquema y el
+# workflow no tiene por qué conocer ninguno.
+#
+# La forma de la salida de un agente es conocimiento del evaluador de ese
+# agente, así que vive con él: cada módulo de evaluador registra AQUÍ una
+# función `entrada -> dict` que fabrica la respuesta perfecta para esa
+# entrada, y el workflow la pide por nombre sin saber qué hay dentro.
+#
+# Contrapartida asumida: un agente con dataset y evaluador pero sin
+# constructor sintético hace FALLAR el gate en vez de pasar con una forma
+# por defecto. Es deliberado. Una forma por defecto genérica no puede ser
+# correcta para un esquema que no conoce, y "pasa porque no sabíamos qué
+# comprobar" es exactamente el verde vacuo que esta campaña persigue.
+
+# Marcador de contrato entre el proveedor real (workflow) y los evaluadores:
+# el modelo contestó, pero su respuesta no se pudo interpretar como JSON.
+# NO es lo mismo que `actual=None`, que significa "no se le pudo preguntar"
+# y hace que la entrada se salte. Con este marcador la entrada se EVALÚA y
+# se cuenta como fallo, que es lo correcto: el modelo tuvo su turno.
+SALIDA_SIN_JSON = "__json_invalido__"
+
+# Constructor de salida sintética: (entry) → dict con la forma que devuelve
+# ese agente cuando acierta del todo.
+SyntheticOutputFn = Callable[[GoldenDatasetEntry], dict[str, Any]]
+
+_AGENT_SYNTHETIC_OUTPUTS: dict[str, SyntheticOutputFn] = {}
+
+
+def register_synthetic_output(agent_name: str, fn: SyntheticOutputFn) -> None:
+    """Registra el constructor de salida sintética de un agente."""
+    _AGENT_SYNTHETIC_OUTPUTS[agent_name] = fn
+
+
+def get_synthetic_output_builder(
+    agent_name: str,
+) -> SyntheticOutputFn | None:
+    """Devuelve el constructor registrado, o None si no hay ninguno."""
+    return _AGENT_SYNTHETIC_OUTPUTS.get(agent_name)
+
+
+def build_synthetic_output(
+    agent_name: str, entry: GoldenDatasetEntry,
+) -> dict[str, Any]:
+    """Fabrica la salida perfecta para `entry` según el esquema del agente.
+
+    Lanza KeyError si el agente no tiene constructor registrado: quien llama
+    (el gate del arnés) debe tratar esa ausencia como fallo, no como excusa.
+    """
+    builder = _AGENT_SYNTHETIC_OUTPUTS.get(agent_name)
+    if builder is None:
+        raise KeyError(
+            f"no hay constructor de salida sintética registrado para "
+            f"'{agent_name}' (registrados: "
+            f"{sorted(_AGENT_SYNTHETIC_OUTPUTS)})",
+        )
+    return builder(entry)
+
+
 def _default_skeleton_evaluator(
     entry: GoldenDatasetEntry, actual: dict[str, Any],
 ) -> tuple[bool, str]:

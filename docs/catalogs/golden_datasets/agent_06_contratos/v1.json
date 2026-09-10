@@ -1,0 +1,637 @@
+{
+  "agent_name": "agent_06_contratos",
+  "version": "v1",
+  "created_at": "2026-09-10",
+  "curated_by": "marcos",
+  "purpose": "10 entradas curadas para Agent06AnalistaContratos (backend/app/agents/agent_06_contratos.py). Se eligió este agente porque su salida es un MAPEO: proyecta un contrato sobre un catálogo cerrado de cláusulas obligatorias cuyo tamaño depende de la categoría ENS (6 en BÁSICA, 10 en MEDIA, 13 en ALTA), y por cada una devuelve un booleano de presencia y una calidad de tres valores. Eso se comprueba con pertenencia a conjunto, no con juicio. La adenda que el agente también redacta es prosa y aquí NO se evalúa como prosa: sólo se comprueba que es texto no vacío dentro del límite de 3500 caracteres del propio agente. Mezcla: 4 fáciles (dos anclas de la escala, bueno y malo), 4 límite (cláusula que existe pero no cumple, hueco sectorial, contrato administrativo mudo en lo técnico, auditoría cosmética) y 2 que deben fallar si el modelo alucina (contrato de otra cosa y extracción OCR rota). Los diez textos de contrato están redactados para este dataset.",
+  "capability_required": "Agent06AnalistaContratos.invoke(structured_output=True) · se evalúa resultado['parsed'], el JSON crudo del modelo ANTES del _regex_fallback. Evaluar el fallback haría pasar las entradas 'debe_fallar' sin que el modelo hubiese acertado nada.",
+  "schema_version": "1.1",
+  "regression_thresholds": {
+    "pass_rate_warn_below": 0.8,
+    "pass_rate_alert_below": 0.6
+  },
+  "entries": [
+    {
+      "id": "a06-001",
+      "category": "hosting_conforme_media",
+      "dificultad": "facil",
+      "ens_category": "MEDIA",
+      "nota_curacion": "Contrato que cubre las diez cláusulas exigibles en MEDIA de forma explícita. Es el ancla del extremo bueno de la escala: si un modelo puntúa esto por debajo de 75 está midiendo con una vara distinta a la del catálogo del agente.",
+      "input": {
+        "contract_text": "CONTRATO DE PRESTACIÓN DE SERVICIOS DE ALOJAMIENTO GESTIONADO\n\nCLÁUSULA 1. OBJETO. El PRESTADOR alojará y operará la infraestructura sobre\nla que el CLIENTE presta su servicio de tramitación electrónica.\n\nCLÁUSULA 2. DURACIÓN. El presente contrato tendrá una duración de veinticuatro\n(24) meses desde su firma, prorrogable por periodos anuales mediante acuerdo\nexpreso de las partes. Cualquiera de ellas podrá denunciarlo con un preaviso\nde tres meses.\n\nCLÁUSULA 3. TRATAMIENTO DE DATOS PERSONALES. El PRESTADOR ostenta la condición\nde encargado del tratamiento conforme al artículo 28 del Reglamento (UE)\n2016/679. Tratará los datos únicamente siguiendo instrucciones documentadas del\nCLIENTE, mantendrá el registro de actividades de tratamiento previsto en el\nartículo 30.2, asistirá al CLIENTE en la atención de los derechos de las\npersonas interesadas y pondrá a su disposición toda la información necesaria\npara demostrar el cumplimiento de las obligaciones del citado artículo 28.\n\nCLÁUSULA 4. CONFIDENCIALIDAD. Las partes se obligan a guardar secreto sobre\ncuanta información reciban de la contraria. La obligación subsiste durante\ncinco años tras la extinción del contrato y alcanza al personal, que suscribirá\ncompromisos individuales de confidencialidad.\n\nCLÁUSULA 5. MEDIDAS DE SEGURIDAD. El PRESTADOR aplicará medidas técnicas y\norganizativas apropiadas: cifrado en tránsito y en reposo, control de acceso\nbasado en perfiles con segundo factor para las cuentas administrativas,\nregistro de actividad con retención de veinticuatro meses, copias de seguridad\ndiarias con prueba de restauración trimestral y gestión documentada de\nvulnerabilidades.\n\nCLÁUSULA 6. ADECUACIÓN AL ESQUEMA NACIONAL DE SEGURIDAD. El PRESTADOR declara\nque la infraestructura objeto del contrato está adecuada a las medidas del\nAnexo II del Real Decreto 311/2022 correspondientes a la categoría MEDIA, y se\nobliga a mantener esa adecuación durante toda la vigencia.\n\nCLÁUSULA 7. NOTIFICACIÓN DE INCIDENTES. El PRESTADOR comunicará al CLIENTE\ncualquier violación de la seguridad de los datos personales sin dilación\nindebida y, en todo caso, en un plazo máximo de veinticuatro (24) horas desde\nque tenga conocimiento de ella, con la información prevista en el artículo 33.3\ndel Reglamento.\n\nCLÁUSULA 8. SUBCONTRATACIÓN. El PRESTADOR no podrá recurrir a otro encargado\nsin autorización previa y por escrito del CLIENTE. Los subencargados\nautorizados figuran en el Anexo I y quedan sujetos a las mismas obligaciones.\n\nCLÁUSULA 9. AUDITORÍA. El CLIENTE podrá realizar auditorías, por sí o mediante\nun tercero, con un preaviso de quince días naturales y sin límite de\nfrecuencia cuando medie un incidente de seguridad. El PRESTADOR facilitará el\nacceso a instalaciones, sistemas y documentación.\n\nCLÁUSULA 10. UBICACIÓN DE LOS DATOS. El tratamiento y el almacenamiento se\nrealizarán íntegramente en centros de proceso de datos situados en el\nterritorio de la Unión Europea. No se autorizan transferencias internacionales.\n\nCLÁUSULA 11. DEVOLUCIÓN Y DESTRUCCIÓN. Extinguido el contrato, el PRESTADOR\ndevolverá la información en formato estándar y suprimirá las copias existentes\nen un plazo de treinta días, emitiendo el correspondiente certificado de\ndestrucción.",
+        "provider_name": "Alojamiento Gestionado Peninsular, S.L.",
+        "provider_role": "hosting",
+        "criticality": "alta",
+        "data_processed": "datos identificativos y de tramitación de la ciudadanía",
+        "ens_category": "MEDIA",
+        "client_sector": "aapp"
+      },
+      "expected_output": {
+        "niveles_aceptables": [
+          "conforme"
+        ],
+        "compliance_score_minimo": 75,
+        "compliance_score_maximo": 100,
+        "catalogo_obligatorio": [
+          "art_28_dpa",
+          "confidencialidad",
+          "derecho_auditoria",
+          "devolucion_destruccion_datos",
+          "duracion_contrato",
+          "medidas_seguridad_informacion",
+          "medidas_tecnicas_organizativas_ens",
+          "notificacion_incidente_72h",
+          "subcontratacion_regulada",
+          "ubicacion_datos"
+        ],
+        "clausulas_ausentes_esperadas": [],
+        "clausulas_presentes_completas_esperadas": [
+          "art_28_dpa",
+          "confidencialidad",
+          "duracion_contrato",
+          "medidas_seguridad_informacion",
+          "subcontratacion_regulada",
+          "devolucion_destruccion_datos",
+          "notificacion_incidente_72h",
+          "medidas_tecnicas_organizativas_ens",
+          "derecho_auditoria",
+          "ubicacion_datos"
+        ],
+        "clausulas_deficientes_esperadas": [],
+        "gaps_sectoriales_minimos": 0,
+        "red_flags_minimas": 0,
+        "key_phrases_required": [],
+        "key_phrases_forbidden": []
+      },
+      "rubric": {
+        "structure_check": true,
+        "ens_coverage_required_pct": 0,
+        "checklist_cubre_catalogo_de_la_categoria": true,
+        "present_y_quality_en_enums": true,
+        "score_en_banda_curada": true,
+        "adenda_es_texto_no_vacio": true
+      }
+    },
+    {
+      "id": "a06-002",
+      "category": "desarrollo_sin_dpa_media",
+      "dificultad": "facil",
+      "ens_category": "MEDIA",
+      "nota_curacion": "Contrato de desarrollo de una página sin nada de protección de datos ni de seguridad. Ancla del extremo malo: ocho de las diez cláusulas de MEDIA no tienen ni siquiera un párrafo que se les parezca.",
+      "input": {
+        "contract_text": "CONTRATO DE DESARROLLO DE SOFTWARE A MEDIDA\n\nPRIMERA. OBJETO. El DESARROLLADOR realizará los trabajos de programación,\nmantenimiento correctivo y evolutivo de la aplicación de gestión interna del\nCLIENTE, según las especificaciones que este le vaya trasladando.\n\nSEGUNDA. DURACIÓN Y PRECIO. El contrato se extiende por doce meses desde la\nfirma. El precio se factura mensualmente por horas efectivamente trabajadas,\nal precio hora indicado en el presupuesto aceptado.\n\nTERCERA. CONFIDENCIALIDAD. El DESARROLLADOR se compromete a no divulgar la\ninformación del CLIENTE a la que acceda con ocasión de los trabajos.\n\nCUARTA. PROPIEDAD INTELECTUAL. El código fuente desarrollado será propiedad\ndel CLIENTE una vez abonada la última factura.\n\nQUINTA. RESPONSABILIDAD. La responsabilidad del DESARROLLADOR queda limitada\nal importe de la última anualidad facturada.\n\nSEXTA. JURISDICCIÓN. Las partes se someten a los juzgados y tribunales del\ndomicilio del CLIENTE.",
+        "provider_name": "Desarrollos Internos del Sur, S.L.",
+        "provider_role": "desarrollo",
+        "criticality": "alta",
+        "data_processed": "datos de empleados y de clientes en el entorno de pruebas",
+        "ens_category": "MEDIA",
+        "client_sector": "otro"
+      },
+      "expected_output": {
+        "niveles_aceptables": [
+          "critico",
+          "no_conforme"
+        ],
+        "compliance_score_minimo": 0,
+        "compliance_score_maximo": 35,
+        "catalogo_obligatorio": [
+          "art_28_dpa",
+          "confidencialidad",
+          "derecho_auditoria",
+          "devolucion_destruccion_datos",
+          "duracion_contrato",
+          "medidas_seguridad_informacion",
+          "medidas_tecnicas_organizativas_ens",
+          "notificacion_incidente_72h",
+          "subcontratacion_regulada",
+          "ubicacion_datos"
+        ],
+        "clausulas_ausentes_esperadas": [
+          "art_28_dpa",
+          "medidas_seguridad_informacion",
+          "subcontratacion_regulada",
+          "devolucion_destruccion_datos",
+          "notificacion_incidente_72h",
+          "medidas_tecnicas_organizativas_ens",
+          "derecho_auditoria",
+          "ubicacion_datos"
+        ],
+        "clausulas_presentes_completas_esperadas": [
+          "duracion_contrato"
+        ],
+        "clausulas_deficientes_esperadas": [],
+        "gaps_sectoriales_minimos": 0,
+        "red_flags_minimas": 1,
+        "key_phrases_required": [],
+        "key_phrases_forbidden": [],
+        "acciones_aceptables": [
+          "renegociar_contrato",
+          "buscar_proveedor_alternativo",
+          "firmar_adenda"
+        ],
+        "urgencias_aceptables": [
+          "inmediata",
+          "1_mes"
+        ]
+      },
+      "rubric": {
+        "structure_check": true,
+        "ens_coverage_required_pct": 0,
+        "checklist_cubre_catalogo_de_la_categoria": true,
+        "present_y_quality_en_enums": true,
+        "score_en_banda_curada": true,
+        "adenda_es_texto_no_vacio": true
+      }
+    },
+    {
+      "id": "a06-003",
+      "category": "saas_parcial_subcontratacion_libre",
+      "dificultad": "facil",
+      "ens_category": "MEDIA",
+      "nota_curacion": "Tiene DPA y confidencialidad pero permite subcontratar libremente y no dice nada de auditoría, ENS ni plazo de notificación. 'Subcontratación libre' es el caso donde la cláusula EXISTE pero no cumple: por eso va a deficientes (calidad distinta de completo) y no a ausentes, que es una distinción que el propio esquema del agente permite y que un evaluador de igualdad tonta se comería.",
+      "input": {
+        "contract_text": "CONDICIONES DEL SERVICIO DE GESTIÓN DOCUMENTAL EN LA NUBE\n\n1. OBJETO Y DURACIÓN. El PROVEEDOR presta el servicio en modalidad software\ncomo servicio. La suscripción es anual y se renueva tácitamente salvo\ndenuncia con treinta días de antelación.\n\n2. PROTECCIÓN DE DATOS. El PROVEEDOR actúa como encargado del tratamiento en\nlos términos del artículo 28 del Reglamento (UE) 2016/679. Tratará los datos\nconforme a las instrucciones del CLIENTE, guardará confidencialidad, asistirá\nen el ejercicio de derechos y suprimirá o devolverá los datos al término de la\nprestación a elección del CLIENTE.\n\n3. CONFIDENCIALIDAD. El PROVEEDOR mantendrá la confidencialidad de los datos\ndel CLIENTE y obligará a su personal en el mismo sentido.\n\n4. SEGURIDAD. El PROVEEDOR aplica cifrado TLS en las comunicaciones,\nautenticación mediante usuario y contraseña, y copias de seguridad diarias.\n\n5. SUBCONTRATACIÓN. El PROVEEDOR podrá subcontratar libremente la totalidad o\nparte del servicio, incluidos servicios de infraestructura de terceros,\ninformando al CLIENTE mediante la publicación de la lista actualizada de\nsubencargados en su página web.\n\n6. DEVOLUCIÓN. A la terminación, el CLIENTE dispondrá de treinta días para\nexportar su información mediante la herramienta de exportación del panel de\nadministración; transcurrido ese plazo el PROVEEDOR podrá eliminarla.\n\n7. INCIDENCIAS. Las incidencias del servicio se comunican a través del portal\nde soporte con los tiempos de respuesta del anexo de niveles de servicio.",
+        "provider_name": "Nube Documental Ibérica, S.A.",
+        "provider_role": "saas",
+        "criticality": "media",
+        "data_processed": "documentación administrativa con datos identificativos",
+        "ens_category": "MEDIA",
+        "client_sector": "otro"
+      },
+      "expected_output": {
+        "niveles_aceptables": [
+          "parcial",
+          "no_conforme"
+        ],
+        "compliance_score_minimo": 30,
+        "compliance_score_maximo": 70,
+        "catalogo_obligatorio": [
+          "art_28_dpa",
+          "confidencialidad",
+          "derecho_auditoria",
+          "devolucion_destruccion_datos",
+          "duracion_contrato",
+          "medidas_seguridad_informacion",
+          "medidas_tecnicas_organizativas_ens",
+          "notificacion_incidente_72h",
+          "subcontratacion_regulada",
+          "ubicacion_datos"
+        ],
+        "clausulas_ausentes_esperadas": [
+          "derecho_auditoria",
+          "ubicacion_datos",
+          "medidas_tecnicas_organizativas_ens"
+        ],
+        "clausulas_presentes_completas_esperadas": [
+          "art_28_dpa",
+          "confidencialidad",
+          "duracion_contrato"
+        ],
+        "clausulas_deficientes_esperadas": [
+          "subcontratacion_regulada"
+        ],
+        "gaps_sectoriales_minimos": 0,
+        "red_flags_minimas": 1,
+        "key_phrases_required": [],
+        "key_phrases_forbidden": []
+      },
+      "rubric": {
+        "structure_check": true,
+        "ens_coverage_required_pct": 0,
+        "checklist_cubre_catalogo_de_la_categoria": true,
+        "present_y_quality_en_enums": true,
+        "score_en_banda_curada": true,
+        "adenda_es_texto_no_vacio": true
+      }
+    },
+    {
+      "id": "a06-004",
+      "category": "alta_sin_certificacion_ni_continuidad",
+      "dificultad": "facil",
+      "ens_category": "ALTA",
+      "nota_curacion": "Buen contrato para MEDIA evaluado contra un cliente de categoría ALTA: aparecen las tres cláusulas adicionales de ALTA y ninguna está. Mide que el checklist se amplíe con la categoría, que es la parte de 'mapeo' del agente.",
+      "input": {
+        "contract_text": "CONTRATO DE SERVICIOS DE INFRAESTRUCTURA CRÍTICA\n\nPRIMERA. OBJETO Y DURACIÓN. El PRESTADOR alojará los sistemas de negociación y\nliquidación del CLIENTE. Duración de treinta y seis meses.\n\nSEGUNDA. ENCARGO DE TRATAMIENTO. El PRESTADOR es encargado del tratamiento a\nefectos del artículo 28 del Reglamento (UE) 2016/679 y actuará conforme a las\ninstrucciones documentadas del CLIENTE, con el registro de actividades del\nartículo 30.2.\n\nTERCERA. CONFIDENCIALIDAD. Obligación recíproca de secreto, con extensión al\npersonal y subsistencia de tres años tras la extinción.\n\nCUARTA. MEDIDAS DE SEGURIDAD. El PRESTADOR mantendrá cifrado en tránsito y en\nreposo, doble factor para administración, segregación de entornos y registro de\nactividad con retención de doce meses.\n\nQUINTA. NOTIFICACIÓN DE INCIDENTES. Comunicación al CLIENTE en un máximo de\nsetenta y dos (72) horas desde el conocimiento del incidente.\n\nSEXTA. SUBCONTRATACIÓN. Se requiere autorización previa y escrita del CLIENTE,\nque dispondrá de quince días para oponerse motivadamente.\n\nSÉPTIMA. AUDITORÍA. El CLIENTE podrá auditar anualmente los servicios objeto\ndel contrato, con preaviso de treinta días.\n\nOCTAVA. UBICACIÓN. Los datos residen en centros situados en la Unión Europea.\n\nNOVENA. DEVOLUCIÓN. Devolución en formato estándar y borrado seguro\ncertificado en el plazo de cuarenta y cinco días desde la extinción.",
+        "provider_name": "Infraestructuras Financieras Atlánticas, S.A.",
+        "provider_role": "hosting",
+        "criticality": "critica",
+        "data_processed": "datos de operaciones y de clientes",
+        "ens_category": "ALTA",
+        "client_sector": "fintech"
+      },
+      "expected_output": {
+        "niveles_aceptables": [
+          "parcial",
+          "no_conforme"
+        ],
+        "compliance_score_minimo": 30,
+        "compliance_score_maximo": 75,
+        "catalogo_obligatorio": [
+          "art_28_dpa",
+          "certificacion_ens_proveedor",
+          "clearance_personal",
+          "confidencialidad",
+          "continuidad_negocio",
+          "derecho_auditoria",
+          "devolucion_destruccion_datos",
+          "duracion_contrato",
+          "medidas_seguridad_informacion",
+          "medidas_tecnicas_organizativas_ens",
+          "notificacion_incidente_72h",
+          "subcontratacion_regulada",
+          "ubicacion_datos"
+        ],
+        "clausulas_ausentes_esperadas": [
+          "certificacion_ens_proveedor",
+          "continuidad_negocio",
+          "clearance_personal",
+          "medidas_tecnicas_organizativas_ens"
+        ],
+        "clausulas_presentes_completas_esperadas": [
+          "art_28_dpa",
+          "confidencialidad",
+          "duracion_contrato",
+          "subcontratacion_regulada",
+          "ubicacion_datos",
+          "devolucion_destruccion_datos"
+        ],
+        "clausulas_deficientes_esperadas": [],
+        "gaps_sectoriales_minimos": 1,
+        "red_flags_minimas": 1,
+        "key_phrases_required": [],
+        "key_phrases_forbidden": []
+      },
+      "rubric": {
+        "structure_check": true,
+        "ens_coverage_required_pct": 0,
+        "checklist_cubre_catalogo_de_la_categoria": true,
+        "present_y_quality_en_enums": true,
+        "score_en_banda_curada": true,
+        "adenda_es_texto_no_vacio": true
+      }
+    },
+    {
+      "id": "a06-005",
+      "category": "limpieza_basica_acceso_fisico",
+      "dificultad": "limite",
+      "ens_category": "BASICA",
+      "nota_curacion": "Contrato de limpieza con acceso físico a salas técnicas y sin tratamiento de datos digitales. Sólo se exigen las seis cláusulas base. El artículo 28 aquí es discutible: se pide que aparezca en el checklist con calidad distinta de 'completo', sin obligar a un veredicto concreto de present, porque sostener que un contrato de limpieza necesita DPA completo sería tan defendible como sostener lo contrario.",
+      "input": {
+        "contract_text": "CONTRATO DE SERVICIO DE LIMPIEZA DE OFICINAS\n\nPRIMERA. OBJETO. Limpieza diaria de las oficinas del CLIENTE, incluidas las\nsalas técnicas, en horario de 20:00 a 22:00 de lunes a viernes.\n\nSEGUNDA. DURACIÓN. Doce meses prorrogables por anualidades.\n\nTERCERA. PERSONAL. La empresa adjudicataria asignará personal fijo e informará\nal CLIENTE de cualquier cambio con cuarenta y ocho horas de antelación.\n\nCUARTA. CONFIDENCIALIDAD. El personal guardará reserva sobre cuanto observe en\nlas dependencias del CLIENTE y no divulgará información de la que pudiera tener\nconocimiento accidental.\n\nQUINTA. SUBCONTRATACIÓN. No se admite la subcontratación del servicio sin\nconsentimiento escrito del CLIENTE.\n\nSEXTA. LLAVES Y ACCESOS. Las llaves y tarjetas de acceso entregadas se\ndevolverán a la finalización del contrato, dejando constancia en el registro de\nentregas.\n\nSÉPTIMA. PRECIO Y FACTURACIÓN. Precio mensual cerrado, facturación a mes\nvencido a treinta días.",
+        "provider_name": "Limpiezas Integrales del Norte, S.L.",
+        "provider_role": "limpieza",
+        "criticality": "baja",
+        "data_processed": "ninguno digital; acceso físico a dependencias con equipos",
+        "ens_category": "BASICA",
+        "client_sector": "otro"
+      },
+      "expected_output": {
+        "niveles_aceptables": [
+          "parcial",
+          "no_conforme",
+          "conforme"
+        ],
+        "compliance_score_minimo": 25,
+        "compliance_score_maximo": 85,
+        "catalogo_obligatorio": [
+          "art_28_dpa",
+          "confidencialidad",
+          "devolucion_destruccion_datos",
+          "duracion_contrato",
+          "medidas_seguridad_informacion",
+          "subcontratacion_regulada"
+        ],
+        "clausulas_ausentes_esperadas": [],
+        "clausulas_presentes_completas_esperadas": [
+          "confidencialidad",
+          "duracion_contrato",
+          "subcontratacion_regulada"
+        ],
+        "clausulas_deficientes_esperadas": [
+          "art_28_dpa",
+          "medidas_seguridad_informacion"
+        ],
+        "gaps_sectoriales_minimos": 0,
+        "red_flags_minimas": 0,
+        "key_phrases_required": [],
+        "key_phrases_forbidden": []
+      },
+      "rubric": {
+        "structure_check": true,
+        "ens_coverage_required_pct": 0,
+        "checklist_cubre_catalogo_de_la_categoria": true,
+        "present_y_quality_en_enums": true,
+        "score_en_banda_curada": true,
+        "adenda_es_texto_no_vacio": true
+      }
+    },
+    {
+      "id": "a06-006",
+      "category": "sanidad_art9_no_mencionado",
+      "dificultad": "limite",
+      "ens_category": "MEDIA",
+      "nota_curacion": "El contrato es correcto en lo general pero el sector es sanidad y el DPA enumera categorías de datos sin incluir los de salud del artículo 9 del Reglamento. Se exige al menos un hueco sectorial detectado: es la comprobación de que el agente usa client_sector para algo y no sólo lo recibe.",
+      "input": {
+        "contract_text": "CONTRATO DE SERVICIO DE GESTIÓN DE CITAS\n\n1. OBJETO Y DURACIÓN. El PROVEEDOR presta la aplicación de gestión de citas de\nlos centros del CLIENTE. Duración de veinticuatro meses.\n\n2. ENCARGO DE TRATAMIENTO. El PROVEEDOR es encargado del tratamiento conforme\nal artículo 28 del Reglamento (UE) 2016/679, tratará los datos siguiendo las\ninstrucciones documentadas del CLIENTE y llevará el registro del artículo 30.2.\nLas categorías de datos tratados son: identificativos, de contacto y de\nagenda.\n\n3. CONFIDENCIALIDAD. Deber de secreto extendido al personal, con compromisos\nindividuales firmados.\n\n4. MEDIDAS DE SEGURIDAD. Cifrado en tránsito y en reposo, control de acceso por\nperfiles, doble factor para administradores, registro de actividad con\nretención de veinticuatro meses y copias diarias verificadas.\n\n5. ADECUACIÓN AL ENS. El PROVEEDOR declara la adecuación de la plataforma a las\nmedidas del Anexo II del Real Decreto 311/2022 en categoría MEDIA.\n\n6. INCIDENTES. Notificación al CLIENTE en un plazo máximo de veinticuatro\nhoras.\n\n7. SUBCONTRATACIÓN. Autorización previa y escrita; lista de subencargados en el\nanexo II.\n\n8. AUDITORÍA. El CLIENTE podrá auditar una vez al año con preaviso de veinte\ndías, y en cualquier momento tras un incidente.\n\n9. UBICACIÓN. Tratamiento y almacenamiento en la Unión Europea.\n\n10. DEVOLUCIÓN. Devolución y borrado certificado en treinta días.",
+        "provider_name": "Citas y Agendas Clínicas, S.L.",
+        "provider_role": "saas",
+        "criticality": "alta",
+        "data_processed": "datos de salud y de contacto de pacientes",
+        "ens_category": "MEDIA",
+        "client_sector": "sanidad"
+      },
+      "expected_output": {
+        "niveles_aceptables": [
+          "conforme",
+          "parcial"
+        ],
+        "compliance_score_minimo": 55,
+        "compliance_score_maximo": 95,
+        "catalogo_obligatorio": [
+          "art_28_dpa",
+          "confidencialidad",
+          "derecho_auditoria",
+          "devolucion_destruccion_datos",
+          "duracion_contrato",
+          "medidas_seguridad_informacion",
+          "medidas_tecnicas_organizativas_ens",
+          "notificacion_incidente_72h",
+          "subcontratacion_regulada",
+          "ubicacion_datos"
+        ],
+        "clausulas_ausentes_esperadas": [],
+        "clausulas_presentes_completas_esperadas": [
+          "art_28_dpa",
+          "confidencialidad",
+          "duracion_contrato",
+          "medidas_seguridad_informacion",
+          "subcontratacion_regulada",
+          "devolucion_destruccion_datos",
+          "notificacion_incidente_72h",
+          "medidas_tecnicas_organizativas_ens",
+          "derecho_auditoria",
+          "ubicacion_datos"
+        ],
+        "clausulas_deficientes_esperadas": [],
+        "gaps_sectoriales_minimos": 1,
+        "red_flags_minimas": 0,
+        "key_phrases_required": [],
+        "key_phrases_forbidden": []
+      },
+      "rubric": {
+        "structure_check": true,
+        "ens_coverage_required_pct": 0,
+        "checklist_cubre_catalogo_de_la_categoria": true,
+        "present_y_quality_en_enums": true,
+        "score_en_banda_curada": true,
+        "adenda_es_texto_no_vacio": true
+      }
+    },
+    {
+      "id": "a06-007",
+      "category": "aapp_sede_sin_ens_ni_incidentes",
+      "dificultad": "limite",
+      "ens_category": "MEDIA",
+      "nota_curacion": "Contrato del sector público bien redactado en lo administrativo (cita la Ley 9/2017) y mudo en lo técnico: ni ENS, ni plazo de notificación de incidentes, ni medidas de seguridad, ni auditoría. Citar la LCSP no es cumplir el ENS, y esa es exactamente la confusión que se mide aquí.",
+      "input": {
+        "contract_text": "CONTRATO DE SERVICIOS DE INTEGRACIÓN DE SEDE ELECTRÓNICA\n\nPRIMERA. OBJETO. Integración y mantenimiento del componente de registro\nelectrónico de la sede del CLIENTE, incluida la conexión con la plataforma de\nintermediación de datos y con el servicio de notificaciones.\n\nSEGUNDA. RÉGIMEN JURÍDICO. El contrato se rige por la Ley 9/2017, de Contratos\ndel Sector Público, y supletoriamente por el derecho privado.\n\nTERCERA. DURACIÓN. Veinticuatro meses, prorrogables por dos anualidades.\n\nCUARTA. PROTECCIÓN DE DATOS. El adjudicatario tendrá la condición de encargado\ndel tratamiento conforme al artículo 28 del Reglamento (UE) 2016/679, tratando\nlos datos conforme a las instrucciones del responsable y guardando el deber de\nsecreto.\n\nQUINTA. CONFIDENCIALIDAD. El adjudicatario y su personal guardarán secreto de\nla información a la que accedan, con carácter indefinido respecto de los datos\npersonales.\n\nSEXTA. SUBCONTRATACIÓN. Se estará a lo dispuesto en la Ley 9/2017, requiriendo\ncomunicación previa al órgano de contratación.\n\nSÉPTIMA. UBICACIÓN. Los datos permanecerán en centros situados en España.\n\nOCTAVA. DEVOLUCIÓN. A la extinción, el adjudicatario devolverá la información y\ndestruirá las copias, dejando constancia escrita.\n\nNOVENA. PENALIDADES. Se aplicará el régimen de penalidades del pliego de\ncláusulas administrativas particulares.",
+        "provider_name": "Integraciones Administrativas Levante, S.L.",
+        "provider_role": "integrador",
+        "criticality": "alta",
+        "data_processed": "asientos registrales y datos identificativos de la ciudadanía",
+        "ens_category": "MEDIA",
+        "client_sector": "aapp"
+      },
+      "expected_output": {
+        "niveles_aceptables": [
+          "parcial",
+          "no_conforme"
+        ],
+        "compliance_score_minimo": 20,
+        "compliance_score_maximo": 65,
+        "catalogo_obligatorio": [
+          "art_28_dpa",
+          "confidencialidad",
+          "derecho_auditoria",
+          "devolucion_destruccion_datos",
+          "duracion_contrato",
+          "medidas_seguridad_informacion",
+          "medidas_tecnicas_organizativas_ens",
+          "notificacion_incidente_72h",
+          "subcontratacion_regulada",
+          "ubicacion_datos"
+        ],
+        "clausulas_ausentes_esperadas": [
+          "medidas_seguridad_informacion",
+          "medidas_tecnicas_organizativas_ens",
+          "notificacion_incidente_72h",
+          "derecho_auditoria"
+        ],
+        "clausulas_presentes_completas_esperadas": [
+          "art_28_dpa",
+          "confidencialidad",
+          "duracion_contrato",
+          "ubicacion_datos",
+          "devolucion_destruccion_datos"
+        ],
+        "clausulas_deficientes_esperadas": [],
+        "gaps_sectoriales_minimos": 0,
+        "red_flags_minimas": 1,
+        "key_phrases_required": [],
+        "key_phrases_forbidden": []
+      },
+      "rubric": {
+        "structure_check": true,
+        "ens_coverage_required_pct": 0,
+        "checklist_cubre_catalogo_de_la_categoria": true,
+        "present_y_quality_en_enums": true,
+        "score_en_banda_curada": true,
+        "adenda_es_texto_no_vacio": true
+      }
+    },
+    {
+      "id": "a06-008",
+      "category": "contrato_ajeno_suministro_electrico",
+      "dificultad": "debe_fallar",
+      "ens_category": "MEDIA",
+      "nota_curacion": "El texto es un contrato de suministro eléctrico: no hay una sola cláusula TIC. Un modelo que se deje arrastrar por la palabra 'contrato' y devuelva un cumplimiento medio-alto falla esta entrada. Todas las obligatorias tienen que salir ausentes.",
+      "input": {
+        "contract_text": "CONTRATO DE SUMINISTRO DE ENERGÍA ELÉCTRICA EN MERCADO LIBRE\n\nPRIMERA. OBJETO. Suministro de energía eléctrica para los puntos de suministro\nrelacionados en el anexo, con la tarifa de acceso que corresponda a cada uno.\n\nSEGUNDA. DURACIÓN. Doce meses desde la fecha de activación, con renovación\nautomática salvo comunicación en contrario con quince días de antelación.\n\nTERCERA. PRECIO. Precio fijo por kilovatio hora durante la vigencia, más los\npeajes, cargos e impuestos que resulten de aplicación conforme a la normativa\ndel sector eléctrico.\n\nCUARTA. FACTURACIÓN. Facturación mensual con lectura real o estimada según\ndisponga la distribuidora. Domiciliación bancaria obligatoria.\n\nQUINTA. POTENCIA CONTRATADA. Las modificaciones de potencia se solicitarán a\ntravés de la comercializadora y quedarán sujetas a los plazos de la\ndistribuidora.\n\nSEXTA. INTERRUPCIONES. La comercializadora no responde de las interrupciones\nimputables a la distribuidora o a causas de fuerza mayor.\n\nSÉPTIMA. RESOLUCIÓN ANTICIPADA. La resolución anticipada por el cliente\ndevengará una penalización del cinco por ciento de la energía pendiente de\nconsumir.",
+        "provider_name": "Comercializadora Eléctrica Meridional, S.A.",
+        "provider_role": "otro",
+        "criticality": "baja",
+        "data_processed": "datos de facturación del titular del suministro",
+        "ens_category": "MEDIA",
+        "client_sector": "otro"
+      },
+      "expected_output": {
+        "niveles_aceptables": [
+          "critico",
+          "no_conforme"
+        ],
+        "compliance_score_minimo": 0,
+        "compliance_score_maximo": 30,
+        "catalogo_obligatorio": [
+          "art_28_dpa",
+          "confidencialidad",
+          "derecho_auditoria",
+          "devolucion_destruccion_datos",
+          "duracion_contrato",
+          "medidas_seguridad_informacion",
+          "medidas_tecnicas_organizativas_ens",
+          "notificacion_incidente_72h",
+          "subcontratacion_regulada",
+          "ubicacion_datos"
+        ],
+        "clausulas_ausentes_esperadas": [
+          "art_28_dpa",
+          "medidas_seguridad_informacion",
+          "devolucion_destruccion_datos",
+          "notificacion_incidente_72h",
+          "medidas_tecnicas_organizativas_ens",
+          "derecho_auditoria",
+          "ubicacion_datos",
+          "subcontratacion_regulada"
+        ],
+        "clausulas_presentes_completas_esperadas": [],
+        "clausulas_deficientes_esperadas": [],
+        "gaps_sectoriales_minimos": 0,
+        "red_flags_minimas": 1,
+        "key_phrases_required": [],
+        "key_phrases_forbidden": []
+      },
+      "rubric": {
+        "structure_check": true,
+        "ens_coverage_required_pct": 0,
+        "checklist_cubre_catalogo_de_la_categoria": true,
+        "present_y_quality_en_enums": true,
+        "score_en_banda_curada": true,
+        "adenda_es_texto_no_vacio": true
+      }
+    },
+    {
+      "id": "a06-009",
+      "category": "ocr_ilegible",
+      "dificultad": "debe_fallar",
+      "ens_category": "MEDIA",
+      "nota_curacion": "La extracción de texto del PDF salió rota. No hay contrato que analizar y la respuesta honesta es un cumplimiento por los suelos con al menos una alerta. Inventarse cláusulas a partir de '2O16/6&9' es la alucinación concreta que esta entrada caza. No se fija acción recomendada: 'consigue una copia legible' no está en el enumerado del agente, y exigir una de las cuatro que sí están sería puntuar una respuesta imposible.",
+      "input": {
+        "contract_text": "CONTR@TO DE PRST#CI0N DE SERV��CIOS\n\nP�gina 1 de 9  ------  [texto no reconocido] ------\nCL��USULA .... el PRE####DOR .... ��������\n.... 2O16/6&9 .... [ilegible] ....\n------ salto de p�gina ------\n����  ........  ����  ........  ����\nP�gina 7 de 9  ------  [texto no reconocido] ------\nFIRM#DO EN ______ A ___ DE ______ DE 2O2_",
+        "provider_name": "Proveedor no identificado en el documento",
+        "provider_role": "otro",
+        "criticality": "media",
+        "data_processed": "desconocido",
+        "ens_category": "MEDIA",
+        "client_sector": "otro"
+      },
+      "expected_output": {
+        "niveles_aceptables": [
+          "critico",
+          "no_conforme"
+        ],
+        "compliance_score_minimo": 0,
+        "compliance_score_maximo": 25,
+        "catalogo_obligatorio": [
+          "art_28_dpa",
+          "confidencialidad",
+          "derecho_auditoria",
+          "devolucion_destruccion_datos",
+          "duracion_contrato",
+          "medidas_seguridad_informacion",
+          "medidas_tecnicas_organizativas_ens",
+          "notificacion_incidente_72h",
+          "subcontratacion_regulada",
+          "ubicacion_datos"
+        ],
+        "clausulas_ausentes_esperadas": [
+          "art_28_dpa",
+          "medidas_seguridad_informacion",
+          "devolucion_destruccion_datos",
+          "notificacion_incidente_72h",
+          "medidas_tecnicas_organizativas_ens",
+          "derecho_auditoria",
+          "ubicacion_datos",
+          "subcontratacion_regulada",
+          "confidencialidad",
+          "duracion_contrato"
+        ],
+        "clausulas_presentes_completas_esperadas": [],
+        "clausulas_deficientes_esperadas": [],
+        "gaps_sectoriales_minimos": 0,
+        "red_flags_minimas": 1,
+        "key_phrases_required": [],
+        "key_phrases_forbidden": []
+      },
+      "rubric": {
+        "structure_check": true,
+        "ens_coverage_required_pct": 0,
+        "checklist_cubre_catalogo_de_la_categoria": true,
+        "present_y_quality_en_enums": true,
+        "score_en_banda_curada": true,
+        "adenda_es_texto_no_vacio": true
+      }
+    },
+    {
+      "id": "a06-010",
+      "category": "auditoria_limitada_calidad_incompleta",
+      "dificultad": "limite",
+      "ens_category": "MEDIA",
+      "nota_curacion": "Todo está y todo parece bien hasta que se lee la cláusula de auditoría: una vez cada tres años, con noventa días de preaviso y a costa del cliente. Existe, luego no es ausente; no sirve, luego no es completa. Mide si el modelo gradúa la calidad o se limita a marcar casillas de presencia.",
+      "input": {
+        "contract_text": "CONTRATO DE SERVICIOS GESTIONADOS DE PUESTO DE TRABAJO\n\n1. OBJETO Y DURACIÓN. Gestión del parque de puestos de trabajo del CLIENTE.\nTreinta y seis meses.\n\n2. ENCARGO DE TRATAMIENTO. El PROVEEDOR es encargado del tratamiento conforme\nal artículo 28 del Reglamento (UE) 2016/679, con instrucciones documentadas,\nregistro de actividades y asistencia en el ejercicio de derechos.\n\n3. CONFIDENCIALIDAD. Deber de secreto recíproco con extensión al personal y\nsubsistencia de cinco años.\n\n4. MEDIDAS DE SEGURIDAD. Cifrado de disco en los equipos, antimalware\ngestionado, control de acceso con doble factor, inventario actualizado y\ngestión de parches con ventana mensual.\n\n5. ADECUACIÓN AL ENS. El PROVEEDOR se obliga a mantener el servicio adecuado a\nlas medidas del Anexo II del Real Decreto 311/2022 aplicables a la categoría\ndel sistema del CLIENTE.\n\n6. NOTIFICACIÓN DE INCIDENTES. Comunicación en un máximo de veinticuatro horas\ndesde la detección.\n\n7. SUBCONTRATACIÓN. Sólo se admiten los subencargados relacionados en el anexo\nIII; cualquier alta requiere autorización previa y por escrito.\n\n8. AUDITORÍA. El CLIENTE podrá auditar el servicio una vez cada tres años,\nprevia notificación con noventa días de antelación, en horario laboral, y\nasumiendo íntegramente el coste de la auditoría y los gastos que el ejercicio\nocasione al PROVEEDOR.\n\n9. UBICACIÓN. Los datos se tratan en centros de la Unión Europea.\n\n10. DEVOLUCIÓN. Devolución en formato estándar y borrado certificado en treinta\ndías.",
+        "provider_name": "Puesto Gestionado Cantábrico, S.L.",
+        "provider_role": "saas",
+        "criticality": "media",
+        "data_processed": "datos de empleados y ficheros ofimáticos corporativos",
+        "ens_category": "MEDIA",
+        "client_sector": "otro"
+      },
+      "expected_output": {
+        "niveles_aceptables": [
+          "parcial",
+          "conforme"
+        ],
+        "compliance_score_minimo": 50,
+        "compliance_score_maximo": 90,
+        "catalogo_obligatorio": [
+          "art_28_dpa",
+          "confidencialidad",
+          "derecho_auditoria",
+          "devolucion_destruccion_datos",
+          "duracion_contrato",
+          "medidas_seguridad_informacion",
+          "medidas_tecnicas_organizativas_ens",
+          "notificacion_incidente_72h",
+          "subcontratacion_regulada",
+          "ubicacion_datos"
+        ],
+        "clausulas_ausentes_esperadas": [],
+        "clausulas_presentes_completas_esperadas": [
+          "art_28_dpa",
+          "confidencialidad",
+          "duracion_contrato",
+          "medidas_seguridad_informacion",
+          "subcontratacion_regulada",
+          "devolucion_destruccion_datos",
+          "notificacion_incidente_72h",
+          "ubicacion_datos"
+        ],
+        "clausulas_deficientes_esperadas": [
+          "derecho_auditoria"
+        ],
+        "gaps_sectoriales_minimos": 0,
+        "red_flags_minimas": 0,
+        "key_phrases_required": [],
+        "key_phrases_forbidden": []
+      },
+      "rubric": {
+        "structure_check": true,
+        "ens_coverage_required_pct": 0,
+        "checklist_cubre_catalogo_de_la_categoria": true,
+        "present_y_quality_en_enums": true,
+        "score_en_banda_curada": true,
+        "adenda_es_texto_no_vacio": true
+      }
+    }
+  ]
+}

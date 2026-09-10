@@ -11,12 +11,23 @@ post-prompt-change o post-model-bump.
 ```
 docs/catalogs/golden_datasets/
 ├── README.md                                  (este documento)
-├── deliverable_text_auditor/                  (capability NEW · pending build Future-1.E.1.dossier-pack-10docs)
+├── deliverable_text_auditor/                  (capability · NO hereda de AgentBase)
 │   └── v1.json                                (10 entries Marcos-curated · B.3.C · entry IDs a11-* historical)
-├── agent_04_redactor/                         (Future-B.3 · post DeliverableTextAuditor build)
-├── agent_06_contratos/                        (Future-B.3)
+├── agent_27_clasificador/                     (BLOQUE D · D2)
+│   └── v1.json                                (10 entradas · clasificación sobre catálogo cerrado de 15 carpetas)
+├── agent_18_reunion/                          (BLOQUE D · D2)
+│   └── v1.json                                (10 entradas · extracción con enumerados cerrados + rango de horas)
+├── agent_06_contratos/                        (BLOQUE D · D2)
+│   └── v1.json                                (10 entradas · mapeo sobre catálogo de cláusulas según categoría ENS)
+├── agent_04_redactor/                         (sin dataset · produce prosa, ver nota)
 └── ...
 ```
+
+Cobertura medida (2026-09-10): **4 datasets, 3 de ellos clases de agente**
+(hay 13 clases que heredan de `AgentBase`; `deliverable_text_auditor` no es
+una de ellas). Los números, sus comandos y por qué los agentes de prosa
+(A4 redactor, A19 propuestas, A20 negociación, A14 copiloto) siguen sin
+dataset están en `.github/evals-threshold.yml`, sección `cobertura`.
 
 ## JSON schema canonical
 
