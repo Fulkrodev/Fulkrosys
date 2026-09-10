@@ -525,11 +525,39 @@ compartir 8 palabras seguidas con el original. `backend/tests/scripts/test_catal
 lo cubre en CI sin necesitar git. **Lo que ninguno de los dos verifica** es que la descripción sea
 normativamente exacta: eso lo revisa una persona.
 
-**Frente abierto, y se dice:** `backend/app/corpus/data/CCN_STIC_809.md` es el mismo problema un
-nivel peor. Son 103 líneas que **dicen ser la guía** («# CCN-STIC-809 — Declaración, Certificación
-y Aprobación Provisional… Centro Criptológico Nacional»), con 17 párrafos de más de 400 caracteres,
-y se ingestan declarando al CCN como editor. Sigue en el repositorio y hay que retirarlo o
-reescribirlo.
+### Procedencia del corpus: qué es norma y qué es resumen nuestro
+
+El corpus mezcla dos cosas y **tiene que decir cuál es cuál**, porque el copiloto cita sus fuentes
+y una cita normativa vale lo que valga su procedencia.
+
+| fuente | qué es | editor declarado | de dónde sale el texto |
+|---|---|---|---|
+| `RD_311_2022` | **norma oficial** (BOE-A-2022-7191) | BOE · Ministerio | HTML consolidado del BOE, descargado a `var/corpus/` |
+| `UE-DORA`, `UE-NIS2`, `UE-RGPD`, `UE-EIDAS` | **norma oficial** | Parlamento Europeo y Consejo | textos oficiales, descargados |
+| Guías `CCN-STIC-800…814` | **guías del CCN** | CCN | los PDF que el operador descarga a `var/corpus/` (`git ls-files \| grep stic_serie_800` → 0) |
+| `FULKRO_RESUMEN_CONFORMIDAD_ENS` | **resumen propio** | FULKRO | `backend/app/corpus/data/`, escrito aquí |
+
+**Corregido el 2026-09-10.** Ese último era `CCN_STIC_809.md`: 103 líneas y 14,7 KB escritas en
+este repositorio, tituladas como la guía CCN-STIC-809 y subtituladas como si las publicase el
+Centro Criptológico Nacional, e ingeridas con `publisher="Centro Criptológico Nacional (CCN)"` y
+la URL oficial como origen del texto. La guía real son decenas de páginas.
+
+**No era una copia: era un resumen que se presentaba como el original.** El problema no es de
+derechos de copia, es de **procedencia**: el buscador del copiloto podía devolver un fragmento de
+ese resumen citando al CCN, con un texto que puede no estar en su guía. Es el mismo defecto que
+[ADR-004](docs/adr/ADR-004-llamada-llm-fallida-no-es-exito.md) —fabricar algo y sellarlo como
+auténtico— una capa más abajo. Ahora el título dice lo que es, el editor es FULKRO, la URL oficial
+figura como **referencia** y no como origen, y los fragmentos van etiquetados
+`seccion="resumen_secundario"` para que la recuperación distinga norma de resumen.
+
+Lo que impide que vuelva a pasar con la guía siguiente es un test, no la limpieza:
+`backend/tests/corpus/test_procedencia_corpus.py` falla si un módulo del corpus ingiere un texto
+versionado bajo `backend/app/corpus/data/` **y** declara como editor a un tercero, o pone una URL
+ajena como origen, o si el propio fichero se firma como obra de otro. Lleva lista blanca explícita,
+hoy **vacía**, y comentada con lo que entraría en ella legítimamente y lo que no. Verificado en
+rojo contra el estado anterior: **3 de las reglas saltan**; contra el actual, las 5 pasan.
+
+No necesita base de datos, así que corre en el job `test` de CI.
 
 ### Terceros que requieren atribución
 

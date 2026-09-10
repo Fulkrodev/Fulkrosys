@@ -1,6 +1,26 @@
-# CCN-STIC-809 — Declaración, Certificación y Aprobación Provisional de conformidad con el ENS y Distintivos de cumplimiento
+# Resumen propio · Declaración y Certificación de conformidad con el ENS
 
-Guía de Seguridad de las TIC · Centro Criptológico Nacional · Abril 2026.
+> **Esto NO es la guía CCN-STIC-809.** Es un **resumen redactado por FULKRO**
+> sobre el mecanismo de declaración y certificación de conformidad con el ENS.
+> La guía oficial la publica el Centro Criptológico Nacional y son decenas de
+> páginas; esto son 103 líneas y 14,7 KB. Entra en el corpus marcado como
+> **fuente secundaria**, para que el copiloto pueda orientar, y **no** como
+> texto normativo.
+>
+> Corregido el 2026-09-10 (bloque D). Hasta esa fecha este fichero se titulaba
+> como la guía, se subtitulaba «Guía de Seguridad de las TIC · Centro
+> Criptológico Nacional · Abril 2026» y se ingería declarando al CCN como
+> editor. Es decir: un resumen propio sellado como si fuera el original. El
+> problema no era de derechos de copia —no es una copia— sino de **procedencia**:
+> el buscador del copiloto podía citar al CCN con un texto que puede no estar en
+> esa guía.
+>
+> **La norma, que sí es oficial y libremente reproducible**, es el Real Decreto
+> 311/2022 (BOE-A-2022-7191), y se ingiere aparte con `rd311_ingest`. Los
+> artículos del RD que aparecen citados literalmente aquí abajo provienen de ahí.
+>
+> **La guía resumida, para consultarla en su fuente:**
+> <https://www.ccn-cert.cni.es/series-ccn-stic/800-guia-esquema-nacional-de-seguridad.html>
 
 ## 1. Introducción
 
@@ -16,7 +36,7 @@ Es responsabilidad de las organizaciones que el esfuerzo desarrollado en pos de 
 
 2. Los sujetos responsables darán publicidad, en los correspondientes portales de internet o sedes electrónicas, a las declaraciones y certificaciones de conformidad con el ENS.
 
-La presente Guía articula el mecanismo de Declaración y Certificación de Conformidad con el ENS e introduce el concepto de Aprobación Provisional de Conformidad (APC), descrito en la Guía CCN-CERT IC-01/19 ENS: Criterios Generales de Auditoría y Certificación.
+La guía CCN-STIC-809 articula el mecanismo de Declaración y Certificación de Conformidad con el ENS e introduce el concepto de Aprobación Provisional de Conformidad (APC), descrito en la Guía CCN-CERT IC-01/19 ENS: Criterios Generales de Auditoría y Certificación.
 
 ## 2. La conformidad con el Esquema Nacional de Seguridad
 
