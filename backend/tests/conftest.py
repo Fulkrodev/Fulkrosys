@@ -416,3 +416,25 @@ def auth_override_default(request):
     )
     yield
     app.dependency_overrides.pop(authenticate_request, None)
+
+
+# Marcadores de dependencia de base de datos
+# ------------------------------------------
+# 2.717 funciones de test en 377 ficheros piden el fixture `db`, que abre una
+# conexion contra PostgreSQL. Anotarlas una a una con @pytest.mark.requires_db
+# no se mantendria: cada test nuevo nacería sin marcar y el marcador iría
+# quedándose atrás en silencio, que es justo lo que le pasó antes (estaba
+# puesto a mano en 5 ficheros y ni siquiera registrado en pyproject, así que
+# pytest lo ignoraba con un PytestUnknownMarkWarning y no filtraba nada).
+#
+# Se deriva del unico hecho que no puede desincronizarse: si un test pide el
+# fixture `db`, necesita base de datos. Los 5 usos manuales existentes siguen
+# siendo validos; esto los complementa, no los sustituye.
+_DB_FIXTURES = {"db"}
+
+
+def pytest_collection_modifyitems(config, items):
+    """Marca `requires_db` todo test que solicite un fixture de base de datos."""
+    for item in items:
+        if _DB_FIXTURES & set(getattr(item, "fixturenames", ())):
+            item.add_marker(pytest.mark.requires_db)

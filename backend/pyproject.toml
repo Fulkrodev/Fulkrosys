@@ -140,6 +140,7 @@ markers = [
     "flaky: flaky tests (primarily LLM probabilistic outputs) to rerun via pytest-rerunfailures",
     "real_auth: tests que validan auth real (opt-out del autouse override en tests/conftest.py — sub-fase 4.D ADR-021)",
     "golden: golden dataset regression tests (1.E.1.B.3 · eval_runner harness · pass_rate threshold gates)",
+    "requires_db: test que necesita PostgreSQL con el esquema migrado. Se aplica SOLO a mano; los tests que piden el fixture `db` lo reciben automaticamente en tests/conftest.py (pytest_collection_modifyitems), porque son 2.717 y anotarlos uno a uno no se mantendria. Selecciona con `-m requires_db` / excluye con `-m \"not requires_db\"`.",
 ]
 timeout = 300
 timeout_method = "thread"
