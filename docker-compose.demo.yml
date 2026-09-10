@@ -1,0 +1,412 @@
+# ════════════════════════════════════════════════════════════════════════════
+# FULKRO — docker-compose.demo.yml · PERFIL DEMO LOCAL
+# ════════════════════════════════════════════════════════════════════════════
+# Objetivo: que alguien que acaba de clonar el repo vea la aplicación entera
+# funcionando en su portátil, con datos, sin tocar ningún fichero a mano.
+#
+#   make demo     genera .env.demo, levanta esta pila y siembra el operador
+#   make smoke    comprueba que lo levantado no está vacío
+#   make down     para la pila conservando los datos
+#   make clean    para la pila y BORRA los volúmenes
+#
+# Derivado de docker-compose.prod.yml. Diferencias deliberadas frente a prod,
+# todas justificadas más abajo en su servicio:
+#   · postgres      imagen oficial pgvector/pgvector:pg16, SIN Apache AGE ni
+#                   pgaudit (docs/adr/ADR-001-postgres-demo-sin-age.md)
+#   · SIN caddy     no hay TLS ni dominio: se entra por http://localhost:3000
+#   · SIN clamav    ~200 MB de firmas y ~2 min de arranque en frío para un
+#                   antivirus de subidas que un demo no ejercita
+#   · SIN celery-worker / celery-beat  el demo no dispara tareas programadas;
+#                   lo que se ve en pantalla lo sirve el backend síncrono
+#   · puertos       todos atados a 127.0.0.1 (nada escucha en la LAN)
+#
+# Validación sin levantar nada (requiere un .env.demo presente):
+#   docker compose -f docker-compose.demo.yml config
+#   docker compose -f docker-compose.demo.yml config --services
+#
+# ── CONTRATO CON .env.demo ──────────────────────────────────────────────────
+# Este fichero NO interpola variables (`${...}`): todo valor no secreto está
+# escrito literalmente aquí y todo secreto llega por `env_file: .env.demo`, que
+# genera `make demo` y que NUNCA se commitea. Consecuencia: `docker compose
+# config` no depende de la shell, pero .env.demo debe existir.
+#
+# Variables que .env.demo TIENE que traer (nombre exacto que lee el código):
+#   POSTGRES_PASSWORD          contraseña del superusuario `fulkro` de Postgres
+#   PROVISION_SUPER_PW         la MISMA de arriba (provision-entrypoint.sh la
+#                              exige con `:?`, no tiene default)
+#   PROVISION_APP_PW           contraseña del rol runtime `fulkro_app`
+#   PROVISION_MIGRATE_PW       contraseña del rol `fulkro_migrate`
+#   DATABASE_URL               postgresql+asyncpg://fulkro_app:<APP_PW>@postgres:5432/fulkro
+#   DATABASE_URL_SYNC          postgresql://fulkro_app:<APP_PW>@postgres:5432/fulkro
+#   DATABASE_MIGRATE_URL       postgresql://fulkro_migrate:<MIGRATE_PW>@postgres:5432/fulkro
+#   MINIO_ROOT_USER            usuario raíz de MinIO
+#   MINIO_ROOT_PASSWORD        contraseña raíz de MinIO (mínimo 8 caracteres)
+#   MINIO_ACCESS_KEY           = MINIO_ROOT_USER      (lo lee backend/app/config.py)
+#   MINIO_SECRET_KEY           = MINIO_ROOT_PASSWORD  (ídem · OJO: el nombre es
+#                              MINIO_SECRET_KEY, NO FULKRO_MINIO_SECRET_KEY)
+#   APP_SECRET_KEY             >=32 caracteres aleatorios. OJO: el nombre real es
+#                              APP_SECRET_KEY (config.py no tiene env_prefix),
+#                              aunque el mensaje de error de startup_checks.py
+#                              hable de FULKRO_APP_SECRET_KEY
+#   FULKRO_AUTH_PRIVATE_KEY    PEM Ed25519 · firma las cookies de sesión
+#   FULKRO_AUTH_PUBLIC_KEY     SPKI PEM correspondiente · lo verifica el
+#                              middleware del frontend (server-side)
+#   FULKRO_ML_PRIVATE_KEY      PEM Ed25519 · magic links (portal auditor)
+#   FULKRO_BACKUP_SIGNING_KEY  PEM Ed25519 · firma de backups
+#   FULKRO_DEMO_OWNER_EMAIL    default demo@fulkro.es
+#   FULKRO_DEMO_OWNER_PASSWORD default fulkro-demo-2026
+#   ANTHROPIC_API_KEY          OPCIONAL · sin ella el copiloto LLM no responde,
+#                              el resto de la aplicación funciona igual
+#
+# Las tres primeras claves Ed25519 son OBLIGATORIAS: backend/app/startup_checks.py
+# aborta el arranque si falta DATABASE_URL, FULKRO_AUTH_PRIVATE_KEY,
+# FULKRO_ML_PRIVATE_KEY o FULKRO_BACKUP_SIGNING_KEY.
+#
+# ── CONTRASEÑAS DEL DEMO ────────────────────────────────────────────────────
+# Criterio: fijas y evidentes (es un demo local en 127.0.0.1, generar entropía
+# solo estorbaría al que quiere entrar), pero viviendo en .env.demo, que está
+# gitignorado. Ni una sola credencial en este fichero, que sí se commitea. Así
+# nadie puede copiar este compose a un servidor y heredar una contraseña
+# conocida: sin .env.demo no arranca.
+# ════════════════════════════════════════════════════════════════════════════
+
+name: fulkro-demo
+
+# `backend` y `provision` comparten la MISMA imagen, pero SOLO `backend` la
+# construye. Cuando los dos declaraban `build:` con el mismo tag, BuildKit los
+# construia en paralelo y la exportacion chocaba:
+#   target provision: failed to solve: image "docker.io/fulkro/backend:demo": already exists
+# Medido en la primera ejecucion real de `make demo`. Por eso el ancla solo lleva
+# el tag, y el `build:` vive unicamente en el servicio `backend`.
+# `make demo` construye explicitamente (`build backend frontend`) antes de `up --no-build`.
+x-backend-image: &backend-image
+  image: fulkro/backend:demo
+
+services:
+
+  # ─────────────────────── PostgreSQL 16 (pgvector oficial) ───────────────────
+  # Imagen oficial `pgvector/pgvector:pg16` en vez de la propia
+  # `fulkro/postgres:pg16`: el demo NO compila nada. Ver
+  # docs/adr/ADR-001-postgres-demo-sin-age.md para las cifras y la contrapartida.
+  #
+  # Dos consecuencias que hay que respetar juntas o el servidor no arranca:
+  #   1. NO se pasa `command: postgres -c shared_preload_libraries=pgaudit`
+  #      (docker-compose.yml:17-19 y docker-compose.prod.yml sí lo hacen). Sobre
+  #      una imagen sin pgaudit, precargar esa librería impide que el servidor
+  #      arranque, no degrada.
+  #   2. El script de extensiones montado es init-extensions-demo.sql, sin
+  #      `CREATE EXTENSION age` ni `pgaudit`, que sobre esta imagen fallarían.
+  postgres:
+    image: pgvector/pgvector:pg16
+    restart: unless-stopped
+    env_file:
+      - .env.demo          # POSTGRES_PASSWORD
+    environment:
+      POSTGRES_DB: fulkro
+      POSTGRES_USER: fulkro
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      # Se ejecutan en orden alfabético en el PRIMER arranque (data-dir vacío).
+      # El servicio `provision` los vuelve a ejecutar (son idempotentes) para
+      # cubrir el caso del volumen ya existente.
+      - ./infra/docker/init-extensions-demo.sql:/docker-entrypoint-initdb.d/01-extensions.sql:ro
+      - ./infra/docker/init-functions.sql:/docker-entrypoint-initdb.d/02-functions.sql:ro
+      - ./infra/docker/init-roles.sql:/docker-entrypoint-initdb.d/03-roles.sql:ro
+    healthcheck:
+      # pg_isready responde solo cuando el servidor acepta conexiones, así que
+      # `make demo` puede esperar a `healthy` sin ningún sleep.
+      test: ["CMD-SHELL", "pg_isready -U fulkro -d fulkro"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+      start_period: 20s
+    shm_size: "256mb"
+    ports:
+      # Publicado solo en loopback, y en 15432 para no chocar con el 5433 del
+      # docker-compose.yml de desarrollo ni con un Postgres del sistema en 5432.
+      - "127.0.0.1:15432:5432"
+      # Todos los puertos del demo van por DEBAJO de 49152 a proposito. Windows
+      # reserva rangos dinamicos a partir de ahi (Hyper-V/WinNAT), y `docker compose up`
+      # muere con «bind: An attempt was made to access a socket in a way forbidden by
+      # its access permissions». Medido en esta maquina: `netsh interface ipv4 show
+      # excludedportrange protocol=tcp` incluye 58959-59058, que es justo donde estaba
+      # el 59000 de MinIO en la primera version de este fichero.
+    networks:
+      - fulkro-demo-net
+
+  # ─────────────────────── Redis 7 ───────────────────────
+  # Sin `requirepass`, al contrario que prod: en el demo Redis no publica puerto
+  # al host, así que solo es alcanzable desde la red interna de esta pila. Una
+  # contraseña aquí solo añadiría una variable más que puede desincronizarse.
+  redis:
+    image: redis:7-alpine
+    restart: unless-stopped
+    command: ["redis-server", "--appendonly", "yes"]
+    volumes:
+      - redisdata:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+    networks:
+      - fulkro-demo-net
+
+  # ─────────────────────── MinIO (S3 compatible) ───────────────────────
+  minio:
+    image: minio/minio:latest
+    restart: unless-stopped
+    env_file:
+      - .env.demo          # MINIO_ROOT_USER · MINIO_ROOT_PASSWORD
+    command: server /data --console-address ":9001"
+    volumes:
+      - miniodata:/data
+    healthcheck:
+      test: ["CMD-SHELL", "mc ready local || curl -fsS http://localhost:9000/minio/health/live || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 15s
+    ports:
+      - "127.0.0.1:19000:9000"   # API S3
+      - "127.0.0.1:19001:9001"   # consola web
+    networks:
+      - fulkro-demo-net
+
+  # ─────────────────────── MinIO · creación de buckets (one-shot) ─────────────
+  # Reutiliza tal cual infra/docker/minio-init.sh (el mismo que usa producción):
+  # crea los 7 buckets canónicos, incluido fulkro-evidence-worm con Object Lock.
+  # En el demo ese bloqueo WORM es real dentro del volumen; `make clean` borra el
+  # volumen entero, que es la única forma de deshacerlo.
+  minio-init:
+    image: minio/mc:latest
+    restart: "no"
+    entrypoint: ["/bin/sh", "/scripts/minio-init.sh"]
+    env_file:
+      - .env.demo          # MINIO_ROOT_USER · MINIO_ROOT_PASSWORD
+    environment:
+      MINIO_INIT_ENDPOINT: http://minio:9000
+    volumes:
+      - ./infra/docker/minio-init.sh:/scripts/minio-init.sh:ro
+    depends_on:
+      minio:
+        condition: service_healthy
+    networks:
+      - fulkro-demo-net
+
+  # ─────────────────────── Provisión de la base de datos (one-shot) ───────────
+  # infra/docker/provision-entrypoint.sh ES el "make demo" del lado de datos:
+  # 8 pasos idempotentes (extensiones → funciones → roles → ALTER USER → alembic
+  # upgrade head → grants → seed → REVOKE audit_log). No se reescribe nada aquí.
+  #
+  # DOS MONTAJES, y el orden importa:
+  #   1. ./infra/docker:/app/infra/docker:ro
+  #      OBLIGATORIO. .dockerignore:72 excluye `infra/` de la imagen del backend,
+  #      así que dentro del contenedor no existe ni el entrypoint ni los .sql. Sin
+  #      este bind el servicio muere en el paso [1/7] y, como `backend` depende de
+  #      él con service_completed_successfully, no arranca absolutamente nada.
+  #   2. init-extensions-demo.sql montado ENCIMA de init-extensions.sql
+  #      El script invoca `${INIT_DIR}/init-extensions.sql` con
+  #      `psql -v ON_ERROR_STOP=1`, y el original crea `age` y `pgaudit` (líneas
+  #      9-13), que sobre pgvector/pgvector:pg16 no existen y abortan el paso.
+  #      Sustituyendo el fichero en el punto de montaje no se toca ni el script
+  #      ni el fichero de producción. Docker aplica los binds de menos a más
+  #      específico, así que este gana sobre el directorio de arriba.
+  provision:
+    <<: *backend-image
+    restart: "no"
+    env_file:
+      - .env.demo          # PROVISION_SUPER_PW · DATABASE_* · claves
+    environment:
+      PROVISION_PGHOST: postgres
+      PROVISION_PGPORT: "5432"
+      PROVISION_PGDB: fulkro
+      PROVISION_SUPER_USER: fulkro
+      PROVISION_REPO_ROOT: /app
+      # --skip-corpus: el corpus RAG se ingesta desde
+      #   var/corpus/boe/RD_311_2022_consolidado.html, que .dockerignore:80
+      #   (`var/`) deja fuera de la imagen, y su vectorización descargaría el
+      #   modelo de embeddings de HuggingFace. El demo no lo necesita para
+      #   enseñar la aplicación; el copiloto RAG responderá sin corpus.
+      # --skip-age-kg: el grafo de conocimiento necesita Apache AGE, que esta
+      #   imagen de Postgres no trae (ADR-001). Ya era el default del script.
+      PROVISION_SEED_FLAGS: "--skip-corpus --skip-age-kg"
+    volumes:
+      - ./infra/docker:/app/infra/docker:ro
+      - ./infra/docker/init-extensions-demo.sql:/app/infra/docker/init-extensions.sql:ro
+      # El fixture del corpus NO viaja en la imagen: .dockerignore excluye
+      # backend/tests/. Sin este montaje, demo_bootstrap.py lo salta y la DdA sale
+      # SIN refuerzos y el copiloto SIN corpus (lo dice el propio script en su
+      # resumen). Son 1.031 chunks con su vector de 1024 dim ya embebido, asi que
+      # cargarlos NO necesita ningun servicio de embeddings.
+      - ./backend/tests/fixtures/corpus_seed.sql.gz:/app/backend/tests/fixtures/corpus_seed.sql.gz:ro
+      # El seed fija templates.docx_path SOLO si el DOCX existe en disco, y la
+      # imagen no copia var/. Sin este bind el catálogo de plantillas queda con
+      # docx_path NULL y la generación de entregables devuelve 404.
+      - ./var/templates_docx:/app/var/templates_docx:ro
+    entrypoint: ["bash", "/app/infra/docker/provision-entrypoint.sh"]
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - fulkro-demo-net
+
+  # ─────────────────────── Backend FastAPI (uvicorn) ───────────────────────
+  backend:
+    <<: *backend-image
+    build:
+      context: .
+      dockerfile: infra/docker/Dockerfile
+    restart: unless-stopped
+    env_file:
+      - .env.demo          # DATABASE_URL · claves Ed25519 · MinIO · operador
+    environment:
+      # APP_ENV: ni "production" ni "prod", y el valor concreto da igual mientras
+      # no sea uno de esos dos. Se elige "demo" porque es lo que se lee en
+      # GET /api/v1/health y en el log de arranque, y describe el entorno.
+      # Con APP_ENV=production pasarían tres cosas, todas malas aquí:
+      #   1. las cookies de sesión se emiten con Secure (backend/app/motors/
+      #      m21_portal_cliente/api.py:77) y el navegador NO las envía por
+      #      http://localhost → login imposible;
+      #   2. /docs, /redoc y /openapi.json se apagan (main.py:395);
+      #   3. startup_checks exigiría claves de firma M05/M06/M07 inyectadas por
+      #      env y abortaría el arranque en vez de generarlas en disco.
+      # OJO al valor "prod": backend/app/core/signing_keys.py:39 lo trata como
+      # producción aunque config.py no, así que quedaría a medio camino.
+      APP_ENV: demo
+      # Base con la que se construyen los enlaces de magic link
+      # (m12_magic_link/service.py:373 → {base}/ml/consume?token=...). /ml/consume
+      # es una ruta del FRONTEND, así que apunta al 3000, no al backend.
+      APP_BASE_URL: http://localhost:3000
+      REDIS_URL: redis://redis:6379/0
+      MINIO_ENDPOINT: minio:9000
+      MINIO_PUBLIC_URL: http://localhost:19000
+      MINIO_USE_TLS: "false"
+      # Sin SMTP en el demo: los correos se descartan. Los enlaces que en la vida
+      # real llegarían por email los imprime backend/scripts/demo_bootstrap.py.
+      EMAIL_BACKEND: mock
+      # Caché de modelos de HuggingFace dentro del volumen `vardata`. fastembed
+      # descarga el modelo de embeddings (e5-large) EN PROCESO y de forma
+      # perezosa, en la primera consulta RAG del copiloto: con esto se descarga
+      # una vez y sobrevive a `make down` + `make demo`. NO se precarga: la
+      # primera consulta seguirá tardando, y sin red fallará.
+      HF_HOME: /app/var/hf-cache
+      # Claves de firma M05 · el default de
+      # backend/app/motors/m05_signing/keypair.py:26 resuelve
+      # `parents[4].parent` = "/" dentro del contenedor, o sea /var/keys, que el
+      # usuario 10001 (infra/docker/Dockerfile:183-186) no puede escribir → el
+      # arranque abortaría en verify_ed25519_keys(). Se redirige por env, que es
+      # justo lo que ese módulo contempla (líneas 36-43), a un directorio que sí
+      # es suyo. M06 y M07 ya resuelven bien a /app/var/keys, no hacen falta.
+      # Alternativa descartada: inyectar FULKRO_M05_SIGNING_PRIVATE_KEY con un PEM
+      # generado por `make demo`. Funciona igual, pero obliga a generar y guardar
+      # una clave más en .env.demo para nada: en el demo la clave puede nacer sola
+      # y persistir en el volumen.
+      M05_SIGNING_PRIVATE_KEY_PATH: /app/var/keys/m05_signing_dev.ed25519.pem
+      M05_SIGNING_PUB_KEY_PATH: /app/var/keys/m05_signing_dev.ed25519.pub.pem
+      # Permite "Forzar sync" de conectores cloud sin OAuth real: devuelve 0
+      # recursos en vez de error. backend/app/config.py lo documenta como
+      # destinado exactamente a "dev/test/piloto demo". NUNCA en producción.
+      CLOUD_MOCK_MODE_ALLOWED: "true"
+    volumes:
+      # /app/var persistente: claves de firma generadas en el primer arranque,
+      # caché de HuggingFace y evidencias en sistema de ficheros. La imagen crea
+      # /app/var como uid 10001, y Docker propaga esa propiedad al volumen la
+      # primera vez que lo monta, así que el usuario no-root puede escribir.
+      - vardata:/app/var
+      - ./var/templates_docx:/app/var/templates_docx:ro
+      # `make demo` ejecuta backend/scripts/demo_bootstrap.py DENTRO de este
+      # contenedor (Makefile:309), y ahi es donde se carga el fixture del corpus.
+      # No viaja en la imagen porque .dockerignore excluye backend/tests/.
+      - ./backend/tests/fixtures/corpus_seed.sql.gz:/app/backend/tests/fixtures/corpus_seed.sql.gz:ro
+    command:
+      - "uvicorn"
+      - "backend.app.main:app"
+      - "--host"
+      - "0.0.0.0"
+      - "--port"
+      - "8000"
+      # 2 workers, no 4 como prod: un portátil no necesita más y cada worker
+      # carga su propia copia del modelo de embeddings si se usa el copiloto.
+      - "--workers"
+      - "2"
+    healthcheck:
+      # HONESTO: GET /api/v1/health devuelve {status,version,environment} y NO
+      # toca la base de datos (backend/app/api/v1/health.py). Como healthcheck de
+      # "el proceso vive y responde HTTP" vale, y es para lo único que se usa
+      # aquí: que `frontend` no arranque antes de tiempo. Comprobar que la base
+      # tiene datos es trabajo de scripts/demo_smoke.sh, que mira tablas.
+      test: ["CMD-SHELL", "curl -fsS http://localhost:8000/api/v1/health || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+      start_period: 40s
+    ports:
+      # 18000 y no 8000 para no chocar con un backend de desarrollo ya arrancado
+      # en el host. La documentación de la API queda en
+      # http://localhost:18000/docs (viva porque APP_ENV no es production).
+      - "127.0.0.1:18000:8000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      provision:
+        condition: service_completed_successfully
+      minio-init:
+        condition: service_completed_successfully
+    # Alias de red `app` por coherencia con producción, donde el Caddyfile hace
+    # `reverse_proxy app:8000`. En el demo no hay Caddy, pero mantenerlo evita que
+    # una configuración copiada de prod deje de resolver el nombre.
+    networks:
+      fulkro-demo-net:
+        aliases:
+          - app
+
+  # ─────────────────────── Frontend Next.js 14 ───────────────────────
+  # Es la URL que imprime `make demo`: http://localhost:3000
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    image: fulkro/frontend:demo
+    restart: unless-stopped
+    env_file:
+      - .env.demo          # FULKRO_AUTH_PUBLIC_KEY (la lee middleware.ts)
+    environment:
+      NODE_ENV: production
+      PORT: "3000"
+      # El frontend reescribe /api/* hacia el backend por la red interna. Se
+      # fuerza aquí porque el default apunta a localhost, que dentro del
+      # contenedor sería el propio Next.js.
+      FULKRO_BACKEND_URL: http://backend:8000
+    healthcheck:
+      test: ["CMD-SHELL", "curl -fsS http://localhost:3000/ || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+      start_period: 40s
+    ports:
+      - "127.0.0.1:3000:3000"
+    depends_on:
+      backend:
+        condition: service_healthy
+    networks:
+      - fulkro-demo-net
+
+
+# ════════════════════════════════════════════════════════════════════════════
+networks:
+  fulkro-demo-net:
+    driver: bridge
+
+
+# ════════════════════════════════════════════════════════════════════════════
+# Volúmenes propios del demo. Con `name: fulkro-demo` arriba, Docker los nombra
+# fulkro-demo_pgdata, fulkro-demo_vardata... así que NO pisan los del
+# docker-compose.yml de desarrollo ni los de producción.
+volumes:
+  pgdata:      # datos de PostgreSQL
+  redisdata:   # AOF de Redis
+  miniodata:   # objetos de MinIO (incluido el bucket WORM)
+  vardata:     # /app/var del backend: claves de firma + caché HuggingFace

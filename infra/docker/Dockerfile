@@ -32,11 +32,19 @@ RUN if [ ! -e /usr/bin/testssl.sh ] && [ -e /usr/bin/testssl ]; then \
         ln -s /usr/bin/testssl /usr/bin/testssl.sh; \
     fi
 
-# Nuclei (Go binary) — ProjectDiscovery oficial
-RUN curl -sL https://github.com/projectdiscovery/nuclei/releases/download/v3.3.0/nuclei_3.3.0_linux_amd64.zip -o /tmp/nuclei.zip \
-    && cd /tmp && python3 -c "import zipfile; zipfile.ZipFile('nuclei.zip').extractall('/usr/local/bin/')" \
-    && chmod +x /usr/local/bin/nuclei \
-    && rm /tmp/nuclei.zip
+# Nuclei (Go binary) — ProjectDiscovery oficial.
+# Best-effort, igual que httpx/subfinder/semgrep/trivy/grype: si GitHub no responde
+# o la release cambia de nombre, el build NO se rompe y scanner_capabilities() lo
+# refleja honesto. Antes esta era la UNICA de las diez descargas sin salvavidas, y
+# convertia una caida de github.com en un fallo duro del build de la imagen — es
+# decir, en que nadie pudiese levantar la aplicacion por una herramienta de pentest
+# que no hace falta para verla funcionar.
+RUN (curl -sfL https://github.com/projectdiscovery/nuclei/releases/download/v3.3.0/nuclei_3.3.0_linux_amd64.zip -o /tmp/nuclei.zip \
+      && cd /tmp && python3 -c "import zipfile; zipfile.ZipFile('nuclei.zip').extractall('/usr/local/bin/')" \
+      && chmod +x /usr/local/bin/nuclei \
+      && rm -f /tmp/nuclei.zip) \
+    || echo "WARNING: nuclei install failed"
+
 
 # Prowler (cloud scanner) — pip install
 RUN pip install --no-cache-dir prowler-cloud==4.0.0 || \
