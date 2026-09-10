@@ -4,6 +4,7 @@ These tests do NOT require a database -- they only exercise the parser
 against the downloaded HTML file.
 """
 
+import os
 import re
 from pathlib import Path
 
@@ -11,13 +12,24 @@ import pytest
 
 from backend.app.corpus.rd311_parser import parse_rd311
 
-HTML_PATH = Path("/home/usuario/fulkro/var/corpus/boe/RD_311_2022_consolidado.html")
+# Raíz del repo por traversal (mismo patrón que backend/app/startup_checks.py:22):
+# backend/tests/corpus/test_rd311_parser.py → parents[3] == raíz del repo.
+# Antes esto apuntaba a una ruta absoluta de una máquina concreta, así que fuera
+# de esa máquina el fixture se saltaba SIEMPRE y el test era vacuo.
+_REPO_ROOT = Path(__file__).resolve().parents[3]
+# Mismo default y mismo override (FULKRO_CORPUS_DIR) que
+# backend/app/corpus/rd311_ingest.py.
+CORPUS_DIR = Path(os.environ.get("FULKRO_CORPUS_DIR") or (_REPO_ROOT / "var" / "corpus"))
+HTML_PATH = CORPUS_DIR / "boe" / "RD_311_2022_consolidado.html"
 
 
 @pytest.fixture(scope="module")
 def chunks():
     if not HTML_PATH.exists():
-        pytest.skip("RD 311/2022 HTML not downloaded")
+        pytest.skip(
+            f"RD 311/2022 HTML no descargado en {HTML_PATH} "
+            "(descárgalo ahí o exporta FULKRO_CORPUS_DIR)"
+        )
     return parse_rd311(HTML_PATH)
 
 

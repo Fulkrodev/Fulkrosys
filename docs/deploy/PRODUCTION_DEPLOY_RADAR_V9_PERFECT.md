@@ -291,7 +291,7 @@ Mega-Atom RADAR-V9-PERFECT (Fase 1+2 + Fase 1.D):
 
 ## 11. Local-only repo state nota
 
-⚠️ Repo `/home/usuario/fulkro/` actualmente **local-only** (NO remote `origin` configurado · `git remote -v` empty).
+⚠️ Repo local actualmente **sin remoto** (NO remote `origin` configurado · `git remote -v` empty).
 
 Tags + merge ya aplicados local · production deploy requires:
 1. Configurar remote production (Hetzner / GitHub / Gitea TBD)

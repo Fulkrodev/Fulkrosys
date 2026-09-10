@@ -30,7 +30,7 @@ npx playwright install --dry-run chromium
 
 ### Paso 2 · WSL/Windows interop (si aplica)
 
-FULKRO repo vive en WSL filesystem (`/home/usuario/fulkro/`) pero el shell development puede ser:
+El repo FULKRO vive en el filesystem de WSL (sustituye `<RAIZ_DEL_REPO>` por la ruta de tu clon; `git rev-parse --show-toplevel` la imprime) pero el shell de desarrollo puede ser:
 
 **Opción A · WSL native node** (recomendado long-term):
 
@@ -39,7 +39,7 @@ FULKRO repo vive en WSL filesystem (`/home/usuario/fulkro/`) pero el shell devel
 curl -fsSL https://deb.nodesource.com/setup_20.x | sudo -E bash -
 sudo apt install -y nodejs
 which node node npx          # debe mostrar /usr/bin/node
-cd /home/usuario/fulkro/frontend
+cd "$(git rev-parse --show-toplevel)/frontend"
 npm install                  # re-install para Linux binaries
 npx playwright install chromium
 ```
@@ -50,7 +50,7 @@ Ventaja: zero-overhead · binaries nativos Linux · CI parity.
 
 ```bash
 # Desde WSL bash invocar Windows node.exe:
-wsl -d Ubuntu --cd /home/usuario/fulkro/frontend -- \
+wsl -d Ubuntu --cd <RAIZ_DEL_REPO>/frontend -- \
   bash -c "'/mnt/c/Program Files/nodejs/node.exe' node_modules/@playwright/test/cli.js install chromium"
 ```
 

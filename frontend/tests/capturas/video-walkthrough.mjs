@@ -23,9 +23,11 @@ const cfg = JSON.parse(fs.readFileSync(path.join(HERE, ".capturas-config.json"),
 const PORT = process.env.PLAYWRIGHT_PORT || "3000";
 const BASE = `http://localhost:${PORT}`;
 const BACKEND = process.env.CAPTURAS_BACKEND || "http://localhost:8000";
-const REPO = "/home/usuario/fulkro";
-const VIDEO_DIR = `${REPO}/landing/assets/video`;
-const FRAMES_DIR = `${REPO}/out/video_frames`;
+// Raíz del repo derivada de la ubicación de este fichero
+// (frontend/tests/capturas → ../../../), no de una ruta absoluta cableada.
+const REPO = path.resolve(HERE, "../../..");
+const VIDEO_DIR = process.env.FULKRO_VIDEO_DIR ?? `${REPO}/landing/assets/video`;
+const FRAMES_DIR = process.env.FULKRO_FRAMES_DIR ?? `${REPO}/out/video_frames`;
 const SIZE = { width: 1920, height: 1080 };
 const DARK = "#0e0a22";
 fs.mkdirSync(VIDEO_DIR, { recursive: true });

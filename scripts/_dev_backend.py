@@ -1,7 +1,7 @@
 """Dev backend launcher: load .env into os.environ (so auth/crypto.py reads the
 NON-ephemeral Ed25519 key · OPS-052 72ª) then run uvicorn on :8000.
 
-Usage: /home/usuario/fulkro/.venv/bin/python scripts/_dev_backend.py
+Uso (desde la raíz del repo): .venv/bin/python scripts/_dev_backend.py
 """
 from __future__ import annotations
 

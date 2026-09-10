@@ -25,7 +25,11 @@ const cfg = JSON.parse(fs.readFileSync(path.join(HERE, ".capturas-config.json"),
 const PORT = process.env.PLAYWRIGHT_PORT || "3000";
 const BASE = `http://localhost:${PORT}`;
 const BACKEND = process.env.CAPTURAS_BACKEND || "http://localhost:8000";
-const OUT = "/home/usuario/fulkro/landing/assets/capturas/marketing";
+// Raíz del repo derivada de la ubicación de este fichero
+// (frontend/tests/capturas → ../../../), no de una ruta absoluta cableada.
+// Override: FULKRO_CAPTURAS_OUT_DIR.
+const REPO_ROOT = path.resolve(HERE, "../../..");
+const OUT = process.env.FULKRO_CAPTURAS_OUT_DIR ?? path.join(REPO_ROOT, "landing/assets/capturas/marketing");
 const SIZE = { width: 1440, height: 1024 };
 fs.mkdirSync(OUT, { recursive: true });
 

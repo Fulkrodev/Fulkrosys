@@ -140,7 +140,7 @@ ls -la out/radar_v9_pliego_defectuoso_sample_*.csv
 
 ## 4. NOTA: Repo state local-only (2026-05-27)
 
-⚠️ Repo `/home/usuario/fulkro/` es **local-only** (NO remote `origin` configurado). Plan D3 paso 4 `git push origin ...` NO ejecutable hasta configurar remote production (Hetzner / GitHub / Gitea TBD).
+⚠️ Repo local **sin remoto** (NO remote `origin` configurado). Plan D3 paso 4 `git push origin ...` NO ejecutable hasta configurar remote production (Hetzner / GitHub / Gitea TBD).
 
 Tags + merge ya aplicados local:
 - ✅ Tag `radar-v9-perfect-fase1` (local · commit `10bb96f7`)

@@ -890,7 +890,7 @@ Tag local `radar-v9-perfect-fase2` (commit `85ef44dd` · "Fase 2 complete"). Dec
 
 ## Memorias auto persistentes
 
-Ver `/home/usuario/.claude/projects/-home-usuario-fulkro/memory/MEMORY.md`:
+Ver el directorio `memory/` del proyecto en la configuración local de Claude Code:
 - `env_wsl2_native_runtime.md` · WSL2 native dissolves OPS-050/052 prior session constraints
 - `feedback_empirical_honesty.md` · Marcos asks "a la perfección?" expecting empirical truth, not architectural claim
 - `project_ens_radar_dossier_duration.md` · Full pipeline ~4h empirical (resume cursor verified)

@@ -3,36 +3,65 @@
 # Construye la BD de test `fulkro_test` DESDE alembic upgrade head (NO reusa la BD live).
 # Mata la deuda conftest-reusa-BD-live (raíz de drift + data-pollution timesheet/llm).
 # Reproducible: drop → create → extensions/functions/roles → upgrade head → grants → seed.
-# Idempotente (drop+recreate). Uso: bash scripts/build_test_db.sh   (desde raíz repo, en WSL)
+# Idempotente (drop+recreate). Uso: bash scripts/build_test_db.sh   (desde cualquier cwd)
 set -euo pipefail
+
+# Raíz del repo derivada de la ubicación del script (scripts/ → ..), NO del cwd
+# ni de una ruta absoluta cableada. Todos los paths de abajo son relativos a ella.
+REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+cd "${REPO_ROOT}"
 
 DB="${FULKRO_TEST_DB_NAME:-fulkro_test}"
 PGHOST="${FULKRO_TEST_PGHOST:-localhost}"
 PGPORT="${FULKRO_TEST_PGPORT:-5433}"
-CONTAINER="${FULKRO_PG_CONTAINER:-fulkro-postgres-1}"
 SUPER_PW="${FULKRO_PG_SUPER_PW:-changeme}"
+
+# Nombre del contenedor de PostgreSQL. Docker Compose lo compone como
+# "<proyecto>-<servicio>-<índice>" y el proyecto por defecto es el nombre del
+# directorio raíz normalizado (minúsculas, sin caracteres raros). El default
+# anterior estaba cableado a "fulkro-postgres-1", que sólo existe si el clon se
+# llama exactamente "fulkro"; en un clon de github.com/Fulkrodev/Fulkrosys el
+# directorio es "Fulkrosys" y el contenedor "fulkrosys-postgres-1", con lo que
+# el paso [1/6] moría con "No such container".
+# Orden: FULKRO_PG_CONTAINER > COMPOSE_PROJECT_NAME > nombre del directorio.
+# Si el candidato no existe se ABORTA con la lista de candidatos: NO se elige
+# automáticamente otro Postgres de la máquina, porque este script hace DROP
+# DATABASE y equivocarse de contenedor destruiría la base de otro proyecto.
+_compose_project="${COMPOSE_PROJECT_NAME:-$(basename "${REPO_ROOT}" | tr '[:upper:]' '[:lower:]' | tr -cd 'a-z0-9_-')}"
+CONTAINER="${FULKRO_PG_CONTAINER:-${_compose_project}-postgres-1}"
+if ! docker inspect "${CONTAINER}" >/dev/null 2>&1; then
+  echo "    ERROR: no existe el contenedor de PostgreSQL '${CONTAINER}'." >&2
+  echo "    Contenedores con servicio compose 'postgres' en marcha:" >&2
+  docker ps --filter "label=com.docker.compose.service=postgres" --format '      {{.Names}}' >&2 || true
+  echo "    Arranca la base (docker compose up -d postgres) o, si el tuyo se llama" >&2
+  echo "    de otra forma, pasa FULKRO_PG_CONTAINER=<nombre> (este script hace DROP" >&2
+  echo "    DATABASE: no se elige contenedor por ti)." >&2
+  exit 1
+fi
 APP_URL="postgresql+asyncpg://fulkro_app:fulkro_app_dev_password@${PGHOST}:${PGPORT}/${DB}"
 APP_URL_SYNC="postgresql://fulkro_app:fulkro_app_dev_password@${PGHOST}:${PGPORT}/${DB}"
 MIGRATE_URL="postgresql://fulkro_migrate:fulkro_migrate_dev_password@${PGHOST}:${PGPORT}/${DB}"
-VENV_PY="${FULKRO_VENV_PY:-.venv/bin/python}"
-# REPRO GAP 3: en este worktree (fulkro-portales) NO existe ./.venv; el venv real
-# es compartido en /home/usuario/fulkro/.venv. Si la var no se pasó y el default
-# relativo no existe, caer al venv compartido conocido. NO sobrescribe FULKRO_VENV_PY
-# si el caller lo fijó explícitamente.
-if [ ! -x "${VENV_PY}" ] && [ -z "${FULKRO_VENV_PY:-}" ]; then
-  VENV_PY="/home/usuario/fulkro/.venv/bin/python"
+# Intérprete Python. Default: el venv del propio repo. El fallback anterior
+# apuntaba, con ruta absoluta, al venv de OTRO checkout de una única máquina:
+# fuera de ella el script cogía un intérprete inexistente en vez de avisar.
+# Ahora sólo hay dos candidatos dentro del repo y, si no, error claro.
+VENV_PY="${FULKRO_VENV_PY:-}"
+if [ -z "${VENV_PY}" ]; then
+  for _cand in "${REPO_ROOT}/.venv/bin/python" "${REPO_ROOT}/backend/.venv/bin/python"; do
+    if [ -x "${_cand}" ]; then VENV_PY="${_cand}"; break; fi
+  done
 fi
-# Path absoluto canónico del intérprete: el paso [4/6] hace `cd backend` y antes
-# anteponía "../" al VENV_PY relativo. Con el fallback a un venv compartido fuera
-# del repo ese "../" rompe (daría ../home/...). Resolver a absoluto aquí y usar
-# VENV_PY_ABS en cualquier subshell que cambie de directorio.
+VENV_PY="${VENV_PY:-${REPO_ROOT}/.venv/bin/python}"
+# Path absoluto canónico del intérprete: el paso [4/6] hace `cd backend`, así que
+# un path relativo se rompería dentro de ese subshell.
 case "${VENV_PY}" in
   /*) VENV_PY_ABS="${VENV_PY}" ;;
-  *)  VENV_PY_ABS="$(pwd)/${VENV_PY}" ;;
+  *)  VENV_PY_ABS="${REPO_ROOT}/${VENV_PY}" ;;
 esac
 if [ ! -x "${VENV_PY_ABS}" ]; then
   echo "    ERROR: intérprete Python del venv no ejecutable: ${VENV_PY_ABS}" >&2
-  echo "    Pasa FULKRO_VENV_PY=/ruta/a/.venv/bin/python o crea ./.venv" >&2
+  echo "    Crea el venv en la raíz del repo (python3.12 -m venv .venv &&" >&2
+  echo "    .venv/bin/pip install -e backend[dev]) o pasa FULKRO_VENV_PY=/ruta/a/python" >&2
   exit 1
 fi
 

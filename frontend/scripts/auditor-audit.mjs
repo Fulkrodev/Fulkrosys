@@ -1,9 +1,13 @@
 import { chromium, request as pwRequest } from "@playwright/test";
 import fs from "node:fs";
+import { fileURLToPath } from "node:url";
 
 const FRONT = "http://localhost:3000";
 const BACK = "http://localhost:8000";
-const OUT = "/home/usuario/fulkro/out/visual/auditor";
+// Raíz del repo derivada de la ubicación de este fichero (frontend/scripts → ../../),
+// no de una ruta absoluta de una máquina concreta. Override: FULKRO_OUT_DIR.
+const REPO_ROOT = fileURLToPath(new URL("../../", import.meta.url));
+const OUT = process.env.FULKRO_OUT_DIR ?? `${REPO_ROOT}out/visual/auditor`;
 const WIDTHS = [375, 768, 1280, 1920];
 fs.mkdirSync(OUT, { recursive: true });
 

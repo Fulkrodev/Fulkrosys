@@ -10,7 +10,7 @@ informative without requiring a populated database. Output:
 
 Run with::
 
-    PYTHONPATH=/home/usuario/fulkro python scripts/render_norma_reports_samples.py
+    PYTHONPATH=. python scripts/render_norma_reports_samples.py
 """
 from __future__ import annotations
 

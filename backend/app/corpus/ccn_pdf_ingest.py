@@ -33,9 +33,13 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Literal
 
-from dotenv import load_dotenv
+# Carga del `.env` de la raíz del repo. El helper vive en rd311_embed para no
+# duplicarlo (OPS-026 DRY) y deriva la raíz del propio fichero, en lugar de
+# cablear la ruta absoluta de una máquina concreta. Tiene que ejecutarse ANTES
+# de importar el provider de embeddings y de crear el engine.
+from backend.app.corpus.rd311_embed import load_repo_dotenv
 
-load_dotenv(dotenv_path=Path("/home/usuario/fulkro/.env"))
+load_repo_dotenv()
 
 import os
 
@@ -60,9 +64,22 @@ from backend.app.models.knowledge import (
 logger = logging.getLogger(__name__)
 
 
-REPO_ROOT = Path("/home/usuario/fulkro")
-PDF_ROOT = REPO_ROOT / "_incoming" / "corpus_cache" / "manual"
-MANIFEST_PATH = REPO_ROOT / "progress" / "fulkro-1.0" / "corpus_manifest.json"
+# Raíz del repo por traversal desde este fichero (mismo patrón que
+# backend/app/startup_checks.py:22): backend/app/corpus/ccn_pdf_ingest.py →
+# parents[3] == raíz del repo.
+REPO_ROOT = Path(__file__).resolve().parents[3]
+# Directorio de los PDF normativos. NO están versionados en el repo (son
+# descargas manuales), así que se admite override por entorno para apuntar a un
+# caché fuera del árbol: FULKRO_CORPUS_PDF_DIR.
+PDF_ROOT = Path(
+    os.environ.get("FULKRO_CORPUS_PDF_DIR")
+    or (REPO_ROOT / "_incoming" / "corpus_cache" / "manual")
+)
+# Manifiesto de salida de la ingesta. Override: FULKRO_CORPUS_MANIFEST.
+MANIFEST_PATH = Path(
+    os.environ.get("FULKRO_CORPUS_MANIFEST")
+    or (REPO_ROOT / "progress" / "fulkro-1.0" / "corpus_manifest.json")
+)
 
 CHUNK_TARGET_CHARS = 1000
 CHUNK_MIN_CHARS = 300
@@ -398,7 +415,11 @@ async def ingest_one(
 ) -> dict:
     pdf_path = PDF_ROOT / entry.pdf_relative
     if not pdf_path.exists():
-        raise FileNotFoundError(f"PDF no encontrado: {pdf_path}")
+        raise FileNotFoundError(
+            f"PDF no encontrado: {pdf_path}. Los PDF normativos no están "
+            "versionados en el repo; descárgalos a ese directorio o apunta "
+            "FULKRO_CORPUS_PDF_DIR a donde los tengas."
+        )
 
     raw = pdf_path.read_bytes()
     content_hash = hashlib.sha256(raw).hexdigest()
@@ -582,4 +603,6 @@ def main() -> int:
 
 
 if __name__ == "__main__":
+    # Como entrypoint el fallo tiene que ser duro y accionable, no silencioso.
+    load_repo_dotenv(required=True)
     raise SystemExit(main())

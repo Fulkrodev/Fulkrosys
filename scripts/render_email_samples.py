@@ -13,7 +13,7 @@ Outputs two width variants per template under:
 
 Run from the project root with ``.venv`` active:
 
-    PYTHONPATH=/home/usuario/fulkro python scripts/render_email_samples.py
+    PYTHONPATH=. python scripts/render_email_samples.py
 """
 from __future__ import annotations
 

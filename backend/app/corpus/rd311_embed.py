@@ -17,13 +17,64 @@ import asyncio
 import logging
 import math
 import os
+import sys
 import time
 from pathlib import Path
 
 import numpy as np
 from dotenv import load_dotenv
 
-load_dotenv(dotenv_path=Path("/home/usuario/fulkro/.env"))
+# Raíz del repo por traversal desde este fichero, mismo patrón que
+# backend/app/startup_checks.py:22 · backend/app/corpus/rd311_embed.py →
+# parents[3] == raíz del repo. NO se cablea la ruta de ninguna máquina concreta.
+_REPO_ROOT = Path(__file__).resolve().parents[3]
+
+# Estado cacheado de load_repo_dotenv(): varios módulos la llaman y ni la carga
+# ni el aviso tienen que repetirse dentro del mismo proceso.
+_dotenv_loaded: bool | None = None
+_dotenv_warned: bool = False
+
+
+def load_repo_dotenv(*, required: bool = False) -> bool:
+    """Carga el ``.env`` de la raíz del repo en ``os.environ``.
+
+    Helper compartido por los ingestores de corpus (OPS-026 DRY): antes cada
+    módulo cableaba con ruta absoluta el ``.env`` de OTRO checkout de una única
+    máquina, y por eso el pipeline sólo "funcionaba" allí.
+
+    Ruta por defecto: ``<raíz del repo>/.env``. Override con la variable de
+    entorno ``FULKRO_DOTENV`` si el fichero vive en otro sitio.
+
+    ``load_dotenv`` devuelve ``False`` sin lanzar nada cuando el fichero no
+    existe, así que aquí el fallo se hace explícito: aviso por *stderr* (una vez
+    por proceso) y ``SystemExit`` con mensaje accionable cuando ``required=True`` (los
+    entrypoints de línea de comandos) Y además ``DATABASE_URL`` tampoco está ya
+    en el entorno: exportar las variables a mano sigue siendo válido y no se
+    penaliza por no tener ``.env``.
+
+    Devuelve ``True`` si dotenv cargó algo.
+    """
+    global _dotenv_loaded, _dotenv_warned
+    dotenv_path = Path(os.environ.get("FULKRO_DOTENV") or (_REPO_ROOT / ".env"))
+    if _dotenv_loaded is None:
+        _dotenv_loaded = load_dotenv(dotenv_path=dotenv_path)
+    if _dotenv_loaded:
+        return True
+    msg = (
+        f"[corpus] no se ha podido cargar el fichero de entorno {dotenv_path}. "
+        "Crea un .env en la raíz del repo (parte de .env.example), o exporta a "
+        "mano DATABASE_URL / ANTHROPIC_API_KEY / MINIO_SECRET_KEY, o apunta "
+        "FULKRO_DOTENV a la ruta correcta."
+    )
+    if required and not os.environ.get("DATABASE_URL"):
+        raise SystemExit(msg + " Sin DATABASE_URL en el entorno no hay nada que hacer.")
+    if not _dotenv_warned:
+        print(msg, file=sys.stderr)
+        _dotenv_warned = True
+    return False
+
+
+load_repo_dotenv()
 
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
@@ -144,4 +195,7 @@ async def main() -> None:
 
 
 if __name__ == "__main__":
+    # Como entrypoint sí es un error duro quedarse sin configuración: sin
+    # DATABASE_URL el script fallaría más tarde con un error opaco de conexión.
+    load_repo_dotenv(required=True)
     asyncio.run(main())

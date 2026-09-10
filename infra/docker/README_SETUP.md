@@ -29,8 +29,15 @@ Usuarios aplicacion: `fulkro_app` (RLS), `fulkro_migrate` (DDL).
 
 ## Reset total desde cero
 
+> **Nombre de los contenedores**: Docker Compose los llama
+> `<proyecto>-<servicio>-<índice>`, y el proyecto por defecto es el nombre del
+> directorio del clon. Los `fulkro-postgres-1` de abajo asumen que el clon se
+> llama `fulkro`; en un clon de `Fulkrodev/Fulkrosys` el directorio es
+> `Fulkrosys` y el contenedor es `fulkrosys-postgres-1`. Comprueba el tuyo con
+> `docker ps --format '{{.Names}}'` y sustitúyelo.
+
 ```bash
-cd /home/usuario/fulkro
+cd "$(git rev-parse --show-toplevel)"
 
 # 1. Tirar volumenes FULKRO (destructivo; no usar prune global para no
 #    afectar otros proyectos Docker en la maquina)
@@ -55,13 +62,13 @@ source .venv/bin/activate
 cd backend && alembic upgrade head && cd ..
 
 # 6. Seed completo (catalogos + corpus + clientes + KG + pricing)
-PYTHONPATH=/home/usuario/fulkro python backend/scripts/seed_all_fulkro.py
+PYTHONPATH=. python backend/scripts/seed_all_fulkro.py
 
 # 7. Verificar suite completa
-PYTHONPATH=/home/usuario/fulkro python -m pytest backend/tests/ -q
+PYTHONPATH=. python -m pytest backend/tests/ -q
 
 # 8. Demo end-to-end Sesion 8 (cierre)
-PYTHONPATH=/home/usuario/fulkro python backend/scripts/demo_s8_paso8_e2e_year_dataforma.py
+PYTHONPATH=. python backend/scripts/demo_s8_paso8_e2e_year_dataforma.py
 ```
 
 **Target verificado Paso 9.1**:

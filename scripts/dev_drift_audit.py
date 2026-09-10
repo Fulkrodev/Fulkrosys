@@ -2,7 +2,7 @@
 against the live dev DB (information_schema). Lists every missing table/column
 that would 500 the app. NO writes.
 
-Run: /home/usuario/fulkro/.venv/bin/python scripts/dev_drift_audit.py
+Uso (desde la raíz del repo): .venv/bin/python scripts/dev_drift_audit.py
 """
 from __future__ import annotations
 

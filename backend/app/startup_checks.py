@@ -19,7 +19,7 @@ from pathlib import Path
 from loguru import logger
 
 
-# Repo root via path traversal · backend/app/startup_checks.py → /home/usuario/fulkro
+# Repo root via path traversal · backend/app/startup_checks.py → raíz del repo
 _REPO_ROOT = Path(__file__).resolve().parents[2]
 
 # §3.3: las constantes de paths de claves M06/M07 (_KEYS_DIR/_M06_*/_M07_*) eran

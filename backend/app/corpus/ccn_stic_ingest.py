@@ -21,9 +21,14 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 import numpy as np
-from dotenv import load_dotenv
 
-load_dotenv(dotenv_path=Path("/home/usuario/fulkro/.env"))
+# Carga del `.env` de la raíz del repo. El helper vive en rd311_embed para no
+# duplicarlo (OPS-026 DRY) y deriva la raíz del propio fichero, en lugar de
+# cablear la ruta absoluta de una máquina concreta. Tiene que ejecutarse ANTES
+# de importar el provider de embeddings y de abrir la sesión de base de datos.
+from backend.app.corpus.rd311_embed import load_repo_dotenv
+
+load_repo_dotenv()
 
 from sqlalchemy import delete, select
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -216,4 +221,6 @@ async def main() -> None:
 
 
 if __name__ == "__main__":
+    # Como entrypoint el fallo tiene que ser duro y accionable, no silencioso.
+    load_repo_dotenv(required=True)
     asyncio.run(main())

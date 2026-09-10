@@ -1,7 +1,7 @@
 """Dev helper: run alembic with DATABASE_MIGRATE_URL loaded from .env (so env.py
 uses the privileged fulkro_migrate role for DDL). Pass alembic args through.
 
-Usage: /home/usuario/fulkro/.venv/bin/python scripts/_dev_alembic.py upgrade head
+Uso (desde la raíz del repo): .venv/bin/python scripts/_dev_alembic.py upgrade head
 """
 from __future__ import annotations
 

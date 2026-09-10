@@ -20,7 +20,7 @@ Orquesta de punta a punta:
 RGPD: cero datos reales. Todo proviene de los seeds de test.
 
 Uso:
-    cd /home/usuario/fulkro
+    cd "$(git rev-parse --show-toplevel)"
     .venv/bin/python scripts/capturas_landing.py
 Requiere el backend dev (:8000) y el frontend dev (:3000) en marcha y
 APP_ENV != production.

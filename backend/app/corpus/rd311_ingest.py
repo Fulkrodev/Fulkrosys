@@ -16,6 +16,7 @@ from __future__ import annotations
 import asyncio
 import hashlib
 import logging
+import os
 from datetime import datetime, timezone
 from pathlib import Path
 
@@ -37,7 +38,15 @@ logger = logging.getLogger(__name__)
 # ---------------------------------------------------------------------------
 
 SOURCE_CODE = "RD_311_2022"
-HTML_PATH = Path("/home/usuario/fulkro/var/corpus/boe/RD_311_2022_consolidado.html")
+
+# Raíz del repo por traversal desde este fichero (mismo patrón que
+# backend/app/startup_checks.py:22): backend/app/corpus/rd311_ingest.py →
+# parents[3] == raíz del repo.
+_REPO_ROOT = Path(__file__).resolve().parents[3]
+# Directorio del corpus descargado. NO está versionado (el HTML consolidado del
+# BOE se descarga aparte), así que se admite override: FULKRO_CORPUS_DIR.
+CORPUS_DIR = Path(os.environ.get("FULKRO_CORPUS_DIR") or (_REPO_ROOT / "var" / "corpus"))
+HTML_PATH = CORPUS_DIR / "boe" / "RD_311_2022_consolidado.html"
 
 SOURCE_METADATA = {
     "boe_id": "BOE-A-2022-7191",
