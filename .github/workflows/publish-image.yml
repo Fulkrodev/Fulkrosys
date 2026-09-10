@@ -1,0 +1,188 @@
+# Publica la imagen del backend en GHCR (ghcr.io), etiquetada por SHA de commit y
+# por `latest`, con SBOM y procedencia adjuntas como atestaciones OCI.
+#
+# Objetivo: que cualquiera pueda reproducir EXACTAMENTE lo que había en un commit
+# sin compilar nada:
+#     docker pull ghcr.io/fulkrodev/fulkrosys/backend:sha-<sha completo del commit>
+#
+# GHCR es gratuito en repositorios públicos y se autentica con el GITHUB_TOKEN del
+# propio workflow: no hace falta ningún secreto nuevo.
+#
+# AVISO MEDIDO SOBRE EL DOCKERFILE (no se toca aquí; no es propiedad de este
+# workflow). infra/docker/Dockerfile:36 descarga nuclei de github.com SIN respaldo,
+# mientras que las otras nueve descargas de herramientas llevan `|| echo WARNING`.
+# Además, infra/docker/Dockerfile:132-139 hace `which nuclei && ... && nuclei
+# -version` como verificación DURA. Consecuencia: si GitHub no responde o esa
+# release cambia de nombre, el build se cae y NO hay imagen, aunque ninguna de esas
+# herramientas de pentest haga falta para ver la aplicación.
+# Decisión de este workflow: FALLAR, no avisar. Publicar una imagen a la que le
+# falta un binario que su propia verificación declara obligatorio sería publicar
+# una imagen que miente sobre lo que contiene. Lo que sí se hace es diagnosticar:
+# hay una comprobación previa de esa URL que avisa ANTES de gastar el build, y un
+# paso de diagnóstico si el build cae. El arreglo propuesto está en docs/CI.md.
+
+name: Publicar imagen (GHCR)
+
+on:
+  push:
+    branches: [main]
+    tags: ['v*']
+  pull_request:
+    branches: [main]
+    # En PR sólo se CONSTRUYE (no se publica), y sólo si cambia algo que afecte a
+    # la imagen. Al llevar filtro de paths, este workflow NO puede marcarse como
+    # check obligatorio: no se dispara en todos los PR (ver docs/CI.md).
+    paths:
+      - 'infra/docker/Dockerfile'
+      - 'backend/pyproject.toml'
+      - '.dockerignore'
+      - '.github/workflows/publish-image.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  packages: write
+
+concurrency:
+  group: publish-image-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+
+  publicar:
+    runs-on: ubuntu-latest
+    # Medido en local: `docker buildx build --check -f infra/docker/Dockerfile .`
+    # termina sin avisos, pero el build completo NO se ha cronometrado en un runner
+    # de GitHub (no medido). El Dockerfile instala libreoffice, pandoc, tesseract,
+    # nmap, trivy, grype, checkov y ScoutSuite: 90 minutos es holgura, no una
+    # estimación de duración.
+    timeout-minutes: 90
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Nombre de la imagen en minúsculas
+        id: img
+        # ghcr.io exige el nombre en minúsculas y `github.repository` es
+        # "Fulkrodev/Fulkrosys" (con mayúsculas), así que hay que bajarlo.
+        run: |
+          echo "ref=ghcr.io/$(echo '${{ github.repository }}' | tr '[:upper:]' '[:lower:]')/backend" >> "$GITHUB_OUTPUT"
+
+      - name: Comprobación previa · descarga de nuclei sin respaldo
+        # No arregla nada: avisa antes de quemar el build entero para que el fallo
+        # se lea en dos segundos en vez de en el minuto 12 del log de apt.
+        run: |
+          url='https://github.com/projectdiscovery/nuclei/releases/download/v3.3.0/nuclei_3.3.0_linux_amd64.zip'
+          codigo="$(curl -sIL -o /dev/null -w '%{http_code}' "$url" || echo 000)"
+          echo "HTTP ${codigo} para ${url}"
+          if [ "$codigo" != "200" ]; then
+            echo "::warning title=nuclei inalcanzable::infra/docker/Dockerfile:36 descarga esta URL SIN respaldo y :132-139 la verifica en duro. El build va a fallar. Arreglo propuesto en docs/CI.md."
+          fi
+
+      - uses: docker/setup-buildx-action@v3
+
+      - name: Autenticarse en GHCR
+        # Sólo cuando se va a publicar. En PR se construye sin publicar, así que no
+        # se pide un token con permiso de escritura que no se va a usar.
+        if: github.event_name != 'pull_request'
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Etiquetas y metadatos
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ steps.img.outputs.ref }}
+          tags: |
+            type=sha,format=long,prefix=sha-
+            type=raw,value=latest,enable={{is_default_branch}}
+            type=ref,event=tag
+            type=semver,pattern={{version}}
+          labels: |
+            org.opencontainers.image.title=Fulkro backend
+            org.opencontainers.image.description=Imagen del backend FastAPI de Fulkro (infra/docker/Dockerfile)
+            org.opencontainers.image.licenses=Apache-2.0
+
+      - name: Construir (y publicar si no es un PR)
+        id: build
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: infra/docker/Dockerfile
+          push: ${{ github.event_name != 'pull_request' }}
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          # SBOM y procedencia como atestaciones OCI adjuntas al índice de la
+          # imagen. `mode=max` incluye los argumentos y las capas del build.
+          sbom: true
+          provenance: mode=max
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: Diagnóstico si el build ha fallado
+        if: failure() && steps.build.outcome == 'failure'
+        run: |
+          {
+            echo "## El build de la imagen ha fallado"
+            echo
+            echo "Causa conocida número uno (medida): \`infra/docker/Dockerfile:36\`"
+            echo "descarga nuclei de github.com **sin respaldo**, y"
+            echo "\`infra/docker/Dockerfile:132-139\` lo verifica en duro con"
+            echo "\`which nuclei && nuclei -version\`. Las otras nueve descargas de"
+            echo "herramientas del mismo fichero sí llevan \`|| echo WARNING\`."
+            echo
+            echo "Mira arriba si el aviso *nuclei inalcanzable* saltó en la"
+            echo "comprobación previa. El arreglo propuesto está en \`docs/CI.md\`,"
+            echo "sección \"El Dockerfile puede caerse por una descarga de terceros\"."
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Extraer el SBOM a un artefacto descargable
+        # La atestación viaja dentro del índice OCI: se lee con buildx sin
+        # herramientas de terceros. Se guarda además como artefacto para que se
+        # pueda descargar sin `docker pull`.
+        if: github.event_name != 'pull_request'
+        run: |
+          ref="${{ steps.img.outputs.ref }}:sha-${{ github.sha }}"
+          echo "Leyendo la atestación SBOM de ${ref}"
+          docker buildx imagetools inspect "$ref" --format '{{ json .SBOM }}' > sbom.json
+          bytes="$(wc -c < sbom.json)"
+          echo "sbom.json = ${bytes} bytes"
+          if [ "$bytes" -lt 100 ]; then
+            echo "::error title=SBOM vacío::La imagen se publicó sin SBOM utilizable."
+            exit 1
+          fi
+          {
+            echo "## Imagen publicada"
+            echo
+            echo '```'
+            echo "docker pull ${ref}"
+            echo '```'
+            echo
+            echo "SBOM adjunto como atestación OCI (${bytes} bytes). Para leerlo sin descargar la imagen:"
+            echo '```'
+            echo "docker buildx imagetools inspect ${ref} --format '{{ json .SBOM }}'"
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Guardar el SBOM
+        if: github.event_name != 'pull_request'
+        uses: actions/upload-artifact@v4
+        with:
+          name: sbom-${{ github.sha }}
+          path: sbom.json
+          retention-days: 90
+
+      - name: Comprobar que la imagen publicada arranca
+        # Smoke mínimo y honesto: NO levanta la aplicación (necesitaría base de
+        # datos y las cuatro variables que exige backend/app/startup_checks.py).
+        # Comprueba lo que sí se puede comprobar sin nada montado: que las
+        # dependencias de Python están dentro y que las herramientas que el propio
+        # Dockerfile declara obligatorias existen.
+        if: github.event_name != 'pull_request'
+        run: |
+          ref="${{ steps.img.outputs.ref }}:sha-${{ github.sha }}"
+          docker run --rm "$ref" python -c "import fastapi, sqlalchemy, uvicorn; print('dependencias OK')"
+          docker run --rm --entrypoint sh "$ref" -c 'command -v nuclei && command -v nmap'

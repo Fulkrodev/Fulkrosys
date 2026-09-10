@@ -1,0 +1,106 @@
+# Umbrales de las evaluaciones de agentes (golden datasets) usados como gate de CI.
+#
+# Lo consume .github/workflows/evals.yml. La documentación completa —qué mide cada
+# gate, qué significa que esté verde y qué NO mide— está en docs/CI.md.
+#
+# Regla de oro de este fichero: cada número lleva escrito de dónde sale y qué pasa
+# cuando se roza. Si cambias un número aquí sin cambiar la justificación, el gate
+# de auto-consistencia del arnés (job `evals-arnes`) te lo tumba, porque compara
+# estos valores contra los que el propio dataset declara en su JSON.
+
+version: 1
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Cobertura real, medida, sin maquillar
+# ─────────────────────────────────────────────────────────────────────────────
+cobertura:
+  # Medido: command grep -rn "(AgentBase)" backend/app --include=*.py | wc -l  →  13
+  clases_de_agente_implementadas: 13
+  # Medido: find docs/catalogs/golden_datasets/ -name '*.json' | wc -l  →  1
+  agentes_con_golden_dataset: 1
+  # 1 de 13. El README dice "uno de doce"; son 13 clases.
+  nota: >-
+    La cobertura de evaluaciones es 1 de 13 clases de agente. El único dataset
+    curado es deliverable_text_auditor/v1 (10 entradas). Los otros 12 agentes NO
+    tienen evaluación de ningún tipo: no hay número que enseñar sobre ellos.
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Gates
+# ─────────────────────────────────────────────────────────────────────────────
+gates:
+
+  # Gate 1 · arnés. Determinista, sin red y sin clave de API. Corre SIEMPRE y
+  # puede tumbar el build. Es el gate que de verdad protege hoy: comprueba que el
+  # dataset carga, que valida contra su esquema, que hay un evaluador registrado
+  # y que dataset y evaluador siguen siendo compatibles entre sí.
+  arnes:
+    datasets_minimos: 1
+    # Por qué 1: hoy hay exactamente 1 dataset. Este número existe para que
+    # borrar el único dataset que hay rompa el build en vez de pasar en verde.
+    obligatorio: true
+
+  # Gate 2 · evaluación real contra el LLM. Necesita ANTHROPIC_API_KEY porque el
+  # LLM ES lo que se está midiendo (deliverable_text_auditor_capability llama a
+  # Sonnet). Sin secreto NO se puede evaluar: el workflow lo declara como NO
+  # EJECUTADA y no finge un verde.
+  llm:
+    secreto_requerido: ANTHROPIC_API_KEY
+    # Cuando el secreto no está: el job avisa (::warning::) y escribe en el
+    # resumen "EVALUACIÓN NO EJECUTADA". Termina en verde por defecto para no
+    # bloquear a quien clona el repo sin clave.
+    # Para exigirla (recomendado en el repo de origen, donde el secreto SÍ existe):
+    # crear la variable de repositorio FULKRO_EVALS_REQUIRED = "true"
+    # (Settings → Secrets and variables → Actions → pestaña Variables).
+    # Con esa variable a "true", la ausencia de secreto FALLA el job.
+    variable_para_exigirla: FULKRO_EVALS_REQUIRED
+    obligatorio_por_defecto: false
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Política por dataset
+# ─────────────────────────────────────────────────────────────────────────────
+datasets:
+
+  deliverable_text_auditor/v1:
+
+    entradas_curadas: 10
+    # Medido: python -c "import json;print(len(json.load(open('docs/catalogs/golden_datasets/deliverable_text_auditor/v1.json'))['entries']))" → 10
+    # 4 PASS_AUDITOR_READY + 4 FAIL_CRITICAL + 2 NEEDS_REVISION, curadas por Marcos.
+
+    min_entradas_evaluadas: 10
+    # ESTE es el número que impide el verde vacuo, y es el más importante del
+    # fichero. Medido, sin clave de API:
+    #   python -m backend.app.motors.m_observability.eval_runner \
+    #     --agent deliverable_text_auditor --format json
+    #   → total_entries 0, pass_rate 1.0, severity "ok", exit 0
+    # Es decir: el runner declara 100% de aciertos habiendo evaluado CERO
+    # entradas, porque una tasa de aciertos sobre un denominador vacío vale 1.0
+    # por convenio. Exigir 10 entradas evaluadas convierte ese verde en rojo.
+    # Si alguien añade entradas al dataset, este número sube con él (el gate del
+    # arnés comprueba que entradas_curadas coincide con el JSON).
+
+    min_pass_rate: 0.80
+    # De dónde sale: es el mismo 0.8 que el dataset declara en
+    # regression_thresholds.pass_rate_warn_below. NO es un número nuevo inventado
+    # para CI; se copia aquí para poder aplicarlo como gate y el job `evals-arnes`
+    # verifica que ambos siguen siendo iguales (guardia anti-deriva).
+    # Qué significa: con 10 entradas, 8 aciertos pasan y 7 no. Es decir, el gate
+    # tolera exactamente 2 fallos de 10.
+    # Qué pasa cuando se roza (pass_rate == 0.80): PASA. La comparación es
+    # >= min_pass_rate. Rozarlo no es una victoria: significa 2 de 10 mal, y con
+    # 10 entradas cada entrada vale 10 puntos, así que un solo caso nuevo mal
+    # curado mueve el resultado un 10%. Con un dataset tan pequeño, un verde por
+    # los pelos hay que mirarlo a mano antes de fusionar, no celebrarlo.
+
+    pass_rate_alerta: 0.60
+    # Mismo origen: regression_thresholds.pass_rate_alert_below del JSON. El
+    # runner devuelve exit 2 (alerta) por debajo de este valor y exit 1 (aviso)
+    # entre 0.60 y 0.80. Para el gate de CI ambos son fallo; la distinción sirve
+    # para el mensaje del resumen: por debajo de 0.60 no es una regresión, es que
+    # el agente ha dejado de funcionar.
+
+    tolerancia_de_reintento: 0
+    # No se reintenta. El LLM corre a temperatura 0.0 (R3) en
+    # deliverable_text_auditor_capability, así que un fallo NO se atribuye a
+    # varianza de muestreo por defecto. Si en el futuro se observa oscilación
+    # real medida entre ejecuciones idénticas, se sube este número Y se escribe
+    # aquí la medición que lo justifica.

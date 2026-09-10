@@ -2,7 +2,8 @@
 #
 # CI gate cumulative pre-piloto MEDIA cliente:
 #   - bandit · Python SAST (backend/app/) · gate HIGH severity = block merge
-#   - safety · Python dep vulnerabilities · gate CRITICAL = block
+#   - safety · Python dep vulnerabilities · crash de la herramienta = block ·
+#     hallazgos = aviso (o block si existe .github/safety-baseline.json)
 #   - npm audit · Node dep vulnerabilities (frontend/) · gate critical = block
 #
 # OPS-052 audit-first Phase 5.0 reveal: NO bandit/safety/npm audit existing
@@ -72,12 +73,28 @@ jobs:
   safety:
     name: safety · Python dep vulnerabilities
     runs-on: ubuntu-latest
-    # 2026-06-10 · gate REAL (CRITICAL bloquea). El install necesita las dev
-    # libs de cairo (pycairo compila desde fuente) — las MISMAS que ya usan los
-    # jobs polish, donde `pip install -e backend[dev]` compila sin problemas. Con
-    # ellas el install es fiable, así que safety corre de verdad y sube report.
-    # El parser tolera cambios de formato de safety (solo CRITICAL tumba el job);
-    # bandit (SAST) + npm audit (critical) son gates paralelos.
+    # 2026-09-10 · REESCRITO. La versión anterior no comprobaba NADA, por dos
+    # motivos independientes y ambos medidos:
+    #
+    #   1. La invocación era inválida para safety 3.x:
+    #        $ safety check --json --output safety-report.json --continue-on-error
+    #        Error: Invalid value for '--output' / '-o': 'safety-report.json' is
+    #        not one of 'screen', 'text', 'json', 'bare', 'html'.   # exit 2
+    #      La ruta del informe va en --save-json; --output sólo acepta un FORMATO.
+    #      Resultado: safety salía con código 2 y NO escribía informe.
+    #   2. El parser inline hacía `except Exception: sys.exit(0)`, así que la
+    #      ausencia del informe se leía como «sin CRITICAL» y el job salía verde.
+    #      Un `|| true` remataba la máscara.
+    #
+    # Y aun con informe, el filtro `severity == 'critical'` era inalcanzable: sin
+    # API key safety deja `severity: null` en TODAS las vulnerabilidades (medido:
+    # 102 de 102 con severity None).
+    #
+    # Ahora: se captura el código de salida de safety a propósito (sin `|| true`)
+    # y se le pasa al gate, que distingue «la herramienta reventó» (BLOQUEA) de
+    # «corrió y encontró hallazgos» (AVISA) y de «corrió limpia» (pasa). La
+    # política y el mecanismo de baseline están documentados en la cabecera de
+    # .github/scripts/safety_gate.py.
     steps:
       - uses: actions/checkout@v4
 
@@ -90,38 +107,32 @@ jobs:
         run: |
           # pycairo (dep transitiva) compila desde fuente → necesita cairo dev libs
           sudo apt-get update -qq && sudo apt-get install -y -qq libcairo2-dev pkg-config
-          pip install safety
+          # Pin a la versión sobre la que se midió el formato del informe. Subirla
+          # es bienvenido: si el esquema cambia, el gate BLOQUEA y lo dice, en vez
+          # de leer el informe nuevo como si estuviera limpio.
+          pip install 'safety==3.8.1'
           cd backend && pip install -e .
 
-      - name: Run safety check · gate CRITICAL CVEs
-        # safety scan --policy-file pyproject.toml respeta ignore rules
-        # si configured. Sin policy · TODOS los CVE registered.
-        # --exit-code 1 si findings · 0 si clean
+      - name: Run safety (captura el código de salida, SIN `|| true`)
+        id: safety
         run: |
-          safety check \
-            --json \
-            --output safety-report.json \
-            --continue-on-error \
-            || true
-          # Filter: solo CRITICAL severity = block
-          python3 -c "
-          import json, sys
-          # Tolerante: si el CLI de safety cambia el formato/no escribe report,
-          # NO tumbamos el job (solo CRITICAL bloquea · el gate duro es bandit + npm).
-          try:
-              with open('safety-report.json') as f:
-                  report = json.load(f)
-          except Exception as e:
-              print(f'safety report no legible ({e}) · se trata como sin CRITICAL'); sys.exit(0)
-          vulns = report.get('vulnerabilities', []) if isinstance(report, dict) else []
-          critical = [v for v in vulns if str(v.get('severity', '')).lower() == 'critical']
-          if critical:
-              print(f'CRITICAL CVEs found: {len(critical)}')
-              for v in critical:
-                  print(f\"  - {v.get('package_name')} {v.get('analyzed_version')}: {str(v.get('advisory',''))[:80]}\")
-              sys.exit(1)
-          print(f'Total vulns: {len(vulns)} (non-critical OK · Future-X demand-driven triage)')
-          "
+          # `set +e` aquí no es una máscara: el código se captura y se le entrega
+          # al gate del paso siguiente, que es quien decide. Sin esto, `set -e`
+          # tumbaría el paso con código 64 (= «corrió y encontró vulnerabilidades»),
+          # que es un desenlace legítimo y no un fallo de la herramienta.
+          set +e
+          safety check --output json --save-json safety-report.json
+          rc=$?
+          set -e
+          echo "rc=${rc}" >> "$GITHUB_OUTPUT"
+          echo "safety terminó con código ${rc} (0=limpio · 64=con hallazgos · resto=fallo)"
+
+      - name: Gate safety (crash → falla · hallazgos → avisa · limpio → pasa)
+        run: |
+          python .github/scripts/safety_gate.py \
+            --report safety-report.json \
+            --tool-exit-code "${{ steps.safety.outputs.rc }}" \
+            --baseline .github/safety-baseline.json
 
       - name: Upload safety report
         if: always()

@@ -1,0 +1,53 @@
+# Lista de módulos que mypy comprueba EN SERIO en CI (job `typecheck` de ci.yml).
+#
+# Por qué existe este fichero
+# ---------------------------
+# Hasta 2026-09 el job `typecheck` invocaba `mypy backend/app/ --ignore-missing-imports`
+# desde la raíz del repo. Esa invocación NO comprobaba ni un solo fichero: abortaba con
+# "Source file found twice under different module names" (el mismo fichero es alcanzable
+# como `app.*` y como `backend.app.*`) y salía con código 2 antes de analizar nada. El
+# `continue-on-error: true` del job convertía ese aborto en un tick verde.
+#
+# Reproducción del aborto (medido 2026-09-10, mypy 2.1.0):
+#   $ cd /ruta/al/repo && mypy backend/app/ --ignore-missing-imports --no-incremental
+#   backend/app/core/email/sender.py: error: Source file found twice under different
+#       module names: "app.core.email.sender" and "backend.app.core.email.sender"
+#   Found 1 error in 1 file (errors prevented further checking)   # exit 2
+#
+# Corrección aplicada: invocar mypy DESDE `backend/` (así `app` es la única raíz de
+# paquete posible) y acotarlo a los módulos que hoy salen limpios, SIN máscara.
+#
+# Volumen que impide activarlo de golpe (medido 2026-09-10):
+#   $ cd backend && mypy app/ --ignore-missing-imports --no-incremental
+#   515 errores en 212 ficheros, de 1.056 ficheros .py bajo backend/app/
+#
+# REGLA: esta lista SÓLO PUEDE CRECER
+# -----------------------------------
+# Añadir una ruta es un cambio bienvenido (hay que dejarla limpia antes). Quitar una
+# ruta para "poner el CI en verde" NO es una corrección: es reintroducir la máscara que
+# este fichero elimina. Si una ruta empieza a fallar, se arregla el tipado.
+#
+# Formato: una ruta por línea, relativa a `backend/`. Líneas vacías y `#` se ignoran.
+# Comando exacto que ejecuta CI (ver .github/workflows/ci.yml, job `typecheck`):
+#   cd backend && python -m mypy --ignore-missing-imports --follow-imports=silent \
+#       $(grep -vE '^\s*(#|$)' ../.github/mypy-clean-modules.txt)
+
+app/models
+app/retainer
+app/agents/models
+app/agents/prompts
+app/agents/schemas
+app/agents/services
+app/core/branding
+app/core/clients
+app/core/encryption
+app/core/feature_flags
+app/core/pricing
+app/core/storage
+app/core/workflow_state
+app/motors/m10_audit_sim
+app/motors/m20_workspace
+app/motors/m21_diagnosis
+app/motors/m28_change_governance
+app/motors/m31_whatsapp
+app/motors/m_legal

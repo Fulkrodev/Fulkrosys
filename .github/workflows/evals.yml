@@ -1,0 +1,431 @@
+# Evaluaciones de agentes (golden datasets) como gate de CI.
+#
+# Dos jobs, y la diferencia entre ellos es lo importante:
+#
+#   evals-arnes  Determinista. Sin red, sin clave de API. Corre SIEMPRE y puede
+#                tumbar el build. Comprueba que el dataset carga y valida, que hay
+#                un evaluador registrado, que los umbrales del JSON y los de
+#                .github/evals-threshold.yml no se han separado, y que dataset y
+#                evaluador siguen siendo compatibles entre sí.
+#
+#   evals-llm    Evaluación real: llama al modelo, que es LO QUE SE MIDE. Necesita
+#                el secreto ANTHROPIC_API_KEY. Sin secreto NO evalúa, y lo dice:
+#                escribe "EVALUACIÓN NO EJECUTADA" en el resumen y emite un aviso.
+#                No finge un verde de evaluación.
+#
+# Umbrales y su justificación: .github/evals-threshold.yml
+# Estado real de todos los workflows y protección de rama: docs/CI.md
+#
+# Medido (2026-09-10, sin ANTHROPIC_API_KEY, en la raíz del repo):
+#   python -m backend.app.motors.m_observability.eval_runner \
+#     --agent deliverable_text_auditor --format json   →  exit 0
+#   {"total_entries": 0, "entries_in_dataset": 10, "pass_rate": 1.0, "severity": "ok"}
+# Es decir: el CLI del arnés declara 100% habiendo evaluado CERO entradas. Por eso
+# este workflow NO usa ese CLI como gate; ver docs/CI.md, sección "El CLI del
+# arnés no sirve como gate".
+
+name: Evaluaciones de agentes
+
+on:
+  # Sin filtro de paths a propósito: `evals-arnes` está pensado para ser un check
+  # OBLIGATORIO de la rama main, y un check obligatorio que no se dispara en todos
+  # los PR deja el merge bloqueado para siempre esperando un estado que no llega.
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+  workflow_dispatch:
+  schedule:
+    # Lunes 07:00 UTC. Detecta deriva del modelo sin que nadie toque el repo.
+    - cron: '0 7 * * 1'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: evals-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  # El arnés importa con la raíz del repo en el path (convenio backend.app.*).
+  PYTHONPATH: ${{ github.workspace }}
+
+jobs:
+
+  # ───────────────────────────────────────────────────────────────────────────
+  # Gate 1 · arnés determinista. Este es el que hay que marcar como obligatorio.
+  # Sin `name:` a propósito: así el nombre del check es exactamente el id del job
+  # (`evals-arnes`) y no hay ambigüedad al escribirlo en la protección de rama.
+  # ───────────────────────────────────────────────────────────────────────────
+  evals-arnes:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Dependencias mínimas del arnés
+        # El arnés determinista sólo necesita pydantic (esquemas del dataset) y
+        # pyyaml (fichero de umbrales). NO se instala `backend[dev]`: medido en
+        # máquina limpia, `pip install -e backend[dev]` falla compilando pycairo
+        # sin pkg-config/cmake/libcairo2-dev, y nada de eso hace falta aquí.
+        run: pip install 'pydantic>=2,<3' 'pyyaml>=6'
+
+      - name: Gate del arnés (determinista, sin clave)
+        run: |
+          python - <<'PY'
+          """Gate determinista del arnés de evaluaciones. No llama a ningún LLM.
+
+          Falla (exit 1) si cualquiera de estas deja de cumplirse:
+            1. Hay al menos `gates.arnes.datasets_minimos` datasets descubribles.
+            2. Cada dataset de la política carga, valida su esquema y tiene al
+               menos las entradas curadas que la política declara.
+            3. Los umbrales del JSON del dataset y los de la política coinciden
+               (guardia anti-deriva: si alguien afloja uno de los dos, salta).
+            4. Hay un evaluador registrado para el agente del dataset.
+            5. Auto-consistencia: si al evaluador se le devuelve la salida que el
+               propio dataset declara como esperada, TIENE que aprobar. Si no,
+               dataset y evaluador se han separado y el gate del LLM estaría
+               midiendo contra un baremo imposible de cumplir.
+          """
+          import os
+          import sys
+          from pathlib import Path
+
+          import yaml
+
+          sys.path.insert(0, os.getcwd())
+
+          from backend.app.motors.m_observability import evaluators  # noqa: F401
+          from backend.app.motors.m_observability.eval_runner import (
+              _AGENT_EVALUATORS,
+              EntryEvalResult,
+          )
+          from backend.app.motors.m_observability.golden_datasets_loader import (
+              list_available_datasets,
+              load_golden_dataset,
+          )
+
+          RUTA_CFG = os.environ.get(
+              "FULKRO_EVALS_THRESHOLD_FILE", ".github/evals-threshold.yml",
+          )
+          CFG = yaml.safe_load(Path(RUTA_CFG).read_text(encoding="utf-8"))
+
+          fallos: list[str] = []
+          lineas: list[str] = []
+
+
+          def comprobar(ok: bool, mensaje: str) -> None:
+              lineas.append(("OK    · " if ok else "FALLO · ") + mensaje)
+              if not ok:
+                  fallos.append(mensaje)
+
+
+          disponibles = list_available_datasets()
+          minimo = CFG["gates"]["arnes"]["datasets_minimos"]
+          comprobar(
+              len(disponibles) >= minimo,
+              f"datasets descubiertos = {len(disponibles)} "
+              f"(mínimo {minimo}): {disponibles}",
+          )
+
+          for clave, pol in CFG["datasets"].items():
+              agente, version = clave.split("/")
+              ds = load_golden_dataset(agente, version)
+
+              comprobar(
+                  len(ds.entries) >= pol["entradas_curadas"],
+                  f"{clave}: entradas curadas = {len(ds.entries)} "
+                  f"(esperadas >= {pol['entradas_curadas']})",
+              )
+              comprobar(
+                  abs(ds.regression_thresholds.pass_rate_warn_below
+                      - pol["min_pass_rate"]) < 1e-9,
+                  f"{clave}: pass_rate_warn_below del JSON = "
+                  f"{ds.regression_thresholds.pass_rate_warn_below} == "
+                  f"min_pass_rate de la política = {pol['min_pass_rate']}",
+              )
+              comprobar(
+                  abs(ds.regression_thresholds.pass_rate_alert_below
+                      - pol["pass_rate_alerta"]) < 1e-9,
+                  f"{clave}: pass_rate_alert_below del JSON = "
+                  f"{ds.regression_thresholds.pass_rate_alert_below} == "
+                  f"pass_rate_alerta de la política = {pol['pass_rate_alerta']}",
+              )
+              comprobar(
+                  agente in _AGENT_EVALUATORS,
+                  f"{clave}: evaluador registrado para '{agente}' "
+                  f"(registrados: {sorted(_AGENT_EVALUATORS)})",
+              )
+              if agente not in _AGENT_EVALUATORS:
+                  continue
+
+              evaluador = _AGENT_EVALUATORS[agente]
+              fallidas: list[str] = []
+              for entrada in ds.entries:
+                  # Misma forma que devuelve audit_deliverable_sync.
+                  sintetico = {
+                      "verdict": entrada.expected_output.verdict,
+                      "issues_critical": list(entrada.expected_output.issues_critical),
+                      "issues_moderate": list(entrada.expected_output.issues_moderate),
+                      "key_phrases_found": list(
+                          entrada.expected_output.key_phrases_required,
+                      ),
+                  }
+                  bruto = evaluador(entrada, sintetico)
+                  if isinstance(bruto, EntryEvalResult):
+                      ok = bruto.passed and not bruto.skipped
+                      detalle = bruto.diff_summary
+                  else:
+                      ok, detalle = bruto
+                  if not ok:
+                      fallidas.append(f"{entrada.id}: {detalle}")
+
+              comprobar(
+                  not fallidas,
+                  f"{clave}: auto-consistencia dataset<->evaluador "
+                  f"{len(ds.entries) - len(fallidas)}/{len(ds.entries)}"
+                  + ("" if not fallidas else " · fallan: " + "; ".join(fallidas[:5])),
+              )
+
+          informe = "\n".join(lineas)
+          print(informe)
+          print(f"\nresumen: {len(lineas) - len(fallos)}/{len(lineas)} comprobaciones OK")
+
+          resumen = os.environ.get("GITHUB_STEP_SUMMARY")
+          if resumen:
+              with open(resumen, "a", encoding="utf-8") as fh:
+                  fh.write("## Arnés de evaluaciones (determinista)\n\n")
+                  fh.write("Este gate NO evalúa ningún agente: comprueba que el "
+                           "arnés y el dataset siguen siendo utilizables.\n\n")
+                  fh.write("```\n" + informe + "\n```\n\n")
+                  fh.write(f"**{len(lineas) - len(fallos)}/{len(lineas)}** "
+                           "comprobaciones OK\n\n")
+                  fh.write(
+                      f"Cobertura declarada: "
+                      f"{CFG['cobertura']['agentes_con_golden_dataset']} de "
+                      f"{CFG['cobertura']['clases_de_agente_implementadas']} "
+                      "clases de agente tienen golden dataset.\n",
+                  )
+
+          sys.exit(1 if fallos else 0)
+          PY
+
+  # ───────────────────────────────────────────────────────────────────────────
+  # Gate 2 · evaluación real contra el modelo.
+  # ───────────────────────────────────────────────────────────────────────────
+  evals-llm:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    needs: evals-arnes
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: ¿Hay secreto para evaluar?
+        id: secreto
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+        run: |
+          if [ -n "${ANTHROPIC_API_KEY}" ]; then
+            echo "presente=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "presente=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Declarar que NO se ha evaluado (y por qué)
+        if: steps.secreto.outputs.presente != 'true'
+        env:
+          EXIGIDA: ${{ vars.FULKRO_EVALS_REQUIRED }}
+        run: |
+          {
+            echo "## Evaluaciones de agentes · EVALUACIÓN NO EJECUTADA"
+            echo
+            echo "El secreto \`ANTHROPIC_API_KEY\` no está disponible en este contexto."
+            echo "La capability bajo prueba (\`deliverable_text_auditor_capability\`)"
+            echo "llama al modelo: **el modelo es lo que se mide**. Sin clave no hay"
+            echo "nada que medir, así que este job **no ha evaluado nada**."
+            echo
+            echo "Este check en verde significa \"no evaluado\", **no** \"evaluado y correcto\"."
+            echo
+            echo "Para que la ausencia de clave falle el build, crea la variable de"
+            echo "repositorio \`FULKRO_EVALS_REQUIRED\` con valor \`true\` en"
+            echo "Settings → Secrets and variables → Actions → pestaña Variables."
+          } >> "$GITHUB_STEP_SUMMARY"
+          echo "::warning title=Evaluaciones no ejecutadas::Sin ANTHROPIC_API_KEY no se evalua ningun agente. Este verde NO es un verde de evaluacion."
+          if [ "${EXIGIDA}" = "true" ]; then
+            echo "::error title=Evaluaciones exigidas::FULKRO_EVALS_REQUIRED=true y no hay ANTHROPIC_API_KEY."
+            exit 1
+          fi
+
+      - name: Dependencias del arnés + SDK
+        if: steps.secreto.outputs.presente == 'true'
+        # anthropic + python-dotenv + pydantic-settings los arrastra
+        # backend.app.core.ai.llm_router (importado en caliente por la capability).
+        # loguru lo importa la propia capability a nivel de módulo.
+        run: |
+          pip install 'pydantic>=2,<3' 'pyyaml>=6' pydantic-settings \
+                      python-dotenv loguru anthropic
+
+      - name: Evaluación real contra el modelo (gate)
+        if: steps.secreto.outputs.presente == 'true'
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+        run: |
+          python - <<'PY'
+          """Evaluación real: ejecuta el dataset contra el modelo y aplica el gate.
+
+          Por qué este script existe en vez de invocar el CLI del arnés: medido, el
+          CLI (`python -m ...eval_runner --agent deliverable_text_auditor`) NUNCA
+          cablea el `actual_provider`, así que no evalúa nada ni con clave ni sin
+          ella (sin clave: 0 entradas y exit 0; con clave: 10 fallos de tipo
+          "structure_check failed · actual type=NoneType" y exit 2). El único sitio
+          del repo que cablea la capability real es
+          golden_eval_runs_service.execute_eval_run_sync, que exige sesión de base
+          de datos y una fila en golden_eval_runs. Aquí se replica ESA misma
+          conexión (capability -> actual_provider) sin base de datos.
+          Ver docs/CI.md y `necesita_de_otros` del informe de la tarea.
+          """
+          import os
+          import sys
+          from pathlib import Path
+
+          import yaml
+
+          sys.path.insert(0, os.getcwd())
+
+          from backend.app.motors.m_observability import evaluators  # noqa: F401
+          from backend.app.motors.m_observability.deliverable_text_auditor_capability import (  # noqa: E501
+              audit_deliverable_sync,
+          )
+          from backend.app.motors.m_observability.eval_runner import (
+              format_eval_report_markdown,
+              run_eval,
+          )
+
+          RUTA_CFG = os.environ.get(
+              "FULKRO_EVALS_THRESHOLD_FILE", ".github/evals-threshold.yml",
+          )
+          CFG = yaml.safe_load(Path(RUTA_CFG).read_text(encoding="utf-8"))
+
+          PROVEEDORES = {"deliverable_text_auditor": audit_deliverable_sync}
+
+
+          def hacer_proveedor(auditar):
+              def proveedor(entrada):
+                  datos = entrada.input or {}
+                  texto = datos.get("deliverable_text", "")
+                  contexto = datos.get("context") or {}
+                  categoria = (
+                      contexto.get("ens_category")
+                      or getattr(entrada, "ens_category", None)
+                      or "BASICA"
+                  )
+                  if not texto:
+                      return None
+                  return auditar(texto, categoria)
+              return proveedor
+
+
+          def decidir(clave, informe, politica):
+              """Devuelve (ok, lineas). Aplica los dos criterios del gate."""
+              lineas = []
+              minimo_evaluadas = politica["min_entradas_evaluadas"]
+              minimo_tasa = politica["min_pass_rate"]
+              alerta = politica["pass_rate_alerta"]
+
+              # Criterio 1: cuántas se evaluaron de verdad. Sin esto, cero entradas
+              # evaluadas dan pass_rate 1.0 y el gate pasaría en verde vacuo.
+              suficientes = informe.total_entries >= minimo_evaluadas
+              lineas.append(
+                  ("OK    · " if suficientes else "FALLO · ")
+                  + f"{clave}: entradas evaluadas = {informe.total_entries} "
+                  f"(mínimo {minimo_evaluadas}; en el dataset hay "
+                  f"{informe.entries_in_dataset}; saltadas = "
+                  f"{informe.entries_in_dataset - informe.total_entries})",
+              )
+
+              # Criterio 2: tasa de aciertos. Sólo tiene sentido si se evaluó algo.
+              if informe.total_entries == 0:
+                  lineas.append(
+                      "FALLO · " + f"{clave}: tasa de aciertos NO evaluable "
+                      "(0 entradas evaluadas). El 100% que reporta el arnés sobre "
+                      "un denominador vacío no es un resultado.",
+                  )
+                  return False, lineas
+
+              tasa_ok = informe.pass_rate >= minimo_tasa
+              gravedad = (
+                  "por debajo del umbral de alerta"
+                  if informe.pass_rate < alerta
+                  else "por debajo del umbral de aviso"
+              )
+              lineas.append(
+                  ("OK    · " if tasa_ok else "FALLO · ")
+                  + f"{clave}: tasa de aciertos = {informe.pass_rate:.0%} "
+                  f"(mínimo {minimo_tasa:.0%}"
+                  + ("" if tasa_ok else f"; {gravedad}")
+                  + f"; aciertos {informe.passed}, fallos {informe.failed})",
+              )
+              return (suficientes and tasa_ok), lineas
+
+
+          todo_ok = True
+          resumen_lineas = []
+          informes_md = []
+
+          for clave, politica in CFG["datasets"].items():
+              agente, version = clave.split("/")
+              auditar = PROVEEDORES.get(agente)
+              if auditar is None:
+                  todo_ok = False
+                  resumen_lineas.append(
+                      "FALLO · " + f"{clave}: no hay capability cableada para "
+                      f"'{agente}' en este workflow. Sin proveedor real, evaluar "
+                      "es imposible y el gate NO pasa en verde.",
+                  )
+                  continue
+
+              informe = run_eval(
+                  agente, version, actual_provider=hacer_proveedor(auditar),
+              )
+              ok, lineas = decidir(clave, informe, politica)
+              todo_ok = todo_ok and ok
+              resumen_lineas.extend(lineas)
+              informes_md.append(format_eval_report_markdown(informe))
+
+          texto = "\n".join(resumen_lineas)
+          print(texto)
+
+          md = (
+              "## Evaluaciones de agentes · EVALUACIÓN EJECUTADA\n\n"
+              "```\n" + texto + "\n```\n\n"
+              + "\n\n".join(informes_md)
+              + f"\n\nCobertura: {CFG['cobertura']['agentes_con_golden_dataset']} de "
+              f"{CFG['cobertura']['clases_de_agente_implementadas']} clases de "
+              "agente tienen golden dataset. Los demás no se miden.\n"
+          )
+          Path("evals-report.md").write_text(md, encoding="utf-8")
+
+          resumen = os.environ.get("GITHUB_STEP_SUMMARY")
+          if resumen:
+              with open(resumen, "a", encoding="utf-8") as fh:
+                  fh.write(md)
+
+          sys.exit(0 if todo_ok else 1)
+          PY
+
+      - name: Guardar el informe
+        if: always() && steps.secreto.outputs.presente == 'true'
+        uses: actions/upload-artifact@v4
+        with:
+          name: evals-report
+          path: evals-report.md
+          if-no-files-found: warn
+          retention-days: 30
