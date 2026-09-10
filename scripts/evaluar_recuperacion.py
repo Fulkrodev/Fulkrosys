@@ -464,8 +464,8 @@ def main():
         "ejemplos": ([e for e in con_estricta if e["cambia_el_top5"]][:2]
                      or con_estricta[:2] or con_top5[:2] or ejemplos[:2]),
     }
-    print(f"F4 · no monotonia (criterio: se INVIERTE el orden de dos documentos "
-          f"que siguen estando)")
+    print("F4 · no monotonia (criterio: se INVIERTE el orden de dos documentos "
+          "que siguen estando)")
     print(f"     {len(ejemplos)} de {len(candidatos)} consultas tienen al menos una "
           f"inversion; en {len(con_top5)} llega al top-5")
     print(f"     de ellas, {len(con_estricta)} tienen una inversion ESTRICTA "
