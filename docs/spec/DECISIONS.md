@@ -2167,9 +2167,20 @@ Un endpoint puede estar en `WHITELIST_EXACT` si y solo si cumple **uno** de:
    `/onboarding/consume`, `/evidence/public-key`). El endpoint valida
    el token internamente y rechaza si inválido.
 
-3. **Operacional estándar**: monitoring/probes (`/health`),
+3. **Operacional estándar**: monitoring/probes (`/health`, `/metrics`),
    schema/docs auto-generadas (`/openapi.json`, `/docs`, `/redoc`)
    sin información sensible.
+
+   *Amendment 2026-09-10 (BLOQUE G)*: `/metrics` entra por este criterio. Se
+   saca de la autenticación de **sesión** porque un raspador no tiene cookie ni
+   segundo factor, no porque sea público: su cuerpo incluye el coste acumulado
+   de las llamadas al modelo y el mapa de rutas de la API. La puerta propia
+   está en `backend/app/main.py` — en producción exige
+   `Authorization: Bearer $FULKRO_METRICS_TOKEN`, y si esa variable no está
+   configurada devuelve 503 en vez de servirse. Fuera de producción se sirve
+   abierto, deliberadamente: si el demo exigiera token, `make demo` no podría
+   enseñar que las métricas existen. Cobertura:
+   `tests/auth/test_global_dep_whitelist.py::test_bloque_g_metrics_publico_sin_auth`.
 
 4. **Catálogo público read-only**: datos sin información sensible
    accesibles por diseño (ej. `/onboarding/lms/courses` catálogo

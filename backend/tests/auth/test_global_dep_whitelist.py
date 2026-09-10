@@ -124,3 +124,67 @@ async def test_h53_evidence_public_key_publico_sin_auth(async_client: AsyncClien
     assert "BEGIN PUBLIC KEY" in data["public_key_pem"], (
         f"PEM mal formado: {data['public_key_pem'][:50]}"
     )
+
+
+@pytest.mark.asyncio
+async def test_bloque_g_metrics_publico_sin_auth(async_client: AsyncClient) -> None:
+    """BLOQUE G: GET /metrics debe servirse sin cookie de sesion.
+
+    Criterio ADR-030 numero 3 (operacional estandar: monitoring/probes). Un
+    raspador de metricas no tiene ni cookie ni segundo factor; sacarlo de la
+    autenticacion de SESION no lo hace publico, porque tiene su propia puerta en
+    main.py: en produccion exige `Authorization: Bearer $FULKRO_METRICS_TOKEN` y
+    devuelve 503 si esa variable no esta configurada.
+
+    Medido antes de este test: la ruta devolvia 401 "Authentication required"
+    porque no estaba en la lista, y por tanto NINGUN raspador podia leerla.
+    """
+    response = await async_client.get("/metrics")
+    assert response.status_code == 200, (
+        f"/metrics bloqueado por global_dep: "
+        f"{response.status_code} {response.text[:200]}"
+    )
+    assert response.headers["content-type"].startswith("text/plain"), (
+        f"formato de exposicion incorrecto: {response.headers.get('content-type')}"
+    )
+    cuerpo = response.text
+    # No basta con que responda: tiene que EMITIR. Un 200 con el cuerpo vacio
+    # seria la version metrica de una pagina que carga y no funciona.
+    assert "# TYPE fulkro_llm_llamadas_total counter" in cuerpo, (
+        "no se emiten las metricas del registro de llamadas al modelo"
+    )
+    for estado in ("success", "estimado", "mock", "error"):
+        assert f'fulkro_llm_llamadas_total{{estado="{estado}"}}' in cuerpo, (
+            f"falta la serie del estado '{estado}' · los cuatro se emiten "
+            f"siempre, aunque valgan cero, porque una serie que aparece y "
+            f"desaparece rompe las alertas de quien la consume"
+        )
+
+
+@pytest.mark.asyncio
+async def test_bloque_g_cabecera_de_correlacion(async_client: AsyncClient) -> None:
+    """BLOQUE G: toda respuesta lleva X-Request-ID, y respeta el entrante.
+
+    Reutilizar el identificador que llega de fuera es lo que evita que la traza
+    se parta en la frontera del sistema, que es donde mas falta hace.
+    """
+    r1 = await async_client.get("/api/v1/health")
+    assert r1.headers.get("X-Request-ID"), "la respuesta no lleva X-Request-ID"
+
+    r2 = await async_client.get(
+        "/api/v1/health", headers={"X-Request-ID": "el-mio-1234"}
+    )
+    assert r2.headers.get("X-Request-ID") == "el-mio-1234", (
+        "no se reutiliza el identificador entrante"
+    )
+
+    # Viene de fuera: es entrada del usuario y hay que sanearla. Sin esto se
+    # pueden inyectar saltos de linea en los registros y fabricar entradas
+    # falsas.
+    r3 = await async_client.get(
+        "/api/v1/health", headers={"X-Request-ID": "malo\r\ninyectado <script>"}
+    )
+    devuelto = r3.headers.get("X-Request-ID", "")
+    assert "\n" not in devuelto and "<" not in devuelto, (
+        f"identificador sin sanear: {devuelto!r}"
+    )
