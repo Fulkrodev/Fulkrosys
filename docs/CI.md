@@ -30,7 +30,7 @@ ficheros versionados (medido: 27 resultados con `grep` frente a 28 con
 | `security-scan.yml` | push y PR a `main`, lunes 06:00 UTC, y a mano | Sí, `bandit` y `npm audit` | `safety` es decorativo |
 | `deploy.yml` | push a `main` y a mano | Sí, `gate` y `migrations` | Despliega a un servidor que ya no existe; el gate de migraciones tiene un agujero. **Borrado del árbol de trabajo por otro trabajo en curso** |
 | `admin-polish-empirical.yml` | push y PR a `main` tocando `frontend/**`, y a mano | Sí | Es el único sitio del repo con una receta de base de datos que funciona en CI |
-| `evals.yml` (nuevo) | push y PR a `main`, lunes 07:00 UTC, y a mano | Sí, `evals-arnes` siempre; `evals-llm` cuando hay clave | Ver sección 4 |
+| `evals.yml` | push y PR a `main`, lunes 07:00 UTC, y a mano | Sí, `evals-arnes` siempre; `evals-llm` sólo cuando hay clave (si no, queda SALTADO, no verde) | Ver sección 4 |
 | `publish-image.yml` (nuevo) | push a `main` y a etiquetas `v*`, PR que toquen la imagen, y a mano | Sí, si el build falla no hay imagen | Ver sección 5 |
 
 Medido:
@@ -307,12 +307,40 @@ $ echo $?
 **`evals-llm`** (evaluación real). Necesita el secreto `ANTHROPIC_API_KEY`,
 porque la capability bajo prueba llama al modelo: **el modelo es lo que se mide**.
 
-- Si el secreto **no está**: el job **no evalúa**, escribe
-  `EVALUACIÓN NO EJECUTADA` en el resumen del run y emite un `::warning::`. Ese
-  verde significa «no evaluado», no «evaluado y correcto», y el propio resumen lo
-  dice con esas palabras. Para convertirlo en fallo, crear la variable de
-  repositorio `FULKRO_EVALS_REQUIRED = true` (Settings → Secrets and variables →
-  Actions → pestaña Variables).
+- Si el secreto **no está**: el job queda **SALTADO** (icono gris), no verde.
+  Quien decide es un tercer job de tres segundos, `hay-clave`, cuya única salida
+  es un booleano; `evals-llm` lleva ese booleano en un `if:` **de nivel de job**.
+
+  Hasta el 2026-09-10 este job terminaba en VERDE escribiendo
+  `EVALUACIÓN NO EJECUTADA` en el resumen. El texto era honesto y el icono decía
+  lo contrario, **y el icono es lo que se lee**: en la lista de checks de un PR
+  se ven iconos, no resúmenes. Se cambió en el bloque D (D6).
+
+  El `if` tiene que ser de nivel de job porque un `if` de paso deja el job en
+  verde igualmente. Y hace falta el job intermedio porque el contexto `secrets`
+  **no se puede leer** en `jobs.<id>.if` (sólo `github`, `needs`, `vars` e
+  `inputs`); un paso normal sí lo lee, y por eso `hay-clave` lo traduce a una
+  salida que el `if` sí puede consultar.
+
+  Para convertir la ausencia de clave en **fallo** en vez de en salto, crear la
+  variable de repositorio `FULKRO_EVALS_REQUIRED = true` (Settings → Secrets and
+  variables → Actions → pestaña Variables). Con esa variable el job arranca y
+  falla en su primer paso, con el motivo escrito en el resumen.
+
+  Los tres casos están probados en local, extrayendo el paso del YAML y
+  ejecutándolo con `bash`:
+
+  ```
+  $ docker run --rm -v "$PWD:/w" -w /w fulkro/backend:test python -c \
+      "import yaml;print(yaml.safe_load(open('.github/workflows/evals.yml'))['jobs']['hay-clave']['steps'][0]['run'])" \
+      > /tmp/paso.sh
+  $ ANTHROPIC_API_KEY="" EXIGIDA=""     GITHUB_OUTPUT=/tmp/o bash /tmp/paso.sh; cat /tmp/o
+  presente=false      # -> evals-llm SALTADO
+  $ ANTHROPIC_API_KEY="" EXIGIDA=true   GITHUB_OUTPUT=/tmp/o bash /tmp/paso.sh; cat /tmp/o
+  presente=false      # -> evals-llm arranca y falla (::warning:: emitido)
+  $ ANTHROPIC_API_KEY="sk-x" EXIGIDA="" GITHUB_OUTPUT=/tmp/o bash /tmp/paso.sh; cat /tmp/o
+  presente=true       # -> evals-llm evalua de verdad
+  ```
 - Si el secreto **está**: ejecuta las 10 entradas contra el modelo y aplica dos
   criterios, ambos definidos en `.github/evals-threshold.yml`:
   1. `min_entradas_evaluadas: 10` — el control anti-verde-vacuo. Si se evalúan
@@ -494,13 +522,23 @@ Marcar también **Require branches to be up to date before merging**.
 
 | Check | Por qué NO |
 |---|---|
-| `typecheck` | Lleva `continue-on-error: true`: siempre sale verde. Exigirlo da falsa seguridad |
-| `test`, `playwright` | Llevan `if: workflow_dispatch`: en un PR salen `skipped` y nunca reportan |
-| `safety · Python dep vulnerabilities` | `\|\| true` más un parser que devuelve éxito ante fichero ausente o JSON corrupto |
-| `gate`, `migrations`, `deploy` | `deploy.yml` sólo corre en `push` a `main`, no en PR (y además está siendo retirado) |
+| `playwright` | Lleva `if: github.event_name == 'workflow_dispatch'`: en un PR sale `skipped` y nunca reporta |
 | Los tres de `admin-polish-empirical.yml` | Filtro de paths `frontend/**`: no se disparan en todos los PR |
-| `evals-llm` | Depende de `evals-arnes` con `needs:`, así que se salta cuando aquel falla, y un salto en un check obligatorio complica el merge. Además no evalúa en PR de forks (sin secretos) |
+| `evals-llm` | Desde D6 queda **saltado** cuando no hay clave (PR de un fork, típicamente). Un check obligatorio que se salta complica el merge. Además depende de `evals-arnes` con `needs:` |
 | `publicar` (`publish-image.yml`) | Filtro de paths: no se dispara en todos los PR |
+| `Security Scan` | Filtro de paths (`backend/**/*.py`, `frontend/package*.json`, …): no se dispara en un PR que sólo toque documentación |
+
+Tres filas que estaban aquí **ya no valen**, y conviene decir por qué en vez de
+borrarlas en silencio:
+
+- `typecheck` ya **no** lleva `continue-on-error: true` (el único que queda en
+  `ci.yml:334` es el paso informativo que cuenta la suite, dentro del job `test`).
+  Se puede exigir, con la advertencia de que sólo cubre la lista de
+  `.github/mypy-clean-modules.txt`.
+- `test` ya **no** lleva `if: workflow_dispatch`: corre en cada push y cada PR.
+  Se puede exigir.
+- `safety` ya **no** lleva `|| true`: captura el código de salida a propósito y
+  lo aplica en su gate. `deploy.yml` no existe: se retiró a `docs/historia/`.
 
 ### Paso 3 · el resto de la regla
 

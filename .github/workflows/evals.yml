@@ -9,9 +9,21 @@
 #                evaluador siguen siendo compatibles entre sí.
 #
 #   evals-llm    Evaluación real: llama al modelo, que es LO QUE SE MIDE. Necesita
-#                el secreto ANTHROPIC_API_KEY. Sin secreto NO evalúa, y lo dice:
-#                escribe "EVALUACIÓN NO EJECUTADA" en el resumen y emite un aviso.
-#                No finge un verde de evaluación.
+#                el secreto ANTHROPIC_API_KEY. Sin secreto NO SE EJECUTA: el job
+#                queda SALTADO (icono gris), no verde.
+#
+#                D6 (2026-09-10) · antes terminaba en VERDE escribiendo
+#                "EVALUACIÓN NO EJECUTADA" en el resumen. El texto era honesto y
+#                el icono decía lo contrario, y el icono es lo que se lee: en la
+#                lista de checks de un PR se ven los iconos, no los resúmenes.
+#                Ahora `hay-clave` decide y `evals-llm` sólo arranca si hay algo
+#                que medir. Con FULKRO_EVALS_REQUIRED=true y sin clave, arranca
+#                y FALLA a propósito.
+#
+#   hay-clave    Job de tres segundos cuya única salida es si el secreto está
+#                disponible. Existe porque el contexto `secrets` NO se puede leer
+#                en un `if:` de nivel de job (sólo github/needs/vars/inputs), y
+#                saltar un job requiere exactamente eso.
 #
 # Umbrales y su justificación: .github/evals-threshold.yml
 # Estado real de todos los workflows y protección de rama: docs/CI.md
@@ -51,6 +63,55 @@ env:
   PYTHONPATH: ${{ github.workspace }}
 
 jobs:
+
+  # ───────────────────────────────────────────────────────────────────────────
+  # Gate 0 · ¿hay con qué evaluar?
+  #
+  # No comprueba nada del repositorio: sólo publica si el secreto existe, para
+  # que `evals-llm` pueda usarlo en su `if:` de nivel de job y quedar SALTADO en
+  # vez de verde. El valor del secreto no sale de aquí: se compara contra vacío
+  # y se emite un booleano.
+  # ───────────────────────────────────────────────────────────────────────────
+  hay-clave:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    outputs:
+      presente: ${{ steps.mirar.outputs.presente }}
+    steps:
+      - name: ¿Está ANTHROPIC_API_KEY en este contexto?
+        id: mirar
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          EXIGIDA: ${{ vars.FULKRO_EVALS_REQUIRED }}
+        run: |
+          if [ -n "${ANTHROPIC_API_KEY}" ]; then
+            echo "presente=true" >> "$GITHUB_OUTPUT"
+            echo "Secreto presente: la evaluación real se ejecutará." \
+              >> "$GITHUB_STEP_SUMMARY"
+          else
+            echo "presente=false" >> "$GITHUB_OUTPUT"
+            {
+              echo "## Evaluación real de agentes · SALTADA"
+              echo
+              echo "El secreto \`ANTHROPIC_API_KEY\` no está disponible en este"
+              echo "contexto (típico en un *fork* o en un PR desde uno). La"
+              echo "capability bajo prueba llama al modelo: **el modelo es lo que"
+              echo "se mide**, así que sin clave no hay nada que medir."
+              echo
+              echo "El job \`evals-llm\` queda **saltado**, no verde. Un verde ahí"
+              echo "significaría \"evaluado y correcto\"; esto es \"no evaluado\"."
+              echo
+              echo "Para que la ausencia de clave FALLE el build en vez de saltar,"
+              echo "crea la variable de repositorio \`FULKRO_EVALS_REQUIRED\` con"
+              echo "valor \`true\` en Settings → Secrets and variables → Actions →"
+              echo "pestaña Variables."
+            } >> "$GITHUB_STEP_SUMMARY"
+            if [ "${EXIGIDA}" = "true" ]; then
+              echo "::warning title=Evaluaciones exigidas sin clave::FULKRO_EVALS_REQUIRED=true y no hay ANTHROPIC_API_KEY. evals-llm arrancara para fallar."
+            else
+              echo "::notice title=Evaluacion real saltada::Sin ANTHROPIC_API_KEY no se evalua ningun agente. El job evals-llm queda SALTADO, no verde."
+            fi
+          fi
 
   # ───────────────────────────────────────────────────────────────────────────
   # Gate 1 · arnés determinista. Este es el que hay que marcar como obligatorio.
@@ -220,7 +281,22 @@ jobs:
   evals-llm:
     runs-on: ubuntu-latest
     timeout-minutes: 30
-    needs: evals-arnes
+    needs: [hay-clave, evals-arnes]
+    # D6 · el job SÓLO arranca si hay algo que medir, o si se ha exigido medir.
+    #
+    #   sin clave y sin exigirla  ->  SALTADO (gris). No es un verde de
+    #                                 evaluación porque no es un verde.
+    #   con clave                 ->  evalúa de verdad y puede tumbar el build.
+    #   sin clave y exigida       ->  arranca y falla en el primer paso, que es
+    #                                 justo lo que se quiere en el repositorio de
+    #                                 origen, donde el secreto SÍ existe: si
+    #                                 desaparece, hay que enterarse.
+    #
+    # El `if` es de nivel de job a propósito. Con `if` a nivel de paso, el job
+    # terminaba en VERDE sin haber evaluado nada, que es el defecto que D6 cierra.
+    if: >-
+      needs.hay-clave.outputs.presente == 'true' ||
+      vars.FULKRO_EVALS_REQUIRED == 'true'
     steps:
       - uses: actions/checkout@v4
 
@@ -228,44 +304,23 @@ jobs:
         with:
           python-version: '3.12'
 
-      - name: ¿Hay secreto para evaluar?
-        id: secreto
-        env:
-          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
-        run: |
-          if [ -n "${ANTHROPIC_API_KEY}" ]; then
-            echo "presente=true" >> "$GITHUB_OUTPUT"
-          else
-            echo "presente=false" >> "$GITHUB_OUTPUT"
-          fi
-
-      - name: Declarar que NO se ha evaluado (y por qué)
-        if: steps.secreto.outputs.presente != 'true'
-        env:
-          EXIGIDA: ${{ vars.FULKRO_EVALS_REQUIRED }}
+      - name: Exigidas y sin clave · fallar aquí y no seguir
+        if: needs.hay-clave.outputs.presente != 'true'
         run: |
           {
-            echo "## Evaluaciones de agentes · EVALUACIÓN NO EJECUTADA"
+            echo "## Evaluaciones de agentes · EXIGIDAS Y NO EJECUTABLES"
             echo
-            echo "El secreto \`ANTHROPIC_API_KEY\` no está disponible en este contexto."
-            echo "La capability bajo prueba (\`deliverable_text_auditor_capability\`)"
-            echo "llama al modelo: **el modelo es lo que se mide**. Sin clave no hay"
-            echo "nada que medir, así que este job **no ha evaluado nada**."
+            echo "\`FULKRO_EVALS_REQUIRED\` está a \`true\` pero el secreto"
+            echo "\`ANTHROPIC_API_KEY\` no está disponible en este contexto."
             echo
-            echo "Este check en verde significa \"no evaluado\", **no** \"evaluado y correcto\"."
-            echo
-            echo "Para que la ausencia de clave falle el build, crea la variable de"
-            echo "repositorio \`FULKRO_EVALS_REQUIRED\` con valor \`true\` en"
-            echo "Settings → Secrets and variables → Actions → pestaña Variables."
+            echo "Este job falla a propósito: en el repositorio de origen el"
+            echo "secreto SÍ existe, así que su ausencia significa que se ha"
+            echo "borrado, ha caducado o el workflow corre donde no debería."
           } >> "$GITHUB_STEP_SUMMARY"
-          echo "::warning title=Evaluaciones no ejecutadas::Sin ANTHROPIC_API_KEY no se evalua ningun agente. Este verde NO es un verde de evaluacion."
-          if [ "${EXIGIDA}" = "true" ]; then
-            echo "::error title=Evaluaciones exigidas::FULKRO_EVALS_REQUIRED=true y no hay ANTHROPIC_API_KEY."
-            exit 1
-          fi
+          echo "::error title=Evaluaciones exigidas::FULKRO_EVALS_REQUIRED=true y no hay ANTHROPIC_API_KEY."
+          exit 1
 
       - name: Dependencias del arnés + SDK
-        if: steps.secreto.outputs.presente == 'true'
         # anthropic + python-dotenv + pydantic-settings los arrastra
         # backend.app.core.ai.llm_router (importado en caliente por la capability).
         # loguru lo importa la propia capability a nivel de módulo.
@@ -274,7 +329,6 @@ jobs:
                       python-dotenv loguru anthropic
 
       - name: Evaluación real contra el modelo (gate)
-        if: steps.secreto.outputs.presente == 'true'
         env:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
         run: |
@@ -422,7 +476,7 @@ jobs:
           PY
 
       - name: Guardar el informe
-        if: always() && steps.secreto.outputs.presente == 'true'
+        if: always()
         uses: actions/upload-artifact@v4
         with:
           name: evals-report

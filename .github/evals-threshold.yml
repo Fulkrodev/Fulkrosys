@@ -45,13 +45,14 @@ gates:
   # EJECUTADA y no finge un verde.
   llm:
     secreto_requerido: ANTHROPIC_API_KEY
-    # Cuando el secreto no está: el job avisa (::warning::) y escribe en el
-    # resumen "EVALUACIÓN NO EJECUTADA". Termina en verde por defecto para no
-    # bloquear a quien clona el repo sin clave.
+    # D6 (2026-09-10): cuando el secreto no está, el job `evals-llm` queda
+    # SALTADO (gris), no verde. Antes terminaba en verde escribiendo
+    # "EVALUACIÓN NO EJECUTADA" en el resumen: el texto era honesto y el icono
+    # decía lo contrario, y el icono es lo que se lee.
     # Para exigirla (recomendado en el repo de origen, donde el secreto SÍ existe):
     # crear la variable de repositorio FULKRO_EVALS_REQUIRED = "true"
     # (Settings → Secrets and variables → Actions → pestaña Variables).
-    # Con esa variable a "true", la ausencia de secreto FALLA el job.
+    # Con esa variable a "true", el job SÍ arranca sin secreto, y falla.
     variable_para_exigirla: FULKRO_EVALS_REQUIRED
     obligatorio_por_defecto: false
 
