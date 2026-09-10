@@ -128,17 +128,24 @@ Prefiero esta lista, cierta, a un «listo» que se rompe cuando alguien lo prueb
    pero es el script de Python del paquete PyPI, no el escáner de Go. No rompe nada hoy, pero es un
    falso positivo esperando a quien audite por nombre.
 
-9. **Quedan 31 apariciones de la ruta personal del autor en 4 ficheros**, ninguna ejecutable: el
-   informe fechado `docs/audit/AUDITORIA_2026-09.md` (19 · citas textuales que falsificaría
-   reescribir), el README (4 · documenta el problema), **este mismo informe (2)** y un tracker
-   histórico bajo `out/` (1).
+9. **Quedan 29 apariciones de la ruta personal del autor, ninguna ejecutable**, medidas
+   **excluyendo este documento**:
 
-   Ese «este mismo informe» no es una coquetería. Al escribir estas líneas la cifra pasó de 29 a
-   31, **porque el documento que reporta el número lo modifica al nombrarlo**. Es exactamente el
-   fallo que tumbó la cifra anterior del README, que se autoinvalidó dentro del commit que la
-   publicó. Por eso el comando que hay que publicar no es un conteo global sino uno con lista de
-   exclusión explícita por fichero, o mejor, un test. Aquí se deja el número con su desglose y con
-   el aviso, en vez de un total que caduca al siguiente commit.
+   ```bash
+   $ command grep -rIo "/home/usuario" --exclude-dir=.git --exclude=INFORME_C0_C1.md . | wc -l
+   29
+   ```
+
+   Se reparten así: 19 en el informe fechado `docs/audit/AUDITORIA_2026-09.md`, cuyas citas
+   textuales falsificaría reescribir; 4 en el README, que documenta el problema; y 1 en un tracker
+   histórico bajo `out/`.
+
+   La exclusión no es una trampa: es el único modo de que el número sea estable. Al redactar este
+   punto la cifra saltó de 29 a 31 y luego a 30, **porque el documento que reporta el número lo
+   modifica cada vez que lo nombra**. Es exactamente el fallo que autoinvalidó la cifra del README
+   dentro del commit que la publicó. La lección, que vale para cualquier conteo publicado en prosa
+   en este repositorio: o lleva su exclusión escrita, o lo genera un test, o tiene una vida media
+   de un commit.
 
 10. **`AgentBase._call_llm` sigue fabricando respuestas en silencio.** Hallazgo previo, sigue
     abierto: cuando falta la clave o falla la llamada, devuelve texto inventado y lo asienta en el
