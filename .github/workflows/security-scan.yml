@@ -180,8 +180,15 @@ jobs:
           # npm audit NO decide nada aqui: lo decide el gate del paso siguiente,
           # que distingue "aviso conocido y acotado por escrito" de "critico
           # nuevo" y de "la herramienta se ha roto". Se captura, no se ignora.
+          # `set +e` NO es una mascara: el paso corre con `bash -e`, asi que sin
+          # esto el propio `npm audit` (que devuelve 1 en cuanto hay avisos) mata
+          # el paso ANTES de llegar al gate, y el gate es quien decide. El codigo
+          # se captura y se imprime; quien juzga es el paso siguiente.
+          set +e
           npm audit --production --json > npm-audit-report.json 2>/dev/null
-          echo "npm audit exit=$? (informativo · gatea el paso siguiente)"
+          rc=$?
+          set -e
+          echo "npm audit exit=${rc} (informativo · decide el gate del paso siguiente)"
           wc -c npm-audit-report.json
 
       - name: Gate npm audit (critico nuevo → falla · acotado → avisa · roto → falla)
