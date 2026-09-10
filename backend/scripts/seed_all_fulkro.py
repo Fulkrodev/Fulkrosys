@@ -19,6 +19,11 @@ Cada paso reporta PASS/FAIL/SKIP. Salida JSON final con estado.
 Opciones:
   --skip-corpus    No re-ingestar RD 311/2022 (si ya esta ingestado se
                    mantiene; si no, se salta con warning)
+  --skip-age-kg    No seedear el grafo Apache AGE
+  --skip-clients   No sembrar los 3 clientes ficticios (dev/test/CI)
+  --optional-ext   Lista separada por comas de extensiones que pueden faltar
+                   sin abortar. Solo se admiten `age` y `pgaudit`; equivale a
+                   la variable de entorno FULKRO_SEED_OPTIONAL_EXT.
 """
 from __future__ import annotations
 
@@ -57,6 +62,47 @@ CORPUS_HTML = Path(__file__).resolve().parents[2] / "var" / "corpus" / "boe" / "
 
 
 # ════════════════════════════════════════════════════════════════════
+# Extensiones PostgreSQL
+# ════════════════════════════════════════════════════════════════════
+# Las tres del núcleo son innegociables: sin `uuid-ossp`/`pgcrypto` no hay
+# UUIDs ni hashes, y sin `vector` no hay columna de embeddings. Si falta
+# cualquiera de ellas, el seed aborta como siempre.
+REQUIRED_EXT_CORE = {"uuid-ossp", "pgcrypto", "vector"}
+
+# `age` y `pgaudit` siguen siendo OBLIGATORIAS por defecto (producción no se
+# degrada: si la imagen las trae y alguien olvidó el CREATE EXTENSION, el seed
+# sigue abortando). Sólo se relajan en dos casos, y ambos se reportan:
+#   1. Petición explícita: --optional-ext age,pgaudit  ó
+#      FULKRO_SEED_OPTIONAL_EXT=age,pgaudit
+#   2. La extensión NO existe en el catálogo de la imagen
+#      (pg_available_extensions): el binario no está instalado, no hay nada
+#      que crear. Es el caso del demo, que corre sobre pgvector/pgvector:pg16
+#      (ver docs/adr/ADR-001-postgres-demo-sin-age.md).
+# Ninguna otra extensión puede declararse opcional.
+RELAXABLE_EXT = {"age", "pgaudit"}
+
+
+def resolve_optional_ext(cli_value: str | None) -> set[str]:
+    """Extensiones que el operador declara prescindibles (CLI + entorno).
+
+    Une `--optional-ext` y FULKRO_SEED_OPTIONAL_EXT, y descarta con aviso
+    cualquier nombre que no esté en RELAXABLE_EXT: así un typo (`vecto`) o un
+    abuso (`vector`) no puede desactivar en silencio un pre-check del núcleo.
+    """
+    raw = ",".join(
+        v for v in (cli_value, os.environ.get("FULKRO_SEED_OPTIONAL_EXT")) if v
+    )
+    pedidas = {p.strip().lower() for p in raw.split(",") if p.strip()}
+    rechazadas = pedidas - RELAXABLE_EXT
+    if rechazadas:
+        logger.warning(
+            "--optional-ext: ignoradas %s (solo se admiten %s)",
+            sorted(rechazadas), sorted(RELAXABLE_EXT),
+        )
+    return pedidas & RELAXABLE_EXT
+
+
+# ════════════════════════════════════════════════════════════════════
 # Reporte
 # ════════════════════════════════════════════════════════════════════
 
@@ -90,25 +136,51 @@ class SeedReport:
 # A. Pre-checks
 # ════════════════════════════════════════════════════════════════════
 
-async def pre_checks(engine, report: SeedReport) -> bool:
+async def pre_checks(
+    engine, report: SeedReport, optional_ext: set[str] | None = None,
+) -> tuple[bool, set[str]]:
+    """Devuelve (todo_ok, extensiones_instaladas).
+
+    La segunda mitad de la tupla la usa `main` para saltarse el grafo AGE
+    cuando `age` no está instalada (si no, el paso G fallaría siempre).
+    """
+    optional_ext = optional_ext or set()
     async with engine.connect() as conn:
         # Extensions
         r = await conn.execute(sa_text(
             "SELECT extname FROM pg_extension ORDER BY extname"
         ))
         extensions = {row[0] for row in r.all()}
-        required_ext = {"uuid-ossp", "pgcrypto", "vector", "age", "pgaudit"}
+        r = await conn.execute(sa_text(
+            "SELECT name FROM pg_available_extensions"
+        ))
+        disponibles = {row[0] for row in r.all()}
+
+        # Relajadas: las que pidió el operador + las que la imagen NO trae.
+        no_instalables = {
+            e for e in RELAXABLE_EXT
+            if e not in extensions and e not in disponibles
+        }
+        relajadas = (optional_ext | no_instalables) & RELAXABLE_EXT
+        required_ext = (REQUIRED_EXT_CORE | RELAXABLE_EXT) - relajadas
+
         missing = required_ext - extensions
         if missing:
             report.add(
                 "pre_check:extensions", "fail",
                 f"missing: {missing}. Run psql -f infra/docker/init-extensions.sql",
             )
-            return False
-        report.add(
-            "pre_check:extensions", "ok",
-            f"loaded: {sorted(required_ext)}",
-        )
+            return False, extensions
+
+        ausentes = sorted(relajadas - extensions)
+        detalle = f"loaded: {sorted(required_ext)}"
+        if ausentes:
+            detalle += (
+                f" · ausentes toleradas: {ausentes}"
+                f" (pedidas={sorted(optional_ext)} ·"
+                f" no instalables en esta imagen={sorted(no_instalables)})"
+            )
+        report.add("pre_check:extensions", "ok", detalle)
 
         # Functions
         r = await conn.execute(sa_text(
@@ -122,7 +194,7 @@ async def pre_checks(engine, report: SeedReport) -> bool:
                 "current_client_id/current_project_id no registradas. "
                 "Run psql -f infra/docker/init-functions.sql",
             )
-            return False
+            return False, extensions
         report.add("pre_check:functions", "ok", "RLS helpers OK")
 
         # Role fulkro_app
@@ -134,7 +206,7 @@ async def pre_checks(engine, report: SeedReport) -> bool:
                 "pre_check:role", "fail",
                 "fulkro_app no existe. Run psql -f infra/docker/init-roles.sql",
             )
-            return False
+            return False, extensions
         report.add("pre_check:role", "ok", "fulkro_app role exists")
 
         # Alembic head
@@ -149,8 +221,8 @@ async def pre_checks(engine, report: SeedReport) -> bool:
                 "pre_check:alembic", "fail",
                 f"alembic_version no existe. Run: cd backend && alembic upgrade head. {exc}",
             )
-            return False
-    return True
+            return False, extensions
+    return True, extensions
 
 
 # ════════════════════════════════════════════════════════════════════
@@ -545,7 +617,12 @@ def run_external_script(script_name: str, report: SeedReport) -> None:
         report.add(f"seed:{script_name}", "fail", "timeout 300s")
 
 
-async def seed_fake_clients(engine, report: SeedReport) -> None:
+async def seed_fake_clients(
+    engine, report: SeedReport, skip: bool = False,
+) -> None:
+    if skip:
+        report.add("seed:seed_fake_clients.py", "skip", "--skip-clients")
+        return
     # En PRODUCCIÓN no se siembran clientes ficticios: el sistema arranca
     # vacío y el primer cliente real se da de alta desde el portal (guiado
     # por el copiloto). Los fakes (DataForma + 2) son fixtures dev/test/CI.
@@ -592,7 +669,17 @@ async def seed_iso27001_mapping(engine, report: SeedReport) -> None:
     run_external_script("seed_ens_iso27001_mapping.py", report)
 
 
-async def seed_age_kg(engine, report: SeedReport, skip: bool = False) -> None:
+async def seed_age_kg(
+    engine, report: SeedReport, skip: bool = False, age_installed: bool = True,
+) -> None:
+    if not age_installed:
+        # La imagen no trae Apache AGE (caso del demo · ADR-001). El grafo es
+        # un extra: 0 migraciones y 0 ficheros de backend/app lo consultan.
+        report.add(
+            "seed:age_seed_kg.py", "skip",
+            "extension `age` no instalada en este PostgreSQL",
+        )
+        return
     if skip:
         # KG demo (Apache AGE) requiere superuser real para `LOAD 'age'`
         # (fulkro_app/fulkro_migrate no lo son sobre TCP). 0 tests dependen de
@@ -651,7 +738,9 @@ async def seed_templates(engine, report: SeedReport) -> None:
 # Verificaciones finales
 # ════════════════════════════════════════════════════════════════════
 
-async def final_checks(engine, report: SeedReport) -> None:
+async def final_checks(
+    engine, report: SeedReport, skip_clients: bool = False,
+) -> None:
     async with engine.connect() as conn:
         await conn.execute(sa_text("SET LOCAL ROLE fulkro"))
         checks = [
@@ -670,7 +759,9 @@ async def final_checks(engine, report: SeedReport) -> None:
             ("magerit_asset_types", 50),
             # En producción el sistema arranca SIN clientes (alta real desde
             # el portal); en dev/test/CI se siembran 3 fakes (DataForma + 2).
-            ("clients", 0 if get_settings().is_production else 3),
+            # Con --skip-clients el mínimo baja a 0: si no, el propio seed se
+            # suspendería por no haber sembrado lo que se le pidió no sembrar.
+            ("clients", 0 if (get_settings().is_production or skip_clients) else 3),
             ("pricing_catalog", 10),
             # 84 = entradas del catalogo template_catalog_v1.yaml (M06).
             # Sin este seed la fabrica documental no genera nada (#10 B2).
@@ -690,13 +781,19 @@ async def final_checks(engine, report: SeedReport) -> None:
 # Main
 # ════════════════════════════════════════════════════════════════════
 
-async def main(skip_corpus: bool = False, skip_age_kg: bool = False) -> int:
+async def main(
+    skip_corpus: bool = False,
+    skip_age_kg: bool = False,
+    skip_clients: bool = False,
+    optional_ext: set[str] | None = None,
+) -> int:
     report = SeedReport()
     settings = get_settings()
     engine = create_async_engine(settings.database_url, echo=False)
 
     # Pre-checks
-    if not await pre_checks(engine, report):
+    ok, extensions = await pre_checks(engine, report, optional_ext)
+    if not ok:
         print(json.dumps(report.summary(), indent=2, ensure_ascii=False))
         await engine.dispose()
         return 1
@@ -714,15 +811,17 @@ async def main(skip_corpus: bool = False, skip_age_kg: bool = False) -> int:
     await seed_corpus(engine, report, skip=skip_corpus)
 
     # E + F + G via scripts externos
-    await seed_fake_clients(engine, report)
+    await seed_fake_clients(engine, report, skip=skip_clients)
     await seed_evidence_catalog(engine, report)
     await seed_iso27001_mapping(engine, report)
-    await seed_age_kg(engine, report, skip=skip_age_kg)
+    await seed_age_kg(
+        engine, report, skip=skip_age_kg, age_installed="age" in extensions,
+    )
     await seed_pricing(engine, report)
     await seed_templates(engine, report)
 
     # Final checks
-    await final_checks(engine, report)
+    await final_checks(engine, report, skip_clients=skip_clients)
 
     summary = report.summary()
     print(json.dumps(summary, indent=2, ensure_ascii=False, default=str))
@@ -736,5 +835,18 @@ if __name__ == "__main__":
                         help="No re-ingestar RD 311/2022")
     parser.add_argument("--skip-age-kg", action="store_true",
                         help="No seedear el grafo Apache AGE (requiere superuser LOAD age)")
+    # scripts/deploy-hetzner.sh:131 ya pasaba --skip-clients, que NO existía:
+    # argparse salía con codigo 2 y el paso de seed del despliegue moría ahi.
+    parser.add_argument("--skip-clients", action="store_true",
+                        help="No sembrar los 3 clientes ficticios (dev/test/CI)")
+    parser.add_argument("--optional-ext", default=None,
+                        help=("Extensiones que pueden faltar sin abortar "
+                              "(solo age,pgaudit). Tambien por entorno: "
+                              "FULKRO_SEED_OPTIONAL_EXT"))
     args = parser.parse_args()
-    sys.exit(asyncio.run(main(skip_corpus=args.skip_corpus, skip_age_kg=args.skip_age_kg)))
+    sys.exit(asyncio.run(main(
+        skip_corpus=args.skip_corpus,
+        skip_age_kg=args.skip_age_kg,
+        skip_clients=args.skip_clients,
+        optional_ext=resolve_optional_ext(args.optional_ext),
+    )))
