@@ -301,9 +301,30 @@ async function medir(pg, url, nombreCaptura, respuesta = null, errorNavegacion =
       // widget lateral diga «Sin datos» para condenar una pagina con tres
       // tarjetas de normativa y sus puntuaciones. Medir el marco y llamarlo
       // contenido es cometer, en pequenyo, el error que este bloque persigue.
-      const raiz = document.querySelector('main') || document.body;
+      //
+      // El respaldo cuando NO hay <main> tiene truco, y se descubrio al anadir
+      // los enlaces legales al pie global (BLOQUE I6): al caer al <body>, esos
+      // ~200 caracteres de pie se colaban como si fueran contenido de la
+      // pagina, y /forbidden dejo de contar como vacia SIN que su contenido
+      // hubiera cambiado. Un cambio de chrome no puede mover una cifra de
+      // vacuidad; si la mueve, el criterio esta midiendo el marco otra vez.
+      //
+      // Asi que en el respaldo se RESTA el texto del pie y de la navegacion, en
+      // vez de tocar el DOM. Restar longitudes no es exacto —dos nodos podrian
+      // solaparse— pero aqui no se solapan (footer/nav/header son hermanos del
+      // contenido) y no mutar la pagina que se esta midiendo vale mas que esa
+      // exactitud.
+      const principalReal = document.querySelector('main');
+      const conMain = Boolean(principalReal);
+      const raiz = principalReal || document.body;
       const t = document.body ? document.body.innerText : '';
-      const tp = raiz ? raiz.innerText : t;
+      let tp = raiz ? raiz.innerText : t;
+      if (!conMain) {
+        let chrome = 0;
+        document.querySelectorAll('body > footer, body > nav, body > header')
+                .forEach((e) => { chrome += (e.innerText || '').length; });
+        tp = tp.slice(0, Math.max(0, tp.length - chrome));
+      }
       const n = (sel) => raiz.querySelectorAll(sel).length;
       return {
         texto: t,
@@ -322,6 +343,10 @@ async function medir(pg, url, nombreCaptura, respuesta = null, errorNavegacion =
           campos: n('input, select, textarea'),
           caracteres: tp.length,
           caracteresCuerpo: t.length,
+          // Si es false, `caracteres` viene del cuerpo SIN pie ni navegacion,
+          // no de un <main>. Se anota para que nadie lea esa cifra creyendo que
+          // mide lo mismo en las dos clases de pagina.
+          tieneMain: conMain,
         },
         rechazos: (window.__rechazos || []).slice(0, 5),
       };

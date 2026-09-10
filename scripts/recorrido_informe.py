@@ -10,12 +10,14 @@ Uso:  python3 scripts/recorrido_informe.py
 from __future__ import annotations
 
 import json
+import re
 from collections import defaultdict
 from pathlib import Path
 
 RAIZ = Path(__file__).resolve().parents[1]
 ENTRADA = RAIZ / "var" / "recorrido" / "recorrido.json"
 BLANCA = RAIZ / "docs" / "recorrido" / "lista_blanca_vacias.json"
+REBOTES = RAIZ / "docs" / "recorrido" / "rebotes_esperados.json"
 # Preambulo escrito a mano. Las TABLAS las genera la medida; el JUICIO sobre lo
 # que significan lo escribe una persona, y conviene que se vea cual es cual.
 # Si no existe, el informe sale solo con las tablas y lo dice.
@@ -40,6 +42,138 @@ SIMBOLO = {
     "fallida": "FALLO",
     "no-verificada": "NO VERIF",
 }
+
+
+# ───────────────────────────────────────────────────────────────────────────
+# Clasificación de huérfanas (BLOQUE I5)
+#
+# «Huérfana» a secas mete en el mismo saco cosas muy distintas, y esa mezcla
+# hace que la cifra no sirva para decidir nada. Una página a la que NADIE enlaza
+# es un defecto del producto. Una página que sí tiene su enlace escrito, pero
+# cuyo enlace vive en una fila que el demo no siembra, es un defecto del
+# SEMBRADO. Y una tercera que no es defecto de nadie: la página está enlazada
+# desde un control que el rastreador no sabe accionar —la paleta de comandos,
+# un desplegable, un modal—, y eso es un límite del arnés.
+#
+# El criterio es estático y se puede comprobar a mano: se busca la ruta literal
+# en todo el código del frontend, EXCLUYENDO el propio fichero de la página (que
+# se cita a sí misma en su cabecera y no cuenta como enlace entrante).
+
+# Superficies que SI son un enlace, pero que el rastreador no sabe accionar:
+# una paleta de comandos se abre con Cmd+K, un desplegable hay que desplegarlo.
+# Que una ruta solo aparezca aqui no es defecto de nadie: es limite de la medida.
+SUPERFICIES_NO_RASTREABLES = (
+    "CommandPalette", "constants.ts", "Sidebar", "Dropdown", "Menu",
+    "Switcher", "Modal", "Palette", "QuickActions",
+)
+
+# Solo se mira el codigo que RENDERIZA interfaz. Todo lo demas produce falsos
+# «si tiene enlace» y vacia la clasificacion de sentido:
+#   · `tsconfig.tsbuildinfo` es un artefacto de compilacion que contiene TODAS
+#     las rutas del proyecto. La primera version de esto lo leia y daba
+#     «0 huerfanas del producto» de 59: la cifra perfecta, y falsa.
+#   · un spec de Playwright que hace `page.goto('/admin/x')` NO es un enlace:
+#     nadie puede pincharlo. Contarlo como enlace es exactamente el error que
+#     esta clasificacion existe para no cometer.
+#   · los *.config.ts y *.d.ts no renderizan nada.
+DIRECTORIOS_DE_INTERFAZ = ("app", "components", "lib", "hooks")
+EXCLUIDOS = ("tests", "node_modules", ".next", "e2e", "playwright")
+
+
+def _fuentes_frontend(raiz: Path) -> list[tuple[Path, str]]:
+    """Solo el codigo que RENDERIZA interfaz. Ver el comentario de EXCLUIDOS."""
+    salida = []
+    for sub in DIRECTORIOS_DE_INTERFAZ:
+        base = raiz / sub
+        if not base.is_dir():
+            continue
+        for f in base.rglob("*.ts*"):
+            if any(x in f.parts for x in EXCLUIDOS):
+                continue
+            if f.name.endswith((".d.ts", ".config.ts", ".tsbuildinfo")):
+                continue
+            try:
+                salida.append((f, f.read_text(encoding="utf-8", errors="ignore")))
+            except OSError:
+                continue
+    return salida
+
+
+def _fichero_de_la_pagina(patron: str) -> str:
+    """De `/admin/clients/[id]` saca `admin/clients/[id]/page.tsx`."""
+    return patron.strip("/") + "/page.tsx"
+
+
+# Prefijos cuyas subrutas se escriben como fragmento relativo y se componen en
+# tiempo de render. Se descubren mirando el codigo, no adivinando: hoy es
+# ProjectTabs.tsx con `basePath = `/admin/projects/${projectId}``.
+PREFIJOS_COMPUESTOS = ("/admin/projects/[id]",)
+
+
+def _cola_relativa(patron: str) -> str | None:
+    """De `/admin/projects/[id]/exit` saca `/exit`. None si no aplica."""
+    for pref in PREFIJOS_COMPUESTOS:
+        if patron.startswith(pref + "/"):
+            return patron[len(pref):]
+    return None
+
+
+def clasificar_huerfanas(huerfanas: list[str], raiz_frontend: Path,
+                         declaradas: dict[str, str] | None = None) -> dict:
+    """Reparte las huérfanas en cubos. Devuelve las listas, no un resumen:
+    quien lea el informe tiene que poder discutir caso por caso."""
+    fuentes = _fuentes_frontend(raiz_frontend)
+    declaradas = declaradas or {}
+    del_producto, del_sembrado, del_arnes, declaradas_ok = [], [], [], []
+    for patron in sorted(huerfanas):
+        # Las rutas declaradas en rebotes_esperados.json NO son huérfanas: son
+        # destinos de reescritura o de redirección, a los que no se llega
+        # pinchando NI DEBE LLEGARSE. `/forbidden` es el caso claro: un menú con
+        # una entrada «403 · acceso denegado» sería el defecto, no la ausencia.
+        if patron in declaradas:
+            declaradas_ok.append({"patron": patron, "motivo": declaradas[patron]})
+            continue
+        propio = _fichero_de_la_pagina(patron)
+        # La ruta literal, tal cual, en cualquier fichero que no sea el suyo ni
+        # su layout. Se busca el patrón con [param] Y la forma con plantilla
+        # (`${id}`), que es como se escribe una ruta dinámica en el código.
+        literal = patron
+        # `/admin/clients/[id]` -> `/admin/clients/${`, que es como se escribe
+        # una ruta dinamica interpolada en el codigo.
+        con_plantilla = re.sub(r"\[([^\]]+)\]", "${", literal)
+        # Y la forma RELATIVA. Es imprescindible: las pestanyas de proyecto se
+        # construyen con una tabla de fragmentos (`{ href: "/exit" }`) que se
+        # componen en tiempo de render con `const basePath =
+        # `/admin/projects/${projectId}``. Buscando solo la ruta literal, las 27
+        # pestanyas de proyecto salian «sin ninguna referencia en el codigo»,
+        # que es rotundamente falso: estan todas en ProjectTabs.tsx. Ese falso
+        # positivo daba 31 huerfanas del producto donde no las hay.
+        cola = _cola_relativa(literal)
+        citas = []
+        for f, texto in fuentes:
+            ruta = f.as_posix()
+            if ruta.endswith(propio) or ruta.endswith(propio.replace("page.tsx", "layout.tsx")):
+                continue
+            if (literal in texto
+                    or (con_plantilla != literal and con_plantilla in texto)
+                    or (cola and f'href: "{cola}"' in texto)
+                    or (cola and f"href=\"{cola}\"" in texto)):
+                citas.append(str(f.relative_to(RAIZ)))
+        if not citas:
+            del_producto.append({"patron": patron, "citas": []})
+        elif all(any(m in c for m in SUPERFICIES_NO_RASTREABLES) for c in citas):
+            del_arnes.append({"patron": patron, "citas": citas[:3]})
+        else:
+            del_sembrado.append({"patron": patron, "citas": citas[:3]})
+    return {
+        "no_son_huerfanas_estan_declaradas": declaradas_ok,
+        "criterio": ("se busca la ruta literal en frontend/{app,components,lib,"
+                     "hooks}, excluyendo tests, *.config.ts, *.d.ts, el "
+                     "tsbuildinfo y el page.tsx/layout.tsx de la propia página"),
+        "sin_ningun_enlace_en_el_codigo": del_producto,
+        "enlazada_pero_no_se_pudo_pinchar": del_sembrado,
+        "enlazada_solo_desde_un_control_no_rastreable": del_arnes,
+    }
 
 
 def tabla(filas: list[list[str]], cabecera: list[str]) -> str:
@@ -327,7 +461,8 @@ def main() -> None:
             ["Se alcanzan pinchando", len(alc["alcanzados"]),
              f"de {total} páginas del inventario"],
             ["**Huérfanas**", len(alc["huerfanas"]),
-             "existen, pero **no las enlaza nadie**"],
+             "no se alcanzan pinchando · el reparto de abajo dice de quién es "
+             "el defecto en cada caso, porque no es el mismo"],
             ["Sólo por enlace de correo", len(alc["porToken"]),
              "portales por token · no se llega pinchando **por diseño**, "
              "no se cuentan como huérfanas"],
@@ -340,11 +475,68 @@ def main() -> None:
           "que sí están y no llevan a ninguna parte.")
         A("")
         if alc["huerfanas"]:
-            A(f"### Las {len(alc['huerfanas'])} huérfanas")
+            cl = clasificar_huerfanas(alc["huerfanas"], RAIZ / "frontend",
+                                      json.loads(REBOTES.read_text(encoding="utf-8"))
+                                      if REBOTES.exists() else {})
+            decl = cl["no_son_huerfanas_estan_declaradas"]
+            prod = cl["sin_ningun_enlace_en_el_codigo"]
+            semb = cl["enlazada_pero_no_se_pudo_pinchar"]
+            arnes = cl["enlazada_solo_desde_un_control_no_rastreable"]
+            A(f"### Las {len(alc['huerfanas'])} huérfanas, repartidas")
             A("")
-            for p in sorted(alc["huerfanas"]):
-                A(f"- `{p}`")
+            A("«Huérfana» a secas mete en el mismo saco cosas muy distintas, y esa "
+              "mezcla hace que la cifra no sirva para decidir nada. El reparto es "
+              "mecánico y se puede rehacer a mano: se busca la ruta literal en "
+              "`frontend/{app,components,lib,hooks}`, excluyendo el `page.tsx` y el "
+              "`layout.tsx` de la propia página (que se citan a sí mismos en la "
+              "cabecera, y eso no es un enlace entrante).")
             A("")
+            A("Qué queda **fuera** de la búsqueda, y por qué importa: los "
+              "`tests/`, porque un spec que hace `page.goto('/admin/x')` **no es un "
+              "enlace** —nadie puede pincharlo—; y `tsconfig.tsbuildinfo`, que es un "
+              "artefacto de compilación con **todas** las rutas del proyecto dentro. "
+              "La primera versión de este reparto los leía y daba «0 huérfanas del "
+              "producto» de 59: la cifra perfecta, y falsa.")
+            A("")
+            A(tabla([
+                ["Declaradas · no son huérfanas", len(decl),
+                 "destino de una reescritura o redirección · "
+                 "no se llega pinchando **y no debe llegarse**"],
+                ["**Del producto**", len(prod),
+                 "**ninguna referencia** a la ruta en todo el código · "
+                 "no se llega salvo tecleando la URL"],
+                ["Del sembrado", len(semb),
+                 "el enlace **existe**, pero vive en una fila o tarjeta que el demo "
+                 "no crea · el defecto es del sembrado, no de la aplicación"],
+                ["Del arnés", len(arnes),
+                 "enlazada sólo desde la paleta de comandos, un menú o un "
+                 "desplegable · el rastreador no sabe accionarlos · "
+                 "**no es defecto de nadie**, es un límite de la medida"],
+            ], ["", "Número", "Qué significa"]))
+            A("")
+            A(f"El número que duele es el del producto: **{len(prod)}**. Otras "
+              f"{len(semb) + len(arnes)} tienen su enlace escrito en alguna parte, "
+              f"y {len(decl)} no son huérfanas en absoluto: están declaradas en "
+              "`docs/recorrido/rebotes_esperados.json` como destinos de "
+              "reescritura a los que **no debe** llegarse pinchando.")
+            A("")
+            A(f"#### {len(prod)} sin ninguna referencia en el código")
+            A("")
+            for x in prod:
+                A(f"- `{x['patron']}`")
+            A("")
+            if semb:
+                A(f"#### {len(semb)} con enlace, pero sin dato con el que pincharlo")
+                A("")
+                A(tabla([[f"`{x['patron']}`", ", ".join(f"`{c}`" for c in x["citas"])]
+                         for x in semb], ["Ruta", "Dónde está su enlace"]))
+                A("")
+            if arnes:
+                A(f"#### {len(arnes)} enlazadas desde un control que el rastreador no acciona")
+                A("")
+                A(tabla([[f"`{x['patron']}`", ", ".join(f"`{c}`" for c in x["citas"])]
+                         for x in arnes], ["Ruta", "Dónde está su enlace"]))
+                A("")
         if alc["rotos"]:
             A(f"### Los {len(alc['rotos'])} enlaces a 404")
             A("")

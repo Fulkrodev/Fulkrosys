@@ -2,6 +2,13 @@
 
 **Fecha**: 2026-09-10 · **Rama**: `main`
 
+> **La conclusión de este informe tiene ahora su ADR.** Lo que aquí son
+> tablas —200 % de CPU con dos workers en catorce núcleos, ×1,7 a ×2,4 al
+> añadir réplica en los endpoints de base de datos, y esa misma réplica
+> rompiendo `/corpus/search`— se razona junto en
+> [ADR-060 · el modelo en el proceso limita los workers](adr/ADR-060-el-modelo-en-el-proceso-limita-los-workers.md),
+> con las tres salidas y sus contrapartidas. *(2026-09-11 · BLOQUE I4.)*
+
 Para poder decir «escalable» con algo detrás. Sin un límite medido la palabra no
 significa nada: toda aplicación escala hasta que deja de hacerlo, y lo único
 defendible es decir **dónde** deja de hacerlo.

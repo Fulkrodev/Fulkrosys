@@ -1,6 +1,17 @@
 # Evaluación de la recuperación del corpus
 
-**Fecha**: 2026-09-10 · **Rama**: `main` · **Corpus medido**: 1.031 fragmentos
+**Fecha**: 2026-09-11 (reescrito · la primera versión es del 2026-09-10) ·
+**Rama**: `main` · **Corpus medido**: 1.031 fragmentos
+
+> **Qué cambió el 2026-09-11 y por qué importa.** La primera versión de este
+> informe sacaba su conclusión con la rama léxica **rota por el analizador**, y
+> por tanto con media recuperación apagada. Se arregló el analizador, se volvió a
+> medir, y la conclusión cambió de «la fusión queda en entredicho» a «la fusión
+> se quita, y aquí está el número». Se dice porque tres afirmaciones de aquella
+> versión eran falsas y hay que retirarlas por su nombre: que k fuera «una
+> palanca desconectada», que la no monotonía del RRF fuera «rara, 1 de 49», y que
+> en acierto@5 y recall@5 la fusión y la vectorial empataran. Las tres eran
+> artefactos del mismo defecto.
 
 Todo lo que sigue lleva el comando que lo reproduce. El comando único es:
 
@@ -805,6 +816,11 @@ del cambio; lo que se ha quitado es lo que la empeoraba.
   salió 4,3 veces más lenta y la carga media del anfitrión no lo explica. La
   conjetura (un `docker build` simultáneo) no se ha comprobado: haría falta
   repetir la medición con y sin build en paralelo.
+- **El coste en latencia de un servicio de embeddings aparte.** El embebido es
+  el 80 % del reloj de una búsqueda, así que sacarlo del proceso es la salida que
+  razona [ADR-060](adr/ADR-060-el-modelo-en-el-proceso-limita-los-workers.md) para
+  el techo de escala. Lo que ese salto de red le suma a los 41 ms de p50 no se ha
+  medido, porque no existe tal servicio.
 - **Reranking con cross-encoder.** No existe, así que no se ha medido. La
   mención a un «paso 4 · rerank» que arrastraba `retrieval.py` se ha quitado del
   código con la reescritura: era una promesa en un docstring, no un plan.

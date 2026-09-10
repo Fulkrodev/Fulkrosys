@@ -2186,6 +2186,27 @@ Un endpoint puede estar en `WHITELIST_EXACT` si y solo si cumple **uno** de:
    accesibles por diseño (ej. `/onboarding/lms/courses` catálogo
    cursos LMS).
 
+   *Amendment 2026-09-11 (BLOQUE I6)*:
+   `/api/v1/legal/dpa-template/download` entra por este criterio, el mismo que
+   ya exime a `/legal/compliance/status` y a
+   `/legal/sub-processor-notifications/subscribe`. Es la plantilla del contrato
+   de encargo del tratamiento (art. 28 RGPD): lo que un posible cliente quiere
+   leer **antes** de contratar. No expone dato de ningún cliente — devuelve los
+   datos de FULKRO como responsable, huecos para el cliente, y los
+   sub-encargados que ya están publicados en `/sub-processors`.
+
+   Lo que hace interesante esta entrada es **cómo apareció**. El endpoint se
+   declaraba público en su propio docstring («`dpa_public_router` (no auth)»)
+   y devolvía **401** desde siempre, porque la dependencia global lo paraba
+   antes de llegar al handler. Nadie lo había notado porque a la página
+   `/dpa-template` no llegaba nadie: era una de las siete páginas legales sin
+   un solo enlace entrante en todo el código. Al añadir esos enlaces al pie
+   global, el recorrido automático del bloque E lo encontró en la primera
+   pasada. Es la misma familia que el 401 de `/metrics`, y la misma lección:
+   **un endpoint que nadie puede alcanzar no es un endpoint que funciona; es
+   uno que nadie ha probado.** Cobertura:
+   `tests/auth/test_global_dep_whitelist.py::test_bloque_i_dpa_template_publico_sin_auth`.
+
 ### Criterio inclusión `WHITELIST_PREFIX`
 
 Mismo criterio que `WHITELIST_EXACT`, aplicado a sub-paths bajo un

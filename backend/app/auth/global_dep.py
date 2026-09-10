@@ -110,6 +110,23 @@ WHITELIST_EXACT: frozenset[str] = frozenset({
     # exactos NO exponen nada admin.
     "/api/v1/legal/compliance/status",
     "/api/v1/legal/sub-processor-notifications/subscribe",
+    # BLOQUE I6 (2026-09-11 · ADR-030 criterio 4, el mismo que las dos de
+    # arriba): la plantilla del contrato de encargo del tratamiento (art. 28
+    # RGPD). El endpoint se declara PUBLICO en su propio docstring —«no
+    # auth»— y devolvia 401, porque la dependencia global de ADR-030 lo
+    # paraba antes de llegar a el.
+    #
+    # Nadie lo habia notado porque a la pagina /dpa-template no llegaba nadie:
+    # era una de las siete paginas legales sin un solo enlace entrante. Al
+    # anadir los enlaces al pie global, el recorrido automatico lo encontro a
+    # la primera pasada. Es la misma familia que el 401 de /metrics.
+    #
+    # Que sea publico es lo correcto: un DPA es el documento que un posible
+    # cliente quiere leer ANTES de contratar, y lo que devuelve es una
+    # plantilla con los datos de FULKRO como responsable y huecos para el
+    # cliente. No lee ni un dato de ningun cliente: los sub-encargados salen
+    # del registro RoPA, que es informacion publicada en /sub-processors.
+    "/api/v1/legal/dpa-template/download",
     # ADR-030 · OpenAPI schema público estándar · FastAPI auto-generated
     "/openapi.json",
     # ADR-030 · Swagger UI público estándar · FastAPI auto-generated

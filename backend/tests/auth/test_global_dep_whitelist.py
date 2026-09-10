@@ -188,3 +188,43 @@ async def test_bloque_g_cabecera_de_correlacion(async_client: AsyncClient) -> No
     assert "\n" not in devuelto and "<" not in devuelto, (
         f"identificador sin sanear: {devuelto!r}"
     )
+
+
+@pytest.mark.asyncio
+async def test_bloque_i_dpa_template_publico_sin_auth(async_client: AsyncClient) -> None:
+    """BLOQUE I6: GET /legal/dpa-template/download debe servirse sin sesion.
+
+    Criterio ADR-030 numero 4 (publico por diseno, verificable por un tercero
+    sin acceso al sistema), el mismo que ya exime a `/legal/compliance/status`
+    y a `/legal/sub-processor-notifications/subscribe`.
+
+    El endpoint SE DECLARA publico en su propio docstring («dpa_public_router
+    (no auth)») y aun asi devolvia 401: la dependencia global lo paraba antes
+    de llegar al handler. Nadie lo habia notado porque a la pagina
+    /dpa-template no llegaba nadie — era una de las siete paginas legales sin
+    un solo enlace entrante en todo el codigo. Al anadir esos enlaces al pie
+    global, el recorrido automatico del bloque E lo encontro a la primera.
+
+    Que sea publico es lo correcto: el contrato de encargo del tratamiento
+    (art. 28 RGPD) es lo que un posible cliente quiere leer ANTES de contratar.
+    Y no expone dato de nadie: devuelve la plantilla con los datos de FULKRO
+    como responsable, huecos para el cliente, y los sub-encargados que ya estan
+    publicados en /sub-processors.
+
+    Este test existe para que el 401 no vuelva en silencio: si alguien saca la
+    entrada de la lista blanca, la pagina legal sigue cargando con HTTP 200 y
+    solo se rompe el boton de descarga. Es justo el tipo de fallo que no avisa.
+    """
+    response = await async_client.get("/api/v1/legal/dpa-template/download")
+    assert response.status_code == 200, (
+        f"BLOQUE I6 regresion - /legal/dpa-template/download bloqueado: "
+        f"{response.status_code} {response.text[:200]}"
+    )
+    assert response.headers.get("content-type", "").startswith(
+        "application/vnd.openxmlformats-officedocument"
+    ), f"No devuelve un DOCX: {response.headers.get('content-type')}"
+    # Un DOCX es un ZIP: los dos primeros bytes son 'PK'. Comprobarlo evita que
+    # el test pase con un cuerpo vacio o con una pagina de error servida con 200.
+    assert response.content[:2] == b"PK", (
+        f"El cuerpo no es un DOCX (primeros bytes: {response.content[:8]!r})"
+    )
