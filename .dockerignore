@@ -71,6 +71,24 @@ frontend/**
 docker-compose*.yml
 infra/
 .github/
+# Dos excepciones a `infra/`, y van DETRAS del patron a proposito: gana la
+# ULTIMA regla que casa, no la mas especifica. Puestas delante no harian nada.
+#
+# El servicio `provision` arranca con
+#   entrypoint: bash /app/infra/docker/provision-entrypoint.sh
+# y ese script ejecuta los tres init-*.sql. Con `infra/` a secas ninguno de los
+# seis ficheros (4 .sql + 2 .sh) viajaba en la imagen, y por eso docker-compose
+# tenia que montar ./infra/docker:/app/infra/docker:ro para que el paso [1/7]
+# no muriese.
+#
+# Se niegan POR EXTENSION, no el directorio entero: asi siguen fuera los
+# Dockerfile de pentest, scanner-verify.Dockerfile, pgbackrest.conf y
+# README_SETUP.md, que son infraestructura y no los lee ningun proceso.
+# Comprobado ejecutando el contenedor, que es la unica verificacion que vale
+# (leer este fichero NO es verificar):
+#   docker run --rm fulkro/backend:demo ls -la /app/infra/docker
+!infra/docker/*.sh
+!infra/docker/*.sql
 
 # ── 6. Datos locales y artefactos ───────────────────────────────────────────
 # Evidencias de cliente, informes, CSV de leads, backups. Nada de esto debe

@@ -39,8 +39,8 @@ un entorno de compilación de C que el proyecto no declaraba (ver *Problemas fre
 
 | | |
 |---|---:|
-| Imágenes descargadas y construidas | **~10,8 GB** |
-| └ `fulkro/backend:demo` | 7,91 GB |
+| Imágenes descargadas y construidas | **~5,7 GB** |
+| └ `fulkro/backend:demo` | 2,79 GB |
 | └ `fulkro/frontend:demo` | 1,85 GB |
 | └ `pgvector/pgvector:pg16` | 621 MB |
 | └ minio + mc + redis | 419 MB |
@@ -61,7 +61,9 @@ fulkro-demo-postgres-1  75.37MiB / 25.44GiB
 fulkro-demo-redis-1     3.477MiB / 25.44GiB
 ```
 
-**Disco: reserve 25 GB para la primera vez.** Medido dentro de una máquina limpia, después de un
+**Disco: reserve 25 GB para la primera vez.** (Esta cifra se midió con la imagen del backend de
+7,92 GB; tras partirla en dos el consumo real es menor, y se vuelve a medir en la siguiente
+verificación en máquina limpia.) Medido dentro de una máquina limpia, después de un
 `make demo` construyendo desde cero:
 
 ```console
@@ -78,10 +80,13 @@ los cuales 9,9 GB se pueden liberar en cuanto termine. En régimen, tras `docker
 demo se queda en unos **11 GB**. El consumo del disco del anfitrión durante la verificación
 completa fue de **~19 GB**.
 
-**La imagen del backend pesa 7,91 GB**, y conviene decir por qué: lleva dentro el instrumental de
-pentest (nuclei, trivy, grype, semgrep, prowler, checkov, ScoutSuite, tesseract). Para *ver* la
-aplicación no hace falta nada de eso; adelgazar la imagen del demo está pendiente y se dice en
-*Lo que no funciona todavía*.
+La imagen del backend pesaba **7,92 GB** hasta el 10 de septiembre de 2026, porque llevaba dentro
+el instrumental de pentest (nuclei, prowler, ScoutSuite, checkov, semgrep, trivy, grype, httpx,
+subfinder, nmap, testssl). Nada de eso hace falta para *ver* la aplicación: quien lo usa es el
+motor `m08_verification`, y sólo cuando alguien lanza un pentest. Se partió en dos imágenes y la
+de la aplicación bajó a **2,79 GB**, un 64,8 % menos. El instrumental vive ahora en el perfil
+`scanner`. El razonamiento y las cifras están en
+[`docs/adr/ADR-002`](docs/adr/ADR-002-imagen-backend-sin-instrumental-pentest.md).
 
 ---
 
@@ -253,8 +258,6 @@ por instalación. Está pendiente precargarlo en la imagen.
 
 ## Lo que no funciona todavía
 
-- **La imagen del backend pesa 7,91 GB** porque lleva el instrumental de pentest, que no hace falta
-  para ver la aplicación. Una imagen de demo sin esas herramientas está pendiente.
 - **El modelo de embeddings no viene precargado** (ver arriba). Sin red, la búsqueda del copiloto
   sobre el corpus falla; el resto de la aplicación funciona.
 - **No hay autorregistro.** Esto no es un producto que una empresa instale y use por su cuenta: es

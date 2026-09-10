@@ -80,6 +80,12 @@ services:
     build:
       context: .
       dockerfile: infra/docker/Dockerfile
+      args:
+        # Sin instrumental de pentest (2,79 GB en vez de 7,92 GB, medido con
+        # `docker images` el 2026-09-10). El worker no ejecuta escaneres para
+        # servir la aplicacion; el arsenal vive en `fulkro-scanner-tools`, en el
+        # perfil `scanner`. Ver docs/adr/ADR-002-imagen-backend-sin-instrumental-pentest.md
+        RUNTIME: runtime-lean
     image: fulkro/backend:latest
     restart: unless-stopped
     command:
@@ -109,6 +115,12 @@ services:
     build:
       context: .
       dockerfile: infra/docker/Dockerfile
+      args:
+        # Sin instrumental de pentest (2,79 GB en vez de 7,92 GB, medido con
+        # `docker images` el 2026-09-10). El worker no ejecuta escaneres para
+        # servir la aplicacion; el arsenal vive en `fulkro-scanner-tools`, en el
+        # perfil `scanner`. Ver docs/adr/ADR-002-imagen-backend-sin-instrumental-pentest.md
+        RUNTIME: runtime-lean
     image: fulkro/backend:latest
     restart: unless-stopped
     command:
@@ -160,6 +172,42 @@ services:
     profiles:
       # No arranca por defecto (es pesado). Activar con:
       #   docker compose --profile scanner up -d fulkro-scanner
+      - scanner
+
+  # ─────── Instrumental de pentest (perfil scanner) ───────
+  # La MISMA imagen del backend, construida con la otra variante del mismo
+  # infra/docker/Dockerfile: aplicacion + nmap, nuclei, testssl, lynis, prowler,
+  # trivy, grype, checkov, ScoutSuite, semgrep, httpx y subfinder.
+  #
+  # Existe porque esas herramientas salieron de la imagen que usan `backend`,
+  # `provision`, `celery-worker` y `celery-beat`: alli pesaban 5,13 GB de los
+  # 7,92 GB totales (medido con `docker images` el 2026-09-10) y ninguno de los
+  # cuatro las ejecuta para servir la aplicacion.
+  #
+  #   construir:  docker compose --profile scanner build fulkro-scanner-tools
+  #   inventario: docker compose --profile scanner up fulkro-scanner-tools
+  #   usar una:   docker compose --profile scanner run --rm fulkro-scanner-tools nuclei -version
+  #
+  # El `command` por defecto no escanea nada: lista que binarios estan realmente
+  # presentes, que es lo mismo que mide shutil.which() en
+  # backend/app/mcp_client.py:242 para decidir si un scanner esta disponible.
+  fulkro-scanner-tools:
+    build:
+      context: .
+      dockerfile: infra/docker/Dockerfile
+      args:
+        RUNTIME: runtime-pentest
+    image: fulkro/backend:pentest
+    restart: "no"
+    command:
+      - "sh"
+      - "-c"
+      - |
+        echo "=== instrumental presente en fulkro/backend:pentest ==="
+        for t in nmap nuclei testssl.sh lynis prowler trivy grype checkov scout semgrep httpx subfinder; do
+          if command -v "$$t" >/dev/null 2>&1; then echo "  $$t = presente"; else echo "  $$t = AUSENTE"; fi
+        done
+    profiles:
       - scanner
 
   # ════════════════════════════════════════════════════════════════════

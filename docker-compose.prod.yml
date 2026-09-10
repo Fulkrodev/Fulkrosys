@@ -22,10 +22,24 @@
 #   - El smoke completo del stack entero up (TLS + dominio) ocurre en Hetzner.
 # ════════════════════════════════════════════════════════════════════════════
 
+# Imagen que comparten backend, provision, celery-worker y celery-beat.
+# RUNTIME=runtime-lean = SIN instrumental de pentest. Medido el 2026-09-10 con
+# `docker images`: 2,79 GB frente a los 7,92 GB de la imagen de una sola pieza
+# que traia nuclei/prowler/scoutsuite/trivy/checkov/semgrep dentro.
+#
+# CONSECUENCIA, y hay que saberla: en estos cuatro servicios los escaneres reales
+# quedan como NO disponibles. No revientan — mcp_client.scanner_capability()
+# devuelve available=false con su razon y invoke_mcp corta limpio — pero un
+# USE_MCP_REAL=true aqui no ejecutara nmap, nuclei ni prowler. Para escaneo real
+# se construye la otra variante:
+#   docker compose -f docker-compose.yml --profile scanner build fulkro-scanner-tools
+# Ver docs/adr/ADR-002-imagen-backend-sin-instrumental-pentest.md
 x-backend-image: &backend-image
   build:
     context: .
     dockerfile: infra/docker/Dockerfile
+    args:
+      RUNTIME: runtime-lean
   image: fulkro/backend:prod
 
 services:
@@ -130,8 +144,10 @@ services:
       # poner PROVISION_SEED_FLAGS="" para seed completo. Default conservador:
       PROVISION_SEED_FLAGS: ${PROVISION_SEED_FLAGS:---skip-corpus --skip-age-kg}
     volumes:
-      # El backend image SOLO copia backend/ + frontend/ (no infra/). Montamos
-      # infra/docker para que el provision tenga los init-*.sql + el entrypoint.
+      # Ya no es obligatorio: desde que .dockerignore niega `!infra/docker/*.sh`
+      # y `!infra/docker/*.sql`, la imagen copia el entrypoint y los init-*.sql.
+      # Verificado con: docker run --rm fulkro/backend:prod ls -la /app/infra/docker
+      # Se conserva para poder corregir un .sql en el servidor sin reconstruir.
       - ./infra/docker:/app/infra/docker:ro
       # FIX docx (2026-06-14): seed_templates fija docx_path SOLO si el DOCX
       # existe; provision no monta vardata y la imagen no copia var/ → el

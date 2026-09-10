@@ -201,10 +201,18 @@ services:
   #
   # DOS MONTAJES, y el orden importa:
   #   1. ./infra/docker:/app/infra/docker:ro
-  #      OBLIGATORIO. .dockerignore:72 excluye `infra/` de la imagen del backend,
-  #      así que dentro del contenedor no existe ni el entrypoint ni los .sql. Sin
-  #      este bind el servicio muere en el paso [1/7] y, como `backend` depende de
-  #      él con service_completed_successfully, no arranca absolutamente nada.
+  #      YA NO ES OBLIGATORIO. Lo era mientras .dockerignore excluía `infra/`
+  #      entero: dentro del contenedor no existían ni el entrypoint ni los .sql y
+  #      el servicio moría en el paso [1/7]. Ahora el .dockerignore niega
+  #      `!infra/docker/*.sh` y `!infra/docker/*.sql` (líneas 88-89) y el
+  #      Dockerfile los copia, así que los seis ficheros (4 .sql + 2 .sh) viajan
+  #      en la imagen.
+  #      Verificado con:
+  #        docker run --rm fulkro/backend:demo ls -la /app/infra/docker
+  #      Se conserva el bind por dos razones prácticas: editar
+  #      provision-entrypoint.sh o un .sql surte efecto sin reconstruir la
+  #      imagen, y el montaje 2 de aquí abajo necesita este directorio de todas
+  #      formas.
   #   2. init-extensions-demo.sql montado ENCIMA de init-extensions.sql
   #      El script invoca `${INIT_DIR}/init-extensions.sql` con
   #      `psql -v ON_ERROR_STOP=1`, y el original crea `age` y `pgaudit` (líneas
@@ -257,6 +265,14 @@ services:
     build:
       context: .
       dockerfile: infra/docker/Dockerfile
+      args:
+        # Variante SIN instrumental de pentest. Es el valor por defecto del
+        # Dockerfile; se escribe igualmente para que se vea de un vistazo cual de
+        # las dos imagenes levanta el demo. Medido el 2026-09-10 con
+        # `docker images`: 2,79 GB con esta variante frente a 7,92 GB con la que
+        # traia nuclei/prowler/scoutsuite/trivy/checkov/semgrep dentro.
+        # Ver docs/adr/ADR-002-imagen-backend-sin-instrumental-pentest.md
+        RUNTIME: runtime-lean
     restart: unless-stopped
     env_file:
       - .env.demo          # DATABASE_URL · claves Ed25519 · MinIO · operador
