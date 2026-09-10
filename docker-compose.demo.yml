@@ -12,7 +12,7 @@
 # Derivado de docker-compose.prod.yml. Diferencias deliberadas frente a prod,
 # todas justificadas más abajo en su servicio:
 #   · postgres      imagen oficial pgvector/pgvector:pg16, SIN Apache AGE ni
-#                   pgaudit (docs/adr/ADR-001-postgres-demo-sin-age.md)
+#                   pgaudit (docs/adr/ADR-056-postgres-demo-sin-age.md)
 #   · SIN caddy     no hay TLS ni dominio: se entra por http://localhost:3000
 #   · SIN clamav    ~200 MB de firmas y ~2 min de arranque en frío para un
 #                   antivirus de subidas que un demo no ejercita
@@ -87,7 +87,7 @@ services:
   # ─────────────────────── PostgreSQL 16 (pgvector oficial) ───────────────────
   # Imagen oficial `pgvector/pgvector:pg16` en vez de la propia
   # `fulkro/postgres:pg16`: el demo NO compila nada. Ver
-  # docs/adr/ADR-001-postgres-demo-sin-age.md para las cifras y la contrapartida.
+  # docs/adr/ADR-056-postgres-demo-sin-age.md para las cifras y la contrapartida.
   #
   # Dos consecuencias que hay que respetar juntas o el servidor no arranca:
   #   1. NO se pasa `command: postgres -c shared_preload_libraries=pgaudit`
@@ -237,7 +237,7 @@ services:
       #   modelo de embeddings de HuggingFace. El demo no lo necesita para
       #   enseñar la aplicación; el copiloto RAG responderá sin corpus.
       # --skip-age-kg: el grafo de conocimiento necesita Apache AGE, que esta
-      #   imagen de Postgres no trae (ADR-001). Ya era el default del script.
+      #   imagen de Postgres no trae (ADR-056). Ya era el default del script.
       PROVISION_SEED_FLAGS: "--skip-corpus --skip-age-kg"
     volumes:
       - ./infra/docker:/app/infra/docker:ro
@@ -271,7 +271,7 @@ services:
         # las dos imagenes levanta el demo. Medido el 2026-09-10 con
         # `docker images`: 2,79 GB con esta variante frente a 7,92 GB con la que
         # traia nuclei/prowler/scoutsuite/trivy/checkov/semgrep dentro.
-        # Ver docs/adr/ADR-002-imagen-backend-sin-instrumental-pentest.md
+        # Ver docs/adr/ADR-057-imagen-backend-sin-instrumental-pentest.md
         RUNTIME: runtime-lean
     restart: unless-stopped
     env_file:

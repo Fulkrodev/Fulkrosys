@@ -27,7 +27,7 @@ Que hace esta migracion
    coste distinto de 0. Esta es la que habria impedido el defecto original a
    nivel de base de datos, no de codigo.
 
-Contrapartida (ADR-004): a cambio de poder escribir "no medido", cualquier
+Contrapartida (ADR-059): a cambio de poder escribir "no medido", cualquier
 lectura de los contadores tiene que tolerar NULL. Medido antes de tocar nada:
 los unicos consumidores son `SUM(...)` con `COALESCE` (5 consultas en
 `m_observability/llm_observability_service.py` y 2 en `copilot_rate_limit.py`),

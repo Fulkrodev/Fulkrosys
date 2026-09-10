@@ -9,7 +9,7 @@
 # y `celery-beat`: cuatro servicios que NO ejecutan un solo escáner para servir
 # la aplicación. Pedir 8 GB de herramientas de ataque para ver un panel de
 # cumplimiento es un bloqueante de instalabilidad, así que se parte
-# (docs/adr/ADR-002-imagen-backend-sin-instrumental-pentest.md).
+# (docs/adr/ADR-057-imagen-backend-sin-instrumental-pentest.md).
 #
 # ── Cómo se elige la variante ───────────────────────────────────────────────
 # El argumento de build RUNTIME decide de qué base cuelga la aplicación:

@@ -278,7 +278,7 @@ Se ejecutó dos veces, y las dos quedan porque la diferencia dice algo:
 | Commit | `make demo` en frío | Imágenes | Qué cambió |
 |---|---:|---:|---|
 | `8972895` | 384 s | 10,58 GB | primera versión, con el instrumental de pentest dentro |
-| `39c156e` | **187 s** | **5,45 GB** | tras partir la imagen del backend (ADR-002) |
+| `39c156e` | **187 s** | **5,45 GB** | tras partir la imagen del backend (ADR-057) |
 
 Partir la imagen redujo a la mitad el tiempo de la primera instalación y casi a la mitad el disco.
 

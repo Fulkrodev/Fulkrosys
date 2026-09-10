@@ -126,10 +126,10 @@ bash scripts/probar_dos_replicas.sh    15 correctas, 0 fallidas
 
 ## Decisiones con su contrapartida
 
-- [ADR-003](adr/ADR-003-escalabilidad-horizontal.md) · escalabilidad horizontal.
+- [ADR-058](adr/ADR-058-escalabilidad-horizontal.md) · escalabilidad horizontal.
   Entrega «como mucho una vez», buffer de repetición aún por proceso, Redis como
   dependencia del tiempo real multi-réplica.
-- [ADR-004](adr/ADR-004-llamada-llm-fallida-no-es-exito.md) · la llamada fallida.
+- [ADR-059](adr/ADR-059-llamada-llm-fallida-no-es-exito.md) · la llamada fallida.
   `NULL` a cambio de perder el `NOT NULL`, `estimado` sí suma, y por qué el
   diccionario en memoria devuelve 0 mientras la fila guarda `NULL`.
 

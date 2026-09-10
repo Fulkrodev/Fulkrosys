@@ -29,7 +29,7 @@ Ahora:
 
 La asimetria entre la FILA (tokens NULL) y el DICCIONARIO que devuelve
 `invoke()` (tokens 0) esta justificada y medida en
-`docs/adr/ADR-004-llamada-llm-fallida-no-es-exito.md`.
+`docs/adr/ADR-059-llamada-llm-fallida-no-es-exito.md`.
 """
 import asyncio
 import hashlib

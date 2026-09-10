@@ -545,7 +545,7 @@ la URL oficial como origen del texto. La guía real son decenas de páginas.
 **No era una copia: era un resumen que se presentaba como el original.** El problema no es de
 derechos de copia, es de **procedencia**: el buscador del copiloto podía devolver un fragmento de
 ese resumen citando al CCN, con un texto que puede no estar en su guía. Es el mismo defecto que
-[ADR-004](docs/adr/ADR-004-llamada-llm-fallida-no-es-exito.md) —fabricar algo y sellarlo como
+[ADR-059](docs/adr/ADR-059-llamada-llm-fallida-no-es-exito.md) —fabricar algo y sellarlo como
 auténtico— una capa más abajo. Ahora el título dice lo que es, el editor es FULKRO, la URL oficial
 figura como **referencia** y no como origen, y los fragmentos van etiquetados
 `seccion="resumen_secundario"` para que la recuperación distinga norma de resumen.
@@ -569,8 +569,13 @@ No necesita base de datos, así que corre en el job `test` de CI.
 
 ## Estructura
 
+**Para el mapa de piezas y los límites entre ellas, con el diagrama del sistema y
+los enlaces a las decisiones que lo justifican: [`ARCHITECTURE.md`](ARCHITECTURE.md)
+— una página.** El índice completo de decisiones está en
+[`docs/adr/README.md`](docs/adr/README.md).
+
 ```
-backend/          FastAPI · 44 motores en app/motors/ · 268 migraciones Alembic
+backend/          FastAPI · 46 directorios de motor en app/motors/ · 269 migraciones
 frontend/         Next.js 14 · App Router · 5 grupos de ruta:
                   (admin) (client-portal) (legal) (portal) (public)
 docs/             catálogos que lee el arranque (MAGERIT, precios, ENS) y especificaciones

@@ -77,7 +77,7 @@ REQUIRED_EXT_CORE = {"uuid-ossp", "pgcrypto", "vector"}
 #   2. La extensión NO existe en el catálogo de la imagen
 #      (pg_available_extensions): el binario no está instalado, no hay nada
 #      que crear. Es el caso del demo, que corre sobre pgvector/pgvector:pg16
-#      (ver docs/adr/ADR-001-postgres-demo-sin-age.md).
+#      (ver docs/adr/ADR-056-postgres-demo-sin-age.md).
 # Ninguna otra extensión puede declararse opcional.
 RELAXABLE_EXT = {"age", "pgaudit"}
 
@@ -673,7 +673,7 @@ async def seed_age_kg(
     engine, report: SeedReport, skip: bool = False, age_installed: bool = True,
 ) -> None:
     if not age_installed:
-        # La imagen no trae Apache AGE (caso del demo · ADR-001). El grafo es
+        # La imagen no trae Apache AGE (caso del demo · ADR-056). El grafo es
         # un extra: 0 migraciones y 0 ficheros de backend/app lo consultan.
         report.add(
             "seed:age_seed_kg.py", "skip",

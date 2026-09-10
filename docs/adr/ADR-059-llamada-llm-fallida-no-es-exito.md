@@ -1,9 +1,9 @@
-# ADR-004 · Una llamada al modelo que falla no puede quedar registrada como éxito
+# ADR-059 · Una llamada al modelo que falla no puede quedar registrada como éxito
 
 - **Fecha**: 2026-09-10
 - **Estado**: aceptada, implementada y verificada contra PostgreSQL real
 - **Bloque**: D · D1
-- **Numeración**: ADR-003 está reservado para la escalabilidad horizontal (D4),
+- **Numeración**: ADR-058 es la escalabilidad horizontal (D4),
   que se decidió antes en el enunciado y después en el tiempo.
 
 ## Contexto

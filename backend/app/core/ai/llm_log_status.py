@@ -21,7 +21,7 @@ consulta filtraba por estado.
 Por que `estimado` SI suma: alimenta el tope de gasto del copiloto, y un tope
 tiene que pecar de conservador. Lo que NO puede hacer es presentarse como
 medicion, y por eso lleva estado propio en vez de camuflarse de `success`.
-Contrapartida documentada en `docs/adr/ADR-004-llamada-llm-fallida-no-es-exito.md`.
+Contrapartida documentada en `docs/adr/ADR-059-llamada-llm-fallida-no-es-exito.md`.
 """
 from __future__ import annotations
 

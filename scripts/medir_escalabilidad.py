@@ -17,7 +17,7 @@ Uso:
 No necesita la aplicacion levantada: lee el codigo. La parte que SI necesita la
 aplicacion en marcha (dos replicas de verdad) esta en
 scripts/probar_dos_replicas.sh, y el resultado de ambas en
-docs/adr/ADR-003-escalabilidad-horizontal.md.
+docs/adr/ADR-058-escalabilidad-horizontal.md.
 """
 from __future__ import annotations
 

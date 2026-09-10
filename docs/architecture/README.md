@@ -1,5 +1,12 @@
 # FULKRO Architecture Decision Records
 
+> **La puerta de entrada al catálogo completo es [`docs/adr/README.md`](../adr/README.md).**
+> Los ADR viven repartidos en tres sitios por razones históricas; ese índice los
+> lista los sesenta con su ubicación, marca los que están duplicados y señala
+> tres números citados en el código que **no están escritos en ninguna parte**.
+> Este README describe sólo el directorio `docs/architecture/` (ADR-046 a
+> ADR-055). *(Añadido 2026-09-11 · BLOQUE I7.)*
+
 Catálogo de Architecture Decision Records (ADRs) del proyecto FULKRO ENS.
 
 ## Historical split context
@@ -36,6 +43,11 @@ URL desde commits/issues/CLAUDE.md.
   - Secciones: Context · Decision · Consequences · Compatibility · References
 
 ## Numbering anomalies registry
+
+Las anomalías vivas están documentadas en [`docs/adr/README.md`](../adr/README.md),
+que es el índice único: ADR-001..003 citados y nunca escritos, y ADR-046..052
+duplicados entre este directorio y `DECISIONS.md`. La numeración colisionada de
+`docs/adr/` se resolvió el 2026-09-11 renumerando aquella serie a ADR-056..060.
 
 Documentar aquí cualquier skip de numbering ADR detectado · evita confusión
 histórica futura.

@@ -81,13 +81,13 @@ la proporción en su resumen, contándola en cada ejecución.
 
 ## 3. Los ADR escritos
 
-- [`ADR-001`](adr/ADR-001-postgres-demo-sin-age.md) · **El Postgres del demo no compila Apache AGE.**
+- [`ADR-056`](adr/ADR-056-postgres-demo-sin-age.md) · **El Postgres del demo no compila Apache AGE.**
   Cero usos en las 268 migraciones y cero en `backend/app`; el único consumidor es un script de
   seed que ya se saltaba por defecto. Compilarlo costaba 57,1 s de los 63,95 s del build.
   Contrapartida: se pierde el grafo de conocimiento, que hoy no lee nadie, y resucitarlo exigiría
   volver a la imagen propia.
 
-- [`ADR-002`](adr/ADR-002-imagen-backend-sin-instrumental-pentest.md) · **La imagen del backend se
+- [`ADR-057`](adr/ADR-057-imagen-backend-sin-instrumental-pentest.md) · **La imagen del backend se
   parte en dos.** 7,92 GB → 2,79 GB. Contrapartida: dos variantes que mantener, y quien quiera
   lanzar un pentest tiene que levantar el perfil `scanner`.
 

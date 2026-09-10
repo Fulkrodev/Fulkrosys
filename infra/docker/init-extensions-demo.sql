@@ -4,7 +4,7 @@
 -- Gemelo de init-extensions.sql SIN `age` ni `pgaudit`, para poder correr el
 -- demo sobre la imagen oficial `pgvector/pgvector:pg16` (que no trae ninguna de
 -- las dos) en lugar de sobre la imagen propia `fulkro/postgres:pg16`, que las
--- compila. Ver docs/adr/ADR-001-postgres-demo-sin-age.md.
+-- compila. Ver docs/adr/ADR-056-postgres-demo-sin-age.md.
 --
 -- Por qué un fichero aparte y no relajar el original:
 --   provision-entrypoint.sh ejecuta init-extensions.sql con `psql -v

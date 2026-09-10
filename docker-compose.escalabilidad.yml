@@ -17,7 +17,7 @@
 #   · nginx reparte por turnos y devuelve la cabecera X-Replica.
 #
 # El resultado real de la prueba, diga lo que diga, esta escrito en
-# docs/adr/ADR-003-escalabilidad-horizontal.md.
+# docs/adr/ADR-058-escalabilidad-horizontal.md.
 # ════════════════════════════════════════════════════════════════════════════
 
 services:

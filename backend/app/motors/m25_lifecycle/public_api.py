@@ -51,6 +51,39 @@ from pydantic import BaseModel, Field
 router = APIRouter(prefix="/public", tags=["Public Download Portal (M25)"])
 
 
+def _no_disponible_todavia(purpose: str, referencia_interna: str) -> HTTPException:
+    """501 para una descarga aun no integrada, SIN filtrar el motivo interno.
+
+    Hasta 2026-09-11 estos 501 devolvian el `detail` completo con el codigo de
+    ticket dentro, y el portal de descarga —que ve el CLIENTE, sin login, con un
+    magic link— lo pintaba tal cual. Quien recibia el enlace leia esto en su
+    pantalla:
+
+        «descarga_dossier_final pendiente de integracion M09 dossier_generator
+         (TODO-FASE-9-MAGIC-LINK-DOSSIER-DOWNLOAD-001)»
+
+    Lo encontro el recorrido automatico del bloque E: fue la UNICA aparicion de
+    texto fabricado en las 167 paginas. Es la misma familia que el «[MOCK] Agent
+    12» del bloque D: un artefacto interno que se escapa a la interfaz de alguien
+    de fuera. Ademas de feo es informacion de arquitectura interna regalada a
+    cualquiera que tenga un enlace.
+
+    Ahora el motivo interno va al log, con el purpose, y el cliente recibe un
+    mensaje que le dice lo unico que le sirve: que no es culpa suya y que no
+    tiene que hacer nada (R29 · nada de jerga interna, nada de urgencia).
+    """
+    logger.warning(
+        "descarga no integrada · purpose={} · {}", purpose, referencia_interna
+    )
+    return HTTPException(
+        status_code=http_status.HTTP_501_NOT_IMPLEMENTED,
+        detail=(
+            "Este documento todavia no esta listo para descargar. "
+            "No hace falta que hagas nada: te avisaremos en cuanto lo este."
+        ),
+    )
+
+
 # ════════════════════════════════════════════════════════════════════
 # Validation peek-no-consume + rate limiter (duplicado m08 · ver TODO)
 # ════════════════════════════════════════════════════════════════════
@@ -216,24 +249,18 @@ async def download_metadata(
     if ctx.purpose == MagicLinkPurpose.DESCARGA_CERTIFICADO_CONFORMIDAD:
         # 0 rows BD · pre-cliente. Wiring real cuando primer certificado
         # ENS emitido. Scope esperado: {"certificate_id": str, "issued_at": str}.
-        raise HTTPException(
-            status_code=http_status.HTTP_501_NOT_IMPLEMENTED,
-            detail=(
-                "descarga_certificado_conformidad pendiente de integracion "
-                "M27 storage backend (TODO-FASE-9-MAGIC-LINK-CERT-DOWNLOAD-001). "
-                "Disparador: primer certificado ENS emitido en produccion."
-            ),
+        raise _no_disponible_todavia(
+            ctx.purpose.value,
+            "M27 storage backend · TODO-FASE-9-MAGIC-LINK-CERT-DOWNLOAD-001 · "
+            "disparador: primer certificado ENS emitido en produccion",
         )
 
     if ctx.purpose == MagicLinkPurpose.DESCARGA_DOSSIER_FINAL:
         # 0 rows BD · pre-cliente. Reusar m09 dossier_generator + signed URL.
-        raise HTTPException(
-            status_code=http_status.HTTP_501_NOT_IMPLEMENTED,
-            detail=(
-                "descarga_dossier_final pendiente de integracion M09 "
-                "dossier_generator (TODO-FASE-9-MAGIC-LINK-DOSSIER-DOWNLOAD-001). "
-                "Disparador: primer dossier auditoria final generado en produccion."
-            ),
+        raise _no_disponible_todavia(
+            ctx.purpose.value,
+            "M09 dossier_generator · TODO-FASE-9-MAGIC-LINK-DOSSIER-DOWNLOAD-001 · "
+            "disparador: primer dossier de auditoria final generado en produccion",
         )
 
     raise HTTPException(status_code=403, detail="Invalid token")

@@ -1,4 +1,4 @@
-# ADR-001 · El perfil demo usa la imagen oficial de PostgreSQL, sin Apache AGE ni pgAudit
+# ADR-056 · El perfil demo usa la imagen oficial de PostgreSQL, sin Apache AGE ni pgAudit
 
 - **Estado**: aceptada
 - **Fecha**: 2026-09-10

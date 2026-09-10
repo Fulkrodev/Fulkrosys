@@ -12,7 +12,7 @@
 #   5. que un evento SSE despachado en una replica llega al suscriptor de la otra
 #
 # No opina: mide. El resultado, salga lo que salga, va a
-# docs/adr/ADR-003-escalabilidad-horizontal.md.
+# docs/adr/ADR-058-escalabilidad-horizontal.md.
 #
 # Uso:   bash scripts/probar_dos_replicas.sh
 #        bash scripts/probar_dos_replicas.sh --dejar-en-pie   (no restaura el demo)

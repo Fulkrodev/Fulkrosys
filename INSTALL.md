@@ -159,7 +159,7 @@ subfinder, nmap, testssl). Nada de eso hace falta para *ver* la aplicación: qui
 motor `m08_verification`, y sólo cuando alguien lanza un pentest. Se partió en dos imágenes y la
 de la aplicación bajó a **2,79 GB**, un 64,8 % menos. El instrumental vive ahora en el perfil
 `scanner`. El razonamiento y las cifras están en
-[`docs/adr/ADR-002`](docs/adr/ADR-002-imagen-backend-sin-instrumental-pentest.md).
+[`docs/adr/ADR-057`](docs/adr/ADR-057-imagen-backend-sin-instrumental-pentest.md).
 
 ---
 

@@ -16,6 +16,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { Download, FileArchive, Loader2 } from "lucide-react";
 
+import { ApiError } from "@/lib/api";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import {
   Card,
@@ -128,9 +129,15 @@ export default function DownloadTokenPage({
   }
 
   if (meta.isError || !meta.data) {
+    // Se mira el CODIGO HTTP, no el texto del mensaje. Hasta 2026-09-11 esto
+    // era `message?.includes("pendiente de integracion")`, lo que ataba la
+    // interfaz a una cadena literal del backend: en cuanto el backend dejo de
+    // filtrar su referencia interna al cliente, esa deteccion habria dejado de
+    // funcionar en silencio y el aviso amable se habria vuelto un error rojo.
     const message =
       meta.error instanceof Error ? meta.error.message : null;
-    const isNotImplemented = message?.includes("pendiente de integracion");
+    const isNotImplemented =
+      meta.error instanceof ApiError && meta.error.status === 501;
     return (
       <Card>
         <CardContent className="p-6">

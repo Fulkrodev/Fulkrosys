@@ -1,4 +1,4 @@
-# ADR-003 · ¿Es escalable en horizontal? Medido con dos réplicas
+# ADR-058 · ¿Es escalable en horizontal? Medido con dos réplicas
 
 - **Fecha**: 2026-09-10
 - **Estado**: aceptada · con una limitación conocida y escrita

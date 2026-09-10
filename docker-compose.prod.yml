@@ -33,7 +33,7 @@
 # USE_MCP_REAL=true aqui no ejecutara nmap, nuclei ni prowler. Para escaneo real
 # se construye la otra variante:
 #   docker compose -f docker-compose.yml --profile scanner build fulkro-scanner-tools
-# Ver docs/adr/ADR-002-imagen-backend-sin-instrumental-pentest.md
+# Ver docs/adr/ADR-057-imagen-backend-sin-instrumental-pentest.md
 x-backend-image: &backend-image
   build:
     context: .

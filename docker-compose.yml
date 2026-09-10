@@ -84,7 +84,7 @@ services:
         # Sin instrumental de pentest (2,79 GB en vez de 7,92 GB, medido con
         # `docker images` el 2026-09-10). El worker no ejecuta escaneres para
         # servir la aplicacion; el arsenal vive en `fulkro-scanner-tools`, en el
-        # perfil `scanner`. Ver docs/adr/ADR-002-imagen-backend-sin-instrumental-pentest.md
+        # perfil `scanner`. Ver docs/adr/ADR-057-imagen-backend-sin-instrumental-pentest.md
         RUNTIME: runtime-lean
     image: fulkro/backend:latest
     restart: unless-stopped
@@ -119,7 +119,7 @@ services:
         # Sin instrumental de pentest (2,79 GB en vez de 7,92 GB, medido con
         # `docker images` el 2026-09-10). El worker no ejecuta escaneres para
         # servir la aplicacion; el arsenal vive en `fulkro-scanner-tools`, en el
-        # perfil `scanner`. Ver docs/adr/ADR-002-imagen-backend-sin-instrumental-pentest.md
+        # perfil `scanner`. Ver docs/adr/ADR-057-imagen-backend-sin-instrumental-pentest.md
         RUNTIME: runtime-lean
     image: fulkro/backend:latest
     restart: unless-stopped

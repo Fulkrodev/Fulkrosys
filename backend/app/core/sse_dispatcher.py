@@ -133,7 +133,7 @@ class SseDispatcher:
         D4 (2026-09-10). Antes solo entregaba en ESTE proceso. Medido con dos
         replicas detras de nginx y dos conexiones SSE abiertas, una en cada
         replica: el evento llegaba a UNA de las dos. Ver
-        `docs/adr/ADR-003-escalabilidad-horizontal.md` y el arnes que lo mide,
+        `docs/adr/ADR-058-escalabilidad-horizontal.md` y el arnes que lo mide,
         `scripts/probar_dos_replicas.sh`.
 
         Sin Redis se comporta exactamente igual que antes: el modo de una sola
@@ -396,7 +396,7 @@ sse_dispatcher = SseDispatcher()
 #
 # El puente es deliberadamente lo minimo: publicar en Redis lo que se despacha y
 # entregar en local lo que llegue de otras replicas. Contrapartidas escritas en
-# docs/adr/ADR-003-escalabilidad-horizontal.md; en resumen:
+# docs/adr/ADR-058-escalabilidad-horizontal.md; en resumen:
 #
 #   · Entrega "como mucho una vez". Si Redis se cae o la replica esta arrancando,
 #     el evento se pierde y NADIE lo reintenta. Es aceptable porque el SSE de
