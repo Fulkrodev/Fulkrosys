@@ -1,0 +1,266 @@
+# Conjunto de consultas etiquetado para evaluar la recuperación del corpus.
+#
+# ─── PROCEDIMIENTO (importa el ORDEN, y este fichero es la prueba de que se siguió) ───
+#
+# La trampa clásica de un conjunto de evaluación de RAG es escribir las consultas
+# MIRANDO los fragmentos. Sale una consulta que es una paráfrasis del fragmento que
+# la responde, el recall se dispara y la medición no vale nada.
+#
+# Aquí se hizo al revés, y en dos pasos separados:
+#
+#   1. Se escribieron las 50 preguntas PRIMERO, desde conocimiento del dominio
+#      normativo (RGPD, DORA, NIS2, RD 311/2022, eIDAS), SIN abrir un solo
+#      fragmento del corpus, y se volcaron a este fichero con `relevantes: []`.
+#      Ese volcado es el commit «anota 50 consultas de cumplimiento escritas sin
+#      mirar el corpus»: quien dude puede comprobar con `git show` que en ese
+#      commit las listas de relevantes estaban VACÍAS.
+#   2. Sólo DESPUÉS se etiquetó a mano qué fragmentos las responden, leyendo el
+#      corpus por SQL y por palabras clave. Eso es legítimo: etiquetar exige mirar.
+#
+#   Ninguna consulta se reescribió después de etiquetar. Las que resultaron no
+#   tener respuesta en el corpus se marcan `relevantes: []` y `sin_relevante: true`,
+#   y se EXCLUYEN del cálculo de métricas (el informe dice cuántas son). Reescribir
+#   una consulta para que encaje con lo que el corpus tiene es cometer la trampa
+#   por la puerta de atrás.
+#
+# ─── SESGO, DICHO EN VOZ ALTA ───
+#
+# Etiquetado por: Claude Opus 5, en la sesión del BLOQUE F, a petición de Marcos Mata.
+# Método: lectura de fragmentos por SQL (ILIKE sobre `content` con los términos de
+#   la consulta) + revisión manual del texto de cada candidato. Relevancia binaria:
+#   un fragmento es relevante si, leído solo, responde la pregunta.
+#
+# EL SESGO EVIDENTE: lo etiqueta quien conoce el corpus Y el sistema que se evalúa.
+# Quien etiqueta sabe que hay un buscador BM25 detrás, y al buscar candidatos por
+# palabras clave está usando una herramienta emparentada con una de las tres ramas
+# que se miden. Eso puede favorecer sistemáticamente a BM25 en el etiquetado: un
+# fragmento que responde la pregunta pero NO comparte vocabulario con ella tiene
+# más probabilidad de no haber sido encontrado por el etiquetador, y por tanto de
+# faltar en `relevantes`. La rama vectorial es la que más pierde con ese sesgo.
+# No invalida la comparación, pero la tiñe en una dirección conocida, y callarlo
+# sí la invalidaría. Un segundo etiquetador independiente lo corregiría; no lo hay.
+#
+# ─── FORMATO ───
+#   id          identificador estable (no reutilizar si se borra una consulta)
+#   norma       RGPD | DORA | NIS2 | RD_311_2022 | EIDAS
+#   texto       la pregunta, tal como la escribiría quien lleva el cumplimiento
+#   relevantes  lista de chunk_id (UUID de knowledge_chunks) que la responden
+#   sin_relevante  true si el corpus no la responde (se excluye del cálculo)
+
+version: 1
+corpus:
+  tabla: knowledge_chunks
+  fragmentos: 1031
+  reparto: {UE-RGPD: 295, UE-DORA: 266, UE-NIS2: 228, RD_311_2022: 127, UE-EIDAS: 115}
+
+consultas:
+
+# ── RGPD · 15 consultas (el corpus tiene un 28,6 % de RGPD) ──────────────────
+- id: rgpd-01
+  norma: RGPD
+  texto: ¿Qué plazo hay para notificar una violación de seguridad de datos personales a la autoridad de control?
+  relevantes: []
+- id: rgpd-02
+  norma: RGPD
+  texto: ¿Cuándo hay que comunicar una brecha de datos a los interesados afectados?
+  relevantes: []
+- id: rgpd-03
+  norma: RGPD
+  texto: ¿En qué casos es obligatorio designar un delegado de protección de datos?
+  relevantes: []
+- id: rgpd-04
+  norma: RGPD
+  texto: ¿Cuándo hace falta una evaluación de impacto relativa a la protección de datos?
+  relevantes: []
+- id: rgpd-05
+  norma: RGPD
+  texto: ¿Qué información hay que facilitar al interesado cuando se recogen sus datos directamente de él?
+  relevantes: []
+- id: rgpd-06
+  norma: RGPD
+  texto: ¿Cuál es el plazo para responder a una solicitud de acceso de un interesado?
+  relevantes: []
+- id: rgpd-07
+  norma: RGPD
+  texto: ¿En qué supuestos puede ejercerse el derecho de supresión o derecho al olvido?
+  relevantes: []
+- id: rgpd-08
+  norma: RGPD
+  texto: ¿Qué es el derecho a la portabilidad de los datos y cuándo se aplica?
+  relevantes: []
+- id: rgpd-09
+  norma: RGPD
+  texto: ¿Qué bases jurídicas legitiman el tratamiento de datos personales?
+  relevantes: []
+- id: rgpd-10
+  norma: RGPD
+  texto: ¿Qué requisitos debe cumplir el consentimiento para ser válido?
+  relevantes: []
+- id: rgpd-11
+  norma: RGPD
+  texto: ¿Qué debe contener el contrato entre responsable y encargado del tratamiento?
+  relevantes: []
+- id: rgpd-12
+  norma: RGPD
+  texto: ¿Qué categorías especiales de datos personales tienen prohibido su tratamiento con carácter general?
+  relevantes: []
+- id: rgpd-13
+  norma: RGPD
+  texto: ¿Qué cuantía máxima pueden alcanzar las multas administrativas?
+  relevantes: []
+- id: rgpd-14
+  norma: RGPD
+  texto: ¿Qué condiciones exige una transferencia internacional de datos a un tercer país?
+  relevantes: []
+- id: rgpd-15
+  norma: RGPD
+  texto: ¿Quién está obligado a llevar un registro de las actividades de tratamiento y qué debe incluir?
+  relevantes: []
+
+# ── DORA · 13 consultas (el corpus tiene un 25,8 % de DORA) ──────────────────
+- id: dora-01
+  norma: DORA
+  texto: ¿Qué exige DORA sobre las pruebas de resiliencia operativa digital?
+  relevantes: []
+- id: dora-02
+  norma: DORA
+  texto: ¿Cada cuánto hay que hacer pruebas de penetración guiadas por amenazas?
+  relevantes: []
+- id: dora-03
+  norma: DORA
+  texto: ¿Qué plazo hay para notificar un incidente grave relacionado con las TIC a la autoridad competente?
+  relevantes: []
+- id: dora-04
+  norma: DORA
+  texto: ¿Qué criterios determinan que un incidente relacionado con las TIC es grave?
+  relevantes: []
+- id: dora-05
+  norma: DORA
+  texto: ¿Qué debe incluir el marco de gestión del riesgo relacionado con las TIC?
+  relevantes: []
+- id: dora-06
+  norma: DORA
+  texto: ¿Qué responsabilidades tiene el órgano de dirección en la gestión del riesgo TIC?
+  relevantes: []
+- id: dora-07
+  norma: DORA
+  texto: ¿Qué cláusulas son obligatorias en los contratos con proveedores terceros de servicios TIC?
+  relevantes: []
+- id: dora-08
+  norma: DORA
+  texto: ¿Qué es un proveedor tercero crítico de servicios TIC y quién lo designa?
+  relevantes: []
+- id: dora-09
+  norma: DORA
+  texto: ¿Qué información debe mantenerse en el registro de acuerdos con proveedores TIC?
+  relevantes: []
+- id: dora-10
+  norma: DORA
+  texto: ¿Qué exige DORA sobre las estrategias de salida frente a proveedores de servicios TIC?
+  relevantes: []
+- id: dora-11
+  norma: DORA
+  texto: ¿A qué entidades financieras se aplica DORA?
+  relevantes: []
+- id: dora-12
+  norma: DORA
+  texto: ¿Qué requisitos hay para las políticas de continuidad de negocio y las copias de seguridad TIC?
+  relevantes: []
+- id: dora-13
+  norma: DORA
+  texto: ¿Cómo regula DORA el intercambio de información sobre ciberamenazas entre entidades?
+  relevantes: []
+
+# ── NIS2 · 11 consultas (el corpus tiene un 22,1 % de NIS2) ──────────────────
+- id: nis2-01
+  norma: NIS2
+  texto: ¿Qué plazo tiene una entidad esencial para notificar un incidente significativo?
+  relevantes: []
+- id: nis2-02
+  norma: NIS2
+  texto: ¿Qué diferencia hay entre entidades esenciales y entidades importantes?
+  relevantes: []
+- id: nis2-03
+  norma: NIS2
+  texto: ¿Qué medidas mínimas de gestión de riesgos de ciberseguridad hay que implantar?
+  relevantes: []
+- id: nis2-04
+  norma: NIS2
+  texto: ¿Qué responsabilidad tienen los órganos de dirección en materia de ciberseguridad?
+  relevantes: []
+- id: nis2-05
+  norma: NIS2
+  texto: ¿Qué sectores quedan cubiertos por la directiva?
+  relevantes: []
+- id: nis2-06
+  norma: NIS2
+  texto: ¿Qué sanciones máximas se prevén para las entidades esenciales?
+  relevantes: []
+- id: nis2-07
+  norma: NIS2
+  texto: ¿Qué debe contener la alerta temprana de las primeras 24 horas?
+  relevantes: []
+- id: nis2-08
+  norma: NIS2
+  texto: ¿Qué exige la directiva sobre la seguridad de la cadena de suministro?
+  relevantes: []
+- id: nis2-09
+  norma: NIS2
+  texto: ¿Qué datos deben registrar las entidades ante las autoridades competentes?
+  relevantes: []
+- id: nis2-10
+  norma: NIS2
+  texto: ¿Cuándo se considera que un incidente es significativo?
+  relevantes: []
+- id: nis2-11
+  norma: NIS2
+  texto: ¿Qué funciones cumplen los CSIRT?
+  relevantes: []
+
+# ── RD 311/2022 ENS · 6 consultas (el corpus tiene un 12,3 % de ENS) ─────────
+- id: ens-01
+  norma: RD_311_2022
+  texto: ¿Cómo se determina la categoría de un sistema de información?
+  relevantes: []
+- id: ens-02
+  norma: RD_311_2022
+  texto: ¿Qué dimensiones de seguridad se valoran y con qué niveles?
+  relevantes: []
+- id: ens-03
+  norma: RD_311_2022
+  texto: ¿Con qué periodicidad hay que auditar la conformidad con el Esquema Nacional de Seguridad?
+  relevantes: []
+- id: ens-04
+  norma: RD_311_2022
+  texto: ¿Qué es la declaración de aplicabilidad de las medidas de seguridad?
+  relevantes: []
+- id: ens-05
+  norma: RD_311_2022
+  texto: ¿Qué debe recoger la política de seguridad de la información de una organización?
+  relevantes: []
+- id: ens-06
+  norma: RD_311_2022
+  texto: ¿Qué medidas de protección de las comunicaciones se exigen?
+  relevantes: []
+
+# ── eIDAS · 5 consultas (el corpus tiene un 11,2 % de eIDAS) ─────────────────
+- id: eidas-01
+  norma: EIDAS
+  texto: ¿Qué efectos jurídicos tiene una firma electrónica cualificada?
+  relevantes: []
+- id: eidas-02
+  norma: EIDAS
+  texto: ¿Qué requisitos debe cumplir un prestador cualificado de servicios de confianza?
+  relevantes: []
+- id: eidas-03
+  norma: EIDAS
+  texto: ¿Qué diferencia una firma electrónica avanzada de una cualificada?
+  relevantes: []
+- id: eidas-04
+  norma: EIDAS
+  texto: ¿Qué es un sello electrónico y qué presunción lleva asociada?
+  relevantes: []
+- id: eidas-05
+  norma: EIDAS
+  texto: ¿Qué garantiza un sello de tiempo electrónico cualificado?
+  relevantes: []
