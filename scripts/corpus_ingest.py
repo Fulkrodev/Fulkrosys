@@ -31,9 +31,11 @@ import psycopg2
 from bs4 import BeautifulSoup
 
 # === CONFIG ===
-CACHE_ROOT = Path.home() / ".fulkro" / "corpus_cache"
+# Overridable por entorno: en CI, en un contenedor o en cualquier maquina donde
+# $HOME no sea escribible, este modulo no puede depender de ~/.fulkro.
+CACHE_ROOT = Path(os.environ.get("FULKRO_CORPUS_CACHE", Path.home() / ".fulkro" / "corpus_cache"))
 LOG_PATH = CACHE_ROOT / "ingest.log"
-MODEL_CACHE = Path.home() / ".fulkro" / "models"
+MODEL_CACHE = Path(os.environ.get("FULKRO_MODEL_CACHE", Path.home() / ".fulkro" / "models"))
 DB_URL = os.environ.get(
     "DATABASE_URL_SYNC",
     "postgresql://fulkro:changeme@localhost:5433/fulkro",
@@ -44,13 +46,31 @@ EMBEDDING_MODEL = "intfloat/multilingual-e5-large"
 EMBEDDING_DIM = 1024
 
 # Setup logging
+#
+# Esto se ejecuta AL IMPORTAR el modulo, asi que no puede dar por hecho que el
+# directorio exista ni que sea escribible: `backend/tests/test_corpus_clean.py`
+# importa `clean_ccn_watermarks` de aqui y, en un runner limpio, reventaba con
+#   FileNotFoundError: .../.fulkro/corpus_cache/ingest.log
+# Es el mismo problema de portabilidad que las rutas absolutas, pero escondido
+# tras `Path.home()`, de modo que ningun grep de rutas lo encontraba. Si el
+# fichero de log no se puede abrir, se registra solo por salida estandar en vez
+# de impedir que el modulo se importe.
+_handlers: list[logging.Handler] = [logging.StreamHandler(sys.stdout)]
+try:
+    CACHE_ROOT.mkdir(parents=True, exist_ok=True)
+    _handlers.append(logging.FileHandler(LOG_PATH, mode="a", encoding="utf-8"))
+except OSError as _exc:  # noqa: BLE001 — degradar, no romper el import
+    print(
+        f"[corpus_ingest] aviso: no se pudo abrir {LOG_PATH} ({_exc}). "
+        f"Se registra solo por salida estandar. "
+        f"Usa FULKRO_CORPUS_CACHE para elegir otro directorio.",
+        file=sys.stderr,
+    )
+
 logging.basicConfig(
     level=logging.INFO,
     format="%(asctime)s [%(levelname)s] %(message)s",
-    handlers=[
-        logging.StreamHandler(sys.stdout),
-        logging.FileHandler(LOG_PATH, mode="a", encoding="utf-8"),
-    ],
+    handlers=_handlers,
 )
 log = logging.getLogger("corpus_ingest")
 

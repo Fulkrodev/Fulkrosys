@@ -25,9 +25,11 @@ from backend.app.models.base import Base, FullMixin, _utcnow
 try:
     from pgvector.sqlalchemy import Vector
 except ImportError:
-    # type: ignore[assignment] · el alias del fallback tiene otro tipo que el import
-    # real de pgvector, y mypy lo marca. Es deliberado: sin pgvector instalado la
-    # columna degrada a LargeBinary para que el modulo siga importando en dev.
+    # Sin pgvector instalado, la columna degrada a LargeBinary para que el modulo
+    # siga importando en dev. El alias tiene otro tipo que el import real, y mypy
+    # lo marca como asignacion incompatible: por eso la linea lleva su silencio
+    # acotado. Cuidado al editar este comentario: una linea que EMPIECE por
+    # `# type: ignore` mypy la lee como directiva de fichero y la rechaza.
     from sqlalchemy import LargeBinary as Vector  # type: ignore[assignment]
 
 
