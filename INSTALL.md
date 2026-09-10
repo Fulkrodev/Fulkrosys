@@ -37,13 +37,16 @@ un entorno de compilación de C que el proyecto no declaraba (ver *Problemas fre
 
 ### Espacio y memoria, medidos
 
+Todo lo que sigue está medido **dentro de una máquina limpia**, después de un `make demo`
+construyendo desde cero.
+
 | | |
 |---|---:|
-| Imágenes descargadas y construidas | **~5,7 GB** |
-| └ `fulkro/backend:demo` | 2,79 GB |
+| Imágenes, en total | **5,45 GB** |
+| └ `fulkro/backend:demo` | 2,6 GB |
 | └ `fulkro/frontend:demo` | 1,85 GB |
 | └ `pgvector/pgvector:pg16` | 621 MB |
-| └ minio + mc + redis | 419 MB |
+| └ minio + mc + redis | 416 MB |
 | Volúmenes de datos tras `make demo` | ~118 MB |
 | **Memoria con la pila en reposo** | **~754 MiB** |
 | └ backend | 530 MiB |
@@ -61,24 +64,21 @@ fulkro-demo-postgres-1  75.37MiB / 25.44GiB
 fulkro-demo-redis-1     3.477MiB / 25.44GiB
 ```
 
-**Disco: reserve 25 GB para la primera vez.** (Esta cifra se midió con la imagen del backend de
-7,92 GB; tras partirla en dos el consumo real es menor, y se vuelve a medir en la siguiente
-verificación en máquina limpia.) Medido dentro de una máquina limpia, después de un
-`make demo` construyendo desde cero:
+**Disco: reserve 15 GB para la primera vez.**
 
 ```console
 $ docker system df
 TYPE            TOTAL     ACTIVE    SIZE      RECLAIMABLE
-Images          6         6         10.58GB   0B (0%)
-Containers      7         5         335.9kB   86.02kB (25%)
-Local Volumes   4         4         119.2MB   0B (0%)
-Build Cache     51        0         11.76GB   9.912GB
+Images          6         6         5.452GB   0B (0%)
+Containers      7         5         323.6kB   77.82kB (24%)
+Local Volumes   4         4         119MB     0B (0%)
+Build Cache    39         0         6.633GB   6.633GB
 ```
 
-La caché de construcción pesa casi tanto como las imágenes y **nadie la cuenta**: son 11,76 GB, de
-los cuales 9,9 GB se pueden liberar en cuanto termine. En régimen, tras `docker builder prune`, el
-demo se queda en unos **11 GB**. El consumo del disco del anfitrión durante la verificación
-completa fue de **~19 GB**.
+La caché de construcción pesa más que todas las imágenes juntas menos una, y **nadie la cuenta**:
+son 6,63 GB, liberables enteros con `docker builder prune` en cuanto termine. En régimen el demo
+se queda en unos **5,6 GB**. El consumo del disco del anfitrión durante la verificación completa
+fue de **11 GB**.
 
 La imagen del backend pesaba **7,92 GB** hasta el 10 de septiembre de 2026, porque llevaba dentro
 el instrumental de pentest (nuclei, prowler, ScoutSuite, checkov, semgrep, trivy, grype, httpx,

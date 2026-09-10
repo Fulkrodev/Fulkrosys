@@ -226,15 +226,15 @@ sus dependencias instaladas, tres contenedores de infraestructura y una API que 
 
 ## Ejecución limpia (C0.10)
 
-Misma máquina limpia, contenedor nuevo, `git clone` a secas desde GitHub, siguiendo **solo**
-`INSTALL.md`. Sin tocar nada a mano.
+Misma máquina limpia, contenedor nuevo y sin una sola imagen en caché, `git clone` a secas desde
+GitHub, siguiendo **solo** `INSTALL.md`. Sin tocar nada a mano.
 
 ```
-════════ RESULTADO C0.10 ════════
-make demo        : VERDE  (384 s en frío, sin ninguna imagen en caché)
+════════ RESULTADO ════════
+make demo        : VERDE  (187 s en frío, sin ninguna imagen en caché)
 make smoke       : VERDE  (21 comprobaciones, 0 fallidas)
 pasos a mano NO documentados en INSTALL.md: 0
-tiempo total     : 396 s
+tiempo total     : 199 s
 ```
 
 > **Sobre ese cero.** El script del trazado marcó «1 paso no documentado»: instalar `make`, que no
@@ -250,26 +250,40 @@ tiempo total     : 396 s
 | Pasos manuales no documentados | **3** | **0** |
 | Fallos encontrados | **7** | **0** |
 | ¿Queda una aplicación navegable? | No | **Sí, con datos** |
-| Tiempo hasta ese resultado | 229 s, y sin aplicación | **396 s, con aplicación** |
+| Tiempo hasta ese resultado | 229 s, y sin aplicación | **199 s, con aplicación** |
+
+Las dos columnas están medidas con el mismo método, en el mismo tipo de máquina y con el mismo
+guion. La de «antes» tardaba *más* que la de «después» y terminaba sin aplicación.
 
 ### Consumo, medido dentro de la máquina limpia
 
 ```console
 $ docker system df
-Images          6   6   10.58GB   0B (0%)
-Local Volumes   4   4   119.2MB   0B (0%)
-Build Cache    51   0   11.76GB   9.912GB
+Images          6   6   5.452GB   0B (0%)
+Local Volumes   4   4   119MB     0B (0%)
+Build Cache    39   0   6.633GB   6.633GB
 ```
 
-Consumo del disco del anfitrión durante la verificación completa: **~19 GB**.
+Consumo del disco del anfitrión durante la verificación completa: **11 GB**.
 
 **No medido:** la memoria dentro de la máquina limpia. `docker stats` devuelve `0B / 0B` porque el
 demonio anidado no expone las estadísticas de cgroup del contenedor exterior. La cifra de memoria
 que aparece en `INSTALL.md` (~754 MiB en reposo) está medida en el anfitrión, no aquí, y así se
 declara.
 
+### Historial de esta verificación
+
+Se ejecutó dos veces, y las dos quedan porque la diferencia dice algo:
+
+| Commit | `make demo` en frío | Imágenes | Qué cambió |
+|---|---:|---:|---|
+| `8972895` | 384 s | 10,58 GB | primera versión, con el instrumental de pentest dentro |
+| `39c156e` | **187 s** | **5,45 GB** | tras partir la imagen del backend (ADR-002) |
+
+Partir la imagen redujo a la mitad el tiempo de la primera instalación y casi a la mitad el disco.
+
 ### Qué commit verifica esta ejecución
 
-Esta traza se ejecutó contra el commit `8972895`. Los commits posteriores no tocan el camino de
-`make demo`; aun así, la verificación se repite contra el commit final y el resultado se anota
-aquí, porque una verificación que no es del árbol publicado no es una verificación.
+Contra `39c156e`, que es el árbol publicado en `main` en el momento de ejecutarla. La única
+diferencia posterior es este mismo fichero y las cifras de `INSTALL.md`, actualizadas para que
+digan lo que esta ejecución midió.
