@@ -1,9 +1,24 @@
 """FULKRO platform — FastAPI application."""
 from contextlib import asynccontextmanager
 
-from fastapi import Depends, FastAPI
+import secrets
+
+from fastapi import Depends, FastAPI, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
 from loguru import logger
+
+# Observabilidad de verdad (BLOQUE G): identificador de correlación por petición
+# y métricas en `/metrics`. Viven en `m_observability`, que es lo que hace que
+# el nombre de ese motor deje de ser una promesa.
+from backend.app.motors.m_observability.correlacion import (
+    MiddlewareCorrelacion,
+    configurar_registro,
+)
+from backend.app.motors.m_observability.metricas import (
+    es_produccion,
+    exponer as exponer_metricas,
+    token_esperado,
+)
 
 from backend.app.auth.global_dep import authenticate_request
 from backend.app.config import get_settings
@@ -447,6 +462,53 @@ app.add_middleware(BodySizeLimitMiddleware)
 app.add_middleware(CSPMiddleware)
 # SAN-E MB-7.bis closure Q6.C · auto-track Marcos requests into timesheet
 app.add_middleware(MarcosTimesheetMiddleware)
+
+# Identificador de correlación por petición (BLOQUE G · 2026-09-10).
+#
+# Va EL ÚLTIMO en la lista a propósito: Starlette ejecuta los middlewares en
+# orden inverso al de registro, así que éste envuelve a todos los demás y su
+# identificador está puesto antes de que ninguno haga nada. Si se registrara
+# antes, las líneas de registro de los middlewares de arriba saldrían sin él,
+# que es justo cuando más falta hace (un cuerpo demasiado grande, una cabecera
+# CSP mal formada) porque son fallos que ocurren antes de llegar al endpoint.
+app.add_middleware(MiddlewareCorrelacion)
+configurar_registro()
+
+
+@app.get("/metrics", include_in_schema=False)
+async def _metricas(request: Request):  # noqa: ANN201
+    """Métricas en formato de exposición Prometheus.
+
+    Protegida: el cuerpo incluye el COSTE acumulado de las llamadas al modelo y
+    el mapa de rutas de la API, que no es información para cualquiera. En
+    producción exige `Authorization: Bearer $FULKRO_METRICS_TOKEN` y, si esa
+    variable no está puesta, NO se sirve — negarse es más seguro que exponerla
+    por omisión, que es como se filtran estas cosas.
+    """
+    from fastapi.responses import PlainTextResponse
+
+    from backend.app.database import async_session
+
+    esperado = token_esperado()
+    if es_produccion():
+        if not esperado:
+            raise HTTPException(
+                503,
+                "FULKRO_METRICS_TOKEN no está configurado: /metrics queda "
+                "cerrado en producción por omisión.",
+            )
+        dado = request.headers.get("authorization", "")
+        if not dado.startswith("Bearer ") or not secrets.compare_digest(
+            dado[7:], esperado
+        ):
+            raise HTTPException(401, "token de raspado inválido")
+
+    async with async_session() as db:
+        cuerpo = await exponer_metricas(db)
+    # `version=0.0.4` es lo que espera el raspador para el formato de texto.
+    return PlainTextResponse(
+        cuerpo, media_type="text/plain; version=0.0.4; charset=utf-8"
+    )
 
 
 # Global handler · los gates de workflow (precondiciones ENS no cumplidas, p.ej.

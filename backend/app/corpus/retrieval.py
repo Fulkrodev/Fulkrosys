@@ -20,12 +20,16 @@ from __future__ import annotations
 
 import math
 from dataclasses import dataclass
+from time import perf_counter as _perf_counter
 from typing import Optional
 
 from sqlalchemy import text
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from backend.app.core.ai.embeddings import get_default_embedding_provider
+from backend.app.motors.m_observability.metricas import (
+    observar_recuperacion as _observar_recuperacion,
+)
 
 # ---------------------------------------------------------------------------
 # Constants
@@ -256,28 +260,43 @@ async def hybrid_search(
     Returns:
         List of HybridResult sorted by rrf_score descending.
     """
-    # 1. Run both searches sequentially (SQLAlchemy async sessions
-    #    don't support concurrent operations on the same session)
+    # Cada etapa se cronometra por separado (BLOQUE G). Se mide POR ETAPA y no
+    # sólo el total porque el total no dice dónde está el problema: si la
+    # búsqueda tarda un segundo, importa mucho saber si se fue en embeber la
+    # consulta, en Postgres o en la fusión. La fusión debería ser
+    # microsegundos; si algún día no lo es, se verá aquí.
+    _t = _perf_counter()
     bm25_results = await _bm25_search(
         session, query, bm25_top, only_with_measure_code, source_codes,
         measure_codes, sector_aplicacion,
     )
+    _observar_recuperacion("bm25", _perf_counter() - _t)
+
+    _t = _perf_counter()
     vector_results, top_cosine = await _vector_search(
         session, query, vector_top, only_with_measure_code, source_codes,
         measure_codes, sector_aplicacion,
     )
+    # Ojo al leer esta serie: incluye el embebido de la consulta, que es lo que
+    # suele dominar. `_vector_search` llama al proveedor de embeddings dentro.
+    _observar_recuperacion("vectorial_con_embebido", _perf_counter() - _t)
 
     # 2. Build rank dicts
     bm25_ranks = dict(bm25_results)
     vector_ranks = dict(vector_results)
 
     # 3. RRF fusion
+    _t = _perf_counter()
     rrf_scores = _rrf_fuse(bm25_ranks, vector_ranks)
 
     # 4. Top K by RRF score
     top_ids = sorted(rrf_scores, key=lambda c: rrf_scores[c], reverse=True)[:top_k]
+    _observar_recuperacion("fusion", _perf_counter() - _t)
 
     # 5. Hydrate with full data
-    return await _hydrate_results(
+    _t = _perf_counter()
+    salida = await _hydrate_results(
         session, top_ids, bm25_ranks, vector_ranks, rrf_scores, top_cosine
     )
+    _observar_recuperacion("hidratado", _perf_counter() - _t)
+    return salida
