@@ -108,6 +108,12 @@ class CreateTestClientResponse(BaseModel):
 
 _TEST_CLIENT_NOMBRE = "Test E2E Client"
 _TEST_CLIENT_CIF = "B00000000"
+# Identidad que `backend/scripts/demo_bootstrap.py` le pone a ESE MISMO cliente
+# cuando lo que se ha levantado es el demo. Vive aquí porque este módulo es
+# quien tiene que reconocerla para no pisarla (ver la guarda de
+# `seed_commercial_lead`); demo_bootstrap ya importa de aquí el nombre del
+# proyecto, así que la dirección de la dependencia no cambia.
+_DEMO_CLIENTE_NOMBRE = "NovaEdge S.L."
 _TEST_USER_EMAIL = "test-client-e2e@example.com"
 _TEST_USER_PASSWORD = "TestP@ssw0rd123!"
 _TEST_USER_ROLE = "lectura_solo"
@@ -421,6 +427,13 @@ async def seed_commercial_lead(
         default=None,
         description="Proyecto destino · si se omite usa el test project E2E",
     ),
+    forzar: bool = Query(
+        default=False,
+        description=(
+            "Renombra el cliente aunque lleve la identidad del DEMO. "
+            "Sin esto se devuelve 409: ver la guarda del cuerpo."
+        ),
+    ),
     db: AsyncSession = Depends(get_db),
 ) -> SeedCommercialLeadResponse:
     """Crea un Lead ficticio realista (empresa privada que licita a la AAPP ·
@@ -473,6 +486,29 @@ async def seed_commercial_lead(
 
     # Identidad ficticia realista (NO el cif · es la clave de lookup).
     empresa = "Innovación Digital del Guadalquivir, S.L."
+
+    # GUARDA (medido 2026-09-10 durante el recorrido completo del BLOQUE E):
+    # el cliente del DEMO y el cliente del arnes E2E son LA MISMA FILA — los dos
+    # llevan el cif B00000000, porque `backend/scripts/demo_bootstrap.py`
+    # renombra el cliente de test a "NovaEdge S.L." para que las capturas de
+    # USAGE.md cuadren con la pantalla. Consecuencia: una sola llamada a este
+    # endpoint contra un demo en pie REBAUTIZABA el cliente estrella del demo y
+    # dejaba mintiendo a USAGE.md, a `make smoke` y a `make recorrido`, sin un
+    # solo error por ninguna parte.
+    #
+    # Se corta aquí: si el cliente ya lleva la identidad del demo, este endpoint
+    # NO la pisa. La simulación E2E sigue funcionando porque corre contra la base
+    # de test, donde el cliente se llama "Test E2E Client" y nunca pasó por
+    # demo_bootstrap. Quien de verdad quiera pisarla, que lo diga con `forzar`.
+    if test_client.nombre == _DEMO_CLIENTE_NOMBRE and not forzar:
+        raise HTTPException(
+            409,
+            f"El cliente {test_client.id} lleva la identidad del DEMO "
+            f"('{_DEMO_CLIENTE_NOMBRE}'). Renombrarlo dejaría a USAGE.md, "
+            f"'make smoke' y 'make recorrido' afirmando algo falso. "
+            f"Repite con ?forzar=true si de verdad es lo que quieres.",
+        )
+
     test_client.nombre = empresa
     if hasattr(test_client, "domicilio_fiscal"):
         test_client.domicilio_fiscal = "C/ Luis Montoto 107, 41007 Sevilla"
@@ -1801,11 +1837,32 @@ async def seed_full_implantation(
         )
         db.add(user)
         await db.flush()
+    # El proyecto se busca por CUALQUIERA de sus dos nombres, no solo por el de
+    # test. Motivo, medido 2026-09-10 en el recorrido del BLOQUE E:
+    # `demo_bootstrap.py` RENOMBRA este proyecto a `_DEMO_PROJECT_NOMBRE` al
+    # terminar, y `make demo` vuelve a llamar aquí en cada arranque. Buscando
+    # solo por `project_nombre` la segunda llamada NO lo encontraba y creaba un
+    # proyecto NUEVO y lo sembraba entero: dos «Sede electrónica de NovaEdge»
+    # con 209 evidencias cada una, sin un solo error por ninguna parte. El
+    # alias ya existía (D3, `_NOMBRES_PROYECTO_TEST`) y a este endpoint se le
+    # había pasado aplicarlo.
+    #
+    # Con `key` dedicado no hay alias que valer: cada identidad tiene su propio
+    # nombre y nadie la renombra, así que se busca por el suyo y punto.
+    nombres_admisibles = (
+        _NOMBRES_PROYECTO_TEST if key is None else (project_nombre,)
+    )
+    # `.first()` con orden EXPLICITO: si por lo que sea hay mas de un candidato
+    # (una base que ya arrastre el duplicado de antes de este arreglo), se coge
+    # SIEMPRE el mas antiguo, que es el original. Sin ORDER BY, PostgreSQL puede
+    # devolver uno u otro entre ejecuciones y el demo cambiaria de proyecto solo.
     project = (await db.execute(
         select(Project).where(
-            Project.client_id == client.id, Project.nombre == project_nombre,
-        )
-    )).scalar_one_or_none()
+            Project.client_id == client.id,
+            Project.nombre.in_(nombres_admisibles),
+            Project.deleted_at.is_(None),
+        ).order_by(Project.created_at.asc())
+    )).scalars().first()
     if project is None:
         project = Project(
             id=uuid.uuid4(), client_id=client.id, nombre=project_nombre,

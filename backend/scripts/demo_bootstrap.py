@@ -116,10 +116,9 @@ DEMO_TIER = os.environ.get("FULKRO_DEMO_TIER", "MEDIA").upper()
 # ese modulo tiene que reconocerlo para no crear un proyecto nuevo en cada
 # arranque, asi que la constante vive alli y aqui se consume. Una sola fuente.
 from backend.app.dev.router import (  # noqa: E402
+    _DEMO_CLIENTE_NOMBRE as DEMO_CLIENTE_NOMBRE,
     _DEMO_PROJECT_NOMBRE as DEMO_PROYECTO_NOMBRE,
 )
-
-DEMO_CLIENTE_NOMBRE = "NovaEdge S.L."
 DEMO_USUARIO_PORTAL_NOMBRE = "Laura Giménez"
 CORPUS_FIXTURE = Path(
     os.environ.get(
