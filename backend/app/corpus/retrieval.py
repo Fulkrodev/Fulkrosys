@@ -34,7 +34,16 @@ from backend.app.motors.m_observability.metricas import (
 # ---------------------------------------------------------------------------
 # Constants
 # ---------------------------------------------------------------------------
-RRF_K = 60  # Standard constant (Cormack et al.)
+# 60 es la constante del articulo de Cormack et al., pero desde 2026-09-10 ya no
+# esta aqui por eso: esta MEDIDA. Barrido de k en {1,5,10,20,30,60,100,200} sobre
+# 49 consultas etiquetadas -> acierto@5 IDENTICO en los ocho valores (0,898) y el
+# MRR se mueve una milesima. Se conserva el 60 por parsimonia, no porque gane.
+# El motivo de que k sea irrelevante da mas miedo que el valor de k: 27 de las 49
+# consultas se quedan sin candidatos BM25 (plainto_tsquery une los terminos con
+# AND), asi que en mas de la mitad de los casos la "fusion" es la lista vectorial
+# con otro nombre. Medido tambien: la fusion NO gana a la rama vectorial sola en
+# ninguna metrica. Ver docs/EVAL_RECUPERACION.md y `make eval-recuperacion`.
+RRF_K = 60
 DEFAULT_BM25_TOP = 30
 DEFAULT_VECTOR_TOP = 30
 DEFAULT_FINAL_TOP = 5

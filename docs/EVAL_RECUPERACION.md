@@ -591,9 +591,10 @@ Las decisiones, separadas de las conjeturas:
 
 1. **`RRF_K` se queda en 60.** Cae dentro del intervalo del máximo puntual y el
    barrido es plano. Se elige por parsimonia, como estaba acordado. Lo que
-   cambia es el comentario: ya no es «la constante del artículo», es «el valor
-   por defecto, medido, indistinguible de cualquier otro entre 1 y 200 sobre
-   este corpus».
+   cambia es el comentario de `backend/app/corpus/retrieval.py`, que decía
+   «Standard constant (Cormack et al.)» y ahora dice lo que se ha medido: que el
+   acierto@5 es idéntico en los ocho valores probados y que el 60 se conserva
+   por parsimonia, no porque gane.
 2. **La fusión híbrida queda en entredicho, con número.** No gana a la vectorial
    sola en ninguna métrica y pierde en MRR con un intervalo que no toca el cero.
    La decisión de retirarla o de arreglar la rama léxica **no se toma en este
@@ -618,8 +619,9 @@ Las decisiones, separadas de las conjeturas:
   distintos. Es una hipótesis, no un hallazgo.
 - **El coste de mezclar agrupamiento CLS y media.** Exigiría instalar fastembed
   0.5.1 y volver a medir. No se ha hecho.
-- **Un segundo etiquetador.** Las 96 etiquetas las puso una sola persona, que
-  además conoce el sistema evaluado. El sesgo está declarado, no corregido.
+- **Un segundo etiquetador.** Las 96 etiquetas las puso un solo etiquetador
+  (quién, en la cabecera del propio conjunto), que además conoce el sistema
+  evaluado. El sesgo está declarado, no corregido.
 - **Corpus distintos del cargado.** Todas las cifras son sobre estos 1.031
   fragmentos. El script imprime los recuentos que encuentra antes de medir, para
   que nunca se lea una tabla sin saber contra qué se midió.
