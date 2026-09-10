@@ -557,6 +557,11 @@ etapa que se lleva el golpe es justo la que hace aritmética densa: el embebido
 Encaja, pero **no se ha medido**: haría falta repetir la ejecución con y sin un
 build simultáneo, y no se ha hecho.
 
+Una cuarta ejecución posterior, con **2** repeticiones en vez de 5 (así que con
+menos muestras: 98 por etapa) y con el equipo ya tranquilo (carga media 3,73),
+dio **TOTAL p50 = 35,52 ms** y embebido 31,22 ms. Es decir: tres de las cuatro
+medidas caen entre 34,5 y 37 ms y la ejecución 2 sigue siendo la única rara.
+
 Lo que sí se puede afirmar:
 
 - **Hay una varianza grande entre ejecuciones que la carga media no explica.**
@@ -644,7 +649,7 @@ Con `EVAL_AB_PREFIJO=no` se salta el A/B de F5 (el re-embebido de los 1.031
 fragmentos, que es lo que más tarda) y baja a un par de minutos.
 
 Comprobado que reproduce: las tablas de F2, F2b y F3 de este documento salieron
-idénticas en **cuatro ejecuciones**, **dos de ellas sobre una pila levantada de
+idénticas en **cinco ejecuciones**, **tres de ellas sobre una pila levantada de
 cero** con `make clean && make demo` (contenedores nuevos, volúmenes nuevos,
 corpus resembrado desde el volcado, modelo descargado otra vez). También salió
 idéntica la tabla de cosenos de F5, que es la que dice con qué prefijo está
