@@ -178,11 +178,30 @@ jobs:
       - name: Comprobar que la imagen publicada arranca
         # Smoke mínimo y honesto: NO levanta la aplicación (necesitaría base de
         # datos y las cuatro variables que exige backend/app/startup_checks.py).
-        # Comprueba lo que sí se puede comprobar sin nada montado: que las
-        # dependencias de Python están dentro y que las herramientas que el propio
-        # Dockerfile declara obligatorias existen.
+        # Comprueba lo que sí se puede comprobar sin nada montado.
+        #
+        # OJO con lo que se comprueba aquí. Hasta el 2026-09-10 este paso exigía
+        # `command -v nuclei && command -v nmap`, es decir, verificaba que el
+        # instrumental de pentest estuviera DENTRO de la imagen de la aplicación.
+        # Desde ADR-002 eso es justo lo que se ha sacado a propósito, así que el
+        # paso fallaba con código 127 comprobando la ausencia de algo que se
+        # elimino queriendo: un gate que medía lo contrario de lo que debía.
+        #
+        # Se le da la vuelta: ahora exige que las dependencias de la aplicación
+        # estén, y que el instrumental NO esté. Así el paso deja de ser un residuo
+        # y pasa a ser el guardián del reparto: si alguien vuelve a meter los
+        # escáneres en la imagen de la aplicación, esto lo caza.
         if: github.event_name != 'pull_request'
         run: |
+          set -euo pipefail
           ref="${{ steps.img.outputs.ref }}:sha-${{ github.sha }}"
           docker run --rm "$ref" python -c "import fastapi, sqlalchemy, uvicorn; print('dependencias OK')"
-          docker run --rm --entrypoint sh "$ref" -c 'command -v nuclei && command -v nmap'
+          docker run --rm --entrypoint sh "$ref" -c '
+            for t in nuclei nmap prowler scout checkov semgrep trivy grype; do
+              if command -v "$t" >/dev/null 2>&1; then
+                echo "FALLO: la imagen de la APLICACION trae $t. Ver docs/adr/ADR-002:" >&2
+                echo "       el instrumental de pentest vive en la variante runtime-pentest." >&2
+                exit 1
+              fi
+            done
+            echo "sin instrumental de pentest, como manda ADR-002"'
