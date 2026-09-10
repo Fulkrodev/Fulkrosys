@@ -40,12 +40,23 @@ import { toast } from "sonner";
 import { listClientProjects } from "@/lib/admin-clients/api";
 import type { ProjectOut } from "@/lib/admin-clients/schemas";
 
+// AVISO (medido 2026-09-10 · recorrido completo, BLOQUE E): esta página trataba
+// `params` como una PROMESA y hacía `use(params)`. Eso es la semántica de
+// Next.js 15; aquí corre Next.js **14.2.33**, donde `params` es un objeto
+// normal. Pasarle un objeto a `use()` lanza el error de React #438 («An
+// unsupported type was passed to use()»), el límite de error lo capturaba y la
+// pantalla quedaba en «No pudimos cargar esta sección» — con HTTP 200.
+//
+// Las tres páginas que hacían esto (clients/[id], projects/[id]/cliente-info y
+// projects/[id]/auditor-handoff) estaban rotas a la vez y por lo mismo. Si
+// algún día se migra a Next.js 15, esto vuelve a ser `Promise` y `use()`; hasta
+// entonces, no.
 export default function LegacyClientDetailRouter({
   params,
 }: {
-  params: Promise<{ id: string }>;
+  params: { id: string };
 }) {
-  const { id: clientId } = use(params);
+  const { id: clientId } = params;
   const router = useRouter();
 
   const projectsQ = useQuery<ProjectOut[]>({

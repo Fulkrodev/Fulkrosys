@@ -28,7 +28,6 @@
  */
 import { useQuery } from "@tanstack/react-query";
 import Link from "next/link";
-import { use } from "react";
 import { toast } from "sonner";
 import { useState } from "react";
 import { Building2, ChevronLeft } from "lucide-react";
@@ -50,12 +49,23 @@ interface ProjectHeaderResponse {
   cliente: { id: string; nombre: string; cif: string };
 }
 
+// AVISO (medido 2026-09-10 · recorrido completo, BLOQUE E): esta página trataba
+// `params` como una PROMESA y hacía `use(params)`. Eso es la semántica de
+// Next.js 15; aquí corre Next.js **14.2.33**, donde `params` es un objeto
+// normal. Pasarle un objeto a `use()` lanza el error de React #438 («An
+// unsupported type was passed to use()»), el límite de error lo capturaba y la
+// pantalla quedaba en «No pudimos cargar esta sección» — con HTTP 200.
+//
+// Las tres páginas que hacían esto (clients/[id], projects/[id]/cliente-info y
+// projects/[id]/auditor-handoff) estaban rotas a la vez y por lo mismo. Si
+// algún día se migra a Next.js 15, esto vuelve a ser `Promise` y `use()`; hasta
+// entonces, no.
 export default function AdminProjectClienteInfoPage({
   params,
 }: {
-  params: Promise<{ id: string }>;
+  params: { id: string };
 }) {
-  const { id: projectId } = use(params);
+  const { id: projectId } = params;
   const [resuming, setResuming] = useState(false);
 
   // 1. Resolve cliente.id from project header
