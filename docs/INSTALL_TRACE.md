@@ -226,4 +226,50 @@ sus dependencias instaladas, tres contenedores de infraestructura y una API que 
 
 ## Ejecución limpia (C0.10)
 
-<!-- RELLENAR: se añade al cerrar C0.10 -->
+Misma máquina limpia, contenedor nuevo, `git clone` a secas desde GitHub, siguiendo **solo**
+`INSTALL.md`. Sin tocar nada a mano.
+
+```
+════════ RESULTADO C0.10 ════════
+make demo        : VERDE  (384 s en frío, sin ninguna imagen en caché)
+make smoke       : VERDE  (21 comprobaciones, 0 fallidas)
+pasos a mano NO documentados en INSTALL.md: 0
+tiempo total     : 396 s
+```
+
+> **Sobre ese cero.** El script del trazado marcó «1 paso no documentado»: instalar `make`, que no
+> viene en la imagen base de Ubuntu. Pero `INSTALL.md` lo declara como requisito en su tabla de
+> versiones mínimas, así que **no es un paso no documentado**: es un requisito documentado que la
+> máquina no traía. El contador estaba mal etiquetado y la cifra correcta es 0. Se deja dicho en
+> vez de corregir el número en silencio.
+
+### Antes y después
+
+| | Antes (README publicado) | Después (`INSTALL.md`) |
+|---|---:|---:|
+| Pasos manuales no documentados | **3** | **0** |
+| Fallos encontrados | **7** | **0** |
+| ¿Queda una aplicación navegable? | No | **Sí, con datos** |
+| Tiempo hasta ese resultado | 229 s, y sin aplicación | **396 s, con aplicación** |
+
+### Consumo, medido dentro de la máquina limpia
+
+```console
+$ docker system df
+Images          6   6   10.58GB   0B (0%)
+Local Volumes   4   4   119.2MB   0B (0%)
+Build Cache    51   0   11.76GB   9.912GB
+```
+
+Consumo del disco del anfitrión durante la verificación completa: **~19 GB**.
+
+**No medido:** la memoria dentro de la máquina limpia. `docker stats` devuelve `0B / 0B` porque el
+demonio anidado no expone las estadísticas de cgroup del contenedor exterior. La cifra de memoria
+que aparece en `INSTALL.md` (~754 MiB en reposo) está medida en el anfitrión, no aquí, y así se
+declara.
+
+### Qué commit verifica esta ejecución
+
+Esta traza se ejecutó contra el commit `8972895`. Los commits posteriores no tocan el camino de
+`make demo`; aun así, la verificación se repite contra el commit final y el resultado se anota
+aquí, porque una verificación que no es del árbol publicado no es una verificación.

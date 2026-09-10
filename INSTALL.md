@@ -61,8 +61,22 @@ fulkro-demo-postgres-1  75.37MiB / 25.44GiB
 fulkro-demo-redis-1     3.477MiB / 25.44GiB
 ```
 
-Reserve **15 GB de disco** para ir sobrado: las imágenes ocupan 10,8 GB y la caché de construcción
-de BuildKit crece aparte.
+**Disco: reserve 25 GB para la primera vez.** Medido dentro de una máquina limpia, después de un
+`make demo` construyendo desde cero:
+
+```console
+$ docker system df
+TYPE            TOTAL     ACTIVE    SIZE      RECLAIMABLE
+Images          6         6         10.58GB   0B (0%)
+Containers      7         5         335.9kB   86.02kB (25%)
+Local Volumes   4         4         119.2MB   0B (0%)
+Build Cache     51        0         11.76GB   9.912GB
+```
+
+La caché de construcción pesa casi tanto como las imágenes y **nadie la cuenta**: son 11,76 GB, de
+los cuales 9,9 GB se pueden liberar en cuanto termine. En régimen, tras `docker builder prune`, el
+demo se queda en unos **11 GB**. El consumo del disco del anfitrión durante la verificación
+completa fue de **~19 GB**.
 
 **La imagen del backend pesa 7,91 GB**, y conviene decir por qué: lleva dentro el instrumental de
 pentest (nuclei, trivy, grype, semgrep, prowler, checkov, ScoutSuite, tesseract). Para *ver* la
