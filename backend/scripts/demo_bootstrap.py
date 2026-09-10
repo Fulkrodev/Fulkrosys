@@ -100,6 +100,27 @@ DEMO_OWNER_PASSWORD = os.environ.get(
 )
 DEMO_URL = os.environ.get("FULKRO_DEMO_URL", "http://localhost:3000").rstrip("/")
 DEMO_TIER = os.environ.get("FULKRO_DEMO_TIER", "MEDIA").upper()
+
+# ── Identidad presentable del proyecto del demo (D3) ────────────────────────
+# El endpoint `_dev/seed-full-implantation` crea el proyecto con los nombres del
+# arnes de pruebas ("Test E2E Client" / "Proyecto ENS Test E2E"), que estan bien
+# para Playwright y muy mal para ensenarselos a nadie. Peor: las diez capturas
+# de landing/assets/capturas/marketing/ —las que usa USAGE.md— se tomaron con
+# `scripts/capturas_landing.py`, que renombra ese mismo proyecto a NovaEdge. Sin
+# esto, el recorrido guiado ensena capturas de una empresa y la pantalla dice
+# otra cosa.
+#
+# Se renombra POR ID (el que devuelve el propio seed), no por nombre, para no
+# tocar ningun otro cliente. Es idempotente y no altera CIF, ids ni datos.
+# El nombre del proyecto se importa de `backend/app/dev/router.py` a proposito:
+# ese modulo tiene que reconocerlo para no crear un proyecto nuevo en cada
+# arranque, asi que la constante vive alli y aqui se consume. Una sola fuente.
+from backend.app.dev.router import (  # noqa: E402
+    _DEMO_PROJECT_NOMBRE as DEMO_PROYECTO_NOMBRE,
+)
+
+DEMO_CLIENTE_NOMBRE = "NovaEdge S.L."
+DEMO_USUARIO_PORTAL_NOMBRE = "Laura Giménez"
 CORPUS_FIXTURE = Path(
     os.environ.get(
         "FULKRO_DEMO_CORPUS_FIXTURE",
@@ -359,6 +380,116 @@ async def sembrar_implantacion(session: AsyncSession) -> dict:
     return json.loads(respuesta.model_dump_json())
 
 
+# ── Evidencias firmadas de verdad (D3) ─────────────────────────────────────
+# El seed masivo (`_dev/seed-full-implantation`) crea 204 filas en `evidence`
+# SIN fichero, SIN nombre y SIN firma: los contadores salen llenos ("204/204")
+# y la tabla entera dice «(sin nombre) · Pendiente firma · Sin firma». Medido:
+#
+#   SELECT count(*), count(fichero_nombre_original), count(firma_ed25519)
+#   FROM evidence WHERE project_id='<demo>';
+#   -->  204 | 0 | 0
+#
+# Para que el recorrido de USAGE.md pueda ensenar UNA evidencia firmada de
+# verdad, aqui se ingieren unas pocas por el MISMO camino que usa la aplicacion
+# (`ingest_evidence`): valida el tipo, calcula SHA-256, firma con Ed25519 y
+# guarda el fichero. No se tocan las otras 204: siguen siendo relleno, y
+# USAGE.md lo dice con esas palabras.
+_PDF_MINIMO = (
+    b"%PDF-1.4\n1 0 obj<</Type/Catalog/Pages 2 0 R>>endobj\n"
+    b"2 0 obj<</Type/Pages/Kids[3 0 R]/Count 1>>endobj\n"
+    b"3 0 obj<</Type/Page/Parent 2 0 R/MediaBox[0 0 595 842]>>endobj\n"
+    b"trailer<</Root 1 0 R>>\n%%EOF\n"
+)
+_PNG_MINIMO = bytes.fromhex(
+    "89504e470d0a1a0a0000000d4948445200000001000000010806000000"
+    "1f15c4890000000a49444154789c6360000002000100ffff0300000600"
+    "05570c0d0a0000000049454e44ae426082"
+)
+
+#: (tipo de evidencia, medida ENS, nombre del fichero, contenido, mime)
+_EVIDENCIAS_DEL_DEMO: tuple[tuple[str, str, str, bytes, str], ...] = (
+    ("EVT-politica_firmada-001", "org.1",
+     "politica-seguridad-novaedge-v1.pdf", _PDF_MINIMO, "application/pdf"),
+    ("EVT-acta_comite-001", "org.2",
+     "acta-comite-seguridad-2026-03.pdf", _PDF_MINIMO, "application/pdf"),
+    ("EVT-captura_idp_mfa-001", "op.acc.5",
+     "mfa-obligatorio-entra-id.png", _PNG_MINIMO, "image/png"),
+    ("EVT-export_inventario-001", "mp.info.1",
+     "inventario-activos-2026Q1.csv",
+     b"activo;tipo;responsable;criticidad\n"
+     b"Sede electronica;servicio;TI;alta\n"
+     b"Base de datos de expedientes;informacion;TI;alta\n",
+     "text/csv"),
+    ("EVT-prueba_restauracion-001", "op.cont.1",
+     "prueba-restauracion-backup-2026-02.pdf", _PDF_MINIMO, "application/pdf"),
+)
+
+
+async def sembrar_evidencias_firmadas(
+    session: AsyncSession, project_id: str
+) -> int:
+    """Ingiere unas pocas evidencias REALES, firmadas Ed25519. Idempotente."""
+    from backend.app.motors.m07_evidence.ingestion_service import ingest_evidence
+    from backend.app.motors.m07_evidence.ingestion_types import (
+        IngestionError,
+        IngestionRequest,
+    )
+
+    await elevar(session)
+    ya = {
+        fila[0]
+        for fila in (await session.execute(sa_text(
+            "SELECT fichero_nombre_original FROM evidence "
+            "WHERE project_id = :p AND fichero_nombre_original IS NOT NULL"
+        ), {"p": project_id})).fetchall()
+    }
+    creadas = 0
+    for tipo, medida, nombre, contenido, mime in _EVIDENCIAS_DEL_DEMO:
+        if nombre in ya:
+            continue
+        try:
+            await ingest_evidence(session, IngestionRequest(
+                project_id=uuid.UUID(project_id),
+                evidence_type_id=tipo,
+                measure_code=medida,
+                file_bytes=contenido,
+                file_name=nombre,
+                mime_type=mime,
+            ))
+            creadas += 1
+        except IngestionError as exc:
+            _print(f"    aviso: no se pudo ingerir {nombre}: {exc}")
+    await session.commit()
+    return creadas
+
+
+async def poner_nombres_presentables(
+    session: AsyncSession, client_id: uuid.UUID, project_id: str
+) -> None:
+    """Renombra el cliente y el proyecto del demo a la identidad de las capturas.
+
+    Ver la nota de DEMO_CLIENTE_NOMBRE. Sin esto, USAGE.md ensena capturas de
+    "NovaEdge S.L." y la aplicacion dice "Test E2E Client".
+    """
+    await elevar(session)
+    await session.execute(
+        sa_text("UPDATE clients SET nombre = :n, updated_at = now() WHERE id = :cid"),
+        {"n": DEMO_CLIENTE_NOMBRE, "cid": str(client_id)},
+    )
+    await session.execute(
+        sa_text("UPDATE projects SET nombre = :n, updated_at = now() WHERE id = :pid"),
+        {"n": DEMO_PROYECTO_NOMBRE, "pid": str(project_id)},
+    )
+    await session.execute(
+        sa_text(
+            "UPDATE client_users SET full_name = :n, updated_at = now() "
+            "WHERE client_id = :cid AND full_name LIKE 'Test E2E%'"
+        ),
+        {"n": DEMO_USUARIO_PORTAL_NOMBRE, "cid": str(client_id)},
+    )
+    await session.commit()
+
+
 async def crear_usuario_portal(
     session: AsyncSession, client_id: uuid.UUID
 ) -> str | None:
@@ -493,6 +624,22 @@ async def main() -> int:
         )
         for err in errores:
             _print(f"    aviso: {err}")
+
+        async with Session() as session:
+            await poner_nombres_presentables(
+                session, uuid.UUID(str(client_id)), project_id
+            )
+        _print(
+            f"    renombrado a «{DEMO_CLIENTE_NOMBRE}» / "
+            f"«{DEMO_PROYECTO_NOMBRE}» (coincide con las capturas de USAGE.md)"
+        )
+
+        async with Session() as session:
+            nuevas = await sembrar_evidencias_firmadas(session, project_id)
+        _print(
+            f"    evidencias firmadas de verdad (Ed25519, con fichero): "
+            f"{nuevas} nuevas de {len(_EVIDENCIAS_DEL_DEMO)}"
+        )
 
         async with Session() as session:
             email_portal = await crear_usuario_portal(

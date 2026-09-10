@@ -113,6 +113,21 @@ _TEST_USER_PASSWORD = "TestP@ssw0rd123!"
 _TEST_USER_ROLE = "lectura_solo"
 _TEST_PROJECT_NOMBRE = "Proyecto ENS Test E2E"
 
+# ── Alias del demo (D3) ────────────────────────────────────────────────
+# `backend/scripts/demo_bootstrap.py` RENOMBRA este mismo proyecto a un nombre
+# presentable, porque las diez capturas de landing/assets/capturas/marketing/
+# que usa USAGE.md se tomaron con esa identidad y un recorrido guiado no puede
+# ensenar capturas de una empresa mientras la pantalla dice "Test E2E Client".
+#
+# Sin este alias, la resolucion por nombre no encontraba el proyecto renombrado
+# y CADA `make demo` creaba uno nuevo. Medido: tras un solo arranque habia dos
+# proyectos identicos, uno con 204 evidencias y otro con 209.
+#
+# Las specs de Playwright NO dependen del nombre: `auth-real.ts` lo lee del
+# endpoint `/projects/{id}/header` y solo usa la constante como respaldo.
+_DEMO_PROJECT_NOMBRE = "Sede electrónica de NovaEdge"
+_NOMBRES_PROYECTO_TEST = (_TEST_PROJECT_NOMBRE, _DEMO_PROJECT_NOMBRE)
+
 # ── Proyecto FIJO E2E (UUID determinista) ──────────────────────────────
 # Las specs SAN-E v3 (san_e_v3/mb3_* + mb4_*) y admin-settings hardcodean
 # `E2E_SEED_PROJECT_ID ?? "00000000-0000-0000-0000-000000000001"` para
@@ -286,10 +301,21 @@ async def create_test_client(
     # Project demo: get-or-create por (client_id, nombre). Sin esto el
     # endpoint /client-portal/project devuelve 404 y el dashboard
     # cliente muestra cards vacías.
+    #
+    # D3: para el cliente COMPARTIDO se aceptan tambien los alias del demo.
+    # `demo_bootstrap.py` renombra ese proyecto, y sin esto cada `make demo`
+    # creaba un proyecto nuevo en vez de reutilizar el que ya estaba sembrado
+    # (medido: dos proyectos identicos tras un solo arranque). Los clientes
+    # DEDICADOS por tier conservan su nombre exacto: no se renombran.
+    nombres_aceptados = (
+        _NOMBRES_PROYECTO_TEST
+        if project_nombre == _TEST_PROJECT_NOMBRE
+        else (project_nombre,)
+    )
     result = await db.execute(
         select(Project).where(
             Project.client_id == test_client.id,
-            Project.nombre == project_nombre,
+            Project.nombre.in_(nombres_aceptados),
         )
     )
     test_project = result.scalar_one_or_none()
@@ -355,7 +381,7 @@ async def set_test_project_category(
         await db.execute(
             select(Project).where(
                 Project.client_id == test_client.id,
-                Project.nombre == _TEST_PROJECT_NOMBRE,
+                Project.nombre.in_(_NOMBRES_PROYECTO_TEST),  # D3: acepta el alias del demo
             )
         )
     ).scalar_one_or_none()
@@ -436,7 +462,7 @@ async def seed_commercial_lead(
             await db.execute(
                 select(Project).where(
                     Project.client_id == test_client.id,
-                    Project.nombre == _TEST_PROJECT_NOMBRE,
+                    Project.nombre.in_(_NOMBRES_PROYECTO_TEST),  # D3: acepta el alias del demo
                 )
             )
         ).scalar_one_or_none()
@@ -2197,7 +2223,7 @@ async def auditor_portal_token(
             await db.execute(
                 select(Project).where(
                     Project.client_id == test_client.id,
-                    Project.nombre == _TEST_PROJECT_NOMBRE,
+                    Project.nombre.in_(_NOMBRES_PROYECTO_TEST),  # D3: acepta el alias del demo
                 )
             )
         ).scalar_one_or_none()
@@ -2268,7 +2294,7 @@ async def reset_test_cycle(
             await db.execute(
                 select(Project).where(
                     Project.client_id == test_client.id,
-                    Project.nombre == _TEST_PROJECT_NOMBRE,
+                    Project.nombre.in_(_NOMBRES_PROYECTO_TEST),  # D3: acepta el alias del demo
                 )
             )
         ).scalar_one_or_none()

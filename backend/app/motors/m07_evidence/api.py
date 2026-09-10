@@ -499,8 +499,28 @@ async def get_upload_catalog(
     project_id: uuid.UUID,
     db: AsyncSession = Depends(get_db),
 ):
-    """Catalog of evidence types + applicable ENS measures for the admin form."""
-    # Resolve project (existence + category). require_owner already gated auth.
+    """Catalog of evidence types + applicable ENS measures for the admin form.
+
+    BUG CORREGIDO 2026-09-10 (bloque D · D3). Este endpoint era el UNICO del
+    modulo que no llamaba a `_set_project_rls` antes de consultar `projects`.
+    `projects` lleva RLS y la sesion corre como `fulkro_app` sin contexto de
+    tenant, asi que la fila era invisible y el endpoint devolvia su propio 404
+    "Project not found" sobre un proyecto que existe. Medido sobre el demo:
+
+        $ curl -b cookies .../api/v1/projects/<pid>/header
+        {"project":{"id":"<pid>","nombre":"Sede electronica de NovaEdge",...
+        $ curl -b cookies .../api/v1/evidence/projects/<pid>/upload-catalog
+        {"detail":"Project not found"}   <- mismo proyecto, misma sesion
+
+    Efecto visible: en /admin/projects/<id>/evidence el formulario de subida no
+    cargaba nunca ("No se pudo cargar el catalogo de subida · Project not
+    found"), asi que NO se podia aportar una evidencia desde la interfaz.
+    """
+    # Fija el contexto de tenant (y comprueba existencia) como el resto del
+    # modulo. `get_project_owner` es SECURITY DEFINER: ve la fila aunque la
+    # sesion no tenga contexto todavia.
+    await _set_project_rls(project_id, db)
+
     row = (
         await db.execute(
             text(

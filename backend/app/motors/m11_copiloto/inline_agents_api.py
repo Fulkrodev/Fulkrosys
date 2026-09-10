@@ -282,6 +282,25 @@ async def quick_suggestion(
         extra_context="",
         feature_override=f"inline_cliente_{slug}",  # §4.5
     )
+    # D1+D3 · si el agente ha respondido en modo degradado (sin clave de API) NO
+    # se le ensena nada al cliente. Antes se le pintaba en la portada del portal,
+    # bajo el rotulo "Sugerencia IA", el texto literal del sustituto:
+    #
+    #   Sugerencia IA
+    #   [MOCK] Agent 12 (Coach Cliente Evaluador). Model: sonnet-4.6.
+    #   Message length: 232. Sin ANTHROPIC_API_KEY: no se ha llamado al modelo.
+    #
+    # Es la primera pantalla que ve un cliente. Rompe R29 (nada de tripas de la
+    # plataforma) y, peor, presenta como sugerencia algo que no lo es. Se
+    # devuelve `available: False` con el motivo: el banner se oculta solo, y el
+    # motivo queda ahi para quien mire la respuesta. Tampoco se cachea: en
+    # cuanto haya clave, la siguiente peticion trae una sugerencia de verdad.
+    if result.get("mock"):
+        return {
+            "available": False,
+            "reason": "sin ANTHROPIC_API_KEY: el modelo no ha respondido",
+        }
+
     payload = {
         "agent_id": agent_id,
         "agent_name": result.get("agent_name", ""),
