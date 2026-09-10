@@ -47,6 +47,18 @@
 #   relevantes  lista de chunk_id (UUID de knowledge_chunks) que la responden
 #   sin_relevante  true si el corpus no la responde (se excluye del cálculo)
 
+# ─── RESULTADO DEL ETIQUETADO (2026-09-10) ───
+#   50 consultas escritas · 49 con al menos un fragmento relevante · 96 etiquetas
+#   en total (media 1,96 relevantes por consulta).
+#   1 consulta EXCLUIDA del calculo de metricas por no tener respuesta en el corpus:
+#     - dora-03 «¿Que plazo hay para notificar un incidente grave relacionado con las
+#       TIC a la autoridad competente?» · el texto de DORA que hay en el corpus
+#       (art. 19) remite los plazos concretos a normas tecnicas de regulacion que NO
+#       estan en el corpus; comprobado buscando «informe intermedio», «notificacion
+#       inicial» y el articulado de los art. 19 y 20. NO se reescribio la consulta
+#       para que encajara: se marca y se excluye.
+#   Denominador de todas las metricas del informe: 49.
+
 version: 1
 corpus:
   tabla: knowledge_chunks
@@ -59,208 +71,305 @@ consultas:
 - id: rgpd-01
   norma: RGPD
   texto: ¿Qué plazo hay para notificar una violación de seguridad de datos personales a la autoridad de control?
-  relevantes: []
+  relevantes:
+    - 273d4c8b-2aac-43de-a918-84870fa14f19
+    - fc496f85-8ce1-475e-b266-a2251813be20
 - id: rgpd-02
   norma: RGPD
   texto: ¿Cuándo hay que comunicar una brecha de datos a los interesados afectados?
-  relevantes: []
+  relevantes:
+    - acbfe70f-7343-496e-9691-33a2c920bba4
+    - b5b1a2f5-dad9-4895-80ec-b7b48158afa7
 - id: rgpd-03
   norma: RGPD
   texto: ¿En qué casos es obligatorio designar un delegado de protección de datos?
-  relevantes: []
+  relevantes:
+    - dd5d3fb4-470b-42d2-acb5-461d2af8a0e4
 - id: rgpd-04
   norma: RGPD
   texto: ¿Cuándo hace falta una evaluación de impacto relativa a la protección de datos?
-  relevantes: []
+  relevantes:
+    - 2f29cfa0-a3da-4027-b8ef-8b5d37787e8f
+    - 72f87d38-a91d-4788-a50e-0c08059084fb
+    - c0e1f1b8-5eae-4ce4-bee9-1b73286a83bc
 - id: rgpd-05
   norma: RGPD
   texto: ¿Qué información hay que facilitar al interesado cuando se recogen sus datos directamente de él?
-  relevantes: []
+  relevantes:
+    - 39be303f-01f0-4979-9828-5b27a6c904b1
+    - ec0dbb73-4ca4-4ab8-80a7-28302e71360b
+    - c7d231e9-6012-49b9-8644-6efbac9ab851
 - id: rgpd-06
   norma: RGPD
   texto: ¿Cuál es el plazo para responder a una solicitud de acceso de un interesado?
-  relevantes: []
+  relevantes:
+    - e8fedf99-11a1-4a39-8396-40ce1b925140
 - id: rgpd-07
   norma: RGPD
   texto: ¿En qué supuestos puede ejercerse el derecho de supresión o derecho al olvido?
-  relevantes: []
+  relevantes:
+    - eee8d472-22d3-462a-b407-f73003933e35
+    - 9fe3428b-bc5f-458b-8ef6-4f1c490f51db
 - id: rgpd-08
   norma: RGPD
   texto: ¿Qué es el derecho a la portabilidad de los datos y cuándo se aplica?
-  relevantes: []
+  relevantes:
+    - 0e361598-f33c-45af-9cfd-a8fb9fa79031
 - id: rgpd-09
   norma: RGPD
   texto: ¿Qué bases jurídicas legitiman el tratamiento de datos personales?
-  relevantes: []
+  relevantes:
+    - aa2ef0c4-75b1-477b-bce6-b17223d24681
 - id: rgpd-10
   norma: RGPD
   texto: ¿Qué requisitos debe cumplir el consentimiento para ser válido?
-  relevantes: []
+  relevantes:
+    - fc3f24b4-14dd-4b96-ac9e-89ca0496ba8d
+    - f53fd44a-a82b-43ab-a63e-12a537104f03
 - id: rgpd-11
   norma: RGPD
   texto: ¿Qué debe contener el contrato entre responsable y encargado del tratamiento?
-  relevantes: []
+  relevantes:
+    - 1c02036a-5176-43d9-8081-30b91429c4d4
+    - 2f23ed97-a4bf-4183-aec6-3b40557fdc7d
 - id: rgpd-12
   norma: RGPD
   texto: ¿Qué categorías especiales de datos personales tienen prohibido su tratamiento con carácter general?
-  relevantes: []
+  relevantes:
+    - 498a0bf5-6ee7-48be-95be-0d7563e1c40f
 - id: rgpd-13
   norma: RGPD
   texto: ¿Qué cuantía máxima pueden alcanzar las multas administrativas?
-  relevantes: []
+  relevantes:
+    - 3b607025-f90b-4cea-b71f-a1ef005ceb05
 - id: rgpd-14
   norma: RGPD
   texto: ¿Qué condiciones exige una transferencia internacional de datos a un tercer país?
-  relevantes: []
+  relevantes:
+    - b06ebdb3-362b-4f76-9635-70890af50596
+    - bf4d3c8e-6390-4ddc-9ad4-c97a6dedbd49
+    - 43397b1d-f468-4504-b28b-e44f940fc1dc
+    - 8283837e-3f18-4502-a238-f7aeba58e128
 - id: rgpd-15
   norma: RGPD
   texto: ¿Quién está obligado a llevar un registro de las actividades de tratamiento y qué debe incluir?
-  relevantes: []
+  relevantes:
+    - 8b32e50c-b348-46cb-afd9-9440d005eb9d
+    - 48e06a08-4040-4524-985e-a069886931cb
+    - 8ccb02f6-6464-49b6-83f0-7c14d874489b
 
 # ── DORA · 13 consultas (el corpus tiene un 25,8 % de DORA) ──────────────────
 - id: dora-01
   norma: DORA
   texto: ¿Qué exige DORA sobre las pruebas de resiliencia operativa digital?
-  relevantes: []
+  relevantes:
+    - 37287338-794e-4c9d-9fd3-ded51d0307a7
+    - 7236c77f-c6a2-4651-b087-463697b71405
 - id: dora-02
   norma: DORA
   texto: ¿Cada cuánto hay que hacer pruebas de penetración guiadas por amenazas?
-  relevantes: []
+  relevantes:
+    - 0dfd57a2-747a-4415-9017-f8c568408815
 - id: dora-03
   norma: DORA
   texto: ¿Qué plazo hay para notificar un incidente grave relacionado con las TIC a la autoridad competente?
   relevantes: []
+  sin_relevante: true
 - id: dora-04
   norma: DORA
   texto: ¿Qué criterios determinan que un incidente relacionado con las TIC es grave?
-  relevantes: []
+  relevantes:
+    - 8c8485ad-5eb3-4b7a-9122-832d861298d9
 - id: dora-05
   norma: DORA
   texto: ¿Qué debe incluir el marco de gestión del riesgo relacionado con las TIC?
-  relevantes: []
+  relevantes:
+    - 86b31b3a-06e2-48e4-8bdf-bb2ef9e3ccd3
 - id: dora-06
   norma: DORA
   texto: ¿Qué responsabilidades tiene el órgano de dirección en la gestión del riesgo TIC?
-  relevantes: []
+  relevantes:
+    - 5c7d77d2-33ca-474f-a4de-fc76c1b65710
+    - 88c1e870-11a7-464f-9d2d-0144ec7479be
 - id: dora-07
   norma: DORA
   texto: ¿Qué cláusulas son obligatorias en los contratos con proveedores terceros de servicios TIC?
-  relevantes: []
+  relevantes:
+    - cc4a7529-a43d-4763-b312-303e52a6e26f
+    - 36201809-2be0-4d48-88a9-2544619596ad
+    - ab38ff70-a9d3-461a-829f-be49349094c3
 - id: dora-08
   norma: DORA
   texto: ¿Qué es un proveedor tercero crítico de servicios TIC y quién lo designa?
-  relevantes: []
+  relevantes:
+    - 13686586-32cb-4e3a-883b-3403df442670
 - id: dora-09
   norma: DORA
   texto: ¿Qué información debe mantenerse en el registro de acuerdos con proveedores TIC?
-  relevantes: []
+  relevantes:
+    - a7246612-185a-4700-b46d-f3dc38e96fbe
 - id: dora-10
   norma: DORA
   texto: ¿Qué exige DORA sobre las estrategias de salida frente a proveedores de servicios TIC?
-  relevantes: []
+  relevantes:
+    - 0e96753f-d4b1-49b2-b22f-443ec85bf155
 - id: dora-11
   norma: DORA
   texto: ¿A qué entidades financieras se aplica DORA?
-  relevantes: []
+  relevantes:
+    - 5e61f4f7-fd2e-404d-969e-3459fdbfc865
+    - f71f5d94-b6a3-40d9-84cb-6c7639000e54
 - id: dora-12
   norma: DORA
   texto: ¿Qué requisitos hay para las políticas de continuidad de negocio y las copias de seguridad TIC?
-  relevantes: []
+  relevantes:
+    - d719b43f-ffac-418c-9ebe-4e4618e84b71
+    - 4146695e-7a3c-4bd2-9e9a-77e31f5523bd
+    - ae7f09a8-59a2-4a32-9571-b94cc1ef808e
+    - bd8c3f41-b909-4b50-8fda-6b39b4990eb1
 - id: dora-13
   norma: DORA
   texto: ¿Cómo regula DORA el intercambio de información sobre ciberamenazas entre entidades?
-  relevantes: []
+  relevantes:
+    - cbd5cced-c407-4e0f-a74d-70c415f89bb2
 
 # ── NIS2 · 11 consultas (el corpus tiene un 22,1 % de NIS2) ──────────────────
 - id: nis2-01
   norma: NIS2
   texto: ¿Qué plazo tiene una entidad esencial para notificar un incidente significativo?
-  relevantes: []
+  relevantes:
+    - eb0e5d25-15d3-4395-bb2e-0cc8231da4b9
+    - 908d4ab3-1c49-430d-a669-4cbd0f250940
+    - 9fd0dbe2-9b9c-42c6-b6ab-57982490eab3
 - id: nis2-02
   norma: NIS2
   texto: ¿Qué diferencia hay entre entidades esenciales y entidades importantes?
-  relevantes: []
+  relevantes:
+    - 25c9a07b-ba3a-411a-b874-dec6ab17709e
 - id: nis2-03
   norma: NIS2
   texto: ¿Qué medidas mínimas de gestión de riesgos de ciberseguridad hay que implantar?
-  relevantes: []
+  relevantes:
+    - 88565aab-0eba-4863-b19a-eeb0233e31f0
+    - e897462f-9219-45ba-96f8-aa6b78b95b23
 - id: nis2-04
   norma: NIS2
   texto: ¿Qué responsabilidad tienen los órganos de dirección en materia de ciberseguridad?
-  relevantes: []
+  relevantes:
+    - c01ff765-1e8a-4584-8d9b-d4ebf5d21f28
+    - e41044f0-e861-4a31-9783-9a08f8dd3922
 - id: nis2-05
   norma: NIS2
   texto: ¿Qué sectores quedan cubiertos por la directiva?
-  relevantes: []
+  relevantes:
+    - 5d3fb94c-a725-480c-a26f-f0e480c63abe
+    - 6a83c16a-248e-4b46-9298-b4b955d6a39b
+    - 4e574db0-7d3e-4a0f-bfb0-666273d24686
 - id: nis2-06
   norma: NIS2
   texto: ¿Qué sanciones máximas se prevén para las entidades esenciales?
-  relevantes: []
+  relevantes:
+    - adcc6480-b6c0-49be-9526-47b4bf8cf036
 - id: nis2-07
   norma: NIS2
   texto: ¿Qué debe contener la alerta temprana de las primeras 24 horas?
-  relevantes: []
+  relevantes:
+    - eb0e5d25-15d3-4395-bb2e-0cc8231da4b9
+    - 908d4ab3-1c49-430d-a669-4cbd0f250940
+    - 9fd0dbe2-9b9c-42c6-b6ab-57982490eab3
 - id: nis2-08
   norma: NIS2
   texto: ¿Qué exige la directiva sobre la seguridad de la cadena de suministro?
-  relevantes: []
+  relevantes:
+    - e897462f-9219-45ba-96f8-aa6b78b95b23
+    - 7a4e71e7-5cff-45e1-b5de-cccc1b5855a2
+    - bfa5cf89-7291-4192-8cce-19b2179827c8
 - id: nis2-09
   norma: NIS2
   texto: ¿Qué datos deben registrar las entidades ante las autoridades competentes?
-  relevantes: []
+  relevantes:
+    - f4a124d6-3926-46dc-8d9e-8ff1aa73d374
 - id: nis2-10
   norma: NIS2
   texto: ¿Cuándo se considera que un incidente es significativo?
-  relevantes: []
+  relevantes:
+    - eb0e5d25-15d3-4395-bb2e-0cc8231da4b9
+    - 908d4ab3-1c49-430d-a669-4cbd0f250940
 - id: nis2-11
   norma: NIS2
   texto: ¿Qué funciones cumplen los CSIRT?
-  relevantes: []
+  relevantes:
+    - ecd8d465-1b78-4898-ae15-bf6beb1f4e88
+    - fa8e6139-3612-4d0a-a6c3-79292fae2996
+    - 89ea165e-de43-4c6a-854c-2627d720a7f3
 
 # ── RD 311/2022 ENS · 6 consultas (el corpus tiene un 12,3 % de ENS) ─────────
 - id: ens-01
   norma: RD_311_2022
   texto: ¿Cómo se determina la categoría de un sistema de información?
-  relevantes: []
+  relevantes:
+    - ace210b6-9d6d-4e07-8942-ed9cb710befa
+    - 9860d5dc-0fb2-4f3c-9f7f-56e7f5e15b01
 - id: ens-02
   norma: RD_311_2022
   texto: ¿Qué dimensiones de seguridad se valoran y con qué niveles?
-  relevantes: []
+  relevantes:
+    - 9860d5dc-0fb2-4f3c-9f7f-56e7f5e15b01
 - id: ens-03
   norma: RD_311_2022
   texto: ¿Con qué periodicidad hay que auditar la conformidad con el Esquema Nacional de Seguridad?
-  relevantes: []
+  relevantes:
+    - df4d581b-b3bc-485c-bddb-be7ffa2db2d4
 - id: ens-04
   norma: RD_311_2022
   texto: ¿Qué es la declaración de aplicabilidad de las medidas de seguridad?
-  relevantes: []
+  relevantes:
+    - 92d35478-bce9-4ec1-b38f-78dca9e78c4e
+    - 81b3c55a-0b34-4e9b-ad42-12c2fdaa63e0
 - id: ens-05
   norma: RD_311_2022
   texto: ¿Qué debe recoger la política de seguridad de la información de una organización?
-  relevantes: []
+  relevantes:
+    - 1cc12215-1916-4f8c-afa1-56b45eaa4bfd
+    - 6ab0f224-1461-4b68-8a3d-dfa957895130
 - id: ens-06
   norma: RD_311_2022
   texto: ¿Qué medidas de protección de las comunicaciones se exigen?
-  relevantes: []
+  relevantes:
+    - f8f152e1-37b9-4c4f-ab06-3a44191cb0ef
+    - b320d0f6-aaab-4ba4-bb91-9d9450709a40
+    - bc4aeef3-99c3-4b01-99ea-d6ecbc05a73e
+    - f15d0c98-f5f0-4958-a191-6cbb0a2f5554
+    - 55aeea85-d289-45f7-b94a-e9609bb40153
 
 # ── eIDAS · 5 consultas (el corpus tiene un 11,2 % de eIDAS) ─────────────────
 - id: eidas-01
   norma: EIDAS
   texto: ¿Qué efectos jurídicos tiene una firma electrónica cualificada?
-  relevantes: []
+  relevantes:
+    - 1cb5512d-da65-48ae-9e1e-50ab00bdc33b
 - id: eidas-02
   norma: EIDAS
   texto: ¿Qué requisitos debe cumplir un prestador cualificado de servicios de confianza?
-  relevantes: []
+  relevantes:
+    - e45c0bee-7123-413c-8ca4-8acb394f01e6
+    - 3fbb833e-2052-4a30-9403-1ccac6dfd6ee
+    - 40461b60-e2fd-4121-b384-54d71a85c950
 - id: eidas-03
   norma: EIDAS
   texto: ¿Qué diferencia una firma electrónica avanzada de una cualificada?
-  relevantes: []
+  relevantes:
+    - b955a6b3-b2dd-4f21-8091-0ee665c53d44
+    - 1cb5512d-da65-48ae-9e1e-50ab00bdc33b
 - id: eidas-04
   norma: EIDAS
   texto: ¿Qué es un sello electrónico y qué presunción lleva asociada?
-  relevantes: []
+  relevantes:
+    - 0866e717-5171-4203-a6c1-0a7deac910fb
+    - 031e8255-c1ba-4bff-9727-b54152ac4e22
 - id: eidas-05
   norma: EIDAS
   texto: ¿Qué garantiza un sello de tiempo electrónico cualificado?
-  relevantes: []
+  relevantes:
+    - 41ac09ae-b90e-486f-9d3e-23216fabf271
+    - ede47214-aed7-476e-aa6c-d6a1b6f65ba1
