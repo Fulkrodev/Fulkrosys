@@ -1,0 +1,109 @@
+# .dockerignore · contexto de build de infra/docker/Dockerfile
+#
+# Criterio: la imagen arranca `uvicorn backend.app.main:app` y nada mas. Aqui
+# solo viaja lo que ese proceso lee en runtime o lo que el seed necesita para
+# aprovisionar. Todo lo demas se queda fuera, por peso, por superficie de
+# ataque o porque no debe salir del disco de su autor.
+#
+# Las rutas conservadas bajo docs/ estan medidas: se barrieron los lectores en
+# Python, shell, migraciones de Alembic y frontend, con las DOS formas de
+# construir la ruta (literal "docs/..." y por segmentos Path(...)/"docs"/...),
+# porque un grep de "docs/" no ve las segundas y deja fuera docs/catalogs,
+# que es la que mas lectores tiene.
+
+# ── 1. Contexto de build ────────────────────────────────────────────────────
+# .git es la linea mas importante del fichero: son ~29 MB Y el historial
+# completo. Meterlo en la imagen deshace cualquier purga de historial sin que
+# nadie se entere, porque el blob purgado sigue siendo recuperable desde
+# dentro del contenedor.
+.git
+.gitignore
+.gitattributes
+**/__pycache__
+**/*.pyc
+**/*.pyo
+.pytest_cache
+.ruff_cache
+.mypy_cache
+.venv
+venv
+node_modules
+**/node_modules
+
+# ── 2. Secretos ─────────────────────────────────────────────────────────────
+# Produccion inyecta las variables por docker-compose, nunca por fichero
+# copiado. .env.example se conserva: es documentacion, no lleva valores.
+.env
+.env.*
+**/.env
+**/.env.*
+# La excepcion va DESPUES de los patrones **/ para que no la anulen: en
+# .dockerignore gana la ultima regla que casa, no la mas especifica.
+!.env.example
+var/keys/
+*.pem
+*.key
+
+# ── 3. Tests ────────────────────────────────────────────────────────────────
+# 15,5 MB en 672 ficheros que no ejecutan una linea en produccion: la imagen
+# instala .[runtime], NO .[dev], asi que ni siquiera lleva pytest. Aqui vive
+# backend/tests/fixtures/corpus_seed.sql.gz; excluirlo es consecuencia de
+# excluir los tests, no el objetivo de esta seccion.
+backend/tests/
+frontend/tests/
+frontend/playwright.config.ts
+**/conftest.py
+
+# ── 4. Frontend ─────────────────────────────────────────────────────────────
+# La imagen corre uvicorn; el frontend tiene su propia imagen. Se conserva
+# frontend/public/ porque m_compliance/email_design/logos.py resuelve
+# parents[5]/frontend/public/brand para incrustar los logos en los correos.
+frontend/**
+!frontend/public/**
+
+# ── 5. Docker anidado, infraestructura y CI ─────────────────────────────────
+# 14 Dockerfile viven en backend/mcp_servers/, uno por servidor de pentesting:
+# describen como se construye la infraestructura, no los necesita el proceso.
+# .github/ lleva los workflows con nombres de secretos y host de despliegue.
+**/Dockerfile
+**/Dockerfile.*
+**/.dockerignore
+docker-compose*.yml
+infra/
+.github/
+
+# ── 6. Datos locales y artefactos ───────────────────────────────────────────
+# Evidencias de cliente, informes, CSV de leads, backups. Nada de esto debe
+# salir del disco de su autor.
+var/
+out/
+backups/
+logs/
+data/
+progress/
+_incoming/
+*.log
+
+# ── 7. Sitio estatico ───────────────────────────────────────────────────────
+# 3,8 MB de HTML que sirve un hosting de estaticos, no uvicorn.
+landing/
+
+# ── 8. Documentacion, con lista blanca ──────────────────────────────────────
+# docs/ NO se puede excluir en bloque: el seed y el runtime leen catalogos de
+# ahi y sin ellos el aprovisionamiento falla con FileNotFoundError. Lo que
+# sigue es la lista de lo que SI se lee, medida, no deducida de comentarios.
+#
+# AVISO, y que no se de por cerrado con esta linea: docs/catalogs/ se queda en
+# la imagen, y ahi dentro esta ens_measures_catalog_v1.yaml, cuya cabecera
+# declara "descripciones: CCN-STIC 804 v2017" y son parrafos copiados de esa
+# guia en 79 medidas. Este fichero NO resuelve ese problema. Solo lo resuelve
+# arreglar el catalogo.
+docs/**
+!docs/catalogs/**
+!docs/magerit_catalog/**
+!docs/pricing/**
+!docs/compliance/01-RGPD/**
+!docs/compliance/04-ISMS_ISO27001/**
+!docs/compliance/06-Sub_Processors/**
+!docs/compliance/09-Templates_Cliente_Sign/**
+!docs/SYSTEM_KNOWLEDGE_BASE.md
