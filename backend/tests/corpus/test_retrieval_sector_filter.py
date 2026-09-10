@@ -57,13 +57,30 @@ async def test_sector_solo_publico_excluye_dora(db: AsyncSession):
 
 @pytest.mark.asyncio
 async def test_sector_ambos_incluye_todos(db: AsyncSession):
-    """sector_aplicacion=['publico','privado'] debe incluir docs de cualquiera de los dos."""
+    """sector_aplicacion=['publico','privado'] debe incluir docs de AMBOS cubos.
+
+    El invariante es que pedir los dos sectores no colapse en uno solo: los
+    resultados tienen que mezclar un documento marcado exclusivamente
+    ``{privado}`` con otro marcado ``{publico,privado}``. Antes se comprobaba
+    exigiendo un documento CCN-STIC en el top-10; se comprueba igual de bien
+    con UE-DORA (privado) frente a RD 311/2022, NIS2, RGPD o eIDAS
+    (publico+privado), y ademas sin depender de material de terceros que ya
+    no se versiona. La consulta es "notificacion de incidentes" porque cubre
+    los dos cubos de forma estable.
+    """
     results = await hybrid_search(
-        db, "auditoria ENS", top_k=10,
+        db, "notificacion de incidentes", top_k=10,
         sector_aplicacion=["publico", "privado"],
     )
     assert len(results) > 0
-    # Debe incluir CCN-STIC docs (publico,privado)
     sources = {r.source_code for r in results if r.source_code}
-    ccn_docs = {s for s in sources if s.startswith("CCN-STIC")}
-    assert len(ccn_docs) > 0, f"Esperaba CCN-STIC en results: {sorted(sources)}"
+
+    # Cubo exclusivo de 'privado'.
+    assert "UE-DORA" in sources, (
+        f"Esperaba un documento solo-privado (UE-DORA) en results: {sorted(sources)}"
+    )
+    # Cubo compartido 'publico'+'privado'.
+    compartidos = sources & {"RD_311_2022", "UE-NIS2", "UE-RGPD", "UE-EIDAS"}
+    assert compartidos, (
+        f"Esperaba al menos un documento publico+privado en results: {sorted(sources)}"
+    )
