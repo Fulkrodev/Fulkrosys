@@ -45,6 +45,8 @@ DB_URL = os.environ.get(
     "DATABASE_URL_SYNC",
     "postgresql://fulkro:changeme@localhost:5433/fulkro",
 )
+# e5 espera 'query: ' en la consulta y 'passage: ' en el documento.
+E5_PASSAGE_PREFIX = "passage: "
 CHUNK_SIZE = 1500
 CHUNK_OVERLAP = 200
 EMBEDDING_DIM = 1024
@@ -407,7 +409,17 @@ def main() -> int:
         vecs: list[list[float]] = []
         BATCH = 32
         for offset in range(0, len(chunks), BATCH):
-            batch = chunks[offset:offset + BATCH]
+            # Prefijo 'passage: ' del lado del DOCUMENTO. e5 se entrena con
+            # 'query: ' en la consulta y 'passage: ' en el documento, y el
+            # buscador (backend/app/corpus/retrieval.py, E5_QUERY_PREFIX) SÍ
+            # pone el suyo. Este script no lo ponía: los fragmentos que hubiera
+            # ingerido habrían quedado en un espacio distinto del de las
+            # consultas. El corpus que hay cargado NO está afectado (se
+            # comprobó volviendo a embeber su contenido y comparándolo con el
+            # vector guardado: coseno 1,00000 con 'passage: '), pero cualquier
+            # documento añadido con este script sí lo habría estado.
+            # Lo que cuesta la asimetría, medido: docs/EVAL_RECUPERACION.md (F5).
+            batch = [E5_PASSAGE_PREFIX + c for c in chunks[offset:offset + BATCH]]
             try:
                 partial = emb.embed_documents(batch)
             except Exception as exc:

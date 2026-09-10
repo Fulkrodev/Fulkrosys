@@ -51,7 +51,7 @@ PYTEST ?= pytest
 PG_USER_DEMO ?= fulkro
 PG_DB_DEMO   ?= fulkro
 
-.PHONY: help demo smoke down clean test lint logs recorrido check-tools .env-keys
+.PHONY: help demo smoke down clean test lint logs recorrido recorrer-todo carga check-tools .env-keys eval-recuperacion
 
 # ───────────────────────────────────────────────────────────────────────────
 help:
@@ -89,6 +89,27 @@ help:
 	@echo "  make recorrido  Comprueba que el recorrido guiado de USAGE.md sigue"
 	@echo "                  siendo cierto: navega el demo y contrasta cada cifra,"
 	@echo "                  rótulo y botón que el documento promete."
+	@echo
+	@echo "  make recorrer-todo   Abre las 167 páginas de la aplicación, una por una,"
+	@echo "               con tres sesiones de verdad (operador, cliente y portal por"
+	@echo "               token) y por el puerto del frontend. De cada una mide si trae"
+	@echo "               CONTENIDO REAL o sólo dice «no hay datos», qué peticiones"
+	@echo "               fallan por debajo, si hay texto fabricado en pantalla y si"
+	@echo "               alguien puede llegar pinchando. Necesita el demo en pie."
+	@echo "                 informe  docs/RECORRIDO_COMPLETO.md"
+	@echo
+	@echo "  make carga   Rampa de concurrencia sobre los seis endpoints más usados"
+	@echo "               hasta encontrar dónde se rompe el p95, con una réplica y con"
+	@echo "               dos. Convierte «escalable» en un número con su límite dicho."
+	@echo "                 informe  docs/PRUEBA_DE_CARGA.md"
+	@echo
+	@echo "  make eval-recuperacion   MIDE si el buscador del corpus recupera lo que"
+	@echo "               debe: acierto@k, recall@k y MRR de las TRES ramas (BM25 sola,"
+	@echo "               vectorial sola y la fusión RRF) sobre 49 consultas etiquetadas"
+	@echo "               a mano, más el barrido de RRF_K con intervalos de confianza y"
+	@echo "               la latencia por etapa. NO mide la calidad de la RESPUESTA del"
+	@echo "               modelo, sólo qué fragmentos le llegan. Necesita el demo en pie."
+	@echo "                 informe con las conclusiones  docs/EVAL_RECUPERACION.md"
 	@echo
 
 # ───────────────────────────────────────────────────────────────────────────
@@ -379,3 +400,185 @@ recorrido:
 	fi
 	SECRETO_TOTP="$$secreto" NODE_PATH=frontend/node_modules \
 	  node scripts/verificar_recorrido_usage.cjs
+
+# ───────────────────────────────────────────────────────────────────────────
+# Evaluación de la recuperación del corpus (BLOQUE F).
+#
+# QUÉ MIDE: acierto@k, recall@k y MRR de las tres ramas del buscador (BM25
+# sola, vectorial sola y la fusión RRF), el barrido de la constante RRF_K con
+# intervalo de confianza por remuestreo, un ejemplo trabajado de la no
+# monotonía del RRF, si los embeddings guardados llevan el prefijo 'passage: '
+# que espera e5, y la latencia p50/p95 desglosada por etapa.
+#
+# QUÉ **NO** MIDE, y conviene tenerlo delante al leer los números:
+#   - La calidad de la RESPUESTA del copiloto. Esto mide qué fragmentos llegan
+#     al modelo; lo que el modelo hace con ellos es otra cosa y no se toca aquí.
+#   - Nada fuera de las 49 consultas etiquetadas (de 50 escritas; una se excluye
+#     porque el corpus no la responde). 49 es una muestra PEQUEÑA: por eso cada
+#     punto lleva su intervalo de confianza, que sale ancho.
+#   - La relevancia graduada: aquí es binaria (el porqué, en el informe).
+#   - Cualquier corpus que no sea el que hay cargado en el demo en ese momento.
+#     El script imprime los recuentos que encuentra ANTES de medir, para que se
+#     vea contra qué se midió.
+#
+# Corre DENTRO del contenedor del backend, que es donde están fastembed y la
+# base. La primera ejecución descarga el modelo e5-large (~36 s medidos) y la
+# guarda en la capa del contenedor: si se recrea el contenedor, se repite.
+#
+# Con EVAL_AB_PREFIJO=no se salta el A/B de F5, que vuelve a embeber los 1.031
+# fragmentos dos veces y es lo que más tarda.
+EVAL_AB_PREFIJO ?= si
+EVAL_REPETICIONES ?= 5
+eval-recuperacion:
+	@cid="$$($(DC) ps -q backend 2>/dev/null || true)"
+	if [ -z "$$cid" ]; then
+		echo "ERROR: el backend del demo no está en pie. Ejecuta 'make demo' primero." >&2
+		exit 1
+	fi
+	extra=""
+	[ "$(EVAL_AB_PREFIJO)" = "no" ] && extra="--sin-ab-prefijo" || true
+	docker cp scripts/evaluar_recuperacion.py "$$cid":/tmp/evaluar_recuperacion.py
+	docker cp backend/tests/eval/consultas_corpus.yaml "$$cid":/tmp/consultas_corpus.yaml
+	docker exec "$$cid" python /tmp/evaluar_recuperacion.py \
+	  --conjunto /tmp/consultas_corpus.yaml \
+	  --salida /app/out/eval_recuperacion.json \
+	  --repeticiones-latencia $(EVAL_REPETICIONES) $$extra
+	docker cp "$$cid":/app/out/eval_recuperacion.json out/eval_recuperacion.json
+	echo
+	echo "Resultados en bruto: out/eval_recuperacion.json"
+	echo "Conclusiones y decisiones: docs/EVAL_RECUPERACION.md"
+
+# ───────────────────────────────────────────────────────────────────────────
+# Recorrido COMPLETO de la aplicación (BLOQUE E).
+#
+# La regla que manda sobre todas las demás aquí:
+#     UNA PÁGINA QUE CARGA NO ES UNA PÁGINA QUE FUNCIONA.
+#
+# QUÉ MIDE: abre las 167 páginas que declara `frontend/app` —el inventario se
+# DERIVA del árbol, no se escribe a mano— con tres sesiones de verdad (operador,
+# cliente y portal por token) y SIEMPRE por el puerto del frontend. De cada una
+# recoge: estado del documento, errores de consola y de página, peticiones XHR o
+# fetch que devuelvan 4xx/5xx con su URL, promesas rechazadas sin capturar y una
+# captura de pantalla. Después clasifica cada página en CONTENIDO REAL o ESTADO
+# VACÍO (una que dice «no hay datos» NO aprueba), busca texto fabricado en el DOM
+# visible ([MOCK], undefined, NaN, null, lorem, TODO, FIXME) y recorre los
+# enlaces en anchura para contar cuántas páginas se alcanzan pinchando y cuántas
+# existen sin que nadie las enlace.
+#
+# QUÉ **NO** MIDE:
+#   - Que los datos sean CORRECTOS. Mide que HAY datos y que la pantalla no se
+#     rompe; si una cifra está mal calculada, esto no se entera.
+#   - Nada que haya detrás de un formulario: no rellena ni envía nada. Es un
+#     recorrido de lectura.
+#   - Los portales por token no se recorren en anchura: se entra en ellos por un
+#     enlace que llega por correo, no pinchando desde la aplicación. Por eso NO
+#     se cuentan como huérfanos; se declaran aparte.
+#
+# Necesita el demo en pie (`make demo`) y los navegadores de Playwright
+# instalados (frontend/node_modules + ~/.cache/ms-playwright).
+RECORRIDO_ESPERA ?= 4000
+RECORRIDO_MAX_BFS ?= 220
+recorrer-todo:
+	@if [ ! -d frontend/node_modules/playwright ]; then
+		echo "Falta frontend/node_modules/playwright. Ejecuta: (cd frontend && npm ci)" >&2
+		exit 1
+	fi
+	cid="$$($(DC) ps -q backend 2>/dev/null || true)"
+	if [ -z "$$cid" ]; then
+		echo "ERROR: el backend del demo no está en pie. Ejecuta 'make demo' primero." >&2
+		exit 1
+	fi
+	mkdir -p var/recorrido
+	@# 1 · identificadores REALES para las 83 rutas dinámicas. Sin esto habría
+	@# que inventarse UUIDs, y la pantalla de «no encontrado» devuelve HTTP 200:
+	@# entraría en verde una ruta que no se ha comprobado.
+	echo "==> resolviendo los identificadores de las rutas dinámicas"
+	docker cp scripts/recorrido_identificadores.py "$$cid":/tmp/recorrido_identificadores.py
+	docker exec -e PYTHONPATH=/app "$$cid" \
+	  python /tmp/recorrido_identificadores.py /tmp/identificadores.json >/dev/null 2>&1 || {
+		echo "ERROR: no se pudo construir el catálogo de identificadores." >&2
+		docker exec -e PYTHONPATH=/app "$$cid" \
+		  python /tmp/recorrido_identificadores.py /tmp/identificadores.json 2>&1 | tail -20 >&2
+		exit 1
+	}
+	docker cp "$$cid":/tmp/identificadores.json var/recorrido/identificadores.json
+	@# 2 · el segundo factor del operador, igual que hace `make recorrido`.
+	secreto="$$(docker exec $(PROJECT)-postgres-1 psql -U $(PG_USER_DEMO) -d $(PG_DB_DEMO) -tA \
+	  -c "SELECT s.secret FROM auth_totp_secrets s JOIN auth_users u ON u.id = s.user_id \
+	      WHERE u.email = '$(FULKRO_DEMO_OWNER_EMAIL)' AND s.verified LIMIT 1;" | tr -d '[:space:]')"
+	if [ -z "$$secreto" ]; then
+		echo "No hay segundo factor enrolado para $(FULKRO_DEMO_OWNER_EMAIL). ¿Corrió 'make demo'?" >&2
+		exit 1
+	fi
+	@# 3 · el recorrido. Devuelve != 0 si hay páginas fallidas o vacías sin
+	@# justificar; el informe se genera IGUAL, porque un recorrido que falla es
+	@# justo el que hay que leer.
+	rc=0
+	SECRETO_TOTP="$$secreto" NODE_PATH=frontend/node_modules \
+	  RECORRIDO_ESPERA=$(RECORRIDO_ESPERA) RECORRIDO_MAX_BFS=$(RECORRIDO_MAX_BFS) \
+	  node scripts/recorrer_todo.cjs || rc=$$?
+	python3 scripts/recorrido_informe.py
+	echo
+	echo "Informe:  docs/RECORRIDO_COMPLETO.md"
+	echo "Capturas: var/recorrido/capturas/  ·  Detalle: var/recorrido/recorrido.json"
+	exit $$rc
+
+# ───────────────────────────────────────────────────────────────────────────
+# Prueba de carga modesta (BLOQUE H).
+#
+# Para qué: para poder decir «escalable» con un número detrás. Sin un límite
+# medido la palabra no significa nada — toda aplicación escala hasta que deja de
+# hacerlo, y lo único defendible es decir DÓNDE deja de hacerlo.
+#
+# QUÉ MIDE: una rampa de concurrencia (1→80) sobre los seis endpoints más
+# llamados de verdad —elegidos contando el tráfico que el recorrido completo del
+# BLOQUE E generó sobre el registro de acceso del backend, no a ojo— hasta
+# encontrar dónde se rompe el p95. Publica p50/p95/p99, peticiones por segundo,
+# errores y el uso de CPU de cada contenedor en cada escalón, que es lo que
+# permite decir dónde está el cuello en vez de suponerlo. Y repite la medida con
+# DOS RÉPLICAS del backend, reutilizando el montaje de D4.
+#
+# QUÉ **NO** MIDE, y conviene tenerlo delante al leer los números:
+#   - No es una prueba de producción. Corre contra un Docker Compose en un
+#     portátil donde la base, Redis, MinIO, el frontend y el propio generador de
+#     carga comparten las mismas CPU. Los números absolutos valen para ESA
+#     máquina; lo que se traslada es la forma de la curva y dónde está el cuello.
+#   - No mide el frontend: entra por el puerto del backend a propósito.
+#   - No mide escrituras: todos los endpoints son de lectura, porque una rampa
+#     de escrituras dejaría el demo inservible para el resto de bloques.
+#   - Con concurrencias altas, parte del límite puede ser del propio generador
+#     (Python con hilos). Por eso se publica la CPU por contenedor: es lo que
+#     distingue «se rompió el servidor» de «se rompió mi medidor».
+CARGA_SEGUNDOS ?= 12
+carga:
+	@cid="$$($(DC) ps -q backend 2>/dev/null || true)"
+	if [ -z "$$cid" ]; then
+		echo "ERROR: el demo no está en pie. Ejecuta 'make demo' primero." >&2
+		exit 1
+	fi
+	mkdir -p out
+	echo "==> 1 de 2 · una réplica"
+	python3 scripts/prueba_de_carga.py --replicas 1 --segundos $(CARGA_SEGUNDOS) \
+	  --salida out/carga_1_replica.json
+	echo
+	echo "==> 2 de 2 · dos réplicas (montaje de D4: nginx + reparto por turnos)"
+	docker compose -f $(COMPOSE_FILE) -f docker-compose.escalabilidad.yml -p $(PROJECT) \
+	  up -d --no-build --scale backend=2 >/dev/null
+	@# Espera activa a que las DOS estén sanas: medir contra una réplica que
+	@# todavía arranca daría un p95 malísimo que no es del sistema, es del reloj.
+	for i in $$(seq 1 60); do
+		sanos="$$(docker ps --filter "label=com.docker.compose.project=$(PROJECT)" \
+		          --filter "label=com.docker.compose.service=backend" \
+		          --format '{{.Status}}' | grep -c healthy || true)"
+		[ "$${sanos:-0}" -ge 2 ] && break
+		sleep 5
+	done
+	python3 scripts/prueba_de_carga.py --replicas 2 --segundos $(CARGA_SEGUNDOS) \
+	  --salida out/carga_2_replicas.json || true
+	echo "==> restaurando el demo a una sola réplica"
+	docker compose -f $(COMPOSE_FILE) -f docker-compose.escalabilidad.yml -p $(PROJECT) \
+	  down --remove-orphans >/dev/null 2>&1 || true
+	$(DC) up -d --no-build >/dev/null
+	echo
+	echo "Medidas en bruto: out/carga_1_replica.json · out/carga_2_replicas.json"
+	echo "Conclusiones:     docs/PRUEBA_DE_CARGA.md"
