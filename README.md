@@ -51,7 +51,22 @@ $ git grep -o 'Depends(require_client_user)' -- backend/app | wc -l        #  31
 $ git grep -o 'Depends(require_marcos_or_client)' -- backend/app | wc -l   #  24
 ```
 
-Ocho de cada diez endpoints protegidos exigen ser **el** administrador, en singular.
+**Cuidado con lo que miden esos tres comandos, porque una versión anterior de este README se
+equivocó aquí.** Cuentan *ocurrencias del literal*, no endpoints. De las 249 de `require_owner`,
+**132 están a nivel de `APIRouter`**, y cada una de esas protege todos los endpoints de su router
+—uno en `action_plans.py`, dieciséis en `agents/api.py`—:
+
+```bash
+$ git grep -o 'dependencies=\[Depends(require_owner)\]' -- backend/app | wc -l         # 132
+$ git grep -o 'dependencies=\[Depends(require_client_user)\]' -- backend/app | wc -l   #   6
+$ git grep -o 'dependencies=\[Depends(require_marcos_or_client)\]' -- backend/app | wc -l # 11
+```
+
+El multiplicador no es constante entre las tres puertas (53 %, 19 % y 46 % son de router), así que
+dividir 249 entre 304 y llamarlo «ocho de cada diez endpoints» compara poblaciones que no son
+comparables. **La cifra no sostiene la frase, y la frase se retira.** Lo que sí sostiene la tesis es
+otra evidencia que no depende de contar: solo hay dos poblaciones de sujeto (`dependencies.py:71`
+y `:113`) y no existe endpoint de alta.
 
 **Consecuencia, dicha sin adornos:** un despacho de tres consultores no puede usar esto tal cual.
 No hay bandeja de administración por usuario, ni roles intermedios, ni forma de repartir clientes
@@ -67,57 +82,45 @@ capa de identidad. Se eligió a sabiendas.
 
 ## Cómo probarlo
 
-**Estado: no hay un arranque de un solo comando.** No existe `Makefile` en el repositorio:
+Un solo comando, sin ninguna clave de API:
 
 ```bash
-$ ls Makefile
-ls: cannot access 'Makefile': No such file or directory
+git clone https://github.com/Fulkrodev/Fulkrosys.git
+cd Fulkrosys
+make demo
 ```
 
-Lo que sí funciona hoy, medido:
+Deja la aplicación en `http://localhost:3000` con datos dentro —73 medidas del Anexo II, 73
+entradas de Declaración de Aplicabilidad, 204 evidencias, 35 tareas de plan, 21 documentos y 1.031
+fragmentos de corpus normativo— e imprime las credenciales de los tres portales, incluido el
+código del segundo factor y el enlace firmado del auditor.
 
 ```bash
-# 1. Entorno e instalación
-python3 -m venv .venv && source .venv/bin/activate
-cd backend && pip install -e ".[dev]" && cd ..
-
-# 2. Infraestructura. Para arrancar la API bastan estos tres; clamav,
-#    celery-worker y celery-beat son los otros tres de núcleo y hacen
-#    falta para antivirus y tareas en segundo plano, no para servir.
-docker compose up -d postgres redis minio
-
-# 3. Base de datos: el orden importa y es inviolable.
-#    postgres se expone en el 5433 (docker-compose.yml:13), no en el 5432.
-export PGPASSWORD=changeme
-PSQL="psql -h localhost -p 5433 -U fulkro -d fulkro"
-$PSQL -f infra/docker/init-extensions.sql   # pgvector
-$PSQL -f infra/docker/init-functions.sql    # current_project_id() y current_client_id(), que usan las políticas RLS
-$PSQL -f infra/docker/init-roles.sql        # fulkro_app, fulkro_app_bypassrls, fulkro_migrate
-cd backend && alembic upgrade head && cd ..
-
-# 4. Claves de firma Ed25519 (el arranque las exige)
-python scripts/generate_dev_signing_keys.py   # dentro del venv activado
-
-# 5. Arrancar
-uvicorn backend.app.main:app --env-file .env --port 8000
-# OpenAPI en http://localhost:8000/docs
+make smoke     # comprueba que hay datos REALES en los tres portales
+make down      # para, conservando la base
+make clean     # borra también los volúmenes
 ```
 
-`docker-compose.yml` declara 22 servicios, pero **16 son de pentesting** y no hacen falta para
-levantar la plataforma:
+`make smoke` no consulta `/api/v1/health`, que devuelve un diccionario sin tocar la base y por
+tanto daría verde con el esquema vacío. Contrasta poblaciones contra umbrales y entra de verdad en
+administración, cliente y auditor. **Con la base vacía falla**: es su criterio de aceptación.
+
+Los detalles —requisitos con versiones probadas, RAM y disco medidos, cómo pararlo, y los
+problemas frecuentes con sus trazas reales— están en [`INSTALL.md`](INSTALL.md). La línea base de
+lo que había antes, con los siete fallos que encontraba quien seguía el README anterior en una
+máquina limpia, está en [`docs/INSTALL_TRACE.md`](docs/INSTALL_TRACE.md).
+
+### Levantarlo a mano, sin el perfil demo
+
+Se puede, pero necesita un entorno de compilación de C que el proyecto no declaraba: `pip install
+-e "backend[dev]"` arrastra `pycairo` vía `mjml-python` y se construye desde fuente. Los paquetes
+de sistema que hacen falta están en `INSTALL.md`. `docker-compose.yml` declara 22 servicios, pero
+**16 son de pentesting** y no hacen falta para levantar la plataforma:
 
 ```bash
 $ python3 -c "import yaml; print(len(yaml.safe_load(open('docker-compose.yml'))['services']))"
 22
 ```
-
-Los seis de núcleo son `postgres`, `redis`, `minio`, `clamav`, `celery-worker` y `celery-beat`.
-Los tres del paso 2 son los que la API necesita para responder; los otros tres cubren el antivirus
-de las evidencias y las tareas en segundo plano.
-
-**Frentes abiertos de arranque**, verificados: hay rutas absolutas a la máquina de su autor que
-rompen el pipeline de corpus en cualquier otro sitio (ver *Limitaciones*), y `.env.example` no
-trae las cuatro variables que `backend/app/startup_checks.py` exige, así que copiarlo no basta.
 
 ---
 
@@ -148,16 +151,31 @@ Esta tabla es deliberadamente incómoda, y es la cifra honesta.
 
 | | | cómo se mide |
 |---|---:|---|
-| Recolectables | **6.464** | `pytest backend/tests/ --collect-only -q \| tail -1` |
+| Recolectables | **6.470** | `pytest backend/tests/ --collect-only -q \| tail -1` |
 | Que requieren base de datos | **3.294** | `pytest backend/tests/ -m requires_db --collect-only -q \| tail -1` |
-| Verificados por el CI | **0** | el job `test` de `ci.yml:60` está condicionado a `workflow_dispatch` y nunca se ha disparado |
+| **Que el CI ejecuta de verdad** | **3.153** · el 48,7 % | el propio job lo cuenta y lo publica en su resumen |
 | Última cifra local publicada | 5.978 | `ci.yml:56`, de una ejecución del 9 de junio de 2026 |
+
+Los 6.470 recolectables son de ahora: hasta este cambio la recolección **abortaba con código 2** en
+cualquier entorno limpio, porque `bs4`, `respx` y `pypdf` se importaban sin estar declaradas. En
+máquina limpia daba `6383 tests collected, 7 errors`, sin llegar a ejecutar ni uno.
+
+Los 3.153 que corren en CI son los que no necesitan una base sembrada. Los 3.294 marcados
+`requires_db` quedan fuera y el propio workflow dice por qué y con qué marca se delimitan. Un CI que
+corre el 48,7 % y lo publica es honesto; uno que corre el 0 % mientras se presume de miles, no.
 
 **Esa cifra de 5.978 no reproduce hoy y no aparece en ninguna otra parte del repositorio.** Está
 escrita en un comentario del CI sin el comando que la produzca. Se conserva aquí como lo que es:
 una afirmación de sus autores, no una medición.
 
 No se escribe *"5.978 tests en verde"* porque nadie puede comprobarlo.
+
+> **Aviso para quien reproduzca cualquier cifra de este README.** Si su intérprete tiene `grep`
+> definido como función o alias que envuelve a `ugrep` con `--ignore-files`, respetará `.gitignore`
+> y **omitirá en silencio ficheros versionados**, devolviendo un límite inferior con cara de
+> medición. Medido aquí: 27 ficheros con `grep` a secas frente a 28 con `command grep`; el que
+> faltaba está versionado pero bajo un patrón ignorado. Use `command grep`, o `git grep`, y
+> compruebe con `type grep` qué está ejecutando en realidad.
 
 ---
 
@@ -197,16 +215,42 @@ normativo esto significa entregables falsos indistinguibles de los reales, y un 
 que miente. **Sigue abierto.** El arreglo correcto es propagar el fallo y marcar la entrada del
 ledger, no tapar el síntoma.
 
-### 2. El CI estaba en verde sin comprobar casi nada · ABIERTO
+### 2. El CI estaba en verde sin comprobar casi nada · RESUELTO en su mayor parte
 
-- El job `test` está colgado de `workflow_dispatch` (`ci.yml:60`) y **nunca se ha ejecutado**.
-- `mypy` lleva `continue-on-error: true` (`ci.yml:35`), así que no bloquea nada.
-- El job `safety` revienta, no escribe informe, y su parser «tolerante» convierte eso en éxito.
-- **No hay branch protection ni rulesets**, así que los comentarios «block merge» de tres YAML son
-  ficción: no hay nada que bloquear.
+Lo que había, medido paginando el historial entero de GitHub Actions —362 ejecuciones, no la
+primera página—:
 
-Un CI en verde que no comprueba nada es peor que no tener CI, porque miente con autoridad.
-**Sigue abierto.**
+```bash
+$ curl -s "https://api.github.com/repos/Fulkrodev/Fulkrosys/actions/runs?per_page=100&page=N"
+CI                       121 ejecuciones · 121 de evento push · 0 de workflow_dispatch
+```
+
+Los jobs `test` y `playwright` estaban condicionados a `workflow_dispatch`, así que **no se habían
+ejecutado nunca**: ni una sola vez en 121 ejecuciones. `mypy` no fallaba por errores de tipo,
+*crasheaba* con código 2 por el doble convenio de import `app.*` frente a `backend.app.*` —no
+comprobaba ni un fichero— y `continue-on-error: true` lo pintaba verde. El job `safety` llevaba
+`|| true` y un parser que devolvía éxito ante fichero ausente, JSON corrupto o cambio de esquema.
+
+Qué se ha hecho:
+
+- El job `test` corre en cada `push` y `pull_request`, con la base provisionada de verdad
+  (extensiones, funciones, roles, `alembic upgrade head` y GRANTs), reutilizando la receta que ya
+  llevaba 41 ejecuciones verdes en `admin-polish-empirical.yml`.
+- **Corre 3.153 de 6.470 tests, el 48,7 %**, y el propio job lo publica en su resumen contándolo en
+  cada ejecución. Los 3.294 que necesitan base sembrada quedan fuera y está dicho por qué, con la
+  marca de pytest que los delimita.
+- `mypy` se invoca desde `backend/`, sin `continue-on-error`, acotado a una lista de módulos que ya
+  pasan limpios (160 de 1.056 ficheros). De golpe eran 515 errores en 212 ficheros. La lista solo
+  puede crecer.
+- El gate de `safety` se reescribió y se probó provocando los cuatro fallos a propósito: el parser
+  viejo devolvía éxito en los cuatro, el nuevo devuelve fallo en los cuatro.
+- `deploy.yml` desplegaba por SSH a un servidor borrado el 9 de septiembre. Se retiró a
+  `docs/historia/` en vez de parchearlo.
+
+**Lo que sigue abierto:** no hay branch protection —`protected: false`, comprobado contra la API—,
+así que los gates anteriores pueden saltarse. Es configuración de GitHub y hay que hacerla a mano;
+los pasos exactos están en [`docs/CI.md`](docs/CI.md). Y 896 de los 1.056 ficheros siguen sin
+pasar por `mypy`.
 
 ### 3. El detector de verdad vacua · RESUELTO en la parte medida
 
@@ -273,19 +317,31 @@ build con 299 heredados no la activa nadie, y una puerta que nadie activa no pro
 Este es anterior a la auditoría de ocho dimensiones —es de abril de 2026— y se cuenta porque
 explica una cifra que, mal contada, parece un agujero.
 
-El registro de agentes declara 32 identificadores, pero solo 13 están activos:
+El registro de agentes declara **31** identificadores, de los cuales **12** están activos. Y aquí
+hay que confesar un error propio, porque una versión anterior de este README dijo 32 y 13, y remató
+con un «cuadra» que era falso por partida doble.
+
+El fallo estaba en el método: contar con `grep` *literales de cadena* del fichero, que aparecen
+también en comentarios y docstrings, y no *entradas del registro*. Parseando el módulo con AST:
 
 ```bash
-$ grep -oE '"(activo|scaffolding|scaffolding_covered_by_engine|deprecated|externalized_to_motor)"' \
-    backend/app/agents/registry.py | sort | uniq -c
-     13 "activo"
-     14 "deprecated"
-      2 "externalized_to_motor"
-      1 "scaffolding"
-      2 "scaffolding_covered_by_engine"
+$ python3 -c "«recorrer AGENT_REGISTRY con ast y contar por status»"
+entradas del registro: 31
+   deprecated                       14
+   activo                           12
+   reservado                         2
+   externalized_to_motor             2
+   scaffolding_covered_by_engine     1
 ```
 
-**13 activos frente a 12 clases implementadas: cuadra.** No falta ningún agente.
+El segundo error iba en dirección contraria y por eso el resultado parecía cuadrar: el glob
+`backend/app/agents/*.py` **no es recursivo** y se dejaba fuera a `CopilotoAgent`, que vive en
+`agent_14_copiloto/__init__.py`. Buscando recursivamente son **13** clases, no 12.
+
+Así que la cifra honesta es **12 identificadores activos y 13 clases implementadas**, y no cuadran:
+hay una clase más que identificadores en activo. Dos errores que se compensaban producían un
+«cuadra» tranquilizador. Es exactamente el fallo que este README dice combatir, cometido en este
+README.
 
 Los 14 deprecados están así a propósito, y el motivo está escrito en el propio módulo:
 
@@ -312,23 +368,31 @@ reutilice un número y herede la confusión.
 
 ## Limitaciones conocidas
 
-**El pipeline de corpus no arranca fuera de la máquina de su autor.** Hay 34 rutas absolutas
-`/home/usuario` en 26 ficheros versionados, 6 de ellas en `backend/app/`:
+**Las rutas absolutas a la máquina del autor: resueltas, y lo que enseñaban.** Había 62
+ocurrencias de `/home/usuario` en 28 ficheros versionados, 13 de ellas código que se evaluaba al
+importar. Quedan 29 en 3 ficheros, todas documentación o registro fechado:
 
 ```bash
-$ git grep -o "/home/usuario" -- . ':!README.md' | wc -l
-34
-$ git grep -l "/home/usuario" -- . ':!README.md' | wc -l
-26
+$ grep -rIo "/home/usuario" --exclude-dir=.git . | wc -l    # 29
+$ grep -rIl "/home/usuario" --exclude-dir=.git .            # 3 ficheros
+docs/audit/AUDITORIA_2026-09.md          <- informe fechado · citas textuales
+README.md                                <- este texto
+out/audit_codigo_2026-06-14/FIX_TRACKER.md
 ```
 
-(Se excluye este README, que menciona la ruta cuatro veces para documentar el problema.
-Sin excluirlo salen 38 en 27 ficheros, y esa cifra mediría el texto que estás leyendo.)
+Lo interesante no era la cifra sino a dónde apuntaban. Los tres
+`load_dotenv(Path("/home/usuario/fulkro/.env"))` de los ingestores no señalaban a este repositorio:
+señalaban a un **segundo checkout** que existe en la máquina del autor y que tiene su propio `.env`
+con `DATABASE_URL`, `MINIO_SECRET_KEY` y `ANTHROPIC_API_KEY`. El pipeline funcionaba ahí, y solo
+ahí, tomando configuración de otro repositorio. Y como `load_dotenv` devuelve `False` sin lanzar
+nada, fuera de esa máquina el fallo era silencioso: no un error, un pipeline corriendo sin
+configuración.
 
-Un caso típico: `backend/app/corpus/ccn_stic_ingest.py:26` hace
-`load_dotenv(dotenv_path=Path("/home/usuario/fulkro/.env"))`.
+Un efecto colateral que merece figurar aquí: `backend/tests/corpus/test_rd311_parser.py` era
+**vacuamente verdadero** fuera de esa máquina —14 saltos silenciosos, porque la ruta absoluta nunca
+existía—. La misma clase de bug que el hallazgo 3, escondida detrás de una ruta.
 
-**La evaluación de agentes cubre uno de doce.** Hay un arnés completo de 2.428 líneas en
+**La evaluación de agentes cubre uno de trece.** Hay un arnés completo de 2.428 líneas en
 `backend/app/motors/m_observability/`, y un solo dataset, con 10 ejemplos:
 
 ```bash
