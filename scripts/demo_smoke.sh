@@ -341,9 +341,20 @@ fi
 
 # ════════════════════════════════════════════════════════════════════════════
 titulo "5 · frontend"
-# Esto es una comprobación de VIDA, no de datos: dice que Next.js sirve HTML.
-# Lo que hay detrás de la pantalla de entrada ya lo han comprobado los apartados
-# 1 a 4 contra la API.
+# Dos comprobaciones distintas, y la diferencia importa:
+#   5.a  vida        Next.js sirve HTML.
+#   5.b  camino real el navegador llega al backend A TRAVES del frontend.
+#
+# 5.b se anadio el 2026-09-10 (bloque D · D3) porque faltaba, y su ausencia tapo
+# un fallo que dejaba el demo inservible por la web: `next build` HORNEA el
+# destino de los rewrites en .next/routes-manifest.json, el build se hacia sin
+# FULKRO_BACKEND_URL, y el manifiesto quedaba apuntando a localhost:8000 — que
+# dentro del contenedor del frontend es el propio Next.js. Toda llamada del
+# navegador a la API devolvia 500 y no se podia ni entrar.
+#
+# Los apartados 1 a 4 no lo veian porque entran por el PUERTO DEL BACKEND
+# (127.0.0.1:18000). Median la API, no la aplicacion. La etiqueta tiene que
+# decir lo que el comando mide.
 : > "${TMPDIR_SMOKE}/index.html"
 # OJO: cuando curl no conecta imprime "000" Y ADEMÁS sale con código != 0. Un
 # `|| echo 000` encadenaría un segundo "000" y saldría "000000", que como número
@@ -358,6 +369,29 @@ if [ "$front_code" != "000" ] && [ "$front_code" -lt 500 ] && [ "$front_bytes" -
     ok "GET / (frontend)" "HTTP ${front_code} · ${front_bytes} bytes de HTML (vida, no datos)"
 else
     falla "GET / (frontend)" "HTTP ${front_code} · ${front_bytes} bytes"
+fi
+
+# ── 5.b · el camino que recorre de verdad el navegador ──────────────────────
+# Mismo POST de entrada que el apartado 2, pero por el puerto del FRONTEND. Si
+# el proxy /api/* del frontend no llega al backend, esto devuelve 500 aunque el
+# apartado 2 este en verde. No se comprueba la contrasena aqui: eso ya lo hizo
+# el apartado 2. Lo que se comprueba es que la peticion LLEGA.
+proxy_body="$(json_obj email "$OWNER_EMAIL" password "$OWNER_PASSWORD")"
+proxy_out="$(curl -s --max-time 20 -w '\n%{http_code}' -X POST \
+    "${DEMO_URL}/api/v1/auth/login" \
+    -H 'Content-Type: application/json' -d "$proxy_body" 2>/dev/null)"
+proxy_code="$(printf '%s' "$proxy_out" | tail -n1)"
+proxy_json="$(printf '%s' "$proxy_out" | sed '$d')"
+proxy_ticket="$(printf '%s' "$proxy_json" | json_get mfa_ticket)"
+if [ -n "$proxy_ticket" ]; then
+    ok "POST /api/v1/auth/login (via frontend)" \
+       "HTTP ${proxy_code} · el proxy /api/* del frontend alcanza al backend"
+elif [ "$proxy_code" = "500" ]; then
+    falla "POST /api/v1/auth/login (via frontend)" \
+       "HTTP 500 · el frontend NO alcanza al backend. Mira 'make logs SERVICE=frontend': si dice ECONNREFUSED a localhost:8000, la imagen se construyo sin FULKRO_BACKEND_URL como build-arg."
+else
+    falla "POST /api/v1/auth/login (via frontend)" \
+       "HTTP ${proxy_code} · sin mfa_ticket · respuesta: $(printf '%s' "$proxy_json" | head -c 160)"
 fi
 
 # ════════════════════════════════════════════════════════════════════════════

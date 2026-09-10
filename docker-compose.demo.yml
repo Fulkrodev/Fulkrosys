@@ -385,6 +385,14 @@ services:
     build:
       context: ./frontend
       dockerfile: Dockerfile
+      args:
+        # MEDIDO 2026-09-10 (D3): esto TIENE que ir aqui y no solo en
+        # `environment`. `next build` hornea el destino de los rewrites en
+        # .next/routes-manifest.json y `next start` usa el manifiesto. Con la
+        # variable solo en runtime, el manifiesto quedaba en localhost:8000 —
+        # el propio Next.js dentro del contenedor — y TODA llamada del
+        # navegador a la API devolvia 500: no se podia ni entrar por la web.
+        FULKRO_BACKEND_URL: http://backend:8000
     image: fulkro/frontend:demo
     restart: unless-stopped
     env_file:
@@ -392,9 +400,10 @@ services:
     environment:
       NODE_ENV: production
       PORT: "3000"
-      # El frontend reescribe /api/* hacia el backend por la red interna. Se
-      # fuerza aquí porque el default apunta a localhost, que dentro del
-      # contenedor sería el propio Next.js.
+      # Se deja tambien en runtime por si una version futura de Next vuelve a
+      # evaluar rewrites() al arrancar. Hoy NO basta: quien manda es el
+      # build-arg de arriba (verificado por frontend/scripts/verificar-proxy-api.js
+      # al final del build).
       FULKRO_BACKEND_URL: http://backend:8000
     healthcheck:
       test: ["CMD-SHELL", "curl -fsS http://localhost:3000/ || exit 1"]

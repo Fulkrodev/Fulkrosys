@@ -279,13 +279,19 @@ services:
       - fulkro-net
 
   # ─────────────────────── Frontend Next.js 14 ───────────────────────
-  # next start. FULKRO_AUTH_PUBLIC_KEY + FULKRO_BACKEND_URL son RUNTIME env
-  # (server-side · middleware.ts + next.config rewrites) → NO build-args.
-  # FULKRO_BACKEND_URL se fuerza al servicio interno backend:8000.
+  # next start. FULKRO_AUTH_PUBLIC_KEY SÍ es runtime (middleware.ts la lee de
+  # process.env en cada peticion).
+  # FULKRO_BACKEND_URL NO lo es, aunque aquí ponía que sí: `next build` hornea
+  # el destino de los rewrites en .next/routes-manifest.json (medido 2026-09-10,
+  # bloque D · D3, sobre el demo: la variable estaba bien en runtime y el
+  # manifiesto seguía diciendo localhost:8000 → 500 en toda llamada del
+  # navegador). Va como build-arg, y se deja además en runtime por si cambia.
   frontend:
     build:
       context: ./frontend
       dockerfile: Dockerfile
+      args:
+        FULKRO_BACKEND_URL: http://backend:8000
     image: fulkro/frontend:prod
     restart: unless-stopped
     env_file:
