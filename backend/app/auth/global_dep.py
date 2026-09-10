@@ -64,6 +64,18 @@ WHITELIST_EXACT: frozenset[str] = frozenset({
     "/api/v1/client-auth/login",
     # ADR-030 · healthcheck público estándar · monitoring/k8s probes
     "/api/v1/health",
+    # BLOQUE G (2026-09-10) · punto de raspado de métricas. NO va bajo /api/v1
+    # a propósito: es la ruta que espera cualquier recolector.
+    #
+    # Se saca de la autenticación de SESIÓN porque un raspador no tiene ni
+    # cookie ni segundo factor, no porque sea público. Tiene su propia puerta,
+    # en `backend/app/main.py`: en producción exige
+    # `Authorization: Bearer $FULKRO_METRICS_TOKEN` y, si esa variable no está
+    # puesta, devuelve 503 en vez de servirse. Fuera de producción se sirve
+    # abierto, y eso es deliberado: si en el demo hiciera falta un token, `make
+    # demo` no podría enseñar que las métricas existen, y una capacidad que no
+    # se puede enseñar acaba siendo una que nadie comprueba.
+    "/metrics",
     # H49 fix (TODO-RBAC sub-bloque RBAC.B): m12 magic-links/consume es POST
     # con token en body (no en URL path). El whitelist 4.D usaba prefix
     # ``/api/v1/magic-links/consume/`` con slash trailing → no matchea

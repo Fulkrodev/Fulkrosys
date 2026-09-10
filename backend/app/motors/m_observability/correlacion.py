@@ -68,6 +68,33 @@ def _limpiar(valor: str) -> str:
     return limpio[:64] or uuid.uuid4().hex
 
 
+def _plantilla_de_ruta(request) -> str:  # noqa: ANN001
+    """La PLANTILLA de la ruta, con los parámetros como huecos.
+
+    No se usa `route.path` directamente: en esta aplicación devuelve la ruta
+    RELATIVA al router (medido: `/health` en vez de `/api/v1/health`), y dos
+    routers distintos con un `/me` cada uno acabarían en la MISMA serie de
+    métricas diciendo cosas distintas.
+
+    Se reconstruye desde la URL real sustituyendo el VALOR de cada parámetro por
+    su nombre: `/api/v1/projects/5686.../header` → `/api/v1/projects/{project_id}/header`.
+    Así la etiqueta es completa y sigue habiendo una serie por endpoint y no una
+    por UUID.
+
+    Si no casó ninguna ruta (un 404), se agrupa todo bajo una etiqueta fija: la
+    URL cruda de un 404 la elige quien llama, y sería una vía directa para
+    inflar la cardinalidad desde fuera.
+    """
+    if request.scope.get("route") is None:
+        return "<sin-ruta>"
+    ruta = request.url.path
+    for nombre, valor in (request.scope.get("path_params") or {}).items():
+        v = str(valor)
+        if v:
+            ruta = ruta.replace(v, "{" + nombre + "}")
+    return ruta
+
+
 class MiddlewareCorrelacion(BaseHTTPMiddleware):
     def __init__(self, app: ASGIApp) -> None:
         super().__init__(app)
@@ -89,8 +116,7 @@ class MiddlewareCorrelacion(BaseHTTPMiddleware):
             # La PLANTILLA de la ruta, no la URL: ver la nota de cabecera sobre
             # cardinalidad. Si Starlette no resolvio ruta (404), se agrupa todo
             # bajo una etiqueta fija por el mismo motivo.
-            ruta_obj = request.scope.get("route")
-            ruta = getattr(ruta_obj, "path", None) or "<sin-ruta>"
+            ruta = _plantilla_de_ruta(request)
             metodo = request.method
             HTTP_PETICIONES.sumar((metodo, ruta, str(codigo)))
             HTTP_DURACION.observar((metodo, ruta), duracion)
