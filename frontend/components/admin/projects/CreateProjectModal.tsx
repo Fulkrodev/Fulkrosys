@@ -131,6 +131,9 @@ export function CreateProjectModal() {
           <DialogDescription>
             Selecciona el cliente y los datos básicos del proyecto. La
             categoría ENS se puede ajustar después en Personalización.
+            {" "}Para un cliente que <strong>todavía no existe</strong>, usa
+            «Alta de cliente nuevo»: ese asistente crea cliente y proyecto
+            juntos, con su análisis de riesgos inicial.
           </DialogDescription>
         </DialogHeader>
         <form

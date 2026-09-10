@@ -47,7 +47,11 @@ FULKRO_DEMO_OWNER_PASSWORD ?= fulkro-demo-2026
 RUFF   ?= ruff
 PYTEST ?= pytest
 
-.PHONY: help demo smoke down clean test lint logs check-tools .env-keys
+# Conexión a la base del demo (la fija docker-compose.demo.yml en `environment:`).
+PG_USER_DEMO ?= fulkro
+PG_DB_DEMO   ?= fulkro
+
+.PHONY: help demo smoke down clean test lint logs recorrido check-tools .env-keys
 
 # ───────────────────────────────────────────────────────────────────────────
 help:
@@ -81,6 +85,10 @@ help:
 	@echo "               provisionada:  bash scripts/build_test_db.sh"
 	@echo
 	@echo "  make lint    ruff check backend/  (lo mismo que el job 'lint' de CI)."
+	@echo
+	@echo "  make recorrido  Comprueba que el recorrido guiado de USAGE.md sigue"
+	@echo "                  siendo cierto: navega el demo y contrasta cada cifra,"
+	@echo "                  rótulo y botón que el documento promete."
 	@echo
 
 # ───────────────────────────────────────────────────────────────────────────
@@ -349,3 +357,25 @@ test:
 # Mismo comando que el job 'lint' de .github/workflows/ci.yml (que fija ruff==0.15.13).
 lint:
 	@$(RUFF) check backend/
+
+# ───────────────────────────────────────────────────────────────────────────
+# Comprueba que el recorrido guiado de USAGE.md sigue siendo cierto: navega el
+# demo como una persona y contrasta CADA cosa que el documento promete (rótulos,
+# cifras, botones, las cinco evidencias firmadas, los tres portales). Un
+# recorrido guiado envejece en silencio; esto lo mide.
+# Necesita el demo en pie y los navegadores de Playwright ya instalados
+# (frontend/node_modules + ~/.cache/ms-playwright).
+recorrido:
+	@if [ ! -d frontend/node_modules/playwright ]; then
+		echo "Falta frontend/node_modules/playwright. Ejecuta: (cd frontend && npm ci)" >&2
+		exit 1
+	fi
+	secreto="$$(docker exec $(PROJECT)-postgres-1 psql -U $(PG_USER_DEMO) -d $(PG_DB_DEMO) -tA \
+	  -c "SELECT s.secret FROM auth_totp_secrets s JOIN auth_users u ON u.id = s.user_id \
+	      WHERE u.email = '$(FULKRO_DEMO_OWNER_EMAIL)' AND s.verified LIMIT 1;" | tr -d '[:space:]')"
+	if [ -z "$$secreto" ]; then
+		echo "No hay segundo factor enrolado para $(FULKRO_DEMO_OWNER_EMAIL). ¿Corrió 'make demo'?" >&2
+		exit 1
+	fi
+	SECRETO_TOTP="$$secreto" NODE_PATH=frontend/node_modules \
+	  node scripts/verificar_recorrido_usage.cjs

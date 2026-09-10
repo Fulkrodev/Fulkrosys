@@ -5,6 +5,7 @@ import {
   FolderOpen,
   Search,
   SortAsc,
+  UserPlus,
 } from "lucide-react";
 import Link from "next/link";
 import * as React from "react";
@@ -120,6 +121,25 @@ export default function ProjectsPage() {
           </p>
         </div>
         <div className="flex items-center gap-2">
+          {/*
+            D3 (2026-09-10) · el alta de un cliente NUEVO no tenia ningun enlace
+            en toda la interfaz. `ProjectDiagnosticoWizard` se documenta a si
+            mismo como "entry point unico /admin/projects/new", pero medido
+            (`command grep -rn "projects/new" frontend/` sobre .tsx/.ts) los
+            unicos que la nombraban eran su propia pagina, el redirect de
+            /admin/clients/new y tres ficheros de test: NADA de la interfaz
+            llevaba alli. El boton visible, "Nuevo proyecto", abre un modal que
+            crea un proyecto para un cliente que YA existe, que es otra cosa.
+            Se anaden los dos caminos, con la etiqueta diciendo cual es cual.
+          */}
+          <Link
+            href="/admin/projects/new"
+            data-testid="alta-cliente-nuevo"
+            className="inline-flex items-center gap-1.5 rounded-md border border-fulkro-primary-700/30 px-3 py-2 text-sm font-medium text-fulkro-primary-700 transition-colors hover:bg-fulkro-primary-700/10 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-fulkro-primary-700"
+          >
+            <UserPlus size={14} aria-hidden="true" />
+            Alta de cliente nuevo
+          </Link>
           <CreateProjectModal />
         </div>
       </header>
