@@ -58,6 +58,24 @@ def main() -> None:
     blanca = json.loads(BLANCA.read_text(encoding="utf-8")) if BLANCA.exists() else {}
     res = d["resultados"]
 
+    # La lista blanca se aplica AQUI ademas de en el arnes, y por un motivo
+    # practico: la lista se escribe DESPUES de la primera medicion (hay que ver
+    # que paginas salen vacias para poder justificarlas una a una), asi que la
+    # medida guardada puede ser anterior al fichero. Es la MISMA regla y el
+    # MISMO fichero que aplica `scripts/recorrer_todo.cjs` al medir, de modo que
+    # la siguiente ejecucion de `make recorrer-todo` da exactamente estos
+    # numeros por si sola.
+    #
+    # Solo puede ASCENDER una "vacia" a "vacia justificada". Nunca toca una
+    # fallida ni una no verificada: si la lista blanca pudiera tapar un fallo,
+    # seria el agujero por el que se cuela justo lo que este bloque persigue.
+    reclasificadas = 0
+    for r in res:
+        if r["estado"] == "vacia" and r["patron"] in blanca:
+            r["estado"] = "vacia-justificada"
+            r["razones"] = [blanca[r["patron"]]]
+            reclasificadas += 1
+
     def cuenta(estado: str) -> int:
         return sum(1 for r in res if r["estado"] == estado)
 

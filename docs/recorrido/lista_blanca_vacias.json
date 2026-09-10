@@ -1,0 +1,11 @@
+{
+  "/forbidden": "Es la pantalla de «403 · Acceso restringido». Su contenido ES el aviso: una página de acceso denegado con datos sería una contradicción. Vacía por naturaleza, no por falta de sembrado.",
+
+  "/auditor-portal/[token]/pentest": "«Sin pentest registrado · El pentest técnico es obligatorio en la categoría ALTA. Para BÁSICA y MEDIA puede aplicar opcionalmente». El proyecto del demo es MEDIA, así que la ausencia de pentest es el estado CORRECTO y la pantalla lo explica. Que salga con datos exigiría un proyecto ALTA.",
+
+  "/client-portal/retainer": "«Aún no hay oferta de mantenimiento · Cuando tu certificación ENS esté completa, aquí verás la propuesta». El proyecto del demo está en implantación, no certificado: la oferta de retainer todavía NO debe existir. Enseñar una aquí sería el defecto.",
+
+  "/client-portal/pentest-authorization": "«No hay ninguna autorización pentest pendiente todavía». Coherente con la entrada anterior: proyecto MEDIA sin pentest en curso, luego no hay nada que autorizar. La pantalla además dice qué pasará cuando lo haya.",
+
+  "/admin/llm-observability": "Todos los contadores a cero (llamadas 0 · coste 0,00 $ · latencia 0 ms) porque el demo se levanta SIN clave de Anthropic — `make demo` deja `ANTHROPIC_API_KEY=` vacía a propósito. No hay llamadas al modelo que observar, así que el cero es el número correcto. Es además el mismo dato que publica `/metrics` tras el BLOQUE G: si algún día no fuera cero sin haber configurado la clave, ESO sería el hallazgo."
+}
