@@ -118,20 +118,11 @@ def _ensure_m6_signing_dev_key() -> None:
 _ensure_m6_signing_dev_key()
 
 
-def pytest_collection_modifyitems(config, items):
-    """Fundación "suite fiable" · los tests ``@pytest.mark.llm`` hacen llamadas
-    REALES a la API de Anthropic (red + coste + flaky · un stall de streaming
-    cuelga la suite indefinidamente · el timeout per-test NO lo corta porque el
-    bloqueo vive en un worker-thread en el socket). Se SALTAN por defecto ·
-    opt-in explícito con ``FULKRO_RUN_LLM_TESTS=1`` (p.ej. nightly dedicado)."""
-    if os.environ.get("FULKRO_RUN_LLM_TESTS") == "1":
-        return
-    skip_llm = pytest.mark.skip(
-        reason="llamada LLM real · opt-in con FULKRO_RUN_LLM_TESTS=1",
-    )
-    for item in items:
-        if "llm" in item.keywords:
-            item.add_marker(skip_llm)
+# El hook ``pytest_collection_modifyitems`` que antes vivía aquí (el que salta
+# los tests ``@pytest.mark.llm``) se ha FUSIONADO con el del final del fichero.
+# Motivo: había DOS definiciones del mismo hook en este módulo (F811 de ruff);
+# Python se quedaba con la segunda y esta primera estaba MUERTA, así que el
+# skip de los tests LLM no se aplicaba. Ver la definición única al final.
 
 
 @asynccontextmanager
@@ -434,7 +425,39 @@ _DB_FIXTURES = {"db"}
 
 
 def pytest_collection_modifyitems(config, items):
-    """Marca `requires_db` todo test que solicite un fixture de base de datos."""
+    """Hook ÚNICO de colección. Hace DOS cosas, en este orden:
+
+    1. Marca ``requires_db`` todo test que solicite un fixture de base de datos.
+    2. Salta los tests ``@pytest.mark.llm`` salvo opt-in explícito.
+
+    OJO · esto era un F811 de ruff: este hook estaba DEFINIDO DOS VECES en este
+    mismo fichero (aquí y más arriba, junto a ``_ensure_m6_signing_dev_key``).
+    pytest sólo ve el último nombre que queda en el módulo, de modo que la
+    definición de arriba estaba muerta y su comportamiento —el skip de los
+    tests LLM— se había perdido en silencio. Esta función fusiona las dos y
+    recupera ese skip. NO añadas una segunda definición: amplía ésta.
+
+    Detalle del punto 2: los tests ``@pytest.mark.llm`` hacen llamadas REALES a
+    la API de Anthropic (red + coste + flaky · un stall de streaming cuelga la
+    suite indefinidamente · el timeout per-test NO lo corta porque el bloqueo
+    vive en un worker-thread en el socket). Se SALTAN por defecto · opt-in
+    explícito con ``FULKRO_RUN_LLM_TESTS=1`` (p.ej. nightly dedicado).
+
+    El marcado ``requires_db`` se aplica SIEMPRE, también en modo opt-in LLM:
+    la vieja definición hacía ``return`` temprano y, de haberse fusionado sin
+    cuidado, ese return se habría llevado por delante el punto 1.
+    """
+    # 1 · derivar requires_db del fixture solicitado (siempre)
     for item in items:
         if _DB_FIXTURES & set(getattr(item, "fixturenames", ())):
             item.add_marker(pytest.mark.requires_db)
+
+    # 2 · skip de los tests LLM salvo opt-in
+    if os.environ.get("FULKRO_RUN_LLM_TESTS") == "1":
+        return
+    skip_llm = pytest.mark.skip(
+        reason="llamada LLM real · opt-in con FULKRO_RUN_LLM_TESTS=1",
+    )
+    for item in items:
+        if "llm" in item.keywords:
+            item.add_marker(skip_llm)
