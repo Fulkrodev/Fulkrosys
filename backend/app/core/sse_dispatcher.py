@@ -22,7 +22,9 @@ Sesión 3B-2B.11 Ejecutable 6 Phase 11.1 (2026-05-27):
 from __future__ import annotations
 
 import asyncio
+import json
 import logging
+import os
 import uuid
 from collections import defaultdict, deque
 from dataclasses import dataclass, field
@@ -126,13 +128,32 @@ class SseDispatcher:
     async def dispatch(
         self, channel: str, event_type: str, data: dict,
     ) -> None:
-        """Dispatch event · entrega best-effort a todos subscribers + append replay buffer."""
+        """Despacha un evento: a este proceso y, si hay Redis, a los demas.
+
+        D4 (2026-09-10). Antes solo entregaba en ESTE proceso. Medido con dos
+        replicas detras de nginx y dos conexiones SSE abiertas, una en cada
+        replica: el evento llegaba a UNA de las dos. Ver
+        `docs/adr/ADR-003-escalabilidad-horizontal.md` y el arnes que lo mide,
+        `scripts/probar_dos_replicas.sh`.
+
+        Sin Redis se comporta exactamente igual que antes: el modo de una sola
+        replica no depende de nada nuevo.
+        """
         event = SseEvent(
             type=event_type,
             data=data,
             timestamp=datetime.now(timezone.utc).isoformat(),
         )
+        self.entregar_local(channel, event)
+        await publicar_en_bus(channel, event)
 
+    def entregar_local(self, channel: str, event: SseEvent) -> None:
+        """Entrega a los suscriptores DE ESTE proceso y anota en el replay buffer.
+
+        Lo llaman `dispatch` (evento nacido aqui) y el puente de Redis (evento
+        nacido en otra replica). Separarlo es lo que evita el bucle: el puente
+        NO vuelve a publicar lo que acaba de recibir.
+        """
         self._replay_buffers[channel].append(event)
 
         subscribers = list(self._subscribers.get(channel, []))
@@ -142,7 +163,7 @@ class SseDispatcher:
             except asyncio.QueueFull:
                 logger.warning(
                     "SSE queue full · dropping event channel=%s type=%s",
-                    channel, event_type,
+                    channel, event.type,
                 )
 
     def subscriber_count(self, channel: str) -> int:
@@ -360,3 +381,156 @@ def event_matches_audience(
 
 
 sse_dispatcher = SseDispatcher()
+
+
+# ════════════════════════════════════════════════════════════════════════════
+# D4 · puente entre replicas por Redis
+#
+# El despachador de arriba es de PROCESO: sus diccionarios viven en memoria. Con
+# una sola replica eso basta y es lo mas rapido que hay. Con dos, un evento
+# nacido en la replica A no llega jamas a los suscriptores de la B.
+#
+# Medido antes de escribir esto (scripts/probar_dos_replicas.sh, apartado 5):
+# dos conexiones SSE abiertas por nginx, una en cada replica, y un PATCH que
+# despacha `m17.plan.updated` -> "solo a 1 de 2".
+#
+# El puente es deliberadamente lo minimo: publicar en Redis lo que se despacha y
+# entregar en local lo que llegue de otras replicas. Contrapartidas escritas en
+# docs/adr/ADR-003-escalabilidad-horizontal.md; en resumen:
+#
+#   · Entrega "como mucho una vez". Si Redis se cae o la replica esta arrancando,
+#     el evento se pierde y NADIE lo reintenta. Es aceptable porque el SSE de
+#     esta aplicacion es una senal para refrescar, no un canal de datos: la
+#     interfaz vuelve a pedir el estado por HTTP. Un evento perdido cuesta que
+#     una pantalla tarde en actualizarse, no que se pierda un dato.
+#   · El replay buffer (deque de 100 por canal, para Last-Event-ID) sigue siendo
+#     de proceso. Si el navegador reconecta y cae en OTRA replica, el hueco no se
+#     puede rellenar. Ver el ADR.
+#   · Sin Redis, todo esto no existe y el comportamiento es el de siempre.
+# ════════════════════════════════════════════════════════════════════════════
+
+#: Prefijo de los canales de Redis. Va con prefijo propio para no chocar con
+#: Celery, que usa las bases 1 y 2 del mismo servidor.
+_PREFIJO_BUS = "fulkro:sse:"
+
+#: Identificador de ESTE proceso. Viaja en cada mensaje para descartar el eco:
+#: quien publica ya ha entregado en local, y volver a entregarlo duplicaria.
+_ID_PROCESO = str(uuid.uuid4())
+
+_cliente_bus = None          # redis.asyncio.Redis | None
+_bus_desactivado = False     # True cuando no hay Redis: no se reintenta por evento
+_tarea_puente = None         # asyncio.Task | None
+
+
+def _url_redis() -> str:
+    return os.environ.get("REDIS_URL", "").strip()
+
+
+async def _obtener_cliente():
+    """Cliente de Redis perezoso. Devuelve None si no hay Redis utilizable."""
+    global _cliente_bus, _bus_desactivado
+    if _bus_desactivado:
+        return None
+    if _cliente_bus is not None:
+        return _cliente_bus
+    url = _url_redis()
+    if not url:
+        _bus_desactivado = True
+        logger.info("SSE: sin REDIS_URL · entrega solo dentro de este proceso")
+        return None
+    try:
+        import redis.asyncio as redis_asyncio
+        _cliente_bus = redis_asyncio.from_url(url, decode_responses=True)
+        await _cliente_bus.ping()
+        return _cliente_bus
+    except Exception as exc:  # noqa: BLE001 — degradar, nunca tumbar el despacho
+        _bus_desactivado = True
+        _cliente_bus = None
+        logger.warning(
+            "SSE: Redis no utilizable (%s: %s) · entrega solo dentro de este "
+            "proceso. Con mas de una replica, los eventos NO cruzan.",
+            type(exc).__name__, exc,
+        )
+        return None
+
+
+async def publicar_en_bus(channel: str, event: SseEvent) -> None:
+    """Publica el evento para las demas replicas. Best-effort y silencioso."""
+    cliente = await _obtener_cliente()
+    if cliente is None:
+        return
+    try:
+        await cliente.publish(_PREFIJO_BUS + channel, json.dumps({
+            "origen": _ID_PROCESO,
+            "type": event.type,
+            "data": event.data,
+            "timestamp": event.timestamp,
+            "event_id": event.event_id,
+        }))
+    except Exception as exc:  # noqa: BLE001
+        logger.warning("SSE: no se pudo publicar en Redis (%s)", exc)
+
+
+async def _bucle_puente() -> None:
+    """Escucha lo que publican las demas replicas y lo entrega aqui."""
+    cliente = await _obtener_cliente()
+    if cliente is None:
+        return
+    pubsub = cliente.pubsub(ignore_subscribe_messages=True)
+    await pubsub.psubscribe(_PREFIJO_BUS + "*")
+    logger.info("SSE: puente entre replicas escuchando en %s*", _PREFIJO_BUS)
+    try:
+        async for mensaje in pubsub.listen():
+            if not mensaje or mensaje.get("type") not in ("message", "pmessage"):
+                continue
+            try:
+                cuerpo = json.loads(mensaje["data"])
+            except (TypeError, ValueError):
+                continue
+            if cuerpo.get("origen") == _ID_PROCESO:
+                continue  # eco de lo nuestro: ya se entrego en local
+            canal = str(mensaje["channel"])[len(_PREFIJO_BUS):]
+            sse_dispatcher.entregar_local(canal, SseEvent(
+                type=cuerpo.get("type", ""),
+                data=cuerpo.get("data") or {},
+                timestamp=cuerpo.get("timestamp", ""),
+                event_id=cuerpo.get("event_id") or str(uuid.uuid4()),
+            ))
+    except asyncio.CancelledError:
+        raise
+    except Exception as exc:  # noqa: BLE001
+        logger.warning("SSE: el puente entre replicas se ha caido (%s)", exc)
+    finally:
+        try:
+            await pubsub.aclose()
+        except Exception:  # noqa: BLE001
+            pass
+
+
+async def arrancar_puente_sse() -> None:
+    """Lo llama el `lifespan` de la aplicacion. Sin Redis no hace nada."""
+    global _tarea_puente
+    if _tarea_puente is not None and not _tarea_puente.done():
+        return
+    if not _url_redis():
+        logger.info("SSE: sin REDIS_URL · no se arranca el puente entre replicas")
+        return
+    _tarea_puente = asyncio.create_task(_bucle_puente(), name="sse-puente-replicas")
+
+
+async def parar_puente_sse() -> None:
+    """Cierre ordenado desde el `lifespan`."""
+    global _tarea_puente, _cliente_bus
+    if _tarea_puente is not None:
+        _tarea_puente.cancel()
+        try:
+            await _tarea_puente
+        except (asyncio.CancelledError, Exception):  # noqa: BLE001
+            pass
+        _tarea_puente = None
+    if _cliente_bus is not None:
+        try:
+            await _cliente_bus.aclose()
+        except Exception:  # noqa: BLE001
+            pass
+        _cliente_bus = None

@@ -385,7 +385,21 @@ async def lifespan(app: FastAPI):
             await refresh_pricing_from_db(_s)
     except Exception as _exc:  # pragma: no cover — arranque resiliente
         logger.warning("pricing refresh en arranque falló: {}", _exc)
+    # D4 · puente SSE entre réplicas. El despachador es de proceso; sin esto, con
+    # más de una réplica un evento nacido en una NO llega a los suscriptores de
+    # la otra (medido: 1 de 2 · scripts/probar_dos_replicas.sh). Sin REDIS_URL no
+    # hace nada y el comportamiento es el de una sola réplica, el de siempre.
+    try:
+        from backend.app.core.sse_dispatcher import arrancar_puente_sse
+        await arrancar_puente_sse()
+    except Exception as _exc:  # pragma: no cover — arranque resiliente
+        logger.warning("puente SSE entre réplicas no arrancó: {}", _exc)
     yield
+    try:
+        from backend.app.core.sse_dispatcher import parar_puente_sse
+        await parar_puente_sse()
+    except Exception:  # pragma: no cover
+        pass
     logger.info("FULKRO shutting down")
 
 

@@ -1,0 +1,46 @@
+# ════════════════════════════════════════════════════════════════════════════
+# BLOQUE D · D4 · "¿es escalable?" — la prueba que lo zanja
+#
+# Superposicion sobre docker-compose.demo.yml. Levanta DOS replicas del backend
+# detras de nginx con reparto por turnos, para comprobar sobre la aplicacion en
+# marcha —no sobre el codigo— si la sesion y un enlace de portal emitido por una
+# replica funcionan en la otra.
+#
+#   docker compose -f docker-compose.demo.yml -f docker-compose.escalabilidad.yml \
+#     -p fulkro-demo up -d --no-build --scale backend=2
+#
+# Lo automatiza scripts/probar_dos_replicas.sh, que ademas mide.
+#
+# Que cambia respecto del demo:
+#   · backend deja de publicar 127.0.0.1:18000 (dos replicas no pueden compartir
+#     un puerto del anfitrion). Ese puerto lo ocupa nginx.
+#   · nginx reparte por turnos y devuelve la cabecera X-Replica.
+#
+# El resultado real de la prueba, diga lo que diga, esta escrito en
+# docs/adr/ADR-003-escalabilidad-horizontal.md.
+# ════════════════════════════════════════════════════════════════════════════
+
+services:
+
+  backend:
+    # Sin puertos publicados: entra todo por nginx.
+    ports: !override []
+
+  nginx:
+    image: nginx:1.27-alpine
+    restart: unless-stopped
+    volumes:
+      - ./infra/docker/nginx-escalabilidad.conf:/etc/nginx/conf.d/default.conf:ro
+    ports:
+      - "127.0.0.1:18000:80"
+    depends_on:
+      backend:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "wget -q -O /dev/null http://localhost/api/v1/health || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+      start_period: 10s
+    networks:
+      - fulkro-demo-net
