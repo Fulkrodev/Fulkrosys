@@ -123,4 +123,19 @@ class TestSeedEnsMeasureRefuerzos:
                 {"tag": SOURCE_TAG},
             )
             orphans = result.scalar()
+            total = (await db.execute(
+                text(
+                    "SELECT count(*) FROM ens_measure_refuerzos r "
+                    "WHERE r.metadata ->> 'source' = :tag "
+                    "AND r.source_chunk_id IS NOT NULL"
+                ),
+                {"tag": SOURCE_TAG},
+            )).scalar()
+        # Sin esta guarda el test es vacuamente verdadero: sobre una tabla vacía
+        # el COUNT de huérfanas vale 0 y la aserción pasa sin haber examinado
+        # ninguna fila.
+        assert total > 0, (
+            "0 refuerzos con source_chunk_id: el corpus no está sembrado y este "
+            "test no puede verificar nada. Ejecuta scripts/build_test_db.sh."
+        )
         assert orphans == 0, f"Found {orphans} refuerzos con FK source_chunk_id huérfana"

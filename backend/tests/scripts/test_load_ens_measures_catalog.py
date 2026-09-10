@@ -63,6 +63,18 @@ class TestEnsMeasuresCatalog:
                 text("SELECT codigo, descripcion FROM ens_measures WHERE nombre LIKE 'TODO%'")
             )
             todos = result.mappings().all()
+            total_medidas = (await db.execute(
+                text("SELECT count(*) FROM ens_measures")
+            )).scalar()
+        # Sin esta guarda el test es vacuamente verdadero: sobre una tabla vacia
+        # el SELECT no devuelve filas, el bucle no se ejecuta y no se comprueba
+        # ni una asercion. Que no haya medidas TODO es un resultado legitimo,
+        # pero que no haya NINGUNA medida significa que el catalogo no esta
+        # cargado y el test no puede verificar nada.
+        assert total_medidas > 0, (
+            "0 filas en ens_measures: el catalogo no esta cargado y este test no "
+            "puede verificar nada. Ejecuta scripts/build_test_db.sh."
+        )
         for todo in todos:
             assert todo["descripcion"], f"TODO measure {todo['codigo']} has empty description"
 

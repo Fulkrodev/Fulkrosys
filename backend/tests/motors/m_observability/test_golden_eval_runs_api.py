@@ -113,6 +113,18 @@ async def test_admin_list_runs_filter_by_agent_name(async_client, db):
     data = r.json()
     assert data["total"] == 0
 
+    # Sin esta segunda llamada el test es vacuamente verdadero: sobre una base
+    # sin runs, total==0 se cumple tambien si el filtro se ignora por completo.
+    # Comparar contra el listado SIN filtro es lo que demuestra que filtra.
+    r_todos = await async_client.get(
+        "/api/v1/admin/observability/golden-eval/runs?days=7",
+    )
+    assert r_todos.status_code == 200
+    assert r_todos.json()["total"] > 0, (
+        "0 runs en total: no hay datos y este test no puede distinguir un filtro "
+        "correcto de una base vacia. Ejecuta scripts/build_test_db.sh."
+    )
+
 
 # ════════════════════════════════════════════════════════════════════
 # GET /runs/{run_id} · drill-down

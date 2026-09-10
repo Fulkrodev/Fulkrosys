@@ -70,6 +70,15 @@ async def test_chunk_ids_not_empty(db: AsyncSession):
         "WHERE chunk_ids IS NULL OR array_length(chunk_ids, 1) = 0"
     ))
     invalid = res.scalar_one()
+    total = (await db.execute(
+        text("SELECT COUNT(*) FROM knowledge_measure_mappings")
+    )).scalar_one()
+    # Sin esta guarda el test es vacuamente verdadero: sin mappings, el COUNT de
+    # invalidos vale 0 y la asercion pasa sin examinar ninguna fila.
+    assert total > 0, (
+        "0 mappings en knowledge_measure_mappings: el corpus no esta sembrado y "
+        "este test no puede verificar nada. Ejecuta scripts/build_test_db.sh."
+    )
     assert invalid == 0, f"{invalid} mappings con chunk_ids vacio/null"
 
 

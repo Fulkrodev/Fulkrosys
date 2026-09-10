@@ -96,12 +96,16 @@ logs/
 **/ccn/snapshots/
 data/ccn/
 .claude/
-out/
 
 # Cleanup 2026-06-08: artefactos generados (no VCS)
 frontend/tests/e2e/screenshots/
 docs/audits/screenshots/
-out/
+# `out/*` y no `out/`: git no permite re-incluir un fichero si su directorio
+# padre esta excluido, y la linea base del detector de vacuidad SI tiene que
+# versionarse (sin ella en el repo, el detector no distingue un sospechoso
+# nuevo de uno heredado).
+out/*
+!out/vacuity_baseline.txt
 
 # Ordenes de trabajo de la reconversion de la landing (2026-09).
 # Son instrucciones dirigidas al asistente, no documentacion del proyecto,

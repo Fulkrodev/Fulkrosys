@@ -106,4 +106,13 @@ async def test_no_orphan_chunks_after_v2_reset(db):
         )
     )
     count = r.scalar()
+    total = (await db.execute(
+        text("SELECT COUNT(*) FROM knowledge_chunks")
+    )).scalar()
+    # Sin esta guarda el test es vacuamente verdadero: sin chunks, el COUNT de
+    # huerfanos vale 0 y la asercion pasa sin examinar ninguna fila.
+    assert total > 0, (
+        "0 chunks en knowledge_chunks: el corpus no esta sembrado y este test no "
+        "puede verificar nada. Ejecuta scripts/build_test_db.sh."
+    )
     assert count == 0, f"Expected 0 orphan chunks post-v2, got {count}"
