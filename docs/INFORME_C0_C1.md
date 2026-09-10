@@ -113,10 +113,13 @@ Prefiero esta lista, cierta, a un «listo» que se rompe cuando alguien lo prueb
 
 4. **3.294 tests no corren en CI.** Son los `requires_db`. Falta sembrar la base en el runner.
 
-5. **La evaluación de agentes cubre 1 de 13.** Hay un arnés completo y un solo conjunto de datos,
-   con 10 ejemplos. Y el runner por línea de comandos del arnés **no evalúa nada**: sin clave
-   devolvía tasa de acierto 1.0 con cero entradas evaluadas y salida 0, un verde vacío perfecto. El
-   gate nuevo exige un mínimo de entradas evaluadas, pero los datos para evaluar siguen sin existir.
+5. ~~**La evaluación de agentes cubre 1 de 13.**~~ **Cerrado en el bloque D (D2), y la cifra de
+   aquí era generosa con la verdad**: el único dataset medía una *capability*, no una clase de
+   agente; la cobertura real de clases era **0**. Hoy son **3 de 13** (más la capability: 4
+   datasets, 40 entradas). Sigue en pie la otra mitad del hallazgo: el runner por línea de comandos
+   del arnés **no evalúa nada** —sin clave devuelve tasa 1.0 con cero entradas y salida 0, un verde
+   vacío perfecto— y el gate contra el modelo **no se ha ejecutado nunca** por falta de clave, así
+   que ninguno de los cuatro datasets tiene todavía una tasa de aciertos real. Ver `docs/CI.md` §4.1.
 
 6. **El modelo de embeddings no viene precargado.** La primera consulta del copiloto al corpus lo
    descarga de HuggingFace (unos 2 GB). Sin red, esa función falla; el resto de la aplicación va.

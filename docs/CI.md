@@ -191,24 +191,35 @@ sección 6.
 
 ## 4. Evaluaciones de agentes como gate (`evals.yml`)
 
-### 4.1 La cobertura real es 1 de 13
-
-Hay **un solo golden dataset**
-(`docs/catalogs/golden_datasets/deliverable_text_auditor/v1.json`, 10 entradas)
-frente a **13 clases de agente implementadas**. La cobertura es **1 de 13**, no
-«uno de doce».
+### 4.1 La cobertura real es 3 de 13 (bloque D · D2)
 
 ```
 $ command grep -rn "(AgentBase)" backend/app --include=*.py | wc -l
 13
 $ find docs/catalogs/golden_datasets/ -name '*.json' | wc -l
-1
-$ python3 -c "import json;print(len(json.load(open('docs/catalogs/golden_datasets/deliverable_text_auditor/v1.json'))['entries']))"
-10
+4
 ```
 
-Los otros doce agentes no tienen evaluación de ninguna clase. No hay número que
-enseñar sobre ellos, ni bueno ni malo.
+**4 datasets, 3 clases de agente.** La diferencia no es un descuido: el cuarto,
+`deliverable_text_auditor`, mide una *capability*, no una clase de agente. Cada
+uno con 10 entradas curadas: **40 entradas en total**.
+
+Hasta el 2026-09-10 esta sección decía «1 de 13», y era **generoso con la
+verdad**: contaba esa capability como si fuera un agente. La cobertura de clases
+de agente era **0**. Ahora son tres —`agent_27_clasificador`,
+`agent_18_reunion` y `agent_06_contratos`—, elegidos porque su salida es
+estructura verificable sin juicio (códigos de un catálogo cerrado, enumerados,
+intervalos, recuentos). Los que producen prosa siguen sin dataset a propósito.
+
+Las otras diez clases no tienen evaluación de ninguna clase. No hay número que
+enseñar sobre ellas, ni bueno ni malo.
+
+**Y lo que este 3 de 13 NO dice**: ninguno de los cuatro tiene todavía una tasa
+de aciertos real. El gate contra el modelo necesita `ANTHROPIC_API_KEY` y no se
+ha ejecutado nunca. Todo lo verde de `evals-arnes` mide el arnés y el cableado,
+no al modelo; los umbrales de 0,80 son los que declara cada dataset, no una
+medición calibrada. La primera ejecución real puede salir por debajo, y si sale,
+lo primero que hay que revisar son las bandas de curación, no el modelo.
 
 ### 4.2 El CLI del arnés no sirve como gate
 
