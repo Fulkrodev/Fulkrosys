@@ -141,9 +141,29 @@ $ python3 -c "from backend.app.main import app; from fastapi.routing import APIR
 1201
 ```
 
-Ese 1.201 sale de **introspeccionar el objeto `app` en ejecución**, no de contar decoradores en el
-fuente. El conteo estático difiere porque hay routers incluidos varias veces bajo prefijos
-distintos.
+**Ese comando ya no reproduce, y merece explicación porque es un caso de manual.** Desde FastAPI
+0.141, `include_router` deja de aplanar las rutas en `app.routes`: coloca objetos
+`_IncludedRouter` con resolución perezosa. El mismo comando, con `fastapi 0.141.1` y
+`starlette 1.6.0`, devuelve **0**, y no porque falte ningún endpoint. La etiqueta seguía diciendo
+«rutas», pero lo que contaba había pasado a ser «objetos `APIRoute` que están en el primer nivel
+de `app.routes`», que ya no es lo mismo.
+
+La forma robusta a la versión es preguntar por el esquema, que además es la definición correcta de
+«superficie de la API»: es lo que ve quien la consume.
+
+```bash
+$ python3 -c "from backend.app.main import app; e=app.openapi(); \
+M={'get','post','put','patch','delete','head','options','trace'}; \
+print(len(e['paths']),'caminos ·', sum(1 for v in e['paths'].values() for m in v if m in M),'operaciones')"
+1099 caminos · 1201 operaciones
+```
+
+El 1.201 era correcto como valor —son operaciones, camino por método— y el conteo estático de
+decoradores difiere porque hay routers incluidos varias veces bajo prefijos distintos. Lo que
+había caducado era el comando.
+
+Esto se llevó por delante dos tests que comprobaban registro de endpoints recorriendo `app.routes`
+y contaban 0. **Nadie lo había visto porque el job de tests del CI no se ejecutaba nunca.**
 
 ### Tests: lo que se puede afirmar y lo que no
 

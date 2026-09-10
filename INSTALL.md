@@ -160,11 +160,12 @@ docker pull ghcr.io/fulkrodev/fulkrosys/backend:latest
 docker pull ghcr.io/fulkrodev/fulkrosys/backend:sha-<sha completo>
 ```
 
-**Salvedad honesta:** el workflow que publica esa imagen
-([`.github/workflows/publish-image.yml`](.github/workflows/publish-image.yml)) se añade en este
-mismo cambio y **todavía no se ha ejecutado ni una vez**, así que a día de hoy no hay nada que
-descargar. El `docker pull` funcionará a partir del primer empujón a `main`. La vía que sí está
-medida es `make demo`.
+El workflow que la publica es
+[`.github/workflows/publish-image.yml`](.github/workflows/publish-image.yml), y su primera
+ejecución en `main` terminó en verde el 10 de septiembre de 2026. **Salvedad honesta:** lo que
+está medido de punta a punta es `make demo` (ver `docs/INSTALL_TRACE.md`); de esta vía se ha
+comprobado que el workflow publica, no que un tercero levante la aplicación partiendo del
+`docker pull`.
 
 ---
 

@@ -126,9 +126,26 @@ def test_admin_filter_blocks_unknown_event():
 
 
 def test_sse_client_endpoint_registered_in_main_app():
-    """sse_client_events_router debe estar montado en /api/v1/client-portal/projects."""
+    """sse_client_events_router debe estar montado en /api/v1/client-portal/projects.
+
+    Se consulta el esquema OpenAPI, no ``app.routes``. Desde FastAPI 0.141 el
+    ``include_router`` ya no aplana las rutas en ``app.routes``: deja objetos
+    ``_IncludedRouter`` y la resolucion es perezosa, asi que la comprobacion
+    anterior (recorrer ``app.routes`` buscando ``.path``) devolvia solo las cuatro
+    rutas propias de FastAPI —/openapi.json, /docs, /docs/oauth2-redirect,
+    /redoc— y fallaba aunque el endpoint estuviera perfectamente montado.
+    Medido el 2026-09-10 con fastapi 0.141.1 y starlette 1.6.0: el esquema
+    declara 1.099 caminos, 86 de ellos bajo client-portal, incluido este.
+
+    El esquema es ademas la definicion correcta de "superficie de la API": es lo
+    que ve quien la consume, y no depende de como FastAPI organice sus rutas por
+    dentro.
+    """
     from backend.app.main import app
 
-    routes = [r.path for r in app.routes if hasattr(r, "path")]
-    expected_path = "/api/v1/client-portal/projects/{project_id}/events"
-    assert expected_path in routes
+    caminos = app.openapi()["paths"]
+    esperado = "/api/v1/client-portal/projects/{project_id}/events"
+    assert esperado in caminos, (
+        f"{esperado} no esta en el esquema OpenAPI "
+        f"({len(caminos)} caminos declarados)"
+    )

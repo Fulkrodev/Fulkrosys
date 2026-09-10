@@ -103,8 +103,31 @@ async def test_c2_service_state_transitions_direct(db):
 
 
 def test_c2_api_endpoints_registered():
-    """Verifica que los 8 endpoints nuevos están registrados."""
+    """Verifica que los 8 endpoints nuevos están registrados.
+
+    Se consulta el esquema OpenAPI y no ``app.routes``: desde FastAPI 0.141 el
+    ``include_router`` ya no aplana las rutas ahí (deja ``_IncludedRouter`` con
+    resolución perezosa), así que el filtro anterior contaba 0 aunque los diez
+    endpoints existieran. Medido el 2026-09-10: son 10 en el esquema.
+    """
     from backend.app.main import app
-    paths = [r.path for r in app.routes if hasattr(r, "methods")]
-    obligations_paths = [p for p in paths if "/obligations" in p]
-    assert len(obligations_paths) >= 10  # 2 originales + 8 nuevos
+
+    # OJO con la poblacion que se cuenta: el test original contaba objetos-ruta
+    # de `app.routes`, es decir camino X metodo, no caminos. Son cosas distintas:
+    # aqui hay 8 caminos y 10 operaciones (dos caminos tienen dos metodos).
+    # Contar caminos y comparar contra el umbral de 10 seria comparar poblaciones
+    # que no son la misma, y el test fallaria por un error de etiqueta, no por
+    # un endpoint que falte.
+    METODOS_HTTP = {"get", "post", "put", "patch", "delete", "head", "options", "trace"}
+    esquema = app.openapi()["paths"]
+    operaciones = [
+        f"{metodo.upper()} {camino}"
+        for camino, item in esquema.items()
+        if "/obligations" in camino
+        for metodo in item
+        if metodo in METODOS_HTTP
+    ]
+    assert len(operaciones) >= 10, (  # 2 originales + 8 nuevos
+        f"esperaba >=10 operaciones con /obligations, hay {len(operaciones)}: "
+        f"{sorted(operaciones)}"
+    )
