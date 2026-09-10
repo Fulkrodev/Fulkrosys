@@ -88,7 +88,7 @@ export function CreateProjectModal() {
       toast.success(`Proyecto "${project.nombre}" creado`);
       setOpen(false);
       reset();
-      router.push(`${ROUTES.projects}/${project.id}/dashboard`);
+      router.push(`${ROUTES.projects}/${project.id}`);
     },
     onError: (err: Error) => {
       toast.error(`No se pudo crear el proyecto: ${err.message}`);

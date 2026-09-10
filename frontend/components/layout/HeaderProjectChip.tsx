@@ -56,7 +56,7 @@ export function HeaderProjectChip() {
 
   return (
     <Link
-      href={`/admin/projects/${activeProject.id}/dashboard`}
+      href={`/admin/projects/${activeProject.id}`}
       data-testid="header-project-chip"
       className="hidden items-center gap-2 rounded-md border border-white/15 bg-white/[0.08] px-3 py-1.5 text-sm text-white transition-colors hover:bg-white/[0.14] md:inline-flex"
       aria-label={`Proyecto activo: ${activeProject.clientName} · ${activeProject.name}`}

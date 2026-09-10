@@ -38,6 +38,25 @@ function clientSlug(client: { id: string; nombre: string }): string {
   return client.id;
 }
 
+// AVISO (medido 2026-09-10 · recorrido completo, BLOQUE E): el enlace de abajo
+// está roto POR DOS SITIOS A LA VEZ, y por eso NO se ha arreglado a medias.
+//
+//   1. `/dashboard` no existe. No hay ninguna carpeta `dashboard` bajo
+//      `app/(admin)/admin/projects/[id]/`. Se corrigió en HeaderProjectChip,
+//      ProjectBreadcrumb y CreateProjectModal, que apuntaban al mismo sitio
+//      inexistente (allí bastaba con quitar el sufijo: `/admin/projects/{id}`
+//      redirige a `/summary`).
+//   2. Aquí, además, se mete un id de CLIENTE donde va un id de PROYECTO. Un
+//      cliente puede tener varios proyectos y `clientSlug` devuelve
+//      `client.id` sin más.
+//
+// Quitar sólo el `/dashboard` cambiaría un 404 visible por una página de
+// «proyecto no encontrado» servida con HTTP 200: sería sustituir un fallo que
+// se ve por uno que no se ve, que es exactamente lo contrario de lo que busca
+// esta campaña. Arreglarlo de verdad exige resolver cliente → proyecto (elegir
+// cuál, o listar los suyos), y eso es una decisión de producto, no una
+// corrección de una línea.
+
 export function ProjectSwitcherDropdown() {
   const { data: clients, isLoading } = useClients();
   const activeProject = useActiveProjectStore((s) => s.activeProject);

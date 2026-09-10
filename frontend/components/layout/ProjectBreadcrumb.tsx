@@ -121,7 +121,7 @@ export function ProjectBreadcrumb() {
         </Link>
         <ChevronRight size={11} className="text-fulkro-ink-600" aria-hidden />
         <Link
-          href={`${ROUTES.projects}/${activeProject.id}/dashboard`}
+          href={`${ROUTES.projects}/${activeProject.id}`}
           className={
             isAtDashboard
               ? "font-semibold text-fulkro-primary-700"
