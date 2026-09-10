@@ -115,9 +115,19 @@ def abrir_sesion() -> urllib.request.OpenerDirector:
         with ab.open(req, timeout=30) as r:
             return json.loads(r.read().decode() or "{}")
 
-    post("/api/v1/auth/login",
-         {"email": "demo@fulkro.es", "password": "fulkro-demo-2026"})
-    post("/api/v1/auth/mfa/verify", {"code": totp(secreto_totp())})
+    # El segundo factor NO es independiente del login: `/auth/totp/verify` exige
+    # el `mfa_ticket` que devuelve `/auth/login`. Encadenarlos es lo que hace
+    # que esto entre por el MISMO camino que una persona, en vez de fabricar una
+    # cookie a mano — que mediria otra cosa.
+    r = post("/api/v1/auth/login",
+             {"email": "demo@fulkro.es", "password": "fulkro-demo-2026"})
+    ticket = r.get("mfa_ticket") or r.get("ticket") or ""
+    if not ticket:
+        raise SystemExit(
+            f"el login no devolvio mfa_ticket · respuesta: {list(r)[:8]}"
+        )
+    post("/api/v1/auth/totp/verify",
+         {"mfa_ticket": ticket, "code": totp(secreto_totp())})
     # Comprobacion explicita: si la sesion no vale, toda la medida siguiente
     # seria de codigos 401 y tendria una forma preciosa que no significa nada.
     with ab.open(API + "/api/v1/auth/me", timeout=15) as r:
