@@ -229,7 +229,7 @@ def main():
     ap = argparse.ArgumentParser(description=__doc__,
                                  formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--conjunto", default="/app/backend/tests/eval/consultas_corpus.yaml")
-    ap.add_argument("--salida", default="/app/out/eval_recuperacion.json")
+    ap.add_argument("--salida", default="/tmp/eval_recuperacion.json")
     ap.add_argument("--repeticiones-latencia", type=int, default=5)
     ap.add_argument("--sin-ab-prefijo", action="store_true",
                     help="salta el A/B de F5 (re-embeber los 1.031 fragmentos)")
@@ -391,19 +391,27 @@ def main():
         base, pts = rrf(c["bm25"], c["vec"], RRF_K_PRODUCCION)
         no_rel = [d for d in set(c["bm25"]) | set(c["vec"]) if d not in c["relevantes"]]
         encontrado = None
+        encontrado_estricto = None
         for quitado in sorted(no_rel):
             nb = [x for x in c["bm25"] if x != quitado]
             nv = [x for x in c["vec"] if x != quitado]
             nuevo_orden, npts = rrf(nb, nv, RRF_K_PRODUCCION)
             pos_a = {d: i for i, d in enumerate(base) if d != quitado}
             pos_b = {d: i for i, d in enumerate(nuevo_orden)}
-            inversiones = []
+            inversiones, estrictas = [], []
             supervivientes = sorted(pos_a, key=lambda d: pos_a[d])
             for i in range(len(supervivientes)):
                 for j in range(i + 1, len(supervivientes)):
                     x, y = supervivientes[i], supervivientes[j]
                     if pos_b.get(x, 1e9) > pos_b.get(y, 1e9):
                         inversiones.append((x, y))
+                        # ESTRICTA: antes x puntuaba MAS que y de verdad, y
+                        # despues y puntua MAS que x de verdad. Si alguno de
+                        # los dos lados es un empate, el vuelco lo decide el
+                        # criterio de desempate, no el RRF, y no vale como
+                        # demostracion.
+                        if pts[x] > pts[y] and npts.get(y, 0.0) > npts.get(x, 0.0):
+                            estrictas.append((x, y))
             if not inversiones:
                 continue
             afecta_top5 = (set(nuevo_orden[:5]) - {quitado}) != (set(base[:5]) - {quitado})
@@ -413,6 +421,11 @@ def main():
                 "quitado": quitado,
                 "quitado_estaba_en_top5": quitado in base[:5],
                 "inversiones": [{"sube": y, "baja": x} for x, y in inversiones],
+                "inversiones_estrictas": [{"sube": y, "baja": x,
+                                           "antes": {"baja": pts[x], "sube": pts[y]},
+                                           "despues": {"baja": npts.get(x, 0.0),
+                                                       "sube": npts.get(y, 0.0)}}
+                                          for x, y in estrictas],
                 "cambia_el_top5": bool(afecta_top5),
                 "antes": [{"id": d, "rrf": pts[d], "relevante": d in c["relevantes"],
                            "bm25": (c["bm25"].index(d) + 1) if d in c["bm25"] else None,
@@ -423,14 +436,20 @@ def main():
                              "vec": (nv.index(d) + 1) if d in nv else None}
                             for d in nuevo_orden[:5]],
             }
-            if afecta_top5:
-                break   # el mejor ejemplo posible: la inversion llega al top-5
+            if afecta_top5 and estrictas:
+                break   # el mejor ejemplo posible: estricta y llega al top-5
+            if encontrado_estricto is None and estrictas:
+                encontrado_estricto = encontrado
+        if encontrado_estricto is not None and not (
+                encontrado and encontrado.get("inversiones_estrictas")):
+            encontrado = encontrado_estricto
         if encontrado:
             ejemplos.append(encontrado)
         else:
             sin_ejemplo.append(qid)
 
     con_top5 = [e for e in ejemplos if e["cambia_el_top5"]]
+    con_estricta = [e for e in ejemplos if e["inversiones_estrictas"]]
     resultados["f4_no_monotonia"] = {
         "criterio": ("se invierte el orden relativo de dos documentos que SIGUEN "
                      "en la lista al quitar un tercero NO relevante"),
@@ -438,12 +457,19 @@ def main():
         "consultas_con_inversion": len(ejemplos),
         "consultas_sin_inversion": sin_ejemplo,
         "consultas_donde_la_inversion_llega_al_top5": len(con_top5),
-        "ejemplos": (con_top5[:2] or ejemplos[:2]),
+        "consultas_con_inversion_ESTRICTA": len(con_estricta),
+        "nota_empates": ("una inversion que pasa por un EMPATE de puntuacion la "
+                         "decide el criterio de desempate, no el RRF; por eso se "
+                         "cuentan aparte las estrictas"),
+        "ejemplos": ([e for e in con_estricta if e["cambia_el_top5"]][:2]
+                     or con_estricta[:2] or con_top5[:2] or ejemplos[:2]),
     }
     print(f"F4 · no monotonia (criterio: se INVIERTE el orden de dos documentos "
           f"que siguen estando)")
     print(f"     {len(ejemplos)} de {len(candidatos)} consultas tienen al menos una "
-          f"inversion; en {len(con_top5)} la inversion llega al top-5")
+          f"inversion; en {len(con_top5)} llega al top-5")
+    print(f"     de ellas, {len(con_estricta)} tienen una inversion ESTRICTA "
+          f"(desigualdad real de puntuacion, no un empate deshecho por el desempate)")
     if sin_ejemplo:
         print(f"     sin ninguna inversion: {len(sin_ejemplo)} consultas "
               f"(las que se quedan sin candidatos BM25 no pueden tenerla)\n")
@@ -503,31 +529,40 @@ def main():
         def evalua_matriz(M):
             por = []
             for qid, c in candidatos.items():
-                sims = M @ np.array(c["emb"])
-                orden = [ids[i] for i in np.argsort(-sims)[:VECTOR_TOP]]
+                orden = [ids[i] for i in np.argsort(-(M @ np.array(c["emb"])))[:VECTOR_TOP]]
                 mv = metricas_una(orden, c["relevantes"])
                 of, _ = rrf(c["bm25"], orden, RRF_K_PRODUCCION)
-                mf = metricas_una(of, c["relevantes"])
-                por.append({"vec": mv, "rrf": mf})
-            return (promedia([p["vec"] for p in por]),
-                    promedia([p["rrf"] for p in por]),
-                    [p["vec"]["acierto@5"] for p in por],
-                    [p["rrf"]["acierto@5"] for p in por])
+                por.append({"vec": mv, "rrf": metricas_una(of, c["relevantes"])})
+            return por
 
-        vc, fc, _, _ = evalua_matriz(M_con)
-        vs, fs, _, _ = evalua_matriz(M_sin)
+        por_con, por_sin = evalua_matriz(M_con), evalua_matriz(M_sin)
+        vc = promedia([p["vec"] for p in por_con])
+        fc = promedia([p["rrf"] for p in por_con])
+        vs = promedia([p["vec"] for p in por_sin])
+        fs = promedia([p["rrf"] for p in por_sin])
+        # El efecto es pequeño: sin un IC pareado, un +-0,02 no se distingue
+        # del ruido y publicarlo a secas seria una cifra vacia.
+        ab_contrastes = {}
+        for rama in ("vec", "rrf"):
+            for met in ("acierto@1", "acierto@5", "recall@5", "mrr"):
+                ab_contrastes[f"{rama} · {met} · con-passage menos sin-prefijo"] = \
+                    bootstrap_ic_pareado([p[rama][met] for p in por_con],
+                                         [p[rama][met] for p in por_sin])
         resultados["f5_ab_prefijo"] = {
             "segundos_reembeber_1031_con_passage": round(t_con, 1),
             "segundos_reembeber_1031_sin_prefijo": round(t_sin, 1),
             "con_passage": {"vectorial": vc, "rrf": fc},
             "sin_prefijo": {"vectorial": vs, "rrf": fs},
+            "contrastes_pareados": ab_contrastes,
         }
         print(f"    A/B (re-embebido {len(ids)} fragmentos: "
               f"{t_con:.0f}s con prefijo, {t_sin:.0f}s sin):")
-        print(f"      vectorial acierto@5  con 'passage: ' {vc['acierto@5']:.3f}  ->  "
-              f"sin prefijo {vs['acierto@5']:.3f}")
-        print(f"      fusion    acierto@5  con 'passage: ' {fc['acierto@5']:.3f}  ->  "
-              f"sin prefijo {fs['acierto@5']:.3f}")
+        print("      contraste (con 'passage: ' MENOS sin prefijo)      dif.     "
+              "IC95              ¿excluye el 0?")
+        for nom, c2 in ab_contrastes.items():
+            print(f"      {nom:<48} {c2['diferencia']:+.3f}   "
+                  f"[{c2['ic95'][0]:+.3f}, {c2['ic95'][1]:+.3f}]   "
+                  f"{'SI' if c2['excluye_el_cero'] else 'no'}")
     print()
 
     # --- F6 · latencia ------------------------------------------------------
@@ -553,13 +588,29 @@ def main():
     total_ms = [sum(x) for x in zip(*(etapas[e] for e in etapas))]
     lat["TOTAL"] = {"p50_ms": round(pct(total_ms, 0.50), 2),
                     "p95_ms": round(pct(total_ms, 0.95), 2), "n": len(total_ms)}
+    # La carga del anfitrion se anota SIEMPRE junto a la latencia: sin ella el
+    # numero no significa nada. Medido: en este mismo equipo, con otro agente
+    # moviendo navegadores de Playwright (carga ~10-15 sobre 14 nucleos), el p50
+    # total paso de 34,56 ms a 160,42 ms. Es la misma cifra y no dice lo mismo.
+    try:
+        carga = open("/proc/loadavg").read().split()[:3]
+    except OSError:
+        carga = None
+    try:
+        nucleos = len(os.sched_getaffinity(0))
+    except AttributeError:
+        nucleos = os.cpu_count()
     resultados["f6_latencia"] = {
         "repeticiones": args.repeticiones_latencia,
         "calentamiento": "si · una llamada al modelo antes de medir",
+        "carga_del_anfitrion_1_5_15_min": carga,
+        "nucleos_visibles": nucleos,
         "etapas": lat,
     }
     print("F6 · LATENCIA (%d repeticiones x %d consultas, con calentamiento)"
           % (args.repeticiones_latencia, len(usables)))
+    print("     carga del anfitrion (1/5/15 min): %s sobre %s nucleos "
+          "· sin esto la cifra no significa nada" % (carga, nucleos))
     print("etapa         p50 (ms)   p95 (ms)")
     for e, v in lat.items():
         print(f"{e:<12}  {v['p50_ms']:>8.2f}   {v['p95_ms']:>8.2f}")

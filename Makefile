@@ -439,11 +439,16 @@ eval-recuperacion:
 	[ "$(EVAL_AB_PREFIJO)" = "no" ] && extra="--sin-ab-prefijo" || true
 	docker cp scripts/evaluar_recuperacion.py "$$cid":/tmp/evaluar_recuperacion.py
 	docker cp backend/tests/eval/consultas_corpus.yaml "$$cid":/tmp/consultas_corpus.yaml
+	@# La salida va a /tmp DENTRO del contenedor: /app/out no es escribible por
+	@# el usuario del backend en una imagen recien construida (medido: el primer
+	@# `make eval-recuperacion` sobre un contenedor nuevo moria con
+	@# «PermissionError: /app/out» despues de 12 minutos de calculo).
 	docker exec "$$cid" python /tmp/evaluar_recuperacion.py \
 	  --conjunto /tmp/consultas_corpus.yaml \
-	  --salida /app/out/eval_recuperacion.json \
+	  --salida /tmp/eval_recuperacion.json \
 	  --repeticiones-latencia $(EVAL_REPETICIONES) $$extra
-	docker cp "$$cid":/app/out/eval_recuperacion.json out/eval_recuperacion.json
+	mkdir -p out
+	docker cp "$$cid":/tmp/eval_recuperacion.json out/eval_recuperacion.json
 	echo
 	echo "Resultados en bruto: out/eval_recuperacion.json"
 	echo "Conclusiones y decisiones: docs/EVAL_RECUPERACION.md"
