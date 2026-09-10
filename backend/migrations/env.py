@@ -30,14 +30,34 @@ config = context.config
 if config.config_file_name is not None:
     fileConfig(config.config_file_name)
 
-# Use DATABASE_MIGRATE_URL if set (allows alembic to use a privileged user
-# while the application uses a NOSUPERUSER role for RLS enforcement).
-# Falls back to the sqlalchemy.url in alembic.ini for backwards compatibility.
+# DATABASE_MIGRATE_URL es OBLIGATORIA. Antes, si faltaba, alembic caia al
+# `sqlalchemy.url` de alembic.ini, que apuntaba a
+# postgresql://fulkro:changeme@localhost:5433/fulkro — es decir, al puerto que
+# docker-compose.yml publica para la base de DESARROLLO. Una migracion que se
+# equivoca de base EN SILENCIO es de lo poco en este repositorio que puede
+# destruir datos de verdad: `alembic upgrade head` lanzado desde una shell que
+# no exporto la variable migraba la base de desarrollo de quien estuviera
+# delante, sin decir nada.
+#
+# Se prefiere abortar con un mensaje accionable a acertar por casualidad. Los
+# cinco invocadores del repositorio (provision-entrypoint.sh, build_test_db.sh,
+# scripts/_dev_alembic.py, ci.yml y admin-polish-empirical.yml) ya la exportan,
+# asi que esto no rompe ningun camino existente: solo cierra el silencioso.
 migrate_url = os.environ.get("DATABASE_MIGRATE_URL")
-if migrate_url:
-    # Convert async URL to sync if needed (alembic uses sync driver)
-    sync_url = migrate_url.replace("postgresql+asyncpg://", "postgresql://")
-    config.set_main_option("sqlalchemy.url", sync_url)
+if not migrate_url:
+    raise SystemExit(
+        "\nalembic: falta DATABASE_MIGRATE_URL.\n\n"
+        "No se usa ningun valor por defecto A PROPOSITO: el respaldo anterior\n"
+        "apuntaba a la base de DESARROLLO (localhost:5433) y una migracion\n"
+        "equivocada de base, en silencio, destruye datos.\n\n"
+        "Defínela apuntando a la base que quieres migrar, por ejemplo:\n"
+        "  export DATABASE_MIGRATE_URL="
+        "postgresql://fulkro_migrate:CONTRASENA@localhost:5433/fulkro\n\n"
+        "O ponla en el .env de la raiz del repositorio, que este fichero carga.\n"
+    )
+# Convert async URL to sync if needed (alembic uses sync driver)
+sync_url = migrate_url.replace("postgresql+asyncpg://", "postgresql://")
+config.set_main_option("sqlalchemy.url", sync_url)
 
 target_metadata = Base.metadata
 

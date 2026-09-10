@@ -51,22 +51,47 @@ $ git grep -o 'Depends(require_client_user)' -- backend/app | wc -l        #  31
 $ git grep -o 'Depends(require_marcos_or_client)' -- backend/app | wc -l   #  24
 ```
 
-**Cuidado con lo que miden esos tres comandos, porque una versión anterior de este README se
-equivocó aquí.** Cuentan *ocurrencias del literal*, no endpoints. De las 249 de `require_owner`,
-**132 están a nivel de `APIRouter`**, y cada una de esas protege todos los endpoints de su router
-—uno en `action_plans.py`, dieciséis en `agents/api.py`—:
+**Esos tres comandos cuentan ocurrencias de un literal, no endpoints**, y una versión anterior de
+este README saltó de lo uno a lo otro. El error no es el que parece: 132 de las 249 de
+`require_owner` están a nivel de `APIRouter`, y **cada una protege todos los endpoints que cuelgan
+de ese router**, que pueden ser uno o dieciséis. Es decir, el `grep` se queda **corto**, no largo.
+
+Medido contra la aplicación en ejecución, recorriendo el árbol de dependencias de cada ruta de
+forma recursiva (las puertas anidadas no salen en el primer nivel):
 
 ```bash
-$ git grep -o 'dependencies=\[Depends(require_owner)\]' -- backend/app | wc -l         # 132
-$ git grep -o 'dependencies=\[Depends(require_client_user)\]' -- backend/app | wc -l   #   6
-$ git grep -o 'dependencies=\[Depends(require_marcos_or_client)\]' -- backend/app | wc -l # 11
+$ PYTHONPATH=. python3 scripts/medir_autorizacion.py
+rutas resueltas          1201
+operaciones (camino x metodo) 1201
+contraste con el esquema OpenAPI: 1099 caminos, 1201 operaciones
+
+puerta                         rutas   % rutas
+require_owner                    845     70.4%
+require_client_user               25      2.1%
+require_marcos_or_client          81      6.7%
+
+Corte por poblacion de sujeto (categorias EXCLUYENTES, suman el total):
+solo administrador               849     70.7%
+solo cliente                     176     14.7%
+cualquiera de los dos             81      6.7%
+ninguna de esas                   95      7.9%
+
+De las 1106 rutas con puerta de poblacion, 849 exigen ser el administrador: 76.8%.
+Rutas que pasan por `authenticate_request` (dependencia global): 1201/1201.
 ```
 
-El multiplicador no es constante entre las tres puertas (53 %, 19 % y 46 % son de router), así que
-dividir 249 entre 304 y llamarlo «ocho de cada diez endpoints» compara poblaciones que no son
-comparables. **La cifra no sostiene la frase, y la frase se retira.** Lo que sí sostiene la tesis es
-otra evidencia que no depende de contar: solo hay dos poblaciones de sujeto (`dependencies.py:71`
-y `:113`) y no existe endpoint de alta.
+**Población contada: rutas.** En esta aplicación coinciden con las operaciones (camino × método),
+porque cada ruta declara un solo método: 1.201 y 1.201, contrastado contra el esquema OpenAPI.
+
+Las 845 reales frente a las 249 del `grep` dan la medida del desfase: contar el literal deja fuera
+casi setecientos endpoints. Y hay un matiz que el conteo de tres puertas también se dejaba: hay
+rutas que resuelven el sujeto con `get_current_user` o `get_current_client_user` sin pasar por
+ninguna de las tres, así que «sin puerta» no significa «sin autenticación» — las 1.201 pasan por
+`authenticate_request`.
+
+**Con la población bien contada, la conclusión se sostiene: 76,8 % de las rutas con puerta de
+población exigen ser el administrador**, casi ocho de cada diez. La frase era correcta; el comando
+que la acompañaba, no. El script queda en el repositorio para que se pueda volver a medir.
 
 **Consecuencia, dicha sin adornos:** un despacho de tres consultores no puede usar esto tal cual.
 No hay bandeja de administración por usuario, ni roles intermedios, ni forma de repartir clientes
