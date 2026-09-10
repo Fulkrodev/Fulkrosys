@@ -25,6 +25,7 @@ from typing import Literal, Optional
 from sqlalchemy import func, or_, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from backend.app.core.ai.llm_log_status import CONTABILIZABLES
 from backend.app.models.knowledge import LLMInteractionLog
 
 
@@ -157,12 +158,19 @@ async def get_rate_limit_status(
         LLMInteractionLog.feature.in_(config.feature_filters),
         *[LLMInteractionLog.feature.like(f"{p}%") for p in config.feature_prefixes],
     )
+    # D1 · el tope cuenta gasto real. Una fila `mock` (sin clave de API) o
+    # `error` (la llamada fallo) no gasto nada y no puede consumir el tope de
+    # nadie; antes SI lo consumia, porque `AgentBase` escribia esas filas como
+    # `success` con 50 tokens de salida inventados.
+    contabilizable = LLMInteractionLog.status.in_(CONTABILIZABLES)
     daily_filters = [
         feature_pred,
+        contabilizable,
         LLMInteractionLog.created_at >= start_today,
     ]
     monthly_filters = [
         feature_pred,
+        contabilizable,
         LLMInteractionLog.created_at >= start_month,
     ]
     if project_id is not None:

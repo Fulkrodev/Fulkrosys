@@ -7,6 +7,29 @@ Each agent:
 4. Post-processes the response (JSON parse if structured_output).
 5. Logs the interaction best-effort.
 6. Returns a normalized dict.
+
+BLOQUE D · D1 (2026-09-10) · lo que ya NO hace
+----------------------------------------------
+Hasta este cambio, cuando la llamada al modelo fallaba, `_call_llm` devolvia
+una respuesta fabricada y `_log_interaction` la grababa con `status="success"`,
+`completion_tokens=50` (constante inventada) y un `cost_usd` calculado sobre
+esos tokens inventados. Es decir: un fallo de red se contabilizaba como una
+llamada correcta y sumaba dinero al coste agregado.
+
+Ahora:
+
+* Fallo del proveedor  -> `LLMCallFailed` se PROPAGA. Antes de propagar se graba
+  una fila con `status="error"`, tokens NULL y `cost_usd` NULL.
+* Sin `ANTHROPIC_API_KEY` -> se conserva el modo degradado (la suite entera
+  depende de el; ver `tests/conftest.py`), pero la fila se graba con
+  `status="mock"`, `cost_usd=0` y tokens NULL.
+* Ninguna agregacion de coste ni de tokens suma filas `mock` ni `error`
+  (`copilot_rate_limit.py` y `m_observability/llm_observability_service.py`
+  filtran por `status`).
+
+La asimetria entre la FILA (tokens NULL) y el DICCIONARIO que devuelve
+`invoke()` (tokens 0) esta justificada y medida en
+`docs/adr/ADR-004-llamada-llm-fallida-no-es-exito.md`.
 """
 import asyncio
 import hashlib
@@ -24,6 +47,16 @@ from backend.app.agents.prompts.common_header import COMMON_HEADER
 from backend.app.config import get_settings
 
 logger = logging.getLogger(__name__)
+
+
+class LLMCallFailed(RuntimeError):
+    """La llamada al modelo fallo.
+
+    Se propaga a quien invoco al agente. NO se sustituye por una respuesta
+    fabricada: un agente que no ha hablado con el modelo no tiene nada que
+    devolver, y devolver texto inventado con `status="success"` era el defecto
+    que este bloque cierra (D1).
+    """
 
 
 _MODEL_ALIAS_MAP = {
@@ -100,13 +133,26 @@ class AgentBase(ABC):
             )
         full_user_message += user_message or ""
 
-        llm_response = await self._call_llm(
-            system_prompt=self.system_prompt,
-            user_message=full_user_message,
-            model=self.MODEL,
-            temperature=self.TEMPERATURE,
-            max_tokens=self.MAX_TOKENS,
-        )
+        try:
+            llm_response = await self._call_llm(
+                system_prompt=self.system_prompt,
+                user_message=full_user_message,
+                model=self.MODEL,
+                temperature=self.TEMPERATURE,
+                max_tokens=self.MAX_TOKENS,
+            )
+        except Exception as exc:
+            # D1: el fallo se registra COMO FALLO y se propaga. La fila queda con
+            # tokens NULL y cost_usd NULL: no hubo llamada, no hay nada que medir.
+            latency_ms = int((time.monotonic() - start) * 1000)
+            await self._log_interaction(
+                db, project_id, full_user_message,
+                {"model": self.MODEL, "text": ""}, latency_ms,
+                feature_override=feature_override,
+                status="error",
+                error_message=f"{type(exc).__name__}: {exc}",
+            )
+            raise
 
         text_out = llm_response.get("text", "")
         parsed = self._parse_json_response(text_out) if structured_output else None
@@ -116,6 +162,7 @@ class AgentBase(ABC):
         await self._log_interaction(
             db, project_id, full_user_message, llm_response, latency_ms,
             feature_override=feature_override,
+            status="mock" if llm_response.get("mock") else "success",
         )
 
         return {
@@ -135,6 +182,11 @@ class AgentBase(ABC):
             "latency_ms": latency_ms,
             "citations": citations,
             "project_id": str(project_id) if project_id else None,
+            # D1: False cuando la respuesta NO viene del modelo (modo degradado
+            # sin clave). Quien publique estas cifras tiene que poder distinguir
+            # "cero tokens porque no hubo llamada" de "cero tokens medidos".
+            "tokens_medidos": not llm_response.get("mock", False),
+            "mock": bool(llm_response.get("mock", False)),
         }
 
     async def _build_project_context(self, db: AsyncSession, project_id: uuid.UUID) -> str:
@@ -166,10 +218,16 @@ class AgentBase(ABC):
         temperature: float,
         max_tokens: int,
     ) -> dict:
-        """Call the LLM via the existing router, or fall back to a mock.
+        """Llama al modelo. Sin clave, modo degradado explicito. Si falla, revienta.
 
-        The mock activates when there is no Anthropic API key configured
-        (CI/tests) or when the real call raises for any reason.
+        Dos caminos y solo dos:
+
+        * Sin `ANTHROPIC_API_KEY` -> respuesta de modo degradado, marcada con
+          `mock=True` y con tokens a 0 (no hubo llamada: cero es la cifra
+          correcta, no una estimacion). La fila del log queda `status="mock"`.
+        * Con clave y la llamada falla -> `LLMCallFailed`. NO se fabrica
+          respuesta. Antes, este camino devolvia texto inventado con 50 tokens
+          de salida constantes y `status="success"` (D1).
         """
         api_key = get_settings().anthropic_api_key.get_secret_value().strip()
         if not api_key:
@@ -208,23 +266,36 @@ class AgentBase(ABC):
                 "LLM call failed for agent %s (%s): %s",
                 self.AGENT_ID, self.AGENT_NAME, exc,
             )
-            return self._mock_response(model, system_prompt, user_message, note=str(exc)[:160])
+            raise LLMCallFailed(
+                f"Agente {self.AGENT_ID} ({self.AGENT_NAME}): la llamada a "
+                f"{_resolve_model(model)} fallo ({type(exc).__name__}: {exc})."
+            ) from exc
 
     def _mock_response(
-        self, model: str, system_prompt: str, user_message: str, note: str = ""
+        self, model: str, system_prompt: str, user_message: str
     ) -> dict:
-        tag = "[MOCK]" if not note else "[MOCK-FALLBACK]"
-        suffix = f" reason={note}" if note else ""
+        """Modo degradado SIN clave de API. Cero llamadas, cero cifras inventadas.
+
+        Los tokens valen 0 porque no hubo llamada al proveedor: 0 es el dato
+        correcto, no una estimacion. Lo que se elimino aqui (D1) fue el
+        `tokens_output: 50` constante y el `tokens_input` contado por palabras,
+        que se colaban en `cost_usd` como si fueran medidas reales.
+
+        El diccionario lleva `mock=True` para que `_log_interaction` grabe la
+        fila con `status="mock"`, `cost_usd=0` y tokens NULL.
+        """
         return {
             "text": (
-                f"{tag} Agent {self.AGENT_ID} ({self.AGENT_NAME}). "
-                f"Model: {model}. Message length: {len(user_message)}.{suffix}"
+                f"[MOCK] Agent {self.AGENT_ID} ({self.AGENT_NAME}). "
+                f"Model: {model}. Message length: {len(user_message)}. "
+                "Sin ANTHROPIC_API_KEY: no se ha llamado al modelo."
             ),
-            "tokens_input": len(system_prompt.split()) + len(user_message.split()),
-            "tokens_output": 50,
+            "tokens_input": 0,
+            "tokens_output": 0,
             "cache_creation_input_tokens": 0,
             "cache_read_input_tokens": 0,
             "model": model,
+            "mock": True,
         }
 
     def _parse_json_response(self, text: str) -> Optional[dict]:
@@ -261,18 +332,37 @@ class AgentBase(ABC):
         response: dict,
         latency_ms: int,
         feature_override: Optional[str] = None,
+        status: str = "success",
+        error_message: Optional[str] = None,
     ) -> None:
         """Persist interaction to llm_interaction_log (best-effort).
 
         The write is wrapped in a SAVEPOINT so a logging failure does not
         poison the caller's transaction.
+
+        D1 · `status` manda sobre lo que se graba:
+
+        ==========  =====================  ==========  ==========================
+        status      cuando                 cost_usd    prompt/completion/total
+        ==========  =====================  ==========  ==========================
+        success     respuesta del modelo   calculado   medidos por el proveedor
+        mock        sin clave de API       0           NULL (no hubo llamada)
+        error       la llamada fallo       NULL        NULL (no hubo respuesta)
+        ==========  =====================  ==========  ==========================
+
+        Las filas `mock` y `error` quedan fuera de toda suma de coste y de
+        tokens; el filtro vive en las propias consultas
+        (`copilot_rate_limit.py`, `llm_observability_service.py`) y ademas la
+        migracion `llm_log_status_no_finge_exito_001` impone por CHECK que una
+        fila `mock`/`error` no pueda llevar coste distinto de 0/NULL.
         """
         try:
             from backend.app.models.knowledge import LLMInteractionLog
 
-            tokens_in = int(response.get("tokens_input", 0))
-            tokens_out = int(response.get("tokens_output", 0))
-            cached_in = int(response.get("cache_read_input_tokens", 0))
+            medido = status == "success"
+            tokens_in = int(response.get("tokens_input", 0) or 0) if medido else None
+            tokens_out = int(response.get("tokens_output", 0) or 0) if medido else None
+            cached_in = int(response.get("cache_read_input_tokens", 0) or 0)
             prompt_hash = hashlib.sha256(
                 user_message.encode("utf-8", errors="ignore")
             ).hexdigest()
@@ -285,6 +375,12 @@ class AgentBase(ABC):
             # §4.5 · poblar cost_usd (antes None → el cap mensual de coste sumaba 0).
             from backend.app.core.ai.pricing import compute_cost_usd
             model_id = str(response.get("model", self.MODEL))[:128]
+            if status == "success":
+                coste = compute_cost_usd(model_id, tokens_in, tokens_out, cached_in)
+            elif status == "mock":
+                coste = 0  # no hubo llamada: cero medido, no cero estimado
+            else:
+                coste = None  # error: no se sabe, y no se inventa
             entry = LLMInteractionLog(
                 project_id=project_id,
                 feature=feature_used,
@@ -294,11 +390,14 @@ class AgentBase(ABC):
                 response_preview=str(response.get("text", ""))[:500],
                 prompt_tokens=tokens_in,
                 completion_tokens=tokens_out,
-                total_tokens=tokens_in + tokens_out,
+                total_tokens=(
+                    (tokens_in + tokens_out) if medido else None
+                ),
                 cached_input_tokens=cached_in,
-                cost_usd=compute_cost_usd(model_id, tokens_in, tokens_out, cached_in),
+                cost_usd=coste,
                 latency_ms=latency_ms,
-                status="success",
+                status=status,
+                error_message=error_message,
             )
             try:
                 async with db.begin_nested():

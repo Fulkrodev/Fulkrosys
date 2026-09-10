@@ -258,14 +258,20 @@ class LLMInteractionLog(Base):
     prompt_hash: Mapped[str] = mapped_column(String(64), nullable=False, index=True)
     prompt_preview: Mapped[str | None] = mapped_column(Text, nullable=True)
     response_preview: Mapped[str | None] = mapped_column(Text, nullable=True)
-    prompt_tokens: Mapped[int] = mapped_column(Integer, nullable=False)
-    completion_tokens: Mapped[int] = mapped_column(Integer, nullable=False)
-    total_tokens: Mapped[int] = mapped_column(Integer, nullable=False)
+    # D1 · NULL = "no medido" (filas `mock` y `error`). Un 0 diria "medido y
+    # salio cero", que es otra cosa. La migracion
+    # `llm_log_status_no_finge_exito_001` impone por CHECK que solo las filas
+    # que NO suman puedan llevar NULL aqui.
+    prompt_tokens: Mapped[int | None] = mapped_column(Integer, nullable=True)
+    completion_tokens: Mapped[int | None] = mapped_column(Integer, nullable=True)
+    total_tokens: Mapped[int | None] = mapped_column(Integer, nullable=True)
     cached_input_tokens: Mapped[int] = mapped_column(
         BigInteger, server_default=text("0"), nullable=False, index=True,
     )
     cost_usd: Mapped[float | None] = mapped_column(Numeric(10, 6), nullable=True)
     latency_ms: Mapped[int] = mapped_column(Integer, nullable=False)
+    #: Uno de `backend.app.core.ai.llm_log_status.TODOS`
+    #: (`success` | `estimado` | `mock` | `error`). Catalogo cerrado por CHECK.
     status: Mapped[str] = mapped_column(
         String(16), server_default=text("'success'"), nullable=False, index=True,
     )

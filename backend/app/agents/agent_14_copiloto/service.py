@@ -766,7 +766,12 @@ async def stream_answer_question(
             total_tokens=est_in + est_out,
             cost_usd=compute_cost_usd(model, est_in, est_out),
             latency_ms=0,
-            status="success",
+            # D1 · esta via SI llama al modelo, pero el stream no devuelve el
+            # recuento de tokens: los de arriba son una estimacion por longitud,
+            # no una medicion. Cuenta para el tope (un tope tiene que pecar de
+            # conservador) pero no se disfraza de `success`, que es lo que hacia
+            # antes. Ver backend/app/core/ai/llm_log_status.py.
+            status="estimado",
         )
         session.add(log_entry)
         await session.flush()

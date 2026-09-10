@@ -9,7 +9,14 @@ pytestmark = pytest.mark.asyncio
 
 
 async def _seed_llm_logs(db) -> None:
-    """Insert 5 llm_interaction_log rows with varied features/costs/latency."""
+    """Insert 5 llm_interaction_log rows with varied features/costs/latency.
+
+    D1 (2026-09-10): la quinta fila era `status='error'` CON 250 tokens y
+    $0.001 de coste. Eso es exactamente lo que el bloque D cerro: una llamada
+    que fallo no tiene tokens que contar ni coste que sumar. Ahora va con
+    NULL en ambos, y la migracion `llm_log_status_no_finge_exito_001` impide
+    por CHECK volver a escribirla como estaba.
+    """
     async with _admin_setup(db):
         await db.execute(text(
             "INSERT INTO llm_interaction_log "
@@ -20,7 +27,7 @@ async def _seed_llm_logs(db) -> None:
             "('agent_14_copiloto', 'sonnet-4.5', 'h2', 600, 250, 850, 0.012, 1300, 'success', now()),"
             "('agent_04_redactor', 'sonnet-4.6', 'h3', 1500, 800, 2300, 0.05, 4500, 'success', now()),"
             "('agent_11_auditor_virtual', 'opus-4.7', 'h4', 3000, 1500, 4500, 12.5, 9000, 'success', now()),"
-            "('agent_27_clasificador', 'haiku-4.5', 'h5', 200, 50, 250, 0.001, 70000, 'error', now())"
+            "('agent_27_clasificador', 'haiku-4.5', 'h5', NULL, NULL, NULL, NULL, 70000, 'error', now())"
         ))
     await db.flush()
 
@@ -33,9 +40,12 @@ async def test_llm_cost_summary_today(db, async_client):
     assert r.status_code == 200, r.text
     data = r.json()
     assert data["period"] == "today"
-    assert data["n_calls"] >= 5
-    assert data["total_tokens"] >= 700 + 850 + 2300 + 4500 + 250
+    # 4, no 5: la fila `error` NO es una llamada contabilizable (D1). Se
+    # publica aparte para que la exclusion no sea silenciosa.
+    assert data["n_calls"] >= 4
+    assert data["total_tokens"] >= 700 + 850 + 2300 + 4500
     assert data["cost_usd"] >= 12.5
+    assert data["n_calls_no_contabilizados"] >= 1
 
 
 async def test_llm_cost_summary_month(db, async_client):

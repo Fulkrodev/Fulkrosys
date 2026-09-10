@@ -11,6 +11,12 @@ from typing import Optional
 from sqlalchemy import text
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from backend.app.core.ai.llm_log_status import (
+    ESTIMADO,
+    NO_CONTABILIZABLES,
+    SQL_SOLO_CONTABILIZABLE,
+)
+
 
 async def _elevate_admin(db: AsyncSession) -> None:
     """FIX(RLS): dashboard de observabilidad LLM es admin cross-cliente.
@@ -44,10 +50,16 @@ async def get_cost_summary(
     """Aggregate tokens + cost over a period."""
     await _elevate_admin(db)
     cutoff = _cutoff_for(period)
-    where_clause = ""
+    # D1 · las filas `mock` (sin clave de API) y `error` (la llamada fallo) NO
+    # son gasto y quedan FUERA de la suma. `n_calls_no_contabilizados` las
+    # publica aparte para que la exclusion se vea, en vez de estrechar el
+    # denominador en silencio.
+    where_clause = f"WHERE {SQL_SOLO_CONTABILIZABLE}"
+    where_todas = ""
     params: dict = {}
     if cutoff is not None:
-        where_clause = "WHERE created_at > :cutoff"
+        where_clause += " AND created_at > :cutoff"
+        where_todas = "WHERE created_at > :cutoff"
         params["cutoff"] = cutoff
 
     row = (await db.execute(
@@ -64,6 +76,16 @@ async def get_cost_summary(
         params,
     )).mappings().first()
 
+    excluidas = (await db.execute(
+        text(
+            "SELECT COALESCE(count(*), 0) AS n "
+            f"FROM llm_interaction_log {where_todas}"
+            + (" AND " if where_todas else " WHERE ")
+            + f"NOT ({SQL_SOLO_CONTABILIZABLE})"
+        ),
+        params,
+    )).scalar()
+
     prompt_t = int(row["prompt_tokens"]) if row else 0
     cached_t = int(row["cached_input_tokens"]) if row else 0
     denom = prompt_t + cached_t
@@ -78,6 +100,10 @@ async def get_cost_summary(
         "cache_hit_rate": hit_rate,
         "cost_usd": float(row["cost_usd"]) if row else 0.0,
         "avg_latency_ms": float(row["avg_latency_ms"]) if row else 0.0,
+        # D1 · llamadas registradas que NO entran en las cifras de arriba
+        # (status mock/error). Si esto crece, el coste que se ve es de menos
+        # llamadas de las que hubo, y conviene saberlo.
+        "n_calls_no_contabilizados": int(excluidas or 0),
     }
 
 
@@ -168,10 +194,11 @@ async def get_top_consumers(
     await _elevate_admin(db)
     cutoff = _cutoff_for(period)
     limit = max(1, min(int(limit), 50))
-    where_clause = ""
+    # D1 · mismo filtro que get_cost_summary: mock/error no son consumo.
+    where_clause = f"WHERE {SQL_SOLO_CONTABILIZABLE}"
     params: dict = {"lim": limit}
     if cutoff is not None:
-        where_clause = "WHERE created_at > :cutoff"
+        where_clause += " AND created_at > :cutoff"
         params["cutoff"] = cutoff
 
     rows = (await db.execute(
@@ -214,8 +241,12 @@ async def get_anomaly_alerts(
     if cutoff is not None:
         where_clauses.append("created_at > :cutoff")
         params["cutoff"] = cutoff
+    # D1 · antes era `status != 'success'`, que ahora marcaria como anomalia
+    # TODA fila `estimado` (el streaming del copiloto, que es lo normal). La
+    # anomalia es la fila que NO cuenta como gasto: `mock` (falta la clave de
+    # API en un entorno que deberia tenerla) o `error` (la llamada fallo).
     where_clauses.append(
-        "(cost_usd >= :cost OR latency_ms >= :lat OR status != 'success')"
+        f"(cost_usd >= :cost OR latency_ms >= :lat OR NOT ({SQL_SOLO_CONTABILIZABLE}))"
     )
     where = "WHERE " + " AND ".join(where_clauses)
 
@@ -234,7 +265,11 @@ async def get_anomaly_alerts(
             "id": int(r["id"]),
             "feature": r["feature"],
             "model": r["model"],
-            "total_tokens": int(r["total_tokens"]),
+            # D1 · NULL cuando no hubo llamada (mock) o fallo (error). Se
+            # publica como None, no como 0: 0 diria "medido y salio cero".
+            "total_tokens": (
+                int(r["total_tokens"]) if r["total_tokens"] is not None else None
+            ),
             "cost_usd": (
                 float(r["cost_usd"]) if r["cost_usd"] is not None else None
             ),
@@ -269,8 +304,12 @@ def _explain_anomaly(
         reasons.append(f"cost ${cost_usd:.2f} >= ${threshold_usd:.2f}")
     if latency_ms >= threshold_latency_ms:
         reasons.append(f"latency {latency_ms}ms >= {threshold_latency_ms}ms")
-    if status != "success":
+    if status in NO_CONTABILIZABLES:
         reasons.append(f"status={status}")
+    elif status == ESTIMADO:
+        # No es una anomalia por si misma, pero si la fila sale listada hay que
+        # decir que su coste es una estimacion por longitud, no una medida.
+        reasons.append("coste estimado, no medido")
     return " · ".join(reasons) or "n/a"
 
 
@@ -297,7 +336,8 @@ async def get_project_token_usage(
             "COALESCE(SUM(cached_input_tokens), 0) AS cached_input_tokens, "
             "COALESCE(SUM(cost_usd), 0)::float AS cost_usd "
             "FROM llm_interaction_log "
-            "WHERE project_id::text = :project_id AND created_at > :cutoff"
+            "WHERE project_id::text = :project_id AND created_at > :cutoff "
+            f"AND {SQL_SOLO_CONTABILIZABLE}"  # D1
         ),
         params,
     )).mappings().first()
@@ -311,6 +351,7 @@ async def get_project_token_usage(
             "COALESCE(SUM(cost_usd), 0)::float AS cost_usd "
             "FROM llm_interaction_log "
             "WHERE project_id::text = :project_id AND created_at > :cutoff "
+            f"AND {SQL_SOLO_CONTABILIZABLE} "  # D1
             "GROUP BY feature ORDER BY SUM(total_tokens) DESC NULLS LAST"
         ),
         params,
@@ -364,7 +405,8 @@ async def get_agent_cache_stats(
             "COALESCE(SUM(cached_input_tokens), 0) AS cached_input_tokens, "
             "COALESCE(SUM(cost_usd), 0)::float AS cost_usd "
             "FROM llm_interaction_log "
-            "WHERE feature = :agent AND created_at > :cutoff"
+            "WHERE feature = :agent AND created_at > :cutoff "
+            f"AND {SQL_SOLO_CONTABILIZABLE}"  # D1
         ),
         {"agent": agent_name, "cutoff": cutoff},
     )).mappings().first()
