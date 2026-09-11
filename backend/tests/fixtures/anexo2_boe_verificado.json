@@ -1,0 +1,1055 @@
+{
+  "_fuente": "https://www.boe.es/buscar/pdf/2022/BOE-A-2022-7191-consolidado.pdf",
+  "_sha256_pdf": "07a74608dce3a146890f444c73ef8f2ee04f49c101114e2e2642941e53a92211",
+  "_asunto": "BOE-A-2022-7191 actualizado a 06 de noviembre de 2024",
+  "_paginas": 79,
+  "_generado_por": "backend/scripts/extraer_anexo2_boe.py",
+  "_nota_licencia": "Art. 13 LPI: las disposiciones legales y sus textos oficiales no son objeto de propiedad intelectual.",
+  "total_medidas": 73,
+  "medidas": [
+    {
+      "codigo": "org.1",
+      "aplica_basica": true,
+      "aplica_media": true,
+      "aplica_alta": true,
+      "celdas_boe": [
+        "aplica",
+        "aplica",
+        "aplica"
+      ],
+      "eje": "categoria",
+      "dimensiones": []
+    },
+    {
+      "codigo": "org.2",
+      "aplica_basica": true,
+      "aplica_media": true,
+      "aplica_alta": true,
+      "celdas_boe": [
+        "aplica",
+        "aplica",
+        "aplica"
+      ],
+      "eje": "categoria",
+      "dimensiones": []
+    },
+    {
+      "codigo": "org.3",
+      "aplica_basica": true,
+      "aplica_media": true,
+      "aplica_alta": true,
+      "celdas_boe": [
+        "aplica",
+        "aplica",
+        "aplica"
+      ],
+      "eje": "categoria",
+      "dimensiones": []
+    },
+    {
+      "codigo": "org.4",
+      "aplica_basica": true,
+      "aplica_media": true,
+      "aplica_alta": true,
+      "celdas_boe": [
+        "aplica",
+        "aplica",
+        "aplica"
+      ],
+      "eje": "categoria",
+      "dimensiones": []
+    },
+    {
+      "codigo": "op.pl.1",
+      "aplica_basica": true,
+      "aplica_media": true,
+      "aplica_alta": true,
+      "celdas_boe": [
+        "aplica",
+        "+ R1",
+        "+ R2"
+      ],
+      "eje": "categoria",
+      "dimensiones": []
+    },
+    {
+      "codigo": "op.pl.2",
+      "aplica_basica": true,
+      "aplica_media": true,
+      "aplica_alta": true,
+      "celdas_boe": [
+        "aplica",
+        "+ R1",
+        "+ R1 + R2 + R3"
+      ],
+      "eje": "categoria",
+      "dimensiones": []
+    },
+    {
+      "codigo": "op.pl.3",
+      "aplica_basica": true,
+      "aplica_media": true,
+      "aplica_alta": true,
+      "celdas_boe": [
+        "aplica",
+        "aplica",
+        "aplica"
+      ],
+      "eje": "categoria",
+      "dimensiones": []
+    },
+    {
+      "codigo": "op.pl.4",
+      "aplica_basica": true,
+      "aplica_media": true,
+      "aplica_alta": true,
+      "celdas_boe": [
+        "aplica",
+        "+ R1",
+        "+ R1"
+      ],
+      "eje": "dimension",
+      "dimensiones": [
+        "disponibilidad"
+      ],
+      "dimensiones_iniciales": "D"
+    },
+    {
+      "codigo": "op.pl.5",
+      "aplica_basica": false,
+      "aplica_media": true,
+      "aplica_alta": true,
+      "celdas_boe": [
+        "n.a.",
+        "aplica",
+        "aplica"
+      ],
+      "eje": "categoria",
+      "dimensiones": []
+    },
+    {
+      "codigo": "op.acc.1",
+      "aplica_basica": true,
+      "aplica_media": true,
+      "aplica_alta": true,
+      "celdas_boe": [
+        "aplica",
+        "+ R1",
+        "+ R1"
+      ],
+      "eje": "dimension",
+      "dimensiones": [
+        "autenticidad",
+        "trazabilidad"
+      ],
+      "dimensiones_iniciales": "TA"
+    },
+    {
+      "codigo": "op.acc.2",
+      "aplica_basica": true,
+      "aplica_media": true,
+      "aplica_alta": true,
+      "celdas_boe": [
+        "aplica",
+        "aplica",
+        "+ R1"
+      ],
+      "eje": "dimension",
+      "dimensiones": [
+        "autenticidad",
+        "confidencialidad",
+        "integridad",
+        "trazabilidad"
+      ],
+      "dimensiones_iniciales": "CITA"
+    },
+    {
+      "codigo": "op.acc.3",
+      "aplica_basica": false,
+      "aplica_media": true,
+      "aplica_alta": true,
+      "celdas_boe": [
+        "n.a.",
+        "aplica",
+        "+ R1"
+      ],
+      "eje": "dimension",
+      "dimensiones": [
+        "autenticidad",
+        "confidencialidad",
+        "integridad",
+        "trazabilidad"
+      ],
+      "dimensiones_iniciales": "CITA"
+    },
+    {
+      "codigo": "op.acc.4",
+      "aplica_basica": true,
+      "aplica_media": true,
+      "aplica_alta": true,
+      "celdas_boe": [
+        "aplica",
+        "aplica",
+        "aplica"
+      ],
+      "eje": "dimension",
+      "dimensiones": [
+        "autenticidad",
+        "confidencialidad",
+        "integridad",
+        "trazabilidad"
+      ],
+      "dimensiones_iniciales": "CITA"
+    },
+    {
+      "codigo": "op.acc.5",
+      "aplica_basica": true,
+      "aplica_media": true,
+      "aplica_alta": true,
+      "celdas_boe": "multilinea en el PDF",
+      "eje": "dimension",
+      "dimensiones": [
+        "autenticidad",
+        "confidencialidad",
+        "integridad",
+        "trazabilidad"
+      ],
+      "dimensiones_iniciales": "CITA"
+    },
+    {
+      "codigo": "op.acc.6",
+      "aplica_basica": true,
+      "aplica_media": true,
+      "aplica_alta": true,
+      "celdas_boe": "multilinea en el PDF",
+      "eje": "dimension",
+      "dimensiones": [
+        "autenticidad",
+        "confidencialidad",
+        "integridad",
+        "trazabilidad"
+      ],
+      "dimensiones_iniciales": "CITA"
+    },
+    {
+      "codigo": "op.exp.1",
+      "aplica_basica": true,
+      "aplica_media": true,
+      "aplica_alta": true,
+      "celdas_boe": [
+        "aplica",
+        "aplica",
+        "aplica"
+      ],
+      "eje": "categoria",
+      "dimensiones": []
+    },
+    {
+      "codigo": "op.exp.2",
+      "aplica_basica": true,
+      "aplica_media": true,
+      "aplica_alta": true,
+      "celdas_boe": [
+        "aplica",
+        "aplica",
+        "aplica"
+      ],
+      "eje": "categoria",
+      "dimensiones": []
+    },
+    {
+      "codigo": "op.exp.3",
+      "aplica_basica": true,
+      "aplica_media": true,
+      "aplica_alta": true,
+      "celdas_boe": [
+        "aplica",
+        "+ R1",
+        "+ R1 + R2 + R3"
+      ],
+      "eje": "categoria",
+      "dimensiones": []
+    },
+    {
+      "codigo": "op.exp.4",
+      "aplica_basica": true,
+      "aplica_media": true,
+      "aplica_alta": true,
+      "celdas_boe": [
+        "aplica",
+        "+ R1",
+        "+ R1 + R2"
+      ],
+      "eje": "categoria",
+      "dimensiones": []
+    },
+    {
+      "codigo": "op.exp.5",
+      "aplica_basica": false,
+      "aplica_media": true,
+      "aplica_alta": true,
+      "celdas_boe": [
+        "n.a.",
+        "aplica",
+        "+ R1"
+      ],
+      "eje": "categoria",
+      "dimensiones": []
+    },
+    {
+      "codigo": "op.exp.6",
+      "aplica_basica": true,
+      "aplica_media": true,
+      "aplica_alta": true,
+      "celdas_boe": [
+        "aplica",
+        "+ R1 + R2",
+        "+ R1 + R2 + R3 + R4"
+      ],
+      "eje": "categoria",
+      "dimensiones": []
+    },
+    {
+      "codigo": "op.exp.7",
+      "aplica_basica": true,
+      "aplica_media": true,
+      "aplica_alta": true,
+      "celdas_boe": [
+        "aplica",
+        "+ R1 + R2",
+        "+ R1 + R2 + R3"
+      ],
+      "eje": "categoria",
+      "dimensiones": []
+    },
+    {
+      "codigo": "op.exp.8",
+      "aplica_basica": true,
+      "aplica_media": true,
+      "aplica_alta": true,
+      "celdas_boe": [
+        "aplica",
+        "+ R1 + R2 + R3 + R4",
+        "+ R1 + R2 + R3 + R4 + R5"
+      ],
+      "eje": "dimension",
+      "dimensiones": [
+        "trazabilidad"
+      ],
+      "dimensiones_iniciales": "T"
+    },
+    {
+      "codigo": "op.exp.9",
+      "aplica_basica": true,
+      "aplica_media": true,
+      "aplica_alta": true,
+      "celdas_boe": [
+        "aplica",
+        "aplica",
+        "aplica"
+      ],
+      "eje": "categoria",
+      "dimensiones": []
+    },
+    {
+      "codigo": "op.exp.10",
+      "aplica_basica": true,
+      "aplica_media": true,
+      "aplica_alta": true,
+      "celdas_boe": [
+        "aplica",
+        "+ R1",
+        "+ R1"
+      ],
+      "eje": "categoria",
+      "dimensiones": []
+    },
+    {
+      "codigo": "op.ext.1",
+      "aplica_basica": false,
+      "aplica_media": true,
+      "aplica_alta": true,
+      "celdas_boe": [
+        "n.a.",
+        "aplica",
+        "aplica"
+      ],
+      "eje": "categoria",
+      "dimensiones": []
+    },
+    {
+      "codigo": "op.ext.2",
+      "aplica_basica": false,
+      "aplica_media": true,
+      "aplica_alta": true,
+      "celdas_boe": [
+        "n.a.",
+        "aplica",
+        "aplica"
+      ],
+      "eje": "categoria",
+      "dimensiones": []
+    },
+    {
+      "codigo": "op.ext.3",
+      "aplica_basica": false,
+      "aplica_media": false,
+      "aplica_alta": true,
+      "celdas_boe": [
+        "n.a.",
+        "n.a.",
+        "aplica"
+      ],
+      "eje": "categoria",
+      "dimensiones": []
+    },
+    {
+      "codigo": "op.ext.4",
+      "aplica_basica": false,
+      "aplica_media": true,
+      "aplica_alta": true,
+      "celdas_boe": [
+        "n.a.",
+        "aplica",
+        "+ R1"
+      ],
+      "eje": "categoria",
+      "dimensiones": []
+    },
+    {
+      "codigo": "op.nub.1",
+      "aplica_basica": true,
+      "aplica_media": true,
+      "aplica_alta": true,
+      "celdas_boe": [
+        "aplica",
+        "+ R1",
+        "+ R1 + R2"
+      ],
+      "eje": "categoria",
+      "dimensiones": []
+    },
+    {
+      "codigo": "op.cont.1",
+      "aplica_basica": false,
+      "aplica_media": true,
+      "aplica_alta": true,
+      "celdas_boe": [
+        "n.a.",
+        "aplica",
+        "aplica"
+      ],
+      "eje": "dimension",
+      "dimensiones": [
+        "disponibilidad"
+      ],
+      "dimensiones_iniciales": "D"
+    },
+    {
+      "codigo": "op.cont.2",
+      "aplica_basica": false,
+      "aplica_media": false,
+      "aplica_alta": true,
+      "celdas_boe": [
+        "n.a.",
+        "n.a.",
+        "aplica"
+      ],
+      "eje": "dimension",
+      "dimensiones": [
+        "disponibilidad"
+      ],
+      "dimensiones_iniciales": "D"
+    },
+    {
+      "codigo": "op.cont.3",
+      "aplica_basica": false,
+      "aplica_media": false,
+      "aplica_alta": true,
+      "celdas_boe": [
+        "n.a.",
+        "n.a.",
+        "aplica"
+      ],
+      "eje": "dimension",
+      "dimensiones": [
+        "disponibilidad"
+      ],
+      "dimensiones_iniciales": "D"
+    },
+    {
+      "codigo": "op.cont.4",
+      "aplica_basica": false,
+      "aplica_media": false,
+      "aplica_alta": true,
+      "celdas_boe": [
+        "n.a.",
+        "n.a.",
+        "aplica"
+      ],
+      "eje": "dimension",
+      "dimensiones": [
+        "disponibilidad"
+      ],
+      "dimensiones_iniciales": "D"
+    },
+    {
+      "codigo": "op.mon.1",
+      "aplica_basica": true,
+      "aplica_media": true,
+      "aplica_alta": true,
+      "celdas_boe": [
+        "aplica",
+        "+ R1",
+        "+ R1 + R2"
+      ],
+      "eje": "categoria",
+      "dimensiones": []
+    },
+    {
+      "codigo": "op.mon.2",
+      "aplica_basica": true,
+      "aplica_media": true,
+      "aplica_alta": true,
+      "celdas_boe": [
+        "aplica",
+        "+ R1 + R2",
+        "+ R1 + R2"
+      ],
+      "eje": "categoria",
+      "dimensiones": []
+    },
+    {
+      "codigo": "op.mon.3",
+      "aplica_basica": true,
+      "aplica_media": true,
+      "aplica_alta": true,
+      "celdas_boe": [
+        "aplica",
+        "+ R1 + R2",
+        "+ R1 + R2 + R3 + R4 + R5 + R6"
+      ],
+      "eje": "categoria",
+      "dimensiones": []
+    },
+    {
+      "codigo": "mp.if.1",
+      "aplica_basica": true,
+      "aplica_media": true,
+      "aplica_alta": true,
+      "celdas_boe": [
+        "aplica",
+        "aplica",
+        "aplica"
+      ],
+      "eje": "categoria",
+      "dimensiones": []
+    },
+    {
+      "codigo": "mp.if.2",
+      "aplica_basica": true,
+      "aplica_media": true,
+      "aplica_alta": true,
+      "celdas_boe": [
+        "aplica",
+        "aplica",
+        "aplica"
+      ],
+      "eje": "categoria",
+      "dimensiones": []
+    },
+    {
+      "codigo": "mp.if.3",
+      "aplica_basica": true,
+      "aplica_media": true,
+      "aplica_alta": true,
+      "celdas_boe": [
+        "aplica",
+        "aplica",
+        "aplica"
+      ],
+      "eje": "categoria",
+      "dimensiones": []
+    },
+    {
+      "codigo": "mp.if.4",
+      "aplica_basica": true,
+      "aplica_media": true,
+      "aplica_alta": true,
+      "celdas_boe": [
+        "aplica",
+        "+ R1",
+        "+ R1"
+      ],
+      "eje": "dimension",
+      "dimensiones": [
+        "disponibilidad"
+      ],
+      "dimensiones_iniciales": "D"
+    },
+    {
+      "codigo": "mp.if.5",
+      "aplica_basica": true,
+      "aplica_media": true,
+      "aplica_alta": true,
+      "celdas_boe": [
+        "aplica",
+        "aplica",
+        "aplica"
+      ],
+      "eje": "dimension",
+      "dimensiones": [
+        "disponibilidad"
+      ],
+      "dimensiones_iniciales": "D"
+    },
+    {
+      "codigo": "mp.if.6",
+      "aplica_basica": false,
+      "aplica_media": true,
+      "aplica_alta": true,
+      "celdas_boe": [
+        "n.a.",
+        "aplica",
+        "aplica"
+      ],
+      "eje": "dimension",
+      "dimensiones": [
+        "disponibilidad"
+      ],
+      "dimensiones_iniciales": "D"
+    },
+    {
+      "codigo": "mp.if.7",
+      "aplica_basica": true,
+      "aplica_media": true,
+      "aplica_alta": true,
+      "celdas_boe": [
+        "aplica",
+        "aplica",
+        "aplica"
+      ],
+      "eje": "categoria",
+      "dimensiones": []
+    },
+    {
+      "codigo": "mp.per.1",
+      "aplica_basica": false,
+      "aplica_media": true,
+      "aplica_alta": true,
+      "celdas_boe": [
+        "n.a.",
+        "aplica",
+        "aplica"
+      ],
+      "eje": "categoria",
+      "dimensiones": []
+    },
+    {
+      "codigo": "mp.per.2",
+      "aplica_basica": true,
+      "aplica_media": true,
+      "aplica_alta": true,
+      "celdas_boe": [
+        "aplica",
+        "+ R1",
+        "+ R1"
+      ],
+      "eje": "categoria",
+      "dimensiones": []
+    },
+    {
+      "codigo": "mp.per.3",
+      "aplica_basica": true,
+      "aplica_media": true,
+      "aplica_alta": true,
+      "celdas_boe": [
+        "aplica",
+        "aplica",
+        "aplica"
+      ],
+      "eje": "categoria",
+      "dimensiones": []
+    },
+    {
+      "codigo": "mp.per.4",
+      "aplica_basica": true,
+      "aplica_media": true,
+      "aplica_alta": true,
+      "celdas_boe": [
+        "aplica",
+        "aplica",
+        "aplica"
+      ],
+      "eje": "categoria",
+      "dimensiones": []
+    },
+    {
+      "codigo": "mp.eq.1",
+      "aplica_basica": true,
+      "aplica_media": true,
+      "aplica_alta": true,
+      "celdas_boe": [
+        "aplica",
+        "+ R1",
+        "+ R1"
+      ],
+      "eje": "categoria",
+      "dimensiones": []
+    },
+    {
+      "codigo": "mp.eq.2",
+      "aplica_basica": false,
+      "aplica_media": true,
+      "aplica_alta": true,
+      "celdas_boe": [
+        "n.a.",
+        "aplica",
+        "+ R1"
+      ],
+      "eje": "dimension",
+      "dimensiones": [
+        "autenticidad"
+      ],
+      "dimensiones_iniciales": "A"
+    },
+    {
+      "codigo": "mp.eq.3",
+      "aplica_basica": true,
+      "aplica_media": true,
+      "aplica_alta": true,
+      "celdas_boe": [
+        "aplica",
+        "aplica",
+        "+ R1 + R2"
+      ],
+      "eje": "categoria",
+      "dimensiones": []
+    },
+    {
+      "codigo": "mp.eq.4",
+      "aplica_basica": true,
+      "aplica_media": true,
+      "aplica_alta": true,
+      "celdas_boe": [
+        "aplica",
+        "+ R1",
+        "+ R1"
+      ],
+      "eje": "dimension",
+      "dimensiones": [
+        "confidencialidad"
+      ],
+      "dimensiones_iniciales": "C"
+    },
+    {
+      "codigo": "mp.com.1",
+      "aplica_basica": true,
+      "aplica_media": true,
+      "aplica_alta": true,
+      "celdas_boe": [
+        "aplica",
+        "aplica",
+        "aplica"
+      ],
+      "eje": "categoria",
+      "dimensiones": []
+    },
+    {
+      "codigo": "mp.com.2",
+      "aplica_basica": true,
+      "aplica_media": true,
+      "aplica_alta": true,
+      "celdas_boe": [
+        "aplica",
+        "+ R1",
+        "+ R1 + R2 + R3"
+      ],
+      "eje": "dimension",
+      "dimensiones": [
+        "confidencialidad"
+      ],
+      "dimensiones_iniciales": "C"
+    },
+    {
+      "codigo": "mp.com.3",
+      "aplica_basica": true,
+      "aplica_media": true,
+      "aplica_alta": true,
+      "celdas_boe": [
+        "aplica",
+        "+ R1 + R2",
+        "+ R1 + R2 + R3 + R4"
+      ],
+      "eje": "dimension",
+      "dimensiones": [
+        "autenticidad",
+        "integridad"
+      ],
+      "dimensiones_iniciales": "IA"
+    },
+    {
+      "codigo": "mp.com.4",
+      "aplica_basica": false,
+      "aplica_media": true,
+      "aplica_alta": true,
+      "celdas_boe": [
+        "n.a.",
+        "+ [R1 o R2 o R3]",
+        "+ [R2 o R3] + R4"
+      ],
+      "eje": "categoria",
+      "dimensiones": []
+    },
+    {
+      "codigo": "mp.si.1",
+      "aplica_basica": false,
+      "aplica_media": true,
+      "aplica_alta": true,
+      "celdas_boe": [
+        "n.a.",
+        "aplica",
+        "aplica"
+      ],
+      "eje": "dimension",
+      "dimensiones": [
+        "confidencialidad"
+      ],
+      "dimensiones_iniciales": "C"
+    },
+    {
+      "codigo": "mp.si.2",
+      "aplica_basica": false,
+      "aplica_media": true,
+      "aplica_alta": true,
+      "celdas_boe": [
+        "n.a.",
+        "aplica",
+        "+ R1 + R2"
+      ],
+      "eje": "dimension",
+      "dimensiones": [
+        "confidencialidad",
+        "integridad"
+      ],
+      "dimensiones_iniciales": "CI"
+    },
+    {
+      "codigo": "mp.si.3",
+      "aplica_basica": true,
+      "aplica_media": true,
+      "aplica_alta": true,
+      "celdas_boe": [
+        "aplica",
+        "aplica",
+        "aplica"
+      ],
+      "eje": "categoria",
+      "dimensiones": []
+    },
+    {
+      "codigo": "mp.si.4",
+      "aplica_basica": true,
+      "aplica_media": true,
+      "aplica_alta": true,
+      "celdas_boe": [
+        "aplica",
+        "aplica",
+        "aplica"
+      ],
+      "eje": "categoria",
+      "dimensiones": []
+    },
+    {
+      "codigo": "mp.si.5",
+      "aplica_basica": true,
+      "aplica_media": true,
+      "aplica_alta": true,
+      "celdas_boe": [
+        "aplica",
+        "+ R1",
+        "+ R1"
+      ],
+      "eje": "dimension",
+      "dimensiones": [
+        "confidencialidad"
+      ],
+      "dimensiones_iniciales": "C"
+    },
+    {
+      "codigo": "mp.sw.1",
+      "aplica_basica": false,
+      "aplica_media": true,
+      "aplica_alta": true,
+      "celdas_boe": [
+        "n.a.",
+        "+ R1 + R2 + R3 + R4",
+        "+ R1 + R2 + R3 + R4"
+      ],
+      "eje": "categoria",
+      "dimensiones": []
+    },
+    {
+      "codigo": "mp.sw.2",
+      "aplica_basica": true,
+      "aplica_media": true,
+      "aplica_alta": true,
+      "celdas_boe": [
+        "aplica",
+        "+ R1",
+        "+ R1"
+      ],
+      "eje": "categoria",
+      "dimensiones": []
+    },
+    {
+      "codigo": "mp.info.1",
+      "aplica_basica": true,
+      "aplica_media": true,
+      "aplica_alta": true,
+      "celdas_boe": [
+        "aplica",
+        "aplica",
+        "aplica"
+      ],
+      "eje": "categoria",
+      "dimensiones": []
+    },
+    {
+      "codigo": "mp.info.2",
+      "aplica_basica": false,
+      "aplica_media": true,
+      "aplica_alta": true,
+      "celdas_boe": [
+        "n.a.",
+        "aplica",
+        "aplica"
+      ],
+      "eje": "dimension",
+      "dimensiones": [
+        "confidencialidad"
+      ],
+      "dimensiones_iniciales": "C"
+    },
+    {
+      "codigo": "mp.info.3",
+      "aplica_basica": true,
+      "aplica_media": true,
+      "aplica_alta": true,
+      "celdas_boe": [
+        "aplica",
+        "+ R1 + R2 + R3",
+        "+ R1 + R2 + R3 + R4"
+      ],
+      "eje": "dimension",
+      "dimensiones": [
+        "autenticidad",
+        "integridad"
+      ],
+      "dimensiones_iniciales": "IA"
+    },
+    {
+      "codigo": "mp.info.4",
+      "aplica_basica": false,
+      "aplica_media": false,
+      "aplica_alta": true,
+      "celdas_boe": [
+        "n.a.",
+        "n.a.",
+        "aplica"
+      ],
+      "eje": "dimension",
+      "dimensiones": [
+        "trazabilidad"
+      ],
+      "dimensiones_iniciales": "T"
+    },
+    {
+      "codigo": "mp.info.5",
+      "aplica_basica": true,
+      "aplica_media": true,
+      "aplica_alta": true,
+      "celdas_boe": [
+        "aplica",
+        "aplica",
+        "aplica"
+      ],
+      "eje": "dimension",
+      "dimensiones": [
+        "confidencialidad"
+      ],
+      "dimensiones_iniciales": "C"
+    },
+    {
+      "codigo": "mp.info.6",
+      "aplica_basica": true,
+      "aplica_media": true,
+      "aplica_alta": true,
+      "celdas_boe": [
+        "aplica",
+        "+ R1",
+        "+ R1 + R2"
+      ],
+      "eje": "dimension",
+      "dimensiones": [
+        "disponibilidad"
+      ],
+      "dimensiones_iniciales": "D"
+    },
+    {
+      "codigo": "mp.s.1",
+      "aplica_basica": true,
+      "aplica_media": true,
+      "aplica_alta": true,
+      "celdas_boe": [
+        "aplica",
+        "aplica",
+        "aplica"
+      ],
+      "eje": "categoria",
+      "dimensiones": []
+    },
+    {
+      "codigo": "mp.s.2",
+      "aplica_basica": true,
+      "aplica_media": true,
+      "aplica_alta": true,
+      "celdas_boe": [
+        "+ [R1 o R2]",
+        "+ [R1 o R2]",
+        "+ R2 + R3"
+      ],
+      "eje": "categoria",
+      "dimensiones": []
+    },
+    {
+      "codigo": "mp.s.3",
+      "aplica_basica": true,
+      "aplica_media": true,
+      "aplica_alta": true,
+      "celdas_boe": [
+        "aplica",
+        "aplica",
+        "+ R1"
+      ],
+      "eje": "categoria",
+      "dimensiones": []
+    },
+    {
+      "codigo": "mp.s.4",
+      "aplica_basica": false,
+      "aplica_media": true,
+      "aplica_alta": true,
+      "celdas_boe": [
+        "n.a.",
+        "aplica",
+        "+ R1"
+      ],
+      "eje": "dimension",
+      "dimensiones": [
+        "disponibilidad"
+      ],
+      "dimensiones_iniciales": "D"
+    }
+  ]
+}
