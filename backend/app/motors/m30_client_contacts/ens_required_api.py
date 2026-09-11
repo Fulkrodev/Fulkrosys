@@ -27,6 +27,7 @@ from backend.app.motors.m30_client_contacts.ens_required import (
     get_priority_for_category,
 )
 from backend.app.motors.m30_client_contacts.service import (
+    RolEnsYaAsignadoError,
     ClientContactService,
     ContactNotFoundError,
 )
@@ -59,6 +60,17 @@ class AssignRoleBody(BaseModel):
 
     contact_id: uuid.UUID
     notes: str | None = Field(None, max_length=2000)
+    # P3 · el rol ENS es una columna escalar del contacto: asignar uno nuevo
+    # borra el que tuviera. Antes eso pasaba en silencio con un 200. Ahora la
+    # operacion se niega con 409 salvo que quien la pide confirme aqui que
+    # quiere reemplazar la designacion anterior.
+    reemplazar_rol_actual: bool = Field(
+        False,
+        description=(
+            "Confirma que se quiere retirar al contacto el rol ENS que ya "
+            "tenga. Sin esto, asignar un segundo rol devuelve 409."
+        ),
+    )
 
 
 async def _get_project_category(
@@ -145,13 +157,18 @@ async def assign_contact_to_ens_role(
 
     service = ClientContactService(db)
     try:
-        contact = await service.assign_ens_required_role(
+        contact, desplazados = await service.assign_ens_required_role(
             contact_id=body.contact_id,
             role=role,
             notes=body.notes,
+            reemplazar_rol_actual=body.reemplazar_rol_actual,
         )
     except ContactNotFoundError as exc:
         raise HTTPException(status_code=404, detail=str(exc)) from exc
+    except RolEnsYaAsignadoError as exc:
+        # 409 y no 400: la peticion es valida, lo que pasa es que choca con un
+        # estado que hay que resolver a proposito.
+        raise HTTPException(status_code=409, detail=str(exc)) from exc
     except ValueError as exc:
         raise HTTPException(status_code=400, detail=str(exc)) from exc
 
@@ -162,6 +179,9 @@ async def assign_contact_to_ens_role(
         "full_name": contact.full_name,
         "email": contact.email,
         "role_title": contact.role_title,
+        # P3 · lo que la operacion se llevo por delante viaja en la respuesta.
+        # Antes desaparecia sin que nadie lo supiera.
+        "desplazados": desplazados,
     }
 
 

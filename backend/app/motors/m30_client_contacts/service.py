@@ -43,6 +43,16 @@ from backend.app.motors.m30_client_contacts.schemas import (
 # ====================================================================
 
 
+class RolEnsYaAsignadoError(Exception):
+    """El contacto ya sostiene otro rol ENS y no se confirmo el reemplazo.
+
+    P3 · el rol ENS es una columna escalar: asignar uno nuevo borra el
+    anterior. El art. 13 del RD 311/2022 exige designaciones diferenciadas, asi
+    que perder una en silencio deja al proyecto sin un responsable que alguien
+    creia designado.
+    """
+
+
 class ContactNotFoundError(Exception):
     """Contacto no encontrado por id (o eliminado)."""
 
@@ -657,13 +667,34 @@ class ClientContactService:
         contact_id: uuid.UUID,
         role: str,
         notes: str | None = None,
-    ) -> ClientContact:
-        """Asigna ENS_REQUIRED role a un M30 contact · admin operation.
+        *,
+        reemplazar_rol_actual: bool = False,
+    ) -> tuple[ClientContact, dict[str, str]]:
+        """Asigna un rol ENS_REQUIRED a un contacto · operacion de administracion.
 
-        Si el role ya estaba asignado a otro contact del mismo client, lo
-        vacate (mismo role no puede estar en 2 contactos · 1 contact puede
-        tener varios roles via re-asignación sucesiva → solo el último
-        queda activo).
+        Devuelve ``(contacto, desplazados)``, donde ``desplazados`` dice QUE se
+        perdio por el camino: ``{"rol_anterior_del_contacto": ...,
+        "contactos_vaciados": "nombre (rol)"}``.
+
+        P3 · EL DEFECTO QUE ARREGLA
+            El rol vive en UNA columna escalar del contacto
+            (``models.py:127``, ``role_ens_required``): no hay tabla puente, asi
+            que un contacto no puede sostener dos roles. Asignarle un segundo
+            PISABA el primero en la linea del final, y la operacion respondia
+            200 en los dos casos. La docstring anterior lo describia como si
+            fuera el disenyo -- "1 contact puede tener varios roles via
+            re-asignacion sucesiva -> solo el ultimo queda activo" -- y no lo
+            es: es perdida de dato sin aviso.
+
+            Y no es un dato cualquiera. El art. 13 del RD 311/2022 exige
+            designar responsable de la informacion, del servicio y de
+            seguridad, diferenciados. Borrar una designacion en silencio deja
+            al proyecto sin un responsable que alguien creia designado.
+
+            Ahora, si el contacto ya tiene OTRO rol, la operacion se niega
+            salvo que quien la pide diga explicitamente que quiere reemplazarlo
+            (``reemplazar_rol_actual=True``). Y lo que se desplaza se devuelve
+            al llamante para que lo cuente, en vez de desaparecer.
         """
         from backend.app.motors.m30_client_contacts.ens_required import (
             ENS_REQUIRED_ROLES,
@@ -678,6 +709,20 @@ class ClientContactService:
         if contact is None or contact.deleted_at is not None:
             raise ContactNotFoundError(f"contact {contact_id} no existe")
 
+        rol_previo = contact.role_ens_required
+        if rol_previo and rol_previo != role and not reemplazar_rol_actual:
+            raise RolEnsYaAsignadoError(
+                f"{contact.full_name} ya tiene asignado el rol "
+                f"'{rol_previo}'. Un contacto solo puede sostener un rol ENS "
+                f"a la vez, asi que asignarle '{role}' le quitaria el que "
+                f"tiene. Si es lo que quieres, repite la operacion "
+                f"confirmando el reemplazo."
+            )
+
+        desplazados: dict[str, str] = {}
+        if rol_previo and rol_previo != role:
+            desplazados["rol_anterior_del_contacto"] = rol_previo
+
         # Vacate cualquier otro contact del mismo client con este role
         existing_stmt = select(ClientContact).where(
             ClientContact.client_id == contact.client_id,
@@ -687,6 +732,9 @@ class ClientContactService:
         )
         existing_result = await self.db.execute(existing_stmt)
         for other in existing_result.scalars():
+            # Tambien esto era silencioso: el rol cambiaba de manos y nadie se
+            # enteraba de a quien se lo quitaron.
+            desplazados["contacto_vaciado"] = f"{other.full_name} ({role})"
             other.role_ens_required = None
             other.contact_role_notes = None
 
@@ -694,7 +742,7 @@ class ClientContactService:
         if notes is not None:
             contact.contact_role_notes = notes
         await self.db.flush()
-        return contact
+        return contact, desplazados
 
     async def vacate_ens_required_role(
         self,

@@ -135,11 +135,17 @@ async def get_last_simulacro_report(
         coverage_pct=float(payload_dict.get("coverage_pct", 0.0) or 0.0),
         current_phase=str(payload_dict.get("current_phase", "") or ""),
         integrity_ok=bool(payload_dict.get("integrity_ok", False)),
-        integrity_first_bad_seq=None,
+        # P3 · estos cinco venian hardcodeados a vacio/cero aunque el service
+        # ya tuviera el dato. Ahora el service los persiste y aqui se leen: un
+        # informe firmado se recupera CON su firma, o no se recupera firmado.
+        integrity_first_bad_seq=payload_dict.get("integrity_first_bad_seq"),
         corrective_loops_opened=int(payload_dict.get("loops_opened", 0) or 0),
         pdf_sha256=str(payload_dict.get("pdf_sha256", "")),
-        signature_hex="",
-        signed_at=ts.isoformat() if hasattr(ts, "isoformat") else str(ts),
-        pdf_size_bytes=0,
-        loops_metadata=[],
+        signature_hex=str(payload_dict.get("signature_hex", "") or ""),
+        signed_at=str(
+            payload_dict.get("signed_at")
+            or (ts.isoformat() if hasattr(ts, "isoformat") else ts)
+        ),
+        pdf_size_bytes=int(payload_dict.get("pdf_size_bytes", 0) or 0),
+        loops_metadata=list(payload_dict.get("loops_metadata") or []),
     )

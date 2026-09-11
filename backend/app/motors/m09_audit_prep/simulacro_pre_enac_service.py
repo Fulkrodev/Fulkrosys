@@ -322,6 +322,21 @@ async def run_simulacro_pre_enac(
             "corrective_loops_opened": len(loops_opened),
             "loops_opened": len(loops_opened),
             "integrity_ok": integrity.ok,
+            # P3 · el informe se firmaba con Ed25519 y la firma NO se guardaba:
+            # el evento llevaba nueve claves y ni `signature_hex` ni el tamanyo
+            # ni el sello estaban entre ellas. Al recuperarlo, el lector
+            # devolvia signature_hex="" y pdf_size_bytes=0, de modo que quedaba
+            # un informe "firmado" sin firma. La firma existia -- se calculaba
+            # dos lineas mas arriba -- y no sobrevivia al guardado.
+            "signature_hex": report_bytes.signature_hex,
+            "signed_at": report_bytes.signed_at,
+            "pdf_size_bytes": len(report_bytes.pdf_bytes),
+            "current_phase": workflow_state.current_phase,
+            "integrity_first_bad_seq": integrity.first_bad_seq,
+            "loops_metadata": [
+                lo if isinstance(lo, dict) else {"loop_id": str(lo)}
+                for lo in loops_opened
+            ],
         },
         usuario=usuario,
     )

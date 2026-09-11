@@ -89,12 +89,15 @@ async def test_role_ens_required_field_persists(db: AsyncSession):
         client_uuid,
         _payload(full_name="CEO Test", email="ceo@test.es"),
     )
-    updated = await svc.assign_ens_required_role(
+    # P3 · el metodo devuelve ahora (contacto, desplazados): lo que la
+    # asignacion se lleva por delante deja de desaparecer en silencio.
+    updated, desplazados = await svc.assign_ens_required_role(
         contact.id,
         "sponsor",
         notes="Decision-maker proyecto · firma E-028",
     )
 
+    assert desplazados == {}, "no habia nada que desplazar en este caso"
     assert updated.role_ens_required == "sponsor"
     assert updated.contact_role_notes == "Decision-maker proyecto · firma E-028"
 
