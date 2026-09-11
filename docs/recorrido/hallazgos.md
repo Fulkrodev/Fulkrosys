@@ -209,6 +209,46 @@ pensar dónde va cada una es cómo se llega a un menú que nadie entiende; y cua
 de ellas piden decidir antes si el gemelo administrativo del portal del auditor
 es una sección o son pestañas de `/audit`. Queda contado, que era lo pedido.
 
+### 3.c · Arreglar una página rota puso ROJA una puerta que llevaba meses verde
+
+Esto salió al empujar los 29 commits y mirar Actions, y es la mejor ilustración
+de para qué sirve este bloque entero.
+
+`/admin/projects/[id]/cliente-info` era una de las tres páginas que usaban la
+API de `params` de Next.js 15 sobre Next.js 14: `use(params)` lanzaba el error
+de React #438, el límite de error lo capturaba y la pantalla se quedaba en «No
+pudimos cargar esta sección», **sirviendo HTTP 200**.
+
+Esa página tiene su propia puerta de accesibilidad en CI
+(`tests/polish/p1/14_admin_project_cliente_info.spec.ts`, que exige **cero**
+violaciones de axe de severidad crítica o seria). Y **estaba en verde**.
+
+Estaba en verde porque un límite de error no tiene nada que analizar: ni el
+desplegable de filtro de contactos, ni el campo de búsqueda. axe barría una caja
+de error, no encontraba nada, y la puerta pasaba. Al arreglar la página, CI se
+puso rojo con dos violaciones **críticas** que llevaban ahí desde siempre:
+
+```
+Error: WCAG AA · 2 violations: [critical] label, [critical] select-name
+```
+
+- El `<select>` de categoría no tenía nombre accesible. Quien lo ve se orienta
+  con la primera opción («Todas las categorías»); quien lo recorre con un lector
+  de pantalla llega al control sin ese contexto.
+- El buscador usaba `placeholder` como si fuera etiqueta. No lo es: desaparece
+  en cuanto escribes, y no se anuncia como nombre del campo.
+
+Los dos arreglados con `aria-label`. Pero lo que hay que llevarse no es el
+arreglo, son **dos** lecciones:
+
+1. **Una puerta de calidad sobre una página rota no mide nada, y encima da un
+   verde tranquilizador.** No falló: pasó, durante meses, sobre una pantalla de
+   error. Es exactamente «una página que carga no es una página que funciona»,
+   pero aplicado al medidor en vez de a la página.
+2. **Arreglar algo puede destapar deuda que estaba tapada por el fallo.** Que CI
+   se ponga rojo después de un arreglo no significa que el arreglo esté mal:
+   aquí significa que hasta ahora no se estaba midiendo nada.
+
 ### 4 · El sembrado del demo deja tres familias de rutas sin nada que enseñar
 
 `make demo` no crea ninguna reunión, ningún lead y ningún informe de norma. Sus

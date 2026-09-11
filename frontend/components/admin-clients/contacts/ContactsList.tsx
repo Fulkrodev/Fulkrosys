@@ -117,7 +117,13 @@ export function ContactsList({ clientId, reloadKey, onRowSelect }: Props) {
           ))}
         </div>
 
+        {/* El nombre accesible va en `aria-label` y no en un <label> visible
+            porque la primera opción («Todas las categorías») ya dice de qué es
+            el desplegable a quien lo ve; quien lo recorre con un lector de
+            pantalla llega al control sin ese contexto y necesita el nombre.
+            Sin esto, axe lo marca como `select-name`, de severidad crítica. */}
         <select
+          aria-label="Filtrar contactos por categoría de rol"
           value={categoryFilter}
           onChange={(e) =>
             setCategoryFilter(e.target.value as RoleCategory | "all")
@@ -132,7 +138,11 @@ export function ContactsList({ clientId, reloadKey, onRowSelect }: Props) {
           ))}
         </select>
 
+        {/* Un `placeholder` NO es una etiqueta: desaparece en cuanto se
+            escribe, y un lector de pantalla no lo anuncia como nombre del
+            campo. Era la violación `label`, también crítica. */}
         <Input
+          aria-label="Buscar contactos por nombre, email o cargo"
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           placeholder="Buscar por nombre, email o cargo…"
