@@ -8,7 +8,7 @@ dispara una sola vez aunque el día exacto se haya saltado.
 """
 from __future__ import annotations
 
-from datetime import date, timedelta
+from datetime import date
 
 import pytest
 from sqlalchemy import text as sa_text
@@ -20,11 +20,12 @@ from backend.app.motors.m27_conformity.renewal_scheduler import (
 )
 from backend.tests.conftest import _admin_setup, setup_test_project
 
-# O1 · el bienio del art. 31 es de ANYOS de calendario, no de un numero fijo
-# de dias: 2026-05-05 + 2 anyos cruza el 29-F de 2028 y son 731 dias, no
-# 730. Por eso se asevera contra la funcion canonica y no contra una
-# constante: la constante en dias es justo lo que estaba mal.
-from backend.app.motors.m27_conformity.bienio import proxima_fecha_bienal
+# O1 · el bienio del art. 31 es de ANYOS de calendario. El ayudante que calcula
+# la fecha vivia aqui y lo necesitaba tambien test_paso7_final: se mudo a
+# backend/tests/helpers_bienio.py para no tenerlo escrito dos veces.
+from backend.tests.helpers_bienio import (
+    certificado_para_que_falten as _certificado_para_que_falten,
+)
 
 
 async def _certify_project_at(db, project_id: str, certified_at: date) -> None:
@@ -45,21 +46,6 @@ async def _count_renewal_events(db, project_id: str, renewal_type: str) -> int:
         ), {"pid": project_id, "rt": renewal_type})).scalar()
     finally:
         await db.execute(sa_text("RESET ROLE"))
-
-
-def _certificado_para_que_falten(dias: int) -> date:
-    """Fecha de certificacion tal que HOY falten `dias` para el aniversario.
-
-    O1 · con el bienio en ANYOS de calendario no vale restar una constante de
-    dias: el numero de dias del bienio depende de si el tramo cruza un 29 de
-    febrero. Se busca la fecha cuyo aniversario real cae donde hace falta.
-    """
-    objetivo = date.today() + timedelta(days=dias)
-    for delta in range(-3, 4):
-        candidata = objetivo.replace(year=objetivo.year - 2) + timedelta(days=delta)
-        if proxima_fecha_bienal(candidata) == objetivo:
-            return candidata
-    raise AssertionError(f"no hay fecha cuyo bienio caiga en {objetivo}")
 
 
 @pytest.mark.asyncio

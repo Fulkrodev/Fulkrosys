@@ -25,9 +25,15 @@ from backend.app.motors.m27_conformity.renewal_scheduler import (
     ALERT_1M_BEFORE_DAYS,
     ALERT_3M_BEFORE_DAYS,
     ALERT_6M_BEFORE_DAYS,
-    CERTIFICATION_VALIDITY_DAYS,
     run_renewal_bianual_check,
 )
+# O1 · `CERTIFICATION_VALIDITY_DAYS` (730) desaparecio al unificar el bienio del
+# art. 31: son DOS ANYOS de calendario, no 730 dias, y 730 se come el dia
+# bisiesto. Este fichero seguia importandola, asi que llevaba desde entonces sin
+# poder coleccionarse -- y no se veia porque la bateria se corria por
+# directorios, nunca entera. La fecha se calcula ahora preguntandole a la
+# funcion canonica donde cae el aniversario de verdad.
+from backend.tests.helpers_bienio import certificado_para_que_falten
 from backend.tests.conftest import _admin_setup, setup_test_project
 
 
@@ -158,9 +164,7 @@ class TestRenewalBianualAuto:
     async def test_alert_6m_before_anniversary(self, db):
         client_id, project_id = await setup_test_project(db)
         # Certificado hace 550 dias = 730 - 180 (6m antes aniv)
-        certified = date.today() - timedelta(
-            days=CERTIFICATION_VALIDITY_DAYS - ALERT_6M_BEFORE_DAYS,
-        )
+        certified = certificado_para_que_falten(ALERT_6M_BEFORE_DAYS)
         await _certify_project_at(db, project_id, certified)
         result = await run_renewal_bianual_check(db, today=date.today())
         assert str(project_id) in result.alerts_6m
@@ -169,9 +173,7 @@ class TestRenewalBianualAuto:
     @pytest.mark.asyncio
     async def test_campaign_created_3m_before(self, db):
         client_id, project_id = await setup_test_project(db)
-        certified = date.today() - timedelta(
-            days=CERTIFICATION_VALIDITY_DAYS - ALERT_3M_BEFORE_DAYS,
-        )
+        certified = certificado_para_que_falten(ALERT_3M_BEFORE_DAYS)
         await _certify_project_at(db, project_id, certified)
         result = await run_renewal_bianual_check(db, today=date.today())
         assert str(project_id) in result.campaigns_created_3m
@@ -190,9 +192,7 @@ class TestRenewalBianualAuto:
     @pytest.mark.asyncio
     async def test_alert_1m_before(self, db):
         client_id, project_id = await setup_test_project(db)
-        certified = date.today() - timedelta(
-            days=CERTIFICATION_VALIDITY_DAYS - ALERT_1M_BEFORE_DAYS,
-        )
+        certified = certificado_para_que_falten(ALERT_1M_BEFORE_DAYS)
         await _certify_project_at(db, project_id, certified)
         result = await run_renewal_bianual_check(db, today=date.today())
         assert str(project_id) in result.alerts_1m
@@ -200,9 +200,7 @@ class TestRenewalBianualAuto:
     @pytest.mark.asyncio
     async def test_no_duplicate_campaigns_on_repeated_run(self, db):
         client_id, project_id = await setup_test_project(db)
-        certified = date.today() - timedelta(
-            days=CERTIFICATION_VALIDITY_DAYS - ALERT_3M_BEFORE_DAYS,
-        )
+        certified = certificado_para_que_falten(ALERT_3M_BEFORE_DAYS)
         await _certify_project_at(db, project_id, certified)
         r1 = await run_renewal_bianual_check(db, today=date.today())
         r2 = await run_renewal_bianual_check(db, today=date.today())
