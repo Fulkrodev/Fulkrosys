@@ -33,6 +33,7 @@ from backend.app.motors.m03_dda.service import (
     DdaEntryNotFoundError,
     DdaIncompleteForFreezeError,
 )
+from backend.app.motors.m30_client_contacts.require_ens_role import require_ens_role
 from backend.app.auth.dependencies import require_owner
 
 router = APIRouter(
@@ -203,13 +204,32 @@ async def freeze_dda(
     db: AsyncSession = Depends(get_db),
     aprobado_por: str = Query(..., description="Nombre del RSEG que aprueba"),
 ):
-    """Congela la DdA. Requiere minimo 80% medidas valoradas."""
+    """Congela la DdA. Requiere minimo 80% medidas valoradas.
+
+    N4 · antes de tocar nada se comprueba que `aprobado_por` sea el Responsable
+    de la Seguridad nombrado del proyecto. Hasta el bloque N este parametro era
+    texto libre y no se validaba: la DdA quedaba congelada a nombre de quien se
+    escribiera. RD 311/2022 art. 11 exige responsabilidades diferenciadas, y una
+    firma que puede llevar cualquier nombre no las diferencia.
+
+    El control de rol va PRIMERO, antes de buscar la DdA: autorizar y luego
+    operar, no al reves.
+    """
     await _set_project_rls(project_id, db)
+    aprobado_por = await require_ens_role(
+        db, project_id, "responsable_seguridad", aprobado_por,
+    )
     svc = DdaService(db)
     try:
         result = await svc.freeze_dda(project_id, aprobado_por)
         await db.commit()
         return result
+    except DdaNotFoundError as e:
+        # N4 · un proyecto sin DdA generada devolvia 500 con la excepcion sin
+        # capturar. No hay nada que congelar: eso es un 404, no un error del
+        # servidor. Lo descubrio el test del control de rol al pasar el control
+        # y seguir adelante, que es justo lo que ese test demuestra.
+        raise HTTPException(status_code=404, detail=str(e))
     except DdaIncompleteForFreezeError as e:
         raise HTTPException(status_code=400, detail=str(e))
     except DdaFrozenError as e:  # pragma: no cover — double-freeze edge case

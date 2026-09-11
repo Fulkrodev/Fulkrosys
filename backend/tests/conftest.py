@@ -214,6 +214,31 @@ async def setup_test_project(db):
     return str(client_id), str(project_id)
 
 
+async def asigna_rseg(db, project_id: str, nombre: str = "RSEG") -> str:
+    """Asigna un Responsable de la Seguridad al cliente del proyecto.
+
+    N4 · desde el bloque N, congelar la DdA exige que `aprobado_por` sea el RSEG
+    nombrado (RD 311/2022 art. 11: responsabilidades diferenciadas). Los tests
+    que congelan una DdA necesitan que ese contacto exista; antes valia cualquier
+    cadena porque nadie la comprobaba.
+    """
+    import uuid as _uuid
+    async with _admin_setup(db):
+        cid = (await db.execute(
+            text("SELECT client_id FROM projects WHERE id = :p"),
+            {"p": str(project_id)},
+        )).scalar()
+        await db.execute(text(
+            "INSERT INTO client_contacts (id, client_id, full_name, email, "
+            "role_title, role_category, role_ens_required, is_active, created_at) "
+            "VALUES (:id, :cid, :n, :e, 'RSEG', 'tecnico', "
+            "'responsable_seguridad', true, now())"
+        ), {"id": str(_uuid.uuid4()), "cid": str(cid), "n": nombre,
+            "e": f"{_uuid.uuid4().hex[:8]}@test.local"})
+    await db.flush()
+    return nombre
+
+
 @pytest.fixture
 async def db():
     """Provide a transactional DB session as fulkro_app (NOSUPERUSER).

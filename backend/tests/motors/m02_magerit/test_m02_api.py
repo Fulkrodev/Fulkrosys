@@ -11,7 +11,7 @@ import uuid
 import pytest
 from sqlalchemy import text
 
-from backend.tests.conftest import setup_test_project
+from backend.tests.conftest import setup_test_project, asigna_rseg
 
 BASE = "/api/v1/magerit"
 
@@ -23,6 +23,8 @@ BASE = "/api/v1/magerit"
 async def _create_analysis(async_client, db, mode="qualitative"):
     """Helper: create client + project + analysis, return (project_id, analysis_id)."""
     _, project_id = await setup_test_project(db)
+    # N4 · congelar el analisis exige RSEG nombrado (el backend le atribuye el acto).
+    await asigna_rseg(db, project_id, "RSEG Test")
     r = await async_client.post(
         f"{BASE}/projects/{project_id}/analysis",
         json={"name": "Test Analysis", "calculation_mode": mode},

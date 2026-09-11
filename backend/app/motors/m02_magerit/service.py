@@ -1402,8 +1402,19 @@ class MageritService:
             ], key=lambda x: (x["asset_id"], x["threat_code"], x["dimension"])),
         }
 
-    async def freeze_analysis_snapshot(self, analysis_id: uuid.UUID) -> dict:
-        """Freeze the analysis: build snapshot and lock against modifications."""
+    async def freeze_analysis_snapshot(
+        self,
+        analysis_id: uuid.UUID,
+        aprobado_por: str | None = None,
+    ) -> dict:
+        """Freeze the analysis: build snapshot and lock against modifications.
+
+        N4 · `aprobado_por` es el Responsable de la Seguridad nombrado del
+        proyecto, resuelto por el endpoint. Queda dentro del snapshot inmutable
+        para que la auditoria pueda constatar QUIEN aprobo el analisis de
+        riesgos (RD 311/2022 Anexo III punto 1.d). Va en el JSONB del snapshot,
+        que ya es el registro inmutable del acto: no hace falta columna nueva.
+        """
         from datetime import datetime, timezone
 
         analysis = await self.db.get(MageritAnalysis, analysis_id)
@@ -1420,6 +1431,9 @@ class MageritService:
             raise ValueError("Cannot freeze: no risk calculations exist. Run the pipeline first.")
 
         snapshot = await self._build_analysis_snapshot(analysis_id)
+        if aprobado_por is not None:
+            snapshot["aprobado_por"] = aprobado_por
+            snapshot["aprobado_por_rol"] = "responsable_seguridad"
         analysis.result_snapshot = snapshot
         analysis.snapshot_frozen_at = datetime.now(timezone.utc)
         await self.db.flush()

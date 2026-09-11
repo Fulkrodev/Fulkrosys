@@ -20,6 +20,9 @@ from backend.app.motors.m02_magerit.models import (
     MageritTreatmentPlan,
 )
 from backend.app.motors.m02_magerit.service import MageritService, LEVEL_TO_INDEX
+from backend.app.motors.m30_client_contacts.require_ens_role import (
+    require_ens_role_asignado,
+)
 from backend.app.motors.m02_magerit.schemas import (
     AnalysisCreate,
     AnalysisOut,
@@ -705,14 +708,32 @@ async def freeze_analysis(
     analysis_id: uuid.UUID,
     db: AsyncSession = Depends(get_db),
 ):
-    """Congela el analisis: crea snapshot inmutable y bloquea modificaciones."""
+    """Congela el analisis: crea snapshot inmutable y bloquea modificaciones.
+
+    N4 · el acto queda ATRIBUIDO al Responsable de la Seguridad nombrado del
+    proyecto. Hasta el bloque N no se atribuia a nadie: el analisis se congelaba
+    y no constaba quien lo aprobaba. El Anexo III punto 1.d del RD 311/2022
+    manda constatar en auditoria "que se ha realizado un analisis de riesgos,
+    con revision y aprobacion anual", y una aprobacion sin aprobador no se
+    puede constatar.
+
+    El nombre NO se recibe por parametro: lo resuelve el backend desde el rol
+    asignado. Asi no hay grafia que teclear mal ni forma de atribuirlo a quien
+    no toca. Si no hay RSEG nombrado, 403: no hay a quien atribuir el acto.
+    """
     analysis = await _get_analysis_with_rls(analysis_id, db)
     if analysis.snapshot_frozen_at is not None:
         raise HTTPException(status_code=409, detail="El analisis ya esta congelado.")
 
+    aprobado_por = await require_ens_role_asignado(
+        db, analysis.project_id, "responsable_seguridad",
+    )
+
     svc = MageritService(db)
     try:
-        snapshot = await svc.freeze_analysis_snapshot(analysis_id)
+        snapshot = await svc.freeze_analysis_snapshot(
+            analysis_id, aprobado_por=aprobado_por,
+        )
     except ValueError as e:
         raise HTTPException(status_code=409, detail=str(e))
     await db.commit()

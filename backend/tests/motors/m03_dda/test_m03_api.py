@@ -4,7 +4,7 @@ from uuid import uuid4
 
 from sqlalchemy import text
 
-from backend.tests.conftest import setup_test_project, _admin_setup
+from backend.tests.conftest import setup_test_project, _admin_setup, asigna_rseg
 
 BASE = "/api/v1/dda"
 
@@ -12,6 +12,8 @@ BASE = "/api/v1/dda"
 async def _generate_dda_http(async_client, db, category="BASICA"):
     """Setup project + generate DdA via HTTP. Returns (project_id, gen_response)."""
     _, project_id = await setup_test_project(db)
+    # N4 · congelar exige RSEG nombrado; se asigna aqui para todo el fichero.
+    await asigna_rseg(db, project_id, "RSEG")
     r = await async_client.post(
         f"{BASE}/generate",
         json={"project_id": project_id, "system_category": category, "responsable": "RSEG"},

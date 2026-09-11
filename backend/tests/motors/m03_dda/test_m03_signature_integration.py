@@ -13,7 +13,7 @@ import uuid
 import pytest
 from sqlalchemy import text, select
 
-from backend.tests.conftest import setup_test_project, _admin_setup
+from backend.tests.conftest import setup_test_project, _admin_setup, asigna_rseg
 
 BASE = "/api/v1/dda"
 
@@ -25,6 +25,8 @@ BASE = "/api/v1/dda"
 async def _generate_and_freeze_dda(async_client, db):
     """Create project + generate DdA + implement all + freeze. Return project_id."""
     _, project_id = await setup_test_project(db)
+    # N4 · congelar exige que aprobado_por sea el RSEG nombrado del proyecto.
+    await asigna_rseg(db, project_id, "RSEG Test")
 
     r = await async_client.post(
         f"{BASE}/generate",
