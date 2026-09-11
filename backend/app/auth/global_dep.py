@@ -150,6 +150,17 @@ WHITELIST_PREFIX: tuple[str, ...] = (
     # Defecto latente: fase_43 siempre saltaba → nunca se ejerció el confirm →
     # un lead real firmando su contrato recibía 401 (auth global sin sesión).
     "/api/v1/contract-signing/",
+    # O2 · la firma de los DOCUMENTOS del ciclo ENS (acta E-012, informe E-028,
+    # DdA E-040) y la aprobacion de actas de reunion viajan por magic-link, y
+    # ninguno de los dos prefijos estaba aqui: el firmante abria su enlace y
+    # recibia 401 "Authentication required" ANTES de llegar al handler. El
+    # cliente NO tiene sesion -- por eso se le manda un enlace -- asi que la
+    # firma del ciclo entero estaba cerrada. Mismo caso, misma razon y mismo
+    # remedio que `/contract-signing/` de la linea de arriba: la credencial es
+    # el token del enlace mas el OTP, y los dos se validan DENTRO del endpoint
+    # (consume_magic_link, que ademas comprueba caducidad, revocacion y usos).
+    "/api/v1/document-signing/",
+    "/api/v1/minutes-signing/",
     # H54 fix continuacion: catalogo LMS individual /lms/courses/{codigo}.
     "/api/v1/onboarding/lms/courses/",
     # audit-roundup 2026-06-16: consentimiento de cookies PUBLICO (visitantes
