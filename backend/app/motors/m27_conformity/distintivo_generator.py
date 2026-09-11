@@ -498,33 +498,43 @@ def generate_declaration_docx(ctx: DistintivoContext) -> io.BytesIO:
     # y se imprimen las DOS cifras, la declarada y la verificada, con la
     # puntuacion de preparacion al lado. El lector ve en que se apoya lo que
     # esta leyendo sin tener que abrir otra pantalla.
+    # P · el TITULAR es la cifra VERIFICADA, no la declarada. La declarada sale
+    # de `estado_implementacion` en la DdA: es lo que la organizacion dice de si
+    # misma. La verificada sale de cruzar esa declaracion con el Vault de
+    # evidencias. Poner la declarada arriba y la verificada abajo invita a leer
+    # la primera y quedarse ahi -- que es exactamente lo que hacia que este
+    # documento afirmara "100% de conformidad" sobre un sistema con cero
+    # evidencias. El orden de una tabla es una afirmacion sobre que importa.
     _sin_cruce = ctx.verificadas_con_evidencia < 0
+    _nd = "no se pudo calcular"
     filas = [
-        ("Total medidas Anexo II evaluadas", str(ctx.dda_total)),
-        ("Aplicables base", str(ctx.dda_aplicables)),
-        ("Aplicables con refuerzos", str(ctx.dda_con_refuerzos)),
-        ("No aplicables (justificadas)", str(ctx.dda_no_aplica)),
-        ("Implantación DECLARADA en la DdA", str(ctx.conformes_count)),
-        ("Pendientes de declarar", str(ctx.no_conformes_count)),
-        ("Porcentaje de implantación declarada", f"{ctx.pct_conformidad}%"),
+        # ── titular ──
         (
-            "VERIFICADAS con evidencia vigente",
-            "no se pudo calcular" if _sin_cruce
-            else str(ctx.verificadas_con_evidencia),
+            "CONFORMIDAD VERIFICADA (medidas con evidencia vigente)",
+            _nd if _sin_cruce else f"{ctx.pct_verificado}%",
         ),
         (
-            "Porcentaje verificado con evidencia",
-            "no se pudo calcular" if _sin_cruce else f"{ctx.pct_verificado}%",
-        ),
-        (
-            "Medidas declaradas sin evidencia que las sostenga",
-            "no se pudo calcular" if _sin_cruce else str(ctx.contradicciones),
+            "Medidas verificadas",
+            _nd if _sin_cruce else str(ctx.verificadas_con_evidencia),
         ),
         (
             "Puntuación de preparación de auditoría",
             "sin ejecutar" if ctx.readiness_score is None
             else f"{ctx.readiness_score}/100",
         ),
+        # ── lo declarado por la organizacion, debajo y nombrado como lo que es ──
+        ("Implantación declarada en la DdA (autodeclarada)", str(ctx.conformes_count)),
+        ("Porcentaje de implantación declarada", f"{ctx.pct_conformidad}%"),
+        (
+            "Declaradas SIN evidencia que las sostenga",
+            _nd if _sin_cruce else str(ctx.contradicciones),
+        ),
+        # ── alcance ──
+        ("Total medidas Anexo II evaluadas", str(ctx.dda_total)),
+        ("Aplicables base", str(ctx.dda_aplicables)),
+        ("Aplicables con refuerzos", str(ctx.dda_con_refuerzos)),
+        ("No aplicables (justificadas)", str(ctx.dda_no_aplica)),
+        ("Pendientes de declarar", str(ctx.no_conformes_count)),
     ]
     rtbl = doc.add_table(rows=1, cols=2)
     rtbl.style = "Light Grid Accent 1"
@@ -536,12 +546,13 @@ def generate_declaration_docx(ctx: DistintivoContext) -> io.BytesIO:
         cells[1].text = value
 
     doc.add_paragraph(
-        "El porcentaje de implantación declarada recoge lo que la organización "
-        "ha consignado en su Declaración de Aplicabilidad. El porcentaje "
-        "verificado recoge únicamente las medidas que además cuentan con "
-        "evidencia documental vigente en el repositorio. Cuando ambos "
-        "difieren, la diferencia son medidas declaradas cuya prueba está "
-        "pendiente de aportar, y el auditor las pedirá una a una."
+        "La conformidad verificada — la cifra que encabeza esta tabla — recoge "
+        "únicamente las medidas que cuentan con evidencia documental vigente "
+        "en el repositorio. El porcentaje de implantación declarada recoge lo "
+        "que la organización ha consignado en su Declaración de Aplicabilidad, "
+        "sin contrastar. Cuando ambos difieren, la diferencia son medidas "
+        "declaradas cuya prueba está pendiente de aportar, y el auditor las "
+        "pedirá una a una."
     )
     if not _sin_cruce and ctx.contradicciones > 0:
         aviso = doc.add_paragraph()

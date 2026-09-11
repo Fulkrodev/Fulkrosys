@@ -85,10 +85,16 @@ async def test_el_documento_separa_lo_declarado_de_lo_verificado(db):
     assert "Porcentaje conformidad" not in texto, (
         "el documento vuelve a llamar 'conformidad' a una autodeclaracion"
     )
-    assert "Implantación DECLARADA en la DdA" in texto
-    assert "VERIFICADAS con evidencia vigente" in texto
-    assert "Porcentaje verificado con evidencia" in texto
+    assert "Implantación declarada en la DdA (autodeclarada)" in texto
+    assert "CONFORMIDAD VERIFICADA" in texto
     assert "Puntuación de preparación de auditoría" in texto
+
+    # P · el TITULAR es la cifra verificada. El orden de una tabla es una
+    # afirmacion sobre que importa: poner la declarada arriba invita a leerla y
+    # quedarse ahi, que es lo que hacia que el documento dijera "100%".
+    assert texto.index("CONFORMIDAD VERIFICADA") < texto.index(
+        "Implantación declarada en la DdA"
+    ), "la cifra declarada volvio a encabezar la tabla"
 
 
 @pytest.mark.asyncio
@@ -110,6 +116,7 @@ async def test_dice_cuantas_medidas_declara_sin_evidencia(db):
     )
 
     texto = _texto_del_docx(generate_declaration_docx(ctx).getvalue())
+    assert "Declaradas SIN evidencia que las sostenga" in texto
     assert "no tienen evidencia vigente que las sostenga" in texto, (
         "el documento afirma implantacion sin avisar de que no esta probada"
     )

@@ -319,6 +319,35 @@ jobs:
         # test_legal_audit_score_100 muere con FileNotFoundError.
         run: mkdir -p progress
 
+      # Una suite que no se puede COLECCIONAR no ejecuta ni un test, y pytest
+      # lo comunica con un `Interrupted: N errors during collection` que es muy
+      # facil de no ver si solo se mira el resumen. Paso el 2026-09-11: un
+      # modulo importaba una constante retirada (`CERTIFICATION_VALIDITY_DAYS`,
+      # el bienio del art. 31 unificado a anyos de calendario) y
+      # `pytest backend/tests` abortaba en la coleccion desde entonces:
+      #
+      #     ImportError: cannot import name 'CERTIFICATION_VALIDITY_DAYS'
+      #     Interrupted: 1 error during collection
+      #     3 warnings, 1 error in 6.46s     <- CERO tests ejecutados
+      #
+      # No se vio porque la suite se venia corriendo por directorios, y ninguno
+      # de esos recorridos incluye el modulo roto en un arbol que aborte por el.
+      # El paso de conteo de mas abajo tampoco lo habria cazado: es informativo
+      # (`continue-on-error` + `|| true`), asi que se traga el error y solo dice
+      # que no pudo contar.
+      #
+      # Este paso SI tumba el job, y va ANTES de ejecutar nada: si la suite no
+      # colecciona, el resto del job esta midiendo sobre una suite incompleta.
+      - name: La suite entera colecciona
+        run: |
+          set -uo pipefail
+          if ! python -m pytest backend/tests/ --collect-only -q > /tmp/collect_gate.txt 2>&1; then
+            echo "::error::la suite no colecciona · ningun test llegaria a ejecutarse"
+            tail -40 /tmp/collect_gate.txt
+            exit 1
+          fi
+          grep -oE '^[0-9]+ tests? collected' /tmp/collect_gate.txt | tail -1
+
       # Los TESTS van primero. Antes el conteo iba delante y, al ser un paso
       # normal, si fallaba dejaba `Run tests` en skipped: un contador tumbaba el
       # gate entero sin ejecutar ni un test. Paso en CI el 2026-09-10.

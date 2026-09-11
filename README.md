@@ -105,6 +105,154 @@ capa de identidad. Se eligió a sabiendas.
 
 ---
 
+---
+
+## Cómo está construido
+
+```
+                    ┌─────────────────────────────────────────────────────┐
+                    │                    NAVEGADOR                         │
+                    │                                                      │
+   Marcos ─────────▶│  (admin)         167 páginas · Next.js 14 App Router │
+   consultor        │  (client-portal) lo que el cliente ve y firma        │
+                    │  (portal)        auditor ENAC · acceso por enlace    │
+   Cliente ────────▶│  (public)        landing + verificación de firmas    │
+                    │  (legal)         avisos RGPD art. 13                 │
+   Auditor ────────▶│                                                      │
+                    └────────────────────────┬─────────────────────────────┘
+                                             │  cookie httpOnly + CSRF
+                                             │  o enlace mágico Ed25519
+                    ┌────────────────────────▼─────────────────────────────┐
+                    │              FastAPI · 1.100 rutas                   │
+                    │                                                      │
+                    │  authenticate_request  ← una sola puerta, global     │
+                    │    · pool marcos / pool cliente (ADR-013)            │
+                    │    · lista blanca explícita para lo público          │
+                    └────────────────────────┬─────────────────────────────┘
+                                             │
+     ┌───────────────────────────────────────┼───────────────────────────────┐
+     │                    44 MOTORES · ciclo ENS                             │
+     │                                                                       │
+     │   m01 categorización ──▶ m02 MAGERIT ──▶ m03 DdA ──▶ m17 plan         │
+     │        │                     │              │            │            │
+     │        └─────────────────────┴──────────────┴────────────┘            │
+     │                              │                                        │
+     │                    m06 fábrica documental                             │
+     │             render → SHA-256 → Ed25519 → fila → MinIO                 │
+     │                              │                                        │
+     │   m07 evidencias ──▶ m09 expediente ENAC ──▶ m27 conformidad          │
+     │                                                                       │
+     │   transversales: m05 firma · m12 enlaces · m11 copiloto (RAG)         │
+     │                  m_observability · m_workflow_engine                  │
+     └───────────────────────────────┬───────────────────────────────────────┘
+                                     │
+     ┌───────────────────────────────▼───────────────────────────────────────┐
+     │  PostgreSQL 16 · 253 tablas · RLS en todo lo que lleva cliente        │
+     │     pgvector (corpus)  ·  registro con cadena de hashes               │
+     │  MinIO · documentos + evidencias WORM        Redis · colas            │
+     └───────────────────────────────────────────────────────────────────────┘
+```
+
+**La forma tiene una razón.** Un motor es un paquete con su API, su servicio y sus
+modelos, y una regla normativa vive en **un solo motor**. Cuando la misma regla
+aparecía en dos, divergía — pasó con la regla del máximo del Anexo I (tres copias),
+con el bienio del artículo 31 (cinco, ya divergentes en 720 vs 730 días) y con
+«¿cuál es el análisis de riesgos vigente?» (ocho). Hay guardas que lo impiden en
+`backend/tests/audit_fixes/test_operaciones_normativas_un_solo_camino.py`.
+
+---
+
+## Cómo funciona: el ciclo, fase por fase
+
+El ENS no es una checklist: es un ciclo con dependencias. Cada fase consume lo que
+produjo la anterior, y las puertas entre fases están en el código, no en la cabeza
+del consultor.
+
+| # | fase | motor | produce | puerta hacia la siguiente |
+|---|---|---|---|---|
+| 1 | **Categorización** | m01 | acta **E-012** firmada | sin categoría aprobada no hay DdA |
+| 2 | **Análisis de riesgos** | m02 | informe **E-028** (MAGERIT v3) | el análisis vigente es uno, y lo fija la base |
+| 3 | **Declaración de aplicabilidad** | m03 | 73 entradas del Anexo II | congelarla exige ≥80 % valorado y firma del RSEG |
+| 4 | **Plan de adecuación** | m17 | **E-150** con hitos y dependencias | — |
+| 5 | **Implantación** | m07 | evidencias en almacén WORM | — |
+| 6 | **Verificación** | m10 · m09 | simulacro pre-ENAC firmado | — |
+| 7 | **Salida** | m09 · m27 | expediente ENAC · declaración **E-041** | la declaración dice lo verificado, no lo declarado |
+
+### 1 · Categorización
+
+Cinco dimensiones —confidencialidad, integridad, disponibilidad, autenticidad,
+trazabilidad— valoradas sobre los servicios y los tipos de información del sistema.
+La categoría es el **máximo** de las dimensiones afectadas.
+
+Una dimensión que nadie valora **no se adscribe a ningún nivel**; es lo que dice el
+Anexo I punto 3, y tiene consecuencias: un sistema sin ninguna dimensión valorada no
+es BÁSICA, es un sistema sin categorizar. El acta E-012 lo imprime como «No afectada»
+y el sistema no la rellena con un nivel inventado.
+
+### 2 · Análisis de riesgos
+
+MAGERIT v3 sobre el inventario de activos: dependencias, amenazas, salvaguardas,
+riesgo intrínseco → efectivo → residual, y plan de tratamiento. La matriz 5×5 es la
+del Libro III.
+
+Un proyecto tiene **un** análisis vigente, y lo garantiza un índice único parcial en
+la base con dos disparadores — no el orden de una consulta. El orden empataba: dos
+análisis creados en la misma transacción comparten `created_at` al microsegundo,
+porque `now()` devuelve el sello de inicio de transacción.
+
+### 3 · Declaración de aplicabilidad
+
+Las 73 medidas del Anexo II, extraídas del PDF del BOE y verificadas contra él
+(`backend/tests/fixtures/anexo2_boe_verificado.json`). Una medida aplica por la
+**categoría** del sistema **o** por el **nivel de una dimensión** — los dos ejes del
+Anexo II punto 5. Son 45 medidas por el eje de categoría, 28 por el de dimensión y
+47 pares (medida, dimensión).
+
+Aplicables por categoría: **BÁSICA 52 · MEDIA 68 · ALTA 73**.
+
+### 4 al 7
+
+El plan de adecuación deriva del análisis de brechas; la implantación deja evidencia
+fechada; la verificación ensaya la auditoría antes de pedirla; y la salida arma el
+expediente que recibe el auditor de la entidad certificadora.
+
+---
+
+## Los cuatro portales
+
+### Admin · el consultor
+
+Es la superficie grande: 167 páginas, casi todas bajo `/admin/projects/{id}/…`.
+La navegación es cronológica — sigue el ciclo, no el organigrama de motores — y cada
+página lleva un copiloto que explica qué se está haciendo y por qué, asumiendo cero
+conocimiento previo de ENS.
+
+Lo que no es: un panel de administración genérico. No hay alta de usuarios, ni
+gestión de permisos, ni configuración por cliente. Un solo operador, varios clientes.
+
+### Cliente · lo mínimo
+
+El cliente **ve, autoriza, firma y recibe**. No opera el ENS: no toca la DdA, no
+edita el plan, no gestiona medidas. Firma con el dedo o el ratón sobre un lienzo
+—firma electrónica simple, eIDAS art. 25.1— y el PDF lleva la firma embebida en su
+última página con el sello Ed25519 al lado.
+
+El tono está sujeto por tests: hay un filtro que rechaza jerga de administración y
+lenguaje coercitivo en las respuestas al cliente.
+
+### Auditor · sólo lectura, con anotaciones
+
+Acceso por enlace mágico, sin cuenta. Ve la DdA, el análisis, las evidencias, el
+registro de auditoría y el mapa de calor de cobertura — qué medidas están declaradas
+implantadas y cuáles tienen evidencia vigente detrás. Puede anotar sobre cualquier
+elemento y pedir aclaraciones, que llegan al consultor por SSE en tiempo real.
+
+### Público · verificar sin entrar
+
+La landing, los avisos legales del art. 13 del RGPD, y el distintivo de conformidad
+con su verificación de firma contra la clave pública del sistema.
+
+
 ## Cómo probarlo
 
 Un solo comando, sin ninguna clave de API:
@@ -145,6 +293,84 @@ de sistema que hacen falta están en `INSTALL.md`. `docker-compose.yml` declara 
 ```bash
 $ python3 -c "import yaml; print(len(yaml.safe_load(open('docker-compose.yml'))['services']))"
 22
+```
+
+---
+
+## Métricas
+
+Todas llevan el comando que las reproduce. Las que no se pueden reproducir hoy
+están marcadas como tales.
+
+### Superficie
+
+| | | comando |
+|---|---:|---|
+| Operaciones de API | **1.201** en 1.100 caminos | `app.openapi()` · abajo |
+| Motores de dominio | **44** | `ls -d backend/app/motors/m*/ \| wc -l` |
+| Tablas en PostgreSQL | **253** | `psql -c "\\dt" \| wc -l` |
+| Migraciones Alembic | **271** | `ls backend/migrations/versions/*.py \| wc -l` |
+| Páginas del frontend | **167** | `find frontend/app -name page.tsx \| wc -l` |
+| Componentes React | **427** | `find frontend/components -name '*.tsx' \| wc -l` |
+| Líneas de Python | **242.267** | `find backend/app -name '*.py' \| xargs wc -l` |
+
+### Suite
+
+```bash
+$ pytest backend/tests -q
+44 failed, 6510 passed, 115 skipped, 5 errors in 821.19s (0:13:41)
+```
+
+| | | |
+|---|---:|---|
+| Pasan | **6.510** | |
+| Fallan | 44 | ninguno atribuible al código · ver *Dependencias de entorno* |
+| Errores | 5 | los cinco, un puerto codificado en el fichero de test |
+| Ficheros de test | **616** | `find backend/tests -name 'test_*.py' \| wc -l` |
+| Specs de Playwright | **300** | `find frontend/tests -name '*.spec.ts' \| wc -l` |
+
+### Recuperación del corpus · evaluación
+
+49 consultas etiquetadas a mano sobre 1.031 fragmentos del corpus normativo
+(RD 311/2022 y guías CCN-STIC). Intervalos por *bootstrap*, 10.000 remuestreos.
+
+| rama | acierto@5 | recall@5 | MRR |
+|---|---:|---:|---:|
+| **vectorial sola** | **0,959** | **0,824** | **0,752** |
+| fusión RRF (vectorial + léxica) | 0,878 | 0,667 | 0,690 |
+
+```bash
+make eval-recuperacion     # escribe out/eval_recuperacion.json
+```
+
+El resultado mandó: **la fusión se quitó**. La diferencia vectorial − fusión en
+recall@5 es +0,157 con intervalo [+0,065, +0,255] — no cruza el cero. El informe
+completo, con la metodología y los tres errores que tuvo su primera versión, está
+en [`docs/EVAL_RECUPERACION.md`](docs/EVAL_RECUPERACION.md).
+
+### Carga
+
+Rampa de 1 a 80 peticiones simultáneas sobre los seis endpoints más llamados,
+elegidos contando el tráfico real del recorrido completo. Umbral de rotura
+declarado **antes** de medir: p95 > 1.000 ms.
+
+| endpoint | techo | p95 a c=80 | dónde rompe |
+|---|---:|---:|---|
+| lecturas de proyecto | no rompe | < 300 ms | — |
+| `/corpus/search` | **17 pet./s** | — | **c=10 · p95 1.385 ms** |
+
+El cuello es el modelo de *embeddings*: se lleva el 89–93 % del tiempo de una
+búsqueda. Detalle en [`docs/PRUEBA_DE_CARGA.md`](docs/PRUEBA_DE_CARGA.md).
+
+### Recorrido de la interfaz
+
+Las 167 páginas visitadas por navegador con identificadores reales, no inventados
+—la pantalla de «no encontrado» devuelve HTTP 200 y dejaría pasar en verde una
+ruta que no se ha comprobado—. Informe en
+[`docs/RECORRIDO_COMPLETO.md`](docs/RECORRIDO_COMPLETO.md).
+
+```bash
+make recorrer-todo
 ```
 
 ---
@@ -538,27 +764,64 @@ afirma nada falso. Por eso queda como frente abierto y no se arregló en la corr
 
 ## Frentes abiertos
 
-Lista cerrada de lo que sé que está mal y no he arreglado. Cada uno con qué es y
-cómo se reproduce. No están ordenados por facilidad sino por lo que cuestan si
-nadie los toca.
+Inventario de lo que queda por hacer, cada uno con qué es y cómo se reproduce.
+Está aquí porque un README que sólo cuenta lo que funciona no sirve para decidir
+si merece la pena retomar el proyecto.
 
-Salieron de un recorrido del ciclo ENS completo por navegador, dos veces —
-BÁSICA y MEDIA—, con verificación adversarial de cada hallazgo: 50 flecos, 44
-confirmados y 6 mal diagnosticados. Los bloqueantes están cerrados; esto es lo
-que queda.
+El origen es un recorrido del ciclo ENS completo por navegador, dos veces —BÁSICA
+y MEDIA—, con verificación adversarial independiente de cada hallazgo: 50
+incidencias, 44 confirmadas y 6 mal diagnosticadas. Las 11 bloqueantes se
+cerraron; esto es el resto.
 
-La batería completa sobre este árbol:
+### Dependencias de entorno · los 44 fallos y los 5 errores, atribuidos
 
 ```bash
 $ pytest backend/tests -q
-44 failed, 6510 passed, 115 skipped, 5 errors in 821.19s (0:13:41)
+44 failed, 6510 passed, 115 skipped, 5 errors      # árbol actual
+45 failed, 6367 passed, 115 skipped, 5 errors      # 2c1e40f, antes de esta campaña
 ```
 
-La misma batería sobre `2c1e40f`, el commit anterior a esta campaña, da
-`45 failed, 6367 passed`. Los 44 que quedan están medidos, no supuestos: 11 de
-`corpus/test_pdf_ingest` piden los PDF del corpus, y 21 entre `core/encryption`,
-`m08`, `m16`, `m20` y `admin_settings` son de cifrado — fallan idénticos en la
-línea base porque el entorno de test no trae la clave Fernet.
+Ninguno de los 44 responde a un defecto del código. Los tres grupos se midieron
+corriendo los mismos ficheros en los dos árboles, contra la misma base de datos:
+salen **idénticos**, `22 failed · 195 passed · 5 errors` a los dos lados.
+
+| grupo | cuántos | qué falta | señal |
+|---|---:|---|---|
+| Clave de cifrado | **25** | `FULKRO_MASTER_ENCRYPTION_KEY` | `RuntimeError: Encryption master key unavailable` |
+| Puerto codificado | **16** | un PostgreSQL en `localhost:5433` | `connection to server at "localhost", port 5433 failed` |
+| Sin agrupar | 3 | ver abajo | — |
+
+**Clave de cifrado (25).** `core/encryption` (6), `m08_verification` (5),
+`m16_onboarding` (9), `m20_workspace` (4) y `admin_settings` (1). Todo lo que
+escribe una columna `EncryptedText` — mensajes del espacio de trabajo, credenciales
+SSH, tokens OAuth, contraseña SMTP — necesita la clave maestra, y el entorno de
+test no la trae.
+
+**Puerto codificado (16).** `corpus/test_pdf_ingest.py` (11) y los 5 errores de
+`m21_diagnosis/test_iso27001_coverage.py`, que abre su propia conexión:
+
+```python
+# backend/tests/motors/m21_diagnosis/test_iso27001_coverage.py:19
+"postgresql://fulkro_app:fulkro_app_dev_password@localhost:5433/fulkro"
+```
+
+Es la misma clase de dependencia no declarada que tenían los dos tests de MinIO,
+resuelta en su día parametrizando el destino y saltando con el motivo escrito
+cuando no se alcanza. Aquí sigue abierta.
+
+**Sin agrupar (3).** `test_legal_audit_score_100` (puntuación de auditoría legal),
+`test_drift_summary_aggregates_events` (m28) y
+`test_persist_report_falls_back_to_inline_when_desktop_unavailable`
+(m_compliance_monitor). Fallan igual en los dos árboles.
+
+Reproducción de la atribución:
+
+```bash
+git worktree add /tmp/base 2c1e40f
+# los mismos ficheros, los dos árboles, la misma base de datos
+pytest backend/tests/motors/m20_workspace backend/tests/corpus \
+       backend/tests/motors/m21_diagnosis -q
+```
 
 ### Un test que sólo falla cuando corre la batería entera
 
@@ -722,6 +985,26 @@ grep -n "ines_annual_docx" backend/app/motors/m27_conformity/api.py
 docker exec fulkro-demo-postgres-1 psql -U fulkro -d fulkro \
   -c "\d documents" | grep project_id
 ```
+
+## Cierre del proyecto
+
+El proyecto cerró en septiembre de 2026 tras una campaña de corrección de 33
+commits sobre el propio repositorio, con una regla única: un punto se cierra
+cuando el código cambia y existe un test que falla en el commit anterior y pasa
+en el nuevo, con las dos salidas pegadas al commit.
+
+| | antes | después |
+|---|---:|---:|
+| Tests que pasan | 6.367 | **6.510** |
+| Fallos atribuibles al código | — | **0** |
+| Incidencias bloqueantes del ciclo ENS | 11 | **0** |
+| Entregables del expediente · BÁSICA | 1 de 28 | **25 de 28** |
+
+El informe de cierre —con el patrón dominante que se encontró, las nueve
+autocorrecciones y la lección sobre la capa de verificación— está en
+[`docs/INFORME_CIERRE_CAMPANA.md`](docs/INFORME_CIERRE_CAMPANA.md).
+
+---
 
 ## Datos y licencias
 
