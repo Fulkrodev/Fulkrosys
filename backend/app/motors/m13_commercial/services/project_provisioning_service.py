@@ -46,7 +46,21 @@ _ARCHETYPE_MAP = {
 }
 
 
-def _impact_to_valoracion(impact: str) -> str:
+def _impact_to_valoracion(impact: str | None) -> str | None:
+    """Traduce el valor del asistente a lo que guarda `information_types`.
+
+    O2 · "no afectada" es AUSENCIA de adscripcion (Anexo I punto 3) y en
+    `valoracion_c/i/d/a/t` eso se representa con NULL, que es lo que el resto
+    del codigo ya asume: los lectores arrancan en NO_AFECTADA y solo suben la
+    dimension si ven un nivel de la terna.
+
+    No se guarda el literal a proposito: esas columnas son String(10) y
+    "NO_AFECTADA" tiene 11 caracteres, asi que escribirlo reventaria con
+    StringDataRightTruncation. Ampliar la columna seria inventar una segunda
+    representacion de algo que ya se sabe expresar.
+    """
+    if impact is None or impact == "NO_AFECTADA":
+        return None
     return impact
 
 

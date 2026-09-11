@@ -57,6 +57,12 @@ EquipoTiTamanoType = Literal[
 ]
 GeografiaType = Literal["spain", "ue", "global", "apac", "latam"]
 ImpactLevelType = Literal["BAJO", "MEDIO", "ALTO"]
+# O2 · RD 311/2022 Anexo I punto 3: una dimension no afectada NO se adscribe a
+# ningun nivel. "No afectada" no es un nivel mas bajo que BAJO: es la AUSENCIA de
+# adscripcion, y cambia que medidas del Anexo II aplican. La interfaz del
+# asistente ya ofrecia el boton; el contrato lo rechazaba con 422, asi que la
+# opcion existia en pantalla y no se podia materializar.
+ImpactLevelOrUnaffectedType = Literal["NO_AFECTADA", "BAJO", "MEDIO", "ALTO"]
 CategoryType = Literal["BASICA", "MEDIA", "ALTA"]
 ActivoTipoType = Literal[
     "datos", "servicios", "infraestructura", "software", "personal",
@@ -92,13 +98,13 @@ class StepContextoENS(BaseModel):
 
 
 class EnsDimsValoracion(BaseModel):
-    """5 dimensiones ENS Anexo I · cada Bajo/Medio/Alto."""
+    """5 dimensiones ENS Anexo I · Bajo/Medio/Alto, o NO afectada (punto 3)."""
 
-    confidencialidad: ImpactLevelType = "BAJO"
-    integridad: ImpactLevelType = "BAJO"
-    disponibilidad: ImpactLevelType = "BAJO"
-    autenticidad: ImpactLevelType = "BAJO"
-    trazabilidad: ImpactLevelType = "BAJO"
+    confidencialidad: ImpactLevelOrUnaffectedType = "BAJO"
+    integridad: ImpactLevelOrUnaffectedType = "BAJO"
+    disponibilidad: ImpactLevelOrUnaffectedType = "BAJO"
+    autenticidad: ImpactLevelOrUnaffectedType = "BAJO"
+    trazabilidad: ImpactLevelOrUnaffectedType = "BAJO"
 
 
 class StepCategoriaPreliminar(BaseModel):
