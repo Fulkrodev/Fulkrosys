@@ -11,13 +11,20 @@ CUATRO veces con cuatro trozos de codigo distintos:
 Cuatro copias de una regla es cuatro sitios donde diverge. Aqui se escribe
 una vez y los cuatro la llaman.
 
-REGLA · el analisis vigente de un proyecto es el ultimo no borrado, por
-``created_at`` descendente. El desempate por ``id`` no estaba antes: cuando dos
-analisis comparten el mismo ``created_at`` -- que ocurre, porque
-``server_default now()`` da el mismo sello a todo lo insertado en la misma
-transaccion (OPS-047) -- el ganador lo elegia el planificador, asi que dos
-llamadas seguidas podian responder cosas distintas. Con el desempate la
-respuesta es siempre la misma.
+REGLA · el analisis vigente es el que lleva la marca ``es_vigente``. No se
+ordena por nada: ordenar era justo el problema.
+
+    Antes la regla era "el ultimo no borrado por ``created_at`` descendente",
+    sin desempate. Y ``created_at`` lleva ``server_default now()``, que en
+    PostgreSQL devuelve el sello de INICIO DE TRANSACCION: dos analisis creados
+    en la misma transaccion comparten ``created_at`` al microsegundo, y entonces
+    el "ultimo" lo elige el planificador de consultas. De ese analisis cuelga el
+    informe E-028, que se firma.
+
+    La marca la mantienen dos disparadores y la protege un indice unico parcial
+    (migracion ``magerit_analisis_vigente_001``), asi que la garantia no depende
+    de que los llamantes usen este modulo: el noveno que escriba la consulta a
+    mano se encontrara con que no hay nada que ordenar.
 """
 from __future__ import annotations
 
@@ -41,10 +48,7 @@ async def analisis_vigente(
         select(MageritAnalysis)
         .where(MageritAnalysis.project_id == project_id)
         .where(MageritAnalysis.deleted_at.is_(None))
-        .order_by(
-            MageritAnalysis.created_at.desc(),
-            MageritAnalysis.id.desc(),
-        )
+        .where(MageritAnalysis.es_vigente.is_(True))
         .limit(1)
     )
     return row.scalar_one_or_none()

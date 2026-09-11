@@ -6,7 +6,13 @@ Cubre:
   - Service DimensionsService.update_dimensions persiste partial updates
   - Indicator dims_captured_count funciona (3 base + 16 nuevas non-default)
   - Pydantic validation (enums correctos · CHECK constraints DB)
-  - HTTP endpoints (GET reader · PATCH admin)
+
+NO cubre los endpoints. La cabecera decia "HTTP endpoints (GET reader · PATCH
+admin)" y era falso: los catorce tests entran por el service. El control de
+acceso vive en el endpoint, asi que no se ejecutaba aqui -- y por ese hueco paso
+durante meses el 403 que recibia Marcos en sus propias rutas. La cobertura HTTP
+de estos dos endpoints esta en
+``backend/tests/auth/test_acceso_admin_al_proyecto.py``.
 """
 from __future__ import annotations
 

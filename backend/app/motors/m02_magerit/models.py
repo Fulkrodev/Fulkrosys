@@ -120,6 +120,14 @@ class MageritAnalysis(FullMixin, Base):
         UUID(as_uuid=True), nullable=True, index=True,
         doc="FK logica (sin constraint) al magic_link de firma E-028. Re-integracion M2+M12.",
     )
+    # O2 · el analisis que el proyecto usa AHORA. Antes se deducia ordenando por
+    # created_at, y created_at lleva `server_default now()`, que devuelve el
+    # sello de INICIO DE TRANSACCION: dos analisis creados en la misma
+    # transaccion empatan y el "ultimo" lo elegia el planificador. Lo mantienen
+    # los disparadores de `magerit_analisis_vigente_001`; no se escribe a mano.
+    es_vigente: Mapped[bool] = mapped_column(
+        Boolean, nullable=False, server_default=text("false"), default=False,
+    )
 
 
 class MageritAsset(ClientReviewMixinA, FullMixin, Base):
