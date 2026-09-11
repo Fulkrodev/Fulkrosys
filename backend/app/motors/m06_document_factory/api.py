@@ -578,8 +578,24 @@ async def generate_manual_sgsi_endpoint(
     await _set_project_rls(project_id, db)
     ctx = await build_rectores_context(db, project_id)
     bio = generate_manual_sgsi_docx(ctx)
+    docx_bytes = bio.getvalue()
+
+    # O2 · se devolvia en streaming sin dejar fila en `documents`, que es de
+    # donde el expediente del auditor saca lo que existe. Y estos dos SI los
+    # llama el frontend (lib/api/documents.ts), asi que el hueco era visible.
+    from backend.app.motors.m06_document_factory.registro import (
+        registrar_documento_generado,
+    )
+
+    fila = await registrar_documento_generado(
+        db, project_id=project_id, template_codigo="E-160",
+        nombre="E-160 - Manual del SGSI", docx_bytes=docx_bytes,
+        generated_by="m06.rectores",
+    )
+    await db.commit()
+
     return Response(
-        content=bio.getvalue(),
+        content=docx_bytes,
         media_type=(
             "application/vnd.openxmlformats-officedocument."
             "wordprocessingml.document"
@@ -588,6 +604,8 @@ async def generate_manual_sgsi_endpoint(
             "Content-Disposition": (
                 f'attachment; filename="manual_sgsi_{project_id}.docx"'
             ),
+            "X-Fulkro-Document-Id": str(fila.id),
+            "X-Fulkro-Rendered-Hash": fila.rendered_hash or "",
         },
     )
 
@@ -614,8 +632,24 @@ async def generate_plan_director_endpoint(
     await _set_project_rls(project_id, db)
     ctx = await build_rectores_context(db, project_id)
     bio = generate_plan_director_docx(ctx)
+    docx_bytes = bio.getvalue()
+
+    # O2 · se devolvia en streaming sin dejar fila en `documents`, que es de
+    # donde el expediente del auditor saca lo que existe. Y estos dos SI los
+    # llama el frontend (lib/api/documents.ts), asi que el hueco era visible.
+    from backend.app.motors.m06_document_factory.registro import (
+        registrar_documento_generado,
+    )
+
+    fila = await registrar_documento_generado(
+        db, project_id=project_id, template_codigo="E-170",
+        nombre="E-170 - Plan Director de Seguridad", docx_bytes=docx_bytes,
+        generated_by="m06.rectores",
+    )
+    await db.commit()
+
     return Response(
-        content=bio.getvalue(),
+        content=docx_bytes,
         media_type=(
             "application/vnd.openxmlformats-officedocument."
             "wordprocessingml.document"
@@ -624,6 +658,8 @@ async def generate_plan_director_endpoint(
             "Content-Disposition": (
                 f'attachment; filename="plan_director_{project_id}.docx"'
             ),
+            "X-Fulkro-Document-Id": str(fila.id),
+            "X-Fulkro-Rendered-Hash": fila.rendered_hash or "",
         },
     )
 

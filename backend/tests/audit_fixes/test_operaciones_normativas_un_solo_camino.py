@@ -171,6 +171,103 @@ def test_solo_la_fabrica_renderiza_entregables():
     )
 
 
+# Handlers que CONSTRUYEN un entregable y lo devuelven sin dejar fila en
+# `documents`. Linea base CONGELADA, cada uno ABIERTO con su motivo.
+ENTREGABLES_QUE_NO_SE_REGISTRAN = {
+    # No es un entregable del proyecto: es la plantilla en blanco del DPA, que
+    # se descarga para rellenarla fuera.
+    "backend/app/motors/m_compliance/dpa_api.py:download_dpa_template",
+    # ABIERTO · informe del simulacro Pre-ENAC. Es un ensayo interno, no una
+    # pieza del expediente; queda pendiente decidir si el auditor debe verlo.
+    "backend/app/motors/m10_audit_sim/api.py:download_report_docx",
+    # ABIERTO Y CON MOTIVO ESTRUCTURAL · el informe INES del art. 32 es ANUAL y
+    # POR ORGANIZACION (`organization_id`), no por proyecto. `documents`
+    # exige `project_id NOT NULL`, asi que registrarlo obliga antes a decidir a
+    # que proyecto pertenece el informe de una organizacion con varios.
+    "backend/app/motors/m27_conformity/api.py:ines_annual_docx",
+    # Plantilla legal parametrizada, no un entregable del ciclo del proyecto.
+    "backend/app/motors/m14_contracts/api.py:generate_legal_template_endpoint",
+}
+
+_MIME_DOCUMENTO = (
+    "application/pdf",
+    "wordprocessingml",
+    "application/vnd.openxmlformats",
+)
+_CONSTRUYE = re.compile(
+    r"\b(generate_\w*_docx|build_\w*_docx|render_docx|PDFRenderer)\b"
+)
+_REGISTRA = (
+    "registrar_documento_generado",
+    "generate_document",
+    "generar_o_recuperar_acta_e012",
+)
+
+
+def _handlers_que_emiten_un_entregable() -> dict[str, bool]:
+    """``{fichero:nombre_handler: lo_registra}`` para todo handler que
+    construye un documento y lo devuelve."""
+    fuera: dict[str, bool] = {}
+    for py in APP.rglob("*api*.py"):
+        try:
+            arbol = ast.parse(py.read_text("utf-8", errors="ignore"))
+        except SyntaxError:  # pragma: no cover
+            continue
+        for n in ast.walk(arbol):
+            if not isinstance(n, (ast.AsyncFunctionDef, ast.FunctionDef)):
+                continue
+            src = ast.unparse(n)
+            if not any(m in src for m in _MIME_DOCUMENTO):
+                continue
+            if "Response" not in src or not _CONSTRUYE.search(src):
+                continue
+            clave = f"{py.relative_to(RAIZ)}:{n.name}"
+            fuera[clave] = any(r in src for r in _REGISTRA)
+    return fuera
+
+
+def test_un_entregable_que_se_emite_queda_registrado():
+    """Lo que no esta en `documents` no existe para el auditor.
+
+    ``m09_audit_prep/checklist_service.check_deliverables`` y
+    ``dossier_generator._collect_documents`` leen EXCLUSIVAMENTE esa tabla: lo
+    que no este ahi sale `missing` con severidad `error` y bloquea el dossier,
+    y su carpeta del expediente se queda con solo el `.keep`. Por eso el
+    consultor podia generar el plan de adecuacion, descargarselo, y el
+    expediente seguir diciendo que no existe.
+    """
+    handlers = _handlers_que_emiten_un_entregable()
+    assert len(handlers) >= 10, f"solo {len(handlers)} handlers detectados"
+
+    sin_registrar = sorted(
+        k for k, registra in handlers.items()
+        if not registra and k not in ENTREGABLES_QUE_NO_SE_REGISTRAN
+    )
+    assert not sin_registrar, (
+        "construyen un entregable y lo devuelven sin dejar fila en "
+        "`documents`, asi que no llegara al expediente del auditor:\n  "
+        + "\n  ".join(sin_registrar)
+    )
+
+
+def test_la_linea_base_de_no_registrados_sigue_siendo_cierta():
+    handlers = _handlers_que_emiten_un_entregable()
+    ya_registran = sorted(
+        k for k in ENTREGABLES_QUE_NO_SE_REGISTRAN if handlers.get(k) is True
+    )
+    desaparecidos = sorted(
+        k for k in ENTREGABLES_QUE_NO_SE_REGISTRAN if k not in handlers
+    )
+    assert not ya_registran, (
+        "estos ya registran: quitalos de la linea base en vez de dejarla "
+        "aflojada:\n  " + "\n  ".join(ya_registran)
+    )
+    assert not desaparecidos, (
+        "declarados en la linea base pero el barrido ya no los ve:\n  "
+        + "\n  ".join(desaparecidos)
+    )
+
+
 def test_el_acta_e012_no_vuelve_a_renderizarse_a_mano():
     """La instancia 3, cerrada por nombre y no solo por barrido."""
     api = (RAIZ / "backend/app/motors/m01_categorization/api.py").read_text("utf-8")

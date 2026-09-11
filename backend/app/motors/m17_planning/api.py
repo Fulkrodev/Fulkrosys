@@ -244,8 +244,24 @@ async def generate_pda_endpoint(
     await _set_project_rls(project_id, session)
     ctx = await build_pda_context(session, project_id)
     bio = generate_pda_docx(ctx)
+    docx_bytes = bio.getvalue()
+
+    # O2 · el plan se devolvia en streaming y no dejaba fila en `documents`,
+    # que es de donde sale el expediente del auditor: el E-150 constaba como
+    # ausente por mas veces que el consultor lo descargara.
+    from backend.app.motors.m06_document_factory.registro import (
+        registrar_documento_generado,
+    )
+
+    fila = await registrar_documento_generado(
+        session, project_id=project_id, template_codigo="E-150",
+        nombre="E-150 - Plan de Adecuacion al ENS",
+        docx_bytes=docx_bytes, generated_by="m17.planning",
+    )
+    await session.commit()
+
     return Response(
-        content=bio.getvalue(),
+        content=docx_bytes,
         media_type=(
             "application/vnd.openxmlformats-officedocument."
             "wordprocessingml.document"
@@ -254,6 +270,8 @@ async def generate_pda_endpoint(
             "Content-Disposition": (
                 f'attachment; filename="plan_adecuacion_{project_id}.docx"'
             ),
+            "X-Fulkro-Document-Id": str(fila.id),
+            "X-Fulkro-Rendered-Hash": fila.rendered_hash or "",
         },
     )
 

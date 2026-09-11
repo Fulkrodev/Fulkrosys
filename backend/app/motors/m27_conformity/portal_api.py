@@ -631,8 +631,26 @@ async def get_conformidad_declaration_docx_cliente(
 
     ctx = await build_distintivo_context(db, project_id)
     bio = generate_declaration_docx(ctx)
+    docx_bytes = bio.getvalue()
+
+    # O2 · el gemelo de administracion tambien registra. Si solo registrara
+    # aquel, un proyecto donde la declaracion la descarga SOLO el cliente se
+    # quedaria sin ella en el expediente. El registro es idempotente por
+    # (proyecto, codigo), asi que llamarlo desde los dos no duplica.
+    from backend.app.motors.m06_document_factory.registro import (
+        registrar_documento_generado,
+    )
+
+    fila = await registrar_documento_generado(
+        db, project_id=project_id, template_codigo="E-041",
+        nombre="E-041 - Declaracion de Conformidad con el ENS",
+        docx_bytes=docx_bytes, generated_by="m27.portal_cliente",
+        tipo="conformidad",
+    )
+    await db.commit()
+
     return Response(
-        content=bio.getvalue(),
+        content=docx_bytes,
         media_type=(
             "application/vnd.openxmlformats-officedocument."
             "wordprocessingml.document"
@@ -643,5 +661,6 @@ async def get_conformidad_declaration_docx_cliente(
             ),
             "X-Cert-Id": str(ctx.cert_id),
             "X-Document-Kind": DECLARATION_DOCUMENT_KIND,
+            "X-Fulkro-Document-Id": str(fila.id),
         },
     )

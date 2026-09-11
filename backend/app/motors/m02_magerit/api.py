@@ -45,7 +45,13 @@ from backend.app.motors.m02_magerit.signature_integration import (
     get_e028_signature_status,
 )
 from backend.app.motors.m02_magerit.analisis_vigente import analisis_vigente
+from backend.app.motors.m06_document_factory.registro import (
+    registrar_documento_generado,
+)
 from backend.app.auth.dependencies import require_owner
+
+# Codigo del informe de analisis de riesgos en el catalogo de entregables.
+_CODIGO_INFORME = "E-028"
 
 router = APIRouter(
     prefix="/magerit", tags=["Motor 2 - MAGERIT v3"],
@@ -1043,10 +1049,25 @@ async def get_magerit_report_pdf(
     except PDFRenderError as e:
         raise HTTPException(status_code=500, detail=f"Error generando PDF: {e}")
 
+    # O2 · el informe se devolvia y no dejaba rastro: el expediente del auditor
+    # se arma leyendo `documents`, asi que el E-028 constaba como ausente por
+    # mas veces que el consultor lo descargara.
+    fila = await registrar_documento_generado(
+        db, project_id=analysis.project_id, template_codigo=_CODIGO_INFORME,
+        nombre="E-028 - Informe de Analisis de Riesgos (MAGERIT v3)",
+        docx_bytes=docx_bytes, pdf_bytes=pdf_bytes, context=context,
+        generated_by="m02.magerit",
+    )
+    await db.commit()
+
     return FastAPIResponse(
         content=pdf_bytes,
         media_type="application/pdf",
-        headers={"Content-Disposition": f'attachment; filename="magerit_report_{analysis_id}.pdf"'},
+        headers={
+            "Content-Disposition": f'attachment; filename="magerit_report_{analysis_id}.pdf"',
+            "X-Fulkro-Document-Id": str(fila.id),
+            "X-Fulkro-Rendered-Hash": fila.rendered_hash or "",
+        },
     )
 
 
@@ -1080,10 +1101,21 @@ async def get_magerit_report_docx(
     except PDFRenderError as e:
         raise HTTPException(status_code=500, detail=f"Error generando DOCX: {e}")
 
+    fila = await registrar_documento_generado(
+        db, project_id=analysis.project_id, template_codigo=_CODIGO_INFORME,
+        nombre="E-028 - Informe de Analisis de Riesgos (MAGERIT v3)",
+        docx_bytes=docx_bytes, context=context, generated_by="m02.magerit",
+    )
+    await db.commit()
+
     return FastAPIResponse(
         content=docx_bytes,
         media_type="application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-        headers={"Content-Disposition": f'attachment; filename="magerit_report_{analysis_id}.docx"'},
+        headers={
+            "Content-Disposition": f'attachment; filename="magerit_report_{analysis_id}.docx"',
+            "X-Fulkro-Document-Id": str(fila.id),
+            "X-Fulkro-Rendered-Hash": fila.rendered_hash or "",
+        },
     )
 
 

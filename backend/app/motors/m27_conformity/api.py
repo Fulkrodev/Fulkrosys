@@ -794,8 +794,24 @@ async def generate_declaration_docx_endpoint(
         raise HTTPException(status_code=404, detail="Project not found")
     ctx = await build_distintivo_context(db, project_id)
     bio = generate_declaration_docx(ctx)
+    docx_bytes = bio.getvalue()
+
+    # O2 · la declaracion se devolvia sin dejar fila en `documents`, que es de
+    # donde el expediente del auditor saca lo que existe.
+    from backend.app.motors.m06_document_factory.registro import (
+        registrar_documento_generado,
+    )
+
+    fila = await registrar_documento_generado(
+        db, project_id=project_id, template_codigo="E-041",
+        nombre="E-041 - Declaracion de Conformidad con el ENS",
+        docx_bytes=docx_bytes, generated_by="m27.conformidad",
+        tipo="conformidad",
+    )
+    await db.commit()
+
     return Response(
-        content=bio.getvalue(),
+        content=docx_bytes,
         media_type=(
             "application/vnd.openxmlformats-officedocument."
             "wordprocessingml.document"
@@ -806,6 +822,8 @@ async def generate_declaration_docx_endpoint(
             ),
             "X-Cert-Id": str(ctx.cert_id),
             "X-Document-Kind": DECLARATION_DOCUMENT_KIND,
+            "X-Fulkro-Document-Id": str(fila.id),
+            "X-Fulkro-Rendered-Hash": fila.rendered_hash or "",
         },
     )
 
