@@ -30,8 +30,8 @@ from sqlalchemy import text as _sa_text
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from backend.app.auth.dependencies import require_marcos_or_client, require_owner
-from backend.app.core.workflow_state import verify_client_owns_project
-from backend.app.database import get_db, set_tenant_context
+from backend.app.auth.acceso_proyecto import asegurar_acceso_al_proyecto
+from backend.app.database import get_db
 from backend.app.models.core import Project
 
 from .deliverables_service import (
@@ -76,37 +76,15 @@ reader_router = APIRouter(
 async def _ensure_project_access(
     db: AsyncSession, project_id: uuid.UUID, request: Request,
 ) -> uuid.UUID:
-    """Marcos bypass · cliente verify ownership · returns updated_by uuid."""
-    subject = getattr(request.state, "auth_subject", None)
-    if subject is None:
-        raise HTTPException(status_code=401, detail="Unauthorized")
+    """Marcos alcanza cualquier proyecto · cliente solo el suyo.
 
-    pool = getattr(subject, "pool", None) or getattr(
-        subject.user, "pool", None,
-    )
-    user_id = subject.user.id
-
-    # FIX(RLS): resolve owner via SECURITY DEFINER (bypasses RLS) and set tenant
-    # context BEFORE any query touches projects/client_tasks. Every admin+reader
-    # route uses this helper, so scoping here fixes all of them at once.
-    owner_id = (
-        await db.execute(
-            _sa_text("SELECT get_project_owner(:pid)"), {"pid": str(project_id)},
-        )
-    ).scalar()
-    if not owner_id:
-        raise HTTPException(status_code=404, detail="Project not found")
-    await set_tenant_context(db, client_id=owner_id, project_id=project_id)
-
-    if pool == "auth_users" or getattr(subject.user, "is_marcos", False):
-        return user_id
-
-    client_id = getattr(subject.user, "client_id", None)
-    if client_id is None:
-        raise HTTPException(status_code=403, detail="Sin client_id")
-    if not await verify_client_owns_project(db, project_id, client_id):
-        raise HTTPException(status_code=403, detail="No tienes acceso al proyecto")
-    return user_id
+    O2 · este helper era una copia del de ``m01_categorization/dimensions_api``,
+    con el mismo defecto: preguntaba por ``subject.pool`` y
+    ``subject.user.is_marcos``, que no existen. La rama de administracion nunca
+    se ejecutaba y Marcos recibia 403 en todas las rutas de este router. La
+    regla vive ahora en ``auth/acceso_proyecto``, escrita una sola vez.
+    """
+    return await asegurar_acceso_al_proyecto(db, project_id, request)
 
 
 # ==================================================================

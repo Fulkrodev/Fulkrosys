@@ -6,21 +6,21 @@ EL DEFECTO QUE ORIGINA ESTE MODULO
         m01_categorization/dimensions_api._ensure_access
         m_workflow_engine/api._ensure_project_access
 
-    y los dos preguntaban por un atributo que NO EXISTE:
+    y los dos decidian la rama de administracion leyendo con un ``getattr``
+    defensivo dos atributos que NO EXISTEN: un campo llamado "pool" sobre el
+    sujeto o sobre su usuario, y una bandera de administrador sobre el usuario.
 
-        pool = getattr(subject, "pool", None) or getattr(subject.user, "pool", None)
-        ...
-        if pool == "auth_users" or getattr(subject.user, "is_marcos", False):
-
-    ``AuthSubject`` declara ``__slots__ = ("user", "role_pool", "email")``: no
-    hay ``pool``. Y ``User`` no tiene ``is_marcos`` (el unico ``_is_marcos`` del
-    repo es una funcion privada de un middleware de fichajes). Los dos
-    ``getattr`` devolvian siempre ``None``/``False``, asi que la rama de
+    ``AuthSubject`` declara ``__slots__ = ("user", "role_pool", "email")``, y
+    ``User`` no tiene bandera de administrador ninguna: el unico ``_is_marcos``
+    del repositorio es una funcion privada del middleware de fichajes. Los dos
+    ``getattr`` devolvian siempre su valor por defecto, asi que la rama de
     administracion era codigo inalcanzable: TODA peticion de Marcos caia en la
     rama de cliente, se quedaba sin ``client_id`` y respondia 403.
 
     El atributo correcto es ``role_pool``, que vale ``"marcos"`` o ``"cliente"``
-    (``auth/global_dep.py``).
+    (``auth/global_dep.py``). Un ``getattr`` con valor por defecto sobre un
+    nombre equivocado no falla: devuelve el valor por defecto y convierte un
+    error de autorizacion en un silencio. Por eso aqui se lee un solo nombre.
 """
 from __future__ import annotations
 

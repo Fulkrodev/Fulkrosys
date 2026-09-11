@@ -22,14 +22,14 @@ from __future__ import annotations
 import uuid
 
 from fastapi import APIRouter, Depends, HTTPException, Request, status
-from sqlalchemy import text as _sa_text
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from backend.app.auth.dependencies import (
     require_marcos_or_client,
     require_owner,
 )
-from backend.app.database import get_db, set_tenant_context
+from backend.app.auth.acceso_proyecto import asegurar_acceso_al_proyecto
+from backend.app.database import get_db
 
 from .dimensions_schemas import (
     ProjectDimensionsRead,
@@ -61,70 +61,20 @@ admin_router = APIRouter(
 # ================================================================
 
 
-def _subject_from_request(request: Request):
-    """Resolve auth subject (AuthSubject) post require_* dependency."""
-    return getattr(request.state, "auth_subject", None)
-
-
 async def _ensure_access(
     db: AsyncSession,
     project_id: uuid.UUID,
     request: Request,
 ) -> uuid.UUID:
-    """Resuelve ownership + retorna updated_by UUID.
+    """Resuelve ownership + fija contexto de tenant + devuelve ``updated_by``.
 
-    Marcos owner: acceso TODO · updated_by = subject.user.id (auth_users pool).
-    Cliente: verify project_id pertenece a su client_id · updated_by =
-    subject.user.id (client_users pool).
-
-    FIX(RLS): `projects` es RLS fail-closed bajo fulkro_app, así que el service
-    (select(Project)) devuelve 0 filas → 404 sin tenant context. Resolvemos el
-    owner via get_project_owner() SECURITY DEFINER (cruza RLS) y fijamos el tenant
-    context para AMBAS rutas — antes la admin no lo fijaba y la cliente dependía,
-    frágil, de que verify_session dejara activo el rol bypassrls.
+    O2 · aqui vivia una copia del control de acceso que preguntaba por
+    ``subject.pool`` y ``subject.user.is_marcos``, dos atributos que no existen
+    en el modelo: la rama de administracion era inalcanzable y TODA peticion de
+    Marcos acababa en la rama de cliente respondiendo 403. La regla vive ahora
+    en ``auth/acceso_proyecto``, escrita una sola vez.
     """
-    subject = _subject_from_request(request)
-    if subject is None:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Unauthorized",
-        )
-
-    pool = getattr(subject, "pool", None) or getattr(
-        subject.user, "pool", None,
-    )
-    user_id = subject.user.id
-
-    owner = (
-        await db.execute(
-            _sa_text("SELECT get_project_owner(:pid)"), {"pid": str(project_id)}
-        )
-    ).scalar()
-    if not owner:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND, detail="Project not found",
-        )
-
-    # Admin Marcos: acceso TODO proyectos
-    if pool == "auth_users" or getattr(subject.user, "is_marcos", False):
-        await set_tenant_context(db, client_id=owner, project_id=project_id)
-        return user_id
-
-    # Cliente: verify ownership (owner == su client_id) · equivalente a
-    # verify_client_owns_project pero robusto bajo RLS (get_project_owner cruza).
-    client_id = getattr(subject.user, "client_id", None)
-    if client_id is None:
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="Identidad cliente sin client_id",
-        )
-    if str(owner) != str(client_id):
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="No tienes acceso a este proyecto",
-        )
-    await set_tenant_context(db, client_id=client_id, project_id=project_id)
-    return user_id
+    return await asegurar_acceso_al_proyecto(db, project_id, request)
 
 
 # ================================================================
