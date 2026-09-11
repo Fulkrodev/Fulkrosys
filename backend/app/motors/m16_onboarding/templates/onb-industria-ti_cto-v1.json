@@ -135,7 +135,7 @@
       "type": "single_select",
       "section": "continuidad",
       "label": "Como gestionais las copias de seguridad de sistemas criticos?",
-      "tooltip": "La regla 3-2-1 es el minimo para ENS (mp.info.9). En industria es critico incluir backups de configuraciones de PLCs y SCADA.",
+      "tooltip": "La regla 3-2-1 es el minimo para ENS (mp.info.6). En industria es critico incluir backups de configuraciones de PLCs y SCADA.",
       "options": [
         {
           "value": "cloud_automatico",

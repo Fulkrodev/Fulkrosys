@@ -43,7 +43,8 @@ SPECIFIC_MAPPINGS: dict[str, list[tuple[str, str, str]]] = {
     "op.acc.4": [("CCN_STIC_807", "references", "Cap. 4")],
     "op.acc.5": [("CCN_STIC_807", "develops", "Cap. 4.2")],
     "op.acc.6": [("CCN_STIC_807", "develops", "Cap. 4.3"), ("CCN_STIC_808", "verifies", "Sec. 5.3")],
-    "op.acc.7": [("CCN_STIC_808", "verifies", "Sec. 5.3")],
+    # O1 · "op.acc.7" NO EXISTE (op.acc llega a op.acc.6). Su mapeo a
+    # CCN-STIC 808 Sec. 5.3 ya lo tiene op.acc.6, justo encima.
     # Family: op.exp.* (Explotación)
     "op.exp.1": [("CCN_STIC_808", "verifies", "Sec. 5.4")],
     "op.exp.2": [("CCN_STIC_808", "verifies", "Sec. 5.4")],

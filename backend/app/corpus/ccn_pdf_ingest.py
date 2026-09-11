@@ -135,7 +135,10 @@ CORPUS_BATCH_1B5_2: list[CorpusBatchEntry] = [
         sector_aplicacion=["publico", "privado"],
         version_label="2025-06-17",
         source_url="https://www.ccn-cert.cni.es/series-ccn-stic/800-guia-esquema-nacional-de-seguridad",
-        measure_hints=["mp.aud.1", "mp.aud.2", "mp.aud.3", "mp.aud.4"],
+        # O1 · "mp.aud.*" NO EXISTE en el Anexo II del RD 311/2022: la auditoria
+        # es el Articulo 31 y el Anexo III, no una familia de medidas. Las
+        # medidas del Anexo II que si tocan la auditoria interna son estas.
+        measure_hints=["op.exp.8", "op.mon.1", "op.mon.2", "op.mon.3"],
     ),
     CorpusBatchEntry(
         code="CCN-STIC-803",

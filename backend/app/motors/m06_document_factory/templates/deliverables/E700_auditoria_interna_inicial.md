@@ -16,7 +16,7 @@ El presente Informe de Auditoría Interna Inicial ha sido elaborado por {{ respo
 
 El presente Informe documenta los resultados de la Auditoría Interna Inicial del Sistema de Gestión de la Seguridad de la Información (SGSI) de {{ cliente.razon_social }} sobre el sistema {{ proyecto.sistema_principal }}, en cumplimiento de:
 
-- **Esquema Nacional de Seguridad** (Real Decreto 311/2022), **Artículo 31** (auditoría) y medidas **mp.aud.1 / mp.aud.2 / mp.aud.3 / mp.aud.4** del Anexo II.
+- **Esquema Nacional de Seguridad** (Real Decreto 311/2022), **Artículo 31** (auditoría de la seguridad) y **Anexo III** (Auditoría de la seguridad), que fija los términos en que se audita.
 - **CCN-STIC-802** Guía de auditoría del ENS.
 - **UNE-EN ISO/IEC 27001:2023** Cláusula 9.2 (auditoría interna).
 

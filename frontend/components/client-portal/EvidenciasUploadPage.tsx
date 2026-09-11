@@ -7,7 +7,7 @@
  * Audit: backend registra EVIDENCE_UPLOAD action hash chain via
  * AuditLogService.
  *
- * MB-6 atom 6 · UX feedback antivirus scan (ENS mp.s.5):
+ * MB-6 atom 6 · UX feedback antivirus scan (ENS op.exp.6):
  *  - Post-upload toast: "Escaneando antivirus..." (Q3 B async pattern)
  *  - Drop-in: ScanStatusBadge + useEvidenceScanPolling reusable cross-portal
  */
@@ -165,7 +165,7 @@ export function EvidenciasUploadPage() {
               <div className="flex items-center gap-2 rounded-md bg-fulkro-info/10 p-2 text-xs text-fulkro-info">
                 <ShieldCheck className="h-4 w-4 flex-shrink-0" strokeWidth={2.3} />
                 <span>
-                  Análisis antivirus iniciado (ClamAV · ENS mp.s.5). Si el
+                  Análisis antivirus iniciado (ClamAV · ENS op.exp.6). Si el
                   archivo presenta amenazas, quedará en cuarentena hasta
                   revisión.
                 </span>

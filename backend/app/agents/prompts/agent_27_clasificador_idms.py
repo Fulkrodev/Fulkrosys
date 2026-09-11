@@ -144,7 +144,7 @@ FORMATO RESPUESTA JSON:
   "confidence": 0.0-1.0,
   "reasoning": "<=250 chars explicando por que",
   "suggested_tags": [
-    {"tag_type": "measure_ens|sector|normativa", "value": "mp.acc.2", "confidence": 0.0-1.0}
+    {"tag_type": "measure_ens|sector|normativa", "value": "op.acc.6", "confidence": 0.0-1.0}
   ],
   "alternative_folders": [
     {"folder_code": "02", "folder_name": "Categorizacion", "confidence": 0.4}
@@ -174,7 +174,7 @@ Output:
   "reasoning": "Acta formal Comite Seguridad con aprobacion de politica + designacion RSEG: contenido inequivocamente de gobierno corporativo.",
   "suggested_tags": [
     {"tag_type": "measure_ens", "value": "org.1", "confidence": 0.9},
-    {"tag_type": "measure_ens", "value": "mp.acc.2", "confidence": 0.85},
+    {"tag_type": "measure_ens", "value": "op.acc.6", "confidence": 0.85},
     {"tag_type": "sector", "value": "sanidad", "confidence": 0.95}
   ],
   "alternative_folders": [],

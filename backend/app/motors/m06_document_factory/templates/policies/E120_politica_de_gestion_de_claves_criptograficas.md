@@ -22,7 +22,7 @@ aprobado_por: "{{ cliente.organo_aprobador_politicas }}"
 
 Esta política se desarrolla en cumplimiento del **Real Decreto 311/2022**, de 3 de mayo, por el que se regula el Esquema Nacional de Seguridad (ENS), y en particular de las siguientes medidas recogidas en su Anexo II:
 
-- **mp.info.9** — Cifrado (gestión del ciclo de vida de claves, obligatoria desde categoría MEDIA para datos con valoración C ≥ MEDIO).
+- **op.exp.10** — Cifrado (gestión del ciclo de vida de claves, obligatoria desde categoría MEDIA para datos con valoración C ≥ MEDIO).
 - **mp.com.2** — Protección de la confidencialidad en comunicaciones (cifrado TLS/VPN con claves gestionadas bajo esta política).
 - **op.exp.5** — Gestión de vulnerabilidades (rotación obligatoria ante compromiso de clave o vulnerabilidad del algoritmo).
 

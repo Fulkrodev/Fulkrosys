@@ -191,7 +191,7 @@
       "type": "single_select",
       "section": "perimetro",
       "label": "Teneis WAF (Web Application Firewall) y/o CDN en produccion?",
-      "tooltip": "El WAF protege contra ataques OWASP Top 10 y es un control tecnico recomendado para ENS Medio y Alto (op.acc.7, mp.com.1).",
+      "tooltip": "El WAF protege contra ataques OWASP Top 10 y es un control tecnico recomendado para ENS Medio y Alto (mp.s.2, mp.com.1).",
       "options": [
         {
           "value": "waf_y_cdn",

@@ -1,6 +1,6 @@
 # DOCUMENTO E-106 — POLÍTICA DE COPIAS DE SEGURIDAD
 
-**Política derivada de E-109 (Continuidad). Materializa mp.info.9 del Anexo II del ENS. Establece la estrategia de backup como política de gobierno, remitiendo al procedimiento operativo E-207 para el detalle de ejecución.**
+**Política derivada de E-109 (Continuidad). Materializa mp.info.6 del Anexo II del ENS. Establece la estrategia de backup como política de gobierno, remitiendo al procedimiento operativo E-207 para el detalle de ejecución.**
 
 ```jinja
 ---
@@ -21,7 +21,7 @@ aprobado_por: "{{ cliente.organo_aprobador_politicas }}"
 
 ## 1. OBJETO
 
-Establecer los principios y requisitos mínimos aplicables a la realización, protección, verificación y restauración de copias de seguridad de los datos, configuraciones y sistemas comprendidos en el alcance del SGSI de {{ cliente.razon_social }}, en cumplimiento de la medida **mp.info.9 (Copias de seguridad)** del Anexo II del Real Decreto 311/2022.
+Establecer los principios y requisitos mínimos aplicables a la realización, protección, verificación y restauración de copias de seguridad de los datos, configuraciones y sistemas comprendidos en el alcance del SGSI de {{ cliente.razon_social }}, en cumplimiento de la medida **mp.info.6 (Copias de seguridad)** del Anexo II del Real Decreto 311/2022.
 
 ## 2. PRINCIPIOS
 

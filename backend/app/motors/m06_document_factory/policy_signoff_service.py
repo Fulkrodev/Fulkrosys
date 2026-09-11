@@ -51,7 +51,7 @@ POLICIES_BASICA: tuple[str, ...] = (
 POLICIES_MEDIA: tuple[str, ...] = POLICIES_BASICA + (
     "E-107",  # cifrado y gestión claves · mp.com.3
     "E-109",  # continuidad del servicio · op.cont.1
-    "E-110",  # teletrabajo y movilidad · mp.eq.7
+    "E-110",  # teletrabajo y movilidad · mp.eq.3
     "E-111",  # uso servicios cloud · op.ext.4
     "E-114",  # desarrollo seguro SSDLC · mp.sw.1
     "E-115",  # gestión vulnerabilidades · op.exp.5
@@ -63,7 +63,7 @@ POLICIES_MEDIA: tuple[str, ...] = POLICIES_BASICA + (
 POLICIES_ALTA: tuple[str, ...] = POLICIES_MEDIA + (
     "E-112",  # seguridad relaciones proveedores · op.ext.1
     "E-113",  # adquisición tecnología · mp.sw.1
-    "E-118",  # BYOD · mp.eq.7
+    "E-118",  # BYOD · mp.eq.3
     "E-121",  # redes y comunicaciones · mp.com.1
     "E-123",  # seguridad física · mp.if
     "E-124",  # seguridad del personal · mp.per.1

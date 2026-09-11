@@ -39,7 +39,7 @@ extra_measures:
     title: "IAM Recommender + audit Least Privilege mensual"
     dimensions: [A, T]
     category: "MEDIA"
-  - code: "mp.info.9.pce-gcp.1"
+  - code: "op.exp.10.pce-gcp.1"
     title: "Cloud KMS / HSM con keyring + rotation anual"
     dimensions: [C, I]
     category: "MEDIA"

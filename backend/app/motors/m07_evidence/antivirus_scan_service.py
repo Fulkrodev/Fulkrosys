@@ -1,4 +1,4 @@
-"""Antivirus scan service · SAN-E v3.MB-6 atom 6 · Gap A27 ENS mp.s.5.
+"""Antivirus scan service · SAN-E v3.MB-6 atom 6 · Gap A27 ENS op.exp.6.
 
 Async ClamAV scan workflow para uploads cliente (Q4 B scope):
   evidence row created → scan_status='scanning' (server default)

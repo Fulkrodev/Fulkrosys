@@ -240,7 +240,7 @@ def janitor_stuck_scans_task() -> dict:
     time_limit=30,
 )
 def scan_evidence_file_task(self, evidence_id: str) -> dict:
-    """Async ClamAV scan post-upload · MB-6 atom 6 · ENS mp.s.5.
+    """Async ClamAV scan post-upload · MB-6 atom 6 · ENS op.exp.6.
 
     Transitions evidence.scan_status:
       scanning -> clean | quarantined | error

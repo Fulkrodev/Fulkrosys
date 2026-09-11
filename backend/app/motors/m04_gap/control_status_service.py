@@ -282,7 +282,7 @@ async def _compute_measure_evidence_status(
     todas vigentes + ninguna caducada + todas validadas (scan_status='clean').
 
     Nota empírica (el repo manda): Evidence NO tiene columna `estado`; la señal
-    de "validada/aprobada" es `scan_status == 'clean'` (pasó antivirus · mp.s.5).
+    de "validada/aprobada" es `scan_status == 'clean'` (pasó antivirus · op.exp.6).
     `infected`/`quarantined` → rojo; `scanning`/`error` → pendiente (amarillo).
     La aplicabilidad (no_aplica) la decide la SoA (estado_implementacion), NO el
     semáforo: una medida aplicable sin evidencia es 'amarillo' (falta), no

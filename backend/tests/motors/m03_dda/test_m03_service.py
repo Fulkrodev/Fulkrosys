@@ -18,17 +18,51 @@ from backend.app.motors.m03_dda.service import (
 from backend.app.motors.m03_dda.enums import (
     CategoriaSistema,
 )
-from backend.tests.conftest import setup_test_project
+from backend.tests.conftest import setup_test_project, _admin_setup
 
 
 # ================================================================
 # HELPER
 # ================================================================
 
+# O1 · nivel por dimension que corresponde a cada categoria. Antes este helper
+# creaba un proyecto SIN valorar una sola dimension y aun asi esperaba ~52
+# medidas aplicables en BASICA. Pasaba porque la generacion ignoraba el eje
+# "dimension" del Anexo II y solo miraba la categoria. Ahora que lo respeta, un
+# proyecto sin dimensiones valoradas da SOLO las 36 de eje categoria -- que es
+# lo correcto -- y el escenario del test era imposible en la realidad: no se
+# llega a categoria BASICA sin haber valorado nada.
+_NIVEL_POR_CATEGORIA = {
+    CategoriaSistema.BASICA: "BAJO",
+    CategoriaSistema.MEDIA: "MEDIO",
+    CategoriaSistema.ALTA: "ALTO",
+}
+
+
 async def _setup_dda(db, category=CategoriaSistema.BASICA):
-    """Create project + generate DdA. Returns (svc, result, project_id)."""
+    """Create project + valued system + generate DdA. Returns (svc, result, pid)."""
+    import uuid as _uuid
+
     client_id, project_id = await setup_test_project(db)
     await set_tenant_context(db, client_id=client_id, project_id=project_id)
+
+    # Sistema con las cinco dimensiones valoradas al nivel de la categoria, que
+    # es lo que tiene un proyecto real al llegar aqui.
+    nivel = _NIVEL_POR_CATEGORIA[category]
+    sid = _uuid.uuid4()
+    async with _admin_setup(db):
+        await db.execute(text(
+            "INSERT INTO systems (id, project_id, nombre, created_at) "
+            "VALUES (:id, :pid, 'Sistema test', now())"
+        ), {"id": str(sid), "pid": project_id})
+        await db.execute(text(
+            "INSERT INTO information_types (id, system_id, nombre, valoracion_d, "
+            " valoracion_i, valoracion_c, valoracion_a, valoracion_t, created_at) "
+            "VALUES (:id, :sid, 'Datos', :n, :n, :n, :n, :n, now())"
+        ), {"id": str(_uuid.uuid4()), "sid": str(sid), "n": nivel})
+    await db.flush()
+    await set_tenant_context(db, client_id=client_id, project_id=project_id)
+
     svc = DdaService(db)
     result = await svc.generate_dda(
         project_id=project_id,
@@ -94,6 +128,16 @@ class TestDdaGeneration:
     async def test_generate_overwrites_existing(self, db):
         """Test 4: Second generate replaces first (DELETE+INSERT)."""
         svc, _, project_id = await _setup_dda(db, CategoriaSistema.BASICA)
+        # O1 · re-categorizar a ALTA implica re-valorar las dimensiones: un
+        # sistema con las cinco en BAJO no es ALTA. Sin esto el escenario se
+        # contradice y las medidas de eje dimension no aplican, que es lo
+        # correcto pero no lo que este test quiere comprobar (el reemplazo).
+        await db.execute(text(
+            "UPDATE information_types SET valoracion_d='ALTO', valoracion_i='ALTO', "
+            " valoracion_c='ALTO', valoracion_a='ALTO', valoracion_t='ALTO' "
+            "WHERE system_id IN (SELECT id FROM systems WHERE project_id = :pid)"
+        ), {"pid": str(project_id)})
+        await db.flush()
         result2 = await svc.generate_dda(project_id, CategoriaSistema.ALTA)
         await db.flush()
 

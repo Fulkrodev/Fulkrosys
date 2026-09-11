@@ -196,7 +196,7 @@ async def ingest_evidence(
     # propaga → el endpoint no llega al commit → rollback (sin fila ni fichero).
     file_path.write_bytes(request.file_bytes)
 
-    # 9. Queue async antivirus scan (MB-6 atom 6 · ENS mp.s.5 · Q3 B async Celery).
+    # 9. Queue async antivirus scan (MB-6 atom 6 · ENS op.exp.6 · Q3 B async Celery).
     # Evidence row inserted con scan_status='scanning' (server default migration).
     # Celery task transitions a clean / quarantined / error post-scan.
     # Best-effort enqueue: si Celery worker down · evidence persists con

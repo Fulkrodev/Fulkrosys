@@ -1,6 +1,6 @@
 # DOCUMENTO E-207 — PROCEDIMIENTO DE COPIAS DE SEGURIDAD Y RESTAURACIÓN
 
-**Materializa la medida mp.info.9 (Copias de seguridad) del Anexo II del ENS** y desarrolla el apartado 6.2 de la Política de Continuidad ({{ proyecto.codigo_documento_base }}-109). Es el procedimiento que el auditor pide demostrar con un test real de restauración reciente.
+**Materializa la medida mp.info.6 (Copias de seguridad) del Anexo II del ENS** y desarrolla el apartado 6.2 de la Política de Continuidad ({{ proyecto.codigo_documento_base }}-109). Es el procedimiento que el auditor pide demostrar con un test real de restauración reciente.
 
 ```jinja
 ---
@@ -24,7 +24,7 @@ politica_madre: "{{ proyecto.codigo_documento_base }}-109"
 
 Establecer el método operativo mediante el cual {{ cliente.razon_social }} planifica, ejecuta, verifica, custodia y, en caso necesario, utiliza copias de seguridad de los datos, configuraciones y sistemas comprendidos en el alcance del SGSI, garantizando la disponibilidad e integridad de la información ante cualquier tipo de pérdida, corrupción, destrucción o cifrado malicioso.
 
-Este procedimiento desarrolla el apartado 6.2 de la Política de Continuidad del Servicio ({{ proyecto.codigo_documento_base }}-109) y materializa la medida **mp.info.9 (Copias de seguridad)** del Anexo II del Real Decreto 311/2022.
+Este procedimiento desarrolla el apartado 6.2 de la Política de Continuidad del Servicio ({{ proyecto.codigo_documento_base }}-109) y materializa la medida **mp.info.6 (Copias de seguridad)** del Anexo II del Real Decreto 311/2022.
 
 ## 2. ALCANCE
 

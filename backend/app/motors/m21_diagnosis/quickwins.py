@@ -31,7 +31,7 @@ QUICK_WIN_RULES: list[dict] = [
         "titulo": "Formalizar estrategia de backup con pruebas de restauracion",
         "descripcion": "Backup sin proceso formal. ENS requiere copias verificadas.",
         "esfuerzo": "bajo", "impacto": "alto", "horas_estimadas": 4,
-        "medida_ens": "mp.info.9",
+        "medida_ens": "mp.info.6",
         "condition": lambda d: d.get("maturity_scoring", {}).get("domains", {}).get("op_cont", {}).get("points", 0) < 2,
     },
     {

@@ -74,7 +74,7 @@ extra_measures:
     title: "Microsoft Sentinel o integrador SIEM con data connectors"
     dimensions: [T, D]
     category: "ALTA"
-  - code: "mp.info.9.pce-az.1"
+  - code: "op.exp.10.pce-az.1"
     title: "Azure Key Vault (HSM-backed) para claves y certificados"
     dimensions: [C, I]
     category: "MEDIA"

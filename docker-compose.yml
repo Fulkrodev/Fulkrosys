@@ -48,7 +48,7 @@ services:
       - miniodata:/data
     command: server /data --console-address ":9001"
 
-  # ─────── ClamAV antivirus (MB-6 atom 6 · Gap A27 ENS mp.s.5) ───────
+  # ─────── ClamAV antivirus (MB-6 atom 6 · Gap A27 ENS op.exp.6) ───────
   # Cisco-Talos image · GPL2 · UE-sovereign · clamd TCP 3310 internal.
   # Virus signatures DB persistente · freshclam auto-update cada 6h.
   # Cold-start ~60-120s (start_period grace + healthcheck retries).

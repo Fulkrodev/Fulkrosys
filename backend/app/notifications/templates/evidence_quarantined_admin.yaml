@@ -19,7 +19,7 @@ html_body_es: |
       Revisar cuarentena
     </a>
   </p>
-  <p>ENS Anexo II mp.s.5 · trazabilidad mantenida.</p>
+  <p>ENS Anexo II op.exp.6 · trazabilidad mantenida.</p>
 text_body_es: |
   Hola Marcos,
 
@@ -35,4 +35,4 @@ text_body_es: |
   Liberar (falso positivo) o eliminar permanente desde el panel:
   {{ cta_url }}
 
-  ENS Anexo II mp.s.5 · trazabilidad mantenida.
+  ENS Anexo II op.exp.6 · trazabilidad mantenida.

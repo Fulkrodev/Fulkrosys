@@ -220,12 +220,12 @@ async def assess(
             codigo="CONT_BACKUP_SIN_CIFRAR",
             titulo="Backup sin cifrar detectado",
             descripcion=(
-                "Uno o mas backups no estan cifrados. mp.info.9 requiere "
+                "Uno o mas backups no estan cifrados. mp.info.6 requiere "
                 "copias de seguridad protegidas."
             ),
             entity_type="continuity_assessment",
             entity_id=assessment.id,
-            medidas_ens_afectadas=["mp.info.9"],
+            medidas_ens_afectadas=["mp.info.6"],
         ))
 
     # Sin prueba de restauracion > 12 meses (o nunca)

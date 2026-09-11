@@ -91,7 +91,7 @@ ENS MEDIA o ALTA (adicional):
 ENS ALTA (adicional):
 - certificacion_ens_proveedor : Proveedor ENS certificado si categoria requerida [RD 311/2022 Anexo III]
 - continuidad_negocio         : Plan continuidad + RTO/RPO [CCN-STIC 884]
-- clearance_personal          : Habilitacion seguridad personal con acceso [RD 311/2022 Anexo II op.per.3]
+- clearance_personal          : Habilitacion seguridad personal con acceso [RD 311/2022 Anexo II mp.per.1]
 
 SECTOR sanidad (adicional en sector_specific_gaps):
 - sanidad_art_9_RGPD        : Categoria especial datos salud exige medidas reforzadas [RGPD art. 9]

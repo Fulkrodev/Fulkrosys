@@ -137,7 +137,7 @@ Aprobada por {{ cliente.organo_aprobador_politicas }} el {{ proyecto.fecha_aprob
 |---|---|---|---|
 | **E-102** | Contraseñas y Autenticación | ~130 | op.acc.5, op.acc.6 |
 | **E-105** | Tratamiento de Datos Personales (RGPD) | ~120 | mp.info.1 |
-| **E-106** | Copias de Seguridad | ~70 | mp.info.9 |
+| **E-106** | Copias de Seguridad | ~70 | mp.info.6 |
 | **E-110** | Teletrabajo y Movilidad | ~110 | mp.eq.3, mp.eq.4 |
 | **E-111** | Uso de Servicios Cloud | ~100 | op.ext.1-4, CCN-STIC 887 |
 | **E-119** | Respuesta a Brechas de Datos Personales | ~100 | RGPD art. 33-34 |

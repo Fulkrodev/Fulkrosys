@@ -23,8 +23,8 @@ notas_importantes:
   cambió algún campo distinto de `descripcion`. El test permanente
   backend/tests/scripts/test_catalogo_sin_copia_literal.py comprueba que no reaparecen los
   marcadores de la extracción (encabezados tipo "3.1 [ORG.1]").'
-- 'Cambio 2026-09-11 (bloque N2): se ELIMINARON del catálogo 6 códigos que no existen en el
-  Anexo II del RD 311/2022 (op.exp.11, mp.com.9, mp.if.9, mp.per.9, mp.s.8, mp.s.9). Venían de
+- 'Cambio 2026-09-11 (bloque N2): se ELIMINARON del catálogo 6 códigos que
+  NO EXISTEN en el Anexo II del RD 311/2022: op.exp.11, mp.com.9, mp.if.9, mp.per.9, mp.s.8, mp.s.9. Venían de
   CCN-STIC 804 v2017, que está basado en el RD 3/2010 (versión derogada del ENS). Antes seguían
   aquí y el sembrador los filtraba con una lista negra: la fuente declaraba 79 y los consumidores
   parcheaban. Ahora la fuente declara 73, que es lo que dice la norma, y la lista negra se quitó.

@@ -9,6 +9,12 @@ from pydantic import BaseModel, ConfigDict, EmailStr, Field
 # === ENUMS as Literal types ===
 
 ImpactLevelType = Literal["BAJO", "MEDIO", "ALTO"]
+# O1.1 · el resumen de dimensiones SI puede devolver NO_AFECTADA y una categoria
+# nula: un sistema sin ninguna dimension afectada no se proyecta a BASICA
+# (Anexo I punto 3). El tipo de ENTRADA de una valoracion sigue siendo
+# BAJO/MEDIO/ALTO -- valorar una dimension es adscribirla --; lo que se relaja es
+# el tipo de SALIDA del resumen, que tiene que poder decir "sin adscribir".
+ImpactLevelOrUnaffectedType = Literal["NO_AFECTADA", "BAJO", "MEDIO", "ALTO"]
 CategoryType = Literal["BASICA", "MEDIA", "ALTA"]
 # R05 (E-155 · CCN-STIC 803): servicio finalista (presta el fin del sistema) vs
 # instrumental (soporta a otros). Sede física vs región cloud (ubicación real).
@@ -158,6 +164,12 @@ class CategorizationOut(BaseModel):
     fecha_acta: date | None
     aprobado_por: str | None
     created_at: datetime
+    # Regla 2 · si la categorizacion se calculo con la regla del maximo anterior
+    # -- la que adscribia a BAJO las dimensiones NO afectadas, contra el Anexo I
+    # punto 3 -- la marca viaja con ella. Sin esto, la marca estaria en la base
+    # y no obligaria a nada: nadie la veria.
+    requiere_recategorizacion: bool = False
+    motivo_recategorizacion: str | None = None
 
     model_config = ConfigDict(from_attributes=True)
 
@@ -198,12 +210,13 @@ class ActaE012Out(BaseModel):
 # === DIMENSION SUMMARY ===
 
 class DimensionSummaryOut(BaseModel):
-    max_d: ImpactLevelType
-    max_i: ImpactLevelType
-    max_c: ImpactLevelType
-    max_a: ImpactLevelType
-    max_t: ImpactLevelType
-    projected_category: CategoryType
+    max_d: ImpactLevelOrUnaffectedType
+    max_i: ImpactLevelOrUnaffectedType
+    max_c: ImpactLevelOrUnaffectedType
+    max_a: ImpactLevelOrUnaffectedType
+    max_t: ImpactLevelOrUnaffectedType
+    # None cuando no hay NINGUNA dimension afectada: no hay nada que proyectar.
+    projected_category: CategoryType | None
     info_types_count: int
     services_count: int
 

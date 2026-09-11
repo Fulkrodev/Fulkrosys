@@ -75,7 +75,7 @@ TOOL = MCPTool(
         "op.acc.2", "op.acc.4", "op.acc.5",
         "op.exp.2", "op.exp.8", "op.exp.10",
         "mp.com.1", "mp.com.2",
-        "mp.info.2", "mp.info.3", "mp.s.5",
+        "mp.info.2", "mp.info.3", "op.exp.6",
     ],
 )
 

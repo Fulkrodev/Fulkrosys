@@ -74,7 +74,11 @@ def _aplica_en_columna(codigo: str, etiqueta: str) -> bool:
     return bool(celdas[_COLUMNA[etiqueta]])
 
 
-def valida_niveles(niveles: dict[str, str]) -> dict[str, str]:
+def valida_niveles(
+    niveles: dict[str, str],
+    *,
+    exigir_alguna_afectada: bool = True,
+) -> dict[str, str]:
     """Las cinco dimensiones, decididas explicitamente. Sin valores por defecto.
 
     Que no haya defecto es el punto: antes el defecto era BAJO y por eso se
@@ -101,7 +105,7 @@ def valida_niveles(niveles: dict[str, str]) -> dict[str, str]:
                 f"{list(NIVELES_CON_ADSCRIPCION) + [NO_AFECTADA]}"
             )
         normal[dim] = v
-    if all(v == NO_AFECTADA for v in normal.values()):
+    if exigir_alguna_afectada and all(v == NO_AFECTADA for v in normal.values()):
         raise ValueError(
             "Las cinco dimensiones no afectadas: no hay sistema que categorizar "
             "(RD 311/2022 Anexo I punto 3)."
@@ -112,6 +116,8 @@ def valida_niveles(niveles: dict[str, str]) -> dict[str, str]:
 def medidas_aplicables(
     categoria: str,
     niveles_por_dimension: dict[str, str],
+    *,
+    exigir_alguna_afectada: bool = True,
 ) -> dict[str, MotivoAplicabilidad]:
     """Medidas del Anexo II que aplican, con el motivo de cada una.
 
@@ -119,6 +125,21 @@ def medidas_aplicables(
         categoria: BASICA | MEDIA | ALTA (categoria del sistema, Anexo I).
         niveles_por_dimension: las CINCO dimensiones D/I/C/A/T, cada una en
             BAJO | MEDIO | ALTO | NO_AFECTADA. No hay valor por defecto.
+        exigir_alguna_afectada: si True (defecto), las cinco en NO_AFECTADA es
+            un error. Si False, se acepta y la respuesta son SOLO las medidas de
+            eje categoria.
+
+            Por que existe el parametro, que no es una valvula de escape: la
+            comprobacion "no hay sistema que categorizar" pertenece al acto de
+            DERIVAR una categoria, no al de APLICAR la tabla. Cuando la DdA se
+            genera, la categoria ya viene de una categorizacion FIRMADA: es un
+            dato de entrada, no algo que se este decidiendo aqui. Con la
+            categoria dada, "ninguna dimension afectada" tiene respuesta exacta
+            en el Anexo II -- las de eje categoria aplican, las de eje dimension
+            no -- y negarse a darla seria negarse a leer la tabla.
+
+            El defecto sigue siendo estricto porque atrapa el error comun:
+            pasar un diccionario a medio rellenar.
 
     Returns:
         codigo de medida -> MotivoAplicabilidad. Determinista y ordenado.
@@ -126,7 +147,9 @@ def medidas_aplicables(
     cat = (categoria or "").upper()
     if cat not in _CATEGORIAS:
         raise ValueError(f"Categoria invalida: {categoria!r}. Validas: {list(_CATEGORIAS)}")
-    niveles = valida_niveles(niveles_por_dimension)
+    niveles = valida_niveles(
+        niveles_por_dimension, exigir_alguna_afectada=exigir_alguna_afectada,
+    )
 
     aplicables: dict[str, MotivoAplicabilidad] = {}
     for codigo in sorted(ANEXO_II_RD311):
@@ -174,3 +197,41 @@ def diferencia_explicada(
         nombre = ANEXO_II_RD311[codigo][0]
         fuera.append(f"+ {codigo} · {nombre} · {b[codigo].explica()}")
     return fuera
+
+
+def categoria_por_regla_del_maximo(
+    niveles_por_dimension: dict[str, str],
+) -> str | None:
+    """Categoria del sistema por la regla del maximo del Anexo I. UNICA COPIA.
+
+    O1.1 · esta regla estaba escrita TRES veces: aqui (via `compute_category`),
+    a mano en `m01_categorization/api.py` y a mano en
+    `m06_document_factory/alcance_generator.py`. N1 arreglo una sola, y las otras
+    dos siguieron proyectando categoria con las cinco dimensiones arrancando en
+    BAJO. Un sistema sin valorar salia BASICA por el endpoint de resumen.
+
+    Arreglar una copia y dejar las otras es peor que no arreglar ninguna: el
+    sistema se contradice segun por donde se le pregunte.
+
+    A diferencia de `compute_category`, esta funcion NO exige las cinco
+    dimensiones ni aplica el suelo heredado de la AAPP: es la proyeccion simple
+    que necesitan los consumidores de solo lectura (resumen de dimensiones,
+    generador de alcance).
+
+    Args:
+        niveles_por_dimension: dimension -> BAJO | MEDIO | ALTO | NO_AFECTADA.
+            Las claves desconocidas y los valores no reconocidos se ignoran.
+
+    Returns:
+        "BASICA" | "MEDIA" | "ALTA", o None si NINGUNA dimension esta afectada
+        -- que es el caso que el Anexo I punto 3 contempla y las copias a mano
+        no: sin dimensiones adscritas no hay categoria que proyectar.
+    """
+    afectados = [
+        NIVELES_CON_ADSCRIPCION.index(v)
+        for v in (str(x or "").upper() for x in niveles_por_dimension.values())
+        if v in NIVELES_CON_ADSCRIPCION
+    ]
+    if not afectados:
+        return None
+    return ("BASICA", "MEDIA", "ALTA")[max(afectados)]

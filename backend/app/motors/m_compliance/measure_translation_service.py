@@ -101,7 +101,7 @@ TRANSLATION_OVERRIDES: dict[str, dict[str, str]] = {
             "causen problemas."
         ),
     },
-    "mp.s.5": {
+    "op.exp.6": {
         "cliente_friendly_title": "Análisis automático de archivos subidos",
         "cliente_friendly_explanation": (
             "Cuando se sube un archivo a la plataforma, lo analizamos "

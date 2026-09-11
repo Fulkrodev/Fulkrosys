@@ -46,7 +46,7 @@ extra_measures:
     title: "IAM Access Analyzer + external resource audit mensual"
     dimensions: [A, T]
     category: "MEDIA"
-  - code: "mp.info.9.pce-aws.1"
+  - code: "op.exp.10.pce-aws.1"
     title: "AWS KMS con CMKs + rotation anual para datos C/I/MEDIA"
     dimensions: [C, I]
     category: "MEDIA"

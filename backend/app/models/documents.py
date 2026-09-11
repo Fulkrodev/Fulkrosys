@@ -139,7 +139,7 @@ class Evidence(FullMixin, Base):
     firma_timestamp: Mapped[str | None] = mapped_column(String(40))
     measure_code: Mapped[str | None] = mapped_column(String(40), index=True)
     obligation_id: Mapped[uuid.UUID | None] = mapped_column(UUID(as_uuid=True), index=True)
-    # --- MB-6 atom 6 · ClamAV antivirus scan (ENS mp.s.5) ---
+    # --- MB-6 atom 6 · ClamAV antivirus scan (ENS op.exp.6) ---
     scan_status: Mapped[str] = mapped_column(
         String(20), nullable=False, server_default="scanning",
     )

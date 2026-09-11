@@ -508,9 +508,28 @@ $ psql -d fulkro -tAc "SELECT table_name||'.'||column_name FROM information_sche
 de auditoría (`m10_audit_sim`, una por medida del Anexo II), 18 de coaching (`m09_audit_prep`),
 14 de los cuestionarios LMS (`docs/catalogs/lms_courses_v1.json`), 10 de materialidad de cambios
 (`m28`), 10 de materialidad de conformidad (`m27`) y 10 de captura de dimensiones (`m16`). Ese es
-el número que puedo reproducir; una auditoría previa manejaba 1.077 y no he sabido reconstruirlo
-—probablemente contaba filas instanciadas por proyecto, no definiciones—, así que dejo el que sé
-defender y de dónde sale.
+el número que puedo reproducir con un comando sobre **este** repositorio:
+
+```bash
+$ python3 -c "
+from backend.app.motors.m10_audit_sim.audit_questions import AUDIT_QUESTIONS
+from backend.app.motors.m09_audit_prep.coaching import COACHING_QUESTIONS
+from backend.app.motors.m28_change_governance.materiality_engine import IMPACT_QUESTIONS
+from backend.app.motors.m27_conformity.conformity_service_paso5 import MATERIALITY_QUESTIONS
+from backend.app.motors.m16_onboarding.dimensions_capture import CANONICAL_DIM_QUESTIONS_DEFINITIONS as D
+import json; lms = json.load(open('docs/catalogs/lms_courses_v1.json'))
+print(len(AUDIT_QUESTIONS), len(sum(COACHING_QUESTIONS.values(), [])), len(IMPACT_QUESTIONS),
+      len(MATERIALITY_QUESTIONS), len(D))"
+73 18 10 10 10
+```
+
+Las 73 del simulacro no son una lista escrita a mano: se derivan de la tabla autoritativa del
+Anexo II y un `assert` en el import falla si sobra o falta alguna
+(`audit_questions.py:762`), así que ese sumando no puede desalinearse en silencio.
+
+Hubo una cifra de **1.077** circulando en una revisión. **Era de otro repositorio** —el zip
+OSS—, no de éste. No es que no supiera reconstruirla: es que no se puede, porque mide otro
+sujeto. Queda dicha y descartada para que nadie la vuelva a arrastrar.
 
 Es una carencia real de producto, no una incorrección normativa: ninguna de esas preguntas
 afirma nada falso. Por eso queda como frente abierto y no se arregló en la corrección normativa.

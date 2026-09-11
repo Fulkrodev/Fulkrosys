@@ -46,6 +46,11 @@ from typing import Any
 from sqlalchemy import text as sa_text
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from backend.app.motors.m01_categorization.aplicabilidad import (
+    NIVELES_CON_ADSCRIPCION,
+    categoria_por_regla_del_maximo,
+)
+
 logger = logging.getLogger(__name__)
 
 # role_category canónico (m30 roles_ens) → clave de plantilla responsables.*
@@ -56,7 +61,10 @@ _ROLE_KEYS = (
     "responsable_sistema",
 )
 
-_LEVEL_RANK = {"BAJO": 1, "MEDIO": 2, "ALTO": 3}
+# O1.1 · derivado del orden canonico en vez de escrito a mano, para que no
+# pueda divergir. Solo ordena niveles; la proyeccion de categoria la hace
+# `categoria_por_regla_del_maximo`, que es la unica copia de esa regla.
+_LEVEL_RANK = {n: i + 1 for i, n in enumerate(NIVELES_CON_ADSCRIPCION)}
 # (clave plantilla, columna valoración DICAT)
 _DIMS = (
     ("confidencialidad", "valoracion_c"),
@@ -299,9 +307,15 @@ async def build_e155_alcance_context(
 
 
 def _max_categoria(dimensiones: dict[str, str]) -> str | None:
-    """Deriva BASICA/MEDIA/ALTA del máximo de las dimensiones (fallback)."""
-    rank = max((_LEVEL_RANK.get(v, 0) for v in dimensiones.values()), default=0)
-    return {1: "BASICA", 2: "MEDIA", 3: "ALTA"}.get(rank)
+    """Deriva BASICA/MEDIA/ALTA del máximo de las dimensiones (fallback).
+
+    O1.1 · esto era una TERCERA copia a mano de la regla del máximo del Anexo I.
+    No la encontró el encargo: la encontró el barrido del patrón. Se comportaba
+    bien con NO_AFECTADA por accidente —`.get(v, 0)` la mandaba a rango 0 y
+    `.get(rank)` devolvía None—, pero era una copia que podía divergir en el
+    siguiente cambio, como divergió la de `m01_categorization/api.py`.
+    """
+    return categoria_por_regla_del_maximo(dimensiones)
 
 
 def _iso(value: Any) -> str | None:

@@ -1,7 +1,7 @@
 "use client";
 
 /**
- * ScanStatusBadge · SAN-E v3.MB-6 atom 6 · ENS mp.s.5.
+ * ScanStatusBadge · SAN-E v3.MB-6 atom 6 · ENS op.exp.6.
  *
  * 5 variants color-coded scan_status (Q5 A cement · cliente VE siempre):
  *  - clean       · green CheckCircle2 · "Limpio"

@@ -23,6 +23,12 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from backend.app.models.ens import EnsMeasure, DdaEntry
 from backend.app.motors.m03_dda.anexo2_rd311_2022 import EJE_Y_DIMENSIONES
+from backend.app.motors.m01_categorization.aplicabilidad import (
+    DIMENSIONES_ENS,
+    NIVELES_CON_ADSCRIPCION,
+    NO_AFECTADA,
+    medidas_aplicables,
+)
 from backend.app.motors.m03_dda.enums import (
     Aplicabilidad,
     EstadoImplementacion,
@@ -118,12 +124,24 @@ class DdaService:
             {"pid": str(project_id)},
         )
 
+        # O1 · niveles por dimension del proyecto, para poder aplicar el eje
+        # "dimension" del Anexo II y no solo el de categoria.
+        niveles = await self._niveles_por_dimension(project_id)
+        # La categoria viene de una categorizacion FIRMADA (gate de arriba): es
+        # dato de entrada. Un proyecto sin ninguna dimension afectada da las
+        # medidas de eje categoria y ninguna de eje dimension, que es lo que
+        # dice la tabla; no es motivo para negarse a generar la DdA.
+        aplicables_por_codigo = medidas_aplicables(
+            system_category.value, niveles, exigir_alguna_afectada=False,
+        )
+
         # 3. Generate entries
         entries_aplicables = 0
         entries_no_aplica = 0
 
         for measure in measures:
-            aplica = self._measure_applies(measure, system_category)
+            motivo = aplicables_por_codigo.get(measure.codigo)
+            aplica = motivo is not None
 
             if aplica:
                 refuerzos = await self._applicable_reinforcements(measure, system_category)
@@ -542,15 +560,51 @@ class DdaService:
     # PRIVATE: Applicability logic
     # ================================================================
 
+    async def _niveles_por_dimension(self, project_id: UUID) -> dict[str, str]:
+        """Nivel de cada dimension del proyecto, sin adscribir lo no valorado.
+
+        O1 · Anexo I punto 3: una dimension que ningun tipo de informacion y
+        ningun servicio valora NO se adscribe a ningun nivel. Se arranca en
+        NO_AFECTADA y solo sube con valoraciones reales.
+        """
+        niveles = dict.fromkeys(DIMENSIONES_ENS, NO_AFECTADA)
+        filas = (await self.db.execute(sa_text(
+            "SELECT valoracion_d, valoracion_i, valoracion_c, valoracion_a, "
+            "       valoracion_t "
+            "FROM information_types it JOIN systems s ON s.id = it.system_id "
+            "WHERE s.project_id = :pid AND it.deleted_at IS NULL "
+            "UNION ALL "
+            "SELECT valoracion_d, valoracion_i, valoracion_c, valoracion_a, "
+            "       valoracion_t "
+            "FROM services sv JOIN systems s2 ON s2.id = sv.system_id "
+            "WHERE s2.project_id = :pid AND sv.deleted_at IS NULL"
+        ), {"pid": str(project_id)})).all()
+
+        for fila in filas:
+            for dim, bruto in zip(DIMENSIONES_ENS, fila):
+                nivel = str(bruto or "").upper()
+                if nivel not in NIVELES_CON_ADSCRIPCION:
+                    continue
+                actual = niveles[dim]
+                if actual == NO_AFECTADA or (
+                    NIVELES_CON_ADSCRIPCION.index(nivel)
+                    > NIVELES_CON_ADSCRIPCION.index(actual)
+                ):
+                    niveles[dim] = nivel
+        return niveles
+
     def _measure_applies(
         self,
         measure: EnsMeasure,
         category: CategoriaSistema,
     ) -> bool:
-        """Determina si una medida aplica a una categoria.
+        """Determina si una medida aplica a una categoria, SOLO por categoria.
 
-        Usa las columnas booleanas aplica_basica/media/alta de ens_measures
-        (cargadas desde el catalogo YAML, fuente: RD 311/2022 Anexo II).
+        OJO · este metodo ignora el eje "dimension" del Anexo II punto 5. Ya NO
+        lo usa `generate_dda`, que llama a `medidas_aplicables` (la funcion pura
+        que si conoce los dos ejes). Se conserva porque lo usan consumidores de
+        solo lectura que no tienen los niveles por dimension a mano; para
+        generar una DdA NO sirve.
         """
         if category == CategoriaSistema.BASICA:
             return measure.aplica_basica

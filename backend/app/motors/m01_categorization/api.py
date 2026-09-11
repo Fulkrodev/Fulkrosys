@@ -21,6 +21,11 @@ from backend.app.models.core import (
 )
 from backend.app.motors.m01_categorization.service import (
     CategorizationService,
+    ImpactLevel,
+)
+from backend.app.motors.m01_categorization.aplicabilidad import (
+    NIVELES_CON_ADSCRIPCION,
+    categoria_por_regla_del_maximo,
 )
 from backend.app.motors.m01_categorization.schemas import (
     CategorizationHistoryItem,
@@ -526,6 +531,10 @@ async def categorize_system(
         fecha_acta=cat.fecha_acta,
         aprobado_por=cat.aprobado_por,
         created_at=cat.created_at,
+        requiere_recategorizacion=bool(
+            getattr(cat, "requiere_recategorizacion", False)
+        ),
+        motivo_recategorizacion=getattr(cat, "motivo_recategorizacion", None),
     )
 
 
@@ -566,6 +575,10 @@ async def get_categorization_result(
         fecha_acta=cat.fecha_acta,
         aprobado_por=cat.aprobado_por,
         created_at=cat.created_at,
+        requiere_recategorizacion=bool(
+            getattr(cat, "requiere_recategorizacion", False)
+        ),
+        motivo_recategorizacion=getattr(cat, "motivo_recategorizacion", None),
     )
 
 
@@ -658,10 +671,18 @@ async def get_dimension_summary(
         )
     )).scalars().all()
 
-    # Compute max per dimension
-    level_order = {"BAJO": 1, "MEDIO": 2, "ALTO": 3}
-    max_per_dim = {"D": "BAJO", "I": "BAJO", "C": "BAJO", "A": "BAJO", "T": "BAJO"}
-
+    # O1.1 · este bloque tenia SU PROPIA COPIA de la regla del maximo del
+    # Anexo I: un `level_order` que no conocia NO_AFECTADA, las cinco
+    # dimensiones arrancando en BAJO y la proyeccion de categoria a mano. N1
+    # arreglo `service.py` y esta copia se quedo atras, asi que un sistema sin
+    # una sola valoracion salia por aqui como BASICA con todo en BAJO.
+    #
+    # Ahora se arranca en NO_AFECTADA (Anexo I punto 3: una dimension no
+    # afectada no se adscribe a ningun nivel) y la categoria la proyecta la
+    # unica copia que queda de la regla.
+    max_per_dim = dict.fromkeys(
+        ("D", "I", "C", "A", "T"), ImpactLevel.NO_AFECTADA.value,
+    )
     for item in list(info_types) + list(services):
         for attr, dim in [
             ("valoracion_d", "D"), ("valoracion_i", "I"),
@@ -669,13 +690,15 @@ async def get_dimension_summary(
             ("valoracion_t", "T"),
         ]:
             val = getattr(item, attr, None)
-            if val and val.upper() in level_order:
-                if level_order[val.upper()] > level_order[max_per_dim[dim]]:
-                    max_per_dim[dim] = val.upper()
+            if not val:
+                continue
+            nivel = val.upper()
+            if nivel not in NIVELES_CON_ADSCRIPCION:
+                continue
+            if ImpactLevel(nivel).numeric > ImpactLevel(max_per_dim[dim]).numeric:
+                max_per_dim[dim] = nivel
 
-    # Project category from max rule
-    max_level = max(level_order[v] for v in max_per_dim.values())
-    projected = {1: "BASICA", 2: "MEDIA", 3: "ALTA"}[max_level]
+    projected = categoria_por_regla_del_maximo(max_per_dim)
 
     return DimensionSummaryOut(
         max_d=max_per_dim["D"],

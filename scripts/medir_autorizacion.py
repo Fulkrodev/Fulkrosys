@@ -48,6 +48,22 @@ from collections import Counter
 os.environ.setdefault("FULKRO_TESTING", "1")
 
 PUERTAS = ("require_owner", "require_client_user", "require_marcos_or_client")
+
+# O1.2 · puertas que NO son dependencias y por tanto NO salen en el arbol de
+# `dependant` ni en el esquema OpenAPI. Se llaman desde el CUERPO del endpoint.
+#
+# Por que estan en el cuerpo, que no es descuido: `require_ens_role` consulta
+# `client_contacts JOIN projects`, y `projects` tiene RLS por
+# `current_project_id()`. La consulta solo ve algo DESPUES de fijar el contexto
+# de inquilino, cosa que hace el propio endpoint (`_set_project_rls`,
+# `_get_analysis_with_rls`). Como dependencia se ejecutaria ANTES de ese
+# contexto y devolveria "no hay titular" siempre, o sea 403 tambien para quien
+# si tiene el rol.
+#
+# La contrapartida, dicha: al no ser dependencias no aparecen en OpenAPI, asi
+# que un consumidor de la API no las ve. Por eso se cuentan aqui: la cifra
+# publicada no puede dejarlas fuera.
+PUERTAS_EN_CUERPO = ("require_ens_role", "require_ens_role_asignado")
 METODOS_HTTP = {"GET", "POST", "PUT", "PATCH", "DELETE", "HEAD", "OPTIONS", "TRACE"}
 
 
@@ -208,6 +224,35 @@ def main() -> int:
         print(f"  administrador: {100*solo_admin/con_puerta:.1f}%.")
     print(f"  Rutas que pasan por `authenticate_request` (dependencia global): "
           f"{con_authenticate}/{n_rutas}.")
+
+    # ── O1.2 · puertas llamadas desde el cuerpo ──────────────────────────
+    import re as _re
+    from pathlib import Path as _Path
+
+    raiz = _Path(__file__).resolve().parents[1]
+    encontradas: list[tuple[str, int, str]] = []
+    for py in (raiz / "backend" / "app").rglob("*.py"):
+        if py.name == "require_ens_role.py":
+            continue  # su definicion, no una llamada
+        texto = py.read_text("utf-8", errors="ignore")
+        for i, linea in enumerate(texto.splitlines(), 1):
+            sin_com = linea.split("#", 1)[0]
+            for puerta in PUERTAS_EN_CUERPO:
+                if _re.search(rf"\bawait\s+{puerta}\s*\(", sin_com):
+                    encontradas.append((str(py.relative_to(raiz)), i, puerta))
+
+    print()
+    print("  Puertas llamadas desde el CUERPO (no salen en OpenAPI · ver cabecera):")
+    if not encontradas:
+        print("    ninguna")
+    else:
+        for fich, ln, puerta in sorted(encontradas):
+            print(f"    {puerta:26s} {fich}:{ln}")
+        print(f"    TOTAL: {len(encontradas)} llamadas en "
+              f"{len({f for f, _, _ in encontradas})} ficheros")
+        print("    Estas rutas exigen ADEMAS ser el titular de un rol ENS del")
+        print("    proyecto (RD 311/2022 art. 11), cosa que las tres puertas de")
+        print("    poblacion de arriba no comprueban.")
 
     if detalle:
         print()

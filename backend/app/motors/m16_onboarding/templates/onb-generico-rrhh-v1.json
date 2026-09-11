@@ -63,7 +63,7 @@
       "type": "single_select",
       "section": "organizacion",
       "label": "Cual es la politica de uso de dispositivos personales (BYOD) para acceder a sistemas de la empresa?",
-      "tooltip": "BYOD implica que dispositivos no gestionados acceden a datos corporativos. ENS exige que los dispositivos de acceso cumplan requisitos minimos de seguridad (op.acc.11).",
+      "tooltip": "BYOD implica que dispositivos no gestionados acceden a datos corporativos. ENS exige que los dispositivos de acceso cumplan requisitos minimos de seguridad (mp.eq.3).",
       "options": [
         {
           "value": "permitido",

@@ -686,7 +686,7 @@ templates:
       ENS (mínimo 8 personas en MEDIA · 15 en ALTA). Asistencia >=80%
       OBLIGATORIO certificación.
     rationale_es: >
-      ENS Anexo II op.mp.5 + mp.per.4 · formación obligatoria. Auditor verifica
+      ENS Anexo II mp.per.4 + mp.per.4 · formación obligatoria. Auditor verifica
       asistencia documentada via E-320 Asistencia Formación. <80% = NO conf.
     cta_label: Coordinar formación
     cta_url: /client-portal/workflow
