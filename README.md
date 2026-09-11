@@ -547,6 +547,35 @@ BÁSICA y MEDIA—, con verificación adversarial de cada hallazgo: 50 flecos, 4
 confirmados y 6 mal diagnosticados. Los bloqueantes están cerrados; esto es lo
 que queda.
 
+La batería completa sobre este árbol:
+
+```bash
+$ pytest backend/tests -q
+44 failed, 6510 passed, 115 skipped, 5 errors in 821.19s (0:13:41)
+```
+
+La misma batería sobre `2c1e40f`, el commit anterior a esta campaña, da
+`45 failed, 6367 passed`. Los 44 que quedan están medidos, no supuestos: 11 de
+`corpus/test_pdf_ingest` piden los PDF del corpus, y 21 entre `core/encryption`,
+`m08`, `m16`, `m20` y `admin_settings` son de cifrado — fallan idénticos en la
+línea base porque el entorno de test no trae la clave Fernet.
+
+### Un test que sólo falla cuando corre la batería entera
+
+`backend/tests/auth/test_global_dep_whitelist.py::test_bloque_g_metrics_publico_sin_auth`
+pasa en solitario y pasa con todo `backend/tests/auth`. Sólo falla dentro de la
+batería completa, así que arrastra estado de algún test anterior. No he
+conseguido atribuírselo a ningún cambio: pasa igual en la línea base y en el
+árbol actual cuando se corre acotado.
+
+```bash
+pytest backend/tests/auth -q                    # 90 passed
+pytest backend/tests -q | grep metrics_publico  # FAILED
+```
+
+Un test que depende del orden no mide lo que dice medir, y esta campaña ha ido
+justo de eso.
+
 ### El commit borra el contexto RLS y el `refresh` posterior revienta · 3 endpoints
 
 El contexto de inquilino se fija con variables de ámbito **transacción**
