@@ -114,13 +114,34 @@ async def build_governance_context(
     try:
         prow = (await db.execute(sa_text(
             "SELECT p.client_id, COALESCE(c.numero_empleados, NULL) AS n_emp, "
-            "  p.categoria_objetivo AS categoria "
+            "  p.categoria_objetivo AS categoria, c.nombre, c.cif, "
+            "  c.domicilio_fiscal "
             "FROM projects p LEFT JOIN clients c ON c.id = p.client_id "
             "WHERE p.id = :pid"
         ), {"pid": str(project_id)})).first()
         client_id = prow[0] if prow else None
         if prow and prow[1] is not None:
             cliente["numero_empleados"] = int(prow[1])
+        # P2 · la identidad del cliente al contexto BASE. Las plantillas del
+        # catalogo declaran `cliente.razon_social`, `cliente.nif` y
+        # `cliente.domicilio_social` como obligatorios, y el generador generico
+        # (`POST /projects/{id}/documents/generate`) rechazaba con 422
+        # "Missing required placeholders" cualquier llamada que no los trajera
+        # a mano. Eso hacia el endpoint inservible desde una pantalla: obligaba
+        # al navegador a mandar el NIF del cliente en cada peticion.
+        #
+        # Y ademas era una mala idea: dejar que el llamante ponga el NIF que
+        # quiera en un documento firmable es justo lo contrario de lo que hace
+        # falta. El dato lo tiene la base; se lee de ahi. `merge_governance_base`
+        # es caller-wins, asi que un contexto explicito sigue prevaleciendo.
+        if prow:
+            if prow[3]:
+                cliente["razon_social"] = str(prow[3])
+            if prow[4]:
+                cliente["nif"] = str(prow[4])
+            if prow[5]:
+                cliente["domicilio_social"] = str(prow[5])
+                cliente["domicilio"] = str(prow[5])
         # FIX (bug-hunt 2026-06-14): inyectar categoria_ens en el contexto BASE.
         # Varios templates (E-041 conformidad, E-002/E-003/E-010/E-042/E-043/E-090…)
         # hacen `{% set cat = proyecto.categoria_ens if ... else 'MEDIA' %}`; sin
@@ -186,6 +207,19 @@ async def build_governance_context(
     if prox:
         proyecto["proxima_revision"] = prox
         proyecto.setdefault("fecha_aprobacion_inicial", _iso(fa))
+
+    # P2 · lo que 27 plantillas del catalogo declaran OBLIGATORIO y el contexto
+    # base no traia, de modo que el generador generico rechazaba con 422 toda
+    # politica E-1xx. Son valores que el sistema conoce, no datos que deba
+    # aportar quien pulsa el boton:
+    #   · version_actual · la primera emision de un documento es la 1.0
+    #   · organo_aprobador_politicas · quien aprueba las politicas es el Comite
+    #     de Seguridad de la Informacion, que esta dos lineas mas arriba
+    # `merge_governance_base` es caller-wins: un contexto explicito prevalece.
+    proyecto.setdefault("version_actual", "1.0")
+    cliente.setdefault(
+        "organo_aprobador_politicas", "Comité de Seguridad de la Información",
+    )
 
     out: dict = dict(gov)
     if cliente:

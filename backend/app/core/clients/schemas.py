@@ -48,6 +48,14 @@ class ClientUpdate(BaseModel):
     contacto_email: str | None = Field(default=None, max_length=255)
     contacto_telefono: str | None = Field(default=None, max_length=50)
     lead_source: str | None = Field(default=None, max_length=100)
+    # P2 · el domicilio social faltaba aqui, y la columna existe desde siempre.
+    # Las plantillas del catalogo lo declaran OBLIGATORIO
+    # (`cliente.domicilio_social`), asi que el generador documental rechazaba
+    # con 422 cualquier entregable de un cliente sin el. Y no habia forma de
+    # rellenarlo desde el producto: los 9 clientes del demo lo tenian a NULL.
+    # Un dato exigido por los documentos, guardado en la base, y sin camino
+    # para escribirlo.
+    domicilio_fiscal: str | None = Field(default=None, max_length=255)
 
 
 class ClientDetail(BaseModel):

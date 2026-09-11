@@ -348,6 +348,13 @@ class DocumentFactoryService:
             merge_governance_base,
         )
         gov_ctx = await build_governance_context(self.db, project_id)
+        # P2 · `codigo_documento_base` es POR DOCUMENTO, asi que se pone aqui y
+        # no en el contexto de gobernanza, que es por proyecto. 27 plantillas lo
+        # declaran obligatorio y su valor es, sencillamente, el codigo de la
+        # plantilla que se esta renderizando.
+        gov_ctx.setdefault("proyecto", {}).setdefault(
+            "codigo_documento_base", template_codigo,
+        )
         context = merge_governance_base(gov_ctx, context)
         # Discard logo_path from branding helper (M06 ya tiene su propio
         # _materialise_client_logo · evita duplicate temp file).

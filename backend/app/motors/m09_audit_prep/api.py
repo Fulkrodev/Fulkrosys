@@ -527,6 +527,75 @@ async def readiness_quick_endpoint(
         )
 
 
+@router.get("/projects/{project_id}/entregables-requeridos")
+async def entregables_requeridos_endpoint(
+    project_id: uuid.UUID,
+    categoria: Optional[str] = Query(None, max_length=10),
+    session: AsyncSession = Depends(get_db),
+):
+    """Que entregables exige el checklist para la categoria, y cuales faltan.
+
+    P2 · el checklist sabia perfectamente que faltaba -- `check_deliverables`
+    lo calcula desde la version 1 -- pero solo lo publicaba como CIFRA
+    ("1 de 28"), nunca como LISTA. Sin la lista, la interfaz no podia ofrecer
+    generarlos, y sin esa oferta el generador generico
+    (`POST /projects/{id}/documents/generate`) no tenia quien lo llamara: el
+    grep de "documents/generate" en frontend/ devolvia cero. El motor estaba
+    entero y le faltaba el cable.
+
+    Aqui se expone la MISMA lista que usa el checklist, no una copia: sale de
+    `checklist_service.get_required_deliverables`. Y se cruza con el catalogo
+    de plantillas para decir cuales de los que faltan son generables hoy y
+    cuales no tienen plantilla -- que es informacion que el operador necesita
+    antes de pulsar nada.
+    """
+    await _set_project_rls(project_id, session)
+    # Si no la dan, se deriva del proyecto: la pantalla no tiene por que saber
+    # la categoria para preguntar que le falta (mismo patron que el auditor
+    # interno, api.py:run_internal_audit_endpoint).
+    categoria = (categoria or "").strip().upper()
+    if not categoria:
+        fila = (await session.execute(
+            text("SELECT categoria_objetivo FROM projects WHERE id = :pid"),
+            {"pid": str(project_id)},
+        )).first()
+        categoria = (fila[0] if fila and fila[0] else "") or "BASICA"
+    try:
+        requeridos = checklist_service.get_required_deliverables(categoria)
+    except checklist_service.ChecklistError as exc:
+        raise HTTPException(
+            status_code=http_status.HTTP_422_UNPROCESSABLE_CONTENT,
+            detail=str(exc),
+        )
+
+    presentes = {
+        row[0] for row in (await session.execute(
+            text(
+                "SELECT DISTINCT template_codigo FROM documents "
+                "WHERE project_id = :pid AND template_codigo IS NOT NULL "
+                "  AND deleted_at IS NULL"
+            ),
+            {"pid": str(project_id)},
+        )).all() if row[0]
+    }
+    con_plantilla = {
+        row[0] for row in (await session.execute(
+            text("SELECT codigo FROM templates WHERE is_active = true")
+        )).all()
+    }
+
+    faltan = [c for c in requeridos if c not in presentes]
+    return {
+        "categoria": categoria.upper(),
+        "requeridos": requeridos,
+        "presentes": sorted(presentes & set(requeridos)),
+        "faltan": [c for c in faltan if c in con_plantilla],
+        "faltan_sin_plantilla": [c for c in faltan if c not in con_plantilla],
+        "total": len(requeridos),
+        "presentes_count": len(presentes & set(requeridos)),
+    }
+
+
 # ============ Auditoría interna virtual · E-701 (D4 fix campaña auditoría) ============
 
 class InternalAuditRunBody(BaseModel):

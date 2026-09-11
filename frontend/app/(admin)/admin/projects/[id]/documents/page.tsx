@@ -1,5 +1,6 @@
 import { LegalTemplatesPanel } from "@/components/contracts/LegalTemplatesPanel";
 import { DocumentationLevelsPanel } from "@/components/documents/DocumentationLevelsPanel";
+import { EntregablesGeneratorPanel } from "@/components/documents/EntregablesGeneratorPanel";
 import { ExcelTemplatesGrid } from "@/components/documents/ExcelTemplatesGrid";
 import { IdmsWorkbench } from "@/components/documents/IdmsWorkbench";
 import { RectoresGeneratorPanel } from "@/components/documents/RectoresGeneratorPanel";
@@ -16,6 +17,8 @@ export default function DocumentsPage({
       <IdmsAdminLayout projectId={params.id} />
       {/* IdmsWorkbench existing preservado: stats + recent + expiring resumen */}
       <IdmsWorkbench projectId={params.id} />
+      {/* P2 · el cable que faltaba: nadie llamaba al generador generico. */}
+      <EntregablesGeneratorPanel projectId={params.id} />
       <DocumentationLevelsPanel />
       <RectoresGeneratorPanel projectId={params.id} />
       <LegalTemplatesPanel projectId={params.id} />

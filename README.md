@@ -536,6 +536,164 @@ afirma nada falso. Por eso queda como frente abierto y no se arregló en la corr
 
 ---
 
+## Frentes abiertos
+
+Lista cerrada de lo que sé que está mal y no he arreglado. Cada uno con qué es y
+cómo se reproduce. No están ordenados por facilidad sino por lo que cuestan si
+nadie los toca.
+
+Salieron de un recorrido del ciclo ENS completo por navegador, dos veces —
+BÁSICA y MEDIA—, con verificación adversarial de cada hallazgo: 50 flecos, 44
+confirmados y 6 mal diagnosticados. Los bloqueantes están cerrados; esto es lo
+que queda.
+
+### El commit borra el contexto RLS y el `refresh` posterior revienta · 3 endpoints
+
+El contexto de inquilino se fija con variables de ámbito **transacción**
+(`set_config(..., true)`). El `commit()` las borra. El `db.refresh()` que viene
+después corre ya sin contexto, no ve su propia fila, y el endpoint responde 500
+**con la operación ya guardada**. El usuario reintenta y duplica.
+
+La huella está en la base del demo: un proyecto llamado `DUPLICADO-CLAUDE`,
+creado dos veces por esta vía.
+
+```bash
+# reproducir · crear proyecto desde el diálogo "Nuevo proyecto" del admin
+#   -> HTTP 500, y el proyecto existe:
+docker exec fulkro-demo-postgres-1 psql -U fulkro -d fulkro \
+  -c "SELECT nombre, count(*) FROM projects GROUP BY nombre HAVING count(*) > 1;"
+
+# los tres sitios
+grep -rn "await db.commit()" -A3 backend/app/api/v1/projects.py | grep -B2 refresh
+```
+
+### El resultado del simulacro de auditoría no se guarda · falta un `commit`
+
+`backend/app/agents/dry_run_api.py:36-39` devuelve el resultado del servicio y
+nunca llama a `db.commit()`. La ejecución se ve en pantalla y desaparece: el
+histórico está siempre vacío, así que no se puede comparar una ejecución con la
+anterior ni demostrar progreso a un auditor.
+
+```bash
+# ejecutar el dry-run desde /admin/projects/{id}/audit-dry-run y después:
+docker exec fulkro-demo-postgres-1 psql -U fulkro -d fulkro \
+  -c "SELECT count(*) FROM audit_dry_run_results;"   # no sube
+```
+
+### Las justificaciones de "no aplica" de la DdA son falsas · 12 de 13
+
+La plantilla de justificación nunca menciona la dimensión que motiva la
+exclusión, y en varios casos afirma que la medida no aplica **porque aplica**.
+Son el texto que lee el auditor para aceptar una exclusión del Anexo II.
+
+```bash
+docker exec fulkro-demo-postgres-1 psql -U fulkro -d fulkro -c \
+  "SELECT justificacion_no_aplica FROM dda_entries
+   WHERE aplicabilidad='no_aplica' AND justificacion_no_aplica IS NOT NULL LIMIT 5;"
+```
+
+### El acta E-012 en JSON se contradice consigo misma
+
+`m01_categorization/api.py:1081-1098`: la tabla de tipos de información dice
+`D=BAJO` y el resultado agregado del mismo documento dice otra cosa. El PDF y el
+DOCX salen del generador corregido; el JSON tiene su propio camino de lectura,
+que es el defecto que llevamos toda la auditoría persiguiendo.
+
+```bash
+curl -s -b cookies.txt \
+  "$API/api/v1/categorization/systems/$SID/acta-e012.json" | jq '.result.dimensiones'
+```
+
+### Tres pantallas que no pueden arrancar lo que ellas mismas exigen
+
+Hueco de interfaz, no de backend: el endpoint existe y funciona en los tres
+casos, simplemente no hay nada que lo llame.
+
+- **`/plan`** muestra un Gantt vacío y ninguna acción para generar el plan.
+- **`/dossier`** es de sólo lectura y no ofrece crear el `AuditPreparationRun`
+  que la propia página necesita para mostrar algo.
+- **E-808, la Autoevaluación CCN-STIC 808**, obligatoria para cerrar BÁSICA, no
+  tiene productor: nadie llama a `generate_document(template_codigo="E-808")` y
+  el endpoint genérico no la rellena.
+
+```bash
+grep -rn "pda/generate\|runs\b.*categoria\|E-808" frontend/ | grep -v node_modules
+```
+
+### El mensaje de error de los contactos manda al sitio equivocado
+
+Los contactos de cliente y los de proyecto son dos ámbitos distintos. Cuando
+falta uno, el error no dice en cuál de las dos pestañas hay que crearlo, así que
+el operador lo busca donde no está.
+
+### Dos documentos firmables que se emiten fuera de la fábrica documental
+
+La fábrica (`m06`) renderiza, calcula la huella, firma con Ed25519, registra la
+fila en `documents` y sube copia durable. Quien renderiza por su cuenta se salta
+las cinco cosas — y `documents` es exactamente lo que lee el generador del
+expediente del auditor.
+
+- **Adenda E-604** (`m14_contracts/adenda_generator.py`) · es firmable y **tiene
+  plantilla en el catálogo**, así que es enchufable a la fábrica tal cual.
+- **Acta de reunión E-005** (`m18_communication/minutes_service.py`) · también
+  firmable (`POST /api/v1/minutes-signing/approve`), pero **no tiene plantilla**:
+  "E-005 sin plantilla" consta en tres sitios de `m09`. Enchufarla exige crearla
+  primero.
+
+El guard congela esta línea base: un tercer camino rompe el build.
+
+```bash
+pytest backend/tests/audit_fixes/test_operaciones_normativas_un_solo_camino.py
+```
+
+### Los 3 entregables de 28 que siguen sin salir
+
+Con el generador cableado (P2), una pulsación lleva el proyecto BÁSICA de **6 de
+28 a 25 de 28**. Los tres que quedan, y por qué:
+
+**E-001 · fallo de la plantilla, no del motor.**
+
+```
+HTTP 500 · Failed to render DOCX /app/var/templates_docx/E-001.docx:
+           None is undefined
+```
+
+Una variable que la plantilla usa sin guarda y que el contexto no trae. El panel
+lo anota y sigue con los demás, así que no tumba la tanda.
+
+**E-702 y E-703 · les falta una ejecución, no un dato.**
+
+```
+HTTP 422 · Missing required placeholders: score.score, run.categoria_ens,
+           run.fecha_emision
+```
+
+Son los informes técnicos de verificación: piden el resultado de una ejecución
+de auditoría (`run.*`, `score.*`), no datos del proyecto. Que no se generen sin
+ella es lo correcto — un informe de verificación sin verificación detrás sería
+un documento inventado. Lo que falta es engancharlos al auditor interno, que ya
+existe (`POST /audit-prep/projects/{id}/internal-audit/run`).
+
+```bash
+curl -s -b cookies.txt -X POST -H "X-CSRF-Token: $CSRF" \
+  -H 'Content-Type: application/json' -d '{"template_codigo":"E-001","context":{}}' \
+  "$API/api/v1/projects/$PID/documents/generate"
+```
+
+### El informe INES no cabe en `documents` · y es estructural
+
+El informe anual del art. 32 es **por organización y por año**
+(`organization_id`), no por proyecto. La tabla `documents` exige
+`project_id NOT NULL`. Registrarlo obliga antes a decidir a qué proyecto
+pertenece el informe de una organización que tiene varios — que es una decisión
+de modelo, no un arreglo.
+
+```bash
+grep -n "ines_annual_docx" backend/app/motors/m27_conformity/api.py
+docker exec fulkro-demo-postgres-1 psql -U fulkro -d fulkro \
+  -c "\d documents" | grep project_id
+```
+
 ## Datos y licencias
 
 El **código** está bajo [Apache-2.0](LICENSE).
