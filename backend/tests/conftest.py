@@ -486,3 +486,44 @@ def pytest_collection_modifyitems(config, items):
     for item in items:
         if "llm" in item.keywords:
             item.add_marker(skip_llm)
+
+
+# ---------------------------------------------------------------------------
+# MinIO: la dependencia se declara, no se supone
+# ---------------------------------------------------------------------------
+#
+# P4 · dos tests de m09 fallaban con `ConnectionRefusedError` sobre
+# `localhost:9000` enterrado en cuarenta lineas de reintentos de urllib3. No
+# era un fallo del codigo: era que el host de MinIO se estaba SUPONIENDO.
+#
+# `settings.minio_endpoint` vale "localhost:9000" por defecto, asi que el test
+# solo pasaba donde ese nombre resuelve: la maquina del autor con el demo
+# levantado y el puerto publicado. Dentro del contenedor de test MinIO se llama
+# `minio`, y el CI no levanta MinIO en absoluto -- estos dos tests NUNCA han
+# corrido alli. Un test que solo pasa en la red de su autor no mide nada fuera
+# de ella, y encima disfraza de rojo lo que es una dependencia sin declarar.
+#
+# El endpoint ya es parametrizable via `MINIO_ENDPOINT`. Lo que faltaba era
+# comprobarlo una vez y DECIRLO: donde MinIO esta, el test corre; donde no,
+# se salta con el endpoint que intento y la variable que hay que fijar.
+
+@pytest.fixture
+def minio_disponible():
+    """Exige MinIO alcanzable · se salta con el motivo exacto si no lo esta."""
+    import socket
+
+    from backend.app.config import get_settings
+
+    endpoint = get_settings().minio_endpoint
+    host, _, puerto = endpoint.partition(":")
+    try:
+        with socket.create_connection((host, int(puerto or 9000)), timeout=2):
+            pass
+    except OSError as exc:
+        pytest.skip(
+            f"MinIO no alcanzable en {endpoint!r} ({exc}). Este test necesita "
+            "MinIO de verdad: fija MINIO_ENDPOINT al host que corresponda "
+            "(en la red del demo es 'minio:9000'; con el demo levantado y los "
+            "puertos publicados, 'localhost:9000')."
+        )
+    return endpoint

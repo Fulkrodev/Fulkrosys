@@ -169,7 +169,9 @@ async def test_signed_manifest_sha256_integrity_per_file(async_client, db, monke
         )
 
 
-async def test_signed_dossier_embeds_real_binaries(async_client, db, monkeypatch):
+async def test_signed_dossier_embeds_real_binaries(
+    async_client, db, monkeypatch, minio_disponible,
+):
     """#33 (FRENTE B): el dossier FIRMADO embebe los binarios REALES (PDF/DOCX)
     desde MinIO (durables · #31), no solo el .json de metadata. El manifest
     reporta binaries_included (DEC-4 topes con omisión graceful anotada)."""
@@ -252,7 +254,7 @@ async def test_dec4_canonical_whitelist_predicate():  # noqa: RUF029
 
 
 async def test_dec4_canonical_artifact_never_omitted_over_cap(
-    async_client, db, monkeypatch,
+    async_client, db, monkeypatch, minio_disponible,
 ):
     """DEC-4 (b) CRÍTICO: un artefacto CANÓNICO (E-041) que SUPERA el tope se
     incluye IGUAL en el dossier firmado (whitelist) · un NO-canónico grande se

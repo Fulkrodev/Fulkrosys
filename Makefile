@@ -373,6 +373,9 @@ PYTEST_ARGS ?=
 test:
 	@echo "Nota: la suite necesita la base de datos de test provisionada."
 	echo "      Si falla por conexión o por tablas ausentes:  bash scripts/build_test_db.sh"
+	echo "      Los tests que embeben binarios reales en el dossier (m09) necesitan"
+	echo "      MinIO: se SALTAN diciéndolo si no lo alcanzan. Fija MINIO_ENDPOINT"
+	echo "      al host que corresponda (red del demo: minio:9000)."
 	$(PYTEST) backend/tests/ $(PYTEST_ARGS)
 
 # Mismo comando que el job 'lint' de .github/workflows/ci.yml (que fija ruff==0.15.13).
