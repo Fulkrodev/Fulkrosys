@@ -36,11 +36,11 @@ El presente acta documenta la decisión adoptada tras el proceso de análisis de
 
 | Dimensión | Nivel asignado |
 |-----------|---------------|
-| Confidencialidad (C) | **{{ dims.confidencialidad if dims.confidencialidad else 'MEDIO' }}** |
-| Integridad (I) | **{{ dims.integridad if dims.integridad else 'MEDIO' }}** |
-| Disponibilidad (D) | **{{ dims.disponibilidad if dims.disponibilidad else 'MEDIO' }}** |
-| Autenticidad (A) | **{{ dims.autenticidad if dims.autenticidad else 'MEDIO' }}** |
-| Trazabilidad (T) | **{{ dims.trazabilidad if dims.trazabilidad else 'MEDIO' }}** |
+| Confidencialidad (C) | **{{ dims.confidencialidad if dims.confidencialidad else '—' }}** |
+| Integridad (I) | **{{ dims.integridad if dims.integridad else '—' }}** |
+| Disponibilidad (D) | **{{ dims.disponibilidad if dims.disponibilidad else '—' }}** |
+| Autenticidad (A) | **{{ dims.autenticidad if dims.autenticidad else '—' }}** |
+| Trazabilidad (T) | **{{ dims.trazabilidad if dims.trazabilidad else '—' }}** |
 
 ## 4. CATEGORÍA GLOBAL DEL SISTEMA
 

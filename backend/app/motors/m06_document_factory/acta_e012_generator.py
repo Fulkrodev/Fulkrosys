@@ -29,6 +29,10 @@ from .alcance_generator import _ROLE_KEYS, _iso, _max_categoria, _max_level
 from backend.app.motors.m06_document_factory.errores import (
     CategoriaNoDeterminadaError,
 )
+from backend.app.motors.m01_categorization.aplicabilidad import NO_AFECTADA
+
+# Lo que se imprime en el acta para una dimension sin adscribir (Anexo I p.3).
+_ETIQUETA_NO_AFECTADA = "No afectada"
 
 logger = logging.getLogger(__name__)
 
@@ -79,15 +83,24 @@ async def build_e012_context(
         f"SELECT {', '.join(_DIM_COLS)} FROM information_types "
         "WHERE system_id = :sid AND deleted_at IS NULL"
     ), {"sid": str(system_id)})).all()
-    dimensiones: dict[str, str] = {}
+    # O2 · una dimension no afectada se NOMBRA, no se calla. Antes esto era
+    # el maximo cayendo a cadena vacia, y esa cadena disparaba el `else 'MEDIO'` de
+    # la plantilla: el acta salia firmada declarando MEDIO una dimension que
+    # nadie habia valorado. El Anexo I punto 3 dice que una dimension no
+    # afectada NO se adscribe a ningun nivel, asi que el acta dice eso.
+    dims_crudas: dict[str, str] = {}
     for i, key in enumerate(_DIM_KEYS):
         vals = [r[i] for r in srows] + [r[i] for r in itrows]
-        dimensiones[key] = _max_level(vals) or ""
+        dims_crudas[key] = _max_level(vals) or NO_AFECTADA
+    dimensiones: dict[str, str] = {
+        k: (_ETIQUETA_NO_AFECTADA if v == NO_AFECTADA else v)
+        for k, v in dims_crudas.items()
+    }
     if not nivel:
         # O1 · sin categoria NO se rellena con "BASICA": el acta E-012 es
         # justo el documento que DECLARA la categoria; inventarla aqui es
         # declarar por debajo en un acta firmada.
-        nivel = _max_categoria(dimensiones)
+        nivel = _max_categoria(dims_crudas)
         if not nivel:
             raise CategoriaNoDeterminadaError("el acta de categorizacion E-012")
 

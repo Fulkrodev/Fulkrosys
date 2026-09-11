@@ -88,7 +88,14 @@ def _norm_level(value: Any) -> str:
 
 
 def _max_level(values) -> str | None:
-    """Devuelve el nivel DICAT máximo (BAJO<MEDIO<ALTO) de una lista, o None."""
+    """Devuelve el nivel DICAT máximo (BAJO<MEDIO<ALTO) de una lista, o None.
+
+    O2 · `None` y el literal `NO_AFECTADA` significan lo mismo y devuelven None:
+    una dimensión no afectada NO se adscribe a ningún nivel (Anexo I punto 3).
+    Se dice explícito porque antes caía a rango 0 *por accidente* —cualquier
+    valor desconocido lo hacía— y quien leyera esto no podía distinguir "no
+    afectada" de "valor con una errata".
+    """
     best = None
     best_rank = 0
     for v in values:
