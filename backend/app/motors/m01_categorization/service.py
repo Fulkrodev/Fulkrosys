@@ -36,14 +36,29 @@ from backend.app.models.core import (
 
 
 class ImpactLevel(str, Enum):
-    """Impact level for a security dimension."""
+    """Impact level for a security dimension.
+
+    NO_AFECTADA no es un nivel: es la ausencia de adscripcion. RD 311/2022,
+    Anexo I punto 3, literal: "Si una dimension de seguridad no se ve afectada,
+    no se adscribira a ningun nivel". Se modela aqui porque hasta el bloque N no
+    existia (`grep -i no_afectada backend/app` daba cero) y la consecuencia era
+    que una dimension que nadie valoraba se quedaba en BAJO, arrastrando medidas
+    que la norma no exige.
+
+    Vale 0 en `numeric` para que la regla del maximo del Anexo I la ignore sola.
+    """
+    NO_AFECTADA = "NO_AFECTADA"
     BAJO = "BAJO"
     MEDIO = "MEDIO"
     ALTO = "ALTO"
 
     @property
     def numeric(self) -> int:
-        return {"BAJO": 1, "MEDIO": 2, "ALTO": 3}[self.value]
+        return {"NO_AFECTADA": 0, "BAJO": 1, "MEDIO": 2, "ALTO": 3}[self.value]
+
+    @property
+    def esta_afectada(self) -> bool:
+        return self is not ImpactLevel.NO_AFECTADA
 
 
 class Category(str, Enum):
@@ -229,9 +244,17 @@ def compute_category(
                 f"'{level_str}'. Valores válidos: {valid}"
             )
 
-    # Apply maximum rule (RD 311/2022 Anexo I)
-    max_level = max(parsed.values(), key=lambda l: l.numeric)
-    max_dims = [d for d, l in parsed.items() if l == max_level]
+    # Apply maximum rule (RD 311/2022 Anexo I) SOLO sobre las dimensiones
+    # AFECTADAS. Una dimension no afectada no se adscribe a ningun nivel
+    # (Anexo I punto 3), asi que no puede determinar la categoria ni elevarla.
+    afectadas = {d: l for d, l in parsed.items() if l.esta_afectada}
+    if not afectadas:
+        raise ValueError(
+            "Las cinco dimensiones estan NO_AFECTADA: no hay sistema que "
+            "categorizar (RD 311/2022 Anexo I punto 3)."
+        )
+    max_level = max(afectadas.values(), key=lambda l: l.numeric)
+    max_dims = [d for d, l in afectadas.items() if l == max_level]
     determining = max_dims[0]  # First dimension at max level
     dicat_category = _level_to_category(max_level)  # categoría por la sola regla DICAT
     category = dicat_category
@@ -323,8 +346,13 @@ class CategorizationService:
                 f"servicios valorados. No se puede categorizar."
             )
 
-        # Find the maximum level per dimension across all info types and services
-        max_per_dim = {"D": "BAJO", "I": "BAJO", "C": "BAJO", "A": "BAJO", "T": "BAJO"}
+        # Find the maximum level per dimension across all info types and services.
+        # Se arranca en NO_AFECTADA, NO en BAJO: una dimension que ningun tipo de
+        # informacion ni ningun servicio valora NO esta afectada, y el Anexo I
+        # punto 3 dice que entonces no se adscribe a ningun nivel. Arrancar en
+        # BAJO era declarar afectadas las cinco siempre, y arrastraba medidas.
+        max_per_dim = dict.fromkeys(("D", "I", "C", "A", "T"),
+                                    ImpactLevel.NO_AFECTADA.value)
 
         for item in list(info_types) + list(services):
             for dim_attr, dim_code in [

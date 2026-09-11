@@ -278,13 +278,25 @@ export function DdaMeasureRow({ entry, onReview }: Props) {
               value={entry.categoria_minima ?? "—"}
             />
             <InfoChip label="Familia" value={entry.measure_familia ?? "—"} />
+            {/* N1 · el Anexo II exige cada medida por la CATEGORIA del sistema
+                o por el NIVEL de dimensiones concretas. Antes se mostraba
+                "Todas" cuando no habia lista, que hacia leer como "las cinco
+                dimensiones" algo que la norma exige por categoria. */}
             <InfoChip
-              label="Dimensiones DICAT"
+              label="Por qué se exige"
               value={
-                entry.dimensiones_aplicables &&
-                entry.dimensiones_aplicables.length > 0
-                  ? entry.dimensiones_aplicables.join(" · ")
-                  : "Todas"
+                entry.eje_aplicabilidad === "categoria"
+                  ? "Por la categoría del sistema"
+                  : entry.dimensiones_aplicables &&
+                      entry.dimensiones_aplicables.length > 0
+                    ? entry.dimensiones_aplicables
+                        .map((d) =>
+                          entry.nivel_exigido_por_dimension?.[d]
+                            ? `${d} (desde ${entry.nivel_exigido_por_dimension[d]})`
+                            : d,
+                        )
+                        .join(" · ")
+                    : "—"
               }
             />
           </section>

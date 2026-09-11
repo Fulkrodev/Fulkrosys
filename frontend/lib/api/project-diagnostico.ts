@@ -36,7 +36,11 @@ export type Arquitectura =
 export type DpoDesignado = "interno" | "externo" | "no_designado";
 export type EquipoTiTamano = "sin_equipo" | "1_3" | "4_10" | "11_30" | "gt30";
 export type Geografia = "spain" | "ue" | "global" | "apac" | "latam";
-export type ImpactLevel = "BAJO" | "MEDIO" | "ALTO";
+/** N1 · NO_AFECTADA no es un nivel, es la ausencia de adscripcion.
+ *  RD 311/2022 Anexo I punto 3: "Si una dimension de seguridad no se ve
+ *  afectada, no se adscribira a ningun nivel". Antes no existia y las cinco
+ *  dimensiones arrancaban en BAJO, arrastrando medidas que la norma no exige. */
+export type ImpactLevel = "NO_AFECTADA" | "BAJO" | "MEDIO" | "ALTO";
 export type Categoria = "BASICA" | "MEDIA" | "ALTA";
 export type ActivoTipo =
   | "datos"
@@ -228,6 +232,7 @@ export const ACTIVO_TIPO_LABELS: Record<ActivoTipo, string> = {
 };
 
 export const IMPACT_LABELS: Record<ImpactLevel, string> = {
+  NO_AFECTADA: "No afectada",
   BAJO: "Bajo",
   MEDIO: "Medio",
   ALTO: "Alto",

@@ -345,6 +345,11 @@ export interface DdaClientEntryView {
   categoria_minima: string | null;
   tier_required_for: string[];
   dimensiones_aplicables: string[] | null;
+  /** N1 · "categoria" | "dimension". El Anexo II distingue por que se exige
+   *  una medida; hasta ahora la DdA mostraba "Todas" para las de categoria. */
+  eje_aplicabilidad?: string | null;
+  /** Nivel minimo de cada dimension que hace exigible la medida (Anexo II). */
+  nivel_exigido_por_dimension?: Record<string, string> | null;
 
   // Estado admin (cliente VE · NO edit)
   aplicabilidad: string | null;

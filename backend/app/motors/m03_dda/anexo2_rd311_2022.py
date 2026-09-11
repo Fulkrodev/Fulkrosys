@@ -166,3 +166,101 @@ def resolve_entries(yaml_measures: list[dict]) -> dict[str, dict]:
             "aplica_alta": aa,
         }
     return out
+
+
+# ── Eje de aplicabilidad (3ª columna de la tabla del Anexo II) ────────────
+# codigo -> (eje, iniciales de dimension)
+#   eje "categoria"  -> la medida se exige por la CATEGORIA del sistema.
+#   eje "dimension"  -> se exige por el NIVEL de las dimensiones que se listan.
+#
+# Generado desde backend/tests/fixtures/anexo2_boe_verificado.json, que sale del
+# PDF del BOE (ver backend/scripts/extraer_anexo2_boe.py y N0). NO se escribe a
+# mano: test_no_afectada_y_aplicabilidad.py lo vuelve a contrastar contra el
+# fixture, asi que cualquier edicion manual que se desvie falla.
+#
+# Esta pieza FALTABA. El catalogo traia aplica/no-aplica por nivel pero no el
+# eje, que es justo lo que hace falta para no adscribir una dimension no
+# afectada a ningun nivel (Anexo I, punto 3).
+EJE_Y_DIMENSIONES: dict[str, tuple[str, str]] = {
+    "org.1": ("categoria", ""),
+    "org.2": ("categoria", ""),
+    "org.3": ("categoria", ""),
+    "org.4": ("categoria", ""),
+    "op.pl.1": ("categoria", ""),
+    "op.pl.2": ("categoria", ""),
+    "op.pl.3": ("categoria", ""),
+    "op.pl.4": ("dimension", "D"),
+    "op.pl.5": ("categoria", ""),
+    "op.acc.1": ("dimension", "TA"),
+    "op.acc.2": ("dimension", "CITA"),
+    "op.acc.3": ("dimension", "CITA"),
+    "op.acc.4": ("dimension", "CITA"),
+    "op.acc.5": ("dimension", "CITA"),
+    "op.acc.6": ("dimension", "CITA"),
+    "op.exp.1": ("categoria", ""),
+    "op.exp.2": ("categoria", ""),
+    "op.exp.3": ("categoria", ""),
+    "op.exp.4": ("categoria", ""),
+    "op.exp.5": ("categoria", ""),
+    "op.exp.6": ("categoria", ""),
+    "op.exp.7": ("categoria", ""),
+    "op.exp.8": ("dimension", "T"),
+    "op.exp.9": ("categoria", ""),
+    "op.exp.10": ("categoria", ""),
+    "op.ext.1": ("categoria", ""),
+    "op.ext.2": ("categoria", ""),
+    "op.ext.3": ("categoria", ""),
+    "op.ext.4": ("categoria", ""),
+    "op.nub.1": ("categoria", ""),
+    "op.cont.1": ("dimension", "D"),
+    "op.cont.2": ("dimension", "D"),
+    "op.cont.3": ("dimension", "D"),
+    "op.cont.4": ("dimension", "D"),
+    "op.mon.1": ("categoria", ""),
+    "op.mon.2": ("categoria", ""),
+    "op.mon.3": ("categoria", ""),
+    "mp.if.1": ("categoria", ""),
+    "mp.if.2": ("categoria", ""),
+    "mp.if.3": ("categoria", ""),
+    "mp.if.4": ("dimension", "D"),
+    "mp.if.5": ("dimension", "D"),
+    "mp.if.6": ("dimension", "D"),
+    "mp.if.7": ("categoria", ""),
+    "mp.per.1": ("categoria", ""),
+    "mp.per.2": ("categoria", ""),
+    "mp.per.3": ("categoria", ""),
+    "mp.per.4": ("categoria", ""),
+    "mp.eq.1": ("categoria", ""),
+    "mp.eq.2": ("dimension", "A"),
+    "mp.eq.3": ("categoria", ""),
+    "mp.eq.4": ("dimension", "C"),
+    "mp.com.1": ("categoria", ""),
+    "mp.com.2": ("dimension", "C"),
+    "mp.com.3": ("dimension", "IA"),
+    "mp.com.4": ("categoria", ""),
+    "mp.si.1": ("dimension", "C"),
+    "mp.si.2": ("dimension", "CI"),
+    "mp.si.3": ("categoria", ""),
+    "mp.si.4": ("categoria", ""),
+    "mp.si.5": ("dimension", "C"),
+    "mp.sw.1": ("categoria", ""),
+    "mp.sw.2": ("categoria", ""),
+    "mp.info.1": ("categoria", ""),
+    "mp.info.2": ("dimension", "C"),
+    "mp.info.3": ("dimension", "IA"),
+    "mp.info.4": ("dimension", "T"),
+    "mp.info.5": ("dimension", "C"),
+    "mp.info.6": ("dimension", "D"),
+    "mp.s.1": ("categoria", ""),
+    "mp.s.2": ("categoria", ""),
+    "mp.s.3": ("categoria", ""),
+    "mp.s.4": ("dimension", "D"),
+}
+
+# Las 28 que el Anexo II indexa por dimension, y las 45 por categoria.
+MEDIDAS_POR_DIMENSION = tuple(
+    c for c, (eje, _) in EJE_Y_DIMENSIONES.items() if eje == "dimension"
+)
+MEDIDAS_POR_CATEGORIA = tuple(
+    c for c, (eje, _) in EJE_Y_DIMENSIONES.items() if eje == "categoria"
+)

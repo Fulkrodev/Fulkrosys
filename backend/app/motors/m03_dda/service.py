@@ -22,6 +22,7 @@ from sqlalchemy import select, text as sa_text
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from backend.app.models.ens import EnsMeasure, DdaEntry
+from backend.app.motors.m03_dda.anexo2_rd311_2022 import EJE_Y_DIMENSIONES
 from backend.app.motors.m03_dda.enums import (
     Aplicabilidad,
     EstadoImplementacion,
@@ -485,7 +486,13 @@ class DdaService:
                 "aplica_media": m.aplica_media,
                 "aplica_alta": m.aplica_alta,
                 "categoria_minima": m.categoria_minima,
-                "dimensiones_aplicables": m.dimensiones_aplicables,
+                # N1 · del catalogo del Anexo II contrastado contra el PDF del
+                # BOE (N0), no de la columna `dimensiones_aplicables`, que
+                # estaba mal en 4 de las 12 medidas contrastadas a mano.
+                "eje_aplicabilidad": EJE_Y_DIMENSIONES.get(m.codigo, (None, ""))[0],
+                "dimensiones_aplicables": list(
+                    EJE_Y_DIMENSIONES.get(m.codigo, (None, ""))[1]
+                ) or None,
                 "refuerzos": refuerzos_by_code.get(m.codigo, []),
             }
             for m in measures

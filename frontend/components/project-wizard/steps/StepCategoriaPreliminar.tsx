@@ -58,10 +58,16 @@ const DIM_INLINE_HELP: Record<keyof typeof ENS_DIM_LABELS, string> = {
  *
  * R1 sostener · NO LLM · trazabilidad ENAC.
  */
-function suggestCategoria(dims: EnsDimsValoracion): Categoria {
-  const values = Object.values(dims);
-  if (values.includes("ALTO")) return "ALTA";
-  if (values.includes("MEDIO")) return "MEDIA";
+function suggestCategoria(dims: EnsDimsValoracion): Categoria | null {
+  // N1 · la regla del maximo del Anexo I opera SOLO sobre las dimensiones
+  // AFECTADAS. Una dimension no afectada no se adscribe a ningun nivel
+  // (Anexo I punto 3), asi que no puede determinar la categoria. Antes no
+  // existia "no afectada" y todo arrancaba en BAJO, que devolvia BASICA
+  // incluso para un sistema que nadie habia valorado todavia.
+  const afectadas = Object.values(dims).filter((v) => v !== "NO_AFECTADA");
+  if (afectadas.length === 0) return null; // nada que categorizar
+  if (afectadas.includes("ALTO")) return "ALTA";
+  if (afectadas.includes("MEDIO")) return "MEDIA";
   return "BASICA";
 }
 
@@ -131,7 +137,7 @@ export function StepCategoriaPreliminar({
   const suggested = useMemo(() => suggestCategoria(dims), [dims]);
 
   useEffect(() => {
-    if (!overrideCategoria) {
+    if (!overrideCategoria && suggested !== null) {
       setCategoria(suggested);
     }
   }, [suggested, overrideCategoria]);
@@ -195,18 +201,24 @@ export function StepCategoriaPreliminar({
           <Label htmlFor="categoria-suggested">Categoría sugerida</Label>
           <Badge
             variant={
-              suggested === "ALTA"
-                ? "danger"
-                : suggested === "MEDIA"
-                  ? "warning"
-                  : "success"
+              suggested === null
+                ? "warning"
+                : suggested === "ALTA"
+                  ? "danger"
+                  : suggested === "MEDIA"
+                    ? "warning"
+                    : "success"
             }
             className="w-fit text-sm"
           >
-            {CATEGORIA_LABELS[suggested]}
+            {suggested === null
+              ? "Sin categorizar"
+              : CATEGORIA_LABELS[suggested]}
           </Badge>
           <p className="text-[11px] text-muted-foreground">
-            Calculada por regla ENS · determinista.
+            {suggested === null
+              ? "Las cinco dimensiones están marcadas como no afectadas: no hay nada que categorizar (Anexo I, punto 3)."
+              : "Calculada por regla ENS · determinista. Las dimensiones no afectadas no entran en la regla del máximo."}
           </p>
         </div>
 
@@ -345,7 +357,10 @@ function DimRow({
         </span>
       </div>
       <div className="flex gap-1">
-        {(["BAJO", "MEDIO", "ALTO"] as ImpactLevel[]).map((level) => (
+        {/* N1 · "No afectada" es una opcion explicita, no la ausencia de
+            click: el Anexo I punto 3 distingue una dimension en BAJO de una
+            que no se ve afectada, y son conjuntos de medidas distintos. */}
+        {(["NO_AFECTADA", "BAJO", "MEDIO", "ALTO"] as ImpactLevel[]).map((level) => (
           <Button
             key={level}
             size="sm"

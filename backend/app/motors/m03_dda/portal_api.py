@@ -34,6 +34,10 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from backend.app.database import get_db, set_tenant_context
 from backend.app.models.client_portal import ClientUser
 from backend.app.models.ens import DdaEntry, EnsMeasure
+from backend.app.motors.m03_dda.anexo2_rd311_2022 import (
+    ANEXO_II_RD311,
+    EJE_Y_DIMENSIONES,
+)
 from backend.app.motors.m21_portal_cliente.api import get_current_client_user
 from backend.app.motors.m21_portal_cliente.ownership import ensure_owned_via_project
 
@@ -102,6 +106,13 @@ class DdaEntryClientView(BaseModel):
     categoria_minima: str | None  # BASICA · MEDIA · ALTA
     tier_required_for: list[str]  # ['BASICA','MEDIA','ALTA'] computed
     dimensiones_aplicables: list[str] | None  # DICAT subset
+    # N1 · de donde sale la exigencia. "categoria" = por la categoria del
+    # sistema; "dimension" = por el nivel de las dimensiones que se listan.
+    # El Anexo II distingue las dos cosas y hasta ahora la DdA no.
+    eje_aplicabilidad: str | None  # "categoria" | "dimension"
+    # Nivel MINIMO de cada dimension que hace exigible la medida, segun la
+    # tabla del Anexo II. Ej. op.cont.1 -> {"D": "MEDIO"} (en BAJO es n.a.).
+    nivel_exigido_por_dimension: dict[str, str] | None
 
     # Estado admin (cliente VE · NO edit)
     aplicabilidad: str | None
@@ -237,6 +248,29 @@ async def _evidences_for_measure(
     return out
 
 
+_NIVELES_ANEXO_II = ("BAJO", "MEDIO", "ALTO")
+
+
+def _nivel_exigido_por_dimension(codigo: str) -> dict[str, str] | None:
+    """Nivel MINIMO de cada dimension al que el Anexo II ya exige la medida.
+
+    Recorre las tres columnas de la tabla (BAJO/MEDIO/ALTO) y devuelve, por cada
+    dimension de la medida, la primera que no es "n.a.". Ej.: op.cont.1 [D] es
+    n.a. en BAJO y aplica en MEDIO, asi que devuelve {"D": "MEDIO"}.
+    """
+    eje, iniciales = EJE_Y_DIMENSIONES.get(codigo, (None, ""))
+    if eje != "dimension" or not iniciales:
+        return None
+    entrada = ANEXO_II_RD311.get(codigo)
+    if not entrada:
+        return None
+    _nombre, *celdas = entrada
+    minimo = next((n for n, aplica in zip(_NIVELES_ANEXO_II, celdas) if aplica), None)
+    if minimo is None:
+        return None
+    return {inicial: minimo for inicial in iniciales}
+
+
 async def _to_client_view(
     db: AsyncSession,
     entry: DdaEntry,
@@ -248,13 +282,18 @@ async def _to_client_view(
     evidences = await _evidences_for_measure(
         db, project_id, measure.codigo,
     )
-    dim = measure.dimensiones_aplicables
-    if isinstance(dim, dict):
-        dim_list = list(dim.get("dims", [])) if "dims" in dim else list(dim.values())
-    elif isinstance(dim, list):
-        dim_list = dim
-    else:
-        dim_list = None
+    # N1 · el eje y las dimensiones salen del catalogo del Anexo II contrastado
+    # contra el PDF del BOE (N0), NO de `ens_measures.dimensiones_aplicables`,
+    # que estaba mal en 4 de las 12 medidas que se contrastaron a mano.
+    #
+    # Tampoco se lee `ens_measure_dimensiones`: esa tabla resuelve "Todas" como
+    # las cinco dimensiones, asi que a una medida exigida POR CATEGORIA (org.1,
+    # por ejemplo) le atribuye D+I+C+A+T. Cierto como dato, enganyoso en la DdA:
+    # haria leer como "exigida por cinco dimensiones" algo que la norma exige
+    # por la categoria del sistema. El catalogo si distingue las dos cosas.
+    eje, iniciales = EJE_Y_DIMENSIONES.get(measure.codigo, (None, ""))
+    dim_list = list(iniciales) if iniciales else None
+    nivel_exigido = _nivel_exigido_por_dimension(measure.codigo) if eje == "dimension" else None
 
     fecha_aprob = entry.fecha_aprobacion
     if fecha_aprob is not None and not isinstance(fecha_aprob, datetime):
@@ -276,6 +315,8 @@ async def _to_client_view(
         categoria_minima=measure.categoria_minima,
         tier_required_for=_compute_tier_required_for(measure),
         dimensiones_aplicables=dim_list,
+        eje_aplicabilidad=eje,
+        nivel_exigido_por_dimension=nivel_exigido,
         aplicabilidad=entry.aplicabilidad,
         justificacion_no_aplica=entry.justificacion_no_aplica,
         estado_implementacion=entry.estado_implementacion,

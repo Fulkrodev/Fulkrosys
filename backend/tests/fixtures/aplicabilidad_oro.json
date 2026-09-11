@@ -1,0 +1,2524 @@
+{
+  "_que_es": "Test dorado N1. Conjunto de medidas aplicables por caso, derivado de la fuente verificada en N0 (backend/tests/fixtures/anexo2_boe_verificado.json). Congelado: si cambia, o cambio la norma o se rompio la funcion.",
+  "_fuente": "RD 311/2022 Anexo I punto 3 + Anexo II punto 5",
+  "casos": [
+    {
+      "nombre": "BASICA_todo_bajo",
+      "categoria": "BASICA",
+      "niveles": {
+        "D": "BAJO",
+        "I": "BAJO",
+        "C": "BAJO",
+        "A": "BAJO",
+        "T": "BAJO"
+      },
+      "total": 52,
+      "medidas": [
+        "mp.com.1",
+        "mp.com.2",
+        "mp.com.3",
+        "mp.eq.1",
+        "mp.eq.3",
+        "mp.eq.4",
+        "mp.if.1",
+        "mp.if.2",
+        "mp.if.3",
+        "mp.if.4",
+        "mp.if.5",
+        "mp.if.7",
+        "mp.info.1",
+        "mp.info.3",
+        "mp.info.5",
+        "mp.info.6",
+        "mp.per.2",
+        "mp.per.3",
+        "mp.per.4",
+        "mp.s.1",
+        "mp.s.2",
+        "mp.s.3",
+        "mp.si.3",
+        "mp.si.4",
+        "mp.si.5",
+        "mp.sw.2",
+        "op.acc.1",
+        "op.acc.2",
+        "op.acc.4",
+        "op.acc.5",
+        "op.acc.6",
+        "op.exp.1",
+        "op.exp.10",
+        "op.exp.2",
+        "op.exp.3",
+        "op.exp.4",
+        "op.exp.6",
+        "op.exp.7",
+        "op.exp.8",
+        "op.exp.9",
+        "op.mon.1",
+        "op.mon.2",
+        "op.mon.3",
+        "op.nub.1",
+        "op.pl.1",
+        "op.pl.2",
+        "op.pl.3",
+        "op.pl.4",
+        "org.1",
+        "org.2",
+        "org.3",
+        "org.4"
+      ],
+      "motivos": {
+        "mp.com.1": [
+          "categoria",
+          null,
+          null,
+          "BASICA"
+        ],
+        "mp.com.2": [
+          "dimension",
+          "C",
+          "BAJO",
+          null
+        ],
+        "mp.com.3": [
+          "dimension",
+          "A",
+          "BAJO",
+          null
+        ],
+        "mp.eq.1": [
+          "categoria",
+          null,
+          null,
+          "BASICA"
+        ],
+        "mp.eq.3": [
+          "categoria",
+          null,
+          null,
+          "BASICA"
+        ],
+        "mp.eq.4": [
+          "dimension",
+          "C",
+          "BAJO",
+          null
+        ],
+        "mp.if.1": [
+          "categoria",
+          null,
+          null,
+          "BASICA"
+        ],
+        "mp.if.2": [
+          "categoria",
+          null,
+          null,
+          "BASICA"
+        ],
+        "mp.if.3": [
+          "categoria",
+          null,
+          null,
+          "BASICA"
+        ],
+        "mp.if.4": [
+          "dimension",
+          "D",
+          "BAJO",
+          null
+        ],
+        "mp.if.5": [
+          "dimension",
+          "D",
+          "BAJO",
+          null
+        ],
+        "mp.if.7": [
+          "categoria",
+          null,
+          null,
+          "BASICA"
+        ],
+        "mp.info.1": [
+          "categoria",
+          null,
+          null,
+          "BASICA"
+        ],
+        "mp.info.3": [
+          "dimension",
+          "A",
+          "BAJO",
+          null
+        ],
+        "mp.info.5": [
+          "dimension",
+          "C",
+          "BAJO",
+          null
+        ],
+        "mp.info.6": [
+          "dimension",
+          "D",
+          "BAJO",
+          null
+        ],
+        "mp.per.2": [
+          "categoria",
+          null,
+          null,
+          "BASICA"
+        ],
+        "mp.per.3": [
+          "categoria",
+          null,
+          null,
+          "BASICA"
+        ],
+        "mp.per.4": [
+          "categoria",
+          null,
+          null,
+          "BASICA"
+        ],
+        "mp.s.1": [
+          "categoria",
+          null,
+          null,
+          "BASICA"
+        ],
+        "mp.s.2": [
+          "categoria",
+          null,
+          null,
+          "BASICA"
+        ],
+        "mp.s.3": [
+          "categoria",
+          null,
+          null,
+          "BASICA"
+        ],
+        "mp.si.3": [
+          "categoria",
+          null,
+          null,
+          "BASICA"
+        ],
+        "mp.si.4": [
+          "categoria",
+          null,
+          null,
+          "BASICA"
+        ],
+        "mp.si.5": [
+          "dimension",
+          "C",
+          "BAJO",
+          null
+        ],
+        "mp.sw.2": [
+          "categoria",
+          null,
+          null,
+          "BASICA"
+        ],
+        "op.acc.1": [
+          "dimension",
+          "A",
+          "BAJO",
+          null
+        ],
+        "op.acc.2": [
+          "dimension",
+          "A",
+          "BAJO",
+          null
+        ],
+        "op.acc.4": [
+          "dimension",
+          "A",
+          "BAJO",
+          null
+        ],
+        "op.acc.5": [
+          "dimension",
+          "A",
+          "BAJO",
+          null
+        ],
+        "op.acc.6": [
+          "dimension",
+          "A",
+          "BAJO",
+          null
+        ],
+        "op.exp.1": [
+          "categoria",
+          null,
+          null,
+          "BASICA"
+        ],
+        "op.exp.10": [
+          "categoria",
+          null,
+          null,
+          "BASICA"
+        ],
+        "op.exp.2": [
+          "categoria",
+          null,
+          null,
+          "BASICA"
+        ],
+        "op.exp.3": [
+          "categoria",
+          null,
+          null,
+          "BASICA"
+        ],
+        "op.exp.4": [
+          "categoria",
+          null,
+          null,
+          "BASICA"
+        ],
+        "op.exp.6": [
+          "categoria",
+          null,
+          null,
+          "BASICA"
+        ],
+        "op.exp.7": [
+          "categoria",
+          null,
+          null,
+          "BASICA"
+        ],
+        "op.exp.8": [
+          "dimension",
+          "T",
+          "BAJO",
+          null
+        ],
+        "op.exp.9": [
+          "categoria",
+          null,
+          null,
+          "BASICA"
+        ],
+        "op.mon.1": [
+          "categoria",
+          null,
+          null,
+          "BASICA"
+        ],
+        "op.mon.2": [
+          "categoria",
+          null,
+          null,
+          "BASICA"
+        ],
+        "op.mon.3": [
+          "categoria",
+          null,
+          null,
+          "BASICA"
+        ],
+        "op.nub.1": [
+          "categoria",
+          null,
+          null,
+          "BASICA"
+        ],
+        "op.pl.1": [
+          "categoria",
+          null,
+          null,
+          "BASICA"
+        ],
+        "op.pl.2": [
+          "categoria",
+          null,
+          null,
+          "BASICA"
+        ],
+        "op.pl.3": [
+          "categoria",
+          null,
+          null,
+          "BASICA"
+        ],
+        "op.pl.4": [
+          "dimension",
+          "D",
+          "BAJO",
+          null
+        ],
+        "org.1": [
+          "categoria",
+          null,
+          null,
+          "BASICA"
+        ],
+        "org.2": [
+          "categoria",
+          null,
+          null,
+          "BASICA"
+        ],
+        "org.3": [
+          "categoria",
+          null,
+          null,
+          "BASICA"
+        ],
+        "org.4": [
+          "categoria",
+          null,
+          null,
+          "BASICA"
+        ]
+      }
+    },
+    {
+      "nombre": "BASICA_sin_trazabilidad",
+      "categoria": "BASICA",
+      "niveles": {
+        "D": "BAJO",
+        "I": "BAJO",
+        "C": "BAJO",
+        "A": "BAJO",
+        "T": "NO_AFECTADA"
+      },
+      "total": 51,
+      "medidas": [
+        "mp.com.1",
+        "mp.com.2",
+        "mp.com.3",
+        "mp.eq.1",
+        "mp.eq.3",
+        "mp.eq.4",
+        "mp.if.1",
+        "mp.if.2",
+        "mp.if.3",
+        "mp.if.4",
+        "mp.if.5",
+        "mp.if.7",
+        "mp.info.1",
+        "mp.info.3",
+        "mp.info.5",
+        "mp.info.6",
+        "mp.per.2",
+        "mp.per.3",
+        "mp.per.4",
+        "mp.s.1",
+        "mp.s.2",
+        "mp.s.3",
+        "mp.si.3",
+        "mp.si.4",
+        "mp.si.5",
+        "mp.sw.2",
+        "op.acc.1",
+        "op.acc.2",
+        "op.acc.4",
+        "op.acc.5",
+        "op.acc.6",
+        "op.exp.1",
+        "op.exp.10",
+        "op.exp.2",
+        "op.exp.3",
+        "op.exp.4",
+        "op.exp.6",
+        "op.exp.7",
+        "op.exp.9",
+        "op.mon.1",
+        "op.mon.2",
+        "op.mon.3",
+        "op.nub.1",
+        "op.pl.1",
+        "op.pl.2",
+        "op.pl.3",
+        "op.pl.4",
+        "org.1",
+        "org.2",
+        "org.3",
+        "org.4"
+      ],
+      "motivos": {
+        "mp.com.1": [
+          "categoria",
+          null,
+          null,
+          "BASICA"
+        ],
+        "mp.com.2": [
+          "dimension",
+          "C",
+          "BAJO",
+          null
+        ],
+        "mp.com.3": [
+          "dimension",
+          "A",
+          "BAJO",
+          null
+        ],
+        "mp.eq.1": [
+          "categoria",
+          null,
+          null,
+          "BASICA"
+        ],
+        "mp.eq.3": [
+          "categoria",
+          null,
+          null,
+          "BASICA"
+        ],
+        "mp.eq.4": [
+          "dimension",
+          "C",
+          "BAJO",
+          null
+        ],
+        "mp.if.1": [
+          "categoria",
+          null,
+          null,
+          "BASICA"
+        ],
+        "mp.if.2": [
+          "categoria",
+          null,
+          null,
+          "BASICA"
+        ],
+        "mp.if.3": [
+          "categoria",
+          null,
+          null,
+          "BASICA"
+        ],
+        "mp.if.4": [
+          "dimension",
+          "D",
+          "BAJO",
+          null
+        ],
+        "mp.if.5": [
+          "dimension",
+          "D",
+          "BAJO",
+          null
+        ],
+        "mp.if.7": [
+          "categoria",
+          null,
+          null,
+          "BASICA"
+        ],
+        "mp.info.1": [
+          "categoria",
+          null,
+          null,
+          "BASICA"
+        ],
+        "mp.info.3": [
+          "dimension",
+          "A",
+          "BAJO",
+          null
+        ],
+        "mp.info.5": [
+          "dimension",
+          "C",
+          "BAJO",
+          null
+        ],
+        "mp.info.6": [
+          "dimension",
+          "D",
+          "BAJO",
+          null
+        ],
+        "mp.per.2": [
+          "categoria",
+          null,
+          null,
+          "BASICA"
+        ],
+        "mp.per.3": [
+          "categoria",
+          null,
+          null,
+          "BASICA"
+        ],
+        "mp.per.4": [
+          "categoria",
+          null,
+          null,
+          "BASICA"
+        ],
+        "mp.s.1": [
+          "categoria",
+          null,
+          null,
+          "BASICA"
+        ],
+        "mp.s.2": [
+          "categoria",
+          null,
+          null,
+          "BASICA"
+        ],
+        "mp.s.3": [
+          "categoria",
+          null,
+          null,
+          "BASICA"
+        ],
+        "mp.si.3": [
+          "categoria",
+          null,
+          null,
+          "BASICA"
+        ],
+        "mp.si.4": [
+          "categoria",
+          null,
+          null,
+          "BASICA"
+        ],
+        "mp.si.5": [
+          "dimension",
+          "C",
+          "BAJO",
+          null
+        ],
+        "mp.sw.2": [
+          "categoria",
+          null,
+          null,
+          "BASICA"
+        ],
+        "op.acc.1": [
+          "dimension",
+          "A",
+          "BAJO",
+          null
+        ],
+        "op.acc.2": [
+          "dimension",
+          "A",
+          "BAJO",
+          null
+        ],
+        "op.acc.4": [
+          "dimension",
+          "A",
+          "BAJO",
+          null
+        ],
+        "op.acc.5": [
+          "dimension",
+          "A",
+          "BAJO",
+          null
+        ],
+        "op.acc.6": [
+          "dimension",
+          "A",
+          "BAJO",
+          null
+        ],
+        "op.exp.1": [
+          "categoria",
+          null,
+          null,
+          "BASICA"
+        ],
+        "op.exp.10": [
+          "categoria",
+          null,
+          null,
+          "BASICA"
+        ],
+        "op.exp.2": [
+          "categoria",
+          null,
+          null,
+          "BASICA"
+        ],
+        "op.exp.3": [
+          "categoria",
+          null,
+          null,
+          "BASICA"
+        ],
+        "op.exp.4": [
+          "categoria",
+          null,
+          null,
+          "BASICA"
+        ],
+        "op.exp.6": [
+          "categoria",
+          null,
+          null,
+          "BASICA"
+        ],
+        "op.exp.7": [
+          "categoria",
+          null,
+          null,
+          "BASICA"
+        ],
+        "op.exp.9": [
+          "categoria",
+          null,
+          null,
+          "BASICA"
+        ],
+        "op.mon.1": [
+          "categoria",
+          null,
+          null,
+          "BASICA"
+        ],
+        "op.mon.2": [
+          "categoria",
+          null,
+          null,
+          "BASICA"
+        ],
+        "op.mon.3": [
+          "categoria",
+          null,
+          null,
+          "BASICA"
+        ],
+        "op.nub.1": [
+          "categoria",
+          null,
+          null,
+          "BASICA"
+        ],
+        "op.pl.1": [
+          "categoria",
+          null,
+          null,
+          "BASICA"
+        ],
+        "op.pl.2": [
+          "categoria",
+          null,
+          null,
+          "BASICA"
+        ],
+        "op.pl.3": [
+          "categoria",
+          null,
+          null,
+          "BASICA"
+        ],
+        "op.pl.4": [
+          "dimension",
+          "D",
+          "BAJO",
+          null
+        ],
+        "org.1": [
+          "categoria",
+          null,
+          null,
+          "BASICA"
+        ],
+        "org.2": [
+          "categoria",
+          null,
+          null,
+          "BASICA"
+        ],
+        "org.3": [
+          "categoria",
+          null,
+          null,
+          "BASICA"
+        ],
+        "org.4": [
+          "categoria",
+          null,
+          null,
+          "BASICA"
+        ]
+      }
+    },
+    {
+      "nombre": "MEDIA_solo_disponibilidad",
+      "categoria": "MEDIA",
+      "niveles": {
+        "D": "MEDIO",
+        "I": "NO_AFECTADA",
+        "C": "NO_AFECTADA",
+        "A": "NO_AFECTADA",
+        "T": "NO_AFECTADA"
+      },
+      "total": 51,
+      "medidas": [
+        "mp.com.1",
+        "mp.com.4",
+        "mp.eq.1",
+        "mp.eq.3",
+        "mp.if.1",
+        "mp.if.2",
+        "mp.if.3",
+        "mp.if.4",
+        "mp.if.5",
+        "mp.if.6",
+        "mp.if.7",
+        "mp.info.1",
+        "mp.info.6",
+        "mp.per.1",
+        "mp.per.2",
+        "mp.per.3",
+        "mp.per.4",
+        "mp.s.1",
+        "mp.s.2",
+        "mp.s.3",
+        "mp.s.4",
+        "mp.si.3",
+        "mp.si.4",
+        "mp.sw.1",
+        "mp.sw.2",
+        "op.cont.1",
+        "op.exp.1",
+        "op.exp.10",
+        "op.exp.2",
+        "op.exp.3",
+        "op.exp.4",
+        "op.exp.5",
+        "op.exp.6",
+        "op.exp.7",
+        "op.exp.9",
+        "op.ext.1",
+        "op.ext.2",
+        "op.ext.4",
+        "op.mon.1",
+        "op.mon.2",
+        "op.mon.3",
+        "op.nub.1",
+        "op.pl.1",
+        "op.pl.2",
+        "op.pl.3",
+        "op.pl.4",
+        "op.pl.5",
+        "org.1",
+        "org.2",
+        "org.3",
+        "org.4"
+      ],
+      "motivos": {
+        "mp.com.1": [
+          "categoria",
+          null,
+          null,
+          "MEDIA"
+        ],
+        "mp.com.4": [
+          "categoria",
+          null,
+          null,
+          "MEDIA"
+        ],
+        "mp.eq.1": [
+          "categoria",
+          null,
+          null,
+          "MEDIA"
+        ],
+        "mp.eq.3": [
+          "categoria",
+          null,
+          null,
+          "MEDIA"
+        ],
+        "mp.if.1": [
+          "categoria",
+          null,
+          null,
+          "MEDIA"
+        ],
+        "mp.if.2": [
+          "categoria",
+          null,
+          null,
+          "MEDIA"
+        ],
+        "mp.if.3": [
+          "categoria",
+          null,
+          null,
+          "MEDIA"
+        ],
+        "mp.if.4": [
+          "dimension",
+          "D",
+          "MEDIO",
+          null
+        ],
+        "mp.if.5": [
+          "dimension",
+          "D",
+          "MEDIO",
+          null
+        ],
+        "mp.if.6": [
+          "dimension",
+          "D",
+          "MEDIO",
+          null
+        ],
+        "mp.if.7": [
+          "categoria",
+          null,
+          null,
+          "MEDIA"
+        ],
+        "mp.info.1": [
+          "categoria",
+          null,
+          null,
+          "MEDIA"
+        ],
+        "mp.info.6": [
+          "dimension",
+          "D",
+          "MEDIO",
+          null
+        ],
+        "mp.per.1": [
+          "categoria",
+          null,
+          null,
+          "MEDIA"
+        ],
+        "mp.per.2": [
+          "categoria",
+          null,
+          null,
+          "MEDIA"
+        ],
+        "mp.per.3": [
+          "categoria",
+          null,
+          null,
+          "MEDIA"
+        ],
+        "mp.per.4": [
+          "categoria",
+          null,
+          null,
+          "MEDIA"
+        ],
+        "mp.s.1": [
+          "categoria",
+          null,
+          null,
+          "MEDIA"
+        ],
+        "mp.s.2": [
+          "categoria",
+          null,
+          null,
+          "MEDIA"
+        ],
+        "mp.s.3": [
+          "categoria",
+          null,
+          null,
+          "MEDIA"
+        ],
+        "mp.s.4": [
+          "dimension",
+          "D",
+          "MEDIO",
+          null
+        ],
+        "mp.si.3": [
+          "categoria",
+          null,
+          null,
+          "MEDIA"
+        ],
+        "mp.si.4": [
+          "categoria",
+          null,
+          null,
+          "MEDIA"
+        ],
+        "mp.sw.1": [
+          "categoria",
+          null,
+          null,
+          "MEDIA"
+        ],
+        "mp.sw.2": [
+          "categoria",
+          null,
+          null,
+          "MEDIA"
+        ],
+        "op.cont.1": [
+          "dimension",
+          "D",
+          "MEDIO",
+          null
+        ],
+        "op.exp.1": [
+          "categoria",
+          null,
+          null,
+          "MEDIA"
+        ],
+        "op.exp.10": [
+          "categoria",
+          null,
+          null,
+          "MEDIA"
+        ],
+        "op.exp.2": [
+          "categoria",
+          null,
+          null,
+          "MEDIA"
+        ],
+        "op.exp.3": [
+          "categoria",
+          null,
+          null,
+          "MEDIA"
+        ],
+        "op.exp.4": [
+          "categoria",
+          null,
+          null,
+          "MEDIA"
+        ],
+        "op.exp.5": [
+          "categoria",
+          null,
+          null,
+          "MEDIA"
+        ],
+        "op.exp.6": [
+          "categoria",
+          null,
+          null,
+          "MEDIA"
+        ],
+        "op.exp.7": [
+          "categoria",
+          null,
+          null,
+          "MEDIA"
+        ],
+        "op.exp.9": [
+          "categoria",
+          null,
+          null,
+          "MEDIA"
+        ],
+        "op.ext.1": [
+          "categoria",
+          null,
+          null,
+          "MEDIA"
+        ],
+        "op.ext.2": [
+          "categoria",
+          null,
+          null,
+          "MEDIA"
+        ],
+        "op.ext.4": [
+          "categoria",
+          null,
+          null,
+          "MEDIA"
+        ],
+        "op.mon.1": [
+          "categoria",
+          null,
+          null,
+          "MEDIA"
+        ],
+        "op.mon.2": [
+          "categoria",
+          null,
+          null,
+          "MEDIA"
+        ],
+        "op.mon.3": [
+          "categoria",
+          null,
+          null,
+          "MEDIA"
+        ],
+        "op.nub.1": [
+          "categoria",
+          null,
+          null,
+          "MEDIA"
+        ],
+        "op.pl.1": [
+          "categoria",
+          null,
+          null,
+          "MEDIA"
+        ],
+        "op.pl.2": [
+          "categoria",
+          null,
+          null,
+          "MEDIA"
+        ],
+        "op.pl.3": [
+          "categoria",
+          null,
+          null,
+          "MEDIA"
+        ],
+        "op.pl.4": [
+          "dimension",
+          "D",
+          "MEDIO",
+          null
+        ],
+        "op.pl.5": [
+          "categoria",
+          null,
+          null,
+          "MEDIA"
+        ],
+        "org.1": [
+          "categoria",
+          null,
+          null,
+          "MEDIA"
+        ],
+        "org.2": [
+          "categoria",
+          null,
+          null,
+          "MEDIA"
+        ],
+        "org.3": [
+          "categoria",
+          null,
+          null,
+          "MEDIA"
+        ],
+        "org.4": [
+          "categoria",
+          null,
+          null,
+          "MEDIA"
+        ]
+      }
+    },
+    {
+      "nombre": "ALTA_todo_alto",
+      "categoria": "ALTA",
+      "niveles": {
+        "D": "ALTO",
+        "I": "ALTO",
+        "C": "ALTO",
+        "A": "ALTO",
+        "T": "ALTO"
+      },
+      "total": 73,
+      "medidas": [
+        "mp.com.1",
+        "mp.com.2",
+        "mp.com.3",
+        "mp.com.4",
+        "mp.eq.1",
+        "mp.eq.2",
+        "mp.eq.3",
+        "mp.eq.4",
+        "mp.if.1",
+        "mp.if.2",
+        "mp.if.3",
+        "mp.if.4",
+        "mp.if.5",
+        "mp.if.6",
+        "mp.if.7",
+        "mp.info.1",
+        "mp.info.2",
+        "mp.info.3",
+        "mp.info.4",
+        "mp.info.5",
+        "mp.info.6",
+        "mp.per.1",
+        "mp.per.2",
+        "mp.per.3",
+        "mp.per.4",
+        "mp.s.1",
+        "mp.s.2",
+        "mp.s.3",
+        "mp.s.4",
+        "mp.si.1",
+        "mp.si.2",
+        "mp.si.3",
+        "mp.si.4",
+        "mp.si.5",
+        "mp.sw.1",
+        "mp.sw.2",
+        "op.acc.1",
+        "op.acc.2",
+        "op.acc.3",
+        "op.acc.4",
+        "op.acc.5",
+        "op.acc.6",
+        "op.cont.1",
+        "op.cont.2",
+        "op.cont.3",
+        "op.cont.4",
+        "op.exp.1",
+        "op.exp.10",
+        "op.exp.2",
+        "op.exp.3",
+        "op.exp.4",
+        "op.exp.5",
+        "op.exp.6",
+        "op.exp.7",
+        "op.exp.8",
+        "op.exp.9",
+        "op.ext.1",
+        "op.ext.2",
+        "op.ext.3",
+        "op.ext.4",
+        "op.mon.1",
+        "op.mon.2",
+        "op.mon.3",
+        "op.nub.1",
+        "op.pl.1",
+        "op.pl.2",
+        "op.pl.3",
+        "op.pl.4",
+        "op.pl.5",
+        "org.1",
+        "org.2",
+        "org.3",
+        "org.4"
+      ],
+      "motivos": {
+        "mp.com.1": [
+          "categoria",
+          null,
+          null,
+          "ALTA"
+        ],
+        "mp.com.2": [
+          "dimension",
+          "C",
+          "ALTO",
+          null
+        ],
+        "mp.com.3": [
+          "dimension",
+          "A",
+          "ALTO",
+          null
+        ],
+        "mp.com.4": [
+          "categoria",
+          null,
+          null,
+          "ALTA"
+        ],
+        "mp.eq.1": [
+          "categoria",
+          null,
+          null,
+          "ALTA"
+        ],
+        "mp.eq.2": [
+          "dimension",
+          "A",
+          "ALTO",
+          null
+        ],
+        "mp.eq.3": [
+          "categoria",
+          null,
+          null,
+          "ALTA"
+        ],
+        "mp.eq.4": [
+          "dimension",
+          "C",
+          "ALTO",
+          null
+        ],
+        "mp.if.1": [
+          "categoria",
+          null,
+          null,
+          "ALTA"
+        ],
+        "mp.if.2": [
+          "categoria",
+          null,
+          null,
+          "ALTA"
+        ],
+        "mp.if.3": [
+          "categoria",
+          null,
+          null,
+          "ALTA"
+        ],
+        "mp.if.4": [
+          "dimension",
+          "D",
+          "ALTO",
+          null
+        ],
+        "mp.if.5": [
+          "dimension",
+          "D",
+          "ALTO",
+          null
+        ],
+        "mp.if.6": [
+          "dimension",
+          "D",
+          "ALTO",
+          null
+        ],
+        "mp.if.7": [
+          "categoria",
+          null,
+          null,
+          "ALTA"
+        ],
+        "mp.info.1": [
+          "categoria",
+          null,
+          null,
+          "ALTA"
+        ],
+        "mp.info.2": [
+          "dimension",
+          "C",
+          "ALTO",
+          null
+        ],
+        "mp.info.3": [
+          "dimension",
+          "A",
+          "ALTO",
+          null
+        ],
+        "mp.info.4": [
+          "dimension",
+          "T",
+          "ALTO",
+          null
+        ],
+        "mp.info.5": [
+          "dimension",
+          "C",
+          "ALTO",
+          null
+        ],
+        "mp.info.6": [
+          "dimension",
+          "D",
+          "ALTO",
+          null
+        ],
+        "mp.per.1": [
+          "categoria",
+          null,
+          null,
+          "ALTA"
+        ],
+        "mp.per.2": [
+          "categoria",
+          null,
+          null,
+          "ALTA"
+        ],
+        "mp.per.3": [
+          "categoria",
+          null,
+          null,
+          "ALTA"
+        ],
+        "mp.per.4": [
+          "categoria",
+          null,
+          null,
+          "ALTA"
+        ],
+        "mp.s.1": [
+          "categoria",
+          null,
+          null,
+          "ALTA"
+        ],
+        "mp.s.2": [
+          "categoria",
+          null,
+          null,
+          "ALTA"
+        ],
+        "mp.s.3": [
+          "categoria",
+          null,
+          null,
+          "ALTA"
+        ],
+        "mp.s.4": [
+          "dimension",
+          "D",
+          "ALTO",
+          null
+        ],
+        "mp.si.1": [
+          "dimension",
+          "C",
+          "ALTO",
+          null
+        ],
+        "mp.si.2": [
+          "dimension",
+          "C",
+          "ALTO",
+          null
+        ],
+        "mp.si.3": [
+          "categoria",
+          null,
+          null,
+          "ALTA"
+        ],
+        "mp.si.4": [
+          "categoria",
+          null,
+          null,
+          "ALTA"
+        ],
+        "mp.si.5": [
+          "dimension",
+          "C",
+          "ALTO",
+          null
+        ],
+        "mp.sw.1": [
+          "categoria",
+          null,
+          null,
+          "ALTA"
+        ],
+        "mp.sw.2": [
+          "categoria",
+          null,
+          null,
+          "ALTA"
+        ],
+        "op.acc.1": [
+          "dimension",
+          "A",
+          "ALTO",
+          null
+        ],
+        "op.acc.2": [
+          "dimension",
+          "A",
+          "ALTO",
+          null
+        ],
+        "op.acc.3": [
+          "dimension",
+          "A",
+          "ALTO",
+          null
+        ],
+        "op.acc.4": [
+          "dimension",
+          "A",
+          "ALTO",
+          null
+        ],
+        "op.acc.5": [
+          "dimension",
+          "A",
+          "ALTO",
+          null
+        ],
+        "op.acc.6": [
+          "dimension",
+          "A",
+          "ALTO",
+          null
+        ],
+        "op.cont.1": [
+          "dimension",
+          "D",
+          "ALTO",
+          null
+        ],
+        "op.cont.2": [
+          "dimension",
+          "D",
+          "ALTO",
+          null
+        ],
+        "op.cont.3": [
+          "dimension",
+          "D",
+          "ALTO",
+          null
+        ],
+        "op.cont.4": [
+          "dimension",
+          "D",
+          "ALTO",
+          null
+        ],
+        "op.exp.1": [
+          "categoria",
+          null,
+          null,
+          "ALTA"
+        ],
+        "op.exp.10": [
+          "categoria",
+          null,
+          null,
+          "ALTA"
+        ],
+        "op.exp.2": [
+          "categoria",
+          null,
+          null,
+          "ALTA"
+        ],
+        "op.exp.3": [
+          "categoria",
+          null,
+          null,
+          "ALTA"
+        ],
+        "op.exp.4": [
+          "categoria",
+          null,
+          null,
+          "ALTA"
+        ],
+        "op.exp.5": [
+          "categoria",
+          null,
+          null,
+          "ALTA"
+        ],
+        "op.exp.6": [
+          "categoria",
+          null,
+          null,
+          "ALTA"
+        ],
+        "op.exp.7": [
+          "categoria",
+          null,
+          null,
+          "ALTA"
+        ],
+        "op.exp.8": [
+          "dimension",
+          "T",
+          "ALTO",
+          null
+        ],
+        "op.exp.9": [
+          "categoria",
+          null,
+          null,
+          "ALTA"
+        ],
+        "op.ext.1": [
+          "categoria",
+          null,
+          null,
+          "ALTA"
+        ],
+        "op.ext.2": [
+          "categoria",
+          null,
+          null,
+          "ALTA"
+        ],
+        "op.ext.3": [
+          "categoria",
+          null,
+          null,
+          "ALTA"
+        ],
+        "op.ext.4": [
+          "categoria",
+          null,
+          null,
+          "ALTA"
+        ],
+        "op.mon.1": [
+          "categoria",
+          null,
+          null,
+          "ALTA"
+        ],
+        "op.mon.2": [
+          "categoria",
+          null,
+          null,
+          "ALTA"
+        ],
+        "op.mon.3": [
+          "categoria",
+          null,
+          null,
+          "ALTA"
+        ],
+        "op.nub.1": [
+          "categoria",
+          null,
+          null,
+          "ALTA"
+        ],
+        "op.pl.1": [
+          "categoria",
+          null,
+          null,
+          "ALTA"
+        ],
+        "op.pl.2": [
+          "categoria",
+          null,
+          null,
+          "ALTA"
+        ],
+        "op.pl.3": [
+          "categoria",
+          null,
+          null,
+          "ALTA"
+        ],
+        "op.pl.4": [
+          "dimension",
+          "D",
+          "ALTO",
+          null
+        ],
+        "op.pl.5": [
+          "categoria",
+          null,
+          null,
+          "ALTA"
+        ],
+        "org.1": [
+          "categoria",
+          null,
+          null,
+          "ALTA"
+        ],
+        "org.2": [
+          "categoria",
+          null,
+          null,
+          "ALTA"
+        ],
+        "org.3": [
+          "categoria",
+          null,
+          null,
+          "ALTA"
+        ],
+        "org.4": [
+          "categoria",
+          null,
+          null,
+          "ALTA"
+        ]
+      }
+    },
+    {
+      "nombre": "MEDIA_confidencialidad_alta_resto_no_afectada",
+      "categoria": "MEDIA",
+      "niveles": {
+        "D": "NO_AFECTADA",
+        "I": "NO_AFECTADA",
+        "C": "ALTO",
+        "A": "NO_AFECTADA",
+        "T": "NO_AFECTADA"
+      },
+      "total": 56,
+      "medidas": [
+        "mp.com.1",
+        "mp.com.2",
+        "mp.com.4",
+        "mp.eq.1",
+        "mp.eq.3",
+        "mp.eq.4",
+        "mp.if.1",
+        "mp.if.2",
+        "mp.if.3",
+        "mp.if.7",
+        "mp.info.1",
+        "mp.info.2",
+        "mp.info.5",
+        "mp.per.1",
+        "mp.per.2",
+        "mp.per.3",
+        "mp.per.4",
+        "mp.s.1",
+        "mp.s.2",
+        "mp.s.3",
+        "mp.si.1",
+        "mp.si.2",
+        "mp.si.3",
+        "mp.si.4",
+        "mp.si.5",
+        "mp.sw.1",
+        "mp.sw.2",
+        "op.acc.2",
+        "op.acc.3",
+        "op.acc.4",
+        "op.acc.5",
+        "op.acc.6",
+        "op.exp.1",
+        "op.exp.10",
+        "op.exp.2",
+        "op.exp.3",
+        "op.exp.4",
+        "op.exp.5",
+        "op.exp.6",
+        "op.exp.7",
+        "op.exp.9",
+        "op.ext.1",
+        "op.ext.2",
+        "op.ext.4",
+        "op.mon.1",
+        "op.mon.2",
+        "op.mon.3",
+        "op.nub.1",
+        "op.pl.1",
+        "op.pl.2",
+        "op.pl.3",
+        "op.pl.5",
+        "org.1",
+        "org.2",
+        "org.3",
+        "org.4"
+      ],
+      "motivos": {
+        "mp.com.1": [
+          "categoria",
+          null,
+          null,
+          "MEDIA"
+        ],
+        "mp.com.2": [
+          "dimension",
+          "C",
+          "ALTO",
+          null
+        ],
+        "mp.com.4": [
+          "categoria",
+          null,
+          null,
+          "MEDIA"
+        ],
+        "mp.eq.1": [
+          "categoria",
+          null,
+          null,
+          "MEDIA"
+        ],
+        "mp.eq.3": [
+          "categoria",
+          null,
+          null,
+          "MEDIA"
+        ],
+        "mp.eq.4": [
+          "dimension",
+          "C",
+          "ALTO",
+          null
+        ],
+        "mp.if.1": [
+          "categoria",
+          null,
+          null,
+          "MEDIA"
+        ],
+        "mp.if.2": [
+          "categoria",
+          null,
+          null,
+          "MEDIA"
+        ],
+        "mp.if.3": [
+          "categoria",
+          null,
+          null,
+          "MEDIA"
+        ],
+        "mp.if.7": [
+          "categoria",
+          null,
+          null,
+          "MEDIA"
+        ],
+        "mp.info.1": [
+          "categoria",
+          null,
+          null,
+          "MEDIA"
+        ],
+        "mp.info.2": [
+          "dimension",
+          "C",
+          "ALTO",
+          null
+        ],
+        "mp.info.5": [
+          "dimension",
+          "C",
+          "ALTO",
+          null
+        ],
+        "mp.per.1": [
+          "categoria",
+          null,
+          null,
+          "MEDIA"
+        ],
+        "mp.per.2": [
+          "categoria",
+          null,
+          null,
+          "MEDIA"
+        ],
+        "mp.per.3": [
+          "categoria",
+          null,
+          null,
+          "MEDIA"
+        ],
+        "mp.per.4": [
+          "categoria",
+          null,
+          null,
+          "MEDIA"
+        ],
+        "mp.s.1": [
+          "categoria",
+          null,
+          null,
+          "MEDIA"
+        ],
+        "mp.s.2": [
+          "categoria",
+          null,
+          null,
+          "MEDIA"
+        ],
+        "mp.s.3": [
+          "categoria",
+          null,
+          null,
+          "MEDIA"
+        ],
+        "mp.si.1": [
+          "dimension",
+          "C",
+          "ALTO",
+          null
+        ],
+        "mp.si.2": [
+          "dimension",
+          "C",
+          "ALTO",
+          null
+        ],
+        "mp.si.3": [
+          "categoria",
+          null,
+          null,
+          "MEDIA"
+        ],
+        "mp.si.4": [
+          "categoria",
+          null,
+          null,
+          "MEDIA"
+        ],
+        "mp.si.5": [
+          "dimension",
+          "C",
+          "ALTO",
+          null
+        ],
+        "mp.sw.1": [
+          "categoria",
+          null,
+          null,
+          "MEDIA"
+        ],
+        "mp.sw.2": [
+          "categoria",
+          null,
+          null,
+          "MEDIA"
+        ],
+        "op.acc.2": [
+          "dimension",
+          "C",
+          "ALTO",
+          null
+        ],
+        "op.acc.3": [
+          "dimension",
+          "C",
+          "ALTO",
+          null
+        ],
+        "op.acc.4": [
+          "dimension",
+          "C",
+          "ALTO",
+          null
+        ],
+        "op.acc.5": [
+          "dimension",
+          "C",
+          "ALTO",
+          null
+        ],
+        "op.acc.6": [
+          "dimension",
+          "C",
+          "ALTO",
+          null
+        ],
+        "op.exp.1": [
+          "categoria",
+          null,
+          null,
+          "MEDIA"
+        ],
+        "op.exp.10": [
+          "categoria",
+          null,
+          null,
+          "MEDIA"
+        ],
+        "op.exp.2": [
+          "categoria",
+          null,
+          null,
+          "MEDIA"
+        ],
+        "op.exp.3": [
+          "categoria",
+          null,
+          null,
+          "MEDIA"
+        ],
+        "op.exp.4": [
+          "categoria",
+          null,
+          null,
+          "MEDIA"
+        ],
+        "op.exp.5": [
+          "categoria",
+          null,
+          null,
+          "MEDIA"
+        ],
+        "op.exp.6": [
+          "categoria",
+          null,
+          null,
+          "MEDIA"
+        ],
+        "op.exp.7": [
+          "categoria",
+          null,
+          null,
+          "MEDIA"
+        ],
+        "op.exp.9": [
+          "categoria",
+          null,
+          null,
+          "MEDIA"
+        ],
+        "op.ext.1": [
+          "categoria",
+          null,
+          null,
+          "MEDIA"
+        ],
+        "op.ext.2": [
+          "categoria",
+          null,
+          null,
+          "MEDIA"
+        ],
+        "op.ext.4": [
+          "categoria",
+          null,
+          null,
+          "MEDIA"
+        ],
+        "op.mon.1": [
+          "categoria",
+          null,
+          null,
+          "MEDIA"
+        ],
+        "op.mon.2": [
+          "categoria",
+          null,
+          null,
+          "MEDIA"
+        ],
+        "op.mon.3": [
+          "categoria",
+          null,
+          null,
+          "MEDIA"
+        ],
+        "op.nub.1": [
+          "categoria",
+          null,
+          null,
+          "MEDIA"
+        ],
+        "op.pl.1": [
+          "categoria",
+          null,
+          null,
+          "MEDIA"
+        ],
+        "op.pl.2": [
+          "categoria",
+          null,
+          null,
+          "MEDIA"
+        ],
+        "op.pl.3": [
+          "categoria",
+          null,
+          null,
+          "MEDIA"
+        ],
+        "op.pl.5": [
+          "categoria",
+          null,
+          null,
+          "MEDIA"
+        ],
+        "org.1": [
+          "categoria",
+          null,
+          null,
+          "MEDIA"
+        ],
+        "org.2": [
+          "categoria",
+          null,
+          null,
+          "MEDIA"
+        ],
+        "org.3": [
+          "categoria",
+          null,
+          null,
+          "MEDIA"
+        ],
+        "org.4": [
+          "categoria",
+          null,
+          null,
+          "MEDIA"
+        ]
+      }
+    },
+    {
+      "nombre": "ALTA_sin_disponibilidad",
+      "categoria": "ALTA",
+      "niveles": {
+        "D": "NO_AFECTADA",
+        "I": "ALTO",
+        "C": "ALTO",
+        "A": "ALTO",
+        "T": "ALTO"
+      },
+      "total": 63,
+      "medidas": [
+        "mp.com.1",
+        "mp.com.2",
+        "mp.com.3",
+        "mp.com.4",
+        "mp.eq.1",
+        "mp.eq.2",
+        "mp.eq.3",
+        "mp.eq.4",
+        "mp.if.1",
+        "mp.if.2",
+        "mp.if.3",
+        "mp.if.7",
+        "mp.info.1",
+        "mp.info.2",
+        "mp.info.3",
+        "mp.info.4",
+        "mp.info.5",
+        "mp.per.1",
+        "mp.per.2",
+        "mp.per.3",
+        "mp.per.4",
+        "mp.s.1",
+        "mp.s.2",
+        "mp.s.3",
+        "mp.si.1",
+        "mp.si.2",
+        "mp.si.3",
+        "mp.si.4",
+        "mp.si.5",
+        "mp.sw.1",
+        "mp.sw.2",
+        "op.acc.1",
+        "op.acc.2",
+        "op.acc.3",
+        "op.acc.4",
+        "op.acc.5",
+        "op.acc.6",
+        "op.exp.1",
+        "op.exp.10",
+        "op.exp.2",
+        "op.exp.3",
+        "op.exp.4",
+        "op.exp.5",
+        "op.exp.6",
+        "op.exp.7",
+        "op.exp.8",
+        "op.exp.9",
+        "op.ext.1",
+        "op.ext.2",
+        "op.ext.3",
+        "op.ext.4",
+        "op.mon.1",
+        "op.mon.2",
+        "op.mon.3",
+        "op.nub.1",
+        "op.pl.1",
+        "op.pl.2",
+        "op.pl.3",
+        "op.pl.5",
+        "org.1",
+        "org.2",
+        "org.3",
+        "org.4"
+      ],
+      "motivos": {
+        "mp.com.1": [
+          "categoria",
+          null,
+          null,
+          "ALTA"
+        ],
+        "mp.com.2": [
+          "dimension",
+          "C",
+          "ALTO",
+          null
+        ],
+        "mp.com.3": [
+          "dimension",
+          "A",
+          "ALTO",
+          null
+        ],
+        "mp.com.4": [
+          "categoria",
+          null,
+          null,
+          "ALTA"
+        ],
+        "mp.eq.1": [
+          "categoria",
+          null,
+          null,
+          "ALTA"
+        ],
+        "mp.eq.2": [
+          "dimension",
+          "A",
+          "ALTO",
+          null
+        ],
+        "mp.eq.3": [
+          "categoria",
+          null,
+          null,
+          "ALTA"
+        ],
+        "mp.eq.4": [
+          "dimension",
+          "C",
+          "ALTO",
+          null
+        ],
+        "mp.if.1": [
+          "categoria",
+          null,
+          null,
+          "ALTA"
+        ],
+        "mp.if.2": [
+          "categoria",
+          null,
+          null,
+          "ALTA"
+        ],
+        "mp.if.3": [
+          "categoria",
+          null,
+          null,
+          "ALTA"
+        ],
+        "mp.if.7": [
+          "categoria",
+          null,
+          null,
+          "ALTA"
+        ],
+        "mp.info.1": [
+          "categoria",
+          null,
+          null,
+          "ALTA"
+        ],
+        "mp.info.2": [
+          "dimension",
+          "C",
+          "ALTO",
+          null
+        ],
+        "mp.info.3": [
+          "dimension",
+          "A",
+          "ALTO",
+          null
+        ],
+        "mp.info.4": [
+          "dimension",
+          "T",
+          "ALTO",
+          null
+        ],
+        "mp.info.5": [
+          "dimension",
+          "C",
+          "ALTO",
+          null
+        ],
+        "mp.per.1": [
+          "categoria",
+          null,
+          null,
+          "ALTA"
+        ],
+        "mp.per.2": [
+          "categoria",
+          null,
+          null,
+          "ALTA"
+        ],
+        "mp.per.3": [
+          "categoria",
+          null,
+          null,
+          "ALTA"
+        ],
+        "mp.per.4": [
+          "categoria",
+          null,
+          null,
+          "ALTA"
+        ],
+        "mp.s.1": [
+          "categoria",
+          null,
+          null,
+          "ALTA"
+        ],
+        "mp.s.2": [
+          "categoria",
+          null,
+          null,
+          "ALTA"
+        ],
+        "mp.s.3": [
+          "categoria",
+          null,
+          null,
+          "ALTA"
+        ],
+        "mp.si.1": [
+          "dimension",
+          "C",
+          "ALTO",
+          null
+        ],
+        "mp.si.2": [
+          "dimension",
+          "C",
+          "ALTO",
+          null
+        ],
+        "mp.si.3": [
+          "categoria",
+          null,
+          null,
+          "ALTA"
+        ],
+        "mp.si.4": [
+          "categoria",
+          null,
+          null,
+          "ALTA"
+        ],
+        "mp.si.5": [
+          "dimension",
+          "C",
+          "ALTO",
+          null
+        ],
+        "mp.sw.1": [
+          "categoria",
+          null,
+          null,
+          "ALTA"
+        ],
+        "mp.sw.2": [
+          "categoria",
+          null,
+          null,
+          "ALTA"
+        ],
+        "op.acc.1": [
+          "dimension",
+          "A",
+          "ALTO",
+          null
+        ],
+        "op.acc.2": [
+          "dimension",
+          "A",
+          "ALTO",
+          null
+        ],
+        "op.acc.3": [
+          "dimension",
+          "A",
+          "ALTO",
+          null
+        ],
+        "op.acc.4": [
+          "dimension",
+          "A",
+          "ALTO",
+          null
+        ],
+        "op.acc.5": [
+          "dimension",
+          "A",
+          "ALTO",
+          null
+        ],
+        "op.acc.6": [
+          "dimension",
+          "A",
+          "ALTO",
+          null
+        ],
+        "op.exp.1": [
+          "categoria",
+          null,
+          null,
+          "ALTA"
+        ],
+        "op.exp.10": [
+          "categoria",
+          null,
+          null,
+          "ALTA"
+        ],
+        "op.exp.2": [
+          "categoria",
+          null,
+          null,
+          "ALTA"
+        ],
+        "op.exp.3": [
+          "categoria",
+          null,
+          null,
+          "ALTA"
+        ],
+        "op.exp.4": [
+          "categoria",
+          null,
+          null,
+          "ALTA"
+        ],
+        "op.exp.5": [
+          "categoria",
+          null,
+          null,
+          "ALTA"
+        ],
+        "op.exp.6": [
+          "categoria",
+          null,
+          null,
+          "ALTA"
+        ],
+        "op.exp.7": [
+          "categoria",
+          null,
+          null,
+          "ALTA"
+        ],
+        "op.exp.8": [
+          "dimension",
+          "T",
+          "ALTO",
+          null
+        ],
+        "op.exp.9": [
+          "categoria",
+          null,
+          null,
+          "ALTA"
+        ],
+        "op.ext.1": [
+          "categoria",
+          null,
+          null,
+          "ALTA"
+        ],
+        "op.ext.2": [
+          "categoria",
+          null,
+          null,
+          "ALTA"
+        ],
+        "op.ext.3": [
+          "categoria",
+          null,
+          null,
+          "ALTA"
+        ],
+        "op.ext.4": [
+          "categoria",
+          null,
+          null,
+          "ALTA"
+        ],
+        "op.mon.1": [
+          "categoria",
+          null,
+          null,
+          "ALTA"
+        ],
+        "op.mon.2": [
+          "categoria",
+          null,
+          null,
+          "ALTA"
+        ],
+        "op.mon.3": [
+          "categoria",
+          null,
+          null,
+          "ALTA"
+        ],
+        "op.nub.1": [
+          "categoria",
+          null,
+          null,
+          "ALTA"
+        ],
+        "op.pl.1": [
+          "categoria",
+          null,
+          null,
+          "ALTA"
+        ],
+        "op.pl.2": [
+          "categoria",
+          null,
+          null,
+          "ALTA"
+        ],
+        "op.pl.3": [
+          "categoria",
+          null,
+          null,
+          "ALTA"
+        ],
+        "op.pl.5": [
+          "categoria",
+          null,
+          null,
+          "ALTA"
+        ],
+        "org.1": [
+          "categoria",
+          null,
+          null,
+          "ALTA"
+        ],
+        "org.2": [
+          "categoria",
+          null,
+          null,
+          "ALTA"
+        ],
+        "org.3": [
+          "categoria",
+          null,
+          null,
+          "ALTA"
+        ],
+        "org.4": [
+          "categoria",
+          null,
+          null,
+          "ALTA"
+        ]
+      }
+    }
+  ]
+}
