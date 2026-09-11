@@ -32,6 +32,7 @@ import {
   getAnalysisReport,
   getAnalysisSnapshot,
   getE028SignatureStatus,
+  getProjectAnalysis,
   importAssets,
   loadAssets,
   loadDependencies,
@@ -60,11 +61,34 @@ export const mageritKeys = {
   // E028 signature
   signatureStatus: (analysisId: string) =>
     ["magerit", "analysis", analysisId, "signature-status"] as const,
+
+  // Analisis vigente del proyecto (resuelto en servidor, no en estado local)
+  projectAnalysis: (projectId: string) =>
+    ["magerit", "project", projectId, "analysis"] as const,
 };
 
 // ===================================================================
 // Queries
 // ===================================================================
+
+/**
+ * Resuelve el análisis MAGERIT vigente del proyecto contra el servidor.
+ *
+ * O2 · antes el id del análisis vivía sólo en `useState` del panel: al recargar
+ * la página se perdía, el panel volvía al estado "no hay análisis" y el único
+ * botón disponible creaba otro. Así se acumulaban análisis huérfanos por
+ * proyecto. La pregunta la contesta ahora el backend, que es quien tiene el dato.
+ *
+ * Devuelve `null` (no error) cuando el proyecto aún no tiene análisis.
+ */
+export function useProjectAnalysis(projectId: string | undefined) {
+  return useQuery({
+    queryKey: mageritKeys.projectAnalysis(projectId ?? ""),
+    queryFn: () => getProjectAnalysis(projectId as string),
+    enabled: !!projectId,
+    retry: false,
+  });
+}
 
 /**
  * Hook principal: report consolidado del análisis MAGERIT.

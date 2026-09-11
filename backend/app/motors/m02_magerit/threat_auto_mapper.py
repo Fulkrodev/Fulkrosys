@@ -31,6 +31,7 @@ from backend.app.motors.m02_magerit.libro_ii_loader import (
     get_threats_for_asset_type,
     load_libro_ii,
 )
+from backend.app.motors.m02_magerit.analisis_vigente import analisis_vigente
 from backend.app.motors.m02_magerit.models import (
     MageritAnalysis,
     MageritAsset,
@@ -141,16 +142,8 @@ class ThreatAutoMapper:
             if analysis and analysis.project_id == project_id:
                 return analysis
 
-        # Buscar último análisis del proyecto
-        latest = (
-            await self.db.execute(
-                select(MageritAnalysis)
-                .where(MageritAnalysis.project_id == project_id)
-                .where(MageritAnalysis.deleted_at.is_(None))
-                .order_by(MageritAnalysis.created_at.desc())
-                .limit(1)
-            )
-        ).scalar_one_or_none()
+        # Buscar último análisis del proyecto (regla en m02/analisis_vigente)
+        latest = await analisis_vigente(self.db, project_id)
         if latest:
             return latest
 

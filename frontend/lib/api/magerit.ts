@@ -1,7 +1,12 @@
 /**
  * Motor 2 - MAGERIT v3 API client (zero-mock).
  *
- * 29 endpoints reales bajo /api/v1 (router prefix).
+ * 31 endpoints reales bajo /api/v1/magerit (router prefix).
+ *
+ * O2 · BASE decia "/api/v1" y el router se declara con prefijo propio
+ * "/magerit" (backend/app/motors/m02_magerit/api.py), asi que las 30 llamadas
+ * de este fichero daban 404 y la pagina de analisis de riesgos estaba muerta
+ * entera. El prefijo se escribe una vez, aqui.
  * Tipos espejo de los Pydantic schemas en
  * backend/app/motors/m02_magerit/schemas.py.
  *
@@ -9,7 +14,7 @@
  */
 import { api } from "@/lib/api";
 
-const BASE = "/api/v1";
+const BASE = "/api/v1/magerit";
 
 // ===================================================================
 // Tipos compartidos (espejo Pydantic backend schemas.py)
@@ -233,6 +238,17 @@ export function createAnalysis(
     method: "POST",
     json: body,
   });
+}
+
+/**
+ * El analisis MAGERIT vigente del proyecto, o `null` si aun no hay ninguno.
+ * Responde 200 con cuerpo null cuando no existe: "todavia no hay analisis" es
+ * un estado normal del ciclo ENS, no un error.
+ */
+export function getProjectAnalysis(
+  projectId: string,
+): Promise<AnalysisOut | null> {
+  return api<AnalysisOut | null>(`${BASE}/projects/${projectId}/analysis`);
 }
 
 export function softDeleteAnalysis(analysisId: string): Promise<void> {

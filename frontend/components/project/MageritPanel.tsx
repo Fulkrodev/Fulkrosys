@@ -46,9 +46,9 @@ import {
   useGenerateTreatmentPlan,
   useMageritReport,
   useMageritSignatureStatus,
+  useProjectAnalysis,
 } from "@/hooks/useMagerit";
 import {
-  type AnalysisOut,
   type AssetOut,
   type RiskCalculationOut,
   type TreatmentActionOut,
@@ -587,7 +587,11 @@ function ReportsTab({ analysisId }: { analysisId: string }) {
 // ===================================================================
 
 export function MageritPanel({ projectId }: { projectId: string }) {
-  const [analysisId, setAnalysisId] = React.useState<string | null>(null);
+  // O2 · el análisis vigente lo resuelve el servidor. Antes vivía en un
+  // useState que se vaciaba en cada recarga: el panel decía "no hay análisis"
+  // sobre un proyecto que sí lo tenía, y el único botón a mano creaba otro.
+  const projectAnalysisQ = useProjectAnalysis(projectId);
+  const analysisId = projectAnalysisQ.data?.id ?? null;
 
   const createMut = useCreateAnalysis(projectId);
   const reportQ = useMageritReport(analysisId ?? undefined);
@@ -601,18 +605,28 @@ export function MageritPanel({ projectId }: { projectId: string }) {
 
   const handleCreateAnalysis = async () => {
     try {
-      const analysis = (await createMut.mutateAsync({
+      await createMut.mutateAsync({
         name: `MAGERIT v3 - ${new Date().toLocaleDateString("es-ES")}`,
         calculation_mode: "qualitative",
-      })) as AnalysisOut;
-      setAnalysisId(analysis.id);
+      });
+      await projectAnalysisQ.refetch();
       toast.success("Análisis MAGERIT creado");
     } catch {
       toast.error("No se pudo crear el análisis");
     }
   };
 
-  // ===== Loading: cuando no hay analysisId todavía
+  // ===== Resolviendo qué análisis tiene el proyecto
+  if (projectAnalysisQ.isLoading) {
+    return (
+      <div className="flex flex-col gap-6">
+        <Skeleton className="h-12 w-1/2" />
+        <Skeleton className="h-64" />
+      </div>
+    );
+  }
+
+  // ===== El proyecto todavía no tiene análisis
   if (!analysisId) {
     return (
       <div className="flex flex-col gap-6">

@@ -37,6 +37,7 @@ from backend.app.core.email.sender import (
     get_captured_emails,
     reset_captured_emails,
 )
+from backend.app.motors.m02_magerit.analisis_vigente import analisis_vigente
 from backend.app.database import get_db, set_tenant_context
 from backend.app.models.auth import User
 from backend.app.models.client_portal import ClientUser
@@ -1062,14 +1063,8 @@ async def seed_magerit_alta_data(
         db, client_id=test_client.id, project_id=test_project.id,
     )
 
-    # 3. Get/create MageritAnalysis (active)
-    analysis = (await db.execute(
-        select(MageritAnalysis)
-        .where(MageritAnalysis.project_id == test_project.id)
-        .where(MageritAnalysis.deleted_at.is_(None))
-        .order_by(MageritAnalysis.created_at.desc())
-        .limit(1)
-    )).scalar_one_or_none()
+    # 3. Get/create MageritAnalysis (active · regla en m02/analisis_vigente)
+    analysis = await analisis_vigente(db, test_project.id)
 
     if analysis is None:
         analysis = MageritAnalysis(
@@ -2495,14 +2490,8 @@ async def seed_rich_demo_project(
         ))
     await db.flush()
 
-    # 5. MageritAnalysis (get-or-create · active)
-    analysis = (await db.execute(
-        select(MageritAnalysis)
-        .where(MageritAnalysis.project_id == fixed_project.id)
-        .where(MageritAnalysis.deleted_at.is_(None))
-        .order_by(MageritAnalysis.created_at.desc())
-        .limit(1)
-    )).scalar_one_or_none()
+    # 5. MageritAnalysis (get-or-create · regla en m02/analisis_vigente)
+    analysis = await analisis_vigente(db, fixed_project.id)
     if analysis is None:
         analysis = MageritAnalysis(
             project_id=fixed_project.id,

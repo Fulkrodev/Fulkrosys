@@ -30,6 +30,10 @@ from backend.app.database import get_db, set_tenant_context
 from backend.app.models.client_portal import ClientUser
 import hashlib
 
+from backend.app.motors.m02_magerit.analisis_vigente import (
+    analisis_vigente,
+    id_analisis_vigente,
+)
 from backend.app.motors.m02_magerit.models import (
     MageritAnalysis,
     MageritAsset,
@@ -242,16 +246,12 @@ async def _ensure_project_belongs_to_client(
 async def _get_active_analysis_id(
     db: AsyncSession, project_id: uuid.UUID,
 ) -> uuid.UUID | None:
-    """Returns latest non-deleted analysis id for project."""
-    row = await db.execute(
-        select(MageritAnalysis)
-        .where(MageritAnalysis.project_id == project_id)
-        .where(MageritAnalysis.deleted_at.is_(None))
-        .order_by(MageritAnalysis.created_at.desc())
-        .limit(1)
-    )
-    analysis = row.scalar_one_or_none()
-    return analysis.id if analysis else None
+    """Returns latest non-deleted analysis id for project.
+
+    O2 · la regla vive en ``m02_magerit/analisis_vigente``; aqui solo se
+    reexporta con el nombre que ya usaban los llamantes del portal.
+    """
+    return await id_analisis_vigente(db, project_id)
 
 
 async def _to_risk_client_view(
@@ -359,14 +359,7 @@ async def get_magerit_summary(
     """Summary inventory cliente · counts + review distribution + readiness."""
     await _ensure_project_belongs_to_client(db, project_id, user)
 
-    analysis_row = await db.execute(
-        select(MageritAnalysis)
-        .where(MageritAnalysis.project_id == project_id)
-        .where(MageritAnalysis.deleted_at.is_(None))
-        .order_by(MageritAnalysis.created_at.desc())
-        .limit(1)
-    )
-    analysis = analysis_row.scalar_one_or_none()
+    analysis = await analisis_vigente(db, project_id)
     if analysis is None:
         return MageritSummaryResponse(
             project_id=project_id,

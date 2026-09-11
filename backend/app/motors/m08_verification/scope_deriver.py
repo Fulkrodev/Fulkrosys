@@ -27,7 +27,8 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from backend.app.models.commercial import Contract
 from backend.app.models.ens import DdaEntry, EnsMeasure
 from backend.app.models.onboarding import DiscoveredAsset
-from backend.app.motors.m02_magerit.models import MageritAnalysis, MageritAsset
+from backend.app.motors.m02_magerit.analisis_vigente import analisis_vigente
+from backend.app.motors.m02_magerit.models import MageritAsset
 from backend.app.motors.m14_contracts.schemas import (
     DEFAULT_SCAN_WINDOW as _DEFAULT_SCAN_WINDOW,
 )
@@ -136,12 +137,7 @@ async def derive_scope(
 
     # ─── 3. Crown jewels (M2 MAGERIT) ──────────────────────────────
     crown_jewels: list[dict[str, Any]] = []
-    analysis = (await db.execute(
-        select(MageritAnalysis).where(
-            MageritAnalysis.project_id == project_id,
-            MageritAnalysis.deleted_at.is_(None),
-        ).order_by(MageritAnalysis.created_at.desc()).limit(1)
-    )).scalar_one_or_none()
+    analysis = await analisis_vigente(db, project_id)
     if analysis:
         magerit_q = await db.execute(
             select(MageritAsset).where(

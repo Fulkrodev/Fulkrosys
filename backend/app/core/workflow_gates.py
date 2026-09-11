@@ -201,14 +201,10 @@ async def require_magerit_analysis(
     """
     if not _gates_enabled():
         return
-    row = await session.execute(
-        sa_text(
-            "SELECT COUNT(*) FROM magerit_analysis "
-            "WHERE project_id = :pid AND deleted_at IS NULL"
-        ),
-        {"pid": str(project_id)},
-    )
-    if int(row.scalar() or 0) == 0:
+    # O2 · misma regla que el resto del sistema, leida de su unica fuente.
+    from backend.app.motors.m02_magerit.analisis_vigente import analisis_vigente
+
+    if await analisis_vigente(session, project_id) is None:
         raise WorkflowGateError(
             gate="magerit_analysis",
             message=(

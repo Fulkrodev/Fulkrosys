@@ -44,6 +44,7 @@ from backend.app.motors.m02_magerit.signature_integration import (
     request_e028_signature,
     get_e028_signature_status,
 )
+from backend.app.motors.m02_magerit.analisis_vigente import analisis_vigente
 from backend.app.auth.dependencies import require_owner
 
 router = APIRouter(
@@ -146,6 +147,36 @@ async def create_analysis(
     await db.commit()
     await db.refresh(analysis)
     return analysis
+
+
+# ================================================================
+# ENDPOINT 1.bis: Resolve the project's current analysis
+# ================================================================
+
+@router.get(
+    "/projects/{project_id}/analysis",
+    response_model=AnalysisOut | None,
+)
+async def get_project_analysis(
+    project_id: uuid.UUID,
+    db: AsyncSession = Depends(get_db),
+):
+    """El analisis MAGERIT vigente del proyecto · ``null`` si no hay ninguno.
+
+    O2 · sin esta ruta el panel de administracion no tenia forma de saber que
+    el proyecto YA tenia un analisis: guardaba el id en estado de React y lo
+    perdia en cada recarga, asi que la unica accion disponible era "crear
+    analisis" y cada visita dejaba uno nuevo (en el demo habia un proyecto con
+    tres). Devuelve 200 con cuerpo ``null`` -- y no 404 -- porque "todavia no
+    hay analisis" es un estado normal del ciclo, no un error.
+    """
+    client_id = (await db.execute(
+        text("SELECT get_project_owner(:pid)"), {"pid": str(project_id)}
+    )).scalar()
+    if not client_id:
+        raise HTTPException(status_code=404, detail="Project not found")
+    await set_tenant_context(db, client_id=client_id, project_id=project_id)
+    return await analisis_vigente(db, project_id)
 
 
 # ================================================================

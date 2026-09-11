@@ -18,6 +18,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from backend.app.models.diagnosis import Stakeholder
 from backend.app.models.onboarding import DiscoveredAsset
+from backend.app.motors.m02_magerit.analisis_vigente import analisis_vigente
 from backend.app.motors.m02_magerit.models import MageritAnalysis, MageritAsset
 from backend.app.motors.m16_onboarding.connectors.base import DiscoveredAssetDTO
 from backend.app.motors.m22_discovery import asset_discovery
@@ -248,13 +249,9 @@ _DICAT_BY_CRIT: dict[str, dict[str, int]] = {
 async def _get_or_create_magerit_analysis(
     db: AsyncSession, project_id: uuid.UUID,
 ) -> MageritAnalysis:
-    r = await db.execute(
-        select(MageritAnalysis).where(
-            MageritAnalysis.project_id == project_id,
-            MageritAnalysis.deleted_at.is_(None),
-        ).order_by(MageritAnalysis.created_at.desc())
-    )
-    existing = r.scalars().first()
+    # O2 · la regla "cual es el analisis vigente" se lee de su unica fuente;
+    # aqui solo queda el "si no hay, crealo".
+    existing = await analisis_vigente(db, project_id)
     if existing is not None:
         return existing
     analysis = MageritAnalysis(
