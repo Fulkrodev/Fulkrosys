@@ -33,6 +33,18 @@ from dataclasses import dataclass, field
 from datetime import date
 from typing import Any
 
+from backend.app.motors.m01_categorization.aplicabilidad import NO_AFECTADA
+from backend.app.motors.m01_categorization.niveles_proyecto import (
+    niveles_por_dimension_del_proyecto,
+)
+from backend.app.motors.m06_document_factory.errores import (
+    CategoriaNoDeterminadaError,
+)
+
+# Lo que se imprime para una dimension sin adscribir (Anexo I punto 3).
+_ETIQUETA_NO_AFECTADA = "No afectada"
+
+
 from docx import Document
 from docx.enum.text import WD_ALIGN_PARAGRAPH
 from docx.shared import Pt, RGBColor
@@ -104,8 +116,13 @@ async def build_pda_context(
         {"pid": str(project_id)},
     )
     cat = cat_row.first()
-    system_category = cat[0] if cat else "BASICA"
-    raw_dims = cat[1] if cat else None
+    # O2 · antes: `cat[0] if cat else "BASICA"`. El plan de adecuacion es un
+    # entregable firmable; inventar la categoria aqui es declararla por debajo
+    # en un documento que se entrega. Mismo arreglo que en los otros cuatro
+    # generadores (acta E-012, alcance, informe final, rectores).
+    system_category = cat[0] if cat and cat[0] else None
+    if not system_category:
+        raise CategoriaNoDeterminadaError("el plan de adecuacion E-150")
 
     cidat_names = {
         "D": "Disponibilidad",
@@ -114,19 +131,28 @@ async def build_pda_context(
         "A": "Autenticidad",
         "T": "Trazabilidad",
     }
-    dimensions = []
-    snapshot = raw_dims or {}
-    snap_dims = (
-        snapshot.get("dimensions", {}) if isinstance(snapshot, dict) else {}
-    )
-    for code, name in cidat_names.items():
-        entry = snap_dims.get(code, {}) if isinstance(snap_dims, dict) else {}
-        dimensions.append({
+    # O2 · antes esto leia `input_snapshot["dimensions"]`, una clave que NINGUN
+    # productor escribe: el unico escritor canonico del snapshot
+    # (m01_categorization/service.py) emite {"information_types": [...],
+    # "services": [...]} con las valoraciones anidadas dentro. La lectura daba
+    # siempre {} y el `.get("level", "BAJO")` caia SIEMPRE en su defecto, asi
+    # que el plan imprimia las cinco dimensiones en BAJO en CUALQUIER proyecto
+    # -- tambien en uno ALTA. Ahora se leen de donde estan, con la misma
+    # funcion que usa la generacion de la DdA.
+    niveles = await niveles_por_dimension_del_proyecto(db, project_id)
+    dimensions = [
+        {
             "code": code,
             "name": name,
-            "level": (entry or {}).get("level", "BAJO"),
-            "justification": (entry or {}).get("justification", ""),
-        })
+            "level": (
+                _ETIQUETA_NO_AFECTADA
+                if niveles.get(code) == NO_AFECTADA
+                else niveles.get(code, _ETIQUETA_NO_AFECTADA)
+            ),
+            "justification": "",
+        }
+        for code, name in cidat_names.items()
+    ]
 
     # DdA (M03)
     dda_row = await db.execute(

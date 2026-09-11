@@ -23,10 +23,10 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from backend.app.models.ens import EnsMeasure, DdaEntry
 from backend.app.motors.m03_dda.anexo2_rd311_2022 import EJE_Y_DIMENSIONES
+from backend.app.motors.m01_categorization.niveles_proyecto import (
+    niveles_por_dimension_del_proyecto,
+)
 from backend.app.motors.m01_categorization.aplicabilidad import (
-    DIMENSIONES_ENS,
-    NIVELES_CON_ADSCRIPCION,
-    NO_AFECTADA,
     medidas_aplicables,
 )
 from backend.app.motors.m03_dda.enums import (
@@ -563,35 +563,12 @@ class DdaService:
     async def _niveles_por_dimension(self, project_id: UUID) -> dict[str, str]:
         """Nivel de cada dimension del proyecto, sin adscribir lo no valorado.
 
-        O1 · Anexo I punto 3: una dimension que ningun tipo de informacion y
-        ningun servicio valora NO se adscribe a ningun nivel. Se arranca en
-        NO_AFECTADA y solo sube con valoraciones reales.
+        O2 · la consulta vivia aqui y el plan de adecuacion la necesitaba
+        tambien. Se mudo a ``m01_categorization/niveles_proyecto`` para que no
+        nazca una segunda copia; la regla es la misma de siempre (Anexo I
+        punto 3: lo que nadie valora no se adscribe a ningun nivel).
         """
-        niveles = dict.fromkeys(DIMENSIONES_ENS, NO_AFECTADA)
-        filas = (await self.db.execute(sa_text(
-            "SELECT valoracion_d, valoracion_i, valoracion_c, valoracion_a, "
-            "       valoracion_t "
-            "FROM information_types it JOIN systems s ON s.id = it.system_id "
-            "WHERE s.project_id = :pid AND it.deleted_at IS NULL "
-            "UNION ALL "
-            "SELECT valoracion_d, valoracion_i, valoracion_c, valoracion_a, "
-            "       valoracion_t "
-            "FROM services sv JOIN systems s2 ON s2.id = sv.system_id "
-            "WHERE s2.project_id = :pid AND sv.deleted_at IS NULL"
-        ), {"pid": str(project_id)})).all()
-
-        for fila in filas:
-            for dim, bruto in zip(DIMENSIONES_ENS, fila):
-                nivel = str(bruto or "").upper()
-                if nivel not in NIVELES_CON_ADSCRIPCION:
-                    continue
-                actual = niveles[dim]
-                if actual == NO_AFECTADA or (
-                    NIVELES_CON_ADSCRIPCION.index(nivel)
-                    > NIVELES_CON_ADSCRIPCION.index(actual)
-                ):
-                    niveles[dim] = nivel
-        return niveles
+        return await niveles_por_dimension_del_proyecto(self.db, project_id)
 
     def _measure_applies(
         self,

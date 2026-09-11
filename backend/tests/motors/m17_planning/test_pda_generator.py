@@ -143,13 +143,41 @@ async def test_pda_context_with_real_project(db: AsyncSession):
     # build_pda_context queries as fulkro_app · necesita tenant_context para RLS
     await set_tenant_context(db, client_id=client_id, project_id=project_id)
 
+    # O2 · este test aseveraba "Categorizacion no creada -> default BASICA".
+    # Eso era el defecto, no el contrato: el plan de adecuacion es un entregable
+    # firmable, y un documento que DECLARA la categoria del sistema no puede
+    # inventarla. Ahora el escenario se completa con su categorizacion, que es
+    # lo que un proyecto en fase de adecuacion tiene por definicion.
+    system_id = uuid.uuid4()
+    async with _admin_setup(db):
+        await db.execute(text(
+            "INSERT INTO systems (id, project_id, nombre, created_at) "
+            "VALUES (:sid, :pid, 'Proyecto PdA Test', now())"
+        ), {"sid": str(system_id), "pid": str(project_id)})
+        await db.execute(text(
+            "INSERT INTO information_types (id, system_id, nombre, "
+            "  valoracion_c, valoracion_i, created_at) "
+            "VALUES (gen_random_uuid(), :sid, 'Datos', 'MEDIO', 'BAJO', now())"
+        ), {"sid": str(system_id)})
+        await db.execute(text(
+            "INSERT INTO categorizations (id, system_id, categoria_resultante, "
+            "  version, fecha_acta, created_at) "
+            "VALUES (gen_random_uuid(), :sid, 'MEDIA', 1, current_date, now())"
+        ), {"sid": str(system_id)})
+    await db.flush()
+
     ctx = await build_pda_context(db, project_id)
     assert ctx.project_id == project_id
     assert "Test PdA" in ctx.client_name
     assert ctx.system_name == "Proyecto PdA Test"
-    assert ctx.system_category in ("BASICA", "MEDIA", "ALTA")
-    # Categorización no creada → default BASICA
-    assert ctx.system_category == "BASICA"
-    # 5 dimensiones CIDAT siempre listadas (nivel default)
+    assert ctx.system_category == "MEDIA", (
+        "la categoria del plan es la APROBADA, no una inventada"
+    )
+    # 5 dimensiones CIDAT siempre listadas, con su nivel REAL
     assert len(ctx.dimensions) == 5
     assert {d["code"] for d in ctx.dimensions} == {"D", "I", "C", "A", "T"}
+    niveles = {d["code"]: d["level"] for d in ctx.dimensions}
+    assert niveles["C"] == "MEDIO"
+    assert niveles["D"] == "No afectada", (
+        "una dimension que nadie valoro no se adscribe a ningun nivel"
+    )
