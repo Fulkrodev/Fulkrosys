@@ -485,6 +485,36 @@ lanzan ni una sentencia SQL; extrapolado, unos 168 de los 299. No es un defecto 
 legítimos— pero significa que `-m requires_db` arrastra a la base tests que no la necesitan.
 Optimización pendiente, no corregida.
 
+**Ningún cuestionario admite adjuntar un fichero.** Un cliente al que se le pregunta «¿tenéis
+inventario de activos?» sólo puede contestar con texto: no puede adjuntar el inventario. El
+sistema sí sabe guardar ficheros —hay adjuntos en evidencias (`evidence.fichero_path`), en el
+chat (`workspace_chat_messages.adjunto_file_id`), en mensajería (`client_message_attachments`) y
+en los artefactos de acompañamiento a auditoría—, pero la tabla de respuestas no tiene dónde
+ponerlos:
+
+```bash
+# las columnas de una respuesta de cuestionario: no hay ninguna de fichero
+$ psql -d fulkro -tAc "SELECT column_name FROM information_schema.columns \
+    WHERE table_name='onboarding_responses';"
+answered_at updated_at session_id id answer_value section question_id
+
+# quién SÍ tiene adjuntos, para contrastar
+$ psql -d fulkro -tAc "SELECT table_name||'.'||column_name FROM information_schema.columns \
+    WHERE table_schema='public' AND (column_name LIKE '%adjunt%' OR column_name LIKE '%fichero%' \
+    OR column_name LIKE '%attach%');"
+```
+
+**Cuántas preguntas son, medido.** 135 definiciones en los catálogos de código: 73 de simulacro
+de auditoría (`m10_audit_sim`, una por medida del Anexo II), 18 de coaching (`m09_audit_prep`),
+14 de los cuestionarios LMS (`docs/catalogs/lms_courses_v1.json`), 10 de materialidad de cambios
+(`m28`), 10 de materialidad de conformidad (`m27`) y 10 de captura de dimensiones (`m16`). Ese es
+el número que puedo reproducir; una auditoría previa manejaba 1.077 y no he sabido reconstruirlo
+—probablemente contaba filas instanciadas por proyecto, no definiciones—, así que dejo el que sé
+defender y de dónde sale.
+
+Es una carencia real de producto, no una incorrección normativa: ninguna de esas preguntas
+afirma nada falso. Por eso queda como frente abierto y no se arregló en la corrección normativa.
+
 ---
 
 ## Datos y licencias
