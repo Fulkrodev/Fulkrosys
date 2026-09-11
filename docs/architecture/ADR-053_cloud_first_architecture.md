@@ -204,7 +204,8 @@ OAuth existing · NO duplicar:
 - ADR-014 read-only OAuth siempre (NO escalable destructivo)
 - ADR-025 reuse existing models · NO duplicar tablas
 - LECCION-OPS-008 RLS project_id en TODAS las tablas tenants
-- `docs/catalogs/ens_measures_catalog_v1.yaml` (79 medidas Anexo II)
+- `docs/catalogs/ens_measures_catalog_v1.yaml` (**73** medidas Anexo II · decía 79
+  hasta el commit `2276d99`, que eliminó seis códigos inexistentes en el RD 311/2022)
 - `docs/catalogs/gap_severity_rules_v1.yaml` (CCN-STIC 803/808 + nucleares)
 - `backend/app/motors/m16_onboarding/connectors/` (5 OAuth providers existing)
 - `backend/app/motors/m_cloud_connectors/` (esta capa unified · sub-atom 1.D.X)

@@ -111,7 +111,7 @@ aplicación en vez de leerla. Ninguna de las tres la habría encontrado un test.
 | **D3** | recorrido guiado de diez minutos | `USAGE.md` · `make recorrido` → **60 correctas, 0 fallidas** |
 | **D2** | subir la cobertura de evaluaciones | de **0** clases de agente a **3 de 13** (4 datasets, 40 entradas). Gate del arnés 6/6 → **25/25** |
 | **D4** | ¿escala? | dos réplicas tras nginx · **15 correctas, 0 fallidas**. El fallo que encontró (SSE): **1 de 2 → 2 de 2** |
-| **D5** | Next.js y el catálogo | codemod de **77 ficheros** + 1 línea; catálogo con **79 descripciones** reescritas, coincidencia máxima **7 palabras** |
+| **D5** | Next.js y el catálogo | codemod de **77 ficheros** + 1 línea; catálogo reescrito (**79 descripciones entonces; hoy 73**, tras eliminar en `2276d99` seis códigos inexistentes), coincidencia máxima **7 palabras** |
 
 **Criterio de cierre, ejecutado sobre el árbol final:**
 
@@ -155,7 +155,7 @@ bash scripts/probar_dos_replicas.sh    15 correctas, 0 fallidas
    compartirían las evidencias subidas.
 6. **La protección de rama sigue sin activar.** Los pasos, con los nombres
    literales de los checks, están en [CI.md](CI.md).
-7. **Que las 79 descripciones del catálogo sean normativamente exactas no lo
+7. **Que las descripciones del catálogo sean normativamente exactas no lo
    verifica ningún script.** Eso lo revisa una persona.
 8. **`AgentBase` ya no fabrica, pero `copilot_admin_service` y
    `copilot_cliente_service` siguen escribiendo `status="success"` a mano.** Hoy

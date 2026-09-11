@@ -557,17 +557,26 @@ clonarlo y ejecutarlo sin heredar material que no es suyo para redistribuir, y e
 sigue siendo reproducible en local para quien tenga las fuentes.
 
 **Cerrado el 2026-09-10:** `docs/catalogs/ens_measures_catalog_v1.yaml` contenía párrafos copiados
-literalmente de la CCN-STIC 804 en las 79 medidas. Las 79 descripciones están **reescritas con
-lenguaje propio**; la cabecera ya no atribuye las descripciones a la guía, y `fuente_oficial`
-sigue apuntando a la sección concreta para no perder la trazabilidad. Lo vigila un umbral medible:
+literalmente de la CCN-STIC 804. Las descripciones están **reescritas con lenguaje propio**; la
+cabecera ya no atribuye las descripciones a la guía, y `fuente_oficial` sigue apuntando a la
+sección concreta para no perder la trazabilidad. Lo vigila un umbral medible:
 
 ```bash
-$ python3 scripts/verificar_catalogo_sin_copia_literal.py
-Medidas comparadas:        79
+$ python3 scripts/verificar_catalogo_sin_copia_literal.py --ref 72d98e5
+Referencia: 72d98e5  (79 medidas)
+Trabajo:    árbol actual (73 medidas)
+Medidas comparadas:        73
 Coincidencia máxima:       7 palabras consecutivas (en mp.if.2)
+  texto de esa racha:      "relacion de personas autorizadas y un sistema"
 Medidas en el umbral o por encima (8+): 0
-RESULTADO: VERDE
 ```
+
+Dos cosas de ese bloque, porque hasta el 2026-09-11 decía otra cosa. **Eran 79 medidas y hoy son
+73**: el commit `2276d99` eliminó seis códigos que no existen en el RD 311/2022 (venían de la
+CCN-STIC 804 v2017, basada en el RD 3/2010 derogado). Y **el comando lleva `--ref`**: sin él el
+script se niega a medir y avisa de que comparar HEAD consigo mismo da copia total. La versión
+anterior de este README pegaba una salida que ya no se producía — exactamente el defecto que este
+documento dice perseguir.
 
 Ese script compara contra la versión anterior en git y falla si alguna descripción vuelve a
 compartir 8 palabras seguidas con el original. `backend/tests/scripts/test_catalogo_sin_copia_literal.py`
