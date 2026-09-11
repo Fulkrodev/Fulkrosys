@@ -26,6 +26,7 @@ from datetime import date, timedelta
 from docx import Document
 from docx.enum.text import WD_ALIGN_PARAGRAPH
 from docx.shared import Pt, RGBColor
+from loguru import logger
 from sqlalchemy import text as sa_text
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -72,8 +73,18 @@ class DistintivoContext:
     conformes_count: int
     no_conformes_count: int
     pct_conformidad: float
-    rseg_name: str
-    rseg_email: str
+    # P1 · lo que separa lo DECLARADO de lo VERIFICADO. El documento decia
+    # "Porcentaje conformidad 100,0%" sobre un sistema que el propio simulacro
+    # de la plataforma puntuaba 0/100 con 59 contradicciones. El 100% no estaba
+    # mal calculado: es el recuento correcto de entradas de la DdA marcadas
+    # `implantada`. Lo falso era la ETIQUETA -- llamar "conformidad" a lo que es
+    # una autodeclaracion sin cruzar con el Vault de evidencias.
+    verificadas_con_evidencia: int = 0
+    pct_verificado: float = 0.0
+    readiness_score: int | None = None
+    contradicciones: int = 0
+    rseg_name: str = "(pendiente designación)"
+    rseg_email: str = ""
     # #2 Ola 7 · firmante de la Declaración de Conformidad 809 = Dirección /
     # órgano superior (CCN-STIC 809 Anexo A · asume la responsabilidad sobre la
     # seguridad del sistema · NO el RSeg, que gestiona pero no declara).
@@ -140,13 +151,56 @@ async def build_distintivo_context(
     dda_con_refuerzos = int(dda[2] or 0) if dda else 0
     dda_no_aplica = int(dda[3] or 0) if dda else 0
     conformes_count = int(dda[4] or 0) if dda else 0
-    no_conformes_count = max(
-        (dda_aplicables + dda_con_refuerzos) - conformes_count, 0
-    )
+    # P1 · el `max(..., 0)` que habia aqui hacia IMPOSIBLE por construccion que
+    # el numero delatara una incoherencia: si alguna vez hubiera mas implantadas
+    # que aplicables, el resultado se aplanaba a cero en silencio. Se quita: si
+    # la resta sale negativa, eso es un dato que hay que ver, no que tapar.
+    no_conformes_count = (dda_aplicables + dda_con_refuerzos) - conformes_count
     pct_conformidad = round(
         (conformes_count / max(dda_aplicables + dda_con_refuerzos, 1)) * 100,
         1,
     )
+
+    # P1 · lo DECLARADO frente a lo VERIFICADO. `conformes_count` cuenta
+    # entradas de la DdA con `estado_implementacion = 'implantada'`, que es una
+    # autodeclaracion: nadie la cruza con el Vault. En el demo las 60 aplicables
+    # estaban todas en 'implantada', asi que el documento afirmaba "100,0% de
+    # conformidad" sobre un proyecto con UNA evidencia subida y 59
+    # contradicciones detectadas por el propio simulacro de la plataforma.
+    #
+    # El cruce ya existe (m09/dda_evidence_gap_service, el mismo que alimenta el
+    # mapa de calor del portal del auditor): se lee de ahi en vez de escribir
+    # una segunda forma de contarlo. Best-effort -- si no se puede calcular, el
+    # documento dice que no se pudo, no finge un numero.
+    verificadas_con_evidencia = 0
+    pct_verificado = 0.0
+    contradicciones = 0
+    try:
+        from backend.app.motors.m09_audit_prep.dda_evidence_gap_service import (
+            compute_dda_evidence_gaps,
+        )
+
+        matriz = await compute_dda_evidence_gaps(db, project_id)
+        verificadas_con_evidencia = matriz.total_covered
+        pct_verificado = round(matriz.coverage_pct, 1)
+        # Una contradiccion es una medida que la DdA da por implantada y que no
+        # tiene evidencia vigente que lo sostenga.
+        contradicciones = matriz.total_missing + matriz.total_partial
+    except Exception:  # noqa: BLE001 — el documento se emite igual, diciendolo
+        logger.warning(
+            "distintivo · no se pudo cruzar la DdA con el Vault de evidencias",
+            exc_info=True,
+        )
+        verificadas_con_evidencia = -1
+
+    # P1 · la puntuacion de preparacion de auditoria que la propia plataforma
+    # calcula. Es el numero que contradecia al documento, asi que viaja DENTRO
+    # del documento.
+    readiness_score = (await db.execute(sa_text(
+        "SELECT readiness_score FROM audit_preparation_runs "
+        "WHERE project_id = :pid AND readiness_score IS NOT NULL "
+        "ORDER BY created_at DESC LIMIT 1"
+    ), {"pid": str(project_id)})).scalar()
 
     # RSEG desde M30
     rseg_name = "(pendiente designación)"
@@ -270,6 +324,10 @@ async def build_distintivo_context(
         conformes_count=conformes_count,
         no_conformes_count=no_conformes_count,
         pct_conformidad=pct_conformidad,
+        verificadas_con_evidencia=verificadas_con_evidencia,
+        pct_verificado=pct_verificado,
+        readiness_score=int(readiness_score) if readiness_score is not None else None,
+        contradicciones=contradicciones,
         rseg_name=rseg_name,
         rseg_email=rseg_email,
         sponsor_name=sponsor_name,
@@ -433,22 +491,66 @@ def generate_declaration_docx(ctx: DistintivoContext) -> io.BytesIO:
     )
 
     _add_heading(doc, "4. Resultado de la autoevaluación", 1)
-    rtbl = doc.add_table(rows=1, cols=2)
-    rtbl.style = "Light Grid Accent 1"
-    rtbl.rows[0].cells[0].text = "Métrica"
-    rtbl.rows[0].cells[1].text = "Valor"
-    for label, value in [
+    # P1 · la tabla decia "Conformes / No conformes / Porcentaje conformidad"
+    # sobre un recuento de entradas de la DdA marcadas `implantada` -- una
+    # autodeclaracion que nadie cruza con el Vault. El numero no estaba mal
+    # calculado; la ETIQUETA era falsa. Aqui se llama a cada cosa por su nombre
+    # y se imprimen las DOS cifras, la declarada y la verificada, con la
+    # puntuacion de preparacion al lado. El lector ve en que se apoya lo que
+    # esta leyendo sin tener que abrir otra pantalla.
+    _sin_cruce = ctx.verificadas_con_evidencia < 0
+    filas = [
         ("Total medidas Anexo II evaluadas", str(ctx.dda_total)),
         ("Aplicables base", str(ctx.dda_aplicables)),
         ("Aplicables con refuerzos", str(ctx.dda_con_refuerzos)),
         ("No aplicables (justificadas)", str(ctx.dda_no_aplica)),
-        ("Conformes", str(ctx.conformes_count)),
-        ("No conformes", str(ctx.no_conformes_count)),
-        ("Porcentaje conformidad", f"{ctx.pct_conformidad}%"),
-    ]:
+        ("Implantación DECLARADA en la DdA", str(ctx.conformes_count)),
+        ("Pendientes de declarar", str(ctx.no_conformes_count)),
+        ("Porcentaje de implantación declarada", f"{ctx.pct_conformidad}%"),
+        (
+            "VERIFICADAS con evidencia vigente",
+            "no se pudo calcular" if _sin_cruce
+            else str(ctx.verificadas_con_evidencia),
+        ),
+        (
+            "Porcentaje verificado con evidencia",
+            "no se pudo calcular" if _sin_cruce else f"{ctx.pct_verificado}%",
+        ),
+        (
+            "Medidas declaradas sin evidencia que las sostenga",
+            "no se pudo calcular" if _sin_cruce else str(ctx.contradicciones),
+        ),
+        (
+            "Puntuación de preparación de auditoría",
+            "sin ejecutar" if ctx.readiness_score is None
+            else f"{ctx.readiness_score}/100",
+        ),
+    ]
+    rtbl = doc.add_table(rows=1, cols=2)
+    rtbl.style = "Light Grid Accent 1"
+    rtbl.rows[0].cells[0].text = "Métrica"
+    rtbl.rows[0].cells[1].text = "Valor"
+    for label, value in filas:
         cells = rtbl.add_row().cells
         cells[0].text = label
         cells[1].text = value
+
+    doc.add_paragraph(
+        "El porcentaje de implantación declarada recoge lo que la organización "
+        "ha consignado en su Declaración de Aplicabilidad. El porcentaje "
+        "verificado recoge únicamente las medidas que además cuentan con "
+        "evidencia documental vigente en el repositorio. Cuando ambos "
+        "difieren, la diferencia son medidas declaradas cuya prueba está "
+        "pendiente de aportar, y el auditor las pedirá una a una."
+    )
+    if not _sin_cruce and ctx.contradicciones > 0:
+        aviso = doc.add_paragraph()
+        run = aviso.add_run(
+            f"Aviso: {ctx.contradicciones} de las medidas declaradas no tienen "
+            "evidencia vigente que las sostenga. Esta declaración refleja el "
+            "estado consignado, no un estado verificado."
+        )
+        run.bold = True
 
     _add_heading(doc, "5. Distintivo de conformidad", 1)
     doc.add_paragraph(

@@ -792,6 +792,38 @@ async def generate_declaration_docx_endpoint(
     # tenant da 'Project not found'/500 en prod. Mismo guard que issue/download.
     if await _set_project_rls(project_id, db) is None:
         raise HTTPException(status_code=404, detail="Project not found")
+
+    # P1 · la UNICA puerta que se pone aqui, y no es un umbral: es la misma
+    # regla que el endpoint hermano `generate_declaration` (arriba, :385) ya
+    # aplica. `route_machine` define DECLARATION = BASICA y CERTIFICATION =
+    # MEDIA/ALTA. La E-180 es la AUTODECLARACION del art. 38 para BASICA; para
+    # MEDIA/ALTA la conformidad la acredita una entidad certificadora
+    # acreditada, no el propio sujeto.
+    #
+    # Dos manejadores del MISMO documento discrepaban: el hermano rechazaba con
+    # 422 lo que este emitia sin mirar. En el demo eso produjo una
+    # autodeclaracion BASICA E-180 para un proyecto MEDIA.
+    #
+    # No se pone umbral de readiness a proposito: seria una puerta sobre un
+    # numero que sale de datos autodeclarados, y bloquearia un borrador
+    # legitimo. Lo que hace falsa a la declaracion no es el numero, es como se
+    # llamaba -- y eso se arregla en el documento, que ahora imprime lo
+    # declarado, lo verificado con evidencia y la puntuacion de preparacion.
+    route_row = await _get_route_row(db, project_id)
+    if route_row is not None and (
+        _route_type_from_db(route_row.route_type) == RouteType.CERTIFICATION
+    ):
+        raise HTTPException(
+            status_code=422,
+            detail=(
+                "La Declaración de Conformidad E-180 (CCN-STIC 809) es la "
+                "autodeclaración de la categoría BÁSICA. Este proyecto sigue "
+                "la ruta de CERTIFICACIÓN (MEDIA/ALTA), en la que la "
+                "conformidad la acredita una entidad de certificación "
+                "acreditada (art. 38 RD 311/2022), no la propia entidad."
+            ),
+        )
+
     ctx = await build_distintivo_context(db, project_id)
     bio = generate_declaration_docx(ctx)
     docx_bytes = bio.getvalue()
