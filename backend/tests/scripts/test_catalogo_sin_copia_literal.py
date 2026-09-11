@@ -3,7 +3,7 @@
 Contexto. Hasta 2026-09-10 el campo ``descripcion`` de
 ``docs/catalogs/ens_measures_catalog_v1.yaml`` era un extracto literal de la
 guía CCN-STIC 804 v2017, obtenido por extracción automática de PDF. Este
-repositorio es público, así que las 79 descripciones se reescribieron con
+repositorio es público, así que las descripciones se reescribieron con
 redacción propia. Este test impide que la copia vuelva a entrar.
 
 Cómo lo comprueba. Busca los MARCADORES que dejaba aquella extracción y que un
@@ -75,9 +75,20 @@ def medidas(catalogo: dict) -> list[dict]:
     return ms
 
 
-def test_el_catalogo_conserva_las_79_medidas(catalogo: dict, medidas: list[dict]) -> None:
-    """La reescritura no debía añadir ni quitar medidas."""
-    assert len(medidas) == 79, f"Se esperaban 79 medidas, hay {len(medidas)}"
+def test_el_catalogo_conserva_las_73_medidas(catalogo: dict, medidas: list[dict]) -> None:
+    """La reescritura de descripciones no debía añadir ni quitar medidas.
+
+    Eran 79 hasta el 2026-09-11. Bajaron a 73 en el bloque N2, y NO por esta
+    reescritura: se eliminaron seis códigos (op.exp.11, mp.com.9, mp.if.9,
+    mp.per.9, mp.s.8, mp.s.9) que venían de CCN-STIC 804 v2017 -- basada en el
+    RD 3/2010, derogado -- y que NO EXISTEN en el Anexo II del RD 311/2022.
+    Contrastado contra el PDF del BOE en N0.
+
+    Que este test congelara el 79 es parte de lo que N2 vino a arreglar: el
+    catálogo declaraba seis medidas inexistentes, el sembrador las filtraba con
+    una lista negra, y un test fijaba ese 79 como si fuera lo correcto.
+    """
+    assert len(medidas) == 73, f"Se esperaban 73 medidas, hay {len(medidas)}"
     assert catalogo.get("medidas_count") == len(medidas), (
         f"medidas_count={catalogo.get('medidas_count')} no cuadra con "
         f"{len(medidas)} medidas reales"

@@ -8,7 +8,7 @@ fuentes:
     cita en el campo `fuente_oficial` de cada medida como fuente de consulta, para poder
     localizar la sección correspondiente, no como origen del texto.
   aplicabilidad_y_refuerzos: RD 311/2022 Anexo II - Medidas de seguridad ENS
-  codigos_validados_contra: magerit_ens_mapping (73 códigos confirmados en DB)
+  codigos_validados_contra: 'RD 311/2022 Anexo II, extraído del PDF del BOE (73 códigos). Ver backend/scripts/extraer_anexo2_boe.py'
 notas_importantes:
 - 'Cambio 2026-09-10: las 79 descripciones se reescribieron con redacción propia. Antes eran
   extractos literales de la guía CCN-STIC 804 v2017, obtenidos además por extracción automática,
@@ -23,11 +23,15 @@ notas_importantes:
   cambió algún campo distinto de `descripcion`. El test permanente
   backend/tests/scripts/test_catalogo_sin_copia_literal.py comprueba que no reaparecen los
   marcadores de la extracción (encabezados tipo "3.1 [ORG.1]").'
-- CCN-STIC 804 v2017 está basado en RD 3/2010 (versión anterior del ENS); por eso 6 códigos del
-  catálogo (op.exp.11, mp.com.9, mp.if.9, mp.per.9, mp.s.8, mp.s.9) son heredados y no figuran en
-  el Anexo II del RD 311/2022. El loader canónico los descarta y carga 73.
+- 'Cambio 2026-09-11 (bloque N2): se ELIMINARON del catálogo 6 códigos que no existen en el
+  Anexo II del RD 311/2022 (op.exp.11, mp.com.9, mp.if.9, mp.per.9, mp.s.8, mp.s.9). Venían de
+  CCN-STIC 804 v2017, que está basado en el RD 3/2010 (versión derogada del ENS). Antes seguían
+  aquí y el sembrador los filtraba con una lista negra: la fuente declaraba 79 y los consumidores
+  parcheaban. Ahora la fuente declara 73, que es lo que dice la norma, y la lista negra se quitó.
+  Contrastado contra el PDF del BOE: backend/tests/fixtures/anexo2_boe_verificado.json.'
+
 - Aplicabilidad por categoría y refuerzos están actualizados al RD 311/2022 Anexo II.
-medidas_count: 79
+medidas_count: 73
 medidas:
 - codigo: org.1
   nombre: Política De Seguridad
@@ -343,29 +347,6 @@ medidas:
   - T
   refuerzos: {}
   fuente_oficial: CCN-STIC 804 v2017 (junio) - sección 4.3.10
-- codigo: op.exp.11
-  nombre: Protección De Las Claves Criptográficas
-  marco: op
-  familia: op.exp
-  familia_nombre: Explotación
-  descripcion: >-
-    Cubre el ciclo de vida completo del material criptográfico: generación, distribución, custodia, empleo, renovación y
-    retirada. Las claves se producen y se guardan con medios acordes al riesgo, separando los elementos que sólo hacen
-    falta para generarlas de los que intervienen en explotación. Al retirar una clave hay que decidir cuánto tiempo se
-    conserva, sea por necesidad operativa o como prueba para una auditoría. Código heredado del Esquema anterior: en el
-    Anexo II del RD 311/2022 esta materia corresponde a op.exp.10.
-  aplica_basica: false
-  aplica_media: true
-  aplica_alta: true
-  categoria_minima: MEDIA
-  dimensiones_aplicables:
-  - I
-  - C
-  - A
-  refuerzos:
-    A:
-    - R1
-  fuente_oficial: CCN-STIC 804 v2017 (junio) - sección 4.3.11
 - codigo: op.exp.2
   nombre: Configuración De Seguridad
   marco: op
@@ -840,24 +821,6 @@ medidas:
   - T
   refuerzos: {}
   fuente_oficial: CCN-STIC 804 v2017 (junio) - sección 5.4.4
-- codigo: mp.com.9
-  nombre: Medios Alternativos
-  marco: mp
-  familia: mp.com
-  familia_nombre: Protección de las comunicaciones
-  descripcion: >-
-    Prevé vías de comunicación de reserva para cuando fallen las habituales. Han de ofrecer las mismas garantías de
-    seguridad que aquellas a las que sustituyen y contar con un plazo máximo de entrada en servicio aprobado por el
-    responsable. Ese plazo se sostiene en el análisis de impacto, forma parte del plan de continuidad y se comprueba en
-    sus pruebas. Código heredado del Esquema anterior: no figura en el Anexo II del RD 311/2022.
-  aplica_basica: false
-  aplica_media: false
-  aplica_alta: true
-  categoria_minima: ALTA
-  dimensiones_aplicables:
-  - D
-  refuerzos: {}
-  fuente_oficial: CCN-STIC 804 v2017 (junio) - sección 5.4.5
 - codigo: mp.eq.1
   nombre: Puesto De Trabajo Despejado
   marco: mp
@@ -1056,24 +1019,6 @@ medidas:
   - T
   refuerzos: {}
   fuente_oficial: CCN-STIC 804 v2017 (junio) - sección 5.1.7
-- codigo: mp.if.9
-  nombre: Instalaciones Alternativas
-  marco: mp
-  familia: mp.if
-  familia_nombre: Protección de las instalaciones e infraestructuras
-  descripcion: >-
-    Prevé locales de sustitución desde los que seguir prestando el servicio si los habituales quedan indisponibles. Han
-    de ofrecer las mismas garantías que los principales, en particular en control de acceso de personas y de entrada y
-    salida de equipos. El tiempo que tarden en entrar en servicio debe estar acordado con el responsable y respaldado
-    por el análisis de impacto. Código heredado del Esquema anterior: no figura en el Anexo II del RD 311/2022.
-  aplica_basica: false
-  aplica_media: false
-  aplica_alta: true
-  categoria_minima: ALTA
-  dimensiones_aplicables:
-  - D
-  refuerzos: {}
-  fuente_oficial: CCN-STIC 804 v2017 (junio) - sección 5.1.8
 - codigo: mp.info.1
   nombre: Datos De Carácter Personal
   marco: mp
@@ -1261,24 +1206,6 @@ medidas:
   - T
   refuerzos: {}
   fuente_oficial: CCN-STIC 804 v2017 (junio) - sección 5.2.4
-- codigo: mp.per.9
-  nombre: Personal Alternativo
-  marco: mp
-  familia: mp.per
-  familia_nombre: Gestión del personal
-  descripcion: >-
-    Prevé quién puede asumir las funciones críticas si el personal habitual no está disponible. Los sustitutos han de
-    ofrecer las mismas garantías de seguridad y contar con los conocimientos necesarios, ya procedan del propio equipo,
-    de otros turnos, de otras áreas o de un tercero contratado. Conviene comprobar de vez en cuando que ese relevo es
-    realmente viable. Código heredado del Esquema anterior: no figura en el Anexo II del RD 311/2022.
-  aplica_basica: false
-  aplica_media: false
-  aplica_alta: true
-  categoria_minima: ALTA
-  dimensiones_aplicables:
-  - D
-  refuerzos: {}
-  fuente_oficial: CCN-STIC 804 v2017 (junio) - sección 5.2.5
 - codigo: mp.s.1
   nombre: Protección Del Correo Electrónico (E-Mail)
   marco: mp
@@ -1351,42 +1278,6 @@ medidas:
   - D
   refuerzos: {}
   fuente_oficial: RD 311/2022 Anexo II
-- codigo: mp.s.8
-  nombre: Protección Frente A La Denegación De Servicio
-  marco: mp
-  familia: mp.s
-  familia_nombre: Protección de los servicios
-  descripcion: >-
-    Exige medidas preventivas y de reacción frente a los ataques que buscan dejar un servicio inoperativo por
-    saturación. La prevención pasa por dimensionar con holgura lo que queda expuesto al exterior y por mantener el
-    software actualizado y bien configurado, ya que muchos de estos ataques se apoyan en defectos evitables. Código
-    heredado del Esquema anterior: en el Anexo II del RD 311/2022 esta materia corresponde a mp.s.4.
-  aplica_basica: false
-  aplica_media: false
-  aplica_alta: true
-  categoria_minima: ALTA
-  dimensiones_aplicables:
-  - D
-  refuerzos: {}
-  fuente_oficial: CCN-STIC 804 v2017 (junio) - sección 5.8.3
-- codigo: mp.s.9
-  nombre: Medios Alternativos
-  marco: mp
-  familia: mp.s
-  familia_nombre: Protección de los servicios
-  descripcion: >-
-    Prevé una forma alternativa de seguir ofreciendo el servicio mientras se recupera la habitual, por ejemplo una
-    instancia de respaldo del portal. Los medios sustitutos quedan sujetos a las mismas garantías de protección y con un
-    plazo máximo fijado para entrar en funcionamiento. Código heredado del Esquema anterior: no figura en el Anexo II
-    del RD 311/2022.
-  aplica_basica: false
-  aplica_media: false
-  aplica_alta: true
-  categoria_minima: ALTA
-  dimensiones_aplicables:
-  - D
-  refuerzos: {}
-  fuente_oficial: CCN-STIC 804 v2017 (junio) - sección 5.8.4
 - codigo: mp.si.1
   nombre: Etiquetado
   marco: mp

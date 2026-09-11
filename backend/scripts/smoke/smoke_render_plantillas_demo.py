@@ -1311,7 +1311,11 @@ CLIENTE_PILOTO_CONTEXT["cambio_material"] = {
         "SaaS (Microsoft 365 GCC)"
     ),
     "motivacion": "Consolidacion tecnologica + cumplimiento NIS2",
-    "impacto_medidas_afectadas": ["mp.com.3", "mp.s.8", "op.ext.4"],
+    # N2 · "mp.s.8" no existe en el RD 311/2022: la familia mp.s llega a mp.s.4.
+    # Era uno de los seis codigos heredados de CCN-STIC 804 v2017 (RD 3/2010).
+    # Para una migracion del repositorio documental a SaaS, la medida que toca
+    # es mp.s.2 (proteccion de servicios y aplicaciones web).
+    "impacto_medidas_afectadas": ["mp.com.3", "mp.s.2", "op.ext.4"],
     "riesgo_residual_estimado": "BAJO tras adopcion medidas adicionales",
     "requiere_recategorizacion": False,
 }

@@ -47,6 +47,7 @@ from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
 from sqlalchemy.orm import sessionmaker
 
 from backend.app.config import get_settings
+from backend.app.motors.m03_dda.reconciliacion import reconciliar_catalogo
 
 logger = logging.getLogger("seed_all_fulkro")
 logging.basicConfig(
@@ -334,10 +335,20 @@ async def seed_magerit_safeguards(conn, report: SeedReport) -> None:
 async def seed_magerit_ens_mapping(conn, report: SeedReport) -> None:
     data = yaml.safe_load((MAGERIT_DIR / "ens_mapping.yaml").read_text())
     await conn.execute(sa_text("SET LOCAL ROLE fulkro"))
-    r = await conn.execute(sa_text("SELECT COUNT(*) FROM magerit_ens_mapping"))
-    existing = r.scalar() or 0
-    if existing >= 73:
-        report.add("seed:magerit_ens_mapping", "skip", f"ya hay {existing}")
+    # N2 · por contenido, no por contador (mismo defecto que en ens_measures).
+    r = await conn.execute(sa_text("SELECT ens_measure FROM magerit_ens_mapping"))
+    en_bd = {row[0] for row in r.all()}
+    oficiales = {m["measure"] for m in data["ens_to_magerit"]}
+    plan = reconciliar_catalogo(en_bd, oficiales)
+    if plan.borrar:
+        await conn.execute(
+            sa_text("DELETE FROM magerit_ens_mapping WHERE ens_measure = ANY(:cods)"),
+            {"cods": sorted(plan.borrar)},
+        )
+        report.add("seed:magerit_ens_mapping_purga", "ok",
+                   f"borradas {len(plan.borrar)}: {sorted(plan.borrar)}")
+    if not plan.insertar:
+        report.add("seed:magerit_ens_mapping", "skip", plan.explica())
         return
     n = 0
     for m in data["ens_to_magerit"]:
@@ -367,21 +378,38 @@ async def seed_magerit_ens_mapping(conn, report: SeedReport) -> None:
 async def seed_ens_measures(conn, report: SeedReport) -> None:
     data = yaml.safe_load((CATALOG_DIR / "ens_measures_catalog_v1.yaml").read_text())
     medidas = data.get("medidas", [])
-    # Ejecutable 8 Pasada 16 (a · CÓDIGO seed): cargar SOLO las 73 medidas oficiales Anexo II.
-    # El catálogo tiene 79 (73 + 6 rollups de familia/extras no-oficiales). Coherente con
-    # load_ens_measures_catalog.py (intersección magerit_ens_mapping = 73). Sin este filtro la
-    # DdA generaba total_medidas=79 y rompía las aserciones ==73 (m03_dda). Fuente: catálogo
-    # `codigos_validados_contra: magerit_ens_mapping (73)` + skip-list del loader canónico.
-    _NON_OFFICIAL = {"mp.com.9", "mp.if.9", "mp.per.9", "mp.s.8", "mp.s.9", "op.exp.11"}
-    medidas = [m for m in medidas if m.get("codigo") not in _NON_OFFICIAL]
+    # N2 · el catálogo YA trae sólo las 73 del Anexo II. Hubo aquí una lista negra
+    # que filtraba al insertar seis códigos inexistentes; se quitó junto con esos
+    # seis del YAML. Filtrar en el consumidor lo que sobra en la fuente deja la
+    # fuente mintiendo: el YAML seguía declarando 79.
     await conn.execute(sa_text("SET LOCAL ROLE fulkro"))
-    r = await conn.execute(sa_text("SELECT COUNT(*) FROM ens_measures"))
-    existing = r.scalar() or 0
-    if existing >= 73:
-        report.add("seed:ens_measures", "skip", f"ya hay {existing}")
+
+    # N2 · idempotencia por CONTENIDO, no por contador de filas. Antes se decidía
+    # comparando COUNT(*) contra el número oficial, y una base sembrada con el
+    # catálogo viejo tiene 79 filas: el contador la daba por completa, se saltaba
+    # el paso, y los seis códigos que no existen en el RD 311/2022 se quedaban
+    # ahí para siempre. Un contador no sabe QUÉ hay dentro.
+    r = await conn.execute(sa_text(
+        "SELECT codigo FROM ens_measures WHERE deleted_at IS NULL"
+    ))
+    en_bd = {row[0] for row in r.all()}
+    oficiales = {m["codigo"] for m in medidas}
+    plan = reconciliar_catalogo(en_bd, oficiales)
+
+    if plan.borrar:
+        await conn.execute(
+            sa_text("DELETE FROM ens_measures WHERE codigo = ANY(:cods)"),
+            {"cods": sorted(plan.borrar)},
+        )
+        report.add("seed:ens_measures_purga", "ok",
+                   f"borradas {len(plan.borrar)} que no existen en el RD 311/2022: "
+                   f"{sorted(plan.borrar)}")
+
+    if not plan.insertar:
+        report.add("seed:ens_measures", "skip", plan.explica())
     else:
         n = 0
-        for m in medidas:
+        for m in (m for m in medidas if m["codigo"] in plan.insertar):
             await conn.execute(sa_text("""
                 INSERT INTO ens_measures
                     (id, codigo, nombre, marco, familia, descripcion,
