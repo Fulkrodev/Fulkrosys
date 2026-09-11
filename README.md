@@ -1,25 +1,69 @@
-# FULKRO
+<div align="center">
 
-Plataforma que implantaba el **Esquema Nacional de Seguridad** (RD 311/2022) de punta a punta
-—categorización, análisis de riesgos MAGERIT, declaración de aplicabilidad, plan de adecuación,
-generación documental, recogida de evidencias y portal de auditor— construida y operada por una
-sola persona. El proyecto cerró en septiembre de 2026 y el código se publica bajo Apache-2.0.
+<img src="docs/assets/readme-banner.svg" alt="FULKRO · Esquema Nacional de Seguridad" width="100%">
+
+<br>
+
+[![Licencia](https://img.shields.io/badge/licencia-Apache--2.0-6C63FF?style=for-the-badge&labelColor=1a1a2e)](LICENSE)
+[![Python](https://img.shields.io/badge/Python-3.12-6C63FF?style=for-the-badge&labelColor=1a1a2e&logo=python&logoColor=white)](backend/pyproject.toml)
+[![FastAPI](https://img.shields.io/badge/FastAPI-1.201%20operaciones-6C63FF?style=for-the-badge&labelColor=1a1a2e&logo=fastapi&logoColor=white)](#métricas)
+[![Next.js](https://img.shields.io/badge/Next.js%2014-167%20páginas-6C63FF?style=for-the-badge&labelColor=1a1a2e&logo=nextdotjs&logoColor=white)](#los-cuatro-portales)
+[![PostgreSQL](https://img.shields.io/badge/PostgreSQL%2016-253%20tablas-6C63FF?style=for-the-badge&labelColor=1a1a2e&logo=postgresql&logoColor=white)](#cómo-está-construido)
+[![Tests](https://img.shields.io/badge/tests-6.510%20pasan-8B83FF?style=for-the-badge&labelColor=1a1a2e&logo=pytest&logoColor=white)](#suite)
+
+**Categorización · Análisis de riesgos MAGERIT · Declaración de aplicabilidad · Plan de adecuación
+· Generación documental · Evidencias · Portal de auditor**
+
+</div>
+
+<br>
+
+> Plataforma que implantaba el **Esquema Nacional de Seguridad** (RD 311/2022) de punta a punta,
+> construida y operada por una sola persona. El proyecto cerró en septiembre de 2026 y el código
+> se publica bajo Apache-2.0.
+
+<table>
+<tr>
+<td width="25%" align="center"><b>44</b><br><sub>motores de dominio</sub></td>
+<td width="25%" align="center"><b>73</b><br><sub>medidas del Anexo II</sub></td>
+<td width="25%" align="center"><b>4</b><br><sub>portales</sub></td>
+<td width="25%" align="center"><b>7</b><br><sub>fases del ciclo</sub></td>
+</tr>
+</table>
 
 ---
 
 ## Qué se ve
 
-| | |
-|---|---|
-| ![Centro de mando](landing/assets/capturas/marketing/admin-mando.png) | ![Declaración de aplicabilidad](landing/assets/capturas/marketing/admin-dda.png) |
-| **Centro de mando** · estado de todos los proyectos | **Declaración de aplicabilidad** · 73 medidas del Anexo II |
-| ![Plan de adecuación](landing/assets/capturas/marketing/admin-plan.png) | ![Cobertura del auditor](landing/assets/capturas/marketing/auditor-cobertura.png) |
-| **Plan de adecuación** · hitos y dependencias | **Portal de auditor** · cobertura medida contra evidencias |
-| ![Registro de auditoría](landing/assets/capturas/marketing/auditor-registro.png) | ![Portal de cliente](landing/assets/capturas/marketing/cliente-inicio.png) |
-| **Registro inmutable** · cadena de hashes verificable | **Portal de cliente** · lo que el cliente ve y firma |
+<table>
+<tr>
+<td width="50%"><img src="landing/assets/capturas/marketing/admin-mando.png" alt="Centro de mando"></td>
+<td width="50%"><img src="landing/assets/capturas/marketing/admin-dda.png" alt="Declaración de aplicabilidad"></td>
+</tr>
+<tr>
+<td align="center"><b>Centro de mando</b><br><sub>estado de todos los proyectos a la vez</sub></td>
+<td align="center"><b>Declaración de aplicabilidad</b><br><sub>las 73 medidas del Anexo II, con sus dos ejes</sub></td>
+</tr>
+<tr>
+<td width="50%"><img src="landing/assets/capturas/marketing/admin-plan.png" alt="Plan de adecuación"></td>
+<td width="50%"><img src="landing/assets/capturas/marketing/auditor-cobertura.png" alt="Cobertura del auditor"></td>
+</tr>
+<tr>
+<td align="center"><b>Plan de adecuación</b><br><sub>hitos, dependencias y responsables</sub></td>
+<td align="center"><b>Portal de auditor</b><br><sub>cobertura medida contra evidencias, no declarada</sub></td>
+</tr>
+<tr>
+<td width="50%"><img src="landing/assets/capturas/marketing/auditor-registro.png" alt="Registro de auditoría"></td>
+<td width="50%"><img src="landing/assets/capturas/marketing/cliente-inicio.png" alt="Portal de cliente"></td>
+</tr>
+<tr>
+<td align="center"><b>Registro inmutable</b><br><sub>cadena de hashes verificable</sub></td>
+<td align="center"><b>Portal de cliente</b><br><sub>lo que el cliente ve y firma</sub></td>
+</tr>
+</table>
 
-Quedan cuatro más en [`landing/assets/capturas/marketing/`](landing/assets/capturas/marketing/):
-`auditor-resumen`, `cliente-certificacion`, `cliente-firmas` y `cliente-remediaciones`.
+<sub>Quedan cuatro más en <a href="landing/assets/capturas/marketing/"><code>landing/assets/capturas/marketing/</code></a>:
+<code>auditor-resumen</code>, <code>cliente-certificacion</code>, <code>cliente-firmas</code> y <code>cliente-remediaciones</code>.</sub>
 
 ---
 
@@ -109,49 +153,9 @@ capa de identidad. Se eligió a sabiendas.
 
 ## Cómo está construido
 
-```
-                    ┌─────────────────────────────────────────────────────┐
-                    │                    NAVEGADOR                         │
-                    │                                                      │
-   Marcos ─────────▶│  (admin)         167 páginas · Next.js 14 App Router │
-   consultor        │  (client-portal) lo que el cliente ve y firma        │
-                    │  (portal)        auditor ENAC · acceso por enlace    │
-   Cliente ────────▶│  (public)        landing + verificación de firmas    │
-                    │  (legal)         avisos RGPD art. 13                 │
-   Auditor ────────▶│                                                      │
-                    └────────────────────────┬─────────────────────────────┘
-                                             │  cookie httpOnly + CSRF
-                                             │  o enlace mágico Ed25519
-                    ┌────────────────────────▼─────────────────────────────┐
-                    │              FastAPI · 1.100 rutas                   │
-                    │                                                      │
-                    │  authenticate_request  ← una sola puerta, global     │
-                    │    · pool marcos / pool cliente (ADR-013)            │
-                    │    · lista blanca explícita para lo público          │
-                    └────────────────────────┬─────────────────────────────┘
-                                             │
-     ┌───────────────────────────────────────┼───────────────────────────────┐
-     │                    44 MOTORES · ciclo ENS                             │
-     │                                                                       │
-     │   m01 categorización ──▶ m02 MAGERIT ──▶ m03 DdA ──▶ m17 plan         │
-     │        │                     │              │            │            │
-     │        └─────────────────────┴──────────────┴────────────┘            │
-     │                              │                                        │
-     │                    m06 fábrica documental                             │
-     │             render → SHA-256 → Ed25519 → fila → MinIO                 │
-     │                              │                                        │
-     │   m07 evidencias ──▶ m09 expediente ENAC ──▶ m27 conformidad          │
-     │                                                                       │
-     │   transversales: m05 firma · m12 enlaces · m11 copiloto (RAG)         │
-     │                  m_observability · m_workflow_engine                  │
-     └───────────────────────────────┬───────────────────────────────────────┘
-                                     │
-     ┌───────────────────────────────▼───────────────────────────────────────┐
-     │  PostgreSQL 16 · 253 tablas · RLS en todo lo que lleva cliente        │
-     │     pgvector (corpus)  ·  registro con cadena de hashes               │
-     │  MinIO · documentos + evidencias WORM        Redis · colas            │
-     └───────────────────────────────────────────────────────────────────────┘
-```
+<div align="center">
+<img src="docs/assets/arquitectura.svg" alt="Arquitectura: navegador, una sola puerta de autenticación, 44 motores del ciclo ENS, y la capa de datos" width="100%">
+</div>
 
 **La forma tiene una razón.** Un motor es un paquete con su API, su servicio y sus
 modelos, y una regla normativa vive en **un solo motor**. Cuando la misma regla
@@ -219,6 +223,16 @@ expediente que recibe el auditor de la entidad certificadora.
 ---
 
 ## Los cuatro portales
+
+<table>
+<tr>
+<td width="25%" align="center"><b>Admin</b><br><sub>el consultor</sub><br><br><sub>167 páginas<br>navegación cronológica</sub></td>
+<td width="25%" align="center"><b>Cliente</b><br><sub>ve · autoriza · firma</sub><br><br><sub>firma sobre lienzo<br>eIDAS art. 25.1</sub></td>
+<td width="25%" align="center"><b>Auditor</b><br><sub>sólo lectura</sub><br><br><sub>enlace mágico<br>sin cuenta</sub></td>
+<td width="25%" align="center"><b>Público</b><br><sub>verificar sin entrar</sub><br><br><sub>distintivo<br>+ firma Ed25519</sub></td>
+</tr>
+</table>
+
 
 ### Admin · el consultor
 

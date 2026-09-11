@@ -1,0 +1,44 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="320" viewBox="0 0 1200 320" role="img" aria-label="FULKRO · plataforma de implantación del Esquema Nacional de Seguridad">
+  <defs>
+    <linearGradient id="fondo" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%"   stop-color="#12121f"/>
+      <stop offset="55%"  stop-color="#1a1a2e"/>
+      <stop offset="100%" stop-color="#221f45"/>
+    </linearGradient>
+    <linearGradient id="halo" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%"   stop-color="#6C63FF" stop-opacity="0.35"/>
+      <stop offset="100%" stop-color="#6C63FF" stop-opacity="0"/>
+    </linearGradient>
+    <linearGradient id="filo" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%"   stop-color="#6C63FF"/>
+      <stop offset="55%"  stop-color="#8B83FF"/>
+      <stop offset="100%" stop-color="#6C63FF" stop-opacity="0.15"/>
+    </linearGradient>
+  </defs>
+
+  <rect width="1200" height="320" fill="url(#fondo)"/>
+  <circle cx="150" cy="150" r="300" fill="url(#halo)"/>
+  <rect y="316" width="1200" height="4" fill="url(#filo)"/>
+
+  <!-- marca -->
+  <g transform="translate(96, 96) scale(1.35)">
+    <polygon points="48,88 8,88 48,8" fill="#6C63FF" opacity="0.95"/>
+    <polygon points="48,88 88,88 48,8" fill="#8B83FF" opacity="0.7"/>
+    <rect x="12" y="4" width="72" height="10" rx="5" fill="#ffffff" opacity="0.92"/>
+    <circle cx="48" cy="9" r="6" fill="#6C63FF"/>
+  </g>
+
+  <!-- palabra -->
+  <text x="290" y="158" fill="#ffffff"
+        font-family="Inter, -apple-system, BlinkMacSystemFont, Segoe UI, system-ui, sans-serif"
+        font-size="86" font-weight="600" letter-spacing="-0.03em">fulkro</text>
+
+  <!-- reclamo -->
+  <text x="294" y="206" fill="#8B83FF"
+        font-family="Inter, -apple-system, BlinkMacSystemFont, Segoe UI, system-ui, sans-serif"
+        font-size="25" font-weight="500" letter-spacing="0.14em">ESQUEMA NACIONAL DE SEGURIDAD · RD 311/2022</text>
+
+  <text x="294" y="248" fill="#9a9ab5"
+        font-family="Inter, -apple-system, BlinkMacSystemFont, Segoe UI, system-ui, sans-serif"
+        font-size="21" font-weight="400">Categorización · MAGERIT · Declaración de aplicabilidad · Expediente ENAC</text>
+</svg>

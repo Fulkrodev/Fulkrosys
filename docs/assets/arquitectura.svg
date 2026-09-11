@@ -1,0 +1,93 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1180" height="760" viewBox="0 0 1180 760" role="img" aria-label="Arquitectura de FULKRO">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#14142a"/><stop offset="100%" stop-color="#1a1a2e"/>
+    </linearGradient>
+    <linearGradient id="viol" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#6C63FF"/><stop offset="100%" stop-color="#8B83FF"/>
+    </linearGradient>
+    <marker id="fl" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+      <path d="M0,0 L10,5 L0,10 z" fill="#6C63FF"/>
+    </marker>
+    <style>
+      .t  { font-family: Inter, -apple-system, Segoe UI, system-ui, sans-serif; }
+      .h  { font-size: 19px; font-weight: 600; fill: #ffffff; }
+      .s  { font-size: 14px; fill: #b9b9d4; }
+      .m  { font-size: 13px; fill: #8B83FF; font-weight: 500; }
+      .k  { font-size: 12px; fill: #7a7a99; letter-spacing: .10em; font-weight: 600; }
+      .box{ fill: #20203a; stroke: #32325c; stroke-width: 1.5; }
+    </style>
+  </defs>
+
+  <rect width="1180" height="760" rx="16" fill="url(#bg)"/>
+
+  <!-- ── navegador ── -->
+  <text class="t k" x="48" y="46">QUIÉN ENTRA</text>
+  <rect class="box" x="40" y="60" width="1100" height="118" rx="12"/>
+  <rect x="40" y="60" width="5" height="118" rx="2.5" fill="url(#viol)"/>
+  <text class="t h" x="70" y="92">Navegador · Next.js 14 App Router</text>
+  <text class="t s" x="70" y="120">Marcos, el consultor  ·  el cliente  ·  el auditor de la entidad certificadora  ·  cualquiera</text>
+  <text class="t m" x="70" y="150">(admin) 167 páginas   (client-portal)   (portal) auditor   (public) landing + verificación</text>
+
+  <path d="M590,178 L590,214" stroke="#6C63FF" stroke-width="2" marker-end="url(#fl)"/>
+  <text class="t s" x="606" y="202">cookie httpOnly + CSRF, o enlace mágico Ed25519</text>
+
+  <!-- ── puerta ── -->
+  <text class="t k" x="48" y="248">UNA SOLA PUERTA</text>
+  <rect class="box" x="40" y="262" width="1100" height="96" rx="12"/>
+  <rect x="40" y="262" width="5" height="96" rx="2.5" fill="url(#viol)"/>
+  <text class="t h" x="70" y="294">FastAPI · 1.201 operaciones</text>
+  <text class="t s" x="70" y="322">authenticate_request corre en todo lo que no esté en la lista blanca explícita</text>
+  <text class="t m" x="70" y="344">pool del consultor  ·  pool del cliente  —  separados por diseño (ADR-013)</text>
+
+  <path d="M590,358 L590,394" stroke="#6C63FF" stroke-width="2" marker-end="url(#fl)"/>
+
+  <!-- ── motores ── -->
+  <text class="t k" x="48" y="428">44 MOTORES · EL CICLO ENS</text>
+  <rect class="box" x="40" y="442" width="1100" height="180" rx="12"/>
+  <rect x="40" y="442" width="5" height="180" rx="2.5" fill="url(#viol)"/>
+
+  <g>
+    <rect x="70"  y="472" width="150" height="48" rx="8" fill="#2a2a4d" stroke="#6C63FF" stroke-width="1.5"/>
+    <text class="t" x="145" y="494" font-size="14" font-weight="600" fill="#ffffff" text-anchor="middle">m01 categoría</text>
+    <text class="t" x="145" y="512" font-size="12" fill="#8B83FF" text-anchor="middle">acta E-012</text>
+
+    <rect x="246" y="472" width="150" height="48" rx="8" fill="#2a2a4d" stroke="#6C63FF" stroke-width="1.5"/>
+    <text class="t" x="321" y="494" font-size="14" font-weight="600" fill="#ffffff" text-anchor="middle">m02 MAGERIT</text>
+    <text class="t" x="321" y="512" font-size="12" fill="#8B83FF" text-anchor="middle">informe E-028</text>
+
+    <rect x="422" y="472" width="150" height="48" rx="8" fill="#2a2a4d" stroke="#6C63FF" stroke-width="1.5"/>
+    <text class="t" x="497" y="494" font-size="14" font-weight="600" fill="#ffffff" text-anchor="middle">m03 DdA</text>
+    <text class="t" x="497" y="512" font-size="12" fill="#8B83FF" text-anchor="middle">73 medidas</text>
+
+    <rect x="598" y="472" width="150" height="48" rx="8" fill="#2a2a4d" stroke="#6C63FF" stroke-width="1.5"/>
+    <text class="t" x="673" y="494" font-size="14" font-weight="600" fill="#ffffff" text-anchor="middle">m17 plan</text>
+    <text class="t" x="673" y="512" font-size="12" fill="#8B83FF" text-anchor="middle">E-150</text>
+
+    <rect x="774" y="472" width="150" height="48" rx="8" fill="#2a2a4d" stroke="#6C63FF" stroke-width="1.5"/>
+    <text class="t" x="849" y="494" font-size="14" font-weight="600" fill="#ffffff" text-anchor="middle">m07 evidencias</text>
+    <text class="t" x="849" y="512" font-size="12" fill="#8B83FF" text-anchor="middle">vault WORM</text>
+
+    <rect x="950" y="472" width="160" height="48" rx="8" fill="#2a2a4d" stroke="#6C63FF" stroke-width="1.5"/>
+    <text class="t" x="1030" y="494" font-size="14" font-weight="600" fill="#ffffff" text-anchor="middle">m09 · m27</text>
+    <text class="t" x="1030" y="512" font-size="12" fill="#8B83FF" text-anchor="middle">expediente · E-041</text>
+
+    <path d="M220,496 L242,496" stroke="#6C63FF" stroke-width="2" marker-end="url(#fl)"/>
+    <path d="M396,496 L418,496" stroke="#6C63FF" stroke-width="2" marker-end="url(#fl)"/>
+    <path d="M572,496 L594,496" stroke="#6C63FF" stroke-width="2" marker-end="url(#fl)"/>
+    <path d="M748,496 L770,496" stroke="#6C63FF" stroke-width="2" marker-end="url(#fl)"/>
+    <path d="M924,496 L946,496" stroke="#6C63FF" stroke-width="2" marker-end="url(#fl)"/>
+  </g>
+
+  <rect x="70" y="546" width="1040" height="52" rx="8" fill="#191932" stroke="#32325c" stroke-width="1.5"/>
+  <text class="t" x="90" y="570" font-size="14" font-weight="600" fill="#ffffff">m06 · fábrica documental — el único camino por el que se emite un entregable</text>
+  <text class="t" x="90" y="590" font-size="13" fill="#8B83FF">render → SHA-256 → firma Ed25519 → fila en `documents` → copia durable en MinIO</text>
+
+  <path d="M590,622 L590,658" stroke="#6C63FF" stroke-width="2" marker-end="url(#fl)"/>
+
+  <!-- ── datos ── -->
+  <rect class="box" x="40" y="672" width="1100" height="66" rx="12"/>
+  <rect x="40" y="672" width="5" height="66" rx="2.5" fill="url(#viol)"/>
+  <text class="t" x="70" y="700" font-size="16" font-weight="600" fill="#ffffff">PostgreSQL 16 · 253 tablas</text>
+  <text class="t s" x="70" y="722">RLS en todo lo que lleva cliente  ·  pgvector para el corpus  ·  registro con cadena de hashes  ·  MinIO WORM  ·  Redis</text>
+</svg>
