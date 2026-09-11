@@ -51,6 +51,24 @@ async def _setup_with_dda(db, categoria="BASICA"):
             "INSERT INTO categorizations (id, system_id, categoria_resultante, created_at) "
             "VALUES (:id, :sid, :cat, now())"
         ), {"id": str(uuid4()), "sid": str(system_id), "cat": categoria})
+        # N1 · el sistema tiene que VALORAR sus dimensiones. Antes este fixture
+        # creaba la categorizacion y nada mas, y el escenario funcionaba solo
+        # porque la generacion de la DdA ignoraba el eje de dimension: contaba
+        # las medidas de eje categoria y ya. Con el Anexo II punto 5 aplicado de
+        # verdad -- una medida aplica por la CATEGORIA del sistema O por el
+        # NIVEL de una dimension -- un sistema sin ninguna dimension valorada da
+        # 36 medidas aplicables, no 47. El escenario, no el arreglo, era lo que
+        # estaba mal: un sistema BASICA real tiene dimensiones valoradas.
+        _NIVEL = {"BASICA": "BAJO", "MEDIA": "MEDIO", "ALTA": "ALTO"}
+        await db.execute(text(
+            "INSERT INTO information_types (id, system_id, nombre, "
+            "  valoracion_c, valoracion_i, valoracion_d, valoracion_a, "
+            "  valoracion_t, created_at) "
+            "VALUES (:id, :sid, 'Datos del servicio', :n, :n, :n, :n, :n, now())"
+        ), {
+            "id": str(uuid4()), "sid": str(system_id),
+            "n": _NIVEL.get(categoria, "BAJO"),
+        })
     await db.flush()
 
     # Generate DdA via Motor 3 (requires CategoriaSistema enum)

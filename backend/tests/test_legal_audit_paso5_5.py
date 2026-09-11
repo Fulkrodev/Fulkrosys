@@ -61,8 +61,20 @@ def test_e119_references_rgpd_articles():
 
 
 def test_e120_references_crypto_measures():
+    """La politica de claves cita la medida de cifrado del Anexo II.
+
+    O1 · este test aseveraba `mp.info.9`, que NO EXISTE en el Anexo II: no esta
+    entre las 73 medidas del PDF del BOE (`backend/tests/fixtures/
+    anexo2_boe_verificado.json`). La plantilla la citaba, se corrigio a
+    `op.exp.10` -- que si existe y es Cifrado -- y el test se quedo aseverando
+    el codigo fantasma. Un test que exige una medida inventada en una politica
+    firmable es peor que no tenerlo.
+    """
     content = (POLICIES / "E120_politica_de_gestion_de_claves_criptograficas.md").read_text()
-    assert "mp.info.9" in content
+    assert "op.exp.10" in content
+    assert "mp.info.9" not in content, (
+        "vuelve a citarse una medida que no esta en el Anexo II"
+    )
 
 
 def test_e125_references_clean_desk_measures():
