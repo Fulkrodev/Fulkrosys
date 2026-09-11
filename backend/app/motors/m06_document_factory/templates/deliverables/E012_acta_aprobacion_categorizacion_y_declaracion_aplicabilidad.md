@@ -22,6 +22,7 @@ norma_aplicable: "RD 311/2022 Anexo I (categorización) + Anexo II (DA) + CCN-ST
 | Campo | Valor |
 |-------|-------|
 | Fecha de aprobación | **{{ fecha }}** |
+| Entidad | **{{ cliente.razon_social }}**{% if cliente.nif %} · NIF **{{ cliente.nif }}**{% endif %} |
 | Sistema objeto | Sistemas de información del ámbito SGSI de **{{ cliente.razon_social }}** |
 | Órgano aprobador | Comité de Seguridad de la Información |
 | Metodología | {{ dec.metodologia if dec and dec.metodologia else 'RD 311/2022 Anexo I + CCN-STIC 803' }} |

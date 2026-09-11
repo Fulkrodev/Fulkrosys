@@ -1,6 +1,7 @@
 """Motor 1 — Categorization Engine: REST API endpoints."""
 import logging
 import uuid
+from pathlib import Path
 
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy import select, text, func as sa_func
@@ -863,6 +864,32 @@ async def get_categorization_version(
 # ENDPOINT 14: Acta E-012 as PDF
 # ================================================================
 
+
+async def _exigir_categorizacion(
+    system_id: uuid.UUID, db: AsyncSession,
+) -> Categorization:
+    """El acta DECLARA la categoria; sin categorizacion no hay acta que emitir.
+
+    Estaba copiado en los dos endpoints del acta (PDF y DOCX). Aqui una vez.
+    """
+    cat = (await db.execute(
+        select(Categorization)
+        .where(
+            Categorization.system_id == system_id,
+            Categorization.deleted_at.is_(None),
+        )
+        .order_by(Categorization.version.desc())
+        .limit(1)
+    )).scalars().first()
+    if not cat:
+        raise HTTPException(
+            status_code=404,
+            detail="Sistema no categorizado. Ejecute categorize primero.",
+        )
+    return cat
+
+
+
 @router.get(
     "/systems/{system_id}/acta-e012.pdf",
 )
@@ -870,67 +897,52 @@ async def get_acta_e012_pdf(
     system_id: uuid.UUID,
     db: AsyncSession = Depends(get_db),
 ):
-    """Genera el Acta E-012 en formato PDF para descarga.
+    """Sirve el Acta E-012 del sistema en PDF, registrada en ``documents``.
 
-    Usa docxtpl para rellenar plantilla provisional + LibreOffice headless
-    para convertir a PDF. Pipeline reusable via core/pdf_renderer.py.
+    O2 · antes esto renderizaba el acta en un directorio temporal, la mandaba
+    al navegador y borraba el directorio: no quedaba fichero, ni fila, ni hash,
+    ni firma. El expediente que recibe el auditor del ENAC se arma leyendo
+    ``documents``, asi que el acta de categorizacion -- el documento con la
+    doble firma del art. 40.2 -- no viajaba en el expediente. Ahora pasa por la
+    fabrica documental m06, que es la que ya registraba todo lo demas.
     """
     from fastapi.responses import Response as FastAPIResponse
 
-    system = await _get_system_with_rls(system_id, db)
-
-    # Check categorization exists
-    cat_result = await db.execute(
-        select(Categorization)
-        .where(Categorization.system_id == system_id, Categorization.deleted_at.is_(None))
-        .order_by(Categorization.version.desc())
-        .limit(1)
-    )
-    cat = cat_result.scalars().first()
-    if not cat:
-        raise HTTPException(status_code=404, detail="Sistema no categorizado. Ejecute categorize primero.")
-
-    # R03-wiring · CANÓNICO: plantilla m06 E-012 (doble firma competente art.40.2
-    # RD 311/2022 · RInfo+RServ aprueban, RSeg conforme) + contexto m06 desde m01.
-    # Reemplaza la variante B (acta_e012_provisional.docx · firmantes incorrectos).
-    # Render por el pipeline m06 (render_docx aplica marca/firmas/filtros ES, que
-    # PDFRenderer estricto NO inyecta) → PDF vía convert_docx_to_pdf (LibreOffice).
-    import tempfile
-    from pathlib import Path
+    await _get_system_with_rls(system_id, db)
+    await _exigir_categorizacion(system_id, db)
 
     from backend.app.motors.m06_document_factory.acta_e012_generator import (
-        build_e012_context,
-    )
-    from backend.app.motors.m06_document_factory.rendering import (
-        convert_docx_to_pdf,
-        render_docx,
+        generar_o_recuperar_acta_e012,
     )
 
-    context, _ = await build_e012_context(db, system_id)
-    template_path = (
-        Path(__file__).resolve().parents[4] / "var" / "templates_docx" / "E-012.docx"
-    )
     try:
-        with tempfile.TemporaryDirectory(prefix="fulkro_acta_e012_") as td:
-            tdp = Path(td)
-            docx_out = tdp / "acta_e012.docx"
-            render_docx(template_path, context, docx_out)
-            pdf_path = convert_docx_to_pdf(docx_out, tdp)
-            if pdf_path is None:
-                raise HTTPException(
-                    status_code=503,
-                    detail="Conversión a PDF no disponible (LibreOffice).",
-                )
-            pdf_bytes = pdf_path.read_bytes()
+        _, resultado = await generar_o_recuperar_acta_e012(db, system_id)
     except HTTPException:
         raise
     except Exception as e:  # pragma: no cover — render/convert hard failure
-        raise HTTPException(status_code=500, detail=f"Error generando PDF del acta E-012: {e}")
+        raise HTTPException(
+            status_code=500, detail=f"Error generando PDF del acta E-012: {e}",
+        )
+    await db.commit()
+
+    pdf_path = resultado.get("pdf_path")
+    if not pdf_path or not Path(pdf_path).exists():
+        raise HTTPException(
+            status_code=503,
+            detail="Conversión a PDF no disponible (LibreOffice).",
+        )
 
     return FastAPIResponse(
-        content=pdf_bytes,
+        content=Path(pdf_path).read_bytes(),
         media_type="application/pdf",
-        headers={"Content-Disposition": f'attachment; filename="acta_e012_{system_id}.pdf"'},
+        headers={
+            "Content-Disposition":
+                f'attachment; filename="acta_e012_{system_id}.pdf"',
+            # El hash del fichero registrado, para que quien lo descarga pueda
+            # comprobar que es el mismo que consta en el expediente.
+            "X-Fulkro-Document-Id": str(resultado.get("document_id") or ""),
+            "X-Fulkro-Rendered-Hash": resultado.get("rendered_hash") or "",
+        },
     )
 
 
@@ -945,49 +957,45 @@ async def get_acta_e012_docx(
     system_id: uuid.UUID,
     db: AsyncSession = Depends(get_db),
 ):
-    """Genera el Acta E-012 en formato DOCX para edicion por el responsable ENS."""
+    """Sirve el Acta E-012 en DOCX, el mismo fichero registrado que el PDF."""
     from fastapi.responses import Response as FastAPIResponse
 
-    system = await _get_system_with_rls(system_id, db)
-
-    cat_result = await db.execute(
-        select(Categorization)
-        .where(Categorization.system_id == system_id, Categorization.deleted_at.is_(None))
-        .order_by(Categorization.version.desc())
-        .limit(1)
-    )
-    cat = cat_result.scalars().first()
-    if not cat:
-        raise HTTPException(status_code=404, detail="Sistema no categorizado. Ejecute categorize primero.")
-
-    # R03-wiring · CANÓNICO: plantilla m06 E-012 (doble firma art.40.2) + contexto
-    # m06 desde m01 · render por el pipeline m06 (marca/firmas/filtros ES).
-    import tempfile
-    from pathlib import Path
+    await _get_system_with_rls(system_id, db)
+    await _exigir_categorizacion(system_id, db)
 
     from backend.app.motors.m06_document_factory.acta_e012_generator import (
-        build_e012_context,
+        generar_o_recuperar_acta_e012,
     )
-    from backend.app.motors.m06_document_factory.rendering import render_docx
 
-    context, _ = await build_e012_context(db, system_id)
-    template_path = (
-        Path(__file__).resolve().parents[4] / "var" / "templates_docx" / "E-012.docx"
-    )
     try:
-        with tempfile.TemporaryDirectory(prefix="fulkro_acta_e012_") as td:
-            docx_out = Path(td) / "acta_e012.docx"
-            render_docx(template_path, context, docx_out)
-            docx_bytes = docx_out.read_bytes()
+        _, resultado = await generar_o_recuperar_acta_e012(db, system_id)
+    except HTTPException:
+        raise
     except Exception as e:  # pragma: no cover — render hard failure
-        raise HTTPException(status_code=500, detail=f"Error generando DOCX del acta E-012: {e}")
+        raise HTTPException(
+            status_code=500, detail=f"Error generando DOCX del acta E-012: {e}",
+        )
+    await db.commit()
+
+    docx_path = resultado.get("docx_path")
+    if not docx_path or not Path(docx_path).exists():  # pragma: no cover
+        raise HTTPException(
+            status_code=503, detail="El acta registrada no tiene DOCX en disco.",
+        )
 
     return FastAPIResponse(
-        content=docx_bytes,
-        media_type="application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-        headers={"Content-Disposition": f'attachment; filename="acta_e012_{system_id}.docx"'},
+        content=Path(docx_path).read_bytes(),
+        media_type=(
+            "application/vnd.openxmlformats-officedocument"
+            ".wordprocessingml.document"
+        ),
+        headers={
+            "Content-Disposition":
+                f'attachment; filename="acta_e012_{system_id}.docx"',
+            "X-Fulkro-Document-Id": str(resultado.get("document_id") or ""),
+            "X-Fulkro-Rendered-Hash": resultado.get("rendered_hash") or "",
+        },
     )
-
 
 
 # ================================================================
