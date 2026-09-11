@@ -13,7 +13,7 @@ significaba dos decisiones distintas según en qué carpeta miraras**.
 |---|---|---|
 | `docs/spec/DECISIONS.md` | ADR-004 … ADR-052, en un solo fichero | La primera época. Formato monolítico de las sesiones 1-11. |
 | `docs/architecture/ADR-XXX_*.md` | ADR-046 … ADR-055, ficha por decisión | El monolito creció y los diffs se volvieron ilegibles. Desde ADR-046 cada decisión tiene su fichero. |
-| `docs/adr/ADR-XXX-*.md` | ADR-056 … ADR-060, ficha por decisión | Los de esta campaña. Misma convención que la anterior, otro directorio. |
+| `docs/adr/ADR-XXX-*.md` | ADR-056 … ADR-061, ficha por decisión | Los de esta campaña. Misma convención que la anterior, otro directorio. |
 
 Que sean tres no es una decisión: es sedimento. Unificarlo movería ficheros que
 están enlazados desde commits, migraciones y comentarios de código, y ese trabajo
@@ -32,7 +32,7 @@ teórico, ya confundía al propio repo:
 | ADR-004 | no hacer videollamada propia (citado en `m_meetings`, `m20_workspace`, dos migraciones) | «una llamada al modelo que falla no es un éxito» |
 | ADR-005 | el motor de mensajería con el cliente (citado en `m29_client_messaging`) | «el modelo en el proceso limita los workers» |
 
-**Arreglo**: la serie nueva se renumeró a **ADR-056 … ADR-060**, continuando la
+**Arreglo**: la serie nueva se renumeró a **ADR-056 … ADR-060** (y sigue: ADR-061), continuando la
 secuencia global. Las referencias por ruta y las que apuntaban a la serie nueva
 se actualizaron; las que apuntan a la vieja se dejaron intactas, que es lo que
 debían decir desde el principio.
@@ -74,7 +74,7 @@ sepa, que lo cierre.
 
 ## Convención para el siguiente
 
-- El próximo es **ADR-061**, ficha propia en `docs/adr/`.
+- El próximo es **ADR-062**, ficha propia en `docs/adr/`.
 - Un número es de una sola decisión, para siempre. Antes de coger uno, mírese
   esta tabla.
 - El título del fichero y el `# ADR-XXX` de la primera línea dicen el mismo
@@ -144,3 +144,4 @@ sepa, que lo cierre.
 | **[ADR-058](ADR-058-escalabilidad-horizontal.md)** | ¿Es escalable en horizontal? Medido con dos réplicas | ficha propia · `docs/adr/` |
 | **[ADR-059](ADR-059-llamada-llm-fallida-no-es-exito.md)** | Una llamada al modelo que falla no puede quedar registrada como éxito | ficha propia · `docs/adr/` |
 | **[ADR-060](ADR-060-el-modelo-en-el-proceso-limita-los-workers.md)** | El número de workers no lo limita la CPU: lo limita la memoria del modelo | ficha propia · `docs/adr/` |
+| **[ADR-061](ADR-061-el-eje-de-dimensiones-y-la-dimension-no-afectada.md)** | El eje de dimensiones: una dimensión no afectada no se adscribe a ningún nivel | ficha propia · `docs/adr/` |
