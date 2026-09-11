@@ -102,17 +102,28 @@ export function DatosTab({
             )}
           </div>
 
+          {/*
+            Los dos campos de solo lectura llevan id/htmlFor como cualquier otro.
+            Un campo readOnly sigue siendo un campo: aparece en el recorrido por
+            tabulador y un lector de pantalla lo anuncia. Sin la asociacion, lo
+            anuncia SIN NOMBRE -- "B00000F1X, cuadro de texto" -- y el texto de al
+            lado no lo suple, porque un <Label> sin htmlFor es texto suelto. Era la
+            violacion critica `label` que quedaba viva en la puerta de axe de esta
+            pagina despues de 2c1e40f, que arreglo ContactsList y no este fichero.
+          */}
           <div className="flex flex-col gap-2">
-            <Label>NIF / CIF (read-only)</Label>
+            <Label htmlFor="cif-readonly">NIF / CIF (read-only)</Label>
             <Input
+              id="cif-readonly"
               value={detail.cif}
               readOnly
               className="bg-fulkro-ink-50/30 font-mono"
             />
           </div>
           <div className="flex flex-col gap-2">
-            <Label>Fecha alta (read-only)</Label>
+            <Label htmlFor="fecha-alta-readonly">Fecha alta (read-only)</Label>
             <Input
+              id="fecha-alta-readonly"
               value={new Date(detail.created_at).toLocaleDateString("es-ES")}
               readOnly
               className="bg-fulkro-ink-50/30"

@@ -566,8 +566,9 @@ export function ExitChecklist({ projectId }: { projectId: string }) {
               />
             </div>
             <div className="flex flex-col gap-1.5">
-              <Label>Nota</Label>
+              <Label htmlFor="exit-complete-note">Nota</Label>
               <Textarea
+                id="exit-complete-note"
                 value={completeDialog.note}
                 onChange={(e) =>
                   setCompleteDialog((s) => ({ ...s, note: e.target.value }))
@@ -612,8 +613,9 @@ export function ExitChecklist({ projectId }: { projectId: string }) {
             </DialogDescription>
           </DialogHeader>
           <div className="flex flex-col gap-1.5">
-            <Label>Justificación</Label>
+            <Label htmlFor="exit-status-note">Justificación</Label>
             <Textarea
+              id="exit-status-note"
               value={statusDialog.note}
               onChange={(e) =>
                 setStatusDialog((s) => ({ ...s, note: e.target.value }))
