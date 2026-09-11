@@ -165,15 +165,22 @@ Con la rampa de carga de `make carga` sobre el demo (14 núcleos):
 | | 1 réplica | 2 réplicas |
 |---|---|---|
 | endpoints de base de datos (c=40) | 157–430 rps | ×1,7 a ×2,4 |
+| `/auth/me` (c=40) · la excepción | 306,8 rps | **×0,86** · empeora |
 | `/corpus/search` (c=1) | 7,2 rps · p50 54 ms | **se cae: 30 s y error** |
 | CPU del backend, endpoints de base | ~200 % | — |
 | CPU del backend, `/corpus/search` | **1.324 %** | — |
+| memoria del modelo, por proceso | **1,48 GB** | ×nº de workers |
 
-Las tres cifras juntas dicen una sola cosa:
+`/auth/me` va en la tabla porque es el único que **no** mejora, y una tabla sin
+sus excepciones no mide nada. Por qué no escala como los demás no se ha
+investigado, y ADR-060 lo deja dicho sin inventar la causa.
+
+Las cifras juntas dicen una sola cosa:
 
 > **El número de procesos de backend no lo limita la CPU. Lo limita la memoria
 > del modelo de embeddings**, porque cada worker de uvicorn carga su propia copia
-> de e5-large (~1,4 GB) y abre su propio grupo de hilos de ONNX.
+> de e5-large (**1,48 GB medidos**) y abre su propio grupo de hilos de ONNX (58
+> hilos sobre 14 núcleos).
 
 De ahí sale la asimetría que se ve en la tabla: un endpoint de base de datos es
 espera de E/S y se reparte bien; una búsqueda del corpus es aritmética densa y un

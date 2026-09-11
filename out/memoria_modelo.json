@@ -1,0 +1,17 @@
+{
+  "_que_es": "RSS de un proceso que carga e5-large como lo carga el backend (fastembed/ONNX Runtime). Sustituye por una medida el '~1,4 GB por proceso' que ADR-060 afirmaba sin fuente.",
+  "_como_se_reproduce": "docker run --rm -v $PWD/backend/scripts/medir_memoria_modelo.py:/tmp/m.py:ro --entrypoint python fulkro/backend:demo /tmp/m.py",
+  "_imagen": "fulkro/backend:demo",
+  "_fecha": "2026-09-11",
+  "1_interprete_solo_mb": 10.8,
+  "2_imports_sin_modelo_mb": 99.8,
+  "onnxruntime_version": "1.30.0",
+  "3_modelo_construido_mb": 1603.6,
+  "4_tras_primer_embed_mb": 1607.7,
+  "dimensiones": 1024,
+  "5_tras_lote_32_mb": 1613.7,
+  "coste_del_modelo_mb": 1513.9,
+  "hilos_del_proceso": 58,
+  "nucleos_visibles": 14,
+  "ort_intra_op_threads_por_defecto": 0
+}
