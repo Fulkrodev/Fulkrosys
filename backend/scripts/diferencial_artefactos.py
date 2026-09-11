@@ -29,7 +29,6 @@ Uso:
 from __future__ import annotations
 
 import json
-import sys
 
 from backend.app.motors.m01_categorization.aplicabilidad import (
     DIMENSIONES_ENS,
