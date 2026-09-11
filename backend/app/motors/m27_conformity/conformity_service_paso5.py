@@ -40,6 +40,10 @@ from backend.app.models.conformity_lifecycle import (
     StakeholdersGraphSnapshotRow,
 )
 from backend.app.models.core import Categorization, Project, System
+from backend.app.motors.m27_conformity.bienio import (
+    PERIODO_AUDITORIA_ANYOS,
+    proxima_fecha_bienal,
+)
 
 from .catalogs import (
     OVERLAY_TYPES,
@@ -61,7 +65,9 @@ ROUTE_STATUSES = (
 )
 
 RECERTIFICATION_MONTHS = 21  # 3 meses antes del aniversario bianual
-CERTIFICATION_VALIDITY_MONTHS = 24
+# O1 · era 24 meses y se convertia con "* 30" = 720 dias, diez menos que los
+# 730 que usaban los otros tres sitios. El plazo canonico esta en bienio.py.
+CERTIFICATION_VALIDITY_MONTHS = PERIODO_AUDITORIA_ANYOS * 12
 
 MATERIALITY_THRESHOLD = 0.6
 
@@ -228,7 +234,7 @@ class ConformityServicePaso5:
         elif category in ("MEDIA", "ALTA"):
             route_type = "certificacion_enac"
             route_subtype = "enac_accredited"
-            exp = date.today() + timedelta(days=CERTIFICATION_VALIDITY_MONTHS * 30)
+            exp = proxima_fecha_bienal(date.today())
         else:
             raise ConformityError(
                 f"Categoria invalida o ausente para {project_id}: {category}"

@@ -20,9 +20,14 @@ from typing import Any
 
 from sqlalchemy import text as sa_text
 from sqlalchemy.ext.asyncio import AsyncSession
+from backend.app.motors.m27_conformity.bienio import (
+    proxima_fecha_bienal,
+)
 
 
-BIANNUAL_PERIOD_DAYS = 730  # 2 años exactos
+# O1 · el plazo del art. 31 vive en m27_conformity/bienio.py. Antes aqui habia
+# "730  # 2 años exactos", que ni son exactos (se come el bisiesto) ni eran
+# los mismos que los 720 de conformity_service_paso5.
 SUBSTANTIAL_CHANGE_TYPES: set[str] = {
     "cloud_migration",
     "datacenter_change",
@@ -54,10 +59,10 @@ async def schedule_biannual_audit(
     """Trigger automático: art. 31 exige auditoría externa cada 2 años para Media/Alta.
 
     Llamado típicamente al obtener conformidad inicial. Crea entrada
-    audit_schedule con ``next_audit_due = conformity_date + 730 días``.
+    audit_schedule con ``next_audit_due = conformity_date + 2 años`` (art. 31).
     Idempotente: si ya existe biannual activa, actualiza fecha.
     """
-    next_due = conformity_date + timedelta(days=BIANNUAL_PERIOD_DAYS)
+    next_due = proxima_fecha_bienal(conformity_date)
     sched_id = uuid.uuid4()
 
     existing = await db.execute(

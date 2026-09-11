@@ -9,7 +9,7 @@ from __future__ import annotations
 import logging
 import uuid
 from dataclasses import dataclass, field
-from datetime import date, datetime, timedelta, timezone
+from datetime import date, datetime, timezone
 from typing import Any
 
 from sqlalchemy import select, text as sa_text
@@ -19,6 +19,9 @@ from backend.app.models.conformity_lifecycle import (
     RenewalCampaignRow,
 )
 from backend.app.models.core import Project
+from backend.app.motors.m27_conformity.bienio import (
+    proxima_fecha_bienal,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -27,7 +30,7 @@ logger = logging.getLogger(__name__)
 ALERT_6M_BEFORE_DAYS = 180   # dia 550 desde certificacion -> 6m antes
 ALERT_3M_BEFORE_DAYS = 90    # dia 640 -> 3m antes (crear campana)
 ALERT_1M_BEFORE_DAYS = 30    # dia 700 -> 1m antes (segunda alerta)
-CERTIFICATION_VALIDITY_DAYS = 730
+# O1 · ver m27_conformity/bienio.py: el plazo es de ANYOS (art. 31).
 
 
 @dataclass
@@ -93,7 +96,7 @@ async def _evaluate_one_project(
     if not certified_at:
         return
 
-    aniversario = certified_at + timedelta(days=CERTIFICATION_VALIDITY_DAYS)
+    aniversario = proxima_fecha_bienal(certified_at)
     days_to_aniversario = (aniversario - today).days
 
     project_id_str = str(project.id)
@@ -209,7 +212,7 @@ async def _create_renewal_campaign(
 ) -> RenewalCampaignRow:
     """Crea campana bianual auto-triggered 3m antes."""
     now = datetime.now(timezone.utc)
-    aniversario = project.certified_at + timedelta(days=CERTIFICATION_VALIDITY_DAYS)
+    aniversario = proxima_fecha_bienal(project.certified_at)
     campaign = RenewalCampaignRow(
         project_id=project.id,
         campaign_type="recertification_bianual",

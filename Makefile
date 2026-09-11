@@ -376,8 +376,28 @@ test:
 	$(PYTEST) backend/tests/ $(PYTEST_ARGS)
 
 # Mismo comando que el job 'lint' de .github/workflows/ci.yml (que fija ruff==0.15.13).
+# O8 · `make lint` tiene que funcionar SIN ruff instalado, porque en la maquina
+# del autor no lo esta y eso ya ha costado DOS rojos de CI por el mismo F541
+# ("f-string sin sustituciones"): se escribio y se empujo sin pasar el linter
+# que el CI si pasa. Si no hay ruff en el PATH, se cae a la imagen de test con
+# la MISMA version que fija .github/workflows/ci.yml, para que el veredicto
+# local y el del CI sean el mismo y no dos opiniones.
+RUFF_VERSION ?= 0.15.13
+RUFF_IMAGE   ?= fulkro/backend:test
+
 lint:
-	@$(RUFF) check backend/
+	@if command -v $(RUFF) >/dev/null 2>&1; then \
+		echo "==> ruff local"; \
+		$(RUFF) check backend/; \
+	elif docker image inspect $(RUFF_IMAGE) >/dev/null 2>&1; then \
+		echo "==> ruff $(RUFF_VERSION) en $(RUFF_IMAGE) (no hay ruff local)"; \
+		docker run --rm -v "$(PWD)":/app -w /app --entrypoint sh $(RUFF_IMAGE) -c \
+			"pip install -q ruff==$(RUFF_VERSION) >/dev/null 2>&1 && ruff check backend/"; \
+	else \
+		echo "    ERROR: no hay ruff en el PATH ni la imagen $(RUFF_IMAGE)." >&2; \
+		echo "    Instala ruff==$(RUFF_VERSION) o construye la imagen (make demo)." >&2; \
+		exit 1; \
+	fi
 
 # ───────────────────────────────────────────────────────────────────────────
 # Comprueba que el recorrido guiado de USAGE.md sigue siendo cierto: navega el

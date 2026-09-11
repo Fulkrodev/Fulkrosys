@@ -41,6 +41,9 @@ from typing import Any
 
 from sqlalchemy import text as sa_text
 from sqlalchemy.ext.asyncio import AsyncSession
+from backend.app.motors.m06_document_factory.errores import (
+    CategoriaNoDeterminadaError,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -206,7 +209,10 @@ async def build_informe_final_context(
     }
 
     # ---- categoría + dimensiones (best-effort) ----
-    categoria = categoria_objetivo or "BASICA"
+    # O1 · ver acta_e012_generator: sin categoria no se inventa.
+    categoria = categoria_objetivo
+    if not categoria:
+        raise CategoriaNoDeterminadaError("el informe final de adecuacion E-040")
     fecha_aprobacion_categoria = date.today().isoformat()
     try:
         cat = (await db.execute(

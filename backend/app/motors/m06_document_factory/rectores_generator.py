@@ -28,6 +28,9 @@ from docx.enum.text import WD_ALIGN_PARAGRAPH
 from docx.shared import Pt, RGBColor
 from sqlalchemy import text as sa_text
 from sqlalchemy.ext.asyncio import AsyncSession
+from backend.app.motors.m06_document_factory.errores import (
+    CategoriaNoDeterminadaError,
+)
 
 
 RECTORES_TEMPLATE_VERSION = "1.0"
@@ -91,7 +94,10 @@ async def build_rectores_context(
         {"pid": str(project_id)},
     )
     cat = cat_row.first()
-    system_category = cat[0] if cat else "BASICA"
+    # O1 · ver acta_e012_generator: sin categoria no se inventa.
+    if not cat or not cat[0]:
+        raise CategoriaNoDeterminadaError("los documentos rectores")
+    system_category = cat[0]
 
     # Roles ENS desde M30
     roles_table: list[dict[str, str]] = []

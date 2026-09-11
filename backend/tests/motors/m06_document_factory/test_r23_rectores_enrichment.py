@@ -106,6 +106,20 @@ async def test_plan_director_capex_opex_and_firmantes(db):
 async def test_plan_director_capex_opex_fallback_without_effort(db):
     client_id, project_id = await setup_test_project(db)
     cid, pid = uuid.UUID(client_id), uuid.UUID(project_id)
+    # O1 · los rectores DECLARAN la categoria del sistema, asi que ya no se
+    # generan sin ella (antes se rellenaba con "BASICA"). Lo que este test
+    # comprueba es el fallback de capex/opex sin datos de esfuerzo, no la
+    # ausencia de categoria: se le da la que su escenario supone.
+    sid = uuid.uuid4()
+    await db.execute(sa_text(
+        "INSERT INTO systems (id, project_id, nombre, created_at) "
+        "VALUES (:id, :pid, 'Sistema', now())"
+    ), {"id": str(sid), "pid": project_id})
+    await db.execute(sa_text(
+        "INSERT INTO categorizations (id, system_id, categoria_resultante, created_at) "
+        "VALUES (:id, :sid, 'BASICA', now())"
+    ), {"id": str(uuid.uuid4()), "sid": str(sid)})
+    await db.flush()
     await set_tenant_context(db, client_id=cid, project_id=pid)
     ctx = await build_rectores_context(db, pid)
     assert ctx.effort_rows == []

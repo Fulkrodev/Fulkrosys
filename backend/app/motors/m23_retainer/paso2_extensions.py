@@ -20,6 +20,8 @@ from typing import Any
 
 from sqlalchemy import func, select, text
 from sqlalchemy.ext.asyncio import AsyncSession
+from dateutil.relativedelta import relativedelta
+from backend.app.motors.m27_conformity.bienio import proxima_fecha_bienal
 
 from backend.app.models.retainer import (
     PricingCatalog, RetainerActivity, RetainerContract,
@@ -240,10 +242,12 @@ async def schedule_renewal_prep(
     if rc is None:
         raise ValueError(f"RetainerContract {retainer_contract_id} no existe")
 
-    renewal_date = rc.next_renewal_date or (
-        (rc.inicio or date.today()) + timedelta(days=730)
+    # O1 · el bienio del art. 31 es de ANYOS de calendario y vive en un solo
+    # sitio. Aqui estaba escrito como 730 dias, y la antelacion como meses x 30.
+    renewal_date = rc.next_renewal_date or proxima_fecha_bienal(
+        rc.inicio or date.today()
     )
-    fecha_programada = renewal_date - timedelta(days=months_before * 30)
+    fecha_programada = renewal_date - relativedelta(months=months_before)
 
     # Idempotente: si ya existe una actividad renewal_prep para este
     # retainer con la misma fecha, no duplicar.

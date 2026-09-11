@@ -45,6 +45,9 @@ from typing import Any
 
 from sqlalchemy import text as sa_text
 from sqlalchemy.ext.asyncio import AsyncSession
+from backend.app.motors.m06_document_factory.errores import (
+    CategoriaNoDeterminadaError,
+)
 
 from backend.app.motors.m01_categorization.aplicabilidad import (
     NIVELES_CON_ADSCRIPCION,
@@ -170,7 +173,10 @@ async def build_e155_alcance_context(
         dimensiones[key] = _max_level(vals) or ""
 
     # ── categoría global (acta de categorización · best-effort) ──
-    categoria = categoria_objetivo or _max_categoria(dimensiones) or "BASICA"
+    # O1 · ver acta_e012_generator: sin categoria no se inventa.
+    categoria = categoria_objetivo or _max_categoria(dimensiones)
+    if not categoria:
+        raise CategoriaNoDeterminadaError("el documento de alcance E-155")
     fecha_aprobacion = None
     try:
         cat = (await db.execute(sa_text(

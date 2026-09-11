@@ -16,10 +16,15 @@ from sqlalchemy import text as sa_text
 from backend.app.motors.m27_conformity.renewal_scheduler import (
     ALERT_1M_BEFORE_DAYS,
     ALERT_6M_BEFORE_DAYS,
-    CERTIFICATION_VALIDITY_DAYS,
     run_renewal_bianual_check,
 )
 from backend.tests.conftest import _admin_setup, setup_test_project
+
+# O1 · el bienio del art. 31 es de ANYOS de calendario, no de un numero fijo
+# de dias: 2026-05-05 + 2 anyos cruza el 29-F de 2028 y son 731 dias, no
+# 730. Por eso se asevera contra la funcion canonica y no contra una
+# constante: la constante en dias es justo lo que estaba mal.
+from backend.app.motors.m27_conformity.bienio import proxima_fecha_bienal
 
 
 async def _certify_project_at(db, project_id: str, certified_at: date) -> None:
@@ -42,15 +47,28 @@ async def _count_renewal_events(db, project_id: str, renewal_type: str) -> int:
         await db.execute(sa_text("RESET ROLE"))
 
 
+def _certificado_para_que_falten(dias: int) -> date:
+    """Fecha de certificacion tal que HOY falten `dias` para el aniversario.
+
+    O1 · con el bienio en ANYOS de calendario no vale restar una constante de
+    dias: el numero de dias del bienio depende de si el tramo cruza un 29 de
+    febrero. Se busca la fecha cuyo aniversario real cae donde hace falta.
+    """
+    objetivo = date.today() + timedelta(days=dias)
+    for delta in range(-3, 4):
+        candidata = objetivo.replace(year=objetivo.year - 2) + timedelta(days=delta)
+        if proxima_fecha_bienal(candidata) == objetivo:
+            return candidata
+    raise AssertionError(f"no hay fecha cuyo bienio caiga en {objetivo}")
+
+
 @pytest.mark.asyncio
 async def test_1m_alert_fires_even_if_exact_day_skipped(db):
     """El beat se salta el día exacto (days_to == 30) y corre en days_to == 25:
     el hito 1m igual dispara (cruce-de-umbral, no igualdad exacta)."""
     _, project_id = await setup_test_project(db)
     # Certificado de modo que HOY days_to_aniversario = 25 (saltado el 30 exacto).
-    certified = date.today() - timedelta(
-        days=CERTIFICATION_VALIDITY_DAYS - (ALERT_1M_BEFORE_DAYS - 5),
-    )
+    certified = _certificado_para_que_falten(ALERT_1M_BEFORE_DAYS - 5)
     await _certify_project_at(db, project_id, certified)
 
     result = await run_renewal_bianual_check(db, today=date.today())
@@ -63,9 +81,7 @@ async def test_1m_alert_idempotent_across_runs(db):
     """Aunque el scheduler corra varios días seguidos cruzado el umbral 1m, el
     hito dispara una SOLA vez (guarda de idempotencia por hito)."""
     _, project_id = await setup_test_project(db)
-    certified = date.today() - timedelta(
-        days=CERTIFICATION_VALIDITY_DAYS - (ALERT_1M_BEFORE_DAYS - 5),
-    )
+    certified = _certificado_para_que_falten(ALERT_1M_BEFORE_DAYS - 5)
     await _certify_project_at(db, project_id, certified)
 
     r1 = await run_renewal_bianual_check(db, today=date.today())
@@ -81,9 +97,7 @@ async def test_6m_alert_fires_even_if_exact_day_skipped(db):
     """El beat se salta el día exacto (days_to == 180) y corre en days_to == 175:
     el hito 6m igual dispara una sola vez."""
     _, project_id = await setup_test_project(db)
-    certified = date.today() - timedelta(
-        days=CERTIFICATION_VALIDITY_DAYS - (ALERT_6M_BEFORE_DAYS - 5),
-    )
+    certified = _certificado_para_que_falten(ALERT_6M_BEFORE_DAYS - 5)
     await _certify_project_at(db, project_id, certified)
 
     r1 = await run_renewal_bianual_check(db, today=date.today())

@@ -26,6 +26,9 @@ from sqlalchemy import text as sa_text
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from .alcance_generator import _ROLE_KEYS, _iso, _max_categoria, _max_level
+from backend.app.motors.m06_document_factory.errores import (
+    CategoriaNoDeterminadaError,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -81,7 +84,12 @@ async def build_e012_context(
         vals = [r[i] for r in srows] + [r[i] for r in itrows]
         dimensiones[key] = _max_level(vals) or ""
     if not nivel:
-        nivel = _max_categoria(dimensiones) or "BASICA"
+        # O1 · sin categoria NO se rellena con "BASICA": el acta E-012 es
+        # justo el documento que DECLARA la categoria; inventarla aqui es
+        # declarar por debajo en un acta firmada.
+        nivel = _max_categoria(dimensiones)
+        if not nivel:
+            raise CategoriaNoDeterminadaError("el acta de categorizacion E-012")
 
     # ── responsables ENS (m30 client_contacts · role_category canónico) ──
     responsables: dict[str, dict[str, str]] = {}

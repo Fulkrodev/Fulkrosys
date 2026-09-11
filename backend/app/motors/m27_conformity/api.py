@@ -19,7 +19,7 @@ Pattern uniform commit() coherente con 5.5.F.0.B/C/D batch.
 from __future__ import annotations
 
 import uuid
-from datetime import date, datetime, timedelta, timezone
+from datetime import date, datetime, timezone
 
 from fastapi import APIRouter, Depends, File, HTTPException, UploadFile, status
 from sqlalchemy import desc, select
@@ -66,6 +66,9 @@ from backend.app.motors.m27_conformity.schemas import (
     SubmissionProofUpload,
 )
 from backend.app.motors.m27_conformity.submission_machine import SubmissionState
+from backend.app.motors.m27_conformity.bienio import (
+    proxima_fecha_bienal,
+)
 
 
 router = APIRouter(
@@ -208,7 +211,8 @@ async def lock_route(
 
     new_state = RouteState.ROUTE_LOCKED
     locked_at = datetime.now(timezone.utc)
-    next_review_due = date.today() + timedelta(days=730)
+    # O1 · art. 31: dos anyos de calendario, no 730 dias.
+    next_review_due = proxima_fecha_bienal(date.today())
 
     row = ConformityRouteRow(
         project_id=project_id,
