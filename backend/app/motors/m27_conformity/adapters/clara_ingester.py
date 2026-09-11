@@ -12,6 +12,7 @@ Este ingester:
 from __future__ import annotations
 
 import hashlib
+import json
 import logging
 import re
 import uuid
@@ -34,14 +35,17 @@ CLARA_TO_ENS_MAP: dict[str, list[str]] = {
     "CLARA-W-PATCH-01": ["op.exp.3", "mp.sw.2"],
     "CLARA-W-AV-01": ["mp.per.3"],
     "CLARA-W-LOG-01": ["op.mon.2"],
-    "CLARA-W-BITLOCKER-01": ["mp.info.9"],
+    # N5 · "mp.info.9" NO EXISTE en el RD 311/2022 (mp.info llega a mp.info.6).
+    # Era otro fosil de CCN-STIC 804 v2017 (RD 3/2010), hermano de los seis
+    # que quito N2. El cifrado de disco completo es criptografia de soportes.
+    "CLARA-W-BITLOCKER-01": ["mp.si.2"],
     # Linux CIS + ENS
     "CLARA-L-SSH-01": ["op.acc.3"],
     "CLARA-L-FW-01": ["mp.com.2"],
     "CLARA-L-SELINUX-01": ["op.exp.5"],
     "CLARA-L-AUDIT-01": ["op.mon.2"],
     "CLARA-L-PATCH-01": ["op.exp.3"],
-    "CLARA-L-LUKS-01": ["mp.info.9"],
+    "CLARA-L-LUKS-01": ["mp.si.2"],
     # Comunes
     "CLARA-NET-ENCRYPT-01": ["mp.com.2"],
     "CLARA-BACKUP-01": ["op.cont.3"],
@@ -146,26 +150,62 @@ async def ingest_clara_output(
     evidences_created: list[str] = []
     measures_touched: set[str] = set()
 
+    findings_created: list[str] = []
+
     await db.execute(sa_text("SET LOCAL ROLE fulkro_app_bypassrls"))
     try:
         for r in results:
             ens_measures = CLARA_TO_ENS_MAP.get(r["clara_id"], [])
+            estado = STATUS_MAP.get(r["status"], "parcial")
             for measure in ens_measures:
                 measures_touched.add(measure)
+
+                # N5 · un control que FALLA no es evidencia de que la medida se
+                # cumpla: es un hallazgo. Antes se insertaba `vigente = true`
+                # para TODOS los controles -- el `status_map` se calculaba y no
+                # se usaba --, asi que un FAIL de CLARA dejaba la medida ENS
+                # respaldada por una evidencia vigente que decia lo contrario de
+                # lo que el control habia encontrado.
+                if estado == "no_cumple":
+                    f_id = str(uuid.uuid4())
+                    await db.execute(sa_text(
+                        "INSERT INTO findings (id, project_id, fuente, severidad, "
+                        " medida_afectada, descripcion, evidencia_relacionada, "
+                        " estado, metadata_jsonb, created_at) "
+                        "VALUES (:id, :pid, 'CLARA', 'media', :m, :d, :ev, "
+                        "        'abierto', CAST(:meta AS JSONB), :now)"
+                    ), {
+                        "id": f_id, "pid": str(project_id), "m": measure,
+                        "d": (f"CLARA reporta FAIL en {r['clara_id']}: "
+                              f"{r.get('description') or 'sin descripcion'}"),
+                        "ev": report_filename,
+                        "meta": json.dumps({
+                            "clara_id": r["clara_id"],
+                            "clara_status": r["status"],
+                            "content_hash": content_hash,
+                        }),
+                        "now": now,
+                    })
+                    findings_created.append(f_id)
+                    continue
+
                 ev_id = str(uuid.uuid4())
                 # Hash especifico por medida (unico por run + medida)
                 ev_hash = hashlib.sha256(
                     f"{content_hash}:{measure}".encode()
                 ).hexdigest()
-                status_map = STATUS_MAP.get(r["status"], "parcial")
+                # `vigente` solo para lo que CLARA da por cumplido. Un estado
+                # intermedio (WARNING/parcial) entra como NO vigente: consta el
+                # dato, pero no respalda la medida.
+                vigente = estado == "cumple"
                 await db.execute(sa_text(
                     "INSERT INTO evidence (id, project_id, measure_code, tipo, "
                     "hash_sha256, vigente, fecha_evidencia, created_at) "
-                    "VALUES (:id, :pid, :m, 'CLARA', :h, true, "
+                    "VALUES (:id, :pid, :m, 'CLARA', :h, :vig, "
                     "CURRENT_DATE, :now)"
                 ), {
                     "id": ev_id, "pid": str(project_id), "m": measure,
-                    "h": ev_hash, "now": now,
+                    "h": ev_hash, "vig": vigente, "now": now,
                 })
                 evidences_created.append(ev_id)
     finally:
@@ -178,6 +218,8 @@ async def ingest_clara_output(
         "parsed_count": len(results),
         "evidences_created_count": len(evidences_created),
         "evidences_created": evidences_created[:50],
+        "findings_created_count": len(findings_created),
+        "findings_created": findings_created[:50],
         "ens_measures_touched": sorted(measures_touched),
         "ingested_at": now.isoformat(),
     }

@@ -61,8 +61,16 @@ async def collect_ines_data(
     db: AsyncSession,
     organization_id: uuid.UUID,
     year: int,
+    investment_eur_declarado: float | None = None,
 ) -> InesYearReport:
-    """Aglutina cross-motor para reporte INES del año fiscal."""
+    """Aglutina cross-motor para reporte INES del año fiscal.
+
+    Args:
+        investment_eur_declarado: inversión en seguridad del ejercicio, en euros,
+            DECLARADA POR LA ORGANIZACIÓN. No se deriva de ninguna otra tabla:
+            ver la nota en el cuerpo de la función. Si no se aporta, el informe
+            sale con el hueco y la nota que lo explica.
+    """
     org_row = await db.execute(
         sa_text(
             "SELECT COALESCE(nombre, 'Organización'), COALESCE(cif, '') "
@@ -156,24 +164,17 @@ async def collect_ines_data(
         if maturity_levels else 0.0
     )
 
-    # S9 fix: inversión en seguridad real desde facturación m15 (base imponible de
-    # las facturas del ejercicio · antes None fijo).
-    investment_eur: float | None = None
-    try:
-        inv_row = (await db.execute(
-            sa_text(
-                "SELECT COALESCE(SUM(COALESCE(base_imponible, total)), 0) "
-                "FROM invoices "
-                "WHERE client_id = :cid "
-                "AND extract(year from fecha_emision) = :y "
-                "AND deleted_at IS NULL"
-            ),
-            {"cid": str(organization_id), "y": year},
-        )).first()
-        if inv_row and inv_row[0] is not None:
-            investment_eur = float(inv_row[0])
-    except Exception:
-        logger.exception("INES investment query failed (year=%s)", year)
+    # N5 · la inversión en seguridad NO se calcula aquí, y antes sí: se sumaban
+    # las facturas de FULKRO al cliente (SUM(base_imponible) FROM invoices).
+    # Eso son los honorarios del consultor, no lo que la organización invierte
+    # en seguridad — ni el personal, ni el hardware, ni las licencias, ni la
+    # formación, ni los demás proveedores. El INES es el informe del art. 32 que
+    # rinde la ORGANIZACIÓN: poner ahí la factura de quien genera el informe es
+    # inventar el dato, y además inventarlo al alza en favor propio.
+    #
+    # O lo aporta la organización, o queda vacío con su nota. Vacío y explicado
+    # es un informe honesto; relleno y falso, no.
+    investment_eur: float | None = investment_eur_declarado
 
     return InesYearReport(
         organization_name=str(org[0]),
@@ -201,6 +202,13 @@ def generate_ines_json(report: InesYearReport) -> dict[str, Any]:
         "incidents_summary": report.incidents_summary,
         "maturity_avg_cmm": round(report.maturity_avg, 2),
         "investment_security_eur": report.investment_eur,
+        # N5 · si no hay dato, el hueco va explicado. Un campo vacío sin nota
+        # se lee como "cero" o como error; con nota se lee como lo que es.
+        "investment_security_note": (
+            None if report.investment_eur is not None else (
+                "Dato no disponible: la inversión en seguridad del ejercicio la declara la organización (personal, hardware, licencias, formación y proveedores). FULKRO no la deriva de ninguna otra fuente; en particular, NO se calcula sumando la facturación del consultor, que sería otra cosa y además al alza."
+            )
+        ),
         "rseg": report.rseg_name,
         "next_year_plan": report.plan_year_next,
     }
@@ -270,7 +278,14 @@ def generate_ines_docx(report: InesYearReport) -> io.BytesIO:
     if report.investment_eur is not None:
         doc.add_paragraph(f"Inversión año {report.year}: {report.investment_eur:,.2f} €")
     else:
-        doc.add_paragraph("Datos de inversión pendientes de consolidar (M15 billing).")
+        # N5 · antes decía "pendientes de consolidar (M15 billing)", que
+        # apuntaba a la facturación del consultor como si fuera la fuente. No
+        # lo es: este dato lo declara la organización.
+        doc.add_paragraph(
+            "Dato no disponible. La inversión en seguridad del ejercicio la "
+            "declara la organización (personal, hardware, licencias, formación "
+            "y proveedores). No se deriva de la facturación del consultor."
+        )
 
     _heading(doc, "5. Plan año siguiente", 1)
     if report.plan_year_next:
