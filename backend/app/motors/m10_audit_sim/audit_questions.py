@@ -46,7 +46,7 @@ AUDIT_QUESTIONS: dict[str, dict[str, Any]] = {
     },
     "org.2": {
         "pregunta": "¿Dispone de un cuerpo normativo de seguridad completo y actualizado? Muéstreme el listado maestro de normativa con versiones y fechas de revisión.",
-        "criterio": "Listado maestro de políticas + todas las políticas vigentes firmadas + control de versiones + fechas revisión < 12 meses",
+        "criterio": "Listado maestro de normativa + normativa vigente aprobada + control de versiones + constancia de revisión [org.2]. Periodicidad de revisión: la norma no fija plazo; recomendación FULKRO de revisión anual, alineada con la re-evaluación anual de la categoría (Anexo I punto 1)",
         "evidencia_tipos": ["normativa_seguridad", "listado_maestro"],
         "documento_esperado": "E-002",
         "familia": "org",
@@ -54,8 +54,8 @@ AUDIT_QUESTIONS: dict[str, dict[str, Any]] = {
         "aplica": ["BASICA", "MEDIA", "ALTA"],
     },
     "org.3": {
-        "pregunta": "¿Existen procedimientos operativos de seguridad documentados? Muéstreme los registros de ejecución de los últimos 3-6 meses.",
-        "criterio": "Procedimientos firmados + registros de ejecución últimos 6 meses (tickets, actas, logs)",
+        "pregunta": "¿Existen procedimientos operativos de seguridad documentados? Muéstreme registros de ejecución que acrediten que se aplican [org.3].",
+        "criterio": "Procedimientos aprobados + registros de ejecución que acrediten aplicación real (tickets, actas, logs) [org.3]. La norma no fija ventana temporal; recomendación FULKRO de pedir los 6 meses previos",
         "evidencia_tipos": ["procedimiento_operativo", "registro_operativo"],
         "documento_esperado": "E-003",
         "familia": "org",
@@ -64,7 +64,7 @@ AUDIT_QUESTIONS: dict[str, dict[str, Any]] = {
     },
     "org.4": {
         "pregunta": "¿Existe un proceso formal de autorización para instalaciones, conexiones y cambios en producción? Muéstreme actas recientes.",
-        "criterio": "Procedimiento de autorización + actas de autorización de últimos 3 meses",
+        "criterio": "Proceso de autorización formal + actas de autorización de los componentes puestos en explotación [org.4]. La norma no fija ventana temporal; recomendación FULKRO de pedir las más recientes",
         "evidencia_tipos": ["proceso_autorizacion", "acta_autorizacion"],
         "documento_esperado": None,
         "familia": "org",
@@ -74,7 +74,7 @@ AUDIT_QUESTIONS: dict[str, dict[str, Any]] = {
 
     # ═══════════════════ PLANIFICACIÓN (op.pl) ═══════════════════
     "op.pl.1": {
-        "pregunta": "¿Se ha realizado un análisis de riesgos con metodología MAGERIT? Muéstreme el inventario de activos, las amenazas valoradas y el riesgo residual. Si es categoría Alta, ¿tiene el export PILAR?",
+        "pregunta": "¿Se ha realizado un análisis de riesgos? Muéstreme los activos más valiosos, las amenazas más probables, las salvaguardas y el riesgo residual. Si es categoría Alta, ¿el análisis es formal, con un fundamento matemático reconocido internacionalmente [op.pl.1] R2?",
         "criterio": "AR completo con inventario activos + amenazas + valoración + riesgo intrínseco/efectivo/residual + aprobación dirección",
         "evidencia_tipos": ["analisis_riesgos", "inventario_activos"],
         "documento_esperado": None,
@@ -124,7 +124,7 @@ AUDIT_QUESTIONS: dict[str, dict[str, Any]] = {
     # ═══════════════════ CONTROL DE ACCESO (op.acc) ═══════════════════
     "op.acc.1": {
         "pregunta": "¿Existe un proceso formal de alta, baja y modificación de cuentas de usuario? Muéstreme los registros del último trimestre.",
-        "criterio": "Procedimiento de gestión de identidades + registros de altas/bajas últimos 3 meses",
+        "criterio": "Gestión de identidades con identificador único por cuenta + inhabilitación en los supuestos del [op.acc.1.4] + periodo de retención documentado. La norma no fija ventana de muestreo; recomendación FULKRO de pedir altas/bajas recientes",
         "evidencia_tipos": ["gestion_identidades", "registro_altas_bajas"],
         "documento_esperado": "E-200",
         "familia": "op.acc",
@@ -142,7 +142,7 @@ AUDIT_QUESTIONS: dict[str, dict[str, Any]] = {
     },
     "op.acc.3": {
         "pregunta": "¿Se realizan revisiones periódicas de derechos de acceso? Muéstreme la última revisión.",
-        "criterio": "Registro de revisión de accesos con fecha reciente (<6 meses) + acciones tomadas",
+        "criterio": "Evidencia de segregación de funciones y tareas [op.acc.3] + registro de revisión de accesos + acciones tomadas. La norma no fija periodicidad de revisión; recomendación FULKRO de revisión semestral",
         "evidencia_tipos": ["revision_accesos"],
         "documento_esperado": None,
         "familia": "op.acc",
@@ -169,7 +169,7 @@ AUDIT_QUESTIONS: dict[str, dict[str, Any]] = {
     },
     "op.acc.6": {
         "pregunta": "¿Está implementado mecanismo de autenticación para usuarios de la organización? Muéstreme la cobertura de MFA.",
-        "criterio": "MFA universal (>=95% cobertura) + evidencia técnica + excepciones justificadas",
+        "criterio": "Mecanismo de autenticación acorde al nivel de autenticidad, con los refuerzos exigidos por categoría [op.acc.6] + evidencia técnica + excepciones justificadas. La norma NO fija un porcentaje de cobertura: exige el mecanismo y sus refuerzos. Cualquier objetivo porcentual es recomendación FULKRO, no exigencia del RD 311/2022",
         "evidencia_tipos": ["configuracion_mfa", "export_directorio", "cobertura_mfa"],
         "documento_esperado": "E-102",
         "familia": "op.acc",
@@ -180,7 +180,7 @@ AUDIT_QUESTIONS: dict[str, dict[str, Any]] = {
     # ═══════════════════ EXPLOTACIÓN (op.exp) ═══════════════════
     "op.exp.1": {
         "pregunta": "¿Existe un inventario de activos actualizado? ¿Quién es responsable de cada activo?",
-        "criterio": "Inventario completo con propietario asignado + última revisión <12 meses",
+        "criterio": "Inventario de activos completo con responsable asignado [op.exp.1] + constancia de mantenimiento. La norma no fija periodicidad; recomendación FULKRO de revisión anual",
         "evidencia_tipos": ["inventario_activos"],
         "documento_esperado": None,
         "familia": "op.exp",
@@ -198,7 +198,7 @@ AUDIT_QUESTIONS: dict[str, dict[str, Any]] = {
     },
     "op.exp.3": {
         "pregunta": "¿Cómo se gestiona la configuración de los sistemas? ¿Existe gestión de cambios formal?",
-        "criterio": "Procedimiento de gestión de cambios + registros de cambios últimos 3 meses",
+        "criterio": "Gestión de la configuración de seguridad [op.exp.3] + registros de cambios trazables. La norma no fija ventana de muestreo; recomendación FULKRO de pedir los cambios recientes",
         "evidencia_tipos": ["gestion_cambios", "registro_cambios"],
         "documento_esperado": None,
         "familia": "op.exp",
@@ -225,7 +225,7 @@ AUDIT_QUESTIONS: dict[str, dict[str, Any]] = {
     },
     "op.exp.6": {
         "pregunta": "¿Qué protección antimalware tiene? ¿Cuál es la cobertura real de endpoints?",
-        "criterio": "EDR/AV activo + cobertura 100% endpoints + evidencia de consola centralizada",
+        "criterio": "Protección frente a código dañino desplegada en los elementos del sistema, con los refuerzos que correspondan por categoría [op.exp.6] + evidencia de consola centralizada. La norma no expresa la exigencia como un porcentaje de cobertura; el 100 % es recomendación FULKRO como objetivo operativo",
         "evidencia_tipos": ["antimalware", "cobertura_edr"],
         "documento_esperado": None,
         "familia": "op.exp",
@@ -234,7 +234,7 @@ AUDIT_QUESTIONS: dict[str, dict[str, Any]] = {
     },
     "op.exp.7": {
         "pregunta": "¿Cómo se gestionan los incidentes de seguridad? Muéstreme el registro de incidentes recientes.",
-        "criterio": "Procedimiento de incidentes + registro últimos 6 meses + clasificación + acciones",
+        "criterio": "Gestión de incidentes [op.exp.7] + registro de incidentes + clasificación + acciones. La norma no fija ventana de muestreo; recomendación FULKRO de pedir los 6 meses previos",
         "evidencia_tipos": ["gestion_incidentes", "registro_incidentes"],
         "documento_esperado": "E-204",
         "familia": "op.exp",
@@ -243,7 +243,7 @@ AUDIT_QUESTIONS: dict[str, dict[str, Any]] = {
     },
     "op.exp.8": {
         "pregunta": "¿Se registra la actividad de los usuarios en los sistemas? ¿Qué registros se mantienen y con qué retención?",
-        "criterio": "Logging centralizado + retención ENS (6 meses Media, 2 años Alta) + protección integridad logs",
+        "criterio": "Registro de la actividad [op.exp.8] + protección de la integridad de los registros. Sobre retención, lo que la norma exige es DOCUMENTARLA: [op.exp.8.r3.1] pide indicar en la documentación de seguridad los eventos auditados y el tiempo de retención antes de su eliminación. NO fija 6 meses ni 2 años: ese plazo lo decide y justifica la organización",
         "evidencia_tipos": ["registro_actividad", "logging", "retencion_logs"],
         "documento_esperado": None,
         "familia": "op.exp",
@@ -281,7 +281,7 @@ AUDIT_QUESTIONS: dict[str, dict[str, Any]] = {
     },
     "op.ext.2": {
         "pregunta": "¿Se evalúa periódicamente la seguridad de los proveedores externos?",
-        "criterio": "Evaluación anual proveedores + cuestionarios seguridad + SLAs monitorizados",
+        "criterio": "Gestión diaria de los recursos externos [op.ext.2] + cuestionarios de seguridad + SLAs monitorizados. La norma no fija periodicidad de evaluación de proveedores; recomendación FULKRO de evaluación anual",
         "evidencia_tipos": ["evaluacion_proveedores"],
         "documento_esperado": None,
         "familia": "op.ext",
@@ -301,7 +301,7 @@ AUDIT_QUESTIONS: dict[str, dict[str, Any]] = {
     },
     "op.cont.2": {
         "pregunta": "¿Existe un plan de continuidad (incluida la recuperación ante desastres) documentado y probado?",
-        "criterio": "Plan de continuidad documentado + pruebas al menos anuales + RTO/RPO definidos y cumplibles",
+        "criterio": "Plan de continuidad documentado [op.cont.2] + RTO/RPO definidos y cumplibles. Las pruebas periódicas son una medida distinta [op.cont.3], que la norma no acompaña de una periodicidad concreta; la prueba anual es recomendación FULKRO",
         "evidencia_tipos": ["plan_continuidad", "drp", "prueba_continuidad"],
         "documento_esperado": "E-402",
         "familia": "op.cont",
@@ -524,7 +524,7 @@ AUDIT_QUESTIONS: dict[str, dict[str, Any]] = {
     },
     "mp.info.6": {
         "pregunta": "¿Se realizan copias de seguridad periódicas y se prueba su restauración?",
-        "criterio": "Backups periódicos (estrategia 3-2-1) + cifrado + última prueba de restauración <6 meses verificada",
+        "criterio": "Copias de seguridad [mp.info.6] con los refuerzos que correspondan al nivel de disponibilidad + prueba de restauración verificada. La norma no menciona la estrategia 3-2-1 ni fija plazo de prueba: ambas son recomendación FULKRO",
         "evidencia_tipos": ["backup", "prueba_restauracion"],
         "documento_esperado": None,
         "familia": "mp.info",
