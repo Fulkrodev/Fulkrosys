@@ -17,10 +17,7 @@ from pathlib import Path
 
 import pytest
 
-from backend.app.motors.m01_categorization.aplicabilidad import (
-    NivelDimension,
-    medidas_aplicables,
-)
+from backend.app.motors.m01_categorization.aplicabilidad import medidas_aplicables
 from backend.app.motors.m01_categorization.service import ImpactLevel
 
 FIXTURE = Path(__file__).resolve().parents[2] / "fixtures/anexo2_boe_verificado.json"

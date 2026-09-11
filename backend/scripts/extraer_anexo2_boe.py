@@ -188,7 +188,7 @@ def main() -> int:
     por_eje = {"categoria": 0, "dimension": 0}
     for f in filas:
         por_eje[f["eje"]] += 1
-    print(f"\n== extraccion ==")
+    print("\n== extraccion ==")
     print(f"  medidas: {len(filas)}  (por categoria {por_eje['categoria']} · "
           f"por dimension {por_eje['dimension']})")
     print(f"  aplican BASICA {sum(f['aplica_basica'] for f in filas)} · "
