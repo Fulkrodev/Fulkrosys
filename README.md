@@ -422,16 +422,21 @@ Esta tabla es deliberadamente incómoda, y es la cifra honesta.
 
 | | | cómo se mide |
 |---|---:|---|
-| Recolectables | **6.470** | `pytest backend/tests/ --collect-only -q \| tail -1` |
+| Recolectables | **6.674** | `pytest backend/tests/ --collect-only -q \| tail -1` |
 | Que requieren base de datos | **3.294** | `pytest backend/tests/ -m requires_db --collect-only -q \| tail -1` |
 | **Que el CI ejecuta de verdad** | **3.153** · el 48,7 % | el propio job lo cuenta y lo publica en su resumen |
 | Última cifra local publicada | 5.978 | `ci.yml:56`, de una ejecución del 9 de junio de 2026 |
 
-Los 6.470 recolectables son de ahora: hasta este cambio la recolección **abortaba con código 2** en
+Los 6.674 recolectables son de ahora, y la cifra tiene su propia historia: entre el bloque O1 y el
+cierre, `pytest backend/tests` **no coleccionaba en absoluto**. Un módulo importaba una constante
+retirada, y un `ImportError` en la recolección aborta la suite entera sin ejecutar un solo test. Lo
+cazó la primera vez que se corrió la batería completa en lugar de por directorios, y de ahí salió el
+paso `La suite entera colecciona` del CI, que tumba el job antes de ejecutar nada. Antes de eso, la
+recolección **abortaba con código 2** en
 cualquier entorno limpio, porque `bs4`, `respx` y `pypdf` se importaban sin estar declaradas. En
 máquina limpia daba `6383 tests collected, 7 errors`, sin llegar a ejecutar ni uno.
 
-Los 3.153 que corren en CI son los que no necesitan una base sembrada. Los 3.294 marcados
+Los 3.153 que corren en CI son los que no necesitan una base sembrada. Los marcados
 `requires_db` quedan fuera y el propio workflow dice por qué y con qué marca se delimitan. Un CI que
 corre el 48,7 % y lo publica es honesto; uno que corre el 0 % mientras se presume de miles, no.
 
@@ -507,7 +512,7 @@ Qué se ha hecho:
 - El job `test` corre en cada `push` y `pull_request`, con la base provisionada de verdad
   (extensiones, funciones, roles, `alembic upgrade head` y GRANTs), reutilizando la receta que ya
   llevaba 41 ejecuciones verdes en `admin-polish-empirical.yml`.
-- **Corre 3.153 de 6.470 tests, el 48,7 %**, y el propio job lo publica en su resumen contándolo en
+- **Corre 3.153 de 6.674 tests**, y el propio job lo publica en su resumen contándolo en
   cada ejecución. Los 3.294 que necesitan base sembrada quedan fuera y está dicho por qué, con la
   marca de pytest que los delimita.
 - `mypy` se invoca desde `backend/`, sin `continue-on-error`, acotado a una lista de módulos que ya
