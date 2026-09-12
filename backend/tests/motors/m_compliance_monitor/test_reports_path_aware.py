@@ -50,16 +50,32 @@ async def test_persist_report_writes_to_desktop(db, tmp_path, monkeypatch) -> No
 
 @pytest.mark.asyncio
 async def test_persist_report_falls_back_to_inline_when_desktop_unavailable(
-    db, monkeypatch
+    db, monkeypatch, tmp_path
 ) -> None:
-    """Server / CI without WSL mount → ``inline`` fallback (DB-only)."""
+    """Server / CI without WSL mount → ``inline`` fallback (DB-only).
+
+    Q3 · antes esto apuntaba a ``/no/such/path/that/should/never/exist`` dando
+    por hecho que ``mkdir(parents=True)`` fallaria. Como root --que es como
+    corre la imagen de test-- esa ruta se CREA sin problema, asi que el
+    servicio escribia el informe, devolvia "desktop" y el test fallaba con
+    `assert 'desktop' == 'inline'`. Dependia de una propiedad del entorno (no
+    ser root) que no declaraba, igual que el puerto codificado o la clave
+    ausente.
+
+    Ahora la imposibilidad es estructural: se pide crear un directorio DENTRO
+    de un fichero, y eso es `NotADirectoryError` (un `OSError`) para cualquier
+    usuario, root incluido.
+    """
+    bloqueo = tmp_path / "esto-es-un-fichero"
+    bloqueo.write_text("no soy un directorio", encoding="utf-8")
+
     monkeypatch.setattr(
         "backend.app.motors.m_compliance_monitor.reports_service._is_production",
         lambda: False,
     )
     monkeypatch.setattr(
         "backend.app.motors.m_compliance_monitor.reports_service._desktop_root",
-        lambda: Path("/no/such/path/that/should/never/exist"),
+        lambda: bloqueo / "dentro",
     )
     svc = ComplianceReportsService(db)
     period_end = datetime.now(timezone.utc)

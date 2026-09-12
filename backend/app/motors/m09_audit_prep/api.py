@@ -50,7 +50,15 @@ async def _load_run_or_404(
 # ============ Schemas ============
 
 class CreateRunBody(BaseModel):
-    categoria: str = Field(..., min_length=1, max_length=10)
+    """Q2 · la categoria es OPCIONAL: por defecto, la del proyecto.
+
+    La pantalla `/dossier` no tenia forma de arrancar el run que ella misma
+    necesita para ensenyar algo, y el unico obstaculo era que este contrato
+    exigia un dato que la propia base ya tiene. Pedirselo a la interfaz era
+    ademas invitarla a inventarlo.
+    """
+
+    categoria: str | None = Field(default=None, min_length=1, max_length=10)
 
 
 class ResolveBody(BaseModel):
@@ -59,6 +67,35 @@ class ResolveBody(BaseModel):
 
 # ============ Runs ============
 
+async def _categoria_del_proyecto(
+    session: AsyncSession, project_id: uuid.UUID, explicita: str | None,
+) -> str:
+    """La categoria del proyecto, o un 422 que dice que falta. Nunca inventada.
+
+    Q1/Q2 · la lista de entregables exigibles depende de la categoria (Anexo II).
+    Rellenarla con la mas baja devuelve una lista corta y el expediente parece
+    completo sin estarlo.
+    """
+    cat = (explicita or "").strip().upper()
+    if cat:
+        return cat
+    fila = (await session.execute(
+        text("SELECT categoria_objetivo FROM projects WHERE id = :pid"),
+        {"pid": str(project_id)},
+    )).first()
+    cat = (str(fila[0]).strip().upper() if fila and fila[0] else "")
+    if not cat:
+        raise HTTPException(
+            status_code=http_status.HTTP_422_UNPROCESSABLE_CONTENT,
+            detail=(
+                "El proyecto no tiene categoría determinada y la preparación de "
+                "auditoría recorre los entregables que exige su categoría "
+                "(RD 311/2022 Anexo II). Complete la categorización antes."
+            ),
+        )
+    return cat
+
+
 @router.post("/projects/{project_id}/runs")
 async def create_run_endpoint(
     project_id: uuid.UUID,
@@ -66,9 +103,10 @@ async def create_run_endpoint(
     session: AsyncSession = Depends(get_db),
 ):
     await _set_project_rls(project_id, session)
+    categoria = await _categoria_del_proyecto(session, project_id, body.categoria)
     try:
         run = await checklist_service.run_full_checklist(
-            session, project_id, body.categoria,
+            session, project_id, categoria,
         )
     except checklist_service.ChecklistError as exc:
         raise HTTPException(

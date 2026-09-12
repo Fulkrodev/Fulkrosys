@@ -282,6 +282,11 @@ def main() -> int:
         "results": results,
     }
     out_path = PROJECT_ROOT / "progress" / "legal_audit_autocheck.json"
+    # Q3 · el directorio no esta en el repositorio y el script no lo creaba:
+    # `FileNotFoundError: .../progress/legal_audit_autocheck.json`. Un script
+    # que solo funciona si alguien creo antes una carpeta a mano solo funciona
+    # en la maquina donde esa carpeta ya existe.
+    out_path.parent.mkdir(parents=True, exist_ok=True)
     out_path.write_text(json.dumps(out, ensure_ascii=False, indent=2), encoding="utf-8")
     print(
         f"Audit done. Score={score}/100. "

@@ -65,6 +65,39 @@ os.environ.setdefault("FULKRO_SKIP_WORKFLOW_GATES", "1")
 # deja unset → run_startup_checks ejecuta los hardening checks.
 os.environ.setdefault("FULKRO_TESTING", "1")
 
+# Q3 · la clave maestra de cifrado, para la bateria.
+#
+# 26 de los 44 fallos de la bateria eran el mismo: `RuntimeError: Encryption
+# master key unavailable`. Todo lo que escribe una columna `EncryptedText`
+# --mensajes del espacio de trabajo, credenciales SSH, tokens OAuth, contrasenya
+# SMTP-- necesita la clave, y el entorno de test no la traia. Se venian contando
+# como "dependencia de entorno", que es una forma elegante de decir que esos
+# tests solo pasaban en la maquina de quien los escribio. Un test que solo pasa
+# ahi no mide nada fuera de ahi.
+#
+# La clave de abajo es FIJA y PUBLICA a proposito: va en el repositorio, cifra
+# unicamente datos de test y es determinista, de modo que lo que cifra una
+# ejecucion lo descifra la siguiente. No es un secreto y no debe parecerlo --de
+# ahi el nombre--. En produccion `startup_checks` exige una de verdad y
+# `is_production` no acepta esta.
+#
+# `setdefault`: si el operador exporta la suya, manda la suya.
+# Derivada de la frase "fulkro-test-master-key-no-es-un-secreto":
+#   base64.urlsafe_b64encode(hashlib.sha256(frase.encode()).digest())
+_CLAVE_DE_TEST_NO_ES_UN_SECRETO = "vUWdULakg_5TOAptzYK7cu2GyV9fkr9F7s8KyyTjeO0="
+os.environ.setdefault(
+    "FULKRO_MASTER_ENCRYPTION_KEY", _CLAVE_DE_TEST_NO_ES_UN_SECRETO,
+)
+
+# Y la misma historia con `app_secret_key`, de la que m08 y m16 derivan su
+# Fernet para credenciales SSH y tokens OAuth: el defecto de `config.py` es
+# "change-this", 11 caracteres, y ambos exigen 16 -- asi que fallaban con
+# `ValueError: app_secret_key too short or not configured`. Tambien fija,
+# publica y solo para test.
+os.environ.setdefault(
+    "APP_SECRET_KEY", "fulkro-test-app-secret-no-es-un-secreto",
+)
+
 # Ejecutable 8 Pasada 16: la suite corre contra la BD de TEST `fulkro_test`, construida DESDE
 # `alembic upgrade head` + seed por `scripts/build_test_db.sh` — NO contra la BD live `fulkro`.
 # Mata la deuda histórica conftest-reusa-BD-live (raíz del drift + data-pollution de tests que

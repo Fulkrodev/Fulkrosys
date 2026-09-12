@@ -300,9 +300,17 @@ class ConformityServicePaso5:
 
         Antes ``self_assessment_report_id`` era un UUID opcional sin comprobar.
         Ahora debe apuntar a un ``documents`` REAL de ESTE proyecto que sea la
-        autoevaluación CCN-STIC 808 (plantilla E-808*). El generador del E-808 ya
-        existe (M10 Audit-Sim ``run_simulation`` + ``generate_report_docx`` →
-        Documento); aquí se valida la referencia (FK + tipo) en el gate de cierre.
+        autoevaluación CCN-STIC 808 (plantilla E-808*); aquí se valida la
+        referencia (FK + tipo) en el gate de cierre.
+
+        Q2 · este docstring afirmaba que «el generador del E-808 ya existe (M10
+        Audit-Sim ``run_simulation`` + ``generate_report_docx``)». No era cierto
+        en lo que este gate comprueba: ese camino produce un DOCX de informe de
+        auditoría interna, no registra fila en ``documents`` y no lleva código
+        E-808. Es decir, el cierre de BÁSICA exigía un documento que el sistema
+        no sabía producir. Quien lo emite ahora es ``m03_dda.annual_review`` —el
+        flujo que ES la autoevaluación anual— y lo hace por la fábrica
+        documental, que es la que registra en ``documents``.
         """
         row = (await db.execute(
             text(

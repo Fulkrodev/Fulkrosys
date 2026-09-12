@@ -9,12 +9,14 @@
  */
 "use client";
 
-import { useQuery } from "@tanstack/react-query";
-import { Download, FileSearch, FileStack, Loader2, ScanSearch } from "lucide-react";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { Download, FileSearch, FileStack, Loader2, Play, ScanSearch } from "lucide-react";
 import * as React from "react";
+import { toast } from "sonner";
 
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { EmptyState } from "@/components/ui/empty-state";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -33,6 +35,42 @@ export function DossierPreview({ projectId }: { projectId: string }) {
   });
 
   const [selectedRunId, setSelectedRunId] = React.useState<string | null>(null);
+
+  // Q2 · la pantalla no tenía forma de arrancar el run que ella misma exige
+  // para enseñar algo: el endpoint existía y nadie lo llamaba, así que
+  // `/dossier` era de sólo lectura sobre una lista siempre vacía.
+  const queryClient = useQueryClient();
+  const crearRun = useMutation({
+    mutationFn: () => auditPrepApi.createRun(projectId),
+    onSuccess: (run) => {
+      setSelectedRunId(run.id);
+      void queryClient.invalidateQueries({ queryKey: ["m09", "runs", projectId] });
+      toast.success("Preparación de auditoría ejecutada", {
+        description: "Ya puedes revisar el índice del dossier y descargarlo.",
+      });
+    },
+    onError: (e) =>
+      toast.error("No se pudo ejecutar la preparación", {
+        description: e instanceof Error ? e.message : "Error desconocido",
+      }),
+  });
+
+  const botonCrearRun = (
+    <Button
+      type="button"
+      size="sm"
+      onClick={() => crearRun.mutate()}
+      disabled={crearRun.isPending}
+      data-testid="dossier-crear-run"
+    >
+      {crearRun.isPending ? (
+        <Loader2 className="mr-1.5 animate-spin" size={14} />
+      ) : (
+        <Play className="mr-1.5" size={14} />
+      )}
+      Ejecutar preparación de auditoría
+    </Button>
+  );
 
   React.useEffect(() => {
     if (!selectedRunId && runs.data && runs.data.length > 0) {
@@ -56,9 +94,12 @@ export function DossierPreview({ projectId }: { projectId: string }) {
 
       <Card>
         <CardHeader>
-          <CardTitle className="flex items-center gap-2 text-sm">
-            <ScanSearch size={14} /> Runs de auditoría
-          </CardTitle>
+          <div className="flex flex-wrap items-center justify-between gap-2">
+            <CardTitle className="flex items-center gap-2 text-sm">
+              <ScanSearch size={14} /> Runs de auditoría
+            </CardTitle>
+            {botonCrearRun}
+          </div>
         </CardHeader>
         <CardContent>
           {runs.isLoading ? (
@@ -76,7 +117,11 @@ export function DossierPreview({ projectId }: { projectId: string }) {
           ) : !runs.data || runs.data.length === 0 ? (
             <EmptyState
               title="Sin runs de preparación"
-              description="Cuando se ejecute la primera preparación de auditoría aparecerá aquí."
+              description="Ejecuta la preparación de auditoría para generar el índice del dossier y poder descargarlo."
+              action={{
+                label: "Ejecutar preparación de auditoría",
+                onClick: () => crearRun.mutate(),
+              }}
             />
           ) : (
             <ul className="space-y-1.5">

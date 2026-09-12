@@ -168,7 +168,11 @@ async def _metricas_del_modelo(db: AsyncSession) -> list[str]:
         out.append("# HELP fulkro_llm_lectura_fallida 1 si no se pudo leer el registro de llamadas")
         out.append("# TYPE fulkro_llm_lectura_fallida gauge")
         out.append("fulkro_llm_lectura_fallida 1")
-        out.append(f"# error: {_escapar(type(exc).__name__)}")
+        # Q4 · el mensaje, no solo el tipo. Con "# error: RuntimeError" a secas
+        # hubo que instrumentar el codigo para averiguar QUE runtime error era.
+        out.append(
+            f"# error: {_escapar(type(exc).__name__)}: {_escapar(str(exc)[:200])}"
+        )
         return out
 
     por_estado = {f[0]: f for f in filas}

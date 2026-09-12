@@ -2,6 +2,7 @@
  * API client · Motor 09 Audit Preparation.
  *
  * Endpoints servidos desde m09 con prefix `/api/v1/audit-prep`.
+ *   POST /projects/{id}/runs                       crea run de preparación
  *   GET /projects/{id}/runs                        list de runs
  *   GET /projects/{id}/runs/{run_id}               run detail
  *   GET /projects/{id}/runs/{run_id}/dossier       download ZIP
@@ -34,6 +35,18 @@ export interface DossierIndex {
 export const auditPrepApi = {
   listRuns: (projectId: string) =>
     api<AuditPrepRun[]>(`${BASE}/projects/${projectId}/runs`),
+
+  /**
+   * Crea el run de preparación que la pantalla `/dossier` necesita para
+   * enseñar algo. La categoría NO se manda: la pone el backend desde el
+   * proyecto, que es quien la sabe (y si no la tiene, responde 422 diciéndolo
+   * en vez de suponer la más baja).
+   */
+  createRun: (projectId: string) =>
+    api<AuditPrepRun>(`${BASE}/projects/${projectId}/runs`, {
+      method: "POST",
+      body: JSON.stringify({}),
+    }),
 
   dossierIndex: (projectId: string, runId: string) =>
     api<DossierIndex>(`${BASE}/projects/${projectId}/runs/${runId}/dossier/index`),

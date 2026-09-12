@@ -139,9 +139,19 @@ async def test_drift_summary_aggregates_events(async_client, db):
             "(:cid, :pid, 'backups', 'Test 3', 'MEDIA', 'bajo', 'open')"
         ), {"cid": str(contract_id), "pid": project_id})
     await db.commit()
-    # Refresh MV via fulkro role (owner) · production lo hace job M28 jobs.py.
-    async with _admin_setup(db):
-        await db.execute(text("REFRESH MATERIALIZED VIEW mv_drift_summary_10x4"))
+    # Q3 · antes esto hacia `REFRESH MATERIALIZED VIEW` a pelo dentro de
+    # `_admin_setup`, y el comentario decia "via fulkro role (owner)" cuando
+    # `_admin_setup` escala a `fulkro_app_bypassrls`, que NO es el propietario:
+    #   ERROR: must be owner of materialized view mv_drift_summary_10x4
+    # Ese error abortaba la transaccion y el `RESET ROLE` de salida fallaba
+    # encima, tapando la causa con un "current transaction is aborted".
+    #
+    # Produccion no refresca asi: lo hace con `fn_refresh_drift_summary()`,
+    # SECURITY DEFINER creada justo para esto (migracion
+    # `m28_refresh_drift_summary_fn_001`), que es lo que invoca la tarea Celery
+    # `m28.refresh_drift_summary`. El test usa ahora ESE camino, que ademas es
+    # el unico que demuestra que el permiso concedido funciona.
+    await db.execute(text("SELECT fn_refresh_drift_summary()"))
 
     r = await async_client.get(f"{BASE}/{project_id}/drift-summary")
     assert r.status_code == 200, r.text

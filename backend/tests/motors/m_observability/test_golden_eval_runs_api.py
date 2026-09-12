@@ -105,6 +105,22 @@ async def test_admin_list_runs_returns_recently_triggered(async_client, db):
 
 
 async def test_admin_list_runs_filter_by_agent_name(async_client, db):
+    # Q3 · el test se fabrica su propio dato. Antes dependia de que el seed
+    # global (`scripts/build_test_db.sh`) hubiera dejado runs en la base: sin
+    # ellos fallaba con "0 runs en total", que es honesto pero convierte al test
+    # en dependiente de un paso externo no declarado -- la misma familia que el
+    # puerto codificado o la clave de cifrado ausente. El endpoint que crea el
+    # run ya existe y lo ejercita el test de arriba.
+    creado = await async_client.post(
+        "/api/v1/admin/observability/golden-eval/run",
+        json={
+            "agent_name": "deliverable_text_auditor",
+            "version": "v1",
+            "sync_execute": True,
+        },
+    )
+    assert creado.status_code == 200, creado.text
+
     r = await async_client.get(
         "/api/v1/admin/observability/golden-eval/runs?"
         "agent_name=nonexistent_agent&days=7",
@@ -121,8 +137,9 @@ async def test_admin_list_runs_filter_by_agent_name(async_client, db):
     )
     assert r_todos.status_code == 200
     assert r_todos.json()["total"] > 0, (
-        "0 runs en total: no hay datos y este test no puede distinguir un filtro "
-        "correcto de una base vacia. Ejecuta scripts/build_test_db.sh."
+        "0 runs en total pese a haber creado uno en este mismo test: el listado "
+        "sin filtro no ve lo que acaba de escribirse y la comparacion no "
+        "demuestra nada"
     )
 
 

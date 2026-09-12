@@ -1,8 +1,10 @@
 """Database configuration — SQLAlchemy 2.0 async."""
+import os
 import uuid
 from typing import AsyncGenerator
 
 from sqlalchemy import event, text
+from sqlalchemy.pool import NullPool
 from sqlalchemy.orm import Session as SyncSession
 from sqlalchemy.ext.asyncio import (
     AsyncSession,
@@ -14,15 +16,43 @@ from backend.app.config import get_settings
 
 settings = get_settings()
 
+# Q4 · bajo la bateria de tests, SIN pool.
+#
+# El motor es de modulo: se crea al importar y su pool guarda conexiones para
+# reutilizarlas. En produccion eso es lo correcto -- hay un solo bucle de
+# eventos para todo el proceso --, pero pytest-asyncio abre un bucle NUEVO por
+# test. Una conexion de asyncpg queda atada al bucle en el que nacio; cuando el
+# pool se la entrega a otro test, con otro bucle, la operacion revienta con un
+# `RuntimeError` que no dice nada del test que lo provoco.
+#
+# Asi se fabricaba el fallo que solo aparecia en la bateria entera:
+# `test_bloque_g_metrics_publico_sin_auth` pasaba en solitario y fallaba dentro
+# del conjunto, porque `/metrics` no usa la sesion inyectada del test --abre la
+# suya con `async_session()`-- y le tocaba una conexion heredada de un bucle ya
+# cerrado. El endpoint no se cae: emite `fulkro_llm_lectura_fallida 1` y se come
+# el bloque de metricas del modelo, asi que el sintoma era "faltan metricas", no
+# "hay un fallo de concurrencia". El mismo mecanismo tumbaba
+# `test_llm_interactions_pagination` segun con quien se ejecutara.
+#
+# `NullPool` abre y cierra por uso: no hay nada que heredar. Es mas lento y da
+# igual, porque es solo para la bateria. `FULKRO_TESTING` lo pone `conftest.py`.
+_EN_PRUEBAS = os.environ.get("FULKRO_TESTING") == "1"
+
 engine = create_async_engine(
     settings.database_url,
     echo=(not settings.is_production),
-    pool_size=20,
-    max_overflow=10,
-    # Resiliencia del pool (auditoría 2026-06-07 · "no tumbar el sistema"):
-    pool_pre_ping=True,   # descarta conexiones muertas (recupera tras corte de PG)
-    pool_recycle=1800,    # recicla a los 30 min (evita server-side idle timeout)
-    pool_timeout=30,      # falla rápido si el pool está agotado (NO cuelga la app)
+    **(
+        {"poolclass": NullPool}
+        if _EN_PRUEBAS
+        else {
+            "pool_size": 20,
+            "max_overflow": 10,
+            # Resiliencia del pool (auditoría 2026-06-07 · "no tumbar el sistema"):
+            "pool_pre_ping": True,   # descarta conexiones muertas (recupera tras corte de PG)
+            "pool_recycle": 1800,    # recicla a los 30 min (evita server-side idle timeout)
+            "pool_timeout": 30,      # falla rápido si el pool está agotado (NO cuelga la app)
+        }
+    ),
 )
 
 async_session = async_sessionmaker(engine, expire_on_commit=False)

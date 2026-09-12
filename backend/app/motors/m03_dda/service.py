@@ -15,6 +15,7 @@ References:
 - CCN-STIC 803 — valoracion de sistemas
 - CCN-STIC 804 — implantacion de medidas
 """
+import logging
 from datetime import datetime, timezone
 from uuid import UUID
 
@@ -36,6 +37,8 @@ from backend.app.motors.m03_dda.enums import (
     CategoriaSistema,
 )
 from backend.app.motors.m03_dda.templates import render_no_aplica_justification
+
+logger = logging.getLogger(__name__)
 
 
 # ================================================================
@@ -382,6 +385,19 @@ class DdaService:
             {"vt": version_to, "rid": str(record_id), "pid": str(project_id)},
         )
         await self.db.flush()
+
+        # Q2 · el E-808 tenia plantilla en el catalogo y NINGUN productor: nadie
+        # llamaba a `generate_document(template_codigo="E-808")`, asi que la
+        # autoevaluacion CCN-STIC 808 -- obligatoria para cerrar BASICA -- no se
+        # podia emitir, y el gate de cierre
+        # (`conformity_service_paso5._validar_autoevaluacion_808`) exigia un
+        # documento que el sistema no sabia producir. La emite el flujo que ES la
+        # revision anual, y por la fabrica documental (unico camino que registra
+        # en `documents`, calcula la huella y firma).
+        documento = await self._emitir_e808(
+            project_id, record_id, version_from, version_to, stats,
+        )
+
         return {
             "project_id": str(project_id),
             "annual_review_record_id": str(record_id),
@@ -389,7 +405,77 @@ class DdaService:
             "new_version": version_to,
             "estado": "pending_director_approval",
             "completion_snapshot": stats,
+            "e808_document_id": documento.get("document_id") if documento else None,
+            "e808_error": documento.get("error") if documento else None,
         }
+
+    async def _emitir_e808(
+        self,
+        project_id: UUID,
+        record_id,
+        version_from: int,
+        version_to: int,
+        stats: dict,
+    ) -> dict:
+        """Emite la autoevaluacion anual E-808 por la fabrica documental.
+
+        Best-effort declarado: si la emision falla, la revision anual YA esta
+        registrada y no se pierde; el motivo viaja en `e808_error` para que se
+        vea, en vez de desaparecer en un except mudo.
+        """
+        from backend.app.motors.m06_document_factory.service import (
+            DocumentFactoryService,
+        )
+
+        fila = (await self.db.execute(
+            sa_text(
+                "SELECT COALESCE(c.nombre, ''), COALESCE(p.nombre, ''), "
+                "       p.created_at::date::text "
+                "FROM projects p LEFT JOIN clients c ON c.id = p.client_id "
+                "WHERE p.id = :pid"
+            ),
+            {"pid": str(project_id)},
+        )).first()
+        razon_social = (fila[0] if fila else "") or "(cliente sin razón social)"
+        nombre_proyecto = (fila[1] if fila else "") or "(proyecto)"
+        fecha_inicial = (fila[2] if fila else None) or ""
+
+        contexto = {
+            "cliente": {
+                "razon_social": razon_social,
+                # Lo aprueba la Direccion de la organizacion (CCN-STIC 808).
+                "organo_aprobador_politicas": "Dirección",
+            },
+            "proyecto": {
+                "codigo_documento_base": f"E-040 · {nombre_proyecto}",
+                "fecha_aprobacion_inicial": fecha_inicial,
+                "version_actual": version_to,
+            },
+            "revision": {
+                "version_from": version_from,
+                "version_to": version_to,
+                "total_aplicables": stats["total_aplicables"],
+                "implantadas": stats["implantadas"],
+                "parcial": stats["parcial"],
+                "no_implantadas": stats["no_implantadas"],
+                "no_valoradas": stats["no_valoradas"],
+                "completion_pct": stats["completion_pct"],
+            },
+            "annual_review_record_id": str(record_id),
+        }
+        try:
+            return await DocumentFactoryService(self.db).generate_document(
+                project_id=project_id,
+                template_codigo="E-808",
+                context=contexto,
+                generate_pdf=False,
+                sign=False,
+                generated_by="m03_dda.annual_review",
+                enforce_gates=False,
+            )
+        except Exception as exc:  # noqa: BLE001 — el motivo se devuelve, no se traga
+            logger.exception("E-808: emisión fallida para %s", project_id)
+            return {"error": f"{type(exc).__name__}: {exc}"}
 
     # ================================================================
     # PUBLIC: Freeze / Unfreeze
