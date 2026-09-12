@@ -117,7 +117,16 @@ class AuditDryRunService:
         if not project:
             raise ValueError(f"Project {project_id} not found")
 
-        categoria = (project.categoria_objetivo or "BASICA").upper()
+        # Q1 · sin categoria NO se simula "como BASICA": el simulacro recorre
+        # las medidas que aplican y BASICA es el conjunto mas pequenyo, asi que
+        # el resultado saldria conforme por omision.
+        categoria = (project.categoria_objetivo or "").strip().upper()
+        if not categoria:
+            raise ValueError(
+                f"Project {project_id}: no tiene categoria determinada y el "
+                "simulacro de auditoria recorre las medidas que aplican a su "
+                "categoria. Complete la categorizacion antes de simular."
+            )
         archetype = project.archetype
 
         # 1. Trigger M10 run_simulation

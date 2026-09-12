@@ -40,6 +40,18 @@ from backend.app.motors.m09_audit_prep.dda_evidence_gap_service import (
 )
 
 
+def _categoria_o_error(valor: object) -> str:
+    """La categoria del proyecto, o el error canonico. Nunca un relleno."""
+    cat = (str(valor).strip().upper() if valor else "")
+    if not cat:
+        from backend.app.motors.m06_document_factory.errores import (
+            CategoriaNoDeterminadaError,
+        )
+        raise CategoriaNoDeterminadaError("el informe de auditoria en borrador")
+    return cat
+
+
+
 logger = logging.getLogger(__name__)
 
 
@@ -103,7 +115,11 @@ async def _gather_project_metadata(
     return {
         "project_id": str(row[0]),
         "project_name": row[1] or "Proyecto",
-        "categoria": (row[2] or "MEDIA").upper(),
+        # Q1 · el informe de auditoria se FIRMA con Ed25519 y declara la
+        # categoria del proyecto. Aqui habia `or "MEDIA"`: sin categorizacion,
+        # el informe firmado afirmaba MEDIA. Se levanta el error canonico que
+        # O1 creo para esto mismo en los generadores de m06.
+        "categoria": _categoria_o_error(row[2]),
         "fase": row[3],
         "lifecycle_state": row[4],
         "certified_at": row[5].isoformat() if row[5] else None,

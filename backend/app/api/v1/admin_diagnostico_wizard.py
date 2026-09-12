@@ -100,11 +100,15 @@ class StepContextoENS(BaseModel):
 class EnsDimsValoracion(BaseModel):
     """5 dimensiones ENS Anexo I · Bajo/Medio/Alto, o NO afectada (punto 3)."""
 
-    confidencialidad: ImpactLevelOrUnaffectedType = "BAJO"
-    integridad: ImpactLevelOrUnaffectedType = "BAJO"
-    disponibilidad: ImpactLevelOrUnaffectedType = "BAJO"
-    autenticidad: ImpactLevelOrUnaffectedType = "BAJO"
-    trazabilidad: ImpactLevelOrUnaffectedType = "BAJO"
+    # Q1 · sin valor por defecto. Omitir una dimension la adscribia en
+    # silencio a BAJO, y de aqui sale la categoria preliminar que arrastra el
+    # acta E-012 y la DdA. "No afectada" es un valor que se DICE (Anexo I
+    # punto 3), no la ausencia de dato.
+    confidencialidad: ImpactLevelOrUnaffectedType
+    integridad: ImpactLevelOrUnaffectedType
+    disponibilidad: ImpactLevelOrUnaffectedType
+    autenticidad: ImpactLevelOrUnaffectedType
+    trazabilidad: ImpactLevelOrUnaffectedType
 
 
 class StepCategoriaPreliminar(BaseModel):

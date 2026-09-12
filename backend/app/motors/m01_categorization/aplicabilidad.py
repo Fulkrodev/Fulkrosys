@@ -181,6 +181,101 @@ def medidas_aplicables(
     return aplicables
 
 
+
+@dataclass(frozen=True)
+class MotivoNoAplicabilidad:
+    """Por que una medida concreta NO entra en la DdA. Lo lee el auditor.
+
+    Existe porque la justificacion de exclusion se escribia con una plantilla
+    fija que citaba SIEMPRE el eje "categoria" ("el Anexo II establece que esta
+    medida aplica exclusivamente a sistemas de categoria X"). Para las medidas
+    de eje "dimension" esa frase es falsa, y en los casos en que la categoria
+    minima coincidia con la del sistema decia literalmente que la medida no
+    aplica porque aplica. El motivo se deriva de la MISMA tabla que decide la
+    aplicabilidad, no de una columna denormalizada.
+
+    Casos:
+      - eje "categoria": la celda de la categoria del sistema es n.a.
+      - eje "dimension" / sin_dimensiones_afectadas: ninguna de las dimensiones
+        que la exigen esta afectada (Anexo I punto 3).
+      - eje "dimension" / nivel_insuficiente: alguna esta afectada, pero la
+        celda de SU nivel es n.a.
+    """
+
+    eje: Literal["categoria", "dimension"]
+    categoria: str | None = None
+    # Eje dimension: las dimensiones que podrian exigirla, con el nivel que
+    # tienen en este sistema (BAJO/MEDIO/ALTO o NO_AFECTADA).
+    dimensiones: tuple[tuple[str, str], ...] = ()
+
+    @property
+    def subcaso(self) -> str:
+        if self.eje == "categoria":
+            return "categoria_no_exige"
+        if all(nivel == NO_AFECTADA for _d, nivel in self.dimensiones):
+            return "sin_dimensiones_afectadas"
+        return "nivel_insuficiente"
+
+    def explica(self) -> str:
+        if self.eje == "categoria":
+            return (f"el Anexo II no la exige a la categoria {self.categoria} "
+                    "del sistema")
+        afectadas = [(d, n) for d, n in self.dimensiones if n != NO_AFECTADA]
+        if not afectadas:
+            nombres = ", ".join(
+                f"{_NOMBRE_DIM[d]} [{d}]" for d, _n in self.dimensiones
+            )
+            return (f"ninguna de las dimensiones que la exigen ({nombres}) esta "
+                    "afectada en este sistema")
+        detalle = ", ".join(
+            f"{_NOMBRE_DIM[d]} [{d}] en nivel {n}" for d, n in afectadas
+        )
+        return (f"el Anexo II no la exige al nivel de sus dimensiones "
+                f"({detalle})")
+
+
+def medidas_no_aplicables(
+    categoria: str,
+    niveles_por_dimension: dict[str, str],
+    *,
+    exigir_alguna_afectada: bool = True,
+) -> dict[str, MotivoNoAplicabilidad]:
+    """Las medidas del Anexo II que NO aplican, con el motivo REAL de cada una.
+
+    Complemento exacto de :func:`medidas_aplicables` sobre la misma tabla: las
+    dos particionan las 73 medidas y no se solapan (guarda en
+    ``backend/tests/motors/m03_dda/test_justificacion_no_aplica_dice_la_verdad.py``).
+    """
+    cat = (categoria or "").upper()
+    if cat not in _CATEGORIAS:
+        raise ValueError(f"Categoria invalida: {categoria!r}. Validas: {list(_CATEGORIAS)}")
+    niveles = valida_niveles(
+        niveles_por_dimension, exigir_alguna_afectada=exigir_alguna_afectada,
+    )
+    aplicables = medidas_aplicables(
+        cat, niveles, exigir_alguna_afectada=exigir_alguna_afectada,
+    )
+
+    no_aplicables: dict[str, MotivoNoAplicabilidad] = {}
+    for codigo in sorted(ANEXO_II_RD311):
+        if codigo in aplicables:
+            continue
+        eje, iniciales = EJE_Y_DIMENSIONES[codigo]
+        if eje == "categoria":
+            no_aplicables[codigo] = MotivoNoAplicabilidad(
+                eje="categoria", categoria=cat,
+            )
+        else:
+            no_aplicables[codigo] = MotivoNoAplicabilidad(
+                eje="dimension",
+                categoria=cat,
+                dimensiones=tuple(
+                    (inicial, niveles[inicial]) for inicial in sorted(iniciales)
+                ),
+            )
+    return no_aplicables
+
+
 def diferencia_explicada(
     categoria: str,
     niveles_a: dict[str, str],

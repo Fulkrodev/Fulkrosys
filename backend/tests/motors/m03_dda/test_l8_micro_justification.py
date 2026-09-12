@@ -5,15 +5,24 @@ CCN-STIC 801 sec 4.2 · additive · NO altera el determinismo de aplicabilidad
 """
 from __future__ import annotations
 
+from backend.app.motors.m01_categorization.aplicabilidad import (
+    medidas_no_aplicables,
+)
 from backend.app.motors.m03_dda.templates import render_no_aplica_justification
+
+# Q1 · la firma cambió: el motivo ya no se deduce de `categoria_minima`, se toma
+# de la misma tabla que decide la exclusión. op.acc.3 es de eje dimensión, así
+# que se pide su motivo REAL para un sistema BASICA con las dimensiones en BAJO.
+_NIVELES_BASICA = {"D": "BAJO", "I": "BAJO", "C": "BAJO", "A": "BAJO", "T": "BAJO"}
 
 
 def _args():
+    motivo = medidas_no_aplicables("BASICA", _NIVELES_BASICA)["op.acc.3"]
     return dict(
         codigo="op.acc.3",
         nombre="Segregación de funciones",
-        cat_minima="MEDIA",
         system_category="BASICA",
+        motivo=motivo,
     )
 
 

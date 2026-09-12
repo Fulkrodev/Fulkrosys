@@ -55,6 +55,10 @@ class InesYearReport:
     investment_eur: float | None = None
     rseg_name: str = "(pendiente designación)"
     plan_year_next: list[str] = field(default_factory=list)
+    # Q1 · proyectos sin categorización determinada. No se declaran como
+    # sistemas en alcance (su categoría es lo que el informe declara) pero
+    # tampoco se callan.
+    systems_without_category: list[str] = field(default_factory=list)
 
 
 async def collect_ines_data(
@@ -85,7 +89,12 @@ async def collect_ines_data(
     # Sistemas en alcance + categorización
     systems_row = await db.execute(
         sa_text(
-            "SELECT p.id::text, p.nombre, COALESCE(c.categoria_resultante, 'BASICA'), "
+            # Q1 · aqui habia COALESCE(c.categoria_resultante, 'BASICA'). El
+            # informe INES del art. 32 es una DECLARACION anual ante el CCN: un
+            # proyecto sin categorizar se estaba declarando como BASICA, que es
+            # declarar por debajo ante la administracion. Se trae el valor real
+            # (NULL si no hay) y se decide abajo, a la vista.
+            "SELECT p.id::text, p.nombre, c.categoria_resultante, "
             "       COALESCE(p.fase, 'pre_venta'), p.fecha_objetivo_certificacion::text "
             "FROM projects p "
             "LEFT JOIN systems s ON s.project_id = p.id "
@@ -98,11 +107,18 @@ async def collect_ines_data(
         {"cid": str(organization_id)},
     )
     systems: list[dict[str, Any]] = []
+    sin_categoria: list[str] = []
     seen_pids: set[str] = set()
     for pid, name, cat, fase, target_date in systems_row.fetchall():
         if pid in seen_pids:
             continue
         seen_pids.add(pid)
+        if not cat:
+            # No entra en "sistemas en alcance" porque su categoria es justo lo
+            # que el informe declara. Se cuenta aparte para que la ausencia se
+            # VEA en el payload en vez de disfrazarse de BASICA.
+            sin_categoria.append(name or pid)
+            continue
         systems.append({
             "system_id": pid,
             "name": name,
@@ -117,6 +133,7 @@ async def collect_ines_data(
         "MEDIA": 0,
         "ALTA": 0,
         "CRITICA": 0,
+        "SIN_CLASIFICAR": 0,
     }
     try:
         # FIX(column-drift): la tabla incidents tiene `severidad` (español) y la
@@ -126,7 +143,10 @@ async def collect_ines_data(
         # 824). Espejo de dpc_anual_service.py.
         inc_row = await db.execute(
             sa_text(
-                "SELECT COALESCE(severidad, 'MEDIA'), count(*) "
+                # Q1 · sin COALESCE: un incidente sin severidad registrada no
+                # es un incidente de severidad MEDIA. Se cuenta como
+                # SIN_CLASIFICAR y el informe lo dice.
+                "SELECT severidad, count(*) "
                 "FROM incidents i "
                 "JOIN projects p ON p.id = i.project_id "
                 "WHERE p.client_id = :cid "
@@ -137,7 +157,7 @@ async def collect_ines_data(
             {"cid": str(organization_id), "y": year},
         )
         for sev, count in inc_row.fetchall():
-            sev_norm = (sev or "MEDIA").upper()
+            sev_norm = (sev or "SIN_CLASIFICAR").upper()
             incidents_summary[sev_norm] = int(count)
     except Exception:
         logger.exception("INES incidents query failed (year=%s)", year)
@@ -185,6 +205,7 @@ async def collect_ines_data(
         incidents_summary=incidents_summary,
         maturity_avg=maturity_avg,
         investment_eur=investment_eur,
+        systems_without_category=sin_categoria,
     )
 
 
@@ -199,6 +220,15 @@ def generate_ines_json(report: InesYearReport) -> dict[str, Any]:
         "year": report.year,
         "report_date": report.today,
         "systems_in_scope": report.systems,
+        "systems_without_category": report.systems_without_category,
+        "systems_without_category_note": (
+            None if not report.systems_without_category else (
+                "Estos proyectos no tienen categorización determinada y por eso "
+                "NO se declaran en «systems_in_scope»: el informe INES declara la "
+                "categoría de cada sistema y no puede inventarla (RD 311/2022 "
+                "Anexo I punto 3). Complete la categorización y vuelva a emitir."
+            )
+        ),
         "incidents_summary": report.incidents_summary,
         "maturity_avg_cmm": round(report.maturity_avg, 2),
         "investment_security_eur": report.investment_eur,

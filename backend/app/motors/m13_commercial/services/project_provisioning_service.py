@@ -49,18 +49,19 @@ _ARCHETYPE_MAP = {
 def _impact_to_valoracion(impact: str | None) -> str | None:
     """Traduce el valor del asistente a lo que guarda `information_types`.
 
-    O2 · "no afectada" es AUSENCIA de adscripcion (Anexo I punto 3) y en
-    `valoracion_c/i/d/a/t` eso se representa con NULL, que es lo que el resto
-    del codigo ya asume: los lectores arrancan en NO_AFECTADA y solo suben la
-    dimension si ven un nivel de la terna.
+    O2 lo resolvia traduciendo "NO_AFECTADA" a NULL, porque la columna era
+    String(10) y el literal tiene 11 caracteres. Q1 amplio la columna
+    (migracion `no_afectada_cabe_001`) precisamente porque esa traduccion
+    obligaba a que NULL significase dos cosas: "nadie lo ha valorado todavia" y
+    "esta dimension no esta afectada". Esa ambiguedad es la que hacia que un
+    renderizador escribiese `or "BAJO"` y el acta E-012 firmada declarase BAJO
+    una dimension que nadie valoro.
 
-    No se guarda el literal a proposito: esas columnas son String(10) y
-    "NO_AFECTADA" tiene 11 caracteres, asi que escribirlo reventaria con
-    StringDataRightTruncation. Ampliar la columna seria inventar una segunda
-    representacion de algo que ya se sabe expresar.
+    Ahora se guarda el literal, que es una DECISION registrada. NULL sigue
+    existiendo y sigue queriendo decir "sin dato"; los lectores tratan ambos
+    como no afectada (`_max_level`, `aplicabilidad`), asi que los datos
+    anteriores se siguen leyendo igual.
     """
-    if impact is None or impact == "NO_AFECTADA":
-        return None
     return impact
 
 

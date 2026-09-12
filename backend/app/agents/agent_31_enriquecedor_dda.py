@@ -450,14 +450,39 @@ class Agent31EnriquecedorDdA(AgentBase):
         base_reason: str,
         client_context: dict[str, Any],
     ) -> dict[str, Any]:
-        """Fallback al template M3 actual (determinista) con metadata extra."""
-        categoria = client_context.get("ens_category", "MEDIA")
+        """Fallback al template M3 actual (determinista) con metadata extra.
+
+        Q1 · aqui habia `client_context.get("ens_category", "MEDIA")`: sin
+        categoria en el contexto, este agente escribia MEDIA dentro de la
+        justificacion de exclusion de la DdA, que es un documento FIRMABLE. Y
+        era la TERCERA copia de la frase que atribuye toda exclusion al eje
+        "categoria" del Anexo II (las otras dos: `m03_dda/templates.py` y el
+        propio servicio). Sin categoria no hay texto: se devuelve el motivo base
+        sin afirmar nada que no se pueda sostener.
+        """
+        categoria = str(client_context.get("ens_category") or "").strip().upper()
+        if not categoria:
+            return {
+                "justificacion_enriquecida": (
+                    f"La medida {measure_id} ({measure_name}) queda excluida del "
+                    f"alcance del SGSI por la circunstancia '{base_reason}', "
+                    "conforme al criterio de delimitacion de la CCN-STIC 803. "
+                    "La categoria del sistema no consta en el contexto de este "
+                    "enriquecimiento, por lo que esta justificacion NO invoca el "
+                    "eje de categoria del Anexo II: la motivacion normativa de la "
+                    "exclusion la emite el motor de la Declaracion de "
+                    "Aplicabilidad, que si conoce la categoria y los niveles por "
+                    "dimension del sistema."
+                ),
+                "ccn_stic_referenciada": "CCN-STIC 803",
+                "elementos_contexto_usados": ["fallback_sin_categoria"],
+                "confianza": 0.2,
+            }
         # Replica textual del template estatico M3 service.
         text = (
             f"La medida {measure_id} ({measure_name}) no resulta de "
             f"aplicacion al presente sistema, clasificado en categoria "
-            f"{categoria} conforme al Anexo I del RD 311/2022. El Anexo II "
-            f"establece los criterios de aplicabilidad por categoria. La "
+            f"{categoria} conforme al Anexo I del RD 311/2022. La "
             f"circunstancia '{base_reason}' motiva su exclusion del alcance "
             f"del SGSI conforme al criterio de delimitacion establecido en "
             f"la CCN-STIC 803. No se identifican circunstancias que "

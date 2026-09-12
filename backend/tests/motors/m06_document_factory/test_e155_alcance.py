@@ -102,7 +102,14 @@ class TestScopeCrud:
         system_id = await _seed_system(async_client, project_id)
         svc_resp = await async_client.post(
             f"/api/v1/categorization/systems/{system_id}/services",
-            json={"items": [{"nombre": "Sede electrónica", "tipo": "finalista"}]},
+            # Q1 · las cinco dimensiones se declaran: omitirlas ya no las
+            # adscribe en silencio a BAJO (RD 311/2022 Anexo I punto 3).
+            json={"items": [{
+                "nombre": "Sede electrónica", "tipo": "finalista",
+                "valoracion_d": "BAJO", "valoracion_i": "BAJO",
+                "valoracion_c": "BAJO", "valoracion_a": "BAJO",
+                "valoracion_t": "BAJO",
+            }]},
         )
         assert svc_resp.status_code == 201, svc_resp.text
         svc = svc_resp.json()[0]
@@ -128,14 +135,24 @@ class TestBuildE155Context:
         await async_client.post(
             f"/api/v1/categorization/systems/{system_id}/information-types",
             json={"items": [
-                {"nombre": "Expedientes", "valoracion_i": "ALTO", "valoracion_c": "MEDIO"},
+                # Q1 · lo que antes se omitía y salía BAJO en silencio, ahora
+                # se dice: estas tres dimensiones NO están afectadas.
+                {"nombre": "Expedientes", "valoracion_i": "ALTO",
+                 "valoracion_c": "MEDIO", "valoracion_d": "NO_AFECTADA",
+                 "valoracion_a": "NO_AFECTADA", "valoracion_t": "NO_AFECTADA"},
             ]},
         )
         await async_client.post(
             f"/api/v1/categorization/systems/{system_id}/services",
             json={"items": [
-                {"nombre": "Sede electrónica", "tipo": "finalista", "valoracion_d": "MEDIO"},
-                {"nombre": "Directorio", "tipo": "instrumental"},
+                {"nombre": "Sede electrónica", "tipo": "finalista",
+                 "valoracion_d": "MEDIO", "valoracion_i": "NO_AFECTADA",
+                 "valoracion_c": "NO_AFECTADA", "valoracion_a": "NO_AFECTADA",
+                 "valoracion_t": "NO_AFECTADA"},
+                {"nombre": "Directorio", "tipo": "instrumental",
+                 "valoracion_d": "NO_AFECTADA", "valoracion_i": "NO_AFECTADA",
+                 "valoracion_c": "NO_AFECTADA", "valoracion_a": "NO_AFECTADA",
+                 "valoracion_t": "NO_AFECTADA"},
             ]},
         )
         await async_client.post(

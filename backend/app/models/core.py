@@ -193,11 +193,14 @@ class InformationType(FullMixin, Base):
     __tablename__ = "information_types"
     system_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("systems.id"), nullable=False)
     nombre: Mapped[str] = mapped_column(String(255), nullable=False)
-    valoracion_d: Mapped[str | None] = mapped_column(String(10))
-    valoracion_i: Mapped[str | None] = mapped_column(String(10))
-    valoracion_c: Mapped[str | None] = mapped_column(String(10))
-    valoracion_a: Mapped[str | None] = mapped_column(String(10))
-    valoracion_t: Mapped[str | None] = mapped_column(String(10))
+    # Q1 · 20 y no 10: "NO_AFECTADA" (11 caracteres) es un valor legitimo del
+    # Anexo I punto 3 y en VARCHAR(10) era IRREPRESENTABLE. Migracion
+    # `no_afectada_cabe_001`.
+    valoracion_d: Mapped[str | None] = mapped_column(String(20))
+    valoracion_i: Mapped[str | None] = mapped_column(String(20))
+    valoracion_c: Mapped[str | None] = mapped_column(String(20))
+    valoracion_a: Mapped[str | None] = mapped_column(String(20))
+    valoracion_t: Mapped[str | None] = mapped_column(String(20))
     justificacion: Mapped[str | None] = mapped_column(Text)
     system: Mapped["System"] = relationship(back_populates="information_types")
 
@@ -215,11 +218,14 @@ class Service(FullMixin, Base):
     )
     system_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("systems.id"), nullable=False)
     nombre: Mapped[str] = mapped_column(String(255), nullable=False)
-    valoracion_d: Mapped[str | None] = mapped_column(String(10))
-    valoracion_i: Mapped[str | None] = mapped_column(String(10))
-    valoracion_c: Mapped[str | None] = mapped_column(String(10))
-    valoracion_a: Mapped[str | None] = mapped_column(String(10))
-    valoracion_t: Mapped[str | None] = mapped_column(String(10))
+    # Q1 · 20 y no 10: "NO_AFECTADA" (11 caracteres) es un valor legitimo del
+    # Anexo I punto 3 y en VARCHAR(10) era IRREPRESENTABLE. Migracion
+    # `no_afectada_cabe_001`.
+    valoracion_d: Mapped[str | None] = mapped_column(String(20))
+    valoracion_i: Mapped[str | None] = mapped_column(String(20))
+    valoracion_c: Mapped[str | None] = mapped_column(String(20))
+    valoracion_a: Mapped[str | None] = mapped_column(String(20))
+    valoracion_t: Mapped[str | None] = mapped_column(String(20))
     justificacion: Mapped[str | None] = mapped_column(Text)
     # R05 · finalista | instrumental (alcance E-155). Ver CheckConstraint arriba.
     tipo: Mapped[str | None] = mapped_column(String(20))

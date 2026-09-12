@@ -752,10 +752,12 @@ class ContractSigningFlow:
                 await self.db.flush()
                 return p.id
 
-        categoria = (
-            lead.categoria_objetivo_ens
-            or "BASICA"
-        )
+        # Q1 · si el lead no trae categoria, el proyecto NACE SIN ella. Antes
+        # se creaba como BASICA, y esa categoria inventada en el origen es la que
+        # despues recorria el acta, la DdA y el expediente como si alguien la
+        # hubiera decidido. Sin dato, no hay dato: la categorizacion (M01) es el
+        # primer paso del ciclo y es quien la pone.
+        categoria = lead.categoria_objetivo_ens or None
         # Sub-atom 1.C.D.A.0.3 v3.8 · pre-populate tamano_empleados desde
         # proposal.alcance.empleados si resolvable (helper en commercial_workflow_service).
         from backend.app.motors.m13_commercial.services.commercial_workflow_service import (

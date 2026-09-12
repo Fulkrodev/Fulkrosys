@@ -181,8 +181,14 @@ async def async_client(db):
     app.dependency_overrides.clear()
 
 
-async def setup_test_project(db):
+async def setup_test_project(db, categoria_objetivo: str | None = None):
     """Create a client + project in DB and return (client_id, project_id).
+
+    Q1 · ``categoria_objetivo`` es explicito y por defecto None. Un proyecto sin
+    categoria es un proyecto a medio hacer, y los documentos que declaran la
+    categoria ya NO la rellenan con un valor inventado: levantan
+    ``CategoriaNoDeterminadaError``. Los tests que ejercitan la EMISION de un
+    documento pasan la categoria; los que ejercitan otra cosa no la necesitan.
 
     Uses _admin_setup to bypass RLS for the INSERT into projects table.
     Sets app.current_project_id and app.current_client_id session vars
@@ -198,9 +204,10 @@ async def setup_test_project(db):
             "VALUES (:id, 'Test Client', :cif, now())"
         ), {"id": str(client_id), "cif": unique_cif})
         await db.execute(text(
-            "INSERT INTO projects (id, client_id, nombre, created_at) "
-            "VALUES (:id, :cid, 'Test Project', now())"
-        ), {"id": str(project_id), "cid": str(client_id)})
+            "INSERT INTO projects (id, client_id, nombre, categoria_objetivo, "
+            "created_at) VALUES (:id, :cid, 'Test Project', :cat, now())"
+        ), {"id": str(project_id), "cid": str(client_id),
+            "cat": categoria_objetivo})
     # Set tenant context (post-_admin_setup, runs as fulkro_app).
     await db.execute(
         text("SELECT set_config('app.current_project_id', :pid, true)"),

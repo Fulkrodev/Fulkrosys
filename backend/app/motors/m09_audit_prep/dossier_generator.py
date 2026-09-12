@@ -618,7 +618,16 @@ def _build_impl_coverage_section(categoria: str | None) -> tuple[dict, str]:
         from backend.app.motors.m_remediation.impl_coverage import (
             compute_implementation_coverage,
         )
-        cov = compute_implementation_coverage(categoria or "MEDIA")
+        # Q1 · sin categoria NO se calcula con MEDIA: la cobertura depende de
+        # cuantas medidas aplican, y aplicarlas "como si fuera MEDIA" mete en el
+        # dossier del auditor un recuento que no es el de este proyecto.
+        if not (categoria or "").strip():
+            return {}, (
+                "Cobertura de implantación técnica no disponible: el proyecto no "
+                "tiene categoría determinada, y el número de medidas aplicables "
+                "depende de ella (RD 311/2022 Anexo II)."
+            )
+        cov = compute_implementation_coverage(categoria)
     except Exception:  # noqa: BLE001 — non-fatal · el ZIP se entrega igual
         return {}, "Cobertura de implantación técnica no disponible."
 

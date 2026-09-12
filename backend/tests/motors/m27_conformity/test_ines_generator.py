@@ -103,4 +103,50 @@ async def test_collect_ines_data_with_real_org(db: AsyncSession):
 
     assert report.organization_name == "INES Test Ayto"
     assert report.year == 2026
-    assert any(s["name"] == "Sistema INES test" for s in report.systems)
+    # Q1 · este test aseveraba el defecto: el proyecto se inserta SIN
+    # categorización y se daba por bueno que apareciera en `systems` — donde
+    # figuraba con categoría BASICA, inventada por un COALESCE de la consulta.
+    # El informe INES del art. 32 declara la categoría de cada sistema ante el
+    # CCN; un sistema sin categorizar no se declara: se cuenta aparte.
+    assert not any(s["name"] == "Sistema INES test" for s in report.systems)
+    assert "Sistema INES test" in report.systems_without_category
+
+
+@pytest.mark.asyncio
+async def test_ines_no_declara_como_basica_un_sistema_sin_categorizar(db: AsyncSession):
+    """Guarda Q1 · el informe del art. 32 no inventa la categoría de un sistema.
+
+    Es una DECLARACIÓN anual ante el CCN. La consulta traía
+    ``COALESCE(c.categoria_resultante, 'BASICA')``, de modo que un proyecto sin
+    categorizar se declaraba como BASICA — declarar por debajo ante la
+    administración, que es justo el error que el RD 311/2022 persigue.
+    """
+    from backend.app.database import set_tenant_context
+
+    client_id = uuid.uuid4()
+    project_id = uuid.uuid4()
+    cif = f"P{uuid.uuid4().hex[:8].upper()}"
+    async with _admin_setup(db):
+        await db.execute(
+            text("INSERT INTO clients (id, nombre, cif, sector, created_at) "
+                 "VALUES (:cid, :n, :cif, 'publico', now())"),
+            {"cid": str(client_id), "n": "INES sin categoria", "cif": cif},
+        )
+        await db.execute(
+            text("INSERT INTO projects (id, client_id, nombre, fase, created_at) "
+                 "VALUES (:pid, :cid, 'Proyecto sin categorizar', 'implantacion', now())"),
+            {"pid": str(project_id), "cid": str(client_id)},
+        )
+    await set_tenant_context(db, client_id=client_id, project_id=project_id)
+
+    report = await collect_ines_data(db, client_id, 2026)
+    payload = generate_ines_json(report)
+
+    categorias = [s.get("category") for s in payload["systems_in_scope"]]
+    assert "BASICA" not in categorias, (
+        "el informe INES declara BASICA un sistema que nadie categorizó"
+    )
+    assert payload["systems_without_category"] == ["Proyecto sin categorizar"]
+    assert payload["systems_without_category_note"], (
+        "el hueco tiene que ir explicado, no en blanco"
+    )

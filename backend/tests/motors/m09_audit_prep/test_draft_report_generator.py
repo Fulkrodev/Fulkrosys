@@ -84,7 +84,7 @@ def test_derive_recommendation_clean_aprobar():
 
 @pytest.mark.asyncio
 async def test_build_report_context_returns_all_keys(db):
-    _, project_id = await setup_test_project(db)
+    _, project_id = await setup_test_project(db, categoria_objetivo="MEDIA")
     await db.commit()
 
     ctx = await build_report_context(db, uuid.UUID(project_id))
@@ -102,7 +102,7 @@ async def test_build_report_context_returns_all_keys(db):
 @pytest.mark.asyncio
 async def test_build_report_context_aggregates_annotations_clarifications(db):
     """Insert annotations + clarifications · context aggregates them."""
-    _, project_id = await setup_test_project(db)
+    _, project_id = await setup_test_project(db, categoria_objetivo="MEDIA")
 
     async with _admin_setup(db):
         # Find magic link target NOT NULL FK · use random uuid acceptable
@@ -147,7 +147,7 @@ async def test_build_report_context_aggregates_annotations_clarifications(db):
 
 @pytest.mark.asyncio
 async def test_render_report_html_preserves_spanish_accents(db):
-    _, project_id = await setup_test_project(db)
+    _, project_id = await setup_test_project(db, categoria_objetivo="MEDIA")
     await db.commit()
 
     ctx = await build_report_context(db, uuid.UUID(project_id))
@@ -165,7 +165,7 @@ async def test_render_report_html_preserves_spanish_accents(db):
 @pytest.mark.asyncio
 async def test_generate_draft_audit_report_returns_signed_pdf(db):
     """Empirical: generate PDF + verify sha256 + signature non-empty."""
-    _, project_id = await setup_test_project(db)
+    _, project_id = await setup_test_project(db, categoria_objetivo="MEDIA")
     await db.commit()
 
     result = await generate_draft_audit_report(db, uuid.UUID(project_id))
@@ -186,7 +186,7 @@ async def test_generate_draft_audit_report_signature_verifies(db):
     """Signature verifies con M05 verify_signature helper (Cluster 1 pattern)."""
     from backend.app.motors.m05_signing.keypair import verify_signature
 
-    _, project_id = await setup_test_project(db)
+    _, project_id = await setup_test_project(db, categoria_objetivo="MEDIA")
     await db.commit()
 
     result = await generate_draft_audit_report(db, uuid.UUID(project_id))
@@ -206,7 +206,7 @@ async def test_generate_draft_audit_report_deterministic_sha256_same_input(db):
     NOTE: PDF generation includes timestamp en context (generated_at) ·
     distintos sha256 entre runs aunque same data. Test verifica que el sha256
     es consistent con sus pdf_bytes (sanity self-consistency)."""
-    _, project_id = await setup_test_project(db)
+    _, project_id = await setup_test_project(db, categoria_objetivo="MEDIA")
     await db.commit()
 
     result = await generate_draft_audit_report(db, uuid.UUID(project_id))
@@ -216,7 +216,7 @@ async def test_generate_draft_audit_report_deterministic_sha256_same_input(db):
 
 @pytest.mark.asyncio
 async def test_generate_draft_audit_report_with_explicit_options(db):
-    _, project_id = await setup_test_project(db)
+    _, project_id = await setup_test_project(db, categoria_objetivo="MEDIA")
     await db.commit()
 
     opts = DraftReportOptions(
@@ -248,7 +248,7 @@ async def test_pdf_valid_via_pypdf_parse(db):
     except ImportError:
         pytest.skip("pypdf not installed")
 
-    _, project_id = await setup_test_project(db)
+    _, project_id = await setup_test_project(db, categoria_objetivo="MEDIA")
     await db.commit()
 
     result = await generate_draft_audit_report(db, uuid.UUID(project_id))

@@ -14,6 +14,8 @@ from xml.etree.ElementTree import Element, SubElement, tostring
 from sqlalchemy import text as sa_text
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from backend.app.motors.m01_categorization.aplicabilidad import NO_AFECTADA
+
 
 async def generate_mgr_file(
     db: AsyncSession,
@@ -46,7 +48,12 @@ async def generate_mgr_file(
             proj = SubElement(root, "Proyecto")
             SubElement(proj, "Nombre").text = proj_row.nombre or ""
             SubElement(proj, "Cliente").text = proj_row.cli or ""
-            SubElement(proj, "Categoria").text = proj_row.categoria_objetivo or "BASICA"
+            # Q1 · sin categoria NO se escribe BASICA. El .mgr lo importa PILAR
+            # (la herramienta del CCN) y una categoria inventada ahi arrastra
+            # todo el analisis de riesgos. Se dice que no esta determinada.
+            SubElement(proj, "Categoria").text = (
+                proj_row.categoria_objetivo or "SIN_DETERMINAR"
+            )
 
         # Activos desde systems + service + information_types
         systems = (await db.execute(sa_text(
@@ -74,7 +81,10 @@ async def generate_mgr_file(
                 for dim, code in (("D", "d"), ("I", "i"), ("C", "c"),
                                   ("A", "a"), ("T", "t")):
                     v = getattr(cat_row, f"valoracion_{code}", None)
-                    SubElement(val, dim).text = v or "BAJO"
+                    # Q1 · una dimension sin valorar no es BAJO: el Anexo I
+                    # punto 3 dice que NO se adscribe a ningun nivel. Escribir
+                    # BAJO aqui mete medidas en el analisis que la norma no pide.
+                    SubElement(val, dim).text = v or NO_AFECTADA
 
         # Amenazas desde magerit_analyses si existen (savepoint para tolerar
         # tabla ausente o esquema diferente sin abortar la transaccion).

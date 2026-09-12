@@ -538,7 +538,12 @@ class Agent04RedactorDiagnosticos(AgentBase):
         """Plantilla minima por sector/categoria con placeholders rellenos."""
         nombre = client_context.get("company_name", "[CLIENTE]")
         sector = client_context.get("sector", "otro")
-        categoria = client_context.get("ens_category", "MEDIA")
+        # Q1 · sin categoria en el contexto NO se escribe MEDIA: este texto va
+        # a un entregable ENS. Se dice que no consta, y quien lo lea lo ve.
+        categoria = (
+            str(client_context.get("ens_category") or "").strip().upper()
+            or "SIN DETERMINAR"
+        )
         madurez = deterministic_data["madurez_global"]
         pct = deterministic_data["porcentaje_conformidad"]
         horas = deterministic_data["horas_estimadas"]

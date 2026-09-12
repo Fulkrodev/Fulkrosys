@@ -26,6 +26,7 @@ from backend.app.motors.m01_categorization.service import (
 )
 from backend.app.motors.m01_categorization.aplicabilidad import (
     NIVELES_CON_ADSCRIPCION,
+    NO_AFECTADA,
     categoria_por_regla_del_maximo,
 )
 from backend.app.motors.m01_categorization.schemas import (
@@ -998,6 +999,26 @@ async def get_acta_e012_docx(
     )
 
 
+def _valoraciones_reales(fila) -> dict[str, str]:
+    """Las cinco dimensiones de un servicio o tipo de informacion, sin inventar.
+
+    Q1 · aqui habia `fila.valoracion_d or "BAJO"`, cinco veces y en dos sitios.
+    El acta E-012 es un documento FIRMABLE y ese `or` hacia que la tabla del
+    propio acta declarase BAJO una dimension que nadie valoro, mientras el
+    bloque `result` del MISMO JSON -- que sale del motor corregido en O2 -- la
+    daba como no afectada. El documento se contradecia consigo mismo, y la mitad
+    que mentia era la que un auditor lee primero.
+
+    RD 311/2022 Anexo I punto 3: una dimension no afectada NO se adscribe a
+    ningun nivel. Asi que se dice eso, con la misma constante canonica que usa
+    el generador del DOCX/PDF.
+    """
+    return {
+        dim: (getattr(fila, f"valoracion_{dim.lower()}", None) or NO_AFECTADA)
+        for dim in ("D", "I", "C", "A", "T")
+    }
+
+
 # ================================================================
 # ENDPOINT 16: Acta E-012 as JSON
 # ================================================================
@@ -1083,29 +1104,11 @@ async def get_acta_e012_json(
             "descripcion": system.descripcion,
         },
         "information_types": sorted([
-            {
-                "nombre": it.nombre,
-                "valoraciones": {
-                    "D": it.valoracion_d or "BAJO",
-                    "I": it.valoracion_i or "BAJO",
-                    "C": it.valoracion_c or "BAJO",
-                    "A": it.valoracion_a or "BAJO",
-                    "T": it.valoracion_t or "BAJO",
-                },
-            }
+            {"nombre": it.nombre, "valoraciones": _valoraciones_reales(it)}
             for it in info_types
         ], key=lambda x: x["nombre"]),
         "services": sorted([
-            {
-                "nombre": s.nombre,
-                "valoraciones": {
-                    "D": s.valoracion_d or "BAJO",
-                    "I": s.valoracion_i or "BAJO",
-                    "C": s.valoracion_c or "BAJO",
-                    "A": s.valoracion_a or "BAJO",
-                    "T": s.valoracion_t or "BAJO",
-                },
-            }
+            {"nombre": s.nombre, "valoraciones": _valoraciones_reales(s)}
             for s in services_list
         ], key=lambda x: x["nombre"]),
         "result": {

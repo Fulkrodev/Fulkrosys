@@ -270,7 +270,7 @@ async def create_recategorization(
     rec_row = RecategorizationRow(
         id=result.recategorization_id,
         project_id=project_id,
-        old_category=result.old_category or "BASICA",
+        old_category=result.old_category,
         new_category=result.new_category,
         trigger_material_change_id=None,
         analysis_report_id=None,

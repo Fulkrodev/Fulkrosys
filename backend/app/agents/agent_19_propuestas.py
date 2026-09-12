@@ -282,12 +282,20 @@ class Agent19Proposals(AgentBase):
             or client_ctx.get("sector")
             or m21_ctx.get("sector")
         )
+        # Q1 · sin las tres fuentes NO se escribe MEDIA. La propuesta declara
+        # la categoria ENS del encargo y de ella cuelga el precio: inventarla es
+        # ofertar otra cosa.
         categoria = (
             categoria_override
             or project_row[3]
             or m1_ctx.get("categoria")
-            or "MEDIA"
         )
+        if not categoria:
+            raise ValueError(
+                "No se puede redactar la propuesta: no hay categoria ENS ni en "
+                "el proyecto, ni en el diagnostico M1, ni pasada a mano. La "
+                "propuesta declara la categoria y de ella depende el precio."
+            )
 
         # Resolucion de sistemas/sedes si no vienen en args
         eff_sistemas = (

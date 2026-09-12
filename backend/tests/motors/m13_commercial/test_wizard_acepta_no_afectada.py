@@ -19,10 +19,12 @@ DOS CAPAS, y arreglar solo la primera empeora el fallo
              422 por un 500 StringDataRightTruncation.
 
 COMO SE REPRESENTA "no afectada" EN PERSISTENCIA
-    Con NULL, que es lo que el resto del codigo ya asume: los lectores arrancan
-    en NO_AFECTADA y solo suben la dimension si ven un nivel de la terna
-    (`service.py`, `aplicabilidad.py`, `m03_dda/service.py`). No hay que inventar
-    vocabulario nuevo ni migrar ninguna columna.
+    O2 lo resolvio con NULL, porque la columna no daba para mas. Q1 amplio la
+    columna (migracion `no_afectada_cabe_001`) y guarda el LITERAL: NULL tenia
+    que significar dos cosas a la vez -- "sin dato" y "no afectada" -- y de esa
+    ambiguedad salio el `or "BAJO"` que metia un nivel inventado en el acta
+    E-012 firmada. Los lectores siguen tratando NULL como no afectada, asi que
+    lo escrito antes se lee igual.
 """
 from __future__ import annotations
 
@@ -51,26 +53,29 @@ def test_el_contrato_sigue_rechazando_un_valor_inventado():
         EnsDimsValoracion(confidencialidad="REGULAR")
 
 
-def test_al_persistir_NO_AFECTADA_se_guarda_como_NULL():
-    """La capa 2: String(10) no puede con 11 caracteres."""
+def test_al_persistir_NO_AFECTADA_se_guarda_el_literal():
+    """Q1 · la decision se registra; ya no se colapsa contra "sin dato"."""
     from backend.app.motors.m13_commercial.services.project_provisioning_service import (
         _impact_to_valoracion,
     )
 
-    assert _impact_to_valoracion("NO_AFECTADA") is None
+    assert _impact_to_valoracion("NO_AFECTADA") == "NO_AFECTADA"
     # Y los niveles de verdad siguen pasando tal cual.
     for nivel in ("BAJO", "MEDIO", "ALTO"):
         assert _impact_to_valoracion(nivel) == nivel
+    # "sin dato" sigue siendo NULL, y no es lo mismo.
+    assert _impact_to_valoracion(None) is None
 
 
-def test_la_columna_no_podria_guardar_el_literal():
-    """Deja constancia de POR QUE se traduce a NULL y no se guarda el literal."""
-    from backend.app.models.core import InformationType
+def test_la_columna_cabe_el_literal():
+    """El defecto era el ancho de la columna: 11 caracteres en VARCHAR(10)."""
+    from backend.app.models.core import InformationType, Service
 
-    col = InformationType.__table__.c.valoracion_d
-    assert col.type.length == 10, (
-        "si esta columna se amplia, revisar si sigue teniendo sentido traducir "
-        "NO_AFECTADA a NULL o conviene guardar el literal"
-    )
-    assert len("NO_AFECTADA") > col.type.length
-    assert col.nullable, "NULL es la representacion canonica de 'no afectada'"
+    for modelo in (InformationType, Service):
+        col = modelo.__table__.c.valoracion_d
+        assert col.type.length >= len("NO_AFECTADA"), (
+            f"{modelo.__tablename__}.valoracion_d es VARCHAR({col.type.length}) "
+            "y 'NO_AFECTADA' no cabe: el estado que define el Anexo I punto 3 "
+            "vuelve a ser irrepresentable"
+        )
+        assert col.nullable, "NULL sigue significando 'sin dato'"

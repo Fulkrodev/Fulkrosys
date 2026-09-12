@@ -291,7 +291,9 @@ class Agent27ClasificadorIDMS(AgentBase):
             "",
             "CLIENT CONTEXT:",
             f"- sector: {client_context.get('sector', 'otro')}",
-            f"- ens_category: {client_context.get('ens_category', 'MEDIA')}",
+            # Q1 · "MEDIA" por defecto metia una categoria inventada DENTRO del
+            # prompt, y el modelo la repite como si fuera un dato del cliente.
+            f"- ens_category: {client_context.get('ens_category') or 'no consta'}",
             "",
             f"CONTENT EXCERPT (primeros {len(excerpt)} chars):",
             excerpt,

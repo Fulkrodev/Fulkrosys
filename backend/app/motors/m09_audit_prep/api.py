@@ -559,7 +559,19 @@ async def entregables_requeridos_endpoint(
             text("SELECT categoria_objetivo FROM projects WHERE id = :pid"),
             {"pid": str(project_id)},
         )).first()
-        categoria = (fila[0] if fila and fila[0] else "") or "BASICA"
+        categoria = (fila[0] if fila and fila[0] else "").strip().upper()
+        # Q1 · aqui habia `or "BASICA"`. La categoria decide QUE entregables
+        # exige el expediente: rellenarla con la mas baja devuelve una lista
+        # corta y el proyecto parece completo sin estarlo.
+        if not categoria:
+            raise HTTPException(
+                status_code=http_status.HTTP_422_UNPROCESSABLE_CONTENT,
+                detail=(
+                    "El proyecto no tiene categoría determinada y la lista de "
+                    "entregables exigibles depende de ella (RD 311/2022 Anexo II). "
+                    "Complete la categorización antes de pedir el checklist."
+                ),
+            )
     try:
         requeridos = checklist_service.get_required_deliverables(categoria)
     except checklist_service.ChecklistError as exc:

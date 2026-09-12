@@ -28,6 +28,7 @@ from backend.app.motors.m01_categorization.niveles_proyecto import (
 )
 from backend.app.motors.m01_categorization.aplicabilidad import (
     medidas_aplicables,
+    medidas_no_aplicables,
 )
 from backend.app.motors.m03_dda.enums import (
     Aplicabilidad,
@@ -134,6 +135,9 @@ class DdaService:
         aplicables_por_codigo = medidas_aplicables(
             system_category.value, niveles, exigir_alguna_afectada=False,
         )
+        no_aplicables_por_codigo = medidas_no_aplicables(
+            system_category.value, niveles, exigir_alguna_afectada=False,
+        )
 
         # 3. Generate entries
         entries_aplicables = 0
@@ -162,12 +166,16 @@ class DdaService:
                 )
                 entries_aplicables += 1
             else:
-                cat_min = measure.categoria_minima or "BASICA"
+                # Q1 · el motivo sale de la MISMA tabla que decide la exclusion.
+                # Antes salia de `measure.categoria_minima`, una columna
+                # denormalizada que para las medidas de eje "dimension" produce
+                # una frase falsa (y a veces "no aplica porque aplica").
+                motivo_no = no_aplicables_por_codigo[measure.codigo]
                 justificacion = render_no_aplica_justification(
                     codigo=measure.codigo,
                     nombre=measure.nombre,
-                    cat_minima=cat_min,
                     system_category=system_category.value,
+                    motivo=motivo_no,
                     empresa_size=empresa_size,
                 )
                 entry = DdaEntry(

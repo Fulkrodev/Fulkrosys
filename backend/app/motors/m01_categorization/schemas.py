@@ -8,6 +8,9 @@ from pydantic import BaseModel, ConfigDict, EmailStr, Field
 
 # === ENUMS as Literal types ===
 
+# Q1 · ya no lo usa ninguna entrada de valoracion: las cinco dimensiones se
+# decretan con `ImpactLevelOrUnaffectedType`, que incluye NO_AFECTADA. Se
+# conserva porque describe el conjunto de niveles CON adscripcion del Anexo I.
 ImpactLevelType = Literal["BAJO", "MEDIO", "ALTO"]
 # O1.1 · el resumen de dimensiones SI puede devolver NO_AFECTADA y una categoria
 # nula: un sistema sin ninguna dimension afectada no se proyecta a BASICA
@@ -44,12 +47,23 @@ class SystemOut(BaseModel):
 # === INFORMATION TYPES ===
 
 class InformationTypeIn(BaseModel):
+    """Q1 · las cinco dimensiones se DECIDEN; no hay valor por defecto.
+
+    Antes cada una traia ``= "BAJO"``: omitir una dimension la adscribia en
+    silencio al nivel BAJO, y esa adscripcion viaja hasta el acta E-012 y la
+    DdA, que son documentos FIRMABLES, y cambia que medidas del Anexo II
+    aplican. El RD 311/2022 Anexo I punto 3 dice que una dimension no afectada
+    NO se adscribe a ningun nivel: es un valor explicito (``NO_AFECTADA``), no
+    la ausencia de dato. Misma regla que ``aplicabilidad.valida_niveles``: o se
+    decide, o falla.
+    """
+
     nombre: str = Field(..., min_length=1, max_length=255)
-    valoracion_d: ImpactLevelType = "BAJO"
-    valoracion_i: ImpactLevelType = "BAJO"
-    valoracion_c: ImpactLevelType = "BAJO"
-    valoracion_a: ImpactLevelType = "BAJO"
-    valoracion_t: ImpactLevelType = "BAJO"
+    valoracion_d: ImpactLevelOrUnaffectedType
+    valoracion_i: ImpactLevelOrUnaffectedType
+    valoracion_c: ImpactLevelOrUnaffectedType
+    valoracion_a: ImpactLevelOrUnaffectedType
+    valoracion_t: ImpactLevelOrUnaffectedType
     justificacion: str | None = None
 
 
@@ -73,12 +87,14 @@ class InformationTypeBatchRequest(BaseModel):
 # === SERVICES ===
 
 class ServiceIn(BaseModel):
+    """Q1 · las cinco dimensiones se DECIDEN (ver ``InformationTypeIn``)."""
+
     nombre: str = Field(..., min_length=1, max_length=255)
-    valoracion_d: ImpactLevelType = "BAJO"
-    valoracion_i: ImpactLevelType = "BAJO"
-    valoracion_c: ImpactLevelType = "BAJO"
-    valoracion_a: ImpactLevelType = "BAJO"
-    valoracion_t: ImpactLevelType = "BAJO"
+    valoracion_d: ImpactLevelOrUnaffectedType
+    valoracion_i: ImpactLevelOrUnaffectedType
+    valoracion_c: ImpactLevelOrUnaffectedType
+    valoracion_a: ImpactLevelOrUnaffectedType
+    valoracion_t: ImpactLevelOrUnaffectedType
     justificacion: str | None = None
     # R05 · finalista | instrumental (alcance E-155 · CCN-STIC 803)
     tipo: ServiceTipoType | None = None

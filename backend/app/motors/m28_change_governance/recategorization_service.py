@@ -71,6 +71,16 @@ async def recategorize_project(
     if project is None or project.deleted_at is not None:
         raise ValueError("Proyecto no encontrado")
     old_category = project.categoria_objetivo
+    # Q1 · un proyecto sin categoria no se RE-categoriza: se categoriza. El
+    # registro de recategorizacion declara de que categoria venia, y el endpoint
+    # rellenaba ese hueco con "BASICA" — inventando un pasado normativo que
+    # nadie decidio. Sin categoria previa, esto es el primer acto de M01.
+    if not old_category:
+        raise ValueError(
+            "El proyecto no tiene categoría previa: esto no es una "
+            "recategorización sino la primera categorización. Complétela en "
+            "el motor de categorización (M01), que emite el acta E-012."
+        )
 
     base = dict(
         recategorization_id=uuid.uuid4(),

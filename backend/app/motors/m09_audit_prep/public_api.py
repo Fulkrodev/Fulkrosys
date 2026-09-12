@@ -304,7 +304,8 @@ async def _load_project_info(
     return {
         "id": str(row[0]),
         "nombre": row[1] or "Proyecto",
-        "categoria": row[2] or "MEDIA",
+        # Q1 · null y no "MEDIA": el portal del auditor enseña lo que hay.
+        "categoria": row[2] or None,
         "fase": row[3],
         "lifecycle_state": row[4],
         "certified_at": row[5].isoformat() if row[5] else None,

@@ -46,7 +46,7 @@ def test_canonical_namespace_includes_draft_report_events():
 
 @pytest.mark.asyncio
 async def test_auditor_post_returns_signed_pdf(async_client, db):
-    _, project_id = await setup_test_project(db)
+    _, project_id = await setup_test_project(db, categoria_objetivo="MEDIA")
     resp = await _create_link(db, project_id=project_id)
     await db.commit()
 
@@ -65,7 +65,7 @@ async def test_auditor_post_returns_signed_pdf(async_client, db):
 
 @pytest.mark.asyncio
 async def test_auditor_post_emits_canonical_event(async_client, db):
-    _, project_id = await setup_test_project(db)
+    _, project_id = await setup_test_project(db, categoria_objetivo="MEDIA")
     resp = await _create_link(db, project_id=project_id)
     await db.commit()
 
@@ -92,7 +92,7 @@ async def test_auditor_post_emits_canonical_event(async_client, db):
 
 @pytest.mark.asyncio
 async def test_auditor_get_preview_returns_html(async_client, db):
-    _, project_id = await setup_test_project(db)
+    _, project_id = await setup_test_project(db, categoria_objetivo="MEDIA")
     resp = await _create_link(db, project_id=project_id)
     await db.commit()
 
@@ -109,7 +109,7 @@ async def test_auditor_get_preview_returns_html(async_client, db):
 
 @pytest.mark.asyncio
 async def test_auditor_get_preview_emits_preview_event(async_client, db):
-    _, project_id = await setup_test_project(db)
+    _, project_id = await setup_test_project(db, categoria_objetivo="MEDIA")
     resp = await _create_link(db, project_id=project_id)
     await db.commit()
 
@@ -130,7 +130,7 @@ async def test_auditor_get_preview_emits_preview_event(async_client, db):
 
 @pytest.mark.asyncio
 async def test_auditor_post_invalid_recommendation_400(async_client, db):
-    _, project_id = await setup_test_project(db)
+    _, project_id = await setup_test_project(db, categoria_objetivo="MEDIA")
     resp = await _create_link(db, project_id=project_id)
     await db.commit()
 
@@ -153,7 +153,7 @@ async def test_auditor_post_bogus_token_403(async_client, db):
 
 @pytest.mark.asyncio
 async def test_admin_post_returns_signed_pdf_and_emits_event(async_client, db):
-    _, project_id = await setup_test_project(db)
+    _, project_id = await setup_test_project(db, categoria_objetivo="MEDIA")
     await db.commit()
 
     r = await async_client.post(
@@ -179,7 +179,7 @@ async def test_admin_post_returns_signed_pdf_and_emits_event(async_client, db):
 
 @pytest.mark.asyncio
 async def test_admin_get_preview_returns_html(async_client, db):
-    _, project_id = await setup_test_project(db)
+    _, project_id = await setup_test_project(db, categoria_objetivo="MEDIA")
     await db.commit()
 
     r = await async_client.get(

@@ -29,6 +29,26 @@ from backend.app.models.audit_sim import (
 from backend.app.models.core import Client, Project
 
 
+def _categoria_exigida(valor: object, donde: str) -> str:
+    """La categoria, o un error que nombra el sitio. Nunca un relleno.
+
+    Q1 · aqui habia `or "MEDIA"` dos veces. Este contexto alimenta al agente 04,
+    que REDACTA entregables ENS, y al informe del auditor interno: una categoria
+    inventada aqui se convierte en una afirmacion normativa dentro de un
+    documento.
+    """
+    cat = str(valor).strip().upper() if valor else ""
+    if not cat:
+        raise HTTPException(
+            422,
+            f"No hay categoria ENS determinada en {donde}. Los entregables que "
+            "la declaran no pueden inventarla (RD 311/2022 Anexo I punto 3): "
+            "complete la categorizacion del proyecto.",
+        )
+    return cat
+
+
+
 # A11 = auditor virtual admin → Marcos-only (antes el router no tenía gate).
 router = APIRouter(
     tags=["Agent 11 - Auditor Virtual (project-scoped wrapper)"],
@@ -153,7 +173,10 @@ async def run_supplementary_audit_for_project(
 
     m10_audit_result = {
         "score_conformidad": int(m10_run.score_global or 0),
-        "categoria_ens": m10_run.categoria or "MEDIA",
+        # Q1 · la ejecucion de simulacro SIEMPRE nace con categoria (se le
+        # pasa al crearla). Si falta, el resultado no se maquilla con MEDIA: se
+        # dice, porque de aqui salen los informes E-702/E-703.
+        "categoria_ens": _categoria_exigida(m10_run.categoria, "el resultado del simulacro (M10)"),
         "nc_mayores": nc_mayores,
         "nc_menores": nc_menores,
         "preguntas_L5": counts_l["L5"],
@@ -173,7 +196,10 @@ async def run_supplementary_audit_for_project(
         "company_name": client.nombre,
         "sector": _infer_sector(client),
         "size": _infer_size(client.numero_empleados),
-        "ens_category": project.categoria_objetivo or m10_run.categoria or "MEDIA",
+        "ens_category": _categoria_exigida(
+            project.categoria_objetivo or m10_run.categoria,
+            "el contexto de cliente del agente 11",
+        ),
         "is_aapp": _infer_sector(client) == "aapp",
         "target_audit_date": target_audit_str,
     }
