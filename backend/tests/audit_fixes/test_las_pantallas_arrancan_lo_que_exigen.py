@@ -23,10 +23,8 @@ TRES HUECOS DE LA MISMA FORMA
 """
 from __future__ import annotations
 
-import re
 from pathlib import Path
 
-import pytest
 
 RAIZ = Path(__file__).resolve().parents[3]
 
