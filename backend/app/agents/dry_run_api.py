@@ -34,13 +34,21 @@ async def execute_dry_run(
     """Trigger AuditDryRunService orchestrator M10+A11."""
     service = AuditDryRunService(db)
     try:
-        return await service.execute_dry_run(
+        resultado = await service.execute_dry_run(
             project_id=project_id, executor_id=current_user.id,
         )
     except ValueError as exc:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND, detail=str(exc),
         )
+    # Q2 · aqui faltaba el commit. El servicio hacia `flush()` y devolvia el
+    # resultado; al cerrarse la sesion de la peticion, la transaccion se
+    # revertia entera. La ejecucion se veia en pantalla y desaparecia: el
+    # historico de `audit_dry_run_results` estaba SIEMPRE vacio, asi que no se
+    # podia comparar una ejecucion con la anterior ni ensenyarle progreso a un
+    # auditor. Tampoco quedaba la alerta de NC mayores que dispara el servicio.
+    await db.commit()
+    return resultado
 
 
 @router.get(
