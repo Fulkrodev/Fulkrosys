@@ -3,7 +3,10 @@
 Reads configuration from environment variables:
   - ANTHROPIC_API_KEY: required
   - ANTHROPIC_DEFAULT_MODEL: default model (default: claude-sonnet-4-5)
-  - ANTHROPIC_FALLBACK_MODEL: fallback model (default: claude-opus-4-6)
+  - ANTHROPIC_FALLBACK_MODEL: modelo de reserva (default: claude-opus-4-6).
+    Se usa de dos formas: con ``use_fallback=True`` a proposito, y
+    automaticamente cuando el primario se cae con 429 agotado o 5xx
+    (ver ``_llamar_con_reserva``).
 
 Design notes:
 - Usa el SDK oficial ``anthropic`` en vez de litellm. litellm rechazaba
@@ -42,6 +45,7 @@ from anthropic import (
 from dotenv import load_dotenv
 
 from backend.app.config import get_settings
+from backend.app.core.ai.model_catalog import admite_temperature
 
 load_dotenv()
 
@@ -103,14 +107,13 @@ class LLMResponse:
 _RATE_LIMIT_BACKOFFS: tuple[float, ...] = (2.0, 8.0, 32.0)
 
 
-# Modelos que han deprecado el parametro ``temperature`` (Anthropic lo
-# rechaza con 400 "temperature is deprecated for this model"). Se omite
-# silenciosamente el param en esos casos.
-_MODELS_WITHOUT_TEMPERATURE: frozenset[str] = frozenset(
-    {
-        "claude-opus-4-7",
-    }
-)
+# Que modelos han deprecado ``temperature`` (Anthropic lo rechaza con 400
+# "temperature is deprecated for this model") YA NO SE DECLARA AQUI. Era una
+# lista aparte, con un solo miembro, que se actualizaba —o no— sin relacion con
+# el sitio donde se anade un modelo: cuando entro claude-opus-4-8 nadie la
+# toco, y hoy triage_agent.py le envia temperature sin que se haya comprobado
+# si heredo la deprecacion de 4.7. Ahora es un campo del propio modelo en
+# ``model_catalog.py``: no se puede declarar un modelo sin decirlo.
 
 
 def _sleep_with_jitter(base: float) -> None:
@@ -239,7 +242,9 @@ class LLMRouter:
                 ``anthropic/`` heredado.
             max_tokens: Tope de tokens de respuesta.
             temperature: Sampling temperature (0..1).
-            use_fallback: Si True, usa ``fallback_model`` en vez del default.
+            use_fallback: Si True, usa ``fallback_model`` DESDE EL PRIMER
+                intento en vez del default (y entonces no hay a donde
+                caer si falla).
             enable_prompt_caching: Si True y hay ``system`` prompt, lo envia
                 como bloque estructurado con ``cache_control={"type":
                 "ephemeral"}`` (TTL 5 min). La primera llamada paga ``cache
@@ -267,7 +272,7 @@ class LLMRouter:
             "messages": user_messages,
             **kwargs,
         }
-        if model not in _MODELS_WITHOUT_TEMPERATURE:
+        if admite_temperature(model):
             create_kwargs["temperature"] = temperature
         if system_prompt is not None:
             if enable_prompt_caching:
@@ -285,7 +290,9 @@ class LLMRouter:
                 create_kwargs["system"] = system_prompt
 
         t0 = time.perf_counter()
-        response = self._call_with_retries(create_kwargs)
+        response = self._llamar_con_reserva(
+            create_kwargs, temperature=temperature, ya_es_reserva=use_fallback
+        )
         latency_ms = (time.perf_counter() - t0) * 1000
 
         text = _extract_text(response)
@@ -330,7 +337,7 @@ class LLMRouter:
             "messages": user_messages,
             **kwargs,
         }
-        if model not in _MODELS_WITHOUT_TEMPERATURE:
+        if admite_temperature(model):
             create_kwargs["temperature"] = temperature
         if system_prompt is not None:
             create_kwargs["system"] = system_prompt
@@ -357,6 +364,64 @@ class LLMRouter:
     # ------------------------------------------------------------------
     # Internals
     # ------------------------------------------------------------------
+
+    def _llamar_con_reserva(
+        self,
+        create_kwargs: dict[str, Any],
+        *,
+        temperature: float,
+        ya_es_reserva: bool,
+    ) -> Any:
+        """Llama al modelo primario y, si se cae, REINTENTA con el de reserva.
+
+        Esto no existia. ``ANTHROPIC_FALLBACK_MODEL``, ``self._fallback_model``,
+        la propiedad ``fallback_model`` y el parametro ``use_fallback`` estaban
+        todos escritos, y ``grep -rn "use_fallback" backend/ --include="*.py"``
+        devolvia cinco lineas: la firma, su docstring, su uso interno y las dos
+        del test que comprueba que el parametro funciona. Cero llamadas desde
+        produccion. Es decir: la cadena de reserva estaba anunciada en
+        ``.env.example`` y MUERTA en el codigo — un fallo del primario subia
+        como ``LLMCallFailed`` y nadie caia a ningun sitio.
+
+        Cuando se cae a la reserva, y cuando no:
+
+        - ``LLMRateLimitError`` y ``LLMBackendError`` (429 agotado, 5xx,
+          timeout, conexion) SI caen: son fallos de capacidad del modelo, y
+          otro modelo puede contestar.
+        - ``LLMAuthError`` NO cae: es la misma clave para los dos.
+        - ``LLMBadRequestError`` NO cae: un 400 de prompt mal formado se
+          repite igual en el de reserva, y reintentar sólo duplica el coste.
+
+        La temperatura se vuelve a decidir para el modelo de reserva en vez de
+        heredar los kwargs: si el primario no la admitia, ``create_kwargs`` no
+        la lleva, y mandarla asi a una reserva que si la admite dejaria el
+        muestreo en el default del proveedor — violando R3 (temperatura <= 0.2)
+        justo en el camino de error.
+        """
+        try:
+            return self._call_with_retries(create_kwargs)
+        except (LLMRateLimitError, LLMBackendError) as exc:
+            primario = create_kwargs.get("model")
+            reserva = self._fallback_model
+            if ya_es_reserva or not reserva or reserva == primario:
+                raise
+            logger.warning(
+                "LLMRouter: el modelo primario %s fallo (%s: %s) · se reintenta "
+                "con el modelo de reserva %s",
+                primario, type(exc).__name__, exc, reserva,
+            )
+            kwargs_reserva = dict(create_kwargs)
+            kwargs_reserva["model"] = reserva
+            if admite_temperature(reserva):
+                kwargs_reserva["temperature"] = temperature
+            else:
+                kwargs_reserva.pop("temperature", None)
+            respuesta = self._call_with_retries(kwargs_reserva)
+            logger.warning(
+                "LLMRouter: respondio el modelo de reserva %s · la respuesta NO "
+                "viene del modelo pedido (%s)", reserva, primario,
+            )
+            return respuesta
 
     def _call_with_retries(self, create_kwargs: dict[str, Any]) -> Any:
         """Ejecuta ``messages.create`` con reintentos exponenciales en 429.

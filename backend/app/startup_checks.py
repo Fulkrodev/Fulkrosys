@@ -237,6 +237,32 @@ def verify_backup_encryption_key() -> None:
     logger.info("Startup check OK: BACKUP_ENCRYPTION_KEY robusta (producción)")
 
 
+def verify_model_catalog() -> None:
+    """Aborta si un agente o una persona del copiloto declaran un modelo que no existe.
+
+    El mapa de alias estaba triplicado (``agents/base.py``,
+    ``copilot_admin_service.py``, ``copilot_cliente_service.py``) y las copias
+    habían divergido: a las dos del copiloto les faltaban ``opus-4`` y
+    ``opus-4.6``. Como la resolución era un ``.get(alias, alias)``, un alias que
+    una copia no conocía NO fallaba: viajaba crudo a la API y volvía como un 404
+    a 300 ms de distancia, sin decir qué código construyó la cadena. Bastaba
+    cambiar ``model_recommended`` en ``copilot_personas_v1.yaml`` a un alias
+    legítimo que los agentes sí resuelven para llevarlo a producción.
+
+    Ahora hay un solo catálogo y esto se comprueba en el arranque: un alias
+    inexistente aborta aquí, con el alias, la lista de los válidos y el fichero
+    donde se declaran.
+    """
+    from backend.app.core.ai.model_catalog import (
+        verificar_personas_del_copiloto,
+        verificar_registry_de_agentes,
+    )
+
+    verificar_registry_de_agentes()
+    verificar_personas_del_copiloto()
+    logger.info("Startup check OK: modelos del registry y de las personas declarados")
+
+
 def run_startup_checks() -> None:
     """Entry-point para `lifespan` · ejecuta todos los checks.
 
@@ -252,4 +278,5 @@ def run_startup_checks() -> None:
     verify_email_backend()
     verify_backup_encryption_key()
     verify_ed25519_keys()
+    verify_model_catalog()
     logger.info("Startup checks completados OK")

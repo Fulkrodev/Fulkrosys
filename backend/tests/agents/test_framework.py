@@ -17,6 +17,7 @@ import pytest
 from backend.app.agents.api import _get_agent_class
 from backend.app.agents.base import AgentBase, _resolve_model
 from backend.app.agents.prompts.common_header import COMMON_HEADER
+from backend.app.core.ai.model_catalog import NO_SON_MODELOS, alias_validos
 from backend.app.agents.registry import (
     AGENT_REGISTRY,
     get_agent_info,
@@ -121,19 +122,16 @@ class TestAgentRegistry:
             assert "model" in info, f"Agent {aid} missing model"
             assert "temperature" in info, f"Agent {aid} missing temperature"
             assert "description" in info, f"Agent {aid} missing description"
-            assert info["model"] in (
-                "sonnet-4.5",
-                "sonnet-4.6",
-                "opus-4",
-                "opus-4.6",
-                "opus-4.7",
-                "haiku-4.5",
-                # A21 Detector Discrepancias · semantic info preserved:
-                # processor 100% deterministic R1 INVIOLABLE · NO LLM
-                # (sostiene 1.D.A promoted scaffolding → activo · OPS-045 13ª).
-                # Future-1.E.test-framework-a21-whitelist resolved 2026-05-24.
-                "deterministic",
-            ), f"Agent {aid} invalid model"
+            # Esta lista estaba escrita a mano aqui: era una CUARTA copia de
+            # los alias validos, despues de agents/base.py y las dos del
+            # copiloto. Ahora sale del catalogo unico, asi que anadir un modelo
+            # no obliga a acordarse de este fichero.
+            # A21 Detector Discrepancias declara "deterministic" a proposito:
+            # su procesador es 100% determinista (R1 INVIOLABLE · NO LLM), y
+            # por eso el catalogo lo lista en NO_SON_MODELOS.
+            assert info["model"] in set(alias_validos()) | NO_SON_MODELOS, (
+                f"Agent {aid} invalid model"
+            )
             assert 0.0 <= info["temperature"] <= 1.0, f"Agent {aid} invalid temperature"
 
     def test_list_agents_returns_sorted(self):
@@ -255,8 +253,22 @@ class TestModelAliases:
     def test_haiku_alias(self):
         assert _resolve_model("haiku-4.5") == "claude-haiku-4-5"
 
-    def test_unknown_alias_passthrough(self):
-        assert _resolve_model("custom-model") == "custom-model"
+    def test_alias_desconocido_levanta(self):
+        """Este test comprobaba lo contrario, y comprobaba un DEFECTO.
+
+        Se llamaba ``test_unknown_alias_passthrough`` y exigia que un alias
+        desconocido saliera de aqui tal cual. Eso es el mismo patron que
+        ``getattr(obj, "nombre_mal", default)``: la resolucion no fallaba, la
+        cadena viajaba entera como nombre de modelo, y el error aparecia a
+        300 ms de distancia en la respuesta del proveedor —un 404— sin decir
+        que codigo la habia construido. Ahora levanta aqui, donde si se sabe.
+        """
+        from backend.app.core.ai.model_catalog import ModeloDesconocido
+
+        with pytest.raises(ModeloDesconocido) as exc:
+            _resolve_model("custom-model")
+        assert "custom-model" in str(exc.value)
+        assert "model_catalog.py" in str(exc.value)
 
 
 # ---------------------------------------------------------------------------
