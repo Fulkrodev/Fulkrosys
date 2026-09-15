@@ -224,8 +224,8 @@ export default function FilesPage() {
         <AlertDescription>
           Tu consultor te indicará desde el chat o &quot;Mis tareas&quot; qué
           documentos necesita de ti (DNI representante · contratos cloud ·
-          inventarios internos…). Usa &quot;Compartir documento&quot; arriba a
-          la derecha para subirlos. La organización de carpetas la gestiona
+          inventarios internos…). Usa &quot;Compartir documento&quot; para
+          subirlos. La organización de carpetas la gestiona
           Marcos · tú solo seleccionas dónde guardar cada archivo.
         </AlertDescription>
       </Alert>
@@ -349,7 +349,7 @@ export default function FilesPage() {
                   <p className="text-fulkro-ink-600 mt-1">
                     {tab === "documents"
                       ? folderId
-                        ? "Puedes compartir un documento desde el botón de arriba o seleccionar otra carpeta."
+                        ? "Usa «Compartir documento» para subir uno, o selecciona otra carpeta."
                         : "Cuando Marcos genere nuevos documentos para tu proyecto, aparecerán aquí. También puedes compartir los tuyos."
                       : "Cuando subas evidencias en la sección Subir evidencias, aparecerán aquí con su estado de análisis antivirus."}
                   </p>

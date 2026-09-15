@@ -17,6 +17,12 @@ from pydantic import BaseModel, Field
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from backend.app.agents.base import AgentBase
+from backend.app.agents.procedencia import (
+    MODELO,
+    PLANTILLA_POR_FALLO_DE_ESQUEMA,
+    SIN_CLAVE_DE_API,
+    procedencia,
+)
 from backend.app.agents.registry import get_agent_info
 from backend.app.auth.dependencies import require_owner
 from backend.app.database import get_db
@@ -101,6 +107,11 @@ class WorkflowStepResult(BaseModel):
     tokens_input: int
     tokens_output: int
     latency_ms: int
+    # De donde salio el texto de ESTE paso. Antes no viajaba: sin clave de API
+    # el agente devuelve una respuesta de relleno y este endpoint la metia como
+    # contexto del paso siguiente y la sacaba como `final_response`, con 200 y
+    # sin una sola señal de que ningun modelo habia hablado.
+    generado_por: str
 
 
 class WorkflowRunResponse(BaseModel):
@@ -111,6 +122,10 @@ class WorkflowRunResponse(BaseModel):
     total_latency_ms: int
     final_response: str
     step_results: list[WorkflowStepResult]
+    #: "modelo" solo si TODOS los pasos vinieron del modelo. Si uno cualquiera
+    #: salio de una plantilla, la cadena entera lo arrastra: el paso N+1 recibe
+    #: como contexto lo que produjo el N.
+    generado_por: str
 
 
 @router.get("")
@@ -179,6 +194,7 @@ async def run_workflow(
             context=body.context,
             extra_context=accumulated_context,
         )
+        origen = procedencia(result, fallback_used=bool(result.get("fallback_used")))
         step_results.append(WorkflowStepResult(
             agent_id=agent_id,
             agent_name=info.get("name", f"Agent {agent_id}"),
@@ -186,7 +202,14 @@ async def run_workflow(
             tokens_input=int(result.get("tokens_input", 0)),
             tokens_output=int(result.get("tokens_output", 0)),
             latency_ms=int(result.get("latency_ms", 0)),
+            generado_por=origen,
         ))
+        if origen != MODELO:
+            logger.warning(
+                "workflow %s · paso agente %s NO vino del modelo (%s): el texto "
+                "que se encadena al paso siguiente es una plantilla",
+                workflow_name, agent_id, origen,
+            )
         total_tokens_in += int(result.get("tokens_input", 0))
         total_tokens_out += int(result.get("tokens_output", 0))
         total_latency += int(result.get("latency_ms", 0))
@@ -196,6 +219,14 @@ async def run_workflow(
         )
 
     final_response = step_results[-1].response if step_results else ""
+    # La cadena entera vale lo que su eslabon mas debil: el paso N+1 recibe como
+    # contexto la salida del N, asi que una plantilla en el medio contamina todo
+    # lo que viene despues.
+    origenes = {p.generado_por for p in step_results}
+    generado_por = MODELO if origenes == {MODELO} else next(
+        (o for o in (SIN_CLAVE_DE_API, PLANTILLA_POR_FALLO_DE_ESQUEMA) if o in origenes),
+        MODELO,
+    )
     return WorkflowRunResponse(
         workflow=workflow_name,
         steps_executed=len(step_results),
@@ -204,4 +235,5 @@ async def run_workflow(
         total_latency_ms=total_latency,
         final_response=final_response,
         step_results=step_results,
+        generado_por=generado_por,
     )

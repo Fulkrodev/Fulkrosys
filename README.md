@@ -323,10 +323,10 @@ están marcadas como tales.
 | Operaciones de API | **1.201** en 1.100 caminos | `app.openapi()` · abajo |
 | Motores de dominio | **44** | `ls -d backend/app/motors/m*/ \| wc -l` |
 | Tablas en PostgreSQL | **253** | `psql -c "\\dt" \| wc -l` |
-| Migraciones Alembic | **271** | `ls backend/migrations/versions/*.py \| wc -l` |
+| Migraciones Alembic | **273** | `ls backend/migrations/versions/*.py \| wc -l` |
 | Páginas del frontend | **167** | `find frontend/app -name page.tsx \| wc -l` |
 | Componentes React | **427** | `find frontend/components -name '*.tsx' \| wc -l` |
-| Líneas de Python | **242.267** | `find backend/app -name '*.py' \| xargs wc -l` |
+| Líneas de Python | **243.999** | `find backend/app -name '*.py' \| xargs wc -l` |
 
 ### Suite
 
@@ -340,7 +340,7 @@ $ pytest backend/tests -q
 | Pasan | **6.510** | |
 | Fallan | 44 | ninguno atribuible al código · ver *Dependencias de entorno* |
 | Errores | 5 | los cinco, un puerto codificado en el fichero de test |
-| Ficheros de test | **616** | `find backend/tests -name 'test_*.py' \| wc -l` |
+| Ficheros de test | **632** | `find backend/tests -name 'test_*.py' \| wc -l` |
 | Specs de Playwright | **300** | `find frontend/tests -name '*.spec.ts' \| wc -l` |
 
 ### Recuperación del corpus · evaluación
@@ -389,11 +389,77 @@ make recorrer-todo
 
 ---
 
+## Lo que hoy no está cerrado
+
+Cinco cosas. Ninguna es una sorpresa: las cinco están medidas y escritas en
+`docs/`, y se listan aquí para que no haya que encontrarlas leyendo el repositorio
+entero.
+
+1. **De 6.709 tests recogidos, 3.371 exigen la base sembrada y NO son puerta de
+   CI.** La puerta de hoy son los 3.338 que corren sin base de datos. Una muestra
+   acotada de los que sí la necesitan sale limpia —289 en 108 s sobre `api`,
+   `auth`, `core`, `models`, `security`, `audit_fixes` y `test_rls_multitenancy.py`,
+   medido en los comentarios de [`.github/workflows/ci.yml`](.github/workflows/ci.yml)—
+   pero **la ejecución completa no se ha hecho nunca**, así que nadie sabe cuántos
+   de los 3.371 pasan. Ya hay dónde ejecutarla —
+   [`.github/workflows/pytest-completo.yml`](.github/workflows/pytest-completo.yml),
+   a mano o de noche, con la base sembrada y repartida en cuatro trozos— y no es
+   puerta de PR hasta que se vea pasar dos noches seguidas. Los pasos para
+   promoverla están en [`docs/CI.md`](docs/CI.md) §2.7.
+   ```bash
+   $ pytest backend/tests/ --collect-only -q -m "requires_db"      # → 3371
+   $ pytest backend/tests/ --collect-only -q -m "not requires_db"  # → 3338
+   ```
+
+2. **Next.js 14.2.33, con 14 avisos acotados hasta el 2026-12-31** (2 críticos y
+   12 `high`), todos del mismo paquete y todos con el mismo arreglo: saltar a
+   15.5.24. De los dos críticos sí está medido que **no son alcanzables** aquí
+   —uno exige servidor alojado en Windows, y esto es Linux en contenedor; el otro
+   exige que el optimizador sirva AVIF de origen no confiable, y `/_next/image`
+   sobre los SVG locales devuelve 400 con `dangerouslyAllowSVG` desactivado—. De
+   los doce `high` **no está medida su alcanzabilidad una a una**, y no se afirma
+   que no la tengan. El salto está medido (codemod automático sobre 77 ficheros,
+   1,6 s, 0 errores, más una línea de ESLint) y lo que falta no es el salto: es
+   **verificar en ejecución** que Next 15 no cambia el comportamiento de las 168
+   rutas, porque ese cambio no produce errores de compilación. Medición en
+   [`docs/MEDICION_NEXTJS_15.md`](docs/MEDICION_NEXTJS_15.md); los avisos, con su
+   motivo y su fecha, en
+   [`.github/npm-audit-allowlist.json`](.github/npm-audit-allowlist.json).
+
+3. **Cuatro conjuntos de evaluación de agentes, 40 entradas, y ni una sola tasa de
+   acierto real.** El arnés determinista corre y puede tumbar el build; la
+   evaluación contra el modelo necesita `ANTHROPIC_API_KEY` y **nunca se ha
+   ejecutado**, así que el job queda saltado en gris. La cobertura declarada es de
+   3 clases de agente sobre 13, con su justificación en
+   [`.github/evals-threshold.yml`](.github/evals-threshold.yml).
+
+4. **Apache AGE no existe en Postgres gestionado** (RDS, Aurora, Cloud SQL, Neon).
+   El grafo de conocimiento exige Postgres propio; todo lo demás funciona con
+   `--skip-age-kg`, que además es el valor por omisión del sembrado. El porqué, en
+   [`docs/adr/ADR-056-postgres-demo-sin-age.md`](docs/adr/ADR-056-postgres-demo-sin-age.md).
+
+5. **Sin `ANTHROPIC_API_KEY` la plataforma arranca y funciona en modo degradado.**
+   Los agentes no fabrican prosa —todos piden salida estructurada, y el texto de
+   relleno no parsea como JSON— pero diez de los doce caen a un camino de reserva
+   de **plantilla estática** y devuelven 200. Desde el bloque R ese texto viaja
+   marcado: cada resultado declara `generado_por` (`modelo`,
+   `plantilla_por_fallo_de_esquema` o `sin_clave_de_api`), la cadena de workflows
+   arrastra el eslabón más débil, y la interfaz avisa en vez de felicitar. Lo que
+   **no** hay es una puerta que lo impida: hoy no hace falta, porque el texto de
+   los agentes no entra en ningún documento firmable —la justificación de la DdA
+   la escribe un motor determinista (R1)—, pero el día que entre, hará falta.
+
+Dos informes más que conviene leer antes que el código:
+[`docs/INFORME_CIERRE_CAMPANA.md`](docs/INFORME_CIERRE_CAMPANA.md) y
+[`docs/INVENTARIO_Q.md`](docs/INVENTARIO_Q.md).
+
+---
+
 ## Las cifras, cada una con su comando
 
 ```bash
 $ git ls-files backend/app | grep '\.py$' | xargs wc -l | tail -1
- 237617 total
+ 243999 total
 
 $ ls -d backend/app/motors/m*/ | wc -l
 44

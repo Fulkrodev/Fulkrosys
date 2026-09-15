@@ -32,6 +32,7 @@ ficheros versionados (medido: 27 resultados con `grep` frente a 28 con
 | `admin-polish-empirical.yml` | push y PR a `main` tocando `frontend/**`, y a mano | Sí | Es el único sitio del repo con una receta de base de datos que funciona en CI |
 | `evals.yml` | push y PR a `main`, lunes 07:00 UTC, y a mano | Sí, `evals-arnes` siempre; `evals-llm` sólo cuando hay clave (si no, queda SALTADO, no verde) | Ver sección 4 |
 | `publish-image.yml` (nuevo) | push a `main` y a etiquetas `v*`, PR que toquen la imagen, y a mano | Sí, si el build falla no hay imagen | Ver sección 5 |
+| `pytest-completo.yml` (nuevo) | a mano y todas las noches a las 03:17 UTC | No: no es puerta de PR **todavía** | Los 3.371 tests `requires_db` que `ci.yml` deja fuera, con la base sembrada y repartidos en 4 trozos. Nunca se ha ejecutado entero: por eso nace fuera de la puerta. Ver sección 2.7 |
 
 Medido:
 
@@ -41,6 +42,7 @@ admin-polish-empirical.yml
 ci.yml
 evals.yml
 publish-image.yml
+pytest-completo.yml
 security-scan.yml
 ```
 
@@ -168,6 +170,56 @@ Sólo se dispara si el PR toca `frontend/**` o el propio workflow. Por eso **no
 puede marcarse como check obligatorio**: un check obligatorio que no se dispara
 en todos los PR deja el merge bloqueado para siempre esperando un estado que
 nunca llega.
+
+---
+
+### 2.7 `pytest-completo.yml` · la mitad de la suite que no era puerta
+
+`ci.yml` corre `-m "not requires_db"`. Lo que queda fuera es la mitad larga, y
+el reparto se mide, no se recuerda:
+
+```
+$ pytest backend/tests/ --collect-only -q                      # 6709
+$ pytest backend/tests/ --collect-only -q -m "not requires_db" # 3338
+$ pytest backend/tests/ --collect-only -q -m "requires_db"     # 3371
+```
+
+Esos 3.371 no quedaban fuera por falta de runner: necesitan la base **sembrada**
+—73 medidas ENS, amenazas, salvaguardas, catálogos— más el fixture de corpus.
+Contra una base migrada pero sin sembrar se caen a cientos por catálogos vacíos,
+no por el código.
+
+Lo que ya estaba medido, y es lo que hace posible este workflow (comentarios de
+`ci.yml:160-200`, sobre esta misma imagen `pgvector/pgvector:pg16`):
+
+```
+$ python backend/scripts/seed_all_fulkro.py --skip-corpus --skip-age-kg
+"elapsed_seconds": 1.37 · "ok": 25 · "skip": 2 · "fail": 0
+$ gzip -dc backend/tests/fixtures/corpus_seed.sql.gz | psql ...
+chunks=1031 · refuerzos=133
+$ pytest backend/tests/{api,auth,core,models,security,audit_fixes} \
+    backend/tests/test_rls_multitenancy.py -m requires_db -q
+289 passed, 297 deselected in 108.44s
+```
+
+El sembrado funciona, el corpus carga y una muestra acotada sale limpia. Lo que
+**nunca** se ha hecho es la ejecución completa. Por eso este workflow se lanza a
+mano y de noche, con cuatro trozos en paralelo (`pytest-split`), y **no** es
+puerta de PR: poner de puerta algo que no se ha visto pasar es como se acaba
+otra vez con un `continue-on-error`.
+
+**Cómo se promueve a puerta**, en este orden:
+
+1. Lanzarlo a mano (Actions → `pytest completo` → Run workflow).
+2. Clasificar lo que falle: defecto real, o dependencia no sembrada. Los
+   defectos reales **se arreglan**. Los otros se saltan con un motivo **por
+   nombre**, nunca con `continue-on-error`.
+3. Cuando esté verde dos noches seguidas, añadir `pull_request` a sus
+   disparadores y meterlo en la protección de rama (sección 6).
+4. Actualizar esta sección con el resultado real: cuántos pasan de 3.371.
+
+Hasta que se dé el paso 1, la casilla «¿cuántos de los 3.371 pasan?» sigue
+vacía, y el README lo dice en «Lo que hoy no está cerrado».
 
 ---
 

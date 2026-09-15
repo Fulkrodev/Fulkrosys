@@ -522,11 +522,51 @@ def _modulo_abre_conexion_propia(ruta: str) -> bool:
         return False
 
 
+# ---------------------------------------------------------------------------
+# PostgreSQL: la marca `requires_db` tiene que SALTAR, no reventar
+# ---------------------------------------------------------------------------
+#
+# `requires_db` se deriva bien (arriba) y `-m "not requires_db"` funciona. Pero
+# una marca es solo una etiqueta: no salta nada por si sola. Quien clone el
+# repositorio y ejecute un fichero marcado sin postgres levantado se comia una
+# traza de ConnectionRefusedError, no un SKIPPED:
+#
+#     $ pytest backend/tests/audit_fixes/test_el_simulacro_se_guarda_de_verdad.py
+#     ConnectionRefusedError: [Errno 111] Connect call failed ('127.0.0.1', 5433)
+#
+# El patron correcto ya estaba en este mismo fichero, aplicado a MinIO: se abre
+# un socket, y si no responde se salta con el motivo exacto, lo que se intento
+# y como arreglarlo. Aqui se hace lo mismo para postgres, una vez por sesion,
+# sobre todos los `requires_db` a la vez.
+
+
+@lru_cache(maxsize=1)
+def _postgres_alcanzable() -> tuple[bool, str]:
+    """(alcanzable, descripcion del destino). Se sondea UNA vez por sesion."""
+    import socket
+    from urllib.parse import urlparse
+
+    url = os.environ.get("DATABASE_URL") or getattr(settings, "database_url", "")
+    partes = urlparse(str(url).replace("postgresql+asyncpg://", "postgresql://"))
+    host = partes.hostname or "localhost"
+    puerto = partes.port or 5432
+    destino = f"{host}:{puerto}"
+    try:
+        with socket.create_connection((host, puerto), timeout=2):
+            return True, destino
+    except OSError as exc:
+        return False, f"{destino} ({exc})"
+
+
 def pytest_collection_modifyitems(config, items):
-    """Hook ÚNICO de colección. Hace DOS cosas, en este orden:
+    """Hook ÚNICO de colección. Hace TRES cosas, en este orden:
 
     1. Marca ``requires_db`` todo test que solicite un fixture de base de datos.
-    2. Salta los tests ``@pytest.mark.llm`` salvo opt-in explícito.
+    2. Si postgres no responde, SALTA esos ``requires_db`` con el motivo, el
+       destino que se intentó y el comando para arreglarlo. Sin esto la marca
+       era solo una etiqueta: quien clonara el repositorio sin postgres se
+       comía una traza de conexión en vez de un SKIPPED.
+    3. Salta los tests ``@pytest.mark.llm`` salvo opt-in explícito.
 
     OJO · esto era un F811 de ruff: este hook estaba DEFINIDO DOS VECES en este
     mismo fichero (aquí y más arriba, junto a ``_ensure_m6_signing_dev_key``).
@@ -555,7 +595,23 @@ def pytest_collection_modifyitems(config, items):
         if fichero is not None and _modulo_abre_conexion_propia(str(fichero)):
             item.add_marker(pytest.mark.requires_db)
 
-    # 2 · skip de los tests LLM salvo opt-in
+    # 2 · si postgres no responde, los requires_db SE SALTAN con el motivo
+    alcanzable, destino = _postgres_alcanzable()
+    if not alcanzable:
+        skip_db = pytest.mark.skip(
+            reason=(
+                f"PostgreSQL no alcanzable en {destino}. Estos tests necesitan "
+                "la base de datos SEMBRADA, no solo levantada: arrancala con "
+                "`make demo` (o `docker compose up -d postgres` + "
+                "`backend/scripts/build_test_db.sh`) y apunta DATABASE_URL al "
+                "host que corresponda."
+            ),
+        )
+        for item in items:
+            if "requires_db" in item.keywords:
+                item.add_marker(skip_db)
+
+    # 3 · skip de los tests LLM salvo opt-in
     if os.environ.get("FULKRO_RUN_LLM_TESTS") == "1":
         return
     skip_llm = pytest.mark.skip(

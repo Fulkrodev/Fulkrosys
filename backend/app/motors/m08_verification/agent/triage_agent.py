@@ -22,6 +22,7 @@ import re
 from typing import Any
 
 from backend.app.config import get_settings
+from backend.app.core.ai.model_catalog import modelo_que_respondio
 from backend.app.motors.m08_verification.agent.injection_guard import (
     detect_injection_attempt,
     validate_verdict_output,
@@ -182,6 +183,12 @@ def triage_finding(
             max_tokens=MAX_TOKENS,
             temperature=TEMPERATURE,
         )
+        # El manifiesto de la ejecucion es el registro de procedencia de la
+        # evidencia: lo que se graba tiene que ser el modelo que RESPONDIO, no
+        # la constante que alguien tecleo arriba. Si el proveedor sirve otro
+        # (un alias que resuelve a un snapshot, o el modelo de reserva cuando
+        # el primario se cae) el manifiesto lo dice.
+        base["model_version"] = modelo_que_respondio(response, TRIAGE_MODEL)
         parsed = _extract_json(getattr(response, "content", "") or "")
     except Exception as exc:  # pragma: no cover — fail-closed
         logger.warning("triage_finding LLM falló: %s", exc)

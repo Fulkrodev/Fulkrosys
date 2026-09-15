@@ -45,6 +45,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from backend.app.agents.prompts.common_header import COMMON_HEADER
 from backend.app.config import get_settings
+from backend.app.core.ai.model_catalog import resolver_id
 
 logger = logging.getLogger(__name__)
 
@@ -59,19 +60,16 @@ class LLMCallFailed(RuntimeError):
     """
 
 
-_MODEL_ALIAS_MAP = {
-    "sonnet-4.5": "claude-sonnet-4-5",
-    "sonnet-4.6": "claude-sonnet-4-6",
-    "opus-4": "claude-opus-4-6",
-    "opus-4.6": "claude-opus-4-6",
-    "opus-4.7": "claude-opus-4-7",
-    "haiku-4.5": "claude-haiku-4-5",
-}
-
-
 def _resolve_model(alias: str) -> str:
-    """Map agent registry alias to the real LiteLLM model name."""
-    return _MODEL_ALIAS_MAP.get(alias, alias)
+    """Traduce el alias del registry al id real del proveedor.
+
+    Este mapa estaba AQUI, escrito a mano, y ademas copiado en
+    ``copilot_admin_service.py`` y ``copilot_cliente_service.py``. Las copias
+    habian divergido: a las dos les faltaban ``opus-4`` y ``opus-4.6``. Ahora
+    hay un solo sitio, ``core/ai/model_catalog.py``, y un alias desconocido
+    LEVANTA en vez de viajar crudo a la API (era un ``.get(alias, alias)``).
+    """
+    return resolver_id(alias)
 
 
 class AgentBase(ABC):

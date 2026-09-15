@@ -13,7 +13,11 @@ import * as React from "react";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
-import { invokeAgent } from "@/lib/api/agents";
+import {
+  invokeAgent,
+  porQueNoVinoDelModelo,
+  vinoDelModelo,
+} from "@/lib/api/agents";
 import type { SuggestedAction } from "@/lib/sprint4-types";
 
 const ICONS: Record<SuggestedAction["kind"], LucideIcon> = {
@@ -72,11 +76,22 @@ export function ActionChip({ action }: { action: SuggestedAction }) {
             return;
           }
           setBusy(true);
-          await invokeAgent(agentId, {
-            message,
-            project_id: asString(payload.project_id),
-          });
-          toast.success(`${action.label} ejecutado`);
+          {
+            // Mismo defecto que en LeadDrawer: un toast.success fijo daba por
+            // buena la respuesta aunque no hubiera pasado por ningun modelo.
+            // Sin ANTHROPIC_API_KEY el agente devuelve una plantilla con 200.
+            const resultado = await invokeAgent(agentId, {
+              message,
+              project_id: asString(payload.project_id),
+            });
+            if (vinoDelModelo(resultado)) {
+              toast.success(`${action.label} ejecutado`);
+            } else {
+              toast.warning(
+                `${action.label}: el texto NO viene del modelo · ${porQueNoVinoDelModelo(resultado)}`,
+              );
+            }
+          }
           return;
         }
         default:

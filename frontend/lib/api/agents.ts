@@ -15,7 +15,32 @@ export interface AgentInvokeBody {
   extra_context?: string;
 }
 
-export type AgentInvokeResult = Record<string, unknown>;
+/**
+ * De donde salio el texto del agente. Sin ANTHROPIC_API_KEY la plataforma NO
+ * falla: devuelve una plantilla estatica con 200, y antes de esto la interfaz
+ * no tenia forma de distinguirla de una redaccion del modelo.
+ */
+export type GeneradoPor =
+  | "modelo"
+  | "plantilla_por_fallo_de_esquema"
+  | "sin_clave_de_api";
+
+export type AgentInvokeResult = Record<string, unknown> & {
+  generado_por?: GeneradoPor;
+};
+
+/** El texto lo escribio el modelo. Sin la marca se asume que NO: cae del lado
+ *  seguro, que es el que no presenta una plantilla como si fuera una respuesta. */
+export function vinoDelModelo(r: AgentInvokeResult | undefined): boolean {
+  return r?.generado_por === "modelo";
+}
+
+/** Por que no vino del modelo, en una frase para el usuario. */
+export function porQueNoVinoDelModelo(r: AgentInvokeResult | undefined): string {
+  return r?.generado_por === "sin_clave_de_api"
+    ? "no hay clave de API configurada, así que no se ha llamado a ningún modelo"
+    : "el modelo respondió pero su salida no era válida, y se ha servido una plantilla";
+}
 
 export function invokeAgent(
   agentId: number,
