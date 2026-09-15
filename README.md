@@ -389,6 +389,59 @@ make recorrer-todo
 
 ---
 
+## Lo que hoy no está cerrado
+
+Cinco cosas. Ninguna es una sorpresa: las cinco están medidas y escritas en
+`docs/`, y se listan aquí para que no haya que encontrarlas leyendo el repositorio
+entero.
+
+1. **De 6.709 tests recogidos, 3.371 exigen la base sembrada y NO son puerta de
+   CI.** La puerta de hoy son los 3.338 que corren sin base de datos. Una muestra
+   acotada de los que sí la necesitan sale limpia —289 en 108 s sobre `api`,
+   `auth`, `core`, `models`, `security`, `audit_fixes` y `test_rls_multitenancy.py`,
+   medido en los comentarios de [`.github/workflows/ci.yml`](.github/workflows/ci.yml)—
+   pero **la ejecución completa no se ha hecho nunca**, así que nadie sabe cuántos
+   de los 3.371 pasan.
+   ```bash
+   $ pytest backend/tests/ --collect-only -q -m "requires_db"      # → 3371
+   $ pytest backend/tests/ --collect-only -q -m "not requires_db"  # → 3338
+   ```
+
+2. **Next.js 14.2.33, con dos avisos críticos acotados hasta el 2026-12-31.** Los
+   dos son RCE en `next`, y los dos son **no alcanzables** en el despliegue de
+   referencia: uno exige servidor alojado en Windows (aquí es Linux en contenedor),
+   el otro exige que el optimizador de imágenes sirva AVIF de origen no confiable
+   (aquí `/_next/image` sobre los SVG locales devuelve 400 y `dangerouslyAllowSVG`
+   no está activado). El salto a 15.5.24 está medido —codemod automático sobre 77
+   ficheros, 1,6 s, 0 errores, más una línea de ESLint— y lo que falta no es el
+   salto: es **verificar** que Next 15 no cambia el comportamiento en las 168 rutas,
+   porque ese cambio no produce errores de compilación. Medición completa en
+   [`docs/MEDICION_NEXTJS_15.md`](docs/MEDICION_NEXTJS_15.md).
+
+3. **Cuatro conjuntos de evaluación de agentes, 40 entradas, y ni una sola tasa de
+   acierto real.** El arnés determinista corre y puede tumbar el build; la
+   evaluación contra el modelo necesita `ANTHROPIC_API_KEY` y **nunca se ha
+   ejecutado**, así que el job queda saltado en gris. La cobertura declarada es de
+   3 clases de agente sobre 13, con su justificación en
+   [`.github/evals-threshold.yml`](.github/evals-threshold.yml).
+
+4. **Apache AGE no existe en Postgres gestionado** (RDS, Aurora, Cloud SQL, Neon).
+   El grafo de conocimiento exige Postgres propio; todo lo demás funciona con
+   `--skip-age-kg`, que además es el valor por omisión del sembrado. El porqué, en
+   [`docs/adr/ADR-056-postgres-demo-sin-age.md`](docs/adr/ADR-056-postgres-demo-sin-age.md).
+
+5. **Sin `ANTHROPIC_API_KEY` la plataforma arranca y funciona en modo degradado.**
+   Los agentes no fabrican prosa —todos piden salida estructurada, y el texto de
+   relleno no parsea como JSON— pero nueve de los doce caen a un camino de reserva
+   de **plantilla estática**, lo persisten y devuelven 200. Lo que el usuario ve es
+   un documento completo, y hoy sólo una pantalla del producto mira esa bandera.
+
+Dos informes más que conviene leer antes que el código:
+[`docs/INFORME_CIERRE_CAMPANA.md`](docs/INFORME_CIERRE_CAMPANA.md) y
+[`docs/INVENTARIO_Q.md`](docs/INVENTARIO_Q.md).
+
+---
+
 ## Las cifras, cada una con su comando
 
 ```bash
