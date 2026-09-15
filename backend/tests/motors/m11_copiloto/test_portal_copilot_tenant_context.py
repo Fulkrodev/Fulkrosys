@@ -266,9 +266,25 @@ async def _cleanup_committed(engine, cid, pid, uid) -> None:
 
 @pytest.mark.asyncio
 async def test_chat_stream_reset_survives_real_commit_mechanism():
-    """Un db.commit() REAL (como prod /chat/stream) tira el GUC is_local →
-    lectura project-scoped CIEGA. El re-set (lo que hace el fix dentro del
-    generador) lo restaura → VE el proyecto. Ambos brazos sobre datos idénticos.
+    """Tras un db.commit() REAL (como prod /chat/stream) la sesión SIGUE viendo
+    su proyecto.
+
+    Q2 · ESTE TEST ASEVERABA EL DEFECTO. Decía, con un assert, que después de un
+    commit real la lectura project-scoped queda CIEGA ("ARM A · ciego tras
+    commit real (GUC tirado)"), y daba por buena esa ceguera como contrato; lo
+    que comprobaba era que el apaño local —volver a fijar el contexto dentro del
+    generador de /chat/stream— la remediaba.
+
+    La ceguera era el defecto, no el contrato. `set_config(..., true)` es de
+    alcance TRANSACCIÓN y el commit la borra, así que la sesión dejaba de verse
+    a sí misma: de ahí los 500 con la operación ya guardada y los duplicados
+    (DUPLICADO-CLAUDE). El arreglo dejó de ser local: el inquilino se recuerda
+    en la sesión y un listener `after_begin` lo vuelve a aplicar en cada
+    transacción nueva.
+
+    Así que el brazo A dice ahora lo contrario, y es lo que hay que sostener. El
+    re-set del generador sigue en su sitio y ya no es lo que sostiene nada:
+    es redundante e inocuo.
     """
     settings = get_settings()
     engine = create_async_engine(settings.database_url, echo=False)
@@ -280,19 +296,23 @@ async def test_chat_stream_reset_survives_real_commit_mechanism():
             await set_tenant_context(db, client_id=cid, project_id=pid)
             await db.commit()  # REAL commit (prod pre-stream) → tira el GUC is_local
 
-            blind = (await db.execute(
+            tras_commit = (await db.execute(
                 text("SELECT id FROM projects WHERE client_id = :cid "
                      "AND deleted_at IS NULL"), {"cid": str(cid)},
             )).first()
-            assert blind is None, "ARM A · ciego tras commit real (GUC tirado)"
+            assert tras_commit is not None and str(tras_commit[0]) == str(pid), (
+                "ARM A · tras un commit real la sesión no ve su propio proyecto: "
+                "el contexto de inquilino volvió a perderse y cualquier refresh "
+                "posterior devuelve 500 con la operación ya guardada"
+            )
 
-            await set_tenant_context(db, client_id=cid, project_id=pid)  # re-set del fix
+            await set_tenant_context(db, client_id=cid, project_id=pid)  # redundante
             sees = (await db.execute(
                 text("SELECT id FROM projects WHERE client_id = :cid "
                      "AND deleted_at IS NULL"), {"cid": str(cid)},
             )).first()
             assert sees is not None and str(sees[0]) == str(pid), \
-                "ARM B · el re-set restaura el contexto → ve el proyecto"
+                "ARM B · volver a fijar el contexto no puede empeorarlo"
             await db.rollback()
     finally:
         await _cleanup_committed(engine, cid, pid, None)

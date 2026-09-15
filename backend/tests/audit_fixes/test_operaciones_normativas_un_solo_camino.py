@@ -138,15 +138,16 @@ FABRICA = "backend/app/motors/m06_document_factory/service.py"
 # Linea base CONGELADA de caminos alternativos conocidos. Cada uno esta ABIERTO
 # con su motivo, no justificado. Un camino nuevo rompe el build.
 CAMINOS_ALTERNATIVOS_CONOCIDOS = {
-    # ABIERTO · E-604 adenda de proveedor, firmable, plantilla EN el catalogo.
-    # Graba en provider_addendums + MinIO, pero no en `documents`: no llega al
-    # inventario documental ni al expediente. Enchufable a la fabrica.
-    "backend/app/motors/m14_contracts/adenda_generator.py",
-    # ABIERTO · E-005 acta de reunion, firmable via /minutes-signing/approve.
-    # Se construye con python-docx y solo convierte a PDF por aqui; se registra
-    # en `meetings`. No tiene plantilla en el catalogo ("E-005 sin plantilla"
-    # consta en m09 checklist_service, internal_auditor y el registro), asi que
-    # enchufarla exige crear la plantilla primero.
+    # Q5 · E-604 (adenda de proveedor) SALIO de esta lista: ya se emite por la
+    # fabrica documental, deja fila en `documents` y llega al expediente.
+    #
+    # CERRADO CON MOTIVO · E-005 acta de comite. Se construye con python-docx
+    # (`build_minutes_docx`) a partir de datos estructurados, NO desde una
+    # plantilla Jinja del catalogo: "E-005 sin plantilla" consta en tres sitios
+    # de m09. Aqui solo se usa `convert_docx_to_pdf`, que es conversion, no
+    # renderizado de plantilla. Lo que importaba --que el auditor lo vea-- esta
+    # resuelto: `_registrar_en_documents` deja la fila en `documents` con la
+    # MISMA huella y la MISMA firma Ed25519 que el servicio ya calculaba.
     "backend/app/motors/m18_communication/minutes_service.py",
 }
 

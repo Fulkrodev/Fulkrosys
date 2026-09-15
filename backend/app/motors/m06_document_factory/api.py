@@ -165,7 +165,19 @@ async def generate_document(
     except TemplateFileMissingError as e:  # pragma: no cover — stubs always present
         raise HTTPException(status_code=404, detail=str(e))
     except MissingPlaceholderError as e:
-        raise HTTPException(status_code=422, detail=str(e))
+        # Q5 · si la plantilla exige una EJECUCION previa, se dice cual y donde,
+        # en vez de devolver una lista de variables que el operador no sabe de
+        # donde salen.
+        from backend.app.motors.m06_document_factory.service import (
+            _ENTREGABLES_CON_EJECUCION_PREVIA,
+        )
+        pista = _ENTREGABLES_CON_EJECUCION_PREVIA.get(
+            (body.template_codigo or "").upper()
+        )
+        detalle = str(e) if not pista else (
+            f"{e}. {body.template_codigo} es {pista}."
+        )
+        raise HTTPException(status_code=422, detail=detalle)
     except RenderError as e:  # pragma: no cover
         raise HTTPException(status_code=500, detail=str(e))
 

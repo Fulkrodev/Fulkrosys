@@ -198,8 +198,14 @@ async def test_adenda_generator_only_ens_no_rgpd_nis2_blocks(db: AsyncSession):
         # cubiertas + ausencia del bloque RGPD abajo). Ceiling subido a 18KB
         # tras R11: el normalizador de plantillas añade header/footer canónico
         # (~1-2KB) a E-604, que antes no lo tenía.
-        assert 5000 < result.docx_size_bytes < 18000, (
-            f"E-604 solo-ENS esperado 5-18KB · obtenido {result.docx_size_bytes}B"
+        #
+        # Q5 · y subido otra vez a 45KB porque la adenda ya no se renderiza por
+        # su cuenta: pasa por la fábrica documental (m06), que inserta los
+        # logotipos del cliente y del consultor. Son imágenes, y pesan. El techo
+        # es una heurística de "no ha salido vacío ni desbocado", no un contrato
+        # sobre el peso del fichero.
+        assert 5000 < result.docx_size_bytes < 45000, (
+            f"E-604 solo-ENS esperado 5-45KB · obtenido {result.docx_size_bytes}B"
         )
         # Verify DOCX en MinIO + descomprime y busca texto bloque RGPD ausente
         obj = get_minio_client().get_object(BUCKET_DOCUMENTS, result.minio_object_key)

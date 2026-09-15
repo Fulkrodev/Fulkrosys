@@ -91,6 +91,37 @@ async def _emit_audit_log(
         logger.exception("audit_log %s emit failed · rid=%s", accion, registro_id)
 
 
+# Q5 · entregables que EXIGEN una ejecucion previa, y donde se lanza.
+#
+# E-702/E-703/E-704 son los informes tecnicos de verificacion: piden `run.*` y
+# `score.*`, que son el resultado de una EJECUCION de verificacion, no datos del
+# proyecto. Que no se generen sin ella es lo correcto -- un informe de
+# verificacion sin verificacion detras seria un documento inventado, que es el
+# defecto que esta campaña persigue --. Lo que faltaba era decirle a quien pulsa
+# el boton adonde tiene que ir, en vez de un "Missing required placeholders"
+# a secas.
+#
+# (El README diagnosticaba "engancharlos al auditor interno". Es incorrecto: el
+# auditor interno emite E-701; estos son de M08, verificacion tecnica.)
+_ENTREGABLES_CON_EJECUCION_PREVIA = {
+    "E-702": (
+        "el informe completo de verificación técnica. Necesita una ejecución de "
+        "verificación (M08): lánzala y genera el informe desde ella con "
+        "POST /api/v1/projects/{project_id}/verification/runs/{run_id}/report"
+    ),
+    "E-703": (
+        "el resumen ejecutivo de verificación técnica. Necesita una ejecución de "
+        "verificación (M08): lánzala y genera el informe desde ella con "
+        "POST /api/v1/projects/{project_id}/verification/runs/{run_id}/report"
+    ),
+    "E-704": (
+        "el informe de Red Team (categoría ALTA). Necesita una ejecución de "
+        "verificación (M08): lánzala y genera el informe desde ella con "
+        "POST /api/v1/projects/{project_id}/verification/runs/{run_id}/report"
+    ),
+}
+
+
 class DocumentFactoryService:
     """Service for document generation (Motor 6).
 
@@ -356,6 +387,19 @@ class DocumentFactoryService:
             "codigo_documento_base", template_codigo,
         )
         context = merge_governance_base(gov_ctx, context)
+
+        # Q5 · E-001 (Ficha de Seguimiento) usa 21 variables `ficha.*` y diez
+        # `proyecto.*` que NADIE construia: el render abortaba con "'ficha' is
+        # undefined" y el endpoint devolvia un 500 opaco. El productor las saca
+        # del plan, del parte de horas y de los hitos de facturacion, y lo que no
+        # consta lo dice con esas palabras en vez de inventar una cifra -- que es
+        # la regla de toda esta campaña, y esta ficha la recibe el cliente.
+        if template_codigo.upper().startswith("E-001"):
+            from backend.app.motors.m06_document_factory.ficha_seguimiento_context import (  # noqa: E501
+                build_ficha_seguimiento_context,
+            )
+            ficha_ctx = await build_ficha_seguimiento_context(self.db, project_id)
+            context = merge_governance_base(ficha_ctx, context)
         # Discard logo_path from branding helper (M06 ya tiene su propio
         # _materialise_client_logo · evita duplicate temp file).
         if branding_extras.logo_path and branding_extras.logo_path.exists():

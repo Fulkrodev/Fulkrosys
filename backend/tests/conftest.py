@@ -24,8 +24,10 @@
 # ===================================================================
 """
 import os
+import re
 import uuid
 from contextlib import asynccontextmanager
+from functools import lru_cache
 from pathlib import Path
 
 from dotenv import load_dotenv
@@ -488,6 +490,37 @@ def auth_override_default(request):
 # siendo validos; esto los complementa, no los sustituye.
 _DB_FIXTURES = {"db"}
 
+# Q5 · el punto ciego del marcador automatico.
+#
+# Derivar `requires_db` del fixture `db` cubre 2.717 tests y falla justo en los
+# que NO piden el fixture: los que se abren su propia conexion contra
+# `settings.database_url` (o contra una URL escrita a mano). Esos escapan al
+# marcador, y por tanto a `-m "not requires_db"`, asi que en una maquina sin
+# PostgreSQL no SALTAN diciendo que les falta la base: REVIENTAN.
+#
+# Medido: `m11_copiloto/test_portal_copilot_tenant_context.py` (2 tests con
+# `create_async_engine(settings.database_url)`) y
+# `m21_diagnosis/test_iso27001_coverage.py` (los 5 "errors" de la bateria, que
+# se abre su propia conexion sincrona a un puerto escrito a mano). Los cinco se
+# venian contando como "dependencia de entorno", que es la forma elegante de
+# decir que solo pasan en la maquina de su autor.
+#
+# El guardia existia y era ciego. Se le quita la venda: si el MODULO construye
+# un engine, sus tests dependen de la base, los pida por fixture o no.
+_CREA_SU_PROPIA_CONEXION = re.compile(
+    r"create_async_engine\s*\(|create_engine\s*\(|asyncpg\.connect\s*\(|psycopg2?\.connect\s*\("
+)
+
+
+@lru_cache(maxsize=None)
+def _modulo_abre_conexion_propia(ruta: str) -> bool:
+    try:
+        return bool(_CREA_SU_PROPIA_CONEXION.search(
+            Path(ruta).read_text(encoding="utf-8", errors="ignore")
+        ))
+    except OSError:  # pragma: no cover — el fichero acaba de coleccionarse
+        return False
+
 
 def pytest_collection_modifyitems(config, items):
     """Hook ÚNICO de colección. Hace DOS cosas, en este orden:
@@ -515,6 +548,11 @@ def pytest_collection_modifyitems(config, items):
     # 1 · derivar requires_db del fixture solicitado (siempre)
     for item in items:
         if _DB_FIXTURES & set(getattr(item, "fixturenames", ())):
+            item.add_marker(pytest.mark.requires_db)
+            continue
+        # ...y los que se la abren por su cuenta, que son los que se escapaban.
+        fichero = getattr(item, "fspath", None)
+        if fichero is not None and _modulo_abre_conexion_propia(str(fichero)):
             item.add_marker(pytest.mark.requires_db)
 
     # 2 · skip de los tests LLM salvo opt-in

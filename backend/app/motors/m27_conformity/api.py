@@ -19,6 +19,7 @@ Pattern uniform commit() coherente con 5.5.F.0.B/C/D batch.
 from __future__ import annotations
 
 import uuid
+import logging
 from datetime import date, datetime, timezone
 
 from fastapi import APIRouter, Depends, File, HTTPException, UploadFile, status
@@ -70,6 +71,8 @@ from backend.app.motors.m27_conformity.bienio import (
     proxima_fecha_bienal,
 )
 
+
+logger = logging.getLogger(__name__)
 
 router = APIRouter(
     prefix="/api/v1/conformity", tags=["Motor 27 - Conformity"],
@@ -960,6 +963,60 @@ async def ines_annual_json(
     return generate_ines_json(report)
 
 
+async def _registrar_ines_en_documents(
+    db: AsyncSession, organization_id: uuid.UUID, year: int, contenido: bytes,
+) -> None:
+    """Deja la fila del informe INES en `documents`, con ambito de organizacion.
+
+    Idempotente por (client_id, template_codigo): reemitir el informe del mismo
+    anyo actualiza la fila, no la duplica. Best-effort declarado: si el registro
+    falla, el informe se entrega igual y el motivo queda en el log -- pero NO se
+    calla, porque de esto depende que el auditor lo vea.
+    """
+    import hashlib
+
+    from sqlalchemy import select as _select
+
+    from backend.app.models.documents import Document
+
+    codigo = f"E-INES-{year}"
+    try:
+        fila = (await db.execute(
+            _select(Document).where(
+                Document.client_id == organization_id,
+                Document.template_codigo == codigo,
+                Document.deleted_at.is_(None),
+            ).limit(1)
+        )).scalars().first()
+        if fila is None:
+            fila = Document(
+                client_id=organization_id,
+                project_id=None,
+                template_codigo=codigo,
+                tipo="informe_anual",
+            )
+            db.add(fila)
+        fila.nombre = f"Informe INES {year} (art. 32 RD 311/2022)"
+        fila.rendered_hash = hashlib.sha256(contenido).hexdigest()
+        fila.estado = "generado"
+        fila.generated_by = "m27_conformity.ines_annual_docx"
+        fila.generated_at = datetime.now(timezone.utc)
+        await db.flush()
+    except Exception:
+        # El rollback NO es opcional: sin el, este "best-effort" es mentira. En
+        # PostgreSQL un statement fallido ABORTA la transaccion entera, y
+        # SQLAlchemy la marca para rollback; el `await db.commit()` que viene
+        # detras revienta con PendingRollbackError y el endpoint devuelve 500
+        # -- justo lo que este except dice estar evitando --. Capturar sin
+        # revertir deja la promesa escrita y sin cumplir.
+        await db.rollback()
+        logger.exception(
+            "INES %s/%s: no se pudo registrar en documents (el informe se "
+            "entrega igual, pero no aparecera en el expediente)",
+            organization_id, year,
+        )
+
+
 @router.post("/organizations/{organization_id}/ines/{year}/docx")
 async def ines_annual_docx(
     organization_id: uuid.UUID,
@@ -978,6 +1035,17 @@ async def ines_annual_docx(
     ), {"cid": str(organization_id)})
     report = await collect_ines_data(db, organization_id, year)
     bio = generate_ines_docx(report)
+
+    # Q5 · y se REGISTRA. `documents` es lo que lee el generador del expediente
+    # del auditor: lo que no esta ahi, para el auditor no existe. Este informe se
+    # quedaba fuera porque la tabla exigia `project_id NOT NULL` y el informe del
+    # art. 32 es anual y POR ORGANIZACION. La migracion `ines_cabe_documents_001`
+    # abrio el ambito de organizacion (project_id nullable + client_id + CHECK de
+    # que haya al menos uno), asi que ya no hay que inventarse a que proyecto
+    # pertenece.
+    await _registrar_ines_en_documents(db, organization_id, year, bio.getvalue())
+    await db.commit()
+
     return Response(
         content=bio.getvalue(),
         media_type=(

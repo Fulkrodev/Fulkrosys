@@ -43,7 +43,6 @@ Usage:
 from __future__ import annotations
 
 import logging
-import tempfile
 from dataclasses import dataclass
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
@@ -59,7 +58,6 @@ from backend.app.core.storage.minio_client import (
 )
 from backend.app.models.core import Client, Project
 from backend.app.models.m14_providers import Provider, ProviderAddendum
-from backend.app.motors.m06_document_factory.rendering import render_docx
 
 
 logger = logging.getLogger(__name__)
@@ -134,20 +132,33 @@ class AdendaGenerator:
             client_extras=client_extras or {},
         )
 
-        # 6. Render template E-604 -> DOCX bytes (via tmp file · render_docx file-based)
-        if not TEMPLATE_DOCX_PATH.exists():
-            raise FileNotFoundError(
-                f"Precompiled template not found: {TEMPLATE_DOCX_PATH}. "
-                f"Run: PYTHONPATH=. .venv/bin/python "
-                f"backend/scripts/build_proveedores_templates.py"
-            )
-        with tempfile.NamedTemporaryFile(suffix=".docx", delete=False) as tmp:
-            tmp_path = Path(tmp.name)
-        try:
-            render_docx(TEMPLATE_DOCX_PATH, context, tmp_path)
-            docx_bytes = tmp_path.read_bytes()
-        finally:
-            tmp_path.unlink(missing_ok=True)
+        # 6. Q5 · POR LA FABRICA DOCUMENTAL, no por su cuenta.
+        #
+        # Esto renderizaba la plantilla a mano con `render_docx`. La adenda
+        # E-604 es FIRMABLE, y quien renderiza por su cuenta se salta las cinco
+        # cosas que hace la fabrica (m06): calcular la huella, firmar con
+        # Ed25519, registrar la fila en `documents`, subir copia durable y dejar
+        # el `storage_path` canonico. Y `documents` es EXACTAMENTE lo que lee el
+        # generador del expediente del auditor, asi que la adenda existia en
+        # MinIO y en `provider_addendums` y no aparecia en el expediente.
+        #
+        # La plantilla ya estaba en el catalogo, asi que era enchufable tal cual.
+        # Se conserva la subida a la clave de MinIO propia de la adenda y su URL
+        # firmada, porque de ahi cuelga la firma del proveedor.
+        from backend.app.motors.m06_document_factory.service import (
+            DocumentFactoryService,
+        )
+
+        documento = await DocumentFactoryService(self.db).generate_document(
+            project_id=project_id,
+            template_codigo=TEMPLATE_CODE,
+            context=context,
+            generate_pdf=False,
+            sign=True,
+            generated_by="m14_contracts.adenda_generator",
+            enforce_gates=False,
+        )
+        docx_bytes = Path(documento["docx_path"]).read_bytes()
 
         # 7. Upload a MinIO bucket fulkro-documents
         object_key = f"corpus/addendums/{project_id}/{code}.docx"
@@ -186,6 +197,12 @@ class AdendaGenerator:
                 "generated_at": now.isoformat(),
                 "docx_size_bytes": len(docx_bytes),
                 "generator_version": "1.B.7.1.3",
+                # Q5 · el puente al expediente: la fila de `documents` que
+                # produjo la fabrica. Sin esto la adenda no era localizable
+                # desde el dossier del auditor.
+                "document_id": str(documento["document_id"]),
+                "rendered_hash": documento.get("rendered_hash"),
+                "storage_path": documento.get("storage_path"),
                 "provider_extras": provider_extras or {},
                 "client_extras": client_extras or {},
             },

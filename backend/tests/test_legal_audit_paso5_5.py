@@ -252,34 +252,35 @@ class TestC003Obligaciones:
 # ══════════════════════════════════════════════════════════════════════
 
 
-def test_legal_audit_score_100():
-    """Ejecuta el auditor legal automatico y valida score == 100."""
+def test_legal_audit_score_100(tmp_path):
+    """Ejecuta el auditor legal automatico y valida score == 100.
+
+    Q5 · el informe se escribe en el directorio temporal del test, no en
+    `progress/` dentro del arbol. Escribiendo en el arbol, este test heredaba
+    el estado que el arbol tuviera: en esta maquina `progress/` habia quedado
+    en manos de `root` tras una pasada dentro del contenedor, y el script moria
+    con `PermissionError`. Antes de eso moria con `FileNotFoundError` porque el
+    directorio no existe en un clon limpio. Dos sintomas, un defecto: el
+    resultado dependia de quien hubiera pasado por ahi antes.
+    """
+    salida = tmp_path / "legal_audit_autocheck.json"
+    entorno = {
+        **__import__("os").environ,
+        "PYTHONPATH": str(ROOT),
+        "FULKRO_LEGAL_AUDIT_OUT": str(salida),
+    }
     result = subprocess.run(
         [sys.executable, "-m", "backend.scripts.legal_audit_77_templates"],
-        cwd=str(ROOT),
-        env={
-            **__import__("os").environ,
-            "PYTHONPATH": str(ROOT),
-        },
-        capture_output=True,
-        text=True,
+        cwd=str(ROOT), env=entorno, capture_output=True, text=True,
     )
     # The script may be launched directly as file
     if result.returncode != 0:
         result = subprocess.run(
             [sys.executable, "backend/scripts/legal_audit_77_templates.py"],
-            cwd=str(ROOT),
-            env={
-                **__import__("os").environ,
-                "PYTHONPATH": str(ROOT),
-            },
-            capture_output=True,
-            text=True,
+            cwd=str(ROOT), env=entorno, capture_output=True, text=True,
         )
     assert result.returncode == 0, result.stderr
-    report = json.loads(
-        (ROOT / "progress" / "legal_audit_autocheck.json").read_text()
-    )
+    report = json.loads(salida.read_text())
     assert report["global_score_0_100"] == 100.0, (
         f"Score {report['global_score_0_100']} != 100. "
         f"Totals: {report['totals']}"

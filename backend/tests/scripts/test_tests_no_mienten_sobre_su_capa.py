@@ -103,6 +103,20 @@ MENCION_NO_ES_PROMESA = {
     "tests/motors/m06_document_factory/test_sgsi_core_templates_render.py",
     # Narra el efecto de un defecto sobre un endpoint; prueba el service.
     "tests/api/test_client_compliance_summary_savepoint.py",
+    # Q · llama a la FUNCION del endpoint con una sesion de verdad, a proposito:
+    # el cliente HTTP de pruebas inyecta la sesion transaccional del arnes y ahi
+    # `commit()` no es un commit, asi que por HTTP el defecto era inobservable.
+    # La cabecera lo explica.
+    "tests/audit_fixes/test_el_simulacro_se_guarda_de_verdad.py",
+    # Q · el objeto es el pool del motor de base de datos. Menciona `/metrics`
+    # porque es el endpoint donde el fallo se manifestaba, no lo que prueba.
+    "tests/audit_fixes/test_la_bateria_no_hereda_conexiones.py",
+    # Q · analisis estatico SOBRE las pantallas y sus endpoints: comprueba que
+    # existe quien los llame, que es precisamente lo que no se ve llamandolos.
+    "tests/audit_fixes/test_las_pantallas_arrancan_lo_que_exigen.py",
+    # Q · analisis estatico sobre los productores de tres entregables; cita el
+    # endpoint de verificacion (M08) para decir por donde se lanzan.
+    "tests/audit_fixes/test_los_tres_entregables_que_no_salian.py",
 }
 
 

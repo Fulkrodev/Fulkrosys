@@ -58,7 +58,11 @@ async def test_recategorization_persists_in_m27_table(
     async_client, db: AsyncSession,
 ):
     """ADR-023: m28 POST /recategorizations escribe en m27.recategorizations."""
-    _, pid = await setup_test_project(db)
+    # Q1 · el proyecto nace CON categoría: recategorizar exige una previa (el
+    # registro declara de qué categoría venía, y rellenar ese hueco con BASICA
+    # era inventarse un pasado normativo que nadie decidió). Sin categoría
+    # previa esto no es una recategorización, es la primera categorización.
+    _, pid = await setup_test_project(db, categoria_objetivo="BASICA")
 
     # Crear change primero
     c = await async_client.post(

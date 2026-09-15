@@ -15,6 +15,7 @@ Output JSON: progress/legal_audit_autocheck.json
 from __future__ import annotations
 
 import json
+import os
 import re
 import sys
 from pathlib import Path
@@ -281,11 +282,27 @@ def main() -> int:
         "by_category": by_cat,
         "results": results,
     }
-    out_path = PROJECT_ROOT / "progress" / "legal_audit_autocheck.json"
-    # Q3 · el directorio no esta en el repositorio y el script no lo creaba:
-    # `FileNotFoundError: .../progress/legal_audit_autocheck.json`. Un script
-    # que solo funciona si alguien creo antes una carpeta a mano solo funciona
-    # en la maquina donde esa carpeta ya existe.
+    # Q5 · DONDE se escribe lo decide quien llama.
+    #
+    # Q3 arreglo la mitad: el directorio `progress/` no esta versionado y el
+    # script no lo creaba, asi que reventaba con FileNotFoundError en un clon
+    # limpio. Se le anyadio el `mkdir`, y con eso basta para un clon limpio.
+    #
+    # Pero seguia escribiendo DENTRO del arbol del repositorio, asi que heredaba
+    # el estado que el arbol tuviera. Medido en esta maquina: `progress/` existe
+    # y pertenece a `root` --lo creo una pasada anterior dentro del contenedor,
+    # que corre como root--, y el script, ejecutado por el usuario normal,
+    # muere con `PermissionError: [Errno 13]`. El fallo dejo de ser "falta la
+    # carpeta" y paso a ser "la carpeta es de otro", que es el MISMO defecto:
+    # un script cuyo resultado depende de quien paso por ahi antes.
+    #
+    # Con `FULKRO_LEGAL_AUDIT_OUT` el test lo manda a su propio directorio
+    # temporal y deja de depender del arbol. Sin la variable, el destino de
+    # siempre: nada cambia para quien lo ejecuta a mano.
+    out_path = Path(
+        os.environ.get("FULKRO_LEGAL_AUDIT_OUT")
+        or PROJECT_ROOT / "progress" / "legal_audit_autocheck.json"
+    )
     out_path.parent.mkdir(parents=True, exist_ok=True)
     out_path.write_text(json.dumps(out, ensure_ascii=False, indent=2), encoding="utf-8")
     print(

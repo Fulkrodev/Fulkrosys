@@ -331,8 +331,56 @@ class MinutesService:
                     m.codigo, exc,
                 )
 
+        await self._registrar_en_documents(m)
+
         await self.db.flush()
         return m
+
+    async def _registrar_en_documents(self, m) -> None:
+        """Q5 · deja la fila en `documents` para que el acta llegue al expediente.
+
+        El acta E-005 es FIRMABLE (`POST /api/v1/minutes-signing/approve`) y ya
+        se construia bien: DOCX, hash SHA-256, firma Ed25519 y archivo WORM. Lo
+        unico que faltaba era el registro en `documents`, que es EXACTAMENTE la
+        tabla que lee el generador del expediente del auditor
+        (`dossier_generator._collect_documents`). Sin esa fila, el acta existia
+        en disco, en MinIO y en `meetings`, y para el auditor no existia.
+
+        No pasa por la fabrica documental porque el acta no se renderiza desde
+        una plantilla Jinja del catalogo: se construye con python-docx
+        (`build_minutes_docx`) a partir de datos estructurados. Enchufarla a la
+        fabrica exige crear antes la plantilla E-005, que no existe -- "E-005 sin
+        plantilla" consta en tres sitios de m09 --. Lo que si se puede hacer hoy,
+        y es lo que decide si el auditor lo ve, es registrarla: y se registra con
+        la huella y la firma que el propio servicio ya calculo, no con otras.
+
+        Idempotente por `codigo`: regenerar el acta actualiza la fila, no la
+        duplica.
+        """
+        from backend.app.models.documents import Document
+
+        fila = (await self.db.execute(
+            select(Document).where(
+                Document.project_id == m.project_id,
+                Document.template_codigo == m.codigo,
+                Document.deleted_at.is_(None),
+            ).limit(1)
+        )).scalars().first()
+        if fila is None:
+            fila = Document(
+                project_id=m.project_id,
+                template_codigo=m.codigo,
+                tipo="acta",
+            )
+            self.db.add(fila)
+        fila.nombre = m.titulo or f"Acta de comité {m.codigo}"
+        fila.docx_path = m.docx_path
+        fila.pdf_path = m.pdf_path
+        fila.rendered_hash = m.hash_sha256
+        fila.signature_ed25519 = m.signature_ed25519
+        fila.estado = m.estado
+        fila.generated_by = "m18_communication.minutes_service"
+        fila.generated_at = m.generado_at
 
     async def regenerate_docx_with_signatures(
         self,

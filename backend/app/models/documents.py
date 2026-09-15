@@ -28,7 +28,18 @@ class Document(ClientReviewMixinA, FullMixin, Base):
     __table_args__ = (
         *client_review_a_table_args("documents"),
     )
-    project_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("projects.id"), nullable=False)
+    # Q5 · nullable: hay documentos cuyo ambito es la ORGANIZACION y no un
+    # proyecto -- el informe INES del art. 32 es anual y por organizacion --.
+    # Antes `project_id NOT NULL` los dejaba fuera del inventario documental, y
+    # lo que no esta en `documents` no llega al expediente del auditor. El CHECK
+    # `ck_documents_ambito` exige que haya al menos uno de los dos ambitos.
+    # Migracion `ines_cabe_documents_001`.
+    project_id: Mapped[uuid.UUID | None] = mapped_column(
+        ForeignKey("projects.id"), nullable=True,
+    )
+    client_id: Mapped[uuid.UUID | None] = mapped_column(
+        ForeignKey("clients.id"), nullable=True, index=True,
+    )
     tipo: Mapped[str | None] = mapped_column(String(50))
     nombre: Mapped[str] = mapped_column(String(255), nullable=False)
     version_actual: Mapped[str | None] = mapped_column(String(20))
