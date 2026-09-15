@@ -340,7 +340,7 @@ $ pytest backend/tests -q
 | Pasan | **6.510** | |
 | Fallan | 44 | ninguno atribuible al código · ver *Dependencias de entorno* |
 | Errores | 5 | los cinco, un puerto codificado en el fichero de test |
-| Ficheros de test | **631** | `find backend/tests -name 'test_*.py' \| wc -l` |
+| Ficheros de test | **632** | `find backend/tests -name 'test_*.py' \| wc -l` |
 | Specs de Playwright | **300** | `find frontend/tests -name '*.spec.ts' \| wc -l` |
 
 ### Recuperación del corpus · evaluación
@@ -446,7 +446,7 @@ Dos informes más que conviene leer antes que el código:
 
 ```bash
 $ git ls-files backend/app | grep '\.py$' | xargs wc -l | tail -1
- 243914 total
+ 243999 total
 
 $ ls -d backend/app/motors/m*/ | wc -l
 44

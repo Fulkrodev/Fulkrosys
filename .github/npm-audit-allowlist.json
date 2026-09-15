@@ -10,6 +10,17 @@
   ],
   "avisos_aceptados": [
     {
+      "ghsa": "GHSA-2xp9-vwfh-vxw4",
+      "paquete": "next",
+      "severidad": "critical",
+      "titulo": "Unauthenticated RCE in Image Optimization API when AVIF files are used",
+      "version_instalada": "14.2.33",
+      "arreglado_en": ">=15.5.24",
+      "por_que_se_acepta": "Mismo salto medido que el anterior (77 ficheros de codemod mas una linea, docs/MEDICION_NEXTJS_15.md), y lo que falta es la misma verificacion en ejecucion, no el salto. Atenuante que NO lo anula, y aqui esta comprobado fichero a fichero: el aviso exige que la API de optimizacion sirva AVIF de origen no confiable, y los seis ficheros que importan next/image apuntan a SVG locales, Next no enruta SVG por el optimizador, dangerouslyAllowSVG no esta activado (no hay bloque images: en next.config.mjs), /_next/image sobre esos SVG devuelve 400, y sharp ni siquiera esta en el arbol de Next 14. Es NO ALCANZABLE. Ojo a la contrapartida medida: Next 15 SI instala sharp y con el entra libheif, aunque el codigo ya no lo llame para AVIF.",
+      "revisar_antes_de": "2026-12-31",
+      "medicion": "docs/MEDICION_NEXTJS_15.md"
+    },
+    {
       "ghsa": "GHSA-p293-qw3h-jr36",
       "paquete": "next",
       "severidad": "critical",
@@ -21,13 +32,134 @@
       "medicion": "docs/MEDICION_NEXTJS_15.md"
     },
     {
-      "ghsa": "GHSA-2xp9-vwfh-vxw4",
+      "ghsa": "GHSA-36qx-fr4f-26g5",
       "paquete": "next",
-      "severidad": "critical",
-      "titulo": "Unauthenticated RCE in Image Optimization API when AVIF files are used",
+      "severidad": "high",
+      "titulo": "Next.js has a Middleware / Proxy bypass in Pages Router applications using i18n",
       "version_instalada": "14.2.33",
       "arreglado_en": ">=15.5.24",
-      "por_que_se_acepta": "Mismo salto medido que el anterior (77 ficheros de codemod mas una linea, docs/MEDICION_NEXTJS_15.md), y lo que falta es la misma verificacion en ejecucion, no el salto. Atenuante que NO lo anula, y aqui esta comprobado fichero a fichero: el aviso exige que la API de optimizacion sirva AVIF de origen no confiable, y los seis ficheros que importan next/image apuntan a SVG locales, Next no enruta SVG por el optimizador, dangerouslyAllowSVG no esta activado (no hay bloque images: en next.config.mjs), /_next/image sobre esos SVG devuelve 400, y sharp ni siquiera esta en el arbol de Next 14. Es NO ALCANZABLE. Ojo a la contrapartida medida: Next 15 SI instala sharp y con el entra libheif, aunque el codigo ya no lo llame para AVIF.",
+      "por_que_se_acepta": "Mismo paquete y MISMO arreglo que los dos criticos ya acotados: se cierra saltando a Next 15.5.24, medido en docs/MEDICION_NEXTJS_15.md (77 ficheros de codemod automatico mas una linea; tsc en 0 y next build en verde). Este aviso aparecio en la puerta el 2026-09-15, cuando el umbral subio de solo CRITICAL a CRITICAL+HIGH; antes pasaba sin que nadie lo viera. LO QUE NO SE AFIRMA: su alcanzabilidad NO esta medida una a una. De los dos criticos SI se midio (Windows y AVIF, los dos no alcanzables); de estos no, y decir que no lo son sin comprobarlo seria exactamente el defecto que la revision de este fichero corrigio. Se acota con la misma fecha que el resto de next para que caduquen juntos y el CI se ponga rojo por si solo si el salto no se ha hecho.",
+      "revisar_antes_de": "2026-12-31",
+      "medicion": "docs/MEDICION_NEXTJS_15.md"
+    },
+    {
+      "ghsa": "GHSA-5j59-xgg2-r9c4",
+      "paquete": "next",
+      "severidad": "high",
+      "titulo": "Next has a Denial of Service with Server Components - Incomplete Fix Follow-Up",
+      "version_instalada": "14.2.33",
+      "arreglado_en": ">=15.5.24",
+      "por_que_se_acepta": "Mismo paquete y MISMO arreglo que los dos criticos ya acotados: se cierra saltando a Next 15.5.24, medido en docs/MEDICION_NEXTJS_15.md (77 ficheros de codemod automatico mas una linea; tsc en 0 y next build en verde). Este aviso aparecio en la puerta el 2026-09-15, cuando el umbral subio de solo CRITICAL a CRITICAL+HIGH; antes pasaba sin que nadie lo viera. LO QUE NO SE AFIRMA: su alcanzabilidad NO esta medida una a una. De los dos criticos SI se midio (Windows y AVIF, los dos no alcanzables); de estos no, y decir que no lo son sin comprobarlo seria exactamente el defecto que la revision de este fichero corrigio. Se acota con la misma fecha que el resto de next para que caduquen juntos y el CI se ponga rojo por si solo si el salto no se ha hecho.",
+      "revisar_antes_de": "2026-12-31",
+      "medicion": "docs/MEDICION_NEXTJS_15.md"
+    },
+    {
+      "ghsa": "GHSA-89xv-2m56-2m9x",
+      "paquete": "next",
+      "severidad": "high",
+      "titulo": "Next.js: Server-Side Request Forgery in Server Actions on custom servers",
+      "version_instalada": "14.2.33",
+      "arreglado_en": ">=15.5.24",
+      "por_que_se_acepta": "Mismo paquete y MISMO arreglo que los dos criticos ya acotados: se cierra saltando a Next 15.5.24, medido en docs/MEDICION_NEXTJS_15.md (77 ficheros de codemod automatico mas una linea; tsc en 0 y next build en verde). Este aviso aparecio en la puerta el 2026-09-15, cuando el umbral subio de solo CRITICAL a CRITICAL+HIGH; antes pasaba sin que nadie lo viera. LO QUE NO SE AFIRMA: su alcanzabilidad NO esta medida una a una. De los dos criticos SI se midio (Windows y AVIF, los dos no alcanzables); de estos no, y decir que no lo son sin comprobarlo seria exactamente el defecto que la revision de este fichero corrigio. Se acota con la misma fecha que el resto de next para que caduquen juntos y el CI se ponga rojo por si solo si el salto no se ha hecho.",
+      "revisar_antes_de": "2026-12-31",
+      "medicion": "docs/MEDICION_NEXTJS_15.md"
+    },
+    {
+      "ghsa": "GHSA-8h8q-6873-q5fj",
+      "paquete": "next",
+      "severidad": "high",
+      "titulo": "Next.js Vulnerable to Denial of Service with Server Components",
+      "version_instalada": "14.2.33",
+      "arreglado_en": ">=15.5.24",
+      "por_que_se_acepta": "Mismo paquete y MISMO arreglo que los dos criticos ya acotados: se cierra saltando a Next 15.5.24, medido en docs/MEDICION_NEXTJS_15.md (77 ficheros de codemod automatico mas una linea; tsc en 0 y next build en verde). Este aviso aparecio en la puerta el 2026-09-15, cuando el umbral subio de solo CRITICAL a CRITICAL+HIGH; antes pasaba sin que nadie lo viera. LO QUE NO SE AFIRMA: su alcanzabilidad NO esta medida una a una. De los dos criticos SI se midio (Windows y AVIF, los dos no alcanzables); de estos no, y decir que no lo son sin comprobarlo seria exactamente el defecto que la revision de este fichero corrigio. Se acota con la misma fecha que el resto de next para que caduquen juntos y el CI se ponga rojo por si solo si el salto no se ha hecho.",
+      "revisar_antes_de": "2026-12-31",
+      "medicion": "docs/MEDICION_NEXTJS_15.md"
+    },
+    {
+      "ghsa": "GHSA-c4j6-fc7j-m34r",
+      "paquete": "next",
+      "severidad": "high",
+      "titulo": "Next.js vulnerable to server-side request forgery in applications using WebSocket upgrades",
+      "version_instalada": "14.2.33",
+      "arreglado_en": ">=15.5.24",
+      "por_que_se_acepta": "Mismo paquete y MISMO arreglo que los dos criticos ya acotados: se cierra saltando a Next 15.5.24, medido en docs/MEDICION_NEXTJS_15.md (77 ficheros de codemod automatico mas una linea; tsc en 0 y next build en verde). Este aviso aparecio en la puerta el 2026-09-15, cuando el umbral subio de solo CRITICAL a CRITICAL+HIGH; antes pasaba sin que nadie lo viera. LO QUE NO SE AFIRMA: su alcanzabilidad NO esta medida una a una. De los dos criticos SI se midio (Windows y AVIF, los dos no alcanzables); de estos no, y decir que no lo son sin comprobarlo seria exactamente el defecto que la revision de este fichero corrigio. Se acota con la misma fecha que el resto de next para que caduquen juntos y el CI se ponga rojo por si solo si el salto no se ha hecho.",
+      "revisar_antes_de": "2026-12-31",
+      "medicion": "docs/MEDICION_NEXTJS_15.md"
+    },
+    {
+      "ghsa": "GHSA-h25m-26qc-wcjf",
+      "paquete": "next",
+      "severidad": "high",
+      "titulo": "Next.js HTTP request deserialization can lead to DoS when using insecure React Server Components",
+      "version_instalada": "14.2.33",
+      "arreglado_en": ">=15.5.24",
+      "por_que_se_acepta": "Mismo paquete y MISMO arreglo que los dos criticos ya acotados: se cierra saltando a Next 15.5.24, medido en docs/MEDICION_NEXTJS_15.md (77 ficheros de codemod automatico mas una linea; tsc en 0 y next build en verde). Este aviso aparecio en la puerta el 2026-09-15, cuando el umbral subio de solo CRITICAL a CRITICAL+HIGH; antes pasaba sin que nadie lo viera. LO QUE NO SE AFIRMA: su alcanzabilidad NO esta medida una a una. De los dos criticos SI se midio (Windows y AVIF, los dos no alcanzables); de estos no, y decir que no lo son sin comprobarlo seria exactamente el defecto que la revision de este fichero corrigio. Se acota con la misma fecha que el resto de next para que caduquen juntos y el CI se ponga rojo por si solo si el salto no se ha hecho.",
+      "revisar_antes_de": "2026-12-31",
+      "medicion": "docs/MEDICION_NEXTJS_15.md"
+    },
+    {
+      "ghsa": "GHSA-m99w-x7hq-7vfj",
+      "paquete": "next",
+      "severidad": "high",
+      "titulo": "Next.js: Denial of Service in App Router using Server Actions",
+      "version_instalada": "14.2.33",
+      "arreglado_en": ">=15.5.24",
+      "por_que_se_acepta": "Mismo paquete y MISMO arreglo que los dos criticos ya acotados: se cierra saltando a Next 15.5.24, medido en docs/MEDICION_NEXTJS_15.md (77 ficheros de codemod automatico mas una linea; tsc en 0 y next build en verde). Este aviso aparecio en la puerta el 2026-09-15, cuando el umbral subio de solo CRITICAL a CRITICAL+HIGH; antes pasaba sin que nadie lo viera. LO QUE NO SE AFIRMA: su alcanzabilidad NO esta medida una a una. De los dos criticos SI se midio (Windows y AVIF, los dos no alcanzables); de estos no, y decir que no lo son sin comprobarlo seria exactamente el defecto que la revision de este fichero corrigio. Se acota con la misma fecha que el resto de next para que caduquen juntos y el CI se ponga rojo por si solo si el salto no se ha hecho.",
+      "revisar_antes_de": "2026-12-31",
+      "medicion": "docs/MEDICION_NEXTJS_15.md"
+    },
+    {
+      "ghsa": "GHSA-mwv6-3258-q52c",
+      "paquete": "next",
+      "severidad": "high",
+      "titulo": "Next Vulnerable to Denial of Service with Server Components",
+      "version_instalada": "14.2.33",
+      "arreglado_en": ">=15.5.24",
+      "por_que_se_acepta": "Mismo paquete y MISMO arreglo que los dos criticos ya acotados: se cierra saltando a Next 15.5.24, medido en docs/MEDICION_NEXTJS_15.md (77 ficheros de codemod automatico mas una linea; tsc en 0 y next build en verde). Este aviso aparecio en la puerta el 2026-09-15, cuando el umbral subio de solo CRITICAL a CRITICAL+HIGH; antes pasaba sin que nadie lo viera. LO QUE NO SE AFIRMA: su alcanzabilidad NO esta medida una a una. De los dos criticos SI se midio (Windows y AVIF, los dos no alcanzables); de estos no, y decir que no lo son sin comprobarlo seria exactamente el defecto que la revision de este fichero corrigio. Se acota con la misma fecha que el resto de next para que caduquen juntos y el CI se ponga rojo por si solo si el salto no se ha hecho.",
+      "revisar_antes_de": "2026-12-31",
+      "medicion": "docs/MEDICION_NEXTJS_15.md"
+    },
+    {
+      "ghsa": "GHSA-p9j2-gv94-2wf4",
+      "paquete": "next",
+      "severidad": "high",
+      "titulo": "Next.js: Server-Side Request Forgery in rewrites via attacker-controlled destination hostname",
+      "version_instalada": "14.2.33",
+      "arreglado_en": ">=15.5.24",
+      "por_que_se_acepta": "Mismo paquete y MISMO arreglo que los dos criticos ya acotados: se cierra saltando a Next 15.5.24, medido en docs/MEDICION_NEXTJS_15.md (77 ficheros de codemod automatico mas una linea; tsc en 0 y next build en verde). Este aviso aparecio en la puerta el 2026-09-15, cuando el umbral subio de solo CRITICAL a CRITICAL+HIGH; antes pasaba sin que nadie lo viera. LO QUE NO SE AFIRMA: su alcanzabilidad NO esta medida una a una. De los dos criticos SI se midio (Windows y AVIF, los dos no alcanzables); de estos no, y decir que no lo son sin comprobarlo seria exactamente el defecto que la revision de este fichero corrigio. Se acota con la misma fecha que el resto de next para que caduquen juntos y el CI se ponga rojo por si solo si el salto no se ha hecho.",
+      "revisar_antes_de": "2026-12-31",
+      "medicion": "docs/MEDICION_NEXTJS_15.md"
+    },
+    {
+      "ghsa": "GHSA-q4gf-8mx6-v5v3",
+      "paquete": "next",
+      "severidad": "high",
+      "titulo": "Next.js has a Denial of Service with Server Components",
+      "version_instalada": "14.2.33",
+      "arreglado_en": ">=15.5.24",
+      "por_que_se_acepta": "Mismo paquete y MISMO arreglo que los dos criticos ya acotados: se cierra saltando a Next 15.5.24, medido en docs/MEDICION_NEXTJS_15.md (77 ficheros de codemod automatico mas una linea; tsc en 0 y next build en verde). Este aviso aparecio en la puerta el 2026-09-15, cuando el umbral subio de solo CRITICAL a CRITICAL+HIGH; antes pasaba sin que nadie lo viera. LO QUE NO SE AFIRMA: su alcanzabilidad NO esta medida una a una. De los dos criticos SI se midio (Windows y AVIF, los dos no alcanzables); de estos no, y decir que no lo son sin comprobarlo seria exactamente el defecto que la revision de este fichero corrigio. Se acota con la misma fecha que el resto de next para que caduquen juntos y el CI se ponga rojo por si solo si el salto no se ha hecho.",
+      "revisar_antes_de": "2026-12-31",
+      "medicion": "docs/MEDICION_NEXTJS_15.md"
+    },
+    {
+      "ghsa": "GHSA-6g55-p6wh-862q",
+      "paquete": "postcss",
+      "severidad": "high",
+      "titulo": "PostCSS: Arbitrary file read and information disclosure via attacker-controlled sourceMappingURL in CSS comments",
+      "version_instalada": "8.5.10 (anidado en next)",
+      "arreglado_en": ">=next@16.3.5",
+      "por_que_se_acepta": "Es la copia de postcss que next trae ANIDADA (node_modules/next/node_modules/postcss); la del arbol raiz ya se subio a 8.5.28 con `npm audit fix --package-lock-only`, y esta solo se mueve saltando a next 16.3.5, que es un cambio MAYOR sin medir (la medicion que hay es hasta 15.5.24). Atenuante, y este si es comprobable: los dos avisos son lectura de ficheros .map via sourceMappingURL en comentarios CSS, y postcss aqui solo procesa el CSS DEL PROPIO REPOSITORIO en tiempo de construccion — no hay CSS de origen no confiable entrando por ahi. Revisar cuando se haga el salto a 15.5.24, que es cuando toca volver a mirar todo el arbol de next.",
+      "revisar_antes_de": "2026-12-31",
+      "medicion": "docs/MEDICION_NEXTJS_15.md"
+    },
+    {
+      "ghsa": "GHSA-r28c-9q8g-f849",
+      "paquete": "postcss",
+      "severidad": "high",
+      "titulo": "PostCSS: Path Traversal in Previous Source Map Auto-Loading (sourceMappingURL) leads to Arbitrary .map File Disclosure",
+      "version_instalada": "8.5.10 (anidado en next)",
+      "arreglado_en": ">=next@16.3.5",
+      "por_que_se_acepta": "Es la copia de postcss que next trae ANIDADA (node_modules/next/node_modules/postcss); la del arbol raiz ya se subio a 8.5.28 con `npm audit fix --package-lock-only`, y esta solo se mueve saltando a next 16.3.5, que es un cambio MAYOR sin medir (la medicion que hay es hasta 15.5.24). Atenuante, y este si es comprobable: los dos avisos son lectura de ficheros .map via sourceMappingURL en comentarios CSS, y postcss aqui solo procesa el CSS DEL PROPIO REPOSITORIO en tiempo de construccion — no hay CSS de origen no confiable entrando por ahi. Revisar cuando se haga el salto a 15.5.24, que es cuando toca volver a mirar todo el arbol de next.",
       "revisar_antes_de": "2026-12-31",
       "medicion": "docs/MEDICION_NEXTJS_15.md"
     }
