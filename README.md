@@ -401,22 +401,30 @@ entero.
    `auth`, `core`, `models`, `security`, `audit_fixes` y `test_rls_multitenancy.py`,
    medido en los comentarios de [`.github/workflows/ci.yml`](.github/workflows/ci.yml)—
    pero **la ejecución completa no se ha hecho nunca**, así que nadie sabe cuántos
-   de los 3.371 pasan.
+   de los 3.371 pasan. Ya hay dónde ejecutarla —
+   [`.github/workflows/pytest-completo.yml`](.github/workflows/pytest-completo.yml),
+   a mano o de noche, con la base sembrada y repartida en cuatro trozos— y no es
+   puerta de PR hasta que se vea pasar dos noches seguidas. Los pasos para
+   promoverla están en [`docs/CI.md`](docs/CI.md) §2.7.
    ```bash
    $ pytest backend/tests/ --collect-only -q -m "requires_db"      # → 3371
    $ pytest backend/tests/ --collect-only -q -m "not requires_db"  # → 3338
    ```
 
-2. **Next.js 14.2.33, con dos avisos críticos acotados hasta el 2026-12-31.** Los
-   dos son RCE en `next`, y los dos son **no alcanzables** en el despliegue de
-   referencia: uno exige servidor alojado en Windows (aquí es Linux en contenedor),
-   el otro exige que el optimizador de imágenes sirva AVIF de origen no confiable
-   (aquí `/_next/image` sobre los SVG locales devuelve 400 y `dangerouslyAllowSVG`
-   no está activado). El salto a 15.5.24 está medido —codemod automático sobre 77
-   ficheros, 1,6 s, 0 errores, más una línea de ESLint— y lo que falta no es el
-   salto: es **verificar** que Next 15 no cambia el comportamiento en las 168 rutas,
-   porque ese cambio no produce errores de compilación. Medición completa en
-   [`docs/MEDICION_NEXTJS_15.md`](docs/MEDICION_NEXTJS_15.md).
+2. **Next.js 14.2.33, con 14 avisos acotados hasta el 2026-12-31** (2 críticos y
+   12 `high`), todos del mismo paquete y todos con el mismo arreglo: saltar a
+   15.5.24. De los dos críticos sí está medido que **no son alcanzables** aquí
+   —uno exige servidor alojado en Windows, y esto es Linux en contenedor; el otro
+   exige que el optimizador sirva AVIF de origen no confiable, y `/_next/image`
+   sobre los SVG locales devuelve 400 con `dangerouslyAllowSVG` desactivado—. De
+   los doce `high` **no está medida su alcanzabilidad una a una**, y no se afirma
+   que no la tengan. El salto está medido (codemod automático sobre 77 ficheros,
+   1,6 s, 0 errores, más una línea de ESLint) y lo que falta no es el salto: es
+   **verificar en ejecución** que Next 15 no cambia el comportamiento de las 168
+   rutas, porque ese cambio no produce errores de compilación. Medición en
+   [`docs/MEDICION_NEXTJS_15.md`](docs/MEDICION_NEXTJS_15.md); los avisos, con su
+   motivo y su fecha, en
+   [`.github/npm-audit-allowlist.json`](.github/npm-audit-allowlist.json).
 
 3. **Cuatro conjuntos de evaluación de agentes, 40 entradas, y ni una sola tasa de
    acierto real.** El arnés determinista corre y puede tumbar el build; la
@@ -432,9 +440,14 @@ entero.
 
 5. **Sin `ANTHROPIC_API_KEY` la plataforma arranca y funciona en modo degradado.**
    Los agentes no fabrican prosa —todos piden salida estructurada, y el texto de
-   relleno no parsea como JSON— pero nueve de los doce caen a un camino de reserva
-   de **plantilla estática**, lo persisten y devuelven 200. Lo que el usuario ve es
-   un documento completo, y hoy sólo una pantalla del producto mira esa bandera.
+   relleno no parsea como JSON— pero diez de los doce caen a un camino de reserva
+   de **plantilla estática** y devuelven 200. Desde el bloque R ese texto viaja
+   marcado: cada resultado declara `generado_por` (`modelo`,
+   `plantilla_por_fallo_de_esquema` o `sin_clave_de_api`), la cadena de workflows
+   arrastra el eslabón más débil, y la interfaz avisa en vez de felicitar. Lo que
+   **no** hay es una puerta que lo impida: hoy no hace falta, porque el texto de
+   los agentes no entra en ningún documento firmable —la justificación de la DdA
+   la escribe un motor determinista (R1)—, pero el día que entre, hará falta.
 
 Dos informes más que conviene leer antes que el código:
 [`docs/INFORME_CIERRE_CAMPANA.md`](docs/INFORME_CIERRE_CAMPANA.md) y
