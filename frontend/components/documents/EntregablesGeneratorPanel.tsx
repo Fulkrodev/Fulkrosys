@@ -240,7 +240,7 @@ export function EntregablesGeneratorPanel({ projectId }: Props) {
                 {datos.faltan_sin_plantilla.join(" · ")}
               </span>
               . Estos no se pueden generar todavía: no tienen plantilla, así que
-              el botón de arriba no los intenta.
+              «Generar los que faltan» no los intenta.
             </AlertDescription>
           </Alert>
         )}

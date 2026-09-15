@@ -167,7 +167,7 @@ export default function AdminWhatsAppPage() {
                 <WhatsAppThreadView messages={messages} loading={loadingMsgs} />
               ) : (
                 <p className="py-12 text-center text-sm text-[color:var(--fulkro-muted)]">
-                  Selecciona un thread a la izquierda.
+                  Selecciona un thread de la lista para ver sus mensajes.
                 </p>
               )}
             </div>

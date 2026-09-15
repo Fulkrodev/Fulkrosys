@@ -68,7 +68,7 @@ export default function ClientMageritPage() {
       const nombre = evt.data.analysis_name ?? "el análisis MAGERIT";
       const totalAssets = evt.data.assets_count ?? 0;
       toast.success(
-        `El consultor ha actualizado ${nombre} (${totalAssets} activos). Revisa los detalles más abajo.`,
+        `El consultor ha actualizado ${nombre} (${totalAssets} activos). Ya puedes revisar los detalles.`,
       );
       void refetch();
     },

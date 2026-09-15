@@ -367,7 +367,7 @@ export default function CloudConnectionsPage() {
           <EmptyState
             icon={<Cloud className="h-12 w-12" />}
             title="Aún no hay conexiones activas"
-            description="Conecta tu primer sistema en la sección de abajo. Sin prisa por tu parte."
+            description="Elige uno de los sistemas disponibles y conéctalo cuando quieras. Sin prisa por tu parte."
           />
         ) : (
           <ul

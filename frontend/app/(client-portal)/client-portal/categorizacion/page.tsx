@@ -58,7 +58,7 @@ export default function ClientCategorizacionPage() {
       const sistemaNombre = evt.data.system_nombre ?? "tu sistema";
       const categoria = evt.data.categoria_resultante ?? "—";
       toast.success(
-        `El consultor ha completado la categorización de ${sistemaNombre} (categoría ${categoria}). Revísala más abajo cuando quieras.`,
+        `El consultor ha completado la categorización de ${sistemaNombre} (categoría ${categoria}). Ya puedes revisarla cuando quieras.`,
       );
       queryClient.invalidateQueries({
         queryKey: ["cliente", "categorizacion"],
