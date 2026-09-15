@@ -323,10 +323,10 @@ están marcadas como tales.
 | Operaciones de API | **1.201** en 1.100 caminos | `app.openapi()` · abajo |
 | Motores de dominio | **44** | `ls -d backend/app/motors/m*/ \| wc -l` |
 | Tablas en PostgreSQL | **253** | `psql -c "\\dt" \| wc -l` |
-| Migraciones Alembic | **271** | `ls backend/migrations/versions/*.py \| wc -l` |
+| Migraciones Alembic | **273** | `ls backend/migrations/versions/*.py \| wc -l` |
 | Páginas del frontend | **167** | `find frontend/app -name page.tsx \| wc -l` |
 | Componentes React | **427** | `find frontend/components -name '*.tsx' \| wc -l` |
-| Líneas de Python | **242.267** | `find backend/app -name '*.py' \| xargs wc -l` |
+| Líneas de Python | **243.792** | `find backend/app -name '*.py' \| xargs wc -l` |
 
 ### Suite
 
@@ -340,7 +340,7 @@ $ pytest backend/tests -q
 | Pasan | **6.510** | |
 | Fallan | 44 | ninguno atribuible al código · ver *Dependencias de entorno* |
 | Errores | 5 | los cinco, un puerto codificado en el fichero de test |
-| Ficheros de test | **616** | `find backend/tests -name 'test_*.py' \| wc -l` |
+| Ficheros de test | **628** | `find backend/tests -name 'test_*.py' \| wc -l` |
 | Specs de Playwright | **300** | `find frontend/tests -name '*.spec.ts' \| wc -l` |
 
 ### Recuperación del corpus · evaluación
@@ -446,7 +446,7 @@ Dos informes más que conviene leer antes que el código:
 
 ```bash
 $ git ls-files backend/app | grep '\.py$' | xargs wc -l | tail -1
- 237617 total
+ 243792 total
 
 $ ls -d backend/app/motors/m*/ | wc -l
 44
