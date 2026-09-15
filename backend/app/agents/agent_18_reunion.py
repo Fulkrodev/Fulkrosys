@@ -20,6 +20,10 @@ from typing import Any
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from backend.app.agents.base import AgentBase
+from backend.app.agents.procedencia import (
+    CLAVE as CLAVE_PROCEDENCIA,
+    procedencia,
+)
 from backend.app.agents.prompts.agent_18_reunion_exploratoria import PROMPT
 
 logger = logging.getLogger(__name__)
@@ -431,6 +435,11 @@ class Agent18ReunionExploratoria(AgentBase):
             "latency_ms": int(response.get("latency_ms", 0) or 0),
             "model": response.get("model", self.MODEL),
             "fallback_used": fallback_used,
+            # De donde salio el texto. "fallback_used" solo decia que
+            # se habia caido a la plantilla, no POR QUE: sin clave de
+            # API tambien se acaba ahi, y eso es otra cosa muy
+            # distinta para quien decide si este texto vale.
+            CLAVE_PROCEDENCIA: procedencia(response, fallback_used=fallback_used),
         }
 
 

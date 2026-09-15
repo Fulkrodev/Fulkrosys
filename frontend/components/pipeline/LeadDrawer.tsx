@@ -16,7 +16,11 @@ import { toast } from "sonner";
 
 import { RAGBadge } from "@/components/data/RAGBadge";
 import { Button, buttonVariants } from "@/components/ui/button";
-import { invokeAgent as invokeAgentApi } from "@/lib/api/agents";
+import {
+  invokeAgent as invokeAgentApi,
+  porQueNoVinoDelModelo,
+  vinoDelModelo,
+} from "@/lib/api/agents";
 import { useEscapeKey } from "@/hooks/useEscapeKey";
 import { useUpdateLeadStage } from "@/hooks/useLeads";
 import { ROUTES } from "@/lib/constants";
@@ -62,8 +66,19 @@ export function LeadDrawer({
       .filter(Boolean)
       .join(" · ");
     try {
-      await invokeAgentApi(agentId, { message });
-      toast.success(`${label} ejecutado · revisa el resultado del agente`);
+      const resultado = await invokeAgentApi(agentId, { message });
+      // Antes esto era un toast.success fijo: "ejecutado · revisa el resultado".
+      // Sin ANTHROPIC_API_KEY el agente NO falla —devuelve una plantilla
+      // estatica con 200— asi que la pantalla daba un visto bueno verde a algo
+      // que no habia pasado por ningun modelo. El 200 decia "ha ido bien" y era
+      // verdad a medias: la llamada fue bien, la redaccion no existio.
+      if (vinoDelModelo(resultado)) {
+        toast.success(`${label} ejecutado · revisa el resultado del agente`);
+      } else {
+        toast.warning(
+          `${label}: el texto NO viene del modelo · ${porQueNoVinoDelModelo(resultado)}`,
+        );
+      }
     } catch (e) {
       toast.error(
         e instanceof Error ? e.message : `No se pudo ejecutar ${label}`,
