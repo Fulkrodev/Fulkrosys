@@ -25,7 +25,7 @@
 
 ## 1. Qué es Fulkro · ⚠ REVISIÓN CONSULTOR
 
-> Borrador derivado de `backend/app/fulkro_identity.py` + CLAUDE.md. Marcos revisa
+> Borrador derivado de `backend/app/fulkro_identity.py`. Marcos revisa
 > el framing exacto antes de que el copiloto lo diga a clientes.
 
 Fulkro es una **plataforma de implantación del ENS** (Esquema Nacional de

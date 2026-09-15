@@ -6,7 +6,7 @@
 
 ## Descripcion
 
-Configuracion segura AWS/Azure/GCP/K8s. Apoya M8 MEDIA+ y op.nub.1 (Servicios en la Nube). Prowler + ScoutSuite son MCPs reales validados (CLAUDE.md).
+Configuracion segura AWS/Azure/GCP/K8s. Apoya M8 MEDIA+ y op.nub.1 (Servicios en la Nube). Prowler + ScoutSuite son MCPs reales validados.
 
 ## Tools expuestos
 

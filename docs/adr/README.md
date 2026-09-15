@@ -28,7 +28,7 @@ teórico, ya confundía al propio repo:
 
 | número | qué decía la serie vieja | qué decía la serie nueva |
 |---|---|---|
-| ADR-003 | el fallback de sesión de desarrollo por `APP_ENV` (citado en `CLAUDE.md` R4 y en el runbook de Hetzner) | «¿es escalable en horizontal?» |
+| ADR-003 | el fallback de sesión de desarrollo por `APP_ENV` (citado en la regla R4 y en el runbook de Hetzner) | «¿es escalable en horizontal?» |
 | ADR-004 | no hacer videollamada propia (citado en `m_meetings`, `m20_workspace`, dos migraciones) | «una llamada al modelo que falla no es un éxito» |
 | ADR-005 | el motor de mensajería con el cliente (citado en `m29_client_messaging`) | «el modelo en el proceso limita los workers» |
 
@@ -40,7 +40,7 @@ debían decir desde el principio.
 ## Tres anomalías que este índice destapa y NO se han arreglado
 
 **1. ADR-001, ADR-002 y ADR-003 (los históricos) no existen.** Están citados
-—`CLAUDE.md:57` manda «ver ADR-003» para la regla R4, y
+—la regla R4 mandaba «ver ADR-003», y
 `docs/deploy/HETZNER_DEPLOY_RUNBOOK.md` lo repite— pero no hay ningún fichero ni
 ninguna sección que los defina, ni en `DECISIONS.md` ni en ninguna otra parte:
 
@@ -60,7 +60,10 @@ la tabla de abajo se marcan; la ficha propia manda, porque es la que se edita.
 Consolidarlas es trabajo de otro día, y hasta entonces conviene saberlo.
 
 **3. Dos números que `CLAUDE.md` y `DECISIONS.md` no cuentan igual.** Salió al
-verificar las referencias de [`ARCHITECTURE.md`](../../ARCHITECTURE.md):
+verificar las referencias de [`ARCHITECTURE.md`](../../ARCHITECTURE.md). El
+primero de los dos, `CLAUDE.md`, **se retiró del repositorio** el 2026-09-15
+([por qué](../REGLAS_INVIOLABLES.md#por-qué-se-retiró-claudemd)); la tabla se
+conserva porque la discrepancia de numeración sigue viva en `DECISIONS.md`:
 
 | número | según `CLAUDE.md` | según `docs/spec/DECISIONS.md` |
 |---|---|---|

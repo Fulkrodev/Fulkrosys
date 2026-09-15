@@ -24,7 +24,7 @@ A partir de **ADR-046** (incluido) los ADRs viven en archivos separados aquí:
 Razón del switch desde ADR-046: ADRs creciendo en complejidad · monolithic
 DECISIONS.md aumentando size + dificultando cross-reference + diff noise en
 commits. Archivos separados permiten ownership claro per decisión + linkable
-URL desde commits/issues/CLAUDE.md.
+URL desde commits e issues.
 
 ## Going forward (convention ADR-046+)
 
@@ -71,8 +71,19 @@ creación de este README, 2026-05-21 · sub-atom 1.D.X.VERIFY commit 3).
 ADRs históricos (001-045) referenciados directamente en
 [`docs/spec/DECISIONS.md`](../spec/DECISIONS.md).
 
-## Cross-reference con CLAUDE.md
+## Las lecciones operativas y los patrones: dónde NO buscarlos
 
-- Lecciones operativas formalizadas: ver [CLAUDE.md sección Lecciones operativas](../../CLAUDE.md#lecciones-operativas)
-- Patterns arquitecturales reusables: ver [CLAUDE.md sección Patterns arquitecturales reusables](../../CLAUDE.md#patterns-arquitecturales-reusables)
+Esta sección enlazaba a dos apartados de `CLAUDE.md` —«Lecciones operativas» y
+«Patterns arquitecturales reusables»—. **Ese fichero se retiró del repositorio**
+el 2026-09-15 porque ninguna de sus referencias comprobables resolvía: 0 de 13
+etiquetas, 0 de 16 commits y 21 de 23 documentos enlazados. El motivo completo,
+con los comandos, está en
+[`docs/REGLAS_INVIOLABLES.md`](../REGLAS_INVIOLABLES.md#por-qué-se-retiró-claudemd).
+
+Aquellos dos apartados no se han reescrito, y conviene decir por qué en vez de
+dejar el enlace roto: eran un registro de sesiones de trabajo, no doctrina
+comprobable, y la mayoría de sus entradas se apoyaban en los mismos commits y
+etiquetas que no existen. Lo que sí se ha salvado son las ocho reglas que el
+código cita por su número, comprobadas una a una:
+[`docs/REGLAS_INVIOLABLES.md`](../REGLAS_INVIOLABLES.md).
 - ADR-053 cement OPS-045 29ª aplicación (audit-first cloud-first MVP)

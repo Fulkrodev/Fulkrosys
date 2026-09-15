@@ -55,7 +55,7 @@ class TestMagicLinkPurposesPaso7Final:
         # SAN-B.MB-6.6: AUTORIZACION_PENTEST eliminado · 35 -> 34.
         # SAN-D MB-19.4: FIRMA_CONTRATO añadido (#36 ADR-041) · 34 -> 35.
         # Ejecutable 8 Pasada 16: AUDITOR_PORTAL_ENAC añadido en Sesión 3B-2B.6 (auditor portal ·
-        # CLAUDE.md + memoria auditor-portal-architecture.md) · 35 -> 36. (test desactualizado · fuente citada)
+        # fuente retirada: CLAUDE.md ya no esta en el repo) · 35 -> 36. (test desactualizado)
         # Batch A diagnóstico previo: DIAGNOSTICO_PRECLIENTE añadido (#38) · 36 -> 37.
         assert len(list(MagicLinkPurpose)) == 37
 

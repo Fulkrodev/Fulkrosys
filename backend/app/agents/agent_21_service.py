@@ -3,8 +3,9 @@
 Servicio determinista (NO LLM) que ejecuta detectores cross-motor SQL
 para identificar incoherencias / NCs que un auditor ENS detectaría.
 
-Sostiene R1 inviolable CLAUDE.md (motores deterministas > LLM para
-decisiones normativas · trazabilidad ENAC > flexibilidad LLM).
+Sostiene la regla R1 (docs/REGLAS_INVIOLABLES.md): para decisiones normativas
+mandan los motores deterministas y no el LLM · la trazabilidad ante ENAC pesa
+mas que la flexibilidad del modelo.
 
 Detectores implementados (5 ENS-only):
 - magerit_vs_dda: análisis MAGERIT con riesgos críticos (MC/C) cuyas

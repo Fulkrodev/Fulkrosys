@@ -26,9 +26,9 @@ name: Admin + Cliente + Auditor Polish Empirical
 # extra ("Mint auditor portal token", crea test-client + acuña token) que los
 # otros dos NO tienen. Un matrix exigiría `if:` condicionales por paso + rutas de
 # specs + sufijos de artefacto parametrizados, lo que añade complejidad y RIESGO
-# a un gate de CI que HOY funciona, sin cambio de comportamiento. CLAUDE.md lo
-# documenta como el "consolidate" deliberado de Ejecutable 7 (Pattern P-CL2-5 ·
-# OPS-026 DRY mirror). Se deja verboso-pero-correcto (prioridad: no romper CI).
+# a un gate de CI que HOY funciona, sin cambio de comportamiento. La duplicidad
+# es deliberada, no descuido. Se deja verboso-pero-correcto (prioridad: no
+# romper CI).
 
 on:
   workflow_dispatch:

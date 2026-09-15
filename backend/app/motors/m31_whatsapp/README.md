@@ -68,4 +68,4 @@ Cliente NUNCA recibe WA sin opt-in OTP verified previo. RGPD consent cement + Wh
 
 ## Cement OPS
 
-MB-8 atom 8.1 cement. Opt-in OTP flow es invariante RGPD + WhatsApp policy. Dialog360 como sub-procesador cement institutional (registrado MEMORY.md + sub-procesadores list). RGPD art. 15 export ready cement (cliente puede pedir todos sus datos).
+MB-8 atom 8.1 cement. Opt-in OTP flow es invariante RGPD + WhatsApp policy. Dialog360 como sub-procesador cement institutional (registrado en la lista de sub-procesadores). RGPD art. 15 export ready cement (cliente puede pedir todos sus datos).

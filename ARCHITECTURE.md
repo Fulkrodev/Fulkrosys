@@ -207,21 +207,25 @@ Ninguna está implementada.
 | ADR-030 (`docs/spec/DECISIONS.md`) | Autenticación global por dependencia + lista blanca justificada (es la puerta por la que pasa `/metrics`) |
 
 > **Aviso sobre esta tabla.** Sólo lleva ADR cuyo título se ha comprobado en su
-> fuente. Comprobándolos aparecieron dos discrepancias que **no se arreglan
-> aquí** porque no consta cuál de las dos versiones es la buena: `CLAUDE.md`
-> resume ADR-014 como «OAuth de sólo lectura» y ADR-025 como «no crear tabla
-> nueva si una existente cubre el caso», pero en `docs/spec/DECISIONS.md` el
-> ADR-014 es «Portal ENS Radar admin-only» (de un subsistema **retirado** en
-> 2026-06-07) y el ADR-025 es «DB drift resolution». Las dos decisiones que
-> describe `CLAUDE.md` son reales y están vigentes; lo que no cuadra es el
-> número. Queda anotado en [`docs/adr/README.md`](docs/adr/README.md).
+> fuente. Comprobándolos aparecieron dos discrepancias de numeración: el fichero
+> `CLAUDE.md` —**retirado del repositorio** el 2026-09-15— resumía ADR-014 como
+> «OAuth de sólo lectura» y ADR-025 como «no crear tabla nueva si una existente
+> cubre el caso», pero en `docs/spec/DECISIONS.md` el ADR-014 es «Portal ENS
+> Radar admin-only» (de un subsistema **retirado** en 2026-06-07) y el ADR-025
+> es «DB drift resolution». Las dos decisiones eran reales y están vigentes; lo
+> que no cuadraba era el número. Queda anotado en
+> [`docs/adr/README.md`](docs/adr/README.md), y el motivo de la retirada en
+> [`docs/REGLAS_INVIOLABLES.md`](docs/REGLAS_INVIOLABLES.md#por-qué-se-retiró-claudemd).
 
 ---
 
 ## Lo que esta página NO dice
 
-- **No es un mapa de los 46 motores.** Para eso está `CLAUDE.md` y el README de
-  cada motor. Aquí sólo están los límites entre procesos.
+- **No es un mapa de los motores.** Para eso está el `README.md` de cada uno,
+  bajo `backend/app/motors/`. Aquí sólo están los límites entre procesos.
+  (Cuántos son depende de qué se cuente: `ls -d backend/app/motors/*/` da **45**
+  directorios y `m*/` da **44**. Esta página decía 46 y `CLAUDE.md` decía 42;
+  ninguna de las dos cifras salía de un comando.)
 - **No describe el despliegue en producción.** El objetivo es Hetzner y el
   runbook vive en [`docs/deploy/`](docs/deploy/). Todo lo medido aquí es Docker
   Compose en una máquina.
