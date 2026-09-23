@@ -11,7 +11,7 @@
  * proyectos por cliente cuando demand-driven.
  *
  * Click trigger → dropdown lista clients accesibles. Click client →
- * navigate /admin/projects/{client_slug}/dashboard. URL es source of
+ * navigate /admin/projects/{client.project_id}. URL es source of
  * truth · routing guard /admin/projects/[id]/layout.tsx hidrata
  * activeProject store onMount.
  *
@@ -33,29 +33,18 @@ import { useClients } from "@/hooks/useClients";
 import { ROUTES } from "@/lib/constants";
 import { useActiveProjectStore } from "@/lib/stores/active-project-store";
 
-function clientSlug(client: { id: string; nombre: string }): string {
-  // Mirror Sidebar.tsx pattern · uses client.id as slug for project route.
-  return client.id;
+// Destino de cada entrada: el PROYECTO del cliente. Antes era
+// `/admin/projects/{client.id}/dashboard`, roto por dos sitios: `/dashboard`
+// no existe bajo `projects/[id]/` y el segmento llevaba un id de CLIENTE donde
+// va uno de PROYECTO. `/api/v1/clients` ya devuelve `project_id` resuelto
+// (1 cliente = 1 proyecto en el MVP), así que no hay que elegir nada aquí;
+// `/admin/projects/{id}` redirige a `/summary`. Si un cliente llegase sin
+// proyecto, el enrutador `/admin/clients/{id}` resuelve el caso (o lleva al
+// selector cuando no tiene ninguno).
+function projectHref(client: { id: string; project_id?: string | null }): string {
+  if (client.project_id) return `${ROUTES.projects}/${client.project_id}`;
+  return `${ROUTES.clients}/${client.id}`;
 }
-
-// AVISO (medido 2026-09-10 · recorrido completo, BLOQUE E): el enlace de abajo
-// está roto POR DOS SITIOS A LA VEZ, y por eso NO se ha arreglado a medias.
-//
-//   1. `/dashboard` no existe. No hay ninguna carpeta `dashboard` bajo
-//      `app/(admin)/admin/projects/[id]/`. Se corrigió en HeaderProjectChip,
-//      ProjectBreadcrumb y CreateProjectModal, que apuntaban al mismo sitio
-//      inexistente (allí bastaba con quitar el sufijo: `/admin/projects/{id}`
-//      redirige a `/summary`).
-//   2. Aquí, además, se mete un id de CLIENTE donde va un id de PROYECTO. Un
-//      cliente puede tener varios proyectos y `clientSlug` devuelve
-//      `client.id` sin más.
-//
-// Quitar sólo el `/dashboard` cambiaría un 404 visible por una página de
-// «proyecto no encontrado» servida con HTTP 200: sería sustituir un fallo que
-// se ve por uno que no se ve, que es exactamente lo contrario de lo que busca
-// esta campaña. Arreglarlo de verdad exige resolver cliente → proyecto (elegir
-// cuál, o listar los suyos), y eso es una decisión de producto, no una
-// corrección de una línea.
 
 export function ProjectSwitcherDropdown() {
   const { data: clients, isLoading } = useClients();
@@ -98,7 +87,7 @@ export function ProjectSwitcherDropdown() {
                 className={isActive ? "bg-fulkro-ink-100 font-semibold" : ""}
               >
                 <Link
-                  href={`${ROUTES.projects}/${clientSlug(client)}/dashboard`}
+                  href={projectHref(client)}
                   className="flex w-full items-center justify-between gap-2 px-3 py-2 text-sm"
                   data-testid={`project-switcher-item-${client.id}`}
                 >

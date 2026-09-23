@@ -3,11 +3,12 @@ import { AuditAccompanimentTimeline } from "@/components/audit/AuditAccompanimen
 import { AuditMode } from "@/components/audit/AuditMode";
 import { MarkAuditPassedDialog } from "@/components/audit/MarkAuditPassedDialog";
 
-export default function AuditPage({
-  params,
-}: {
-  params: { id: string };
-}) {
+export default async function AuditPage(
+  props: {
+    params: Promise<{ id: string }>;
+  }
+) {
+  const params = await props.params;
   return (
     <div className="space-y-4">
       <AuditMode projectId={params.id} />

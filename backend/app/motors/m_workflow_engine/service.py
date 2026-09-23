@@ -15,6 +15,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from backend.app.motors.m21_portal_cliente.models_tasks import ClientTask
 from backend.app.motors.m21_portal_cliente.task_templates_loader import (
     get_template_by_id,
+    resolve_cta_url,
     resolve_primary_actor,
 )
 
@@ -70,7 +71,7 @@ class WorkflowEngineService:
                 title=tmpl.title,
                 description=tmpl.description_detailed_es or tmpl.description,
                 cta_label=tmpl.cta_label,
-                cta_url=tmpl.cta_url,
+                cta_url=resolve_cta_url(tmpl.cta_url, project_id),
                 expected_evidence_type=tmpl.expected_evidence_type,
                 expected_evidence_count=tmpl.expected_evidence_count,
                 priority=tmpl.priority,

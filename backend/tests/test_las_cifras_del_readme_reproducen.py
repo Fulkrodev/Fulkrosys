@@ -80,6 +80,34 @@ _CIFRAS = [
         r"\| Specs de Playwright \| \*\*([\d.]+)\*\*",
         "find frontend/tests -name '*.spec.ts' | wc -l",
     ),
+    # Las mismas cifras repetidas en otras secciones: la tabla se actualizo y
+    # estas no (268 y 269 migraciones, 46 motores cuando ya eran 273 y 44).
+    (
+        "migraciones alembic (bloque de cifras)",
+        r"ls backend/migrations/versions/\*\.py \| wc -l\n(\d+)",
+        "ls backend/migrations/versions/*.py | wc -l",
+    ),
+    (
+        "motores de dominio (bloque de cifras)",
+        r"ls -d backend/app/motors/m\*/ \| wc -l\n(\d+)",
+        "ls -d backend/app/motors/m*/ | wc -l",
+    ),
+    (
+        "motores de dominio (estructura)",
+        r"· (\d+) directorios de motor",
+        "ls -d backend/app/motors/m*/ | wc -l",
+    ),
+    (
+        "migraciones alembic (estructura)",
+        r"directorios de motor en app/motors/ · (\d+) migraciones",
+        "ls backend/migrations/versions/*.py | wc -l",
+    ),
+    (
+        "servicios de docker compose",
+        r"`docker-compose.yml` declara (\d+) servicios",
+        "python3 -c \"import yaml; "
+        "print(len(yaml.safe_load(open('docker-compose.yml'))['services']))\"",
+    ),
 ]
 
 

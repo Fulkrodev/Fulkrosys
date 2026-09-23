@@ -6,8 +6,9 @@
  * 1. Form admin-meetings/new con submit + redirect a /admin/meetings/{id}
  * 2. MeetingLayoutV2 muestra metadata + status + ContactQuickPicker M30
  *    + complete workflow (toast success)
- * 3. MeetingsHistoryTable embed en /admin/clients/[id]/meetings filter
- *    by client + JOIN interlocutor_name
+ * 3. Histórico /admin/meetings (antes embebido per-cliente en
+ *    /admin/clients/[id]/meetings, hoy redirect) · JOIN interlocutor_name +
+ *    filtro estado + búsqueda
  *
  * Pattern post-MF3.5: loginAsMarcos(context) + page.route mocks
  * (canónico admin-clients.spec.ts y admin-messages.spec.ts).
@@ -332,47 +333,74 @@ test.describe("Admin Meetings Panel (FASE 7)", () => {
     ).toBeVisible({ timeout: 5_000 });
   });
 
-  // SKIP: feature eliminada (MeetingsHistoryTable embebida en
-  // /admin/clients/[id]/meetings · histórico per-cliente). Esa ruta ahora hace
-  // redirect() server-side hacia /admin/meetings (cross-cliente · Sesión 3B-2B.3
-  // Phase X.4c). El heading "Reuniones del cliente" y el filtro per-cliente no
-  // existen ya en esa ruta. Candidata a borrar tras contraste (Marcos).
-  test.skip("MeetingsHistoryTable embed /admin/clients/[id]/meetings filtered + JOIN interlocutor", async ({
+  // El histórico per-cliente embebido en /admin/clients/[id]/meetings se retiró
+  // (esa ruta redirige a /admin/meetings · Sesión 3B-2B.3 Phase X.4c). El
+  // histórico vive ahora en el listado cross-cliente /admin/meetings, con el
+  // interlocutor resuelto (JOIN), filtro por estado y búsqueda por interlocutor.
+  test("histórico /admin/meetings · JOIN interlocutor + filtro estado + búsqueda", async ({
     page,
   }) => {
-    await page.goto(`/admin/clients/${CLIENT_A_ID}/meetings`);
-
-    // Header h1
-    await expect(
-      page.getByRole("heading", {
-        name: /Reuniones del cliente/i,
-        level: 1,
-      }),
-    ).toBeVisible();
-
-    // Tabla con 1 row meeting
-    await expect(
-      page.getByRole("link", { name: /Reunión kickoff ENS/i }),
-    ).toBeVisible();
-
-    // Interlocutor name resolved JOIN
-    await expect(
-      page.getByText(/Ana López \(CFO\)/i),
-    ).toBeVisible();
-
-    // Filter status Select visible
-    await expect(
-      page.getByRole("combobox", { name: /Filtrar por estado/i }),
-    ).toBeVisible();
-
-    // Button Nueva reunión enlaza a /admin/meetings/new?client_id=...
-    const newBtn = page.getByRole("link", {
-      name: /Nueva reunión para este cliente/i,
+    const statusParams: (string | null)[] = [];
+    const list = [
+      ...MOCK_BY_CLIENT_LIST,
+      {
+        ...MOCK_BY_CLIENT_LIST[0],
+        id: "dddddddd-dddd-4ddd-8ddd-dddddddddddd",
+        title: "Reunión cierre revisión anual",
+        interlocutor_contact_id: null,
+        interlocutor_name: "Luis Gómez (CTO)",
+        status: "completed",
+      },
+    ];
+    await page.route(/\/api\/v1\/admin\/meetings(\?.*)?$/, async (route) => {
+      if (route.request().method() !== "GET") return route.fallback();
+      const status = new URL(route.request().url()).searchParams.get("status");
+      statusParams.push(status);
+      await route.fulfill({
+        status: 200,
+        contentType: "application/json",
+        body: JSON.stringify(
+          status ? list.filter((m) => m.status === status) : list,
+        ),
+      });
     });
-    await expect(newBtn).toBeVisible();
-    await expect(newBtn).toHaveAttribute(
-      "href",
-      `/admin/meetings/new?client_id=${CLIENT_A_ID}`,
-    );
+
+    // La ruta legacy per-cliente aterriza en el listado.
+    await page.goto(`/admin/clients/${CLIENT_A_ID}/meetings`);
+    await expect(page).toHaveURL(/\/admin\/meetings$/);
+    await expect(
+      page.getByRole("heading", { name: /^Reuniones$/, level: 1 }),
+    ).toBeVisible();
+
+    const kickoff = page.getByRole("link", { name: /Reunión kickoff ENS/i });
+    await expect(kickoff).toBeVisible();
+    await expect(kickoff).toHaveAttribute("href", `/admin/meetings/${MEETING_A_ID}`);
+    await expect(page.getByText("Ana López (CFO)")).toBeVisible();
+    await expect(page.getByText("Luis Gómez (CTO)")).toBeVisible();
+
+    // Filtro estado → pide ?status= y deja solo la completada.
+    await page
+      .getByRole("combobox", { name: /Filtrar por estado/i })
+      .selectOption("completed");
+    await expect(kickoff).toBeHidden();
+    await expect(
+      page.getByRole("link", { name: /Reunión cierre revisión anual/i }),
+    ).toBeVisible();
+    expect(statusParams).toContain("completed");
+
+    // Vuelta a todos + búsqueda por interlocutor (filtro en cliente).
+    await page
+      .getByRole("combobox", { name: /Filtrar por estado/i })
+      .selectOption("");
+    await expect(kickoff).toBeVisible();
+    await page.getByPlaceholder(/Filtrar por título o interlocutor/i).fill("ana lópez");
+    await expect(kickoff).toBeVisible();
+    await expect(
+      page.getByRole("link", { name: /Reunión cierre revisión anual/i }),
+    ).toBeHidden();
+
+    await expect(
+      page.getByRole("link", { name: /Nueva reunión/i }),
+    ).toHaveAttribute("href", "/admin/meetings/new");
   });
 });

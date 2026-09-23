@@ -22,7 +22,9 @@ test.describe("SAN-E v3.MB-7.1 · dashboard adaptativo render", () => {
   }) => {
     await loginAsClient(page);
     await page.goto("/client-portal/dashboard");
-    await page.waitForLoadState("networkidle");
+    // `load` y no `networkidle`: el portal mantiene abierta la conexion SSE de
+    // eventos, y con ella la red nunca queda inactiva (la espera no acaba nunca).
+    await page.waitForLoadState("load");
 
     // Zone 1 · Hero adaptativo
     await expect(page.getByTestId("hero-adaptativo")).toBeVisible({
@@ -47,7 +49,9 @@ test.describe("SAN-E v3.MB-7.1 · dashboard adaptativo render", () => {
   test("dashboard categoria badge tier-aware renderiza", async ({ page }) => {
     await loginAsClient(page);
     await page.goto("/client-portal/dashboard");
-    await page.waitForLoadState("networkidle");
+    // `load` y no `networkidle`: el portal mantiene abierta la conexion SSE de
+    // eventos, y con ella la red nunca queda inactiva (la espera no acaba nunca).
+    await page.waitForLoadState("load");
 
     await expect(page.getByTestId("hero-adaptativo")).toBeVisible();
     // El badge es "Categoría BÁSICA" o "Categoría MEDIA" o "Categoría ALTA".

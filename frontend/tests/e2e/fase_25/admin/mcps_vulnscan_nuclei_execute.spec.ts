@@ -14,19 +14,11 @@ import {
   mockMcpExecutionsHistoryEmpty,
 } from "../_fixtures";
 
-// SKIP parcial: el flujo de ejecución MCP funciona hasta "Ejecución activa ·
-// Completado 100%" (form → submit → panel activo · el evento SSE completed que
-// añadimos en el fixture dispara la transición). PERO el result panel inline
-// (mcp-execution-result-{id} + botón download) NO aparece tras submit porque en
-// McpProjectScopedPanel.tsx `activeExecution` queda en null tras submit (solo se
-// setea en `null`, ver onExecutionStarted) y SOLO se rellena al seleccionar una
-// ejecución desde el HISTORIAL (handleSelectExecution) · el result inline está
-// product-gated a history-select, no al submit directo. Es deriva de
-// comportamiento de producto (el resultado se ve en el historial), NO de
-// selector. Señalado para contraste (Marcos · result MCP inline vs history), NO
-// borrar.
+// El resultado inline + descarga deben aparecer tras el submit directo, sin
+// pasar por el historial (McpProjectScopedPanel lee la ejecución viva por
+// useMCPExecution; antes solo se rellenaba al elegirla en el historial).
 test.describe("fase_25 admin · vulnscan/nuclei execute", () => {
-  test.skip("form param target obligatorio + submit → execution panel + result + download", async ({
+  test("form param target obligatorio + submit → execution panel + result + download", async ({
     context,
     page,
   }) => {

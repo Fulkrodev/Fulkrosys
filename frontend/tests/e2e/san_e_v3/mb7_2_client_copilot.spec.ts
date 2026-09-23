@@ -16,7 +16,9 @@ test.describe("SAN-E v3.MB-7.2 · CopilotoDock global", () => {
   test("dock toggle visible en dashboard · click expande", async ({ page }) => {
     await loginAsClient(page);
     await page.goto("/client-portal/dashboard");
-    await page.waitForLoadState("networkidle");
+    // `load` y no `networkidle`: el portal mantiene abierta la conexion SSE de
+    // eventos, y con ella la red nunca queda inactiva (la espera no acaba nunca).
+    await page.waitForLoadState("load");
 
     // Dock collapsed visible
     const toggle = page.getByTestId("copiloto-dock-toggle");
@@ -35,7 +37,9 @@ test.describe("SAN-E v3.MB-7.2 · CopilotoDock global", () => {
   }) => {
     await loginAsClient(page);
     await page.goto("/client-portal/files");
-    await page.waitForLoadState("networkidle");
+    // `load` y no `networkidle`: el portal mantiene abierta la conexion SSE de
+    // eventos, y con ella la red nunca queda inactiva (la espera no acaba nunca).
+    await page.waitForLoadState("load");
 
     await expect(page.getByTestId("copiloto-dock-toggle")).toBeVisible();
   });
@@ -45,7 +49,9 @@ test.describe("SAN-E v3.MB-7.2 · CopilotoDock global", () => {
   }) => {
     await loginAsClient(page);
     await page.goto("/client-portal/dashboard");
-    await page.waitForLoadState("networkidle");
+    // `load` y no `networkidle`: el portal mantiene abierta la conexion SSE de
+    // eventos, y con ella la red nunca queda inactiva (la espera no acaba nunca).
+    await page.waitForLoadState("load");
 
     await page.getByTestId("copiloto-dock-toggle").click();
     await expect(page.getByTestId("copiloto-dock-open")).toBeVisible();

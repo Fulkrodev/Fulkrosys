@@ -5,11 +5,12 @@ export const metadata = {
   title: "Portal auditor · Cobertura DdA-Evidencias",
 };
 
-export default function AuditorPortalGapsPage({
-  params,
-}: {
-  params: { token: string };
-}) {
+export default async function AuditorPortalGapsPage(
+  props: {
+    params: Promise<{ token: string }>;
+  }
+) {
+  const params = await props.params;
   return (
     <AuditorPortalEntry token={params.token}>
       <DdaEvidenceGapsView token={params.token} />

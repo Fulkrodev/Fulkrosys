@@ -7,7 +7,7 @@
  * 1. Seed conformidad MEDIA ready (50 evidencias + chain firmas previas)
  * 2. Navigate /client-portal/conformidad
  * 3. Verify DeclarationHeader · workflow_label "Compromiso conformidad pre-auditoría ENAC"
- * 4. Verify TierAwareNextStepSection · cronograma 3 steps (+7d · +30-60d)
+ * 4. Verify TierAwareNextStepSection · cronograma 2 hitos (Ahora · 30-60d)
  * 5. Mark reviewed → firma OTP
  * 6. Verify PostSignSection · commitment_signed_at + ETA + NO distintivo
  * 7. Backend assertion: declaration_type='commitment_pre_certification'
@@ -47,7 +47,9 @@ test.describe("Client Portal · Conformidad ENS MEDIA · commitment flow E2E", (
 
     await page.goto("/client-portal/conformidad");
     // Bug #8 fix smoke 5.11.final: wait React hydration post-load.
-    await page.waitForLoadState("networkidle");
+    // `load` y no `networkidle`: el portal mantiene abierta la conexion SSE de
+    // eventos, y con ella la red nunca queda inactiva (la espera no acaba nunca).
+    await page.waitForLoadState("load");
     await expect(
       page.getByRole("heading", { name: /Conformidad ENS/i }).first(),
     ).toBeVisible({ timeout: 10_000 });
@@ -60,11 +62,21 @@ test.describe("Client Portal · Conformidad ENS MEDIA · commitment flow E2E", (
     ).toBeVisible();
     await expect(page.getByText(/Categoría MEDIA/i).first()).toBeVisible();
 
-    // TierAwareNextStepSection · cronograma 3 steps + ETA 30-60d
-    // ("auditor ENAC" aparece en pasos 2 y 3 · .first() evita strict-mode)
+    // TierAwareNextStepSection · cronograma 2 hitos (Ahora · 30 a 60 días).
+    // 0984297 retiró a propósito el hito intermedio "+7 días" (plazo inventado
+    // que no sale del backend) → el cronograma es "Ahora" + "30 a 60 días".
+    // ("auditor ENAC" aparece en ambos pasos · .first() evita strict-mode)
     await expect(page.getByText(/auditor ENAC/i).first()).toBeVisible();
-    await expect(page.getByText(/\+7 días/i)).toBeVisible();
-    await expect(page.getByText(/\+30 a \+60 días/i)).toBeVisible();
+    const cronograma = page
+      .getByText(/Cronograma típico/i)
+      .locator("xpath=following-sibling::ol[1]");
+    await expect(cronograma.getByRole("listitem")).toHaveCount(2);
+    await expect(
+      cronograma.getByText("Ahora", { exact: true }),
+    ).toBeVisible();
+    await expect(
+      cronograma.getByText("30 a 60 días", { exact: true }),
+    ).toBeVisible();
 
     // Mark reviewed
     await page.getByRole("button", { name: /Marcar como revisado/i }).click();
@@ -96,7 +108,15 @@ test.describe("Client Portal · Conformidad ENS MEDIA · commitment flow E2E", (
         .getByText(/firmado correctamente|Compromiso firmado/i)
         .first(),
     ).toBeVisible({ timeout: 15_000 });
-    const cerrarBtnM = page.getByRole("button", { name: /Cerrar/i });
+    // Scope al dialog + nombre exacto: /Cerrar/i a nivel página también
+    // matchea el botón "Cerrar sesión" del ClientHeader; si el modal ya se ha
+    // cerrado solo, ése era el único match visible y el test hacía LOGOUT →
+    // la aserción backend final recibía 401 "Sesion no encontrada o revocada".
+    const cerrarBtnM = page
+      .getByRole("dialog")
+      .getByRole("button", { name: "Cerrar", exact: true })
+      // .first(): el dialog tiene 2 "Cerrar" (botón de éxito + la X sr-only).
+      .first();
     if (await cerrarBtnM.isVisible().catch(() => false)) {
       await cerrarBtnM.click();
     }
@@ -111,7 +131,7 @@ test.describe("Client Portal · Conformidad ENS MEDIA · commitment flow E2E", (
     const declRes = await page.request.get(
       `${BACKEND_BASE}/api/v1/portal/conformidad/projects/${conformidad.project_id}/declaration`,
     );
-    expect(declRes.ok()).toBeTruthy();
+    expect(declRes.status(), await declRes.text()).toBe(200);
     const decl = (await declRes.json()) as {
       declaration_type: string;
       tier: string;

@@ -6,11 +6,9 @@ import {
   FolderOpen,
   Home,
   LifeBuoy,
-  Plus,
   Search,
   Settings2,
   ShieldCheck,
-  TrendingUp,
   Video,
   type LucideIcon,
 } from "lucide-react";
@@ -57,6 +55,9 @@ export function CommandPalette({ open, onOpenChange }: CommandPaletteProps) {
   };
 
   const actions: PaletteAction[] = [
+    // Sin "pipeline comercial", "Nuevo lead" ni "retainer": /admin/pipeline
+    // esta dormido y /admin/retainers es una redireccion heredada (el retainer
+    // vive en cada proyecto · R23); los tres llevaban al selector de proyectos.
     {
       id: "goto-dashboard",
       label: "Ir al dashboard",
@@ -65,25 +66,11 @@ export function CommandPalette({ open, onOpenChange }: CommandPaletteProps) {
       run: () => navigate(ROUTES.dashboard),
     },
     {
-      id: "goto-pipeline",
-      label: "Ir al pipeline comercial",
-      group: "Navegación",
-      icon: TrendingUp,
-      run: () => navigate(ROUTES.pipeline),
-    },
-    {
       id: "goto-projects",
       label: "Ir a proyectos",
       group: "Navegación",
       icon: FolderOpen,
       run: () => navigate(ROUTES.projects),
-    },
-    {
-      id: "goto-retainer",
-      label: "Ir a retainer",
-      group: "Navegación",
-      icon: Briefcase,
-      run: () => navigate(ROUTES.retainer),
     },
     {
       id: "goto-copilot",
@@ -105,13 +92,6 @@ export function CommandPalette({ open, onOpenChange }: CommandPaletteProps) {
       group: "Navegación",
       icon: Settings2,
       run: () => navigate(ROUTES.settings),
-    },
-    {
-      id: "new-lead",
-      label: "Nuevo lead",
-      group: "Acciones",
-      icon: Plus,
-      run: () => navigate(`${ROUTES.pipeline}?new=1`),
     },
     {
       id: "new-meeting",

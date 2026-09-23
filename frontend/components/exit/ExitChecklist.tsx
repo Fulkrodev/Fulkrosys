@@ -180,7 +180,7 @@ export function ExitChecklist({ projectId }: { projectId: string }) {
     closeTransitionsQuery.data?.transitions ?? []
   ).filter((s) => s.startsWith("ENDED_"));
 
-  const items = cl.data?.items ?? [];
+  const items = React.useMemo(() => cl.data?.items ?? [], [cl.data]);
   const progress = cl.data?.progress;
 
   const filtered = React.useMemo(

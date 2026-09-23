@@ -3,11 +3,12 @@ import { E041View } from "@/components/auditor-portal/views/E041View";
 
 export const metadata = { title: "Portal auditor · E-041 Declaración" };
 
-export default function AuditorPortalE041Page({
-  params,
-}: {
-  params: { token: string };
-}) {
+export default async function AuditorPortalE041Page(
+  props: {
+    params: Promise<{ token: string }>;
+  }
+) {
+  const params = await props.params;
   return (
     <AuditorPortalEntry token={params.token}>
       <E041View token={params.token} />

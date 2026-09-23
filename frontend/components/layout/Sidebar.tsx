@@ -307,7 +307,7 @@ function ClientSection({
           {items.map((client) => (
             <li key={client.id}>
               <Link
-                href={`${ROUTES.clients}/${clientSlug(client)}`}
+                href={clientHref(client)}
                 className="flex items-center gap-2 rounded-md px-2 py-2 text-sm font-medium text-white/95 hover:bg-[var(--fulkro-chrome-hover-bg)] hover:text-white"
               >
                 <span aria-hidden className="h-1.5 w-1.5 shrink-0 rounded-full bg-white/55" />
@@ -365,12 +365,12 @@ function filterRetainer(
   return clients.filter((c) => activeIds.has(c.id));
 }
 
-function clientSlug(client: Client): string {
-  const base = client.nombre
-    .toLowerCase()
-    .normalize("NFD")
-    .replace(/[\u0300-\u036f]/g, "")
-    .replace(/[^a-z0-9]+/g, "-")
-    .replace(/^-+|-+$/g, "");
-  return base || client.id;
+// Antes el enlace era /admin/clients/<slug del nombre> («test-e2e-client-
+// secondary»). /admin/clients/[id] es un enrutador que pide los proyectos del
+// cliente POR UUID, así que con un slug la consulta fallaba y el enlace rebotaba
+// siempre a /admin/projects. /api/v1/clients ya trae el proyecto resuelto: se
+// va directo a él, y si faltase, al enrutador con el UUID, que sí lo resuelve.
+function clientHref(client: Client): string {
+  if (client.project_id) return `${ROUTES.projects}/${client.project_id}`;
+  return `${ROUTES.clients}/${client.id}`;
 }

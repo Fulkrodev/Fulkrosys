@@ -17,7 +17,9 @@ test.describe("SAN-E v3.MB-8.4 · email signature regression", () => {
   }) => {
     await loginAsClient(page);
     await page.goto("/client-portal/dashboard");
-    await page.waitForLoadState("networkidle");
+    // `load` y no `networkidle`: el portal mantiene abierta la conexion SSE de
+    // eventos, y con ella la red nunca queda inactiva (la espera no acaba nunca).
+    await page.waitForLoadState("load");
     await expect(page.getByTestId("client-dashboard-v3")).toBeVisible({
       timeout: 10_000,
     });
@@ -26,7 +28,9 @@ test.describe("SAN-E v3.MB-8.4 · email signature regression", () => {
   test("cliente /client-portal/whatsapp accesible", async ({ page }) => {
     await loginAsClient(page);
     await page.goto("/client-portal/whatsapp");
-    await page.waitForLoadState("networkidle");
+    // `load` y no `networkidle`: el portal mantiene abierta la conexion SSE de
+    // eventos, y con ella la red nunca queda inactiva (la espera no acaba nunca).
+    await page.waitForLoadState("load");
     await expect(
       page.getByRole("heading", { name: "WhatsApp · FULKRO", exact: true }),
     ).toBeVisible({ timeout: 10_000 });

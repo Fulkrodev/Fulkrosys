@@ -13,17 +13,24 @@ import type { Page } from "@playwright/test";
 export const PROJECT_F36_A_ID = "f361a1a1-3611-4611-8611-f361a1a1a1a1";
 export const PROJECT_F36_B_ID = "f362b2b2-3622-4622-8622-f362b2b2b2b2";
 export const CLIENT_F36_ID = "c361c1c1-3611-4611-8611-c361c1c1c1c1";
+export const CLIENT_F36_B_ID = "c362c2c2-3622-4622-8622-c362c2c2c2c2";
 
+// Forma real de GET /api/v1/clients: id de CLIENTE + `project_id` resuelto
+// (1 cliente = 1 proyecto en el MVP). Antes el mock usaba el id del proyecto
+// como id de cliente y eso tapaba que el selector comparase lastUsedProjectId
+// con client.id.
 const CLIENTS_BASE = [
   {
-    id: PROJECT_F36_A_ID,
+    id: CLIENT_F36_ID,
+    project_id: PROJECT_F36_A_ID,
     nombre: "Cliente Piloto MEDIA SL",
     cif: "B12345678",
     sector: "tecnologia",
     rag: "green",
   },
   {
-    id: PROJECT_F36_B_ID,
+    id: CLIENT_F36_B_ID,
+    project_id: PROJECT_F36_B_ID,
     nombre: "Cliente Segundo BÁSICA SA",
     cif: "B87654321",
     sector: "consultoria",
@@ -71,7 +78,7 @@ const PROJECT_HEADER_B = {
   },
   cliente: {
     ...PROJECT_HEADER_A.cliente,
-    id: PROJECT_F36_B_ID,
+    id: CLIENT_F36_B_ID,
     nombre: "Cliente Segundo BÁSICA SA",
     cif: "B87654321",
   },
@@ -106,15 +113,21 @@ export async function mockClientsAndHeaders(page: Page): Promise<void> {
     },
   );
 
-  // Feature flags stub para layout (ProjectFeaturesProvider)
+  // Feature flags stub para layout (ProjectFeaturesProvider). Debe traer
+  // `categoria` (el backend nunca la omite · cae a BASICA): sin ella
+  // ProjectCategoryBanner lee CATEGORY_THEME[undefined] y el layout entero
+  // cae al error-boundary.
   await page.route(
     /\/api\/v1\/projects\/.+\/feature-flags/,
     async (route) => {
+      const isB = route.request().url().includes(PROJECT_F36_B_ID);
       await route.fulfill({
         status: 200,
         contentType: "application/json",
         body: JSON.stringify({
-          project_id: PROJECT_F36_A_ID,
+          categoria: isB ? "BASICA" : "MEDIA",
+          archetype: null,
+          employee_count: null,
           features: {},
         }),
       });

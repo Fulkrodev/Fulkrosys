@@ -3,11 +3,12 @@ import { EvidenceView } from "@/components/auditor-portal/views/EvidenceView";
 
 export const metadata = { title: "Portal auditor · Evidencias" };
 
-export default function AuditorPortalEvidencePage({
-  params,
-}: {
-  params: { token: string };
-}) {
+export default async function AuditorPortalEvidencePage(
+  props: {
+    params: Promise<{ token: string }>;
+  }
+) {
+  const params = await props.params;
   return (
     <AuditorPortalEntry token={params.token}>
       <EvidenceView token={params.token} />

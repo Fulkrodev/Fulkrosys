@@ -168,7 +168,16 @@ jobs:
           # El propio script relaja `age` y `pgaudit`, que esta imagen no trae,
           # así que no hace falta pedírselo: `--skip-age-kg` es además su valor
           # por omisión. Medido el 2026-09-10: 1,37 s · ok 25 · skip 2 · fail 0.
-          python backend/scripts/seed_all_fulkro.py --skip-corpus --skip-age-kg
+          #
+          # Se siembra como `fulkro_migrate`, NO con el DATABASE_URL del job
+          # (`fulkro_app`): el script hace `SET LOCAL ROLE fulkro`, y desde el
+          # endurecimiento de roles `fulkro_app` ya no es miembro de `fulkro`
+          # (init-roles.sql). Con `fulkro_app` muere en el primer catálogo con
+          # «permission denied to set role "fulkro"». Es lo mismo que hace la
+          # provisión del demo (provision-entrypoint.sh, paso 6/7).
+          DATABASE_URL=postgresql+asyncpg://fulkro_migrate:fulkro_migrate_dev_password@localhost:5432/fulkro \
+          DATABASE_URL_SYNC="$DATABASE_MIGRATE_URL" \
+            python backend/scripts/seed_all_fulkro.py --skip-corpus --skip-age-kg
 
       - name: Cargar el corpus normativo (1.031 fragmentos)
         run: |
@@ -177,7 +186,7 @@ jobs:
           gzip -dc backend/tests/fixtures/corpus_seed.sql.gz \
             | psql -h localhost -U fulkro -d fulkro -v ON_ERROR_STOP=1
           psql -h localhost -U fulkro -d fulkro -tAc \
-            "SELECT 'chunks=' || count(*) FROM corpus_chunks;"
+            "SELECT 'chunks=' || count(*) FROM knowledge_chunks;"
 
       - name: Directorio de salida `progress/`
         run: mkdir -p progress

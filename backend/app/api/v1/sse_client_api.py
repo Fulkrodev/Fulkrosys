@@ -118,4 +118,10 @@ async def client_project_events_stream(
         finally:
             await sub_iter.aclose()
 
-    return EventSourceResponse(event_generator())
+    # no-transform: sse-starlette solo pone "no-store", y el proxy de Next
+    # (rewrites /api/*) comprime con gzip y RETIENE el stream hasta cerrar;
+    # los eventos no llegaban al navegador. no-transform le prohibe tocarlo.
+    return EventSourceResponse(
+        event_generator(),
+        headers={"Cache-Control": "no-store, no-transform"},
+    )

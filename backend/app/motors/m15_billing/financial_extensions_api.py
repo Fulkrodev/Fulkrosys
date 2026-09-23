@@ -231,7 +231,9 @@ async def send_invoice(
         f"Tienes una factura disponible por {float(invoice.total or 0):.2f} € "
         f"(vencimiento {invoice.fecha_vencimiento})."
     )
-    target_url = f"/client-portal/facturas/{invoice_id}"
+    # /client-portal/facturas/{id} no existe: las facturas del cliente se
+    # listan en /client-portal/billing (sin detalle por id; va en la query).
+    target_url = f"/client-portal/billing?invoice={invoice_id}"
     notified_portal = False
     emailed = False
 

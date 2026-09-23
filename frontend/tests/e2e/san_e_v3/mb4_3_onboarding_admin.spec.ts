@@ -15,19 +15,7 @@ import { loginAsMarcos } from "../_helpers/auth-real";
 const PROJECT_ID =
   process.env.E2E_SEED_PROJECT_ID ?? "00000000-0000-0000-0000-000000000001";
 
-// SKIP: bug de PRODUCTO (NO spec/selector, NO feature eliminada). El
-// OnboardingAdminPanel crashea a su error boundary ("No pudimos cargar esta
-// sección") con TypeError "Cannot read properties of undefined (reading
-// 'completed')" en components/onboarding/OnboardingAdminPanel.tsx:82
-// ({progress.por_estado.completed}). El endpoint GET
-// /api/v1/onboarding/projects/{id}/lms/progress devuelve
-// {project_id, by_course:[], total_assignments:0} SIN el campo `por_estado`
-// (verificado empíricamente), pero el componente lo asume presente y NO lo
-// guarda → crash en render que tumba TODA la página (tabs incluidas). Afecta a
-// cualquier proyecto sin asignaciones LMS, no solo al demo. Re-activar cuando
-// se corrija el guard de por_estado o el shape del endpoint (fuera de alcance
-// de esta limpieza de specs). Candidata a re-activar, NO a borrar.
-test.describe.skip("MB-4.3 PARTE A · OnboardingAdminPanel M16", () => {
+test.describe("MB-4.3 PARTE A · OnboardingAdminPanel M16", () => {
   test.beforeEach(async ({ context, page }) => {
     await loginAsMarcos(context);
     await page.goto(`/admin/projects/${PROJECT_ID}/onboarding`);

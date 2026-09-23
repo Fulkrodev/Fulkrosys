@@ -70,16 +70,11 @@ test.describe("FASE 10.C.1 · client-portal login flow", () => {
     expect(consoleErrors).toEqual([]);
   });
 
-  // SKIP: el logout user-facing SÍ funciona (botón "Salir" → router.push a
-  // /client-portal/login · la primera waitForURL de login pasa). Lo que falla
-  // es la RE-COMPROBACIÓN de invalidación server-side: tras logout, navegar a
-  // una ruta protegida (/client-portal/workflow) debería redirigir a login,
-  // pero en E2E el portal autenticado se vuelve a renderizar → la cookie de
-  // sesión cliente no queda invalidada a tiempo (useLogout POST
-  // /client-auth/logout · posible matiz de rewrite/endpoint). NO es deriva de
-  // selector · es comportamiento product-adjacent. Señalado para contraste
-  // (Marcos · invalidación sesión cliente post-logout), NO borrar.
-  test.skip("logout · redirect login + sesión cleared", async ({ page }) => {
+  // Botón "Salir" del SIDEBAR cliente (cliente-nav-logout). El de la cabecera
+  // ("Cerrar sesión") lo cubre logout-cierra-la-sesion.spec.ts; los dos
+  // comparten useLogout, arreglado el 2026-09-23 (antes el POST no llegaba al
+  // backend y la cookie sobrevivía al logout).
+  test("logout · redirect login + sesión cleared", async ({ page }) => {
     await loginAsClient(page);
 
     // El logout del sidebar es el botón "Salir" (data-testid cliente-nav-logout
@@ -87,16 +82,15 @@ test.describe("FASE 10.C.1 · client-portal login flow", () => {
     // El header banner usa aria-label "Cerrar sesión" · aquí apuntamos al sidebar.
     const salirBtn = page.getByTestId("cliente-nav-logout");
     await expect(salirBtn).toBeVisible();
-    // El handler onClick se ata tras hidratar el bundle cliente · esperamos a
-    // que el botón esté habilitado (disabled={logoutLoading}) y a que la red
-    // del dashboard se calme antes de pulsar, evitando que el click se pierda
-    // antes de que React monte el listener (race de hidratación).
     await expect(salirBtn).toBeEnabled();
-    await page.waitForLoadState("networkidle").catch(() => {});
+    const logout = page.waitForResponse((r) => r.url().includes("/logout"));
     await salirBtn.click();
+    expect((await logout).status()).toBe(200);
 
     // useLogout hace router.push("/client-portal/login") tras el POST logout.
     await page.waitForURL(/\/client-portal\/login/, { timeout: 15_000 });
+    const cookieNames = (await page.context().cookies()).map((c) => c.name);
+    expect(cookieNames).not.toContain("fulkro_session");
 
     // Re-acceso a ruta protegida sin auth → middleware redirige a login
     // (puede añadir ?next=… · el regex no ancla el final, sigue matcheando).

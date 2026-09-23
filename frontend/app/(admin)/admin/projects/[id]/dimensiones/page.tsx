@@ -21,11 +21,12 @@ export const metadata = {
   title: "Dimensiones del proyecto · FULKRO",
 };
 
-export default function DimensionsPage({
-  params,
-}: {
-  params: { id: string };
-}) {
+export default async function DimensionsPage(
+  props: {
+    params: Promise<{ id: string }>;
+  }
+) {
+  const params = await props.params;
   return (
     <div className="space-y-6">
       <header className="space-y-1">

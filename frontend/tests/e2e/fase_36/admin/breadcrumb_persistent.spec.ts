@@ -12,16 +12,9 @@ import { expect, test } from "@playwright/test";
 import { loginAsMarcos } from "../../_helpers/auth-real";
 import { PROJECT_F36_A_ID, mockClientsAndHeaders } from "../_fixtures";
 
-// SKIP: feature presente (ProjectBreadcrumb.tsx con testids project-breadcrumb /
-// -client / -subpage existe y ActiveProjectSync hidrata el store). El breadcrumb
-// vive en el layout project-scoped [id], cuyo CONTENIDO de página (/summary,
-// /dda) hace fetch server/data-side del proyecto: con un UUID mock que NO existe
-// en fulkro_test ese fetch 404ea y el error-boundary retira el subtree del
-// layout (el banner del sidebar SÍ hidrata vía header mock y sus tests pasan).
-// Recuperable solo con mock-rework mayor (sembrar los proyectos mock en BD o
-// mockear todos los endpoints de página) — fuera de una corrección de selector.
-// Candidata a borrar/reescribir tras contraste (Marcos · ActiveProjectSync UUID mock).
-test.describe.skip("fase_36 admin · project breadcrumb persistent", () => {
+// Proyecto sintético: mockClientsAndHeaders stubea header + feature-flags del
+// layout (con `categoria`: sin ella ProjectCategoryBanner tumbaba el layout).
+test.describe("fase_36 admin · project breadcrumb persistent", () => {
   test("breadcrumb visible en dashboard cliente + project", async ({ page }) => {
     await loginAsMarcos(page.context());
     await mockClientsAndHeaders(page);

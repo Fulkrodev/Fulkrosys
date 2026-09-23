@@ -57,7 +57,9 @@ test.describe("Client Portal · DdA · Firma E2E ALTA happy path", () => {
     // ────── Navigate /client-portal/dda + verify summary ──────
     await page.goto("/client-portal/dda");
     // Esperar render client-side (goto vuelve en 'load' antes del data fetch).
-    await page.waitForLoadState("networkidle");
+    // `load` y no `networkidle`: el portal mantiene abierta la conexion SSE de
+    // eventos, y con ella la red nunca queda inactiva (la espera no acaba nunca).
+    await page.waitForLoadState("load");
     await expect(
       page.getByRole("heading", { name: /Declaración de Aplicabilidad/i }).first(),
     ).toBeVisible();
@@ -104,7 +106,15 @@ test.describe("Client Portal · DdA · Firma E2E ALTA happy path", () => {
     ).toBeVisible({ timeout: 15_000 });
 
     // ────── Close modal si aún abierto · verify summary updated ──────
-    const cerrarButton = page.getByRole("button", { name: /Cerrar/i });
+    // Scope al dialog + nombre exacto: /Cerrar/i a nivel página también
+    // matchea el botón "Cerrar sesión" del ClientHeader; si el modal ya se
+    // cerró solo (onSuccess), ése era el único match visible y el test hacía
+    // LOGOUT a mitad de las aserciones post-firma.
+    const cerrarButton = page
+      .getByRole("dialog")
+      .getByRole("button", { name: "Cerrar", exact: true })
+      // .first(): el dialog tiene 2 "Cerrar" (botón de éxito + la X sr-only).
+      .first();
     if (await cerrarButton.isVisible().catch(() => false)) {
       await cerrarButton.click();
     }

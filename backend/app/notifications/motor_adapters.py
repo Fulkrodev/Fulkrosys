@@ -506,7 +506,10 @@ async def notify_incident_resolved_cliente(
     """Cliente firma cierre incidente · MB-6 atom 8 · CCN-STIC 817."""
     orchestrator = orchestrator or NotificationOrchestrator(db)
     deep_links = deep_links or DeepLinkGenerator()
-    cta_url = deep_links._build(f"/client-portal/incidents/{_coerce_id(incident_id)}")
+    # /client-portal/incidents no tiene detalle por id: lista + id en la query.
+    cta_url = deep_links._build(
+        "/client-portal/incidents", {"incident": _coerce_id(incident_id)},
+    )
     return await _safe_dispatch(
         orchestrator=orchestrator,
         event_type="incident_resolved_cliente",
@@ -542,7 +545,12 @@ async def notify_evidence_quarantined_admin(
     """Admin Marcos notificado de archivo en cuarentena · MB-6 atom 8 · atom 6 integration."""
     orchestrator = orchestrator or NotificationOrchestrator(db)
     deep_links = deep_links or DeepLinkGenerator()
-    cta_url = deep_links._build("/admin/evidence/quarantined")
+    # No existe /admin/evidence/quarantined ni una vista admin de cuarentena:
+    # se lleva a la pestaña Evidencias del proyecto afectado.
+    cta_url = deep_links._build(
+        f"/admin/projects/{_coerce_id(project_id)}/evidence",
+        {"evidence": _coerce_id(evidence_id)},
+    )
     return await _safe_dispatch(
         orchestrator=orchestrator,
         event_type="evidence_quarantined_admin",

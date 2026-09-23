@@ -25,17 +25,10 @@ test.describe("SAN-E v3.MB-8.3 · WhatsApp endpoints smoke", () => {
     expect(data).toHaveProperty("verified");
   });
 
-  // SKIP: bug de PRODUCTO backend (NO spec). El webhook 360dialog está pensado
-  // para ser público ("no auth · signature verified" · m31_whatsapp/api.py
-  // webhook_router sin dependencia auth), pero el path
-  // /api/v1/webhooks/360dialog NO está en el whitelist del global auth dep
-  // (app/auth/global_dep.py) → el middleware global devuelve 401
-  // "Authentication required" (verificado empíricamente). Los webhooks de
-  // 360dialog llegan sin sesión, así que DEBEN ser alcanzables sin auth.
-  // Re-activar cuando se añada el prefix /api/v1/webhooks/ al whitelist global
-  // (fuera de alcance de esta limpieza de specs). NO es feature eliminada —
-  // el endpoint existe. Candidata a re-activar, NO a borrar.
-  test.skip("webhook 360dialog accepts unknown payload gracefully", async ({
+  // El webhook llega desde 360dialog SIN sesión: debe pasar el auth global
+  // (whitelist en app/auth/global_dep.py) y autenticarse dentro del handler
+  // (HMAC/token · sin secret configurado, fuera de producción se acepta).
+  test("webhook 360dialog accepts unknown payload gracefully", async ({
     context,
   }) => {
     const res = await context.request.post(
@@ -44,6 +37,6 @@ test.describe("SAN-E v3.MB-8.3 · WhatsApp endpoints smoke", () => {
     );
     expect(res.ok()).toBeTruthy();
     const data = await res.json();
-    expect(data).toHaveProperty("handled");
+    expect(data).toEqual({ handled: "unknown_or_skipped" });
   });
 });

@@ -5,11 +5,12 @@ export const metadata = {
   title: "Autorización de verificación",
 };
 
-export default function VerifyAuthTokenPage({
-  params,
-}: {
-  params: { token: string };
-}) {
+export default async function VerifyAuthTokenPage(
+  props: {
+    params: Promise<{ token: string }>;
+  }
+) {
+  const params = await props.params;
   return (
     <PublicPortalShell>
       <VerifyAuthPortal token={params.token} />

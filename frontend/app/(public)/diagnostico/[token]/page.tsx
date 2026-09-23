@@ -7,10 +7,11 @@
  */
 import { DiagnosticoFlow } from "@/components/diagnostico/DiagnosticoFlow";
 
-export default function DiagnosticoTokenPage({
-  params,
-}: {
-  params: { token: string };
-}) {
+export default async function DiagnosticoTokenPage(
+  props: {
+    params: Promise<{ token: string }>;
+  }
+) {
+  const params = await props.params;
   return <DiagnosticoFlow token={params.token} />;
 }

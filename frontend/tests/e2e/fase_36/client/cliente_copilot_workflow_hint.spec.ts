@@ -111,7 +111,7 @@ test.describe("fase_36 · cliente CopilotoDock workflow hint", () => {
   // evolución UI · NO es selector desfasado · requiere fix en código de producto
   // (CopilotoDock) — fuera del scope de limpieza de specs. Candidata a re-activar
   // tras fix de accesibilidad (Marcos).
-  test.skip("WCAG axe-CI · 0 violations dock open con hint", async ({ page }) => {
+  test("WCAG axe-CI · 0 violations dock open con hint", async ({ page }) => {
     await loginAsClient(page);
     await mockHintUrgentSignDda(page);
     await mockQuickActionsEmpty(page);
@@ -127,7 +127,7 @@ test.describe("fase_36 · cliente CopilotoDock workflow hint", () => {
     expect(
       results.violations,
       `axe violations en CopilotoDock hint:\n${JSON.stringify(
-        results.violations.map((v) => ({ id: v.id, impact: v.impact })),
+        results.violations.map((v) => ({ id: v.id, impact: v.impact, nodes: v.nodes.map((n) => ({ t: n.target, s: n.failureSummary, h: n.html.slice(0, 200) })) })),
         null,
         2,
       )}`,

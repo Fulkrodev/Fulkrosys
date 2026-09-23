@@ -5,7 +5,8 @@
  * - Left: RoadmapView (PhaseStepper + PhaseCards) + CopilotGuidedFlow (Sesión 3A B.2)
  * - Right: NextActionCard list (top 5 priority)
  */
-"use client";
+"use client";;
+import { use } from "react";
 
 import { Loader2 } from "lucide-react";
 
@@ -14,11 +15,12 @@ import { NextActionCard } from "@/components/workflow/NextActionCard";
 import { RoadmapView } from "@/components/workflow/RoadmapView";
 import { useNextActions, useRoadmap } from "@/hooks/useWorkflowAdmin";
 
-export default function ProjectRoadmapPage({
-  params,
-}: {
-  params: { id: string };
-}) {
+export default function ProjectRoadmapPage(
+  props: {
+    params: Promise<{ id: string }>;
+  }
+) {
+  const params = use(props.params);
   const projectId = params.id;
   const roadmapQuery = useRoadmap(projectId);
   const actionsQuery = useNextActions(projectId, 5);

@@ -101,17 +101,22 @@ class TestEnsMeasuresCatalog:
         assert counts["mp"] == 36, f"mp expected 36, got {counts['mp']}"
 
 
-@pytest.mark.skip(reason="FASE 9.0 (ADR-029): tabla ens_reinforcements drop · reseed canonico ens_measure_refuerzos diferido a Fase alpha.2.")
 class TestEnsReinforcements:
-    """Verify ens_reinforcements loaded correctly. SKIPPED post-FASE 9.0 drop legacy."""
+    """Verify ens_reinforcements loaded correctly.
+
+    La tabla NO se elimino: la migracion ``83e27091b489`` que la iba a borrar
+    es un ``pass``. Se siembra (seed_all_fulkro, 18 filas) y la consume el
+    grafo de conocimiento (age_seed_kg). Estos tests estuvieron saltados con
+    el motivo contrario.
+    """
 
     @pytest.mark.asyncio
     async def test_reinforcements_loaded(self, db):
-        """At least 20 reinforcements should be loaded."""
+        """El sembrado canonico carga 18 refuerzos (seed_all_fulkro final_checks)."""
         async with _admin_setup(db):
             result = await db.execute(text("SELECT COUNT(*) FROM ens_reinforcements"))
             count = result.scalar()
-        assert count >= 20, f"Expected >= 20 reinforcements, got {count}"
+        assert count >= 18, f"Expected >= 18 reinforcements, got {count}"
 
     @pytest.mark.asyncio
     async def test_reinforcements_fk_valid(self, db):
@@ -138,12 +143,17 @@ class TestEnsReinforcements:
 
     @pytest.mark.asyncio
     async def test_idempotency_count_stable(self, db):
-        """Running loader twice should produce same counts (80 + 20)."""
+        """Running loader twice should produce same counts (73 + 18).
+
+        73 son las medidas del Anexo II del RD 311/2022, verificadas contra el
+        BOE; las 80 de la version anterior incluian codigos de la CCN-STIC 804
+        v2017, que se eliminaron.
+        """
         async with _admin_setup(db):
             measures = await db.execute(text("SELECT COUNT(*) FROM ens_measures"))
             reinforcements = await db.execute(text("SELECT COUNT(*) FROM ens_reinforcements"))
             m_count = measures.scalar()
             r_count = reinforcements.scalar()
 
-        assert m_count == 80, f"m_count expected 80 (v2.2), got {m_count}"
-        assert r_count >= 20, f"r_count expected >= 20, got {r_count}"
+        assert m_count == 73, f"m_count expected 73 (Anexo II RD 311/2022), got {m_count}"
+        assert r_count >= 18, f"r_count expected >= 18, got {r_count}"

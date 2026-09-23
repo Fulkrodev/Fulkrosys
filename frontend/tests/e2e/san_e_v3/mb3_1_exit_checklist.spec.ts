@@ -17,6 +17,7 @@ import { expect, test } from "@playwright/test";
 import { loginAsMarcos } from "../_helpers/auth-real";
 
 const PROJECT_ID = process.env.E2E_SEED_PROJECT_ID ?? "00000000-0000-0000-0000-000000000001";
+const BACKEND = process.env.PLAYWRIGHT_BACKEND_URL ?? "http://localhost:8000";
 
 test.describe("MB-3.1 · ExitChecklist M25", () => {
   test.beforeEach(async ({ context, page }) => {
@@ -28,50 +29,70 @@ test.describe("MB-3.1 · ExitChecklist M25", () => {
     await expect(
       page.getByText(/Checklist de cierre/i),
     ).toBeVisible();
-    // Progreso card · 16 items inicial post seed lazy
-    await expect(page.getByText(/0 \/ 16/)).toBeVisible();
+    // Progreso card · 16 items post seed lazy (el nº completado depende del
+    // estado persistido; lo que se fija aquí es el total sembrado)
+    await expect(page.getByText(/^\d+ \/ 16$/)).toBeVisible();
     await expect(page.getByRole("button", { name: /Verificar readiness/i })).toBeVisible();
   });
 
   test("filter por categoría reduce items visibles", async ({ page }) => {
-    // Esperar tabla cargada
-    await page.waitForSelector("table");
-    const initialRows = await page.locator("table tbody tr").count();
-    expect(initialRows).toBeGreaterThan(0);
+    // Aserciones que ESPERAN, no `count()`: `count()` es una foto y se tomaba
+    // antes de que llegaran todas las filas. El checklist tiene 16 items, 4 por
+    // categoria (m25_lifecycle/exit_checklist_service.DEFAULT_ITEMS), y la
+    // DataTable pagina de 10 en 10: la primera pagina muestra 10.
+    const filas = page.locator("table tbody tr");
+    await expect(filas).toHaveCount(10);
 
-    // Cambiar filter categoría a 'legal'. El <Label>Categoría</Label> no está
-    // asociado al Radix SelectTrigger (sin htmlFor) → getByLabel chocaba en
-    // strict-mode. El primer combobox de la página es el filtro Categoría
-    // (opciones Todas/Legal/Técnico/Documentación/Operacional).
+    // El <Label>Categoría</Label> no está asociado al Radix SelectTrigger (sin
+    // htmlFor) → getByLabel chocaba en strict-mode. El primer combobox de la
+    // página es el filtro Categoría (Todas/Legal/Técnico/Documentación/Operacional).
     await page.getByRole("combobox").first().click();
     await page.getByRole("option", { name: "Legal", exact: true }).click();
-    const filteredRows = await page.locator("table tbody tr").count();
-    expect(filteredRows).toBeLessThan(initialRows);
-    expect(filteredRows).toBeGreaterThan(0);
+    await expect(filas).toHaveCount(4);
   });
 
-  // SKIP: bug de PRODUCTO backend (NO spec/selector). El GET exit-checklist
-  // siembra los 16 items de forma lazy con db.flush() pero NO db.commit()
-  // (exit_checklist_api.list_exit_checklist no commitea), así que los items
-  // se descartan al cerrar la transacción del GET. El POST /{item_id}/complete
-  // arranca en una transacción nueva sin esos items → 404 "Item not found en
-  // project" (verificado empíricamente). El modal abre y envía bien; lo que
-  // falla es la persistencia server-side. Re-activar cuando se corrija el
-  // commit del seed lazy en backend (fuera de alcance de esta limpieza de specs).
-  // NO es feature eliminada — la UI existe. Candidata a re-activar, no a borrar.
-  test.skip("mark item completado abre modal + submit", async ({ page }) => {
-    await page.waitForSelector("table tbody tr");
-    // Abrir dropdown acciones primer row
-    await page.locator("table tbody tr").first().getByRole("button", { name: /Acciones/i }).click();
+  // Requiere que el GET exit-checklist haga COMMIT de la siembra perezosa
+  // (exit_checklist_api.list_exit_checklist): sin él cada GET devolvía ids
+  // nuevos y el POST /{item_id}/complete respondía 404. El test se limpia solo:
+  // completa el item y lo revierte a pendiente desde la misma UI.
+  test("mark item completado abre modal + submit", async ({ page, context }) => {
+    // Punto de partida conocido: "Acta de cierre firmada" pendiente.
+    const listUrl = `${BACKEND}/api/v1/projects/${PROJECT_ID}/exit-checklist`;
+    const list = await (await context.request.get(listUrl)).json();
+    const acta = (list.items as { id: string; item_code: string; status: string }[])
+      .find((i) => i.item_code === "acta_cierre");
+    expect(acta).toBeTruthy();
+    if (acta!.status === "completado") {
+      const csrf =
+        (await context.cookies()).find((c) => c.name === "fulkro_csrf")?.value ?? "";
+      const res = await context.request.post(`${listUrl}/${acta!.id}/uncomplete`, {
+        headers: { "x-csrf-token": csrf },
+      });
+      expect(res.ok()).toBeTruthy();
+      await page.reload();
+    }
+
+    const row = page.locator("table tbody tr").filter({ hasText: "Acta de cierre firmada" });
+    await expect(row.getByText("Pendiente", { exact: true })).toBeVisible();
+
+    await row.getByRole("button", { name: /Acciones/i }).click();
     await page.getByRole("menuitem", { name: /Marcar completado/i }).click();
-    // Modal abierto
-    await expect(page.getByRole("dialog")).toBeVisible();
-    await expect(page.getByText(/Marcar completado/)).toBeVisible();
-    // Note + submit
+    const dialog = page.getByRole("dialog");
+    await expect(dialog).toBeVisible();
+    await expect(dialog.getByText(/Marcar completado/)).toBeVisible();
     await page.getByPlaceholder(/Razón \/ contexto/).fill("E2E smoke test note");
     await page.getByRole("button", { name: /^Confirmar$/ }).click();
-    // Modal cierra · row badge actualizado a "Completado"
-    await expect(page.getByRole("dialog")).toBeHidden();
+    await expect(dialog).toBeHidden();
+    await expect(row.getByText("Completado", { exact: true })).toBeVisible();
+
+    // Persistido de verdad: tras recargar sigue completado.
+    await page.reload();
+    await expect(row.getByText("Completado", { exact: true })).toBeVisible();
+
+    // Limpieza por la UI: revertir a pendiente.
+    await row.getByRole("button", { name: /Acciones/i }).click();
+    await page.getByRole("menuitem", { name: /Revertir a pendiente/i }).click();
+    await expect(row.getByText("Pendiente", { exact: true })).toBeVisible();
   });
 
   test("check readiness muestra blockers preview", async ({ page }) => {

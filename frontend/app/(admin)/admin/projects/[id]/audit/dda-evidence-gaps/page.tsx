@@ -4,10 +4,11 @@ export const metadata = {
   title: "Cobertura DdA-Evidencias · Admin",
 };
 
-export default function AdminGapsPage({
-  params,
-}: {
-  params: { id: string };
-}) {
+export default async function AdminGapsPage(
+  props: {
+    params: Promise<{ id: string }>;
+  }
+) {
+  const params = await props.params;
   return <DdaEvidenceGapsAdminView projectId={params.id} />;
 }

@@ -40,10 +40,21 @@ $ pytest backend/tests/ --collect-only -q -m "not requires_db"
 3338/6709 tests collected (3371 deselected)
 ```
 
-Los 6.709 totales sí coinciden. La diferencia tiene explicación y no es un
-error: `ci.yml:155-159` fecha esas cifras el **2026-09-10**, sobre **6.470**
-tests recogidos. Desde entonces el repositorio ganó 239 tests. La cifra no era
-falsa, era vieja. En el README va la medida hoy, con su comando.
+Medido sobre el padre `e74f581`, donde los 6.709 totales sí coinciden. La
+diferencia tiene explicación y no es un error: `ci.yml:155-159` fecha esas
+cifras el **2026-09-10**, sobre **6.470** tests recogidos. Desde entonces el
+repositorio ganó 239 tests. La cifra no era falsa, era vieja.
+
+Al cerrar el bloque la suite tiene **85 tests más**, todos de este bloque y
+todos sin base de datos, así que los `requires_db` siguen siendo 3.371 y lo
+que crece es la otra mitad:
+
+```
+$ pytest backend/tests/ --collect-only -q -m "requires_db"      # en bb221a9
+3371/6794 tests collected (3423 deselected)
+```
+
+En el README va la medida del final, con su comando.
 
 ### 2 · No hay cuatro cabezas de Alembic. Hay una
 
@@ -505,6 +516,9 @@ defecto que R5a corrigió en este mismo fichero. Caducan el 2026-12-31 con el
 resto, así que el CI se pondrá rojo solo si el salto no se ha hecho. Los dos de
 `postcss` son la copia **anidada** dentro de `next` y ahí sí hay atenuante
 comprobable: procesan el CSS del propio repositorio en tiempo de construcción.
+Pero **no comparten arreglo** con los otros: el `npm audit fix` de arriba sólo
+alcanza la copia de primer nivel, y la anidada no la cierra el salto a 15.5.24
+sino `next@16.3.5` (campo `arreglado_en` de la lista).
 
 **Las dependencias de desarrollo** se cuentan e informan aparte, sin tumbar el
 build: un segundo informe sin `--production` que el gate recibe por
@@ -572,16 +586,16 @@ Subir apoyándose en «el build pasa» es cambiar un riesgo conocido y acotado p
 uno desconocido y sin acotar.
 
 **Lo que sí queda hecho de este frente:** la justificación ya no miente (R5a), y
-los doce avisos `high` que el salto también cierra están ahora a la vista y
-acotados con fecha (R9), de modo que el CI se pondrá rojo por sí solo el
-2026-12-31 si nadie lo ha hecho.
+los doce avisos `high` están ahora a la vista y acotados con fecha (R9), de modo
+que el CI se pondrá rojo por sí solo el 2026-12-31 si nadie lo ha hecho. El
+salto a 15.5.24 cierra diez de esos doce; los dos de `postcss` anidado piden
+`next@16.3.5`, y siguen rojos en esa fecha aunque el salto a 15 se haga.
 
 ---
 
 ## Comprobación final
 
-Las cuatro órdenes pedidas, con su salida entera, están al final de la respuesta
-de este bloque. Resumen:
+Sobre `bb221a9`, el último commit del bloque:
 
 ```
 $ python -m pytest backend/tests/ --collect-only -q   → 6794 tests · exit=0
@@ -589,3 +603,7 @@ $ python -m pytest backend/tests/ -m "not requires_db" -q
                                                       → 3400 passed · exit=0
 $ make lint                                           → All checks passed · exit=0
 ```
+
+Los 6.794 son los 6.709 del padre más los 85 tests que añade el bloque (ver la
+primera discrepancia). De los 3.423 que recoge la segunda orden pasan 3.400 y
+se saltan 23 (vuelto a medir el 2026-09-23: `3400 passed, 23 skipped`).

@@ -3,11 +3,12 @@ import { AuditLogView } from "@/components/auditor-portal/views/AuditLogView";
 
 export const metadata = { title: "Portal auditor · Audit log" };
 
-export default function AuditorPortalAuditLogPage({
-  params,
-}: {
-  params: { token: string };
-}) {
+export default async function AuditorPortalAuditLogPage(
+  props: {
+    params: Promise<{ token: string }>;
+  }
+) {
+  const params = await props.params;
   return (
     <AuditorPortalEntry token={params.token}>
       <AuditLogView token={params.token} />

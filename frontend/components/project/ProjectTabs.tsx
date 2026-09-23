@@ -110,7 +110,7 @@ const SUB_TABS: TabDescriptor[] = [
   // Sub-atom 1.D.D.A v3.11 · M14 Contracts admin standalone page
   { href: "/contratos", label: "Contratos", icon: FileSignature },
   { href: "/changes", label: "Cambios", icon: Target },
-  // Verificación + Auditoría · solo MEDIA+/ALTA (BASICA usa autoevaluación 809)
+  // Verificación + Auditoría · solo MEDIA+/ALTA (BASICA: autoevaluación CCN-STIC 808 + Declaración de Conformidad 809)
   {
     href: "/verification",
     label: "Verificación",

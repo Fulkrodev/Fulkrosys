@@ -64,7 +64,9 @@ test.describe("SAN-E v3.MB-7.3 · onboarding tutorial", () => {
     await expect(page.getByTestId("tutorial-overlay")).not.toBeVisible();
 
     await page.reload();
-    await page.waitForLoadState("networkidle");
+    // `load` y no `networkidle`: el portal mantiene abierta la conexion SSE de
+    // eventos, y con ella la red nunca queda inactiva (la espera no acaba nunca).
+    await page.waitForLoadState("load");
 
     // No se vuelve a abrir
     await expect(page.getByTestId("tutorial-overlay")).not.toBeVisible();

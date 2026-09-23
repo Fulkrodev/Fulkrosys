@@ -5,11 +5,12 @@ export const metadata = {
   title: "Portal auditor · Borrador del informe",
 };
 
-export default function AuditorPortalDraftReportPage({
-  params,
-}: {
-  params: { token: string };
-}) {
+export default async function AuditorPortalDraftReportPage(
+  props: {
+    params: Promise<{ token: string }>;
+  }
+) {
+  const params = await props.params;
   return (
     <AuditorPortalEntry token={params.token}>
       <DraftReportView token={params.token} />

@@ -51,11 +51,12 @@ import type { ProjectOut } from "@/lib/admin-clients/schemas";
 // projects/[id]/auditor-handoff) estaban rotas a la vez y por lo mismo. Si
 // algún día se migra a Next.js 15, esto vuelve a ser `Promise` y `use()`; hasta
 // entonces, no.
-export default function LegacyClientDetailRouter({
-  params,
-}: {
-  params: { id: string };
-}) {
+export default function LegacyClientDetailRouter(
+  props: {
+    params: Promise<{ id: string }>;
+  }
+) {
+  const params = use(props.params);
   const { id: clientId } = params;
   const router = useRouter();
 

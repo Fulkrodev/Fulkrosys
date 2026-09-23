@@ -1,9 +1,10 @@
 import { RenewalWarRoom } from "@/components/renewal/RenewalWarRoom";
 
-export default function RenewalPage({
-  params,
-}: {
-  params: { id: string };
-}) {
+export default async function RenewalPage(
+  props: {
+    params: Promise<{ id: string }>;
+  }
+) {
+  const params = await props.params;
   return <RenewalWarRoom projectId={params.id} />;
 }

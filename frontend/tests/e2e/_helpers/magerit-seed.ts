@@ -32,9 +32,12 @@ export interface MageritAltaSeedResult {
 
 export async function seedMageritAltaData(
   request: APIRequestContext,
+  key?: string,
 ): Promise<MageritAltaSeedResult> {
+  // `key` = mismo cliente DEDICADO que seedDdaAltaProject(request, key).
+  const qs = key ? `?key=${encodeURIComponent(key)}` : "";
   const res = await request.post(
-    `${BACKEND_BASE}/api/v1/_dev/seed-magerit-alta-data`,
+    `${BACKEND_BASE}/api/v1/_dev/seed-magerit-alta-data${qs}`,
   );
   if (!res.ok()) {
     throw new Error(

@@ -40,6 +40,17 @@ const SORT_OPTIONS: { value: SortMode; label: string }[] = [
   { value: "sector", label: "Sector" },
 ];
 
+// `lastUsedProjectId` es un id de PROYECTO; cada tarjeta es un CLIENTE con su
+// `project_id` resuelto. Antes se comparaba con `client.id` y, como un id de
+// cliente nunca es un id de proyecto, el badge "Último usado" y el orden
+// "recientes" no funcionaban nunca con datos reales.
+function isLastUsedClient(
+  client: { project_id?: string | null },
+  lastUsedProjectId: string | null,
+): boolean {
+  return Boolean(lastUsedProjectId) && client.project_id === lastUsedProjectId;
+}
+
 export default function ProjectsPage() {
   const { data, isLoading } = useClients();
   const clients = React.useMemo(() => data ?? [], [data]);
@@ -98,8 +109,8 @@ export default function ProjectsPage() {
       default:
         // Last used first, then alphabetical
         sorted.sort((a, b) => {
-          if (a.id === lastUsedProjectId) return -1;
-          if (b.id === lastUsedProjectId) return 1;
+          if (isLastUsedClient(a, lastUsedProjectId)) return -1;
+          if (isLastUsedClient(b, lastUsedProjectId)) return 1;
           return a.nombre.localeCompare(b.nombre);
         });
         break;
@@ -275,7 +286,7 @@ export default function ProjectsPage() {
             <ProjectCard
               key={client.id}
               client={client}
-              isLastUsed={lastUsedProjectId === client.id}
+              isLastUsed={isLastUsedClient(client, lastUsedProjectId)}
             />
           ))}
         </div>

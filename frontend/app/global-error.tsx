@@ -103,6 +103,10 @@ export default function GlobalError({
             >
               Reintentar
             </button>
+            {/* <a> y no <Link> a proposito: esta pantalla sale cuando ha caido el
+                layout raiz, y lo robusto es una recarga completa que reinicie la
+                aplicacion, no una navegacion de cliente sobre una app rota. */}
+            {/* eslint-disable-next-line @next/next/no-html-link-for-pages */}
             <a
               href="/"
               style={{

@@ -21,7 +21,6 @@ import {
   Gavel,
   LifeBuoy,
   MessageSquare,
-  Plus,
   Radar,
   Settings2,
   ShieldAlert,
@@ -59,16 +58,13 @@ function extractProjectIdFromPath(pathname: string | null): string | null {
 }
 
 
+// Sin "Nuevo lead", "Generar propuesta" ni "Consola retainer": los dos primeros
+// iban a /admin/pipeline (dormido) y el tercero a /admin/retainers (redireccion
+// heredada · el retainer vive en cada proyecto, R23). Los tres acababan en el
+// selector de proyectos.
 const DASHBOARD_ACTIONS: Action[] = [
-  { label: "Nuevo lead", href: `${ROUTES.pipeline}?new=1`, icon: Plus },
-  { label: "Nuevo proyecto", href: `${ROUTES.projects}?new=1`, icon: Users },
+  { label: "Nuevo proyecto", href: `${ROUTES.projects}/new`, icon: Users },
   { label: "Nueva reunión", href: `${ROUTES.meetings}/new`, icon: Video },
-  {
-    label: "Generar propuesta",
-    href: `${ROUTES.pipeline}?action=proposal`,
-    icon: FileText,
-  },
-  { label: "Consola retainer", href: ROUTES.retainer, icon: ShieldCheck },
 ];
 
 

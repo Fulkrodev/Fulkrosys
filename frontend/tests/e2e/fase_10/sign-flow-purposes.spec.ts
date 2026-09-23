@@ -1,12 +1,10 @@
 /**
  * FASE 10.C.2 · sign-flow purposes parametrizado.
  *
- * Spec híbrido (D-1 Marcos): 8 purposes definidos · 6 ejecutados con
- * tokens REALES generados via POST /api/v1/magic-links/generate · 2
- * legacy (firma_documento + aprobacion_acta) skip-marked aquí porque
- * ya están cubiertos por magic-link.spec.ts (D-2 Marcos · preservar
- * legacy fixture-based). D-3 Marcos: aprobacion_acta separado pese a
- * compartir LegacyDocumentSignFlow component.
+ * 8 purposes: los vigentes (firma_documento · aprobacion_acta ·
+ * aprobacion_propuesta) se ejecutan con tokens REALES generados vía
+ * POST /api/v1/magic-links/generate y se comprueba el flujo que pinta
+ * /sign/{token}; los 5 deprecados v3 se comprueban por su rechazo 422.
  *
  * Setup por test:
  *   1. POST /api/v1/_dev/create-test-client → obtiene project_id real
@@ -21,9 +19,9 @@
  * Componentes esperados (multiplex):
  *   - aprobacion_propuesta → ApprovePropuestaFlow  (vigente · ejecutado)
  *
- * Deprecados v3 (ADR-020 · MB-4.bis3 · skip · cliente actúa in-portal · el
- * MagicLinkPolicyEnforcer hard-rechaza su generación → 422, NO se puede
- * sembrar token; el componente permanece en el codebase):
+ * Deprecados v3 (ADR-020 · MB-4.bis3 · cliente actúa in-portal · el
+ * MagicLinkPolicyEnforcer hard-rechaza su generación → 422, que es lo que se
+ * prueba; el componente permanece en el codebase):
  *   - aprobacion_factura → ApproveFacturaFlow
  *   - validacion_cambio_alcance → ValidateScopeChangeFlow
  *   - aceptacion_riesgo_residual → AcceptResidualRiskFlow
@@ -48,14 +46,13 @@ interface PurposeConfig {
   expectedTitle: RegExp;
   expectedActionPhrase: RegExp;
   expectedApproveButton: RegExp;
-  legacyMockSpec: boolean;
   /**
    * ADR-020 v3 (MB-4.bis3) · purpose deprecado client-facing: el cliente
    * realiza la acción in-portal (login normal), NO recibe magic-link. El
    * MagicLinkPolicyEnforcer hard-rechaza la generación → POST
    * /magic-links/generate devuelve 422. El componente de flujo permanece en
    * el codebase, pero ya NO es alcanzable por magic-link, así que el caso se
-   * marca skip (NO se puede sembrar un token). Ver policy_enforcer.py
+   * prueba el rechazo 422 en lugar del flujo. Ver policy_enforcer.py
    * DEPRECATED_V3_CLIENT_FACING.
    */
   deprecatedV3?: boolean;
@@ -71,7 +68,6 @@ const PURPOSES: PurposeConfig[] = [
     expectedTitle: /Firma de documento/i,
     expectedActionPhrase: /firmo conforme/i,
     expectedApproveButton: /Firmar con Ed25519/i,
-    legacyMockSpec: false,
     scope: {
       document_type: "acta_e012",
       recipient_name: "Responsable de la Información E2E",
@@ -81,12 +77,14 @@ const PURPOSES: PurposeConfig[] = [
     },
   },
   {
+    // Flujo REAL ApproveActaFlow (m18 · firma del asistente) · reemplazó al
+    // mock LegacyDocumentSignFlow.
     purpose: "aprobacion_acta",
-    expectedComponent: "LegacyDocumentSignFlow",
-    expectedTitle: /Firma de documento/i,
-    expectedActionPhrase: /firmo conforme/i,
-    expectedApproveButton: /Firmar/i,
-    legacyMockSpec: true,
+    expectedComponent: "ApproveActaFlow",
+    expectedTitle: /Aprobación del acta/i,
+    expectedActionPhrase: /He revisado el acta y la apruebo/i,
+    expectedApproveButton: /Aprobar acta/i,
+    scope: { codigo: "ACTA-E2E-001", asistente_nombre: "Asistente E2E" },
   },
   {
     purpose: "aprobacion_propuesta",
@@ -94,7 +92,6 @@ const PURPOSES: PurposeConfig[] = [
     expectedTitle: /Aprobación de propuesta/i,
     expectedActionPhrase: /aprobación de la propuesta/i,
     expectedApproveButton: /Aprobar propuesta/i,
-    legacyMockSpec: false,
     scope: {
       propuesta_codigo: "P-E2E-001-2026",
       importe_total: "12.500 EUR",
@@ -107,7 +104,6 @@ const PURPOSES: PurposeConfig[] = [
     expectedTitle: /Aprobación de factura/i,
     expectedActionPhrase: /aprobación de la factura/i,
     expectedApproveButton: /Aprobar factura/i,
-    legacyMockSpec: false,
     deprecatedV3: true, // cliente aprueba in-portal /client-portal/billing (ADR-020 v3)
     scope: {
       factura_codigo: "F-E2E-001-2026",
@@ -121,7 +117,6 @@ const PURPOSES: PurposeConfig[] = [
     expectedTitle: /Validación de cambio de alcance/i,
     expectedActionPhrase: /validación del cambio de alcance/i,
     expectedApproveButton: /Validar cambio/i,
-    legacyMockSpec: false,
     deprecatedV3: true, // cliente valida in-portal /client-portal/risks (ADR-020 v3)
     scope: {
       cambio_codigo: "CC-E2E-001",
@@ -136,7 +131,6 @@ const PURPOSES: PurposeConfig[] = [
     expectedTitle: /Aceptación de riesgo residual/i,
     expectedActionPhrase: /aceptación del riesgo residual/i,
     expectedApproveButton: /Aceptar riesgo/i,
-    legacyMockSpec: false,
     deprecatedV3: true, // cliente acepta in-portal /client-portal/risks (ADR-020 v3)
     scope: {
       riesgo_codigo: "R-E2E-001",
@@ -152,7 +146,6 @@ const PURPOSES: PurposeConfig[] = [
     expectedTitle: /Acuerdo de Tratamiento de Datos/i,
     expectedActionPhrase: /Acuerdo de Tratamiento de Datos/i,
     expectedApproveButton: /Firmar DPA/i,
-    legacyMockSpec: false,
     deprecatedV3: true, // cliente firma DPA in-portal /client-portal/firma (ADR-020 v3)
     scope: {
       dpa_version: "v1.0-2026",
@@ -167,7 +160,6 @@ const PURPOSES: PurposeConfig[] = [
     expectedTitle: /Confirmación de conformidad/i,
     expectedActionPhrase: /confirmación del estado de conformidad/i,
     expectedApproveButton: /Confirmar conformidad/i,
-    legacyMockSpec: false,
     deprecatedV3: true, // cliente firma conformidad in-portal /client-portal/firma (ADR-020 v3)
     scope: {
       porcentaje_implantacion: 87,
@@ -229,28 +221,31 @@ async function generateMagicLink(
 
 test.describe("FASE 10.C.2 · sign-flow purposes parametrizado", () => {
   for (const config of PURPOSES) {
-    if (config.legacyMockSpec) {
-      test.skip(
-        config.purpose + " → " + config.expectedComponent + " (legacy · magic-link.spec.ts)",
-        () => {
-          // Cobertura preservada en magic-link.spec.ts (token mock e2e-token-abc).
-          // D-2 Marcos: NO duplicar aquí.
-        },
-      );
-      continue;
-    }
-
     if (config.deprecatedV3) {
-      test.skip(
-        config.purpose + " → " + config.expectedComponent + " (deprecated v3 · ADR-020)",
-        () => {
-          // ADR-020 v3 · MagicLinkPolicyEnforcer hard-rechaza la generación
-          // (DEPRECATED_V3_CLIENT_FACING). POST /magic-links/generate → 422.
-          // El cliente realiza la acción in-portal con login normal, NO via
-          // magic-link. El componente de flujo permanece, pero ya NO es
-          // sembrable, así que el caso queda skip (NO se puede generar token).
-        },
-      );
+      // ADR-020 v3 · MagicLinkPolicyEnforcer hard-rechaza la generación
+      // (DEPRECATED_V3_CLIENT_FACING): el cliente hace la acción in-portal con
+      // login normal. Lo que existe hoy es ese rechazo, y es lo que se prueba.
+      test(config.purpose + " → rechazado (deprecated v3 · ADR-020)", async ({ page }) => {
+        await loginAsMarcos(page.context());
+        const projectId = await ensureTestProjectId(page);
+        const csrf = (await page.context().cookies()).find(
+          (c) => c.name === "fulkro_csrf",
+        )?.value;
+        const res = await page.request.post(
+          BACKEND_BASE + "/api/v1/magic-links/generate",
+          {
+            headers: { "x-csrf-token": csrf ?? "" },
+            data: {
+              project_id: projectId,
+              purpose: config.purpose,
+              recipient_email: "test-client-e2e@example.com",
+              scope: config.scope ?? null,
+            },
+          },
+        );
+        expect(res.status()).toBe(422);
+        expect((await res.json()).detail).toMatch(/deprecated v3/i);
+      });
       continue;
     }
 

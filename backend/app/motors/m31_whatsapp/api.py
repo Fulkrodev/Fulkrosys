@@ -339,17 +339,21 @@ def _webhook_authorized(request: Request, raw_body: bytes) -> bool:
          (formato Meta/WhatsApp Cloud: ``sha256=<hexdigest>``) — preferido.
       2. Token compartido coincidente (query ``?token=`` o header
          ``X-Webhook-Token``) — fallback de compatibilidad.
-    Sin secret (dev/mock) devuelve True (verificación omitida).
+    Sin secret la verificación se omite SOLO fuera de producción (dev/mock). En
+    producción, sin secret, se rechaza todo: la ruta es pública en el auth
+    global (360dialog no trae sesión), así que el secret es la única defensa.
 
     Configura 360dialog con la firma HMAC (preferido) o, en su defecto, con
     ``https://<host>/api/v1/webhooks/360dialog?token=<secret>``.
     """
     try:
-        secret = get_settings().dialog_360_webhook_secret.get_secret_value()
+        settings = get_settings()
+        secret = settings.dialog_360_webhook_secret.get_secret_value()
+        production = settings.is_production
     except Exception:
-        secret = ""
+        secret, production = "", True
     if not secret:
-        return True
+        return not production
     # 1) Firma HMAC-SHA256 sobre el raw body (preferida · anti-spoofing real).
     sig_header = request.headers.get("X-Hub-Signature-256", "")
     if sig_header:

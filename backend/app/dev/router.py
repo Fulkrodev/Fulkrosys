@@ -192,6 +192,14 @@ _DEDICATED_KEYS: dict[str, str] = {
     "conformidad-media": "12",
     "conformidad-alta": "13",
     "firmas-hub": "14",
+    # pentest-authorization-cliente-e2e: antes usaba el cliente COMPARTIDO, y
+    # en cuanto sim-medio firma un contrato ese cliente estrena un proyecto
+    # "ENS · <empresa>" más reciente que R27 resuelve en su lugar → la
+    # autorización sembrada quedaba en un proyecto que el portal no mostraba.
+    "pentest-auth": "15",
+    # magerit-validation-cliente-e2e: mismo problema con el cliente compartido
+    # (el portal resolvía otro proyecto → 0 activos y sin botón de validar).
+    "magerit-validation": "16",
 }
 
 

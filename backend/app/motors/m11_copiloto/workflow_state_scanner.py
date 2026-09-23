@@ -219,7 +219,7 @@ _PHASE_ACTIONS: dict[WorkflowPhase, dict[str, list[ActionHint]]] = {
                 description_cliente="",
                 description_admin=(
                     "Ejecuta diagnóstico M21 inicial · maturity scoring "
-                    "(L0-L5) + gaps detected. Page /admin/projects/{id}/diagnostico."
+                    "(L0-L5) + gaps detected. Page /admin/projects/{id}/diagnosis."
                 ),
                 priority="urgent",
                 target_url="/admin/projects/{project_id}/diagnosis",
@@ -343,7 +343,7 @@ _PHASE_ACTIONS: dict[WorkflowPhase, dict[str, list[ActionHint]]] = {
                 description_cliente="",
                 description_admin=(
                     "Recolecta evidencias M07 por medida implementada · "
-                    "trazabilidad ENAC. Page /admin/projects/{id}/evidencias."
+                    "trazabilidad ENAC. Page /admin/projects/{id}/evidence."
                 ),
                 priority="urgent",
                 target_url="/admin/projects/{project_id}/evidence",
@@ -374,7 +374,9 @@ _PHASE_ACTIONS: dict[WorkflowPhase, dict[str, list[ActionHint]]] = {
                     "Hallazgos resueltos pre-conformidad."
                 ),
                 priority="urgent",
-                target_url="/admin/projects/{project_id}/verificacion",
+                # La pestaña se llama `verification` (ProjectTabs); con
+                # `verificacion` el botón del copiloto caía en «no encontrado».
+                target_url="/admin/projects/{project_id}/verification",
             ),
         ],
         "cliente": [

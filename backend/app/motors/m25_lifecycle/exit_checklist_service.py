@@ -16,6 +16,7 @@ from datetime import datetime, timezone
 from typing import Any
 
 from sqlalchemy import select
+from sqlalchemy.dialects.postgresql import insert as pg_insert
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from backend.app.models.m25_exit_checklist import ExitChecklistItem
@@ -120,15 +121,23 @@ class M25ExitService:
         )).scalars().all()
         if existing_count:
             return
-        for entry in DEFAULT_ITEMS:
-            self.db.add(ExitChecklistItem(
-                project_id=project_id,
-                item_code=entry["code"],
-                label=entry["label"],
-                category=entry["category"],
-                status="pendiente",
-            ))
-        await self.db.flush()
+        # ON CONFLICT DO NOTHING: dos primeras visitas simultaneas sembraban a
+        # la vez y la segunda chocaba con uq_exit_checklist_project_item (500).
+        # Asi una siembra y la otra no hace nada.
+        await self.db.execute(
+            pg_insert(ExitChecklistItem)
+            .values([
+                {
+                    "project_id": project_id,
+                    "item_code": entry["code"],
+                    "label": entry["label"],
+                    "category": entry["category"],
+                    "status": "pendiente",
+                }
+                for entry in DEFAULT_ITEMS
+            ])
+            .on_conflict_do_nothing()
+        )
 
     async def list_items(self, project_id: uuid.UUID) -> ChecklistData:
         await self._ensure_seeded(project_id)

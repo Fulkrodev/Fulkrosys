@@ -82,8 +82,11 @@ export default function AccountPage() {
               Configura los canales y la ventana de silencio
               para los avisos del proyecto.
             </p>
+            {/* Enlace directo a la página real: /account/notifications solo
+                redirige aquí (se conserva para enlaces antiguos) y el salto
+                intermedio añadía una recarga sin motivo. */}
             <a
-              href="/client-portal/account/notifications"
+              href="/client-portal/settings/notifications"
               className="inline-flex items-center font-semibold text-fulkro-primary-700 hover:underline"
               data-testid="link-account-notifications"
             >

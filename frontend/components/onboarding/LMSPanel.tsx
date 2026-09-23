@@ -199,8 +199,8 @@ export function LMSPanel({ projectId }: LMSPanelProps) {
         {progress ? (
           <div className="flex flex-wrap items-center gap-2 text-xs">
             <Badge variant="secondary">{progress.total_assignments} totales</Badge>
-            <Badge variant="info">{progress.por_estado.in_progress ?? 0} en curso</Badge>
-            <Badge variant="success">{progress.por_estado.completed ?? 0} completados</Badge>
+            <Badge variant="info">{progress.por_estado?.in_progress ?? 0} en curso</Badge>
+            <Badge variant="success">{progress.por_estado?.completed ?? 0} completados</Badge>
           </div>
         ) : null}
       </div>

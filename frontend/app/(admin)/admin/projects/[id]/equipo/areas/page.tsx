@@ -1,4 +1,5 @@
-"use client";
+"use client";;
+import { use } from "react";
 
 /**
  * /admin/projects/[id]/equipo/areas · sub-atom 1.C.F.2.2.
@@ -11,11 +12,12 @@ import Link from "next/link";
 
 import { AreasPanel } from "../_components/AreasPanel";
 
-export default function AreasPage({
-  params,
-}: {
-  params: { id: string };
-}) {
+export default function AreasPage(
+  props: {
+    params: Promise<{ id: string }>;
+  }
+) {
+  const params = use(props.params);
   return (
     <div className="flex flex-col gap-6">
       <div>

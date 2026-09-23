@@ -16,10 +16,11 @@ export const metadata = {
   title: "Lead detalle · FULKRO",
 };
 
-export default function LeadDetailPage({
-  params,
-}: {
-  params: { id: string };
-}) {
+export default async function LeadDetailPage(
+  props: {
+    params: Promise<{ id: string }>;
+  }
+) {
+  const params = await props.params;
   return <LeadDetailView leadId={params.id} />;
 }

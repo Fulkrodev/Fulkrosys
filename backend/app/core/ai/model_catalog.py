@@ -169,8 +169,12 @@ CATALOGO: tuple[ModeloDeclarado, ...] = (
     ModeloDeclarado(
         id="claude-opus-4-8",
         alias="opus-4.8",
-        admite_temperature=True,
-        temperatura_verificada=False,
+        # Verificado el 2026-09-23 con una llamada real: el proveedor responde
+        # 400 «`temperature` is deprecated for this model». Hereda la
+        # deprecacion de 4.7. Con True, el triage de m08 fallaba en CADA
+        # llamada. El determinismo de ese triage no sale de la temperatura sino
+        # de la salida estructurada y el modelo fijado.
+        admite_temperature=False,
         nivel="profundo",
         por_que=(
             "Triage de hallazgos de seguridad en m08: decide si un hallazgo de "

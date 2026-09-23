@@ -281,7 +281,7 @@ async def scan_client_inactivity_with_session(db) -> dict:
                         f"Último login: {last_login_str}"
                     ),
                     action_url=deep_links.client_user_admin(
-                        user.client_id, user.id,
+                        user.client_id, user.id, project_id=project_id,
                     ),
                     triggered_by="notifications.scan_client_inactivity",
                     metadata={
@@ -301,7 +301,7 @@ async def scan_client_inactivity_with_session(db) -> dict:
         try:
             orch = NotificationOrchestrator(db)
             cta_url = deep_links.client_user_admin(
-                user.client_id, user.id,
+                user.client_id, user.id, project_id=project_id,
             )
             await orch.enqueue_with_template(
                 event_type="client_inactivity_admin",

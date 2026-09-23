@@ -154,7 +154,11 @@ export interface WorkspaceSummary {
 // API functions
 // =====================================================================
 
-const BASE = "/api/v1/projects";
+// El router m20 cuelga de /api/v1 con prefix "/workspace" y rutas
+// "/projects/{id}/workspace/..." (backend/app/motors/m20_workspace/api.py).
+// Antes esto apuntaba a /api/v1/projects/{id}/workspace, que no existe: todo
+// el panel respondía 404 y "Crear workspace" fallaba siempre.
+const BASE = "/api/v1/workspace/projects";
 
 // -------- Workspace lifecycle --------
 

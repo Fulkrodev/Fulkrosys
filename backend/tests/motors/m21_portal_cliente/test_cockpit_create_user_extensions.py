@@ -2,20 +2,16 @@
 
 Post-MB-4.bis3 (ADR-020 v3 IMPLEMENTED FULLY): cockpit_create_user drop
 magic_link PRIMER_ACCESO_CLIENTE · email simple con temp_password.
-Tests legacy del flow magic_link están skipped a nivel módulo.
+El helper sigue vivo (se llama al crear el usuario); solo cambio el
+parametro del enlace: ``login_url`` en vez de ``magic_link_url``.
 """
 from __future__ import annotations
 
 import pytest
 
-pytestmark = pytest.mark.skip(
-    reason="MB-4.bis3 ADR-020 · cockpit_create_user drop magic_link emit · "
-    "email simple con temp_password reemplaza · tests legacy obsoletos"
-)
 
 import uuid
 
-import pytest
 from sqlalchemy import text
 
 from backend.app.motors.m21_portal_cliente.api import (
@@ -77,7 +73,7 @@ async def test_enqueue_welcome_notification_with_project(db):
         db=db,
         client_id=client_id,
         client_user=user,
-        magic_link_url="https://app.fulkro.es/ml/consume?token=fake",
+        login_url="https://app.fulkro.es/ml/consume?token=fake",
         magic_link_id=uuid.uuid4(),
         ttl_hours=24,
     )
@@ -104,7 +100,7 @@ async def test_enqueue_welcome_notification_without_project_skip(db):
         db=db,
         client_id=client_id,
         client_user=user,
-        magic_link_url="https://app.fulkro.es/ml/consume?token=skip",
+        login_url="https://app.fulkro.es/ml/consume?token=skip",
         magic_link_id=uuid.uuid4(),
         ttl_hours=24,
     )
@@ -137,7 +133,7 @@ async def test_enqueue_welcome_notification_skips_archived_projects(db):
         db=db,
         client_id=client_id,
         client_user=user,
-        magic_link_url="https://app.fulkro.es/ml/consume?token=archived",
+        login_url="https://app.fulkro.es/ml/consume?token=archived",
         magic_link_id=uuid.uuid4(),
         ttl_hours=24,
     )
@@ -180,7 +176,7 @@ async def test_enqueue_welcome_notification_picks_first_active_project(db):
         db=db,
         client_id=client_id,
         client_user=user,
-        magic_link_url="https://app.fulkro.es/ml/consume?token=multi",
+        login_url="https://app.fulkro.es/ml/consume?token=multi",
         magic_link_id=uuid.uuid4(),
         ttl_hours=48,
     )

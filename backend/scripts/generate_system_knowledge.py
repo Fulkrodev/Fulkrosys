@@ -113,6 +113,37 @@ def _parse_project_tabs(path: Path) -> list[tuple[str, str]]:
     return out
 
 
+_REDIRECT = re.compile(r"""\bredirect\(\s*[`"']([^`"'$]*)(\$?)""")
+_PORTADAS = {"/", "/admin/projects", "/admin/dashboard", "/client-portal",
+             "/client-portal/dashboard"}
+
+
+def _es_redireccion_heredada(page: Path, pages_dir: Path) -> bool:
+    """La pagina (o un layout por encima) solo manda a una portada generica.
+
+    El copiloto ofrecia estas rutas como «rutas reales» (/admin/pipeline,
+    /admin/retainers, /admin/magic-links...) y quien las seguia acababa en el
+    selector de proyectos. Misma regla que
+    backend/tests/test_enlaces_de_interfaz_existen.py.
+    """
+    def _fuera(fichero: Path) -> bool:
+        if not fichero.exists():
+            return False
+        m = _REDIRECT.search(fichero.read_text(encoding="utf-8"))
+        return m is not None and not m.group(2) and (
+            (m.group(1).rstrip("/") or "/") in _PORTADAS
+        )
+
+    if _fuera(page):
+        return True
+    carpeta = page.parent
+    while carpeta != pages_dir and pages_dir in carpeta.parents:
+        if _fuera(carpeta / "layout.tsx"):
+            return True
+        carpeta = carpeta.parent
+    return False
+
+
 def _enumerate_admin_routes(pages_dir: Path) -> list[str]:
     """Todas las rutas admin del filesystem (page.tsx), incl. el SELECTOR de
     proyectos (/admin/projects) y el portal de COMPLIANCE (/admin/compliance/*).
@@ -125,6 +156,8 @@ def _enumerate_admin_routes(pages_dir: Path) -> list[str]:
         return []
     routes: set[str] = set()
     for page in pages_dir.rglob("page.tsx"):
+        if _es_redireccion_heredada(page, pages_dir):
+            continue
         rel = page.parent.relative_to(pages_dir).as_posix()
         parts = [] if rel in ("", ".") else [
             p for p in rel.split("/") if not (p.startswith("(") and p.endswith(")"))

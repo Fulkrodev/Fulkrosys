@@ -29,6 +29,7 @@ from backend.app.models.client_portal import ClientUser
 from backend.app.models.core import Project
 from backend.app.motors.m21_portal_cliente.task_templates_loader import (
     TaskTemplate,
+    resolve_cta_url,
 )
 
 
@@ -113,7 +114,10 @@ async def send_client_unblock_notification(
 
     title = "Tu consultor terminó · es tu turno"
     body = _format_cliente_message(template)
-    target_url = template.cta_url or "/client-portal/workflow"
+    # La plantilla lleva `{project_id}` sin resolver; se resuelve aquí.
+    target_url = (
+        resolve_cta_url(template.cta_url, project_id) or "/client-portal/workflow"
+    )
 
     # In-app notification per user
     for user in client_users:
@@ -231,7 +235,13 @@ async def send_admin_step_completed_notification(
     try:
         from backend.app.notifications.orchestrator import NotificationOrchestrator
         orchestrator = NotificationOrchestrator(db)
-        target_url = template.cta_url or "/admin/workflow-command-center"
+        # `{project_id}` resuelto y URL ABSOLUTA: en un email un href relativo
+        # no lleva a ninguna parte.
+        from backend.app.notifications.deep_links import DeepLinkGenerator
+        target_url = DeepLinkGenerator()._build(
+            resolve_cta_url(template.cta_url, project_id)
+            or "/admin/workflow-command-center"
+        )
         html_body = (
             f"<p>{message}</p>"
             f"<p><a href='{target_url}'>Abrir en el panel</a></p>"

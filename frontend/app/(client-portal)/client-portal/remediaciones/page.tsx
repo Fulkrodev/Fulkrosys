@@ -51,7 +51,7 @@ export default function RemediacionesPage() {
     },
   });
 
-  const gaps = remediationsQuery.data?.gaps ?? [];
+  const gaps = useMemo(() => remediationsQuery.data?.gaps ?? [], [remediationsQuery.data]);
 
   const { pendientes, enProgreso, resueltas } = useMemo(() => {
     return {

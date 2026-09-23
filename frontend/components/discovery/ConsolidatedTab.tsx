@@ -47,7 +47,7 @@ export function ConsolidatedTab({ projectId }: ConsolidatedTabProps) {
   const [provFilter, setProvFilter] = React.useState<ConsolidatedProvenance | "all">("all");
   const [typeFilter, setTypeFilter] = React.useState<string>("all");
 
-  const assets = data?.assets ?? [];
+  const assets = React.useMemo(() => data?.assets ?? [], [data]);
   const counts = data?.counts;
 
   const typeOptions = React.useMemo(() => {

@@ -29,17 +29,7 @@ test.describe("Copiloto · memoria por proyecto (#23)", () => {
     await expect(page.getByTestId("copilot-project-select")).toBeVisible();
   });
 
-  // SKIP: el workspace + selector de proyecto renderizan (el test "renderiza
-  // con selector de proyecto" pasa verde) y el botón "Nueva conversación" se
-  // monta (projectId resuelto). El backend SÍ crea la conversación (INSERT INTO
-  // copilot_conversations confirmado en el log del backend durante el test).
-  // PERO la lista (useProjectConversations · GET filtra project_id + deleted_at
-  // IS NULL) devuelve 0 items tras el create → el count no sube. Es una cuestión
-  // de visibilidad de la lista en el contexto E2E (probable RLS / filtro
-  // project_id del GET admin m11), NO una deriva de selector. La persistencia
-  // real se cubre en backend (test_conversation_crud.py · pytest). Señalado para
-  // contraste (Marcos · list-visibility copilot conversations admin), NO borrar.
-  test.skip("crear una conversación y persiste al recargar (recall)", async ({
+  test("crear una conversación y persiste al recargar (recall)", async ({
     page,
   }) => {
     await page.goto("/admin/copilot");

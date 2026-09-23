@@ -125,27 +125,32 @@ export default function FirmasHubPage() {
 
           {history.readiness_snapshot && (
             <Card className="p-5">
-              <button
-                type="button"
-                onClick={() => setSnapshotOpen((v) => !v)}
-                className="w-full flex items-center justify-between text-left"
-                aria-expanded={snapshotOpen}
-              >
+              {/* Los tooltips van FUERA del boton que despliega: un boton dentro
+                  de otro es HTML invalido y pulsar la ayuda plegaba la seccion. */}
+              <div className="w-full flex items-center justify-between gap-3">
                 <div>
                   <div className="flex items-center gap-1.5 text-sm font-semibold text-fulkro-ink-700">
                     Detalles auditoría <TooltipENS term="ENAC" />
                   </div>
                   <div className="text-xs text-fulkro-ink-500 mt-0.5">
-                    Snapshot capturado al firmar la Declaración de Conformidad{" "}
+                    Estado guardado al firmar la Declaración de Conformidad{" "}
                     <TooltipENS term="ENS" />
                   </div>
                 </div>
-                {snapshotOpen ? (
-                  <ChevronUp className="h-4 w-4 text-fulkro-ink-500" aria-hidden />
-                ) : (
-                  <ChevronDown className="h-4 w-4 text-fulkro-ink-500" aria-hidden />
-                )}
-              </button>
+                <button
+                  type="button"
+                  onClick={() => setSnapshotOpen((v) => !v)}
+                  className="inline-flex min-h-[24px] min-w-[24px] items-center justify-center rounded-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-fulkro-primary-700"
+                  aria-expanded={snapshotOpen}
+                  aria-label={snapshotOpen ? "Ocultar detalles de auditoría" : "Mostrar detalles de auditoría"}
+                >
+                  {snapshotOpen ? (
+                    <ChevronUp className="h-4 w-4 text-fulkro-ink-500" aria-hidden />
+                  ) : (
+                    <ChevronDown className="h-4 w-4 text-fulkro-ink-500" aria-hidden />
+                  )}
+                </button>
+              </div>
               {snapshotOpen && (
                 <pre className="mt-4 p-3 rounded-lg bg-fulkro-ink-50 text-xs font-mono text-fulkro-ink-700 overflow-x-auto whitespace-pre-wrap break-words">
                   {JSON.stringify(history.readiness_snapshot, null, 2)}

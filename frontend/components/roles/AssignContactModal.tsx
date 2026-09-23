@@ -100,7 +100,7 @@ export function AssignContactModal({
     }
   }, [open, form]);
 
-  const allContacts = rt.contacts.data?.contacts ?? [];
+  const allContacts = React.useMemo(() => rt.contacts.data?.contacts ?? [], [rt.contacts.data]);
   const portalAccessExisting = validateConstraintV3(allContacts);
 
   const filtered = React.useMemo(() => {

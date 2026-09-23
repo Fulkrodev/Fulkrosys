@@ -6,11 +6,12 @@ import { IdmsWorkbench } from "@/components/documents/IdmsWorkbench";
 import { RectoresGeneratorPanel } from "@/components/documents/RectoresGeneratorPanel";
 import { IdmsAdminLayout } from "@/components/idms/IdmsAdminLayout";
 
-export default function DocumentsPage({
-  params,
-}: {
-  params: { id: string };
-}) {
+export default async function DocumentsPage(
+  props: {
+    params: Promise<{ id: string }>;
+  }
+) {
+  const params = await props.params;
   return (
     <div className="flex flex-col gap-4">
       {/* Sub-atom 1.C.G.A v3.10 · workbench full tree + upload + viewer + history */}

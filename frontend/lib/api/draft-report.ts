@@ -4,6 +4,8 @@
  * Wraps backend draft_report_api endpoints (auditor + admin).
  * Preview returns HTML string · POST returns PDF Blob.
  */
+import { csrfHeaders } from "@/lib/csrf";
+
 const PUBLIC_BASE = "/api/v1/public/auditor-portal";
 const ADMIN_BASE = "/api/v1/admin/projects";
 
@@ -36,6 +38,7 @@ async function _fetchPdf(
     credentials: "include",
     headers: {
       "Content-Type": "application/json",
+      ...csrfHeaders(),
     },
     body: JSON.stringify(body ?? {}),
   });

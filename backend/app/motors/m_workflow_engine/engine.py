@@ -18,6 +18,7 @@ from backend.app.motors.m21_portal_cliente.task_templates_loader import (
     TaskTemplate,
     apply_archetype_variant,
     get_enriched_steps_for_project,
+    resolve_cta_url,
 )
 
 
@@ -263,7 +264,7 @@ async def compute_steps_for_project(
             description_detailed_es=tmpl.description_detailed_es or tmpl.description,
             rationale_es=tmpl.rationale_es,
             cta_label=tmpl.cta_label,
-            cta_url=tmpl.cta_url,
+            cta_url=resolve_cta_url(tmpl.cta_url, project_id),
             priority=tmpl.priority,
             estimated_days=adapted_days,
             deliverable_codes=tmpl.deliverable_codes,

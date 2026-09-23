@@ -149,9 +149,20 @@ def issue_token(
     return token, jti, expires_at
 
 
+# Tolerancia de reloj al verificar ``iat``/``exp``. PyJWT rechaza un ``iat``
+# en el futuro ("not yet valid"), y basta con que el reloj retroceda una
+# fraccion de segundo entre emitir y verificar -- un ajuste NTP, el reloj de
+# WSL2, o dos procesos/maquinas con un desfase minimo -- para que una sesion
+# recien creada se rechace como "Invalid session token" al primer uso. Medido
+# el 2026-09-23: 1 de cada 50 entradas acababa en el login.
+JWT_LEEWAY = timedelta(seconds=10)
+
+
 def decode_token(token: str) -> dict:
     """Verify JWT signature and decode. Raises ``pyjwt.InvalidTokenError`` on failure."""
-    return pyjwt.decode(token, _PUBLIC_PEM, algorithms=[JWT_ALGORITHM])
+    return pyjwt.decode(
+        token, _PUBLIC_PEM, algorithms=[JWT_ALGORITHM], leeway=JWT_LEEWAY,
+    )
 
 
 def get_public_pem() -> bytes:

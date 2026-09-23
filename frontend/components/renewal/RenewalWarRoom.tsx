@@ -11,7 +11,8 @@
  * A. Hero countdown · audit_window_due + auditor info + status overall
  * B. DriftMatrix 10×4 (sub-component)
  * C. RenewalTimeline 8 milestones (sub-component)
- * D. Action panel · 4 cards (preparación · contactar auditor · dossier · pentest)
+ * D. Action panel · contactar auditor ENAC (las otras tres tarjetas eran
+ *    placeholders sin accion y se quitaron en 2769c15)
  */
 import * as React from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -309,7 +310,7 @@ export function RenewalWarRoom({ projectId }: { projectId: string }) {
               <span className="text-xs uppercase tracking-wide text-fulkro-ink-600">
                 Próxima auditoría{" "}
                 <TooltipENS
-                  text="Recertificación bienal ENS: cada 2 años renueva tu conformidad. En MEDIA/ALTA con auditor ENAC externo · en BÁSICA con autoevaluación CCN-STIC 809."
+                  text="Recertificación bienal ENS: cada 2 años renueva tu conformidad. En MEDIA/ALTA con auditor ENAC externo · en BÁSICA con autoevaluación (CCN-STIC 808) y nueva Declaración de Conformidad (CCN-STIC 809)."
                   iconSize={11}
                 />
               </span>

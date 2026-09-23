@@ -65,10 +65,11 @@ interface SettingsSection {
 }
 
 interface PageProps {
-  params: { id: string };
+  params: Promise<{ id: string }>;
 }
 
-export default function ProjectSettingsPage({ params }: PageProps) {
+export default async function ProjectSettingsPage(props: PageProps) {
+  const params = await props.params;
   const projectId = params.id;
 
   const sections: SettingsSection[] = [
@@ -231,7 +232,7 @@ function SettingsCard({ section }: { section: SettingsSection }) {
 
   if (isDisabled) {
     return (
-      <div role="listitem" aria-disabled="true">
+      <div role="listitem">
         {cardInner}
       </div>
     );

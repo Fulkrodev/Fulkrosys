@@ -242,6 +242,14 @@ async def create_clarification(
     )
     db.add(clarification)
     await db.flush()
+    # refresh AQUI, recien hecho el flush y con el rol bypass de
+    # _validate_token_peek aun vigente. Mas tarde no vale: el EmailSender hace
+    # RESET ROLE dentro de la transaccion, y tras el commit la conexion vuelve
+    # a fulkro_app sin tenant; en ambos casos RLS oculta la fila, refresh lanza
+    # InvalidRequestError y el endpoint devolvia 500 con la aclaracion YA
+    # guardada (el auditor reintentaba y la duplicaba). expire_on_commit=False
+    # conserva los atributos cargados para la respuesta.
+    await db.refresh(clarification)
 
     auditor_email = (
         ctx.magic_link.recipient_email
@@ -271,7 +279,6 @@ async def create_clarification(
     )
 
     await db.commit()
-    await db.refresh(clarification)
 
     # SSE realtime notification para admin subscribers project channel
     # NO bloquea response · best-effort
@@ -461,6 +468,9 @@ async def patch_clarification_admin(
         }),
     })
     await db.flush()
-    await db.commit()
+    # refresh ANTES del commit: tras el commit la conexion vuelve a fulkro_app
+    # sin el SET LOCAL ROLE de arriba, RLS oculta la fila y refresh lanzaba
+    # InvalidRequestError -> 500 con la respuesta YA guardada.
     await db.refresh(clarification)
+    await db.commit()
     return ClarificationOut.model_validate(clarification)

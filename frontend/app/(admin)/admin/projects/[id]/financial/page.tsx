@@ -1,11 +1,12 @@
 import { FinancialPanel } from "@/components/financial/FinancialPanel";
 import { ImplementationPaymentsPanel } from "@/components/financial/ImplementationPaymentsPanel";
 
-export default function FinancialPage({
-  params,
-}: {
-  params: { id: string };
-}) {
+export default async function FinancialPage(
+  props: {
+    params: Promise<{ id: string }>;
+  }
+) {
+  const params = await props.params;
   return (
     <>
       <FinancialPanel projectId={params.id} />

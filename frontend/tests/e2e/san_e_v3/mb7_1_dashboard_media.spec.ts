@@ -17,7 +17,9 @@ test.describe("SAN-E v3.MB-7.1 · dashboard tier-aware widgets", () => {
   }) => {
     await loginAsClient(page);
     await page.goto("/client-portal/dashboard");
-    await page.waitForLoadState("networkidle");
+    // `load` y no `networkidle`: el portal mantiene abierta la conexion SSE de
+    // eventos, y con ella la red nunca queda inactiva (la espera no acaba nunca).
+    await page.waitForLoadState("load");
 
     // Workflow stepper card
     await expect(page.getByTestId("workflow-stepper")).toBeVisible();
@@ -32,7 +34,9 @@ test.describe("SAN-E v3.MB-7.1 · dashboard tier-aware widgets", () => {
   test("phase stepper · current step highlighted", async ({ page }) => {
     await loginAsClient(page);
     await page.goto("/client-portal/dashboard");
-    await page.waitForLoadState("networkidle");
+    // `load` y no `networkidle`: el portal mantiene abierta la conexion SSE de
+    // eventos, y con ella la red nunca queda inactiva (la espera no acaba nunca).
+    await page.waitForLoadState("load");
 
     const stepper = page.getByTestId("workflow-stepper");
     await expect(stepper).toBeVisible();

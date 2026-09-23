@@ -14,6 +14,8 @@
  */
 import type { Page } from "@playwright/test";
 
+import { mockProjectShell } from "../_helpers/project-shell";
+
 export const PROJECT_G_ID = "ddddeeee-1111-2222-3333-444444444444";
 export const CLIENT_G_ID = "ddddeeee-aaaa-bbbb-cccc-555555555555";
 
@@ -414,6 +416,14 @@ export const MOCK_CLIENT_EVIDENCE_EMPTY: never[] = [];
 // ============================================================
 
 export async function mockAdminIdmsBase(page: Page) {
+  // Layout project-scoped: ActiveProjectSync pide /header y, si falla (el id
+  // es sintético → 404), redirige al selector /admin/projects antes de que el
+  // gestor documental monte.
+  await mockProjectShell(page, {
+    projectId: PROJECT_G_ID,
+    clientId: CLIENT_G_ID,
+  });
+
   // Folder tree (m24_idms)
   await page.route(
     new RegExp(

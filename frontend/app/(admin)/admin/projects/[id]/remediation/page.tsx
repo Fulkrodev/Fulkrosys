@@ -2,11 +2,12 @@ import { CopilotGuidedFlow } from "@/components/admin/copilot/CopilotGuidedFlow"
 import { PHASE_GUIDES } from "@/components/admin/copilot/phaseGuides";
 import { RemediationConsolePanel } from "@/components/remediation/RemediationConsolePanel";
 
-export default function ProjectRemediationPage({
-  params,
-}: {
-  params: { id: string };
-}) {
+export default async function ProjectRemediationPage(
+  props: {
+    params: Promise<{ id: string }>;
+  }
+) {
+  const params = await props.params;
   return (
     <div className="flex flex-col gap-6">
       <CopilotGuidedFlow {...PHASE_GUIDES.remediation(params.id)} />

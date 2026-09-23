@@ -6,10 +6,10 @@
 
 [![Licencia](https://img.shields.io/badge/licencia-Apache--2.0-6C63FF?style=for-the-badge&labelColor=1a1a2e)](LICENSE)
 [![Python](https://img.shields.io/badge/Python-3.12-6C63FF?style=for-the-badge&labelColor=1a1a2e&logo=python&logoColor=white)](backend/pyproject.toml)
-[![FastAPI](https://img.shields.io/badge/FastAPI-1.201%20operaciones-6C63FF?style=for-the-badge&labelColor=1a1a2e&logo=fastapi&logoColor=white)](#métricas)
+[![FastAPI](https://img.shields.io/badge/FastAPI-1.203%20operaciones-6C63FF?style=for-the-badge&labelColor=1a1a2e&logo=fastapi&logoColor=white)](#métricas)
 [![Next.js](https://img.shields.io/badge/Next.js%2014-167%20páginas-6C63FF?style=for-the-badge&labelColor=1a1a2e&logo=nextdotjs&logoColor=white)](#los-cuatro-portales)
 [![PostgreSQL](https://img.shields.io/badge/PostgreSQL%2016-253%20tablas-6C63FF?style=for-the-badge&labelColor=1a1a2e&logo=postgresql&logoColor=white)](#cómo-está-construido)
-[![Tests](https://img.shields.io/badge/tests-6.510%20pasan-8B83FF?style=for-the-badge&labelColor=1a1a2e&logo=pytest&logoColor=white)](#suite)
+[![Tests](https://img.shields.io/badge/tests-6.877%20pasan-8B83FF?style=for-the-badge&labelColor=1a1a2e&logo=pytest&logoColor=white)](#suite)
 
 **Categorización · Análisis de riesgos MAGERIT · Declaración de aplicabilidad · Plan de adecuación
 · Generación documental · Evidencias · Portal de auditor**
@@ -105,37 +105,40 @@ forma recursiva (las puertas anidadas no salen en el primer nivel):
 
 ```bash
 $ PYTHONPATH=. python3 scripts/medir_autorizacion.py
-rutas resueltas          1201
-operaciones (camino x metodo) 1201
-contraste con el esquema OpenAPI: 1099 caminos, 1201 operaciones
+rutas resueltas          1204
+operaciones (camino x metodo) 1204
+contraste con el esquema OpenAPI: 1100 caminos, 1203 operaciones
 
 puerta                         rutas   % rutas
-require_owner                    845     70.4%
+require_owner                    847     70.3%
 require_client_user               25      2.1%
 require_marcos_or_client          81      6.7%
 
 Corte por poblacion de sujeto (categorias EXCLUYENTES, suman el total):
-solo administrador               849     70.7%
-solo cliente                     176     14.7%
+solo administrador               851     70.7%
+solo cliente                     176     14.6%
 cualquiera de los dos             81      6.7%
-ninguna de esas                   95      7.9%
+ninguna de esas                   96      8.0%
 
-De las 1106 rutas con puerta de poblacion, 849 exigen ser el administrador: 76.8%.
-Rutas que pasan por `authenticate_request` (dependencia global): 1201/1201.
+De las 1108 rutas con puerta de poblacion, 851 exigen ser el administrador: 76.8%.
+Rutas que pasan por `authenticate_request` (dependencia global): 1204/1204.
 ```
 
-**Población contada: rutas.** En esta aplicación coinciden con las operaciones (camino × método),
-porque cada ruta declara un solo método: 1.201 y 1.201, contrastado contra el esquema OpenAPI.
+**Población contada: rutas.** Cada ruta declara un solo método, así que rutas y operaciones
+(camino × método) serían lo mismo si no fuera por una: `/metrics`, que se declara con
+`include_in_schema=False` y por eso el recorrido cuenta 1.204 y el esquema OpenAPI 1.203.
 
-Las 845 reales frente a las 249 del `grep` dan la medida del desfase: contar el literal deja fuera
-casi setecientos endpoints. Y hay un matiz que el conteo de tres puertas también se dejaba: hay
+Las 847 reales frente a las 249 del `grep` dan la medida del desfase: contar el literal deja fuera
+casi seiscientos endpoints. Y hay un matiz que el conteo de tres puertas también se dejaba: hay
 rutas que resuelven el sujeto con `get_current_user` o `get_current_client_user` sin pasar por
-ninguna de las tres, así que «sin puerta» no significa «sin autenticación» — las 1.201 pasan por
+ninguna de las tres, así que «sin puerta» no significa «sin autenticación» — las 1.204 pasan por
 `authenticate_request`.
 
 **Con la población bien contada, la conclusión se sostiene: 76,8 % de las rutas con puerta de
 población exigen ser el administrador**, casi ocho de cada diez. La frase era correcta; el comando
-que la acompañaba, no. El script queda en el repositorio para que se pueda volver a medir.
+que la acompañaba, no. El script queda en el repositorio para que se pueda volver a medir, y hay
+que hacerlo: entre la primera medición (1.201) y esta (1.204) entraron tres rutas, y el porcentaje
+no se movió.
 
 **Consecuencia, dicha sin adornos:** un despacho de tres consultores no puede usar esto tal cual.
 No hay bandeja de administración por usuario, ni roles intermedios, ni forma de repartir clientes
@@ -146,8 +149,6 @@ Es una decisión, no un descuido. Un solo operador significa que no hay que reso
 entre iguales, ni conflictos de edición, ni jerarquías de visibilidad, y eso permitió llegar mucho
 más lejos en la parte normativa. El coste es que el producto no escala a equipos sin rehacer la
 capa de identidad. Se eligió a sabiendas.
-
----
 
 ---
 
@@ -301,12 +302,15 @@ máquina limpia, está en [`docs/INSTALL_TRACE.md`](docs/INSTALL_TRACE.md).
 
 Se puede, pero necesita un entorno de compilación de C que el proyecto no declaraba: `pip install
 -e "backend[dev]"` arrastra `pycairo` vía `mjml-python` y se construye desde fuente. Los paquetes
-de sistema que hacen falta están en `INSTALL.md`. `docker-compose.yml` declara 22 servicios, pero
-**16 son de pentesting** y no hacen falta para levantar la plataforma:
+de sistema que hacen falta están en `INSTALL.md`. `docker-compose.yml` declara 23 servicios, pero
+**15 son de pentesting** (perfil `pentest`) y otros dos, el escáner, van en su propio perfil
+`scanner`; ninguno de los 17 hace falta para levantar la plataforma:
 
 ```bash
 $ python3 -c "import yaml; print(len(yaml.safe_load(open('docker-compose.yml'))['services']))"
-22
+23
+$ grep -c 'profiles: \[pentest\]' docker-compose.yml
+15
 ```
 
 ---
@@ -320,27 +324,35 @@ están marcadas como tales.
 
 | | | comando |
 |---|---:|---|
-| Operaciones de API | **1.201** en 1.100 caminos | `app.openapi()` · abajo |
+| Operaciones de API | **1.203** en 1.100 caminos | `app.openapi()` · abajo |
 | Motores de dominio | **44** | `ls -d backend/app/motors/m*/ \| wc -l` |
 | Tablas en PostgreSQL | **253** | `psql -c "\\dt" \| wc -l` |
 | Migraciones Alembic | **273** | `ls backend/migrations/versions/*.py \| wc -l` |
 | Páginas del frontend | **167** | `find frontend/app -name page.tsx \| wc -l` |
-| Componentes React | **427** | `find frontend/components -name '*.tsx' \| wc -l` |
-| Líneas de Python | **243.999** | `find backend/app -name '*.py' \| xargs wc -l` |
+| Componentes React | **426** | `find frontend/components -name '*.tsx' \| wc -l` |
+| Líneas de Python | **244.229** | `find backend/app -name '*.py' \| xargs wc -l` |
 
 ### Suite
 
+Ejecutada entera el 2026-09-23, contra `pgvector/pgvector:pg16` sembrada y MinIO,
+en cuatro trozos paralelos (el mismo reparto que
+[`.github/workflows/pytest-completo.yml`](.github/workflows/pytest-completo.yml)):
+
 ```bash
-$ pytest backend/tests -q
-44 failed, 6510 passed, 115 skipped, 5 errors in 821.19s (0:13:41)
+$ pytest backend/tests -m "not requires_db" -q
+3556 passed, 22 skipped, 3374 deselected in 90.21s (0:01:30)
+$ pytest backend/tests -m requires_db -q            # 4 trozos, base sembrada
+3321 passed, 53 skipped · 0 failed      # los 4 trozos juntos, ~98 s el más lento
 ```
 
 | | | |
 |---|---:|---|
-| Pasan | **6.510** | |
-| Fallan | 44 | ninguno atribuible al código · ver *Dependencias de entorno* |
-| Errores | 5 | los cinco, un puerto codificado en el fichero de test |
-| Ficheros de test | **632** | `find backend/tests -name 'test_*.py' \| wc -l` |
+| Pasan | **6.877** | 3.556 sin base + 3.321 con base |
+| Fallan | **0** | |
+| Saltados | 75 | 46 llaman al modelo real (opt-in), 14 necesitan el HTML del BOE descargado, 11 PDFs de terceros que no se distribuyen, 4 condicionales o de activación futura |
+| E2E Playwright | **413 / 413** | 0 fallan · 0 saltados |
+| Polish WCAG | **97 / 97** | admin 75 · cliente 10 · auditor 12 |
+| Ficheros de test | **638** | `find backend/tests -name 'test_*.py' \| wc -l` |
 | Specs de Playwright | **300** | `find frontend/tests -name '*.spec.ts' \| wc -l` |
 
 ### Recuperación del corpus · evaluación
@@ -393,65 +405,53 @@ make recorrer-todo
 
 Cinco cosas. Ninguna es una sorpresa: las cinco están medidas y escritas en
 `docs/`, y se listan aquí para que no haya que encontrarlas leyendo el repositorio
-entero.
+entero. Lo que se cerró por el camino —la suite completa con base de datos, el
+salto a Next 15, los 14 avisos de `npm audit`, las pruebas contra el modelo real
+y una treintena de defectos que había debajo— está en
+[`docs/INFORME_BLOQUE_S.md`](docs/INFORME_BLOQUE_S.md).
 
-1. **De 6.709 tests recogidos, 3.371 exigen la base sembrada y NO son puerta de
-   CI.** La puerta de hoy son los 3.338 que corren sin base de datos. Una muestra
-   acotada de los que sí la necesitan sale limpia —289 en 108 s sobre `api`,
-   `auth`, `core`, `models`, `security`, `audit_fixes` y `test_rls_multitenancy.py`,
-   medido en los comentarios de [`.github/workflows/ci.yml`](.github/workflows/ci.yml)—
-   pero **la ejecución completa no se ha hecho nunca**, así que nadie sabe cuántos
-   de los 3.371 pasan. Ya hay dónde ejecutarla —
+1. **La suite con base de datos todavía no es puerta de PR.** Se ejecutó entera
+   en local (arriba: 0 fallos), pero en GitHub corre de noche o a mano, en
    [`.github/workflows/pytest-completo.yml`](.github/workflows/pytest-completo.yml),
-   a mano o de noche, con la base sembrada y repartida en cuatro trozos— y no es
-   puerta de PR hasta que se vea pasar dos noches seguidas. Los pasos para
-   promoverla están en [`docs/CI.md`](docs/CI.md) §2.7.
-   ```bash
-   $ pytest backend/tests/ --collect-only -q -m "requires_db"      # → 3371
-   $ pytest backend/tests/ --collect-only -q -m "not requires_db"  # → 3338
-   ```
+   y se promueve a puerta cuando se vea pasar dos noches seguidas (pasos en
+   [`docs/CI.md`](docs/CI.md) §2.7). La puerta de hoy son los tests sin base.
 
-2. **Next.js 14.2.33, con 14 avisos acotados hasta el 2026-12-31** (2 críticos y
-   12 `high`), todos del mismo paquete y todos con el mismo arreglo: saltar a
-   15.5.24. De los dos críticos sí está medido que **no son alcanzables** aquí
-   —uno exige servidor alojado en Windows, y esto es Linux en contenedor; el otro
-   exige que el optimizador sirva AVIF de origen no confiable, y `/_next/image`
-   sobre los SVG locales devuelve 400 con `dangerouslyAllowSVG` desactivado—. De
-   los doce `high` **no está medida su alcanzabilidad una a una**, y no se afirma
-   que no la tengan. El salto está medido (codemod automático sobre 77 ficheros,
-   1,6 s, 0 errores, más una línea de ESLint) y lo que falta no es el salto: es
-   **verificar en ejecución** que Next 15 no cambia el comportamiento de las 168
-   rutas, porque ese cambio no produce errores de compilación. Medición en
-   [`docs/MEDICION_NEXTJS_15.md`](docs/MEDICION_NEXTJS_15.md); los avisos, con su
-   motivo y su fecha, en
-   [`.github/npm-audit-allowlist.json`](.github/npm-audit-allowlist.json).
-
-3. **Cuatro conjuntos de evaluación de agentes, 40 entradas, y ni una sola tasa de
-   acierto real.** El arnés determinista corre y puede tumbar el build; la
-   evaluación contra el modelo necesita `ANTHROPIC_API_KEY` y **nunca se ha
-   ejecutado**, así que el job queda saltado en gris. La cobertura declarada es de
-   3 clases de agente sobre 13, con su justificación en
+2. **Cuatro conjuntos de evaluación de agentes, 40 entradas, sin tasa de acierto
+   medida.** Lo que sí se probó contra el modelo real es que cada agente funciona
+   de punta a punta: 22 tests, uno por agente y motor, los 22 en verde, y una
+   llamada mínima a cada uno de los seis modelos del catálogo. Medir la tasa de
+   acierto es otra pregunta, y cuesta dinero: el job `evals-llm` sigue saltado en
+   gris sin `ANTHROPIC_API_KEY` en los secretos. La cobertura declarada es de 3
+   clases de agente sobre 13, con su justificación en
    [`.github/evals-threshold.yml`](.github/evals-threshold.yml).
 
-4. **Apache AGE no existe en Postgres gestionado** (RDS, Aurora, Cloud SQL, Neon).
+3. **Apache AGE no existe en Postgres gestionado** (RDS, Aurora, Cloud SQL, Neon).
    El grafo de conocimiento exige Postgres propio; todo lo demás funciona con
    `--skip-age-kg`, que además es el valor por omisión del sembrado. El porqué, en
    [`docs/adr/ADR-056-postgres-demo-sin-age.md`](docs/adr/ADR-056-postgres-demo-sin-age.md).
 
-5. **Sin `ANTHROPIC_API_KEY` la plataforma arranca y funciona en modo degradado.**
+4. **Sin `ANTHROPIC_API_KEY` la plataforma arranca y funciona en modo degradado.**
    Los agentes no fabrican prosa —todos piden salida estructurada, y el texto de
    relleno no parsea como JSON— pero diez de los doce caen a un camino de reserva
-   de **plantilla estática** y devuelven 200. Desde el bloque R ese texto viaja
-   marcado: cada resultado declara `generado_por` (`modelo`,
-   `plantilla_por_fallo_de_esquema` o `sin_clave_de_api`), la cadena de workflows
-   arrastra el eslabón más débil, y la interfaz avisa en vez de felicitar. Lo que
-   **no** hay es una puerta que lo impida: hoy no hace falta, porque el texto de
-   los agentes no entra en ningún documento firmable —la justificación de la DdA
-   la escribe un motor determinista (R1)—, pero el día que entre, hará falta.
+   de **plantilla estática** y devuelven 200. Ese texto viaja marcado: cada
+   resultado declara `generado_por` (`modelo`, `plantilla_por_fallo_de_esquema` o
+   `sin_clave_de_api`), la cadena de workflows arrastra el eslabón más débil, y la
+   interfaz avisa en vez de felicitar. Lo que **no** hay es una puerta que lo
+   impida: hoy no hace falta, porque el texto de los agentes no entra en ningún
+   documento firmable —la justificación de la DdA la escribe un motor
+   determinista (R1)—, pero el día que entre, hará falta.
 
-Dos informes más que conviene leer antes que el código:
-[`docs/INFORME_CIERRE_CAMPANA.md`](docs/INFORME_CIERRE_CAMPANA.md) y
-[`docs/INVENTARIO_Q.md`](docs/INVENTARIO_Q.md).
+5. **El pipeline comercial del admin está dormido** desde el Batch 2
+   (`/admin/pipeline` redirige al selector de proyectos): hoy no hay pantalla para
+   leads ni para generar propuestas. Su API funciona y sus tests pasan, y los
+   accesos que llevaban a él se retiraron para que ningún botón acabe en el
+   selector. Reactivarlo es borrar `frontend/app/(admin)/admin/pipeline/layout.tsx`.
+
+Cuatro informes que conviene leer antes que el código:
+[`docs/INFORME_CIERRE_CAMPANA.md`](docs/INFORME_CIERRE_CAMPANA.md),
+[`docs/INVENTARIO_Q.md`](docs/INVENTARIO_Q.md),
+[`docs/INFORME_BLOQUE_R.md`](docs/INFORME_BLOQUE_R.md) y
+[`docs/INFORME_BLOQUE_S.md`](docs/INFORME_BLOQUE_S.md), el último.
 
 ---
 
@@ -459,17 +459,17 @@ Dos informes más que conviene leer antes que el código:
 
 ```bash
 $ git ls-files backend/app | grep '\.py$' | xargs wc -l | tail -1
- 243999 total
+ 244229 total
 
 $ ls -d backend/app/motors/m*/ | wc -l
 44
 
 $ ls backend/migrations/versions/*.py | wc -l
-268
+273
 
 # este necesita el venv activado y el .env cargado: importa la aplicacion
 $ python3 -c "from backend.app.main import app; from fastapi.routing import APIRoute; print(len([r for r in app.routes if isinstance(r, APIRoute)]))"
-1201
+1201   # lo que devolvía con fastapi < 0.141; hoy devuelve 0, ver abajo
 ```
 
 **Ese comando ya no reproduce, y merece explicación porque es un caso de manual.** Desde FastAPI
@@ -486,12 +486,12 @@ La forma robusta a la versión es preguntar por el esquema, que además es la de
 $ python3 -c "from backend.app.main import app; e=app.openapi(); \
 M={'get','post','put','patch','delete','head','options','trace'}; \
 print(len(e['paths']),'caminos ·', sum(1 for v in e['paths'].values() for m in v if m in M),'operaciones')"
-1099 caminos · 1201 operaciones
+1100 caminos · 1203 operaciones
 ```
 
-El 1.201 era correcto como valor —son operaciones, camino por método— y el conteo estático de
-decoradores difiere porque hay routers incluidos varias veces bajo prefijos distintos. Lo que
-había caducado era el comando.
+El 1.201 era correcto como valor en su día —son operaciones, camino por método; hoy son 1.203—
+y el conteo estático de decoradores difiere porque hay routers incluidos varias veces bajo
+prefijos distintos. Lo que había caducado era el comando.
 
 Esto se llevó por delante dos tests que comprobaban registro de endpoints recorriendo `app.routes`
 y contaban 0. **Nadie lo había visto porque el job de tests del CI no se ejecutaba nunca.**
@@ -595,7 +595,7 @@ los enlaces a las decisiones que lo justifican: [`ARCHITECTURE.md`](ARCHITECTURE
 [`docs/adr/README.md`](docs/adr/README.md).
 
 ```
-backend/          FastAPI · 46 directorios de motor en app/motors/ · 269 migraciones
+backend/          FastAPI · 44 directorios de motor en app/motors/ · 273 migraciones
 frontend/         Next.js 14 · App Router · 5 grupos de ruta:
                   (admin) (client-portal) (legal) (portal) (public)
 docs/             catálogos que lee el arranque (MAGERIT, precios, ENS) y especificaciones

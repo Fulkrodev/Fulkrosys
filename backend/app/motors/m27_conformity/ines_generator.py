@@ -61,6 +61,10 @@ class InesYearReport:
     systems_without_category: list[str] = field(default_factory=list)
 
 
+class OrganizacionNoEncontrada(ValueError):
+    """La organizacion del informe INES no existe (los endpoints responden 404)."""
+
+
 async def collect_ines_data(
     db: AsyncSession,
     organization_id: uuid.UUID,
@@ -84,7 +88,7 @@ async def collect_ines_data(
     )
     org = org_row.first()
     if org is None:
-        raise ValueError(f"Organization {organization_id} not found")
+        raise OrganizacionNoEncontrada(f"Organization {organization_id} not found")
 
     # Sistemas en alcance + categorización
     systems_row = await db.execute(

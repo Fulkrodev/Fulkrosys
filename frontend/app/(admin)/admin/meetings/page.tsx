@@ -1,8 +1,7 @@
 /**
  * /admin/meetings — Listado meetings cross-cliente (sub-bloque 7.B.10).
  *
- * Vista global meetings con filtros + búsqueda FTS. Reuse
- * MeetingsHistoryTable component sin clientId filter (cross-cliente).
+ * Vista global meetings con filtros + búsqueda FTS (cross-cliente).
  */
 "use client";
 

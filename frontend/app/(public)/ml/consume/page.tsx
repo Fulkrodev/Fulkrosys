@@ -10,11 +10,12 @@
  */
 import { redirect } from "next/navigation";
 
-export default function MlConsumeRedirectPage({
-  searchParams,
-}: {
-  searchParams: { token?: string };
-}) {
+export default async function MlConsumeRedirectPage(
+  props: {
+    searchParams: Promise<{ token?: string }>;
+  }
+) {
+  const searchParams = await props.searchParams;
   const token = searchParams?.token;
   if (token) {
     redirect(`/sign/${encodeURIComponent(token)}`);

@@ -17,6 +17,8 @@
  */
 import type { Page } from "@playwright/test";
 
+import { mockProjectShell } from "../_helpers/project-shell";
+
 export const PROJECT_A_ID = "eeeeffff-1111-2222-3333-444444444444";
 export const CLIENT_A_ID = "eeeeffff-aaaa-bbbb-cccc-555555555555";
 
@@ -145,6 +147,15 @@ export const MOCK_DISCREPANCIES_CRITICAL_OPEN = [MOCK_DISCREPANCY_CRITICAL];
  * Sostiene R23 + R31 + R24 admin-only project-scoped.
  */
 export async function mockAdminA21Base(page: Page) {
+  // Layout project-scoped: ActiveProjectSync pide /header y, si falla (el id
+  // es sintético → 404), redirige al selector /admin/projects. Va primero para
+  // que el stub de feature-flags de abajo (registrado después) prevalezca.
+  await mockProjectShell(page, {
+    projectId: PROJECT_A_ID,
+    category: "MEDIA",
+    clientId: CLIENT_A_ID,
+  });
+
   // Project features context (ProjectFeaturesContext usado en ProjectTabs)
   await page.route(
     `**/api/v1/projects/${PROJECT_A_ID}/feature-flags`,

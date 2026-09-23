@@ -65,7 +65,13 @@ async def get_next_actions(
             action_id=t.action_id,
             label=t.label,
             motor=t.motor,
-            endpoint=t.endpoint,
+            # Las plantillas son rutas de interfaz project-scoped con
+            # `{project_id}`; el consumidor (NextActionCard) las usa tal cual
+            # como href, así que se resuelven aquí.
+            endpoint=(
+                t.endpoint.replace("{project_id}", str(project_id))
+                if t.endpoint else t.endpoint
+            ),
             priority=t.priority,
             estimated_minutes=t.estimated_minutes,
         )

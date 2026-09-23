@@ -111,8 +111,10 @@ async def scan_churn_risk_with_session(db) -> dict[str, Any]:
                 category="retainer_overdue",
                 title=title,
                 description=description,
+                # El panel global /admin/retainers/churn-risk es una redireccion
+                # heredada al dashboard: el retainer vive en cada proyecto (R23).
                 action_url=deep_links._build(
-                    "/admin/retainers/churn-risk"
+                    f"/admin/projects/{signal.project_id}/retainer"
                 ),
                 triggered_by="retainer.scan_churn_risk",
                 metadata={

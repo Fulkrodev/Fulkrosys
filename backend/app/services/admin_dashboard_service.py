@@ -25,6 +25,8 @@ from pydantic import BaseModel, Field
 from sqlalchemy import text as sa_text
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from backend.app.motors.m21_portal_cliente.task_templates_loader import resolve_cta_url
+
 
 RagStatus = Literal["green", "amber", "red"]
 
@@ -278,7 +280,9 @@ class AdminDashboardService:
                     type="meeting",
                     title=display_title,
                     scheduledAt=meeting_date.isoformat() if meeting_date else None,
-                    href="/admin/meeting",
+                    # /admin/meeting no existe; el detalle de la reunión
+                    # exploratoria vive en /admin/meetings/{id} (misma tabla).
+                    href=f"/admin/meetings/{meeting_id}",
                 )
             )
 
@@ -287,7 +291,7 @@ class AdminDashboardService:
         # empirical · all map type="other" (honest fallback Q2 cement Marcos).
         tasks_rows = await session.execute(
             sa_text(
-                "SELECT ct.id, ct.title, ct.cta_url, ct.status "
+                "SELECT ct.id, ct.title, ct.cta_url, ct.status, ct.project_id "
                 "FROM client_tasks ct "
                 "WHERE ct.deleted_at IS NULL "
                 "  AND ct.status IN ('pending', 'in_progress') "
@@ -297,13 +301,21 @@ class AdminDashboardService:
             {"lim": limit},
         )
         for row in tasks_rows.fetchall():
-            task_id, title, cta_url, status = row
+            task_id, title, cta_url, status, project_id = row
+            # La cta_url de la tarea está pensada para quien la ejecuta: puede
+            # llevar `{project_id}` sin resolver (filas antiguas) o apuntar al
+            # portal cliente, que el middleware no deja abrir a un admin (lo
+            # devuelve a /admin/dashboard). En ambos casos el admin va a la
+            # tarea dentro de su proyecto.
+            href = resolve_cta_url(cta_url, project_id)
+            if not href or not href.startswith("/admin"):
+                href = f"/admin/projects/{project_id}" if project_id else "/admin/projects"
             items.append(
                 MyDayItem(
                     id=f"md-task-{task_id}",
                     type="other",
                     title=title or "Tarea cliente pendiente",
-                    href=cta_url or "/admin/projects",
+                    href=href,
                 )
             )
 

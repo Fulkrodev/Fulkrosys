@@ -12,6 +12,8 @@
  */
 import type { Page } from "@playwright/test";
 
+import { mockProjectShell } from "../_helpers/project-shell";
+
 export const PROJECT_F_ID = "ffffffff-1111-2222-3333-444444444444";
 export const CLIENT_F_ID = "ffffffff-aaaa-bbbb-cccc-dddddddddddd";
 
@@ -345,6 +347,16 @@ export const MOCK_ENS_ROLES_RI_ASSIGNED_MEDIA: EnsRolesStatusMock = {
 // ============================================================
 
 export async function mockEquipoCommon(page: Page) {
+  // Layout project-scoped: ActiveProjectSync pide /header y, si falla (el id
+  // es sintético → 404), redirige al selector /admin/projects antes de que la
+  // página de Equipo termine de montar. Sin este stub los tabs se desmontan
+  // a mitad del click.
+  await mockProjectShell(page, {
+    projectId: PROJECT_F_ID,
+    category: "MEDIA",
+    clientName: MOCK_PROJECT_INFO.nombre,
+    clientId: CLIENT_F_ID,
+  });
   // ProjectTabs metadata.
   await page.route(
     new RegExp(`/api/v1/clients/projects/${PROJECT_F_ID}$`),

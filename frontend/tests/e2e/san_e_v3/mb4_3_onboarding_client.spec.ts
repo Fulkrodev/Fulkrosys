@@ -49,17 +49,18 @@ test.describe("MB-4.3 PARTE B · Cliente in-portal onboarding", () => {
   });
 
   test("AWS card · dialog IAM credentials se abre", async ({ page }) => {
+    // Lista de connectors vacía → AWS "not_connected" de forma determinista
+    // (antes se saltaba si el botón no estaba visible en el primer instante).
+    await page.route(/\/portal\/onboarding\/projects\/[^/]+\/connectors$/, (route) =>
+      route.fulfill({ status: 200, json: { connectors: [] } }),
+    );
+    await page.reload();
     await page.getByRole("tab", { name: /Connectors/i }).click();
-    // Btn "Conectar AWS" abre dialog específico (no OAuth)
-    const awsBtn = page.getByRole("button", { name: /Conectar AWS/i });
-    if (await awsBtn.isVisible().catch(() => false)) {
-      await awsBtn.click();
-      await expect(page.getByText(/Access Key ID/i)).toBeVisible();
-      await expect(page.getByText(/Secret Access Key/i)).toBeVisible();
-    } else {
-      // AWS ya conectado · skip
-      test.skip();
-    }
+    // Btn "Conectar AWS" abre dialog específico (IAM, no OAuth)
+    await page.getByRole("button", { name: /Conectar AWS/i }).click();
+    const dialog = page.getByRole("dialog");
+    await expect(dialog.getByText(/Access Key ID/i)).toBeVisible();
+    await expect(dialog.getByText(/Secret Access Key/i)).toBeVisible();
   });
 
   test("Cursos tab · empty state o lista", async ({ page }) => {

@@ -29,7 +29,7 @@
 import { useQuery } from "@tanstack/react-query";
 import Link from "next/link";
 import { toast } from "sonner";
-import { useState } from "react";
+import { useState, use } from "react";
 import { Building2, ChevronLeft } from "lucide-react";
 
 import { Badge } from "@/components/ui/badge";
@@ -60,11 +60,12 @@ interface ProjectHeaderResponse {
 // projects/[id]/auditor-handoff) estaban rotas a la vez y por lo mismo. Si
 // algún día se migra a Next.js 15, esto vuelve a ser `Promise` y `use()`; hasta
 // entonces, no.
-export default function AdminProjectClienteInfoPage({
-  params,
-}: {
-  params: { id: string };
-}) {
+export default function AdminProjectClienteInfoPage(
+  props: {
+    params: Promise<{ id: string }>;
+  }
+) {
+  const params = use(props.params);
   const { id: projectId } = params;
   const [resuming, setResuming] = useState(false);
 

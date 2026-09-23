@@ -6,7 +6,8 @@
  * 1. Listado /admin/messages renders header + DataTable cross-cliente +
  *    filter Cliente Select
  * 2. Open thread Sheet con mensajes cronológico + reply inline
- * 3. MensajesTab embed en /admin/clients/[id] funcional (filter aplicado)
+ * 3. Filtro Cliente del inbox (sustituye al antiguo MensajesTab embebido en
+ *    /admin/clients/[id], que ya no existe)
  * 4. AdminMessageComposer ContactQuickPicker M30 cross-motor integration
  *
  * Pattern post-MF3.5: loginAsMarcos(context) + page.route mocks
@@ -352,37 +353,40 @@ test.describe("Admin Messages Panel", () => {
     });
   });
 
-  // SKIP: feature eliminada (MensajesTab embebida en el detalle cross-cliente
-  // /admin/clients/[id] · tab "Mensajes"). La ruta /admin/clients/[id] ahora hace
-  // redirect() server-side (resuelve cliente→project → /admin/projects/[id]/...
-  // · Sesión 3B-2B.3 Phase X.4b), así que ni el tab "Mensajes" ni el heading
-  // "Mensajes con este cliente" se renderizan en esa ruta. El inbox cross-cliente
-  // (/admin/messages, tests 1/2/4) sigue vivo. Candidata a borrar tras contraste (Marcos).
-  test.skip("MensajesTab embed en /admin/clients/[id] filtered", async ({
+  // El tab "Mensajes" embebido en /admin/clients/[id] (MensajesTab) desapareció
+  // con el detalle cross-cliente (esa ruta redirige al proyecto · R23). Lo que
+  // queda de "mensajes de un solo cliente" es el filtro Cliente del inbox: se
+  // prueba que al elegir un cliente la lista pide ?client_id= y oculta al resto.
+  test("filtro Cliente del inbox deja solo los hilos de ese cliente", async ({
     page,
   }) => {
-    await page.goto(`/admin/clients/${CLIENT_A_ID}`);
+    const requestedClientIds: (string | null)[] = [];
+    page.on("request", (req) => {
+      if (/\/api\/v1\/admin\/messages(\?|$)/.test(req.url())) {
+        requestedClientIds.push(new URL(req.url()).searchParams.get("client_id"));
+      }
+    });
 
-    // Click tab Mensajes
-    await page.getByRole("tab", { name: /^Mensajes$/i }).click();
+    await page.goto("/admin/messages");
 
-    // Embed AdminInboxList con clientIdFilter — solo thread Alfa
     await expect(
       page.getByText(/Necesitamos revisar la categorización/),
     ).toBeVisible();
-
-    // Cliente Beta NO visible (filtered)
     await expect(
       page.getByText(/Confirmamos la reunión del lunes/),
-    ).not.toBeVisible();
-
-    // Header tab indica filtered scope
-    await expect(
-      page.getByRole("heading", {
-        name: /Mensajes con este cliente/i,
-        level: 3,
-      }),
     ).toBeVisible();
+
+    await page
+      .getByRole("combobox", { name: /Filtrar por cliente/i })
+      .selectOption(CLIENT_A_ID);
+
+    await expect(
+      page.getByText(/Confirmamos la reunión del lunes/),
+    ).toBeHidden();
+    await expect(
+      page.getByText(/Necesitamos revisar la categorización/),
+    ).toBeVisible();
+    expect(requestedClientIds).toContain(CLIENT_A_ID);
   });
 
   test("AdminMessageComposer ContactQuickPicker M30 integration", async ({

@@ -12,14 +12,11 @@ from urllib.parse import parse_qs, urlparse
 
 import pytest
 
+from backend.app.motors.m12_magic_link.purposes import MagicLinkPurpose
+from backend.app.motors.m16_onboarding.enums import Role, Sector
+from backend.app.motors.m16_onboarding.service import create_session
 from backend.tests.conftest import setup_test_project
 
-# Module-level skip · M16 client_flow magic_link legacy obsoleto post-bis3.
-pytestmark = pytest.mark.skip(
-    reason="MB-4.bis3 ADR-020 · M16 magic_link consume drop · "
-    "cliente accede /client-portal/onboarding (MB-4.3) · alternativa "
-    "MB-4.2.bis test_portal_api.py (wrappers + ClientUser auth)"
-)
 
 BASE = "/api/v1/onboarding"
 
@@ -33,17 +30,26 @@ async def _seed_project(db):
     return project_id
 
 
-async def _create_session_via_api(async_client, project_id, role="sponsor"):
-    r = await async_client.post(
-        f"{BASE}/projects/{project_id}/sessions",
-        json={
-            "sector": "servicios_profesionales",
-            "role": role,
-            "interlocutor_email": f"{role}@test.example",
-        },
+async def _create_session_con_enlace(db, project_id, role="sponsor"):
+    """Sesion con enlace magico para entrar por ``/consume`` sin cuenta.
+
+    Desde ADR-020 v3 ``POST /projects/{id}/sessions`` ya NO emite enlace: el
+    cliente responde dentro de su portal. El enlace sin cuenta solo se emite
+    con el proposito DIAGNOSTICO_PRECLIENTE, y ``/consume`` + ``/me/*`` siguen
+    siendo el camino de ese lead. Se crea por el servicio (como
+    test_m16_precliente_magic_link) para conservar la plantilla de
+    servicios_profesionales que estos tests recorren; lo que se prueba,
+    consume y /me/*, va por HTTP.
+    """
+    result = await create_session(
+        db, project_id=uuid.UUID(str(project_id)),
+        sector=Sector.SERVICIOS_PROFESIONALES, role=Role(role),
+        interlocutor_email=f"{role}@test.example", interlocutor_name=None,
+        ttl_hours=168, language="es", metadata_extra=None,
+        purpose=MagicLinkPurpose.DIAGNOSTICO_PRECLIENTE,
     )
-    assert r.status_code == 200, r.text
-    return r.json()
+    await db.flush()
+    return {**result, "session_id": str(result["session_id"])}
 
 
 def _extract_token(magic_link_url: str) -> str:
@@ -68,6 +74,12 @@ async def _consume_and_get_auth(async_client, create_resp):
         "X-Onboarding-Session-Id": body["session_id"],
         "X-Onboarding-Session-Secret": body["session_secret"],
     }
+    # El lead acepta la informacion del art. 13 RGPD ANTES de responder: sin
+    # ese registro, /me/next-question y /me/responses devuelven 403.
+    rc = await async_client.post(
+        f"{BASE}/me/consent", json={"consented": True}, headers=headers,
+    )
+    assert rc.status_code == 200, f"Consent failed: {rc.text}"
     return headers, body
 
 
@@ -80,7 +92,7 @@ class TestClientConsume:
     @pytest.mark.asyncio
     async def test_consume_returns_session_and_secret(self, async_client, db):
         pid = await _seed_project(db)
-        create_resp = await _create_session_via_api(async_client, pid)
+        create_resp = await _create_session_con_enlace(db, pid)
         token = _extract_token(create_resp["magic_link_url"])
 
         r = await async_client.post(
@@ -104,16 +116,23 @@ class TestClientConsume:
 
     @pytest.mark.asyncio
     async def test_consume_already_consumed_fails(self, async_client, db):
-        """Magic link max_uses=1, second consume fails."""
+        """El enlace de precliente admite max_uses=3 (re-clic desde el email).
+
+        Los tres primeros consumos entran; el cuarto se rechaza.
+        """
+        from backend.app.motors.m12_magic_link.purposes import get_config
+
+        max_uses = get_config(MagicLinkPurpose.DIAGNOSTICO_PRECLIENTE)["max_uses"]
         pid = await _seed_project(db)
-        create_resp = await _create_session_via_api(async_client, pid)
+        create_resp = await _create_session_con_enlace(db, pid)
         token = _extract_token(create_resp["magic_link_url"])
 
-        r1 = await async_client.post(f"{BASE}/consume", json={"token": token})
-        assert r1.status_code == 200
+        for _ in range(max_uses):
+            r = await async_client.post(f"{BASE}/consume", json={"token": token})
+            assert r.status_code == 200, r.text
 
-        r2 = await async_client.post(f"{BASE}/consume", json={"token": token})
-        assert r2.status_code == 401
+        r_extra = await async_client.post(f"{BASE}/consume", json={"token": token})
+        assert r_extra.status_code == 401
 
 
 # ================================================================
@@ -125,7 +144,7 @@ class TestSaveAnswer:
     @pytest.mark.asyncio
     async def test_save_transitions_to_in_progress(self, async_client, db):
         pid = await _seed_project(db)
-        create_resp = await _create_session_via_api(async_client, pid)
+        create_resp = await _create_session_con_enlace(db, pid)
         # Mark sent first so transition is SENT -> IN_PROGRESS
         await async_client.post(f"{BASE}/sessions/{create_resp['session_id']}/mark-sent")
         headers, _ = await _consume_and_get_auth(async_client, create_resp)
@@ -140,7 +159,7 @@ class TestSaveAnswer:
     @pytest.mark.asyncio
     async def test_save_increments_progress(self, async_client, db):
         pid = await _seed_project(db)
-        create_resp = await _create_session_via_api(async_client, pid)
+        create_resp = await _create_session_con_enlace(db, pid)
         headers, initial = await _consume_and_get_auth(async_client, create_resp)
 
         r = await async_client.post(
@@ -152,7 +171,7 @@ class TestSaveAnswer:
     @pytest.mark.asyncio
     async def test_save_duplicate_updates_not_increments(self, async_client, db):
         pid = await _seed_project(db)
-        create_resp = await _create_session_via_api(async_client, pid)
+        create_resp = await _create_session_con_enlace(db, pid)
         headers, _ = await _consume_and_get_auth(async_client, create_resp)
 
         r1 = await async_client.post(
@@ -171,7 +190,7 @@ class TestSaveAnswer:
     @pytest.mark.asyncio
     async def test_save_invalid_select_value(self, async_client, db):
         pid = await _seed_project(db)
-        create_resp = await _create_session_via_api(async_client, pid)
+        create_resp = await _create_session_con_enlace(db, pid)
         headers, _ = await _consume_and_get_auth(async_client, create_resp)
 
         r = await async_client.post(
@@ -183,7 +202,7 @@ class TestSaveAnswer:
     @pytest.mark.asyncio
     async def test_save_unknown_question_id(self, async_client, db):
         pid = await _seed_project(db)
-        create_resp = await _create_session_via_api(async_client, pid)
+        create_resp = await _create_session_con_enlace(db, pid)
         headers, _ = await _consume_and_get_auth(async_client, create_resp)
 
         r = await async_client.post(
@@ -195,7 +214,7 @@ class TestSaveAnswer:
     @pytest.mark.asyncio
     async def test_boolean_validation_rejects_string(self, async_client, db):
         pid = await _seed_project(db)
-        create_resp = await _create_session_via_api(async_client, pid)
+        create_resp = await _create_session_con_enlace(db, pid)
         headers, _ = await _consume_and_get_auth(async_client, create_resp)
 
         r = await async_client.post(
@@ -207,7 +226,7 @@ class TestSaveAnswer:
     @pytest.mark.asyncio
     async def test_text_min_length_validation(self, async_client, db):
         pid = await _seed_project(db)
-        create_resp = await _create_session_via_api(async_client, pid)
+        create_resp = await _create_session_con_enlace(db, pid)
         headers, _ = await _consume_and_get_auth(async_client, create_resp)
 
         r = await async_client.post(
@@ -226,7 +245,7 @@ class TestNextQuestion:
     @pytest.mark.asyncio
     async def test_returns_first_question(self, async_client, db):
         pid = await _seed_project(db)
-        create_resp = await _create_session_via_api(async_client, pid)
+        create_resp = await _create_session_con_enlace(db, pid)
         headers, _ = await _consume_and_get_auth(async_client, create_resp)
 
         r = await async_client.get(f"{BASE}/me/next-question", headers=headers)
@@ -239,7 +258,7 @@ class TestNextQuestion:
     @pytest.mark.asyncio
     async def test_advances_after_save(self, async_client, db):
         pid = await _seed_project(db)
-        create_resp = await _create_session_via_api(async_client, pid)
+        create_resp = await _create_session_con_enlace(db, pid)
         headers, _ = await _consume_and_get_auth(async_client, create_resp)
 
         await async_client.post(
@@ -260,7 +279,7 @@ class TestBranching:
     async def test_skip_if_applies(self, async_client, db):
         """When siem_activo=False, pentest_ultimo is skipped (skip_if configured)."""
         pid = await _seed_project(db)
-        create_resp = await _create_session_via_api(async_client, pid, role="ti_cto")
+        create_resp = await _create_session_con_enlace(db, pid, role="ti_cto")
         headers, _ = await _consume_and_get_auth(async_client, create_resp)
 
         # Answer siem_activo = False
@@ -284,7 +303,7 @@ class TestBranching:
     async def test_skip_if_does_not_apply_when_true(self, async_client, db):
         """When siem_activo=True, pentest_ultimo is NOT skipped."""
         pid = await _seed_project(db)
-        create_resp = await _create_session_via_api(async_client, pid, role="ti_cto")
+        create_resp = await _create_session_con_enlace(db, pid, role="ti_cto")
         headers, _ = await _consume_and_get_auth(async_client, create_resp)
 
         await async_client.post(
@@ -312,7 +331,7 @@ class TestSubmit:
     @pytest.mark.asyncio
     async def test_submit_without_required_fails(self, async_client, db):
         pid = await _seed_project(db)
-        create_resp = await _create_session_via_api(async_client, pid)
+        create_resp = await _create_session_con_enlace(db, pid)
         headers, _ = await _consume_and_get_auth(async_client, create_resp)
 
         r = await async_client.post(
@@ -324,7 +343,7 @@ class TestSubmit:
     @pytest.mark.asyncio
     async def test_submit_allow_partial_completes(self, async_client, db):
         pid = await _seed_project(db)
-        create_resp = await _create_session_via_api(async_client, pid)
+        create_resp = await _create_session_con_enlace(db, pid)
         headers, _ = await _consume_and_get_auth(async_client, create_resp)
 
         r = await async_client.post(
@@ -337,7 +356,7 @@ class TestSubmit:
     @pytest.mark.asyncio
     async def test_submit_idempotent(self, async_client, db):
         pid = await _seed_project(db)
-        create_resp = await _create_session_via_api(async_client, pid)
+        create_resp = await _create_session_con_enlace(db, pid)
         headers, _ = await _consume_and_get_auth(async_client, create_resp)
 
         await async_client.post(f"{BASE}/me/submit", headers=headers, json={"allow_partial": True})
@@ -360,7 +379,7 @@ class TestAuth:
     @pytest.mark.asyncio
     async def test_wrong_secret_401(self, async_client, db):
         pid = await _seed_project(db)
-        create_resp = await _create_session_via_api(async_client, pid)
+        create_resp = await _create_session_con_enlace(db, pid)
         headers, body = await _consume_and_get_auth(async_client, create_resp)
 
         r = await async_client.get(
@@ -382,7 +401,7 @@ class TestProgress:
     @pytest.mark.asyncio
     async def test_progress_endpoint(self, async_client, db):
         pid = await _seed_project(db)
-        create_resp = await _create_session_via_api(async_client, pid)
+        create_resp = await _create_session_con_enlace(db, pid)
         headers, _ = await _consume_and_get_auth(async_client, create_resp)
 
         r = await async_client.get(f"{BASE}/me/progress", headers=headers)

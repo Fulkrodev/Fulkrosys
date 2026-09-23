@@ -36,7 +36,12 @@ test.describe("fase_38 client · /remediaciones empty state", () => {
     await expect(
       page.getByText(/Sin mejoras propuestas todavía/i),
     ).toBeVisible();
-    await expect(page.getByText(/Sin prisa por tu parte/i)).toBeVisible();
+    // UI drift (ce5da7b · ADR-055): la página embebe además
+    // RemediationClienteView, cuya intro también dice "Sin prisa por tu parte"
+    // → se ancla el copy R29 al párrafo del empty state de propuestas.
+    await expect(
+      page.getByText(/Cuando Marcos detecte algo a mejorar.*Sin prisa por tu parte/i),
+    ).toBeVisible();
 
     // NO modal abierto inicial
     await expect(

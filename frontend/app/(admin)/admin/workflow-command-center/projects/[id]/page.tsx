@@ -14,11 +14,13 @@ export const metadata = {
 };
 
 interface PageProps {
-  params: { id: string };
-  searchParams: { step?: string };
+  params: Promise<{ id: string }>;
+  searchParams: Promise<{ step?: string }>;
 }
 
-export default function ProjectCronologicaPage({ params, searchParams }: PageProps) {
+export default async function ProjectCronologicaPage(props: PageProps) {
+  const searchParams = await props.searchParams;
+  const params = await props.params;
   return (
     <div className="mx-auto max-w-7xl">
       <ProjectCronologicaView

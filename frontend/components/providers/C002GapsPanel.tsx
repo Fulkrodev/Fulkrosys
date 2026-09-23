@@ -77,7 +77,7 @@ export function C002GapsPanel({
   const gapsQuery = useProviderGaps(projectId, provider?.id ?? null);
   const [filter, setFilter] = React.useState<GapFramework | "todos">("todos");
 
-  const gaps = gapsQuery.data?.gaps ?? [];
+  const gaps = React.useMemo(() => gapsQuery.data?.gaps ?? [], [gapsQuery.data]);
   const filteredGaps = React.useMemo(
     () =>
       filter === "todos"

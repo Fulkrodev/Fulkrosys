@@ -5,16 +5,17 @@
  * el índice /client-portal/registros ya NO muestra el grid de cards por
  * categoría · ahora REDIRIGE a /client-portal/tasks (el cliente NO gestiona
  * registros vivos; Marcos los opera en admin). El subtitle "cobertura N
- * bloques" desapareció. Por eso los 3 primeros tests (conteo de cards por
- * tier en el índice) quedan skip · documentados abajo. La cobertura del
- * redirect está en fase_30/client/cliente_registros_redirect_tasks.spec.ts.
+ * bloques" desapareció, y con él los 3 tests de conteo de cards por tier
+ * (eran placeholders vacíos · borrados). La cobertura del redirect está en
+ * fase_30/client/cliente_registros_redirect_tasks.spec.ts.
  *
  * El gating per register_type SIGUE vivo en la página dinámica
  * /client-portal/registros/[tipo] (banner inline "no aplica a su categoría"
- * + acciones disabled), que NO es redirect · el 4º test lo cubre.
+ * + acciones disabled), que NO es redirect · lo cubre el test de abajo.
  *
- * Dev endpoint /api/v1/_dev/set-test-project-category permite cambiar el
- * tier del test project E2E sin invocar el heavy seed-conformidad-ready.
+ * El test usa el cliente `secondary` aislado (ver ensureSecondaryClient) en
+ * vez de mutar con _dev/set-test-project-category el cliente compartido, cuyo
+ * proyecto visible en el portal depende de lo que hayan sembrado otros specs.
  */
 import { expect, test } from "@playwright/test";
 
@@ -25,16 +26,25 @@ const BACKEND_BASE =
 
 test.use({ viewport: { width: 1280, height: 800 } });
 
-async function setTestProjectCategory(
+// Identidad AISLADA: el cliente de test COMPARTIDO (B00000000) deja de ser
+// determinista en cuanto sim-medio firma un contrato (contract_signing_flow
+// crea el proyecto "ENS · <empresa>" para ese mismo cliente). El portal resuelve
+// por R27 el proyecto MÁS RECIENTE (ORDER BY created_at DESC LIMIT 1), así que
+// `_dev/set-test-project-category` mutaba un proyecto que el portal ya no
+// mostraba (medido: banner "MEDIA" tras fijar BASICA). El cliente `secondary`
+// (B00000001) tiene un único proyecto MEDIA que ningún spec toca → la categoría
+// que ve el portal es la que sembramos, sin mutar estado compartido.
+const SECONDARY_EMAIL = "test-client-e2e-secondary@example.com";
+
+async function ensureSecondaryClient(
   request: import("@playwright/test").APIRequestContext,
-  tier: "BASICA" | "MEDIA" | "ALTA",
 ): Promise<void> {
   const res = await request.post(
-    `${BACKEND_BASE}/api/v1/_dev/set-test-project-category?tier=${tier}`,
+    `${BACKEND_BASE}/api/v1/_dev/create-test-client?secondary=true`,
   );
   if (!res.ok()) {
     throw new Error(
-      `_dev/set-test-project-category devolvió ${res.status()} para tier ${tier}`,
+      `_dev/create-test-client?secondary=true devolvió ${res.status()}`,
     );
   }
 }
@@ -42,39 +52,32 @@ async function setTestProjectCategory(
 test.describe.serial(
   "FASE 12.A · client-portal category gating · 1.C.C.C cierre",
   () => {
-    // Restaura categoría=ALTA tras la suite para no afectar otros specs (ej.
-    // fase_11/01-live-records.spec.ts asume test client en ALTA · 26 cards).
-    test.afterAll(async ({ request }) => {
-      await setTestProjectCategory(request, "ALTA");
-    });
-
-    // OBSOLETO (1.D.F.bis.III.B): el índice /client-portal/registros ya NO
-    // muestra el grid de cards por categoría · ahora redirige a /tasks. El
-    // conteo de cards por tier (17/24/26) y el subtitle "cobertura N bloques"
-    // dejaron de existir en el portal cliente. El gating per-tipo se conserva
-    // en la página dinámica [tipo] (cubierta por el 4º test). El redirect está
-    // cubierto en fase_30/client/cliente_registros_redirect_tasks.spec.ts.
-    test.skip(
-      "BÁSICA · subset reducido (índice obsoleto · redirige a /tasks)",
-      async () => {},
-    );
-    test.skip(
-      "MEDIA · subset intermedio (índice obsoleto · redirige a /tasks)",
-      async () => {},
-    );
-    test.skip(
-      "ALTA · 26 cards (índice obsoleto · redirige a /tasks)",
-      async () => {},
-    );
-
+    // (El índice /client-portal/registros con conteo de cards por tier se
+    // retiró en 1.D.F.bis.III.B · redirige a /tasks, cubierto por
+    // fase_30/client/cliente_registros_redirect_tasks.spec.ts. El gating
+    // per-tipo sigue vivo en la página dinámica [tipo]: es lo que se prueba.)
     test("[tipo] banner inline si register_type no aplica a la categoría", async ({
       page,
       request,
     }) => {
-      // Cambiar a BÁSICA · navegar a E-318 (ALTA-only) directamente · verificar
-      // que el banner inline informativo se muestra y la tabla está oculta.
-      await setTestProjectCategory(request, "BASICA");
-      await loginAsClient(page);
+      // Cliente aislado en MEDIA · navegar a E-318 (ALTA-only) directamente ·
+      // verificar que el banner inline informativo se muestra y la tabla está
+      // oculta.
+      await ensureSecondaryClient(request);
+      await loginAsClient(page, { email: SECONDARY_EMAIL });
+
+      // Precondición explícita: el proyecto que resuelve el portal (R27) es
+      // MEDIA. Si alguien lo cambia, que falle aquí con un mensaje claro y no
+      // en la aserción del banner.
+      const projRes = await page.request.get(
+        `${BACKEND_BASE}/api/v1/client-portal/project`,
+      );
+      expect(projRes.ok()).toBeTruthy();
+      const proj = (await projRes.json()) as { categoria_objetivo: string };
+      expect(proj.categoria_objetivo, "categoría del proyecto del portal").toBe(
+        "MEDIA",
+      );
+
       await page.goto("/client-portal/registros/E-318");
 
       // Header sigue mostrándose (el registro existe, solo no aplica).
@@ -85,14 +88,14 @@ test.describe.serial(
       // Banner inline visible con la categoría actual. El copy real intercala
       // un <TooltipENS term="ENS" /> (icono de ayuda, NO la palabra "ENS") entre
       // "categoría" y la categoría → el texto del <p> es
-      //   "Este registro (E-318) no es obligatorio para su categoría {icono} BASICA."
+      //   "Este registro (E-318) no es obligatorio para su categoría {icono} MEDIA."
       // Por eso afirmamos sobre el párrafo del banner (anclado por su texto de
       // cabecera) y comprobamos que CONTIENE la categoría, en vez de un único
       // regex que cruce el icono. Source-of-truth:
       // app/(client-portal)/client-portal/registros/[tipo]/page.tsx (notApplicable).
       const gateBanner = page.getByText(/no es obligatorio para su categoría/i);
       await expect(gateBanner).toBeVisible({ timeout: 10_000 });
-      await expect(gateBanner).toContainText(/BASICA/i);
+      await expect(gateBanner).toContainText(/MEDIA/);
 
       // Botón "Volver al dashboard" presente en el banner.
       await expect(

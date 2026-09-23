@@ -341,7 +341,7 @@ class CategorizationService:
         )).scalars().all()
 
         if not info_types and not services:
-            raise ValueError(  # pragma: no cover  # Endpoint api.py L239 pre-checks empty system before calling this
+            raise ValueError(  # los endpoints lo traducen a 409 (categorize y acta E-012)
                 f"Sistema {system_id} no tiene tipos de información ni "
                 f"servicios valorados. No se puede categorizar."
             )
