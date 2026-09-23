@@ -1041,39 +1041,20 @@ body{--bg:#050409}
       <div class="breadcrumb"><a href="index.html">Inicio</a><span>/</span>Cookies</div>
       <div class="kicker">Legal</div>
       <h1 class="tight">Política de <span class="grad">cookies</span>.</h1>
-      <p class="sub">Qué guardamos en tu navegador, para qué sirve y cómo aceptarlo, rechazarlo o cambiarlo cuando quieras.</p>
+      <p class="sub">Qué guarda este sitio en tu navegador: nada.</p>
     </div>
   </section>
 
   <section class="block tight" style="padding-top:0">
     <div class="wrap">
       <div class="article reveal">
-        <p>Última actualización: junio de 2026.</p>
-
-        <h2>1. Qué son las cookies</h2>
-        <p>Las cookies (y tecnologías similares, como el almacenamiento local del navegador) son pequeños archivos que una web guarda en tu dispositivo. Sirven para que el sitio funcione, para recordar tus preferencias y, si lo autorizas, para entender de forma agregada cómo se usa la web.</p>
-
-        <h2>2. Qué cookies usamos</h2>
-        <p>Vamos al grano: en este sitio usamos lo mínimo.</p>
-        <ul>
-          <li><b>Técnicas o necesarias.</b> Imprescindibles para que la web funcione y para recordar tu decisión sobre las cookies, de modo que no te volvamos a preguntar en cada visita. No requieren tu consentimiento.</li>
-          <li><b>De medición agregada (opcionales).</b> Si las aceptas, nos permiten conocer de forma anónima y agrupada qué páginas se visitan más, para mejorar el sitio. Nunca para identificarte personalmente ni para publicidad.</li>
-        </ul>
-        <p>No usamos cookies de publicidad ni vendemos tu actividad a terceros.</p>
-
-        <h2>3. Cookies de terceros</h2>
-        <p>Algunos servicios que utilizamos para que la web funcione o para medirla (por ejemplo, alojamiento o, en su caso, una herramienta de analítica) pueden instalar sus propias cookies. Cuando así sea, se rigen además por las políticas de cada proveedor. Solo se activarán las opcionales si das tu consentimiento.</p>
-
-        <h2>4. Cómo aceptarlas, rechazarlas o cambiarlas</h2>
-        <p>La primera vez que entras te mostramos un aviso para que decidas. Puedes <b>aceptar</b> o <b>rechazar</b> las cookies opcionales sin que ello afecte a las técnicas, que son necesarias. Puedes cambiar de opinión cuando quieras:</p>
-        <ul>
-          <li>Borrando los datos de navegación de este sitio para que vuelva a aparecer el aviso.</li>
-          <li>Configurando o bloqueando las cookies desde los ajustes de tu navegador (Chrome, Firefox, Safari, Edge y similares permiten gestionarlas y eliminarlas).</li>
-        </ul>
-        <p>Ten en cuenta que, si bloqueas las cookies técnicas, es posible que algunas partes del sitio no funcionen correctamente.</p>
-
-        <h2>5. Cambios en esta política</h2>
-        <p>Podemos actualizar esta política si cambian las cookies que utilizamos o la normativa aplicable. Publicaremos siempre la versión vigente en esta página, con su fecha de actualización. Para cualquier duda, escríbenos a <a class="inl" href="mailto:marcosmata@fulkro.es">marcosmata@fulkro.es</a>.</p>
+        <p>Última actualización: septiembre de 2026.</p>
+        <h2>1. Este sitio no usa cookies</h2>
+        <p>fulkro.es no instala cookies, ni propias ni de terceros, y no guarda nada en el almacenamiento de tu navegador. No hay analítica ni publicidad. Por eso no te mostramos ningún aviso de cookies.</p>
+        <h2>2. Servicios de terceros</h2>
+        <p>Las tipografías se descargan de Google Fonts y el sitio se aloja en Cloudflare Pages. Lo que reciben al servir la página está en la <a class="inl" href="privacidad.html">política de privacidad</a>.</p>
+        <h2>3. Cambios</h2>
+        <p>Si algún día el sitio usara cookies, esta página lo diría antes. Para cualquier duda, escribe a marcosmata@fulkro.es.</p>
       </div>
     </div>
   </section>
@@ -1101,15 +1082,6 @@ body{--bg:#050409}
     </div>
   </div>
 </footer>
-<div class="cookiebar" id="cookiebar" aria-hidden="true">
-  <div class="ck-in">
-    <p>Usamos cookies propias y de terceros para que la web funcione y para medir de forma agregada cómo se usa. Puedes aceptarlas, rechazarlas o leer la <a href="cookies.html">política de cookies</a>.</p>
-    <div class="ck-btns">
-      <button class="btn btn-ghost" id="ckReject">Rechazar</button>
-      <button class="btn btn-primary" id="ckAccept">Aceptar</button>
-    </div>
-  </div>
-</div>
 
 <script>
 
@@ -1217,23 +1189,6 @@ if(lf){
 }
 
 
-/* ============================================================
-   Banner de cookies (almacenamiento tolerante a fallos)
-   ============================================================ */
-(function(){
-  const bar=document.getElementById('cookiebar'); if(!bar)return;
-  const get=()=>{try{return localStorage.getItem('fk_cookies')}catch(e){return null}};
-  const set=v=>{try{localStorage.setItem('fk_cookies',v)}catch(e){}};
-  const fab=document.getElementById('fab');
-  const hide=v=>{set(v);bar.classList.remove('show');document.body.classList.remove('ck-on');bar.setAttribute('aria-hidden','true');if(fab)fab.classList.add('ready');};
-  if(!get()){
-    document.body.classList.add('ck-on');
-    setTimeout(()=>{bar.classList.add('show');bar.setAttribute('aria-hidden','false');},700);
-    const a=document.getElementById('ckAccept'),r=document.getElementById('ckReject');
-    if(a)a.addEventListener('click',()=>hide('accepted'));
-    if(r)r.addEventListener('click',()=>hide('rejected'));
-  }
-})();
 
 /* ============================================================
    Maquetas (dashboard + ventanas) animadas al entrar en pantalla

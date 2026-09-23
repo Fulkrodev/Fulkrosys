@@ -29,7 +29,6 @@
 import Link from "next/link";
 import { Mail, Phone, Globe } from "lucide-react";
 
-import { FooterCookiesLink } from "@/components/legal/FooterCookiesLink";
 import { FULKRO_IDENTITY } from "@/lib/fulkro-identity";
 
 /**
@@ -46,9 +45,9 @@ const ENLACES_LEGALES: ReadonlyArray<{ href: string; texto: string }> = [
   { href: "/cookies", texto: "Cookies" },
   { href: "/terms", texto: "Términos" },
   { href: "/imprint", texto: "Aviso legal" },
-  { href: "/trust", texto: "Trust Center" },
-  { href: "/sub-processors", texto: "Sub-procesadores" },
-  { href: "/dpa-template", texto: "Contrato de encargo (DPA)" },
+  { href: "/trust", texto: "Seguridad" },
+  { href: "/sub-processors", texto: "Encargados del tratamiento" },
+  { href: "/dpa-template", texto: "Contrato de encargo" },
 ];
 
 export function FulkroFooter() {
@@ -109,11 +108,6 @@ export function FulkroFooter() {
             </Link>
           </span>
         ))}
-        <span aria-hidden="true">·</span>
-        <FooterCookiesLink
-          label="Preferencias de cookies"
-          className="underline hover:text-fulkro-primary-700"
-        />
       </nav>
     </footer>
   );

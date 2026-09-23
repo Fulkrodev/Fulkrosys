@@ -83,9 +83,8 @@ class AEPDCookiesModule(NormaModule):
                 "## Inventario de cookies",
                 "",
                 (
-                    "Inventario actualizado en "
-                    "`frontend/lib/cookies/inventory.ts` y publicado en `/cookies` "
-                    "(Política de Cookies)."
+                    "Inventario publicado en `/cookies` (Política de Cookies): "
+                    "solo las cookies técnicas de sesión y CSRF."
                 ),
                 "",
                 f"_Reporte generado automáticamente · norma_key={self.norma_key}_",

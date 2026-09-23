@@ -20,7 +20,7 @@ ART13_PRECLIENTE_VERSION = "v2"
 
 ART13_PRECLIENTE_TEXT = """\
 Información sobre protección de datos
-Responsable: Marcos Mata García (Fulkro), NIF 77171140E. Contacto: marcosmata@fulkro.es
+Responsable: Marcos Mata García (Fulkro), NIF 12345678Z. Contacto: marcosmata@fulkro.es
 ¿Para qué tratamos tus datos? Para evaluar de forma preliminar si el Esquema Nacional de Seguridad (RD 311/2022) aplica a tu organización y preparar una posible reunión de diagnóstico.
 Base jurídica: interés legítimo (art. 6.1.f RGPD) en ofrecer servicios de consultoría de seguridad a empresas que, por su actividad con el sector público, podrían estar sujetas al ENS. Hemos realizado una ponderación que concluye que este tratamiento no afecta de forma desproporcionada a tus derechos. Puedes solicitarnos información sobre dicha ponderación.
 Conservación: un máximo de 12 meses desde la última interacción. Si no se inicia una relación contractual, se suprimen.

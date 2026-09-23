@@ -193,7 +193,7 @@ class FiscalSettings(BaseModel):
     # Identidad
     nif: Optional[str] = Field(
         default=None, max_length=20,
-        description="NIF/CIF del emisor. Autónomo persona física: NIF con letra (ej. 77171140E).",
+        description="NIF/CIF del emisor. Autónomo persona física: NIF con letra (ej. 12345678Z).",
     )
     nombre_fiscal: Optional[str] = Field(
         default=None, max_length=200,

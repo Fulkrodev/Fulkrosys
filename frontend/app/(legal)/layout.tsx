@@ -1,8 +1,6 @@
 import Link from "next/link";
 
 import { Logo } from "@/components/brand/Logo";
-import { CookieConsentBanner } from "@/components/legal/CookieConsentBanner";
-import { FooterCookiesLink } from "@/components/legal/FooterCookiesLink";
 
 /**
  * Layout for FULKRO public legal & trust pages (atom 9.bis.5).
@@ -25,18 +23,12 @@ export default function LegalLayout({
             <Logo variant="light" size="md" priority />
           </Link>
           <nav className="flex flex-wrap items-center gap-x-5 gap-y-1 text-sm text-fulkro-ink-700">
-            <Link href="/trust" className="hover:text-fulkro-ink-900">
-              Trust Center
+            <Link href="/imprint" className="hover:text-fulkro-ink-900">
+              Aviso legal
             </Link>
-            <Link href="/sub-processors" className="hover:text-fulkro-ink-900">
-              Sub-procesadores
+            <Link href="/privacy" className="hover:text-fulkro-ink-900">
+              Privacidad
             </Link>
-            <a
-              href="mailto:dpo@fulkro.es"
-              className="hover:text-fulkro-ink-900"
-            >
-              Contactar DPO
-            </a>
           </nav>
         </div>
       </header>
@@ -46,12 +38,12 @@ export default function LegalLayout({
       <footer className="border-t border-fulkro-ink-300/60 bg-fulkro-ink-50">
         <div className="mx-auto flex max-w-6xl flex-col items-start justify-between gap-3 px-6 py-6 text-xs text-fulkro-ink-600 sm:flex-row sm:items-center">
           <div>
-            FULKRO · Marcos Mata García · Madrid, España ·
+            Fulkro · proyecto cerrado · Marcos Mata García · Madrid ·
             <a
-              href="mailto:dpo@fulkro.es"
+              href="mailto:marcosmata@fulkro.es"
               className="ml-1 underline hover:text-fulkro-ink-900"
             >
-              dpo@fulkro.es
+              marcosmata@fulkro.es
             </a>
           </div>
           <div className="flex flex-wrap gap-x-4 gap-y-1">
@@ -67,10 +59,6 @@ export default function LegalLayout({
             <Link href="/cookies" className="hover:text-fulkro-ink-900">
               Cookies
             </Link>
-            <FooterCookiesLink
-              label="Preferencias cookies"
-              className="hover:text-fulkro-ink-900"
-            />
             <Link href="/terms" className="hover:text-fulkro-ink-900">
               Términos
             </Link>
@@ -80,7 +68,6 @@ export default function LegalLayout({
           </div>
         </div>
       </footer>
-      <CookieConsentBanner />
     </div>
   );
 }

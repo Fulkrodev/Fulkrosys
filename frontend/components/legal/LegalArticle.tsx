@@ -17,7 +17,7 @@ interface LegalArticleProps {
 export function LegalArticle({
   title,
   subtitle,
-  lastUpdated = "2026-05-12",
+  lastUpdated = "2026-09-23",
   children,
 }: LegalArticleProps) {
   return (

@@ -27,8 +27,8 @@ def _build_sample_ctx() -> LegalContext:
         client_representante="Ana García López",
         # Emisor (#44 · identidad fiscal única del consultor)
         fulkro_name="Marcos Mata García",
-        fulkro_cif="77171140E",
-        fulkro_domicilio="Paseo de la Dirección 46, 28039 Madrid",
+        fulkro_cif="12345678Z",
+        fulkro_domicilio="C/ Luis Montoto 107, 41007 Sevilla",
         fulkro_representante="Marcos Mata García",
         rseg_name="Responsable de Seguridad designado",
         # Pricing + hitos (#42 · de Proposal/PricingCalculator)

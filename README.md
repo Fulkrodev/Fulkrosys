@@ -329,8 +329,8 @@ están marcadas como tales.
 | Tablas en PostgreSQL | **253** | `psql -c "\\dt" \| wc -l` |
 | Migraciones Alembic | **273** | `ls backend/migrations/versions/*.py \| wc -l` |
 | Páginas del frontend | **167** | `find frontend/app -name page.tsx \| wc -l` |
-| Componentes React | **426** | `find frontend/components -name '*.tsx' \| wc -l` |
-| Líneas de Python | **244.268** | `find backend/app -name '*.py' \| xargs wc -l` |
+| Componentes React | **424** | `find frontend/components -name '*.tsx' \| wc -l` |
+| Líneas de Python | **244.266** | `find backend/app -name '*.py' \| xargs wc -l` |
 
 ### Suite
 
@@ -352,7 +352,7 @@ $ pytest backend/tests -m requires_db -q            # 4 trozos, base sembrada
 | Saltados | 75 | 46 llaman al modelo real (opt-in), 14 necesitan el HTML del BOE descargado, 11 PDFs de terceros que no se distribuyen, 4 condicionales o de activación futura |
 | E2E Playwright | **413 / 413** | 0 fallan · 0 saltados |
 | Polish WCAG | **97 / 97** | admin 75 · cliente 10 · auditor 12 |
-| Ficheros de test | **638** | `find backend/tests -name 'test_*.py' \| wc -l` |
+| Ficheros de test | **639** | `find backend/tests -name 'test_*.py' \| wc -l` |
 | Specs de Playwright | **300** | `find frontend/tests -name '*.spec.ts' \| wc -l` |
 
 ### Recuperación del corpus · evaluación
@@ -459,7 +459,7 @@ Cuatro informes que conviene leer antes que el código:
 
 ```bash
 $ git ls-files backend/app | grep '\.py$' | xargs wc -l | tail -1
- 244268 total
+ 244266 total
 
 $ ls -d backend/app/motors/m*/ | wc -l
 44

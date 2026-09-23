@@ -230,8 +230,8 @@ def test_canonical_contract_docx_is_redacted_not_dump():
         client_domicilio="Av. Innovación 1, 41020 Sevilla",
         client_persona_contacto="Ana García López",
         fulkro_name="Marcos Mata García",
-        fulkro_cif="77171140E",
-        fulkro_domicilio="Paseo de la Dirección 46, 28039 Madrid",
+        fulkro_cif="12345678Z",
+        fulkro_domicilio="C/ Luis Montoto 107, 41007 Sevilla",
         categoria="MEDIA",
         importe_total=11500.0,
         hitos=[
@@ -260,8 +260,8 @@ def test_canonical_contract_docx_is_redacted_not_dump():
     assert "Firma del contrato" in xml
     assert "TOTAL" in xml
     # emisor (#44) + cliente (#9)
-    assert "77171140E" in xml          # NIF Marcos
-    assert "Paseo de la Dirección 46" in xml  # domicilio emisor
+    assert "12345678Z" in xml          # NIF Marcos
+    assert "C/ Luis Montoto 107" in xml  # domicilio emisor
     assert "A41000000" in xml          # CIF cliente
     assert "Ana García López" in xml   # persona contacto
     # Agent 20 como COMPLEMENTO (sección 9 · no toca el esqueleto)

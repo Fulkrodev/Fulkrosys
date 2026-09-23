@@ -31,11 +31,11 @@ from backend.tests.conftest import _admin_setup
 
 # Datos fiscales reales de Marcos (autónomo persona física · decisión #44).
 _MARCOS_FISCAL = dict(
-    nif="77171140E",
+    nif="12345678Z",
     nombre_fiscal="Marcos Mata García",
     nombre_comercial="FULKRO",
     tipo_persona="F",
-    domicilio_via="Paseo de la Dirección, 46",
+    domicilio_via="C/ Luis Montoto, 107",
     domicilio_municipio="Madrid",
     domicilio_provincia="Madrid",
     iva_pct=21.0,
@@ -68,13 +68,13 @@ async def test_update_section_fiscal_persists(db: AsyncSession, make_user):
         user=owner,
     )
 
-    assert updated.fiscal["nif"] == "77171140E"
+    assert updated.fiscal["nif"] == "12345678Z"
     assert updated.fiscal["nombre_fiscal"] == "Marcos Mata García"
     assert updated.fiscal["tipo_persona"] == "F"
 
     fetched = await get_settings(db)
     assert fetched.fiscal["iban"] == "ES34 1465 0260 6317 5549 5007"
-    assert fetched.fiscal["domicilio_via"] == "Paseo de la Dirección, 46"
+    assert fetched.fiscal["domicilio_via"] == "C/ Luis Montoto, 107"
 
 
 @pytest.mark.asyncio
@@ -88,7 +88,7 @@ async def test_update_section_fiscal_writes_audit_log(db: AsyncSession, make_use
 
     await update_section(
         db=db, section="fiscal",
-        payload=FiscalSettings(nif="77171140E", nombre_fiscal="Marcos Mata García"),
+        payload=FiscalSettings(nif="12345678Z", nombre_fiscal="Marcos Mata García"),
         user=owner,
     )
 
@@ -100,7 +100,7 @@ async def test_update_section_fiscal_writes_audit_log(db: AsyncSession, make_use
     assert row is not None, "audit_log entry NO creado por trigger"
     assert row.tabla == "admin_settings"
     assert row.accion == "UPDATE"
-    assert row.payload_new["fiscal"]["nif"] == "77171140E"
+    assert row.payload_new["fiscal"]["nif"] == "12345678Z"
 
 
 @pytest.mark.asyncio
@@ -109,7 +109,7 @@ async def test_fiscal_settings_forbids_extra_fields():
     from pydantic import ValidationError
 
     with pytest.raises(ValidationError):
-        FiscalSettings(nif="77171140E", campo_inventado="x")
+        FiscalSettings(nif="12345678Z", campo_inventado="x")
 
 
 # ─────────────────────────────────────────────────────────────────
@@ -153,7 +153,7 @@ async def test_get_fiscal_identity_reads_persisted(db: AsyncSession, make_user):
 
     fi = await get_fiscal_identity(db)
 
-    assert fi.nif == "77171140E"
+    assert fi.nif == "12345678Z"
     assert fi.has_nif is True
     assert fi.has_identity is True
     assert fi.nombre_fiscal == "Marcos Mata García"
@@ -161,7 +161,7 @@ async def test_get_fiscal_identity_reads_persisted(db: AsyncSession, make_user):
     assert fi.display_name == "FULKRO"
     assert fi.person_type_code == "F"
     assert fi.has_iban is True
-    assert "Paseo de la Dirección, 46" in fi.domicilio_completo
+    assert "C/ Luis Montoto, 107" in fi.domicilio_completo
     assert "Madrid" in fi.domicilio_completo
     assert "España" in fi.domicilio_completo
 

@@ -10,7 +10,7 @@ la auditoría de coherencia:
    pero faltaba en el catálogo → lookup fallido latente). ``pricing_config`` (BD)
    sigue siendo la fuente editable y NO se toca aquí (respeta ediciones admin).
 
-2. IDENTIDAD FISCAL — fija el NIF del consultor (77171140E · Marcos Mata García ·
+2. IDENTIDAD FISCAL — fija el NIF del consultor (12345678Z · Marcos Mata García ·
    autónomo persona física) en ``admin_settings.fiscal`` de forma IDEMPOTENTE
    (solo si está vacío · no pisa ediciones posteriores vía /admin/settings/fiscal).
    El domicilio fiscal y los datos bancarios los completa Marcos por la UI.
@@ -85,7 +85,7 @@ def upgrade() -> None:
         """
         UPDATE admin_settings
         SET fiscal = fiscal || jsonb_build_object(
-                'nif', '77171140E',
+                'nif', '12345678Z',
                 'nombre_fiscal', 'Marcos Mata García',
                 'nombre_comercial', 'Fulkro',
                 'tipo_persona', 'F'
