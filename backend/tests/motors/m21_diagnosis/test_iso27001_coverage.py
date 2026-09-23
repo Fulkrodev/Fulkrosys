@@ -14,9 +14,16 @@ from backend.app.motors.m21_diagnosis.iso27001_coverage import (
 @pytest.fixture(scope="module", autouse=True)
 def _seed_iso_mapping_once():
     """Seed canonical CCN-STIC 825 mapping una vez para el módulo."""
+    # Se deriva de DATABASE_URL, que es la base que usa el resto de la suite.
+    # Antes caia a una cadena fija con el puerto 5433 del compose de
+    # desarrollo, y en CI, donde la base esta en 5432, los cinco tests morian
+    # en el setup con «connection refused».
     os.environ.setdefault(
         "DATABASE_URL_SYNC",
-        "postgresql://fulkro_app:fulkro_app_dev_password@localhost:5433/fulkro",
+        os.environ.get(
+            "DATABASE_URL",
+            "postgresql://fulkro_app:fulkro_app_dev_password@localhost:5433/fulkro",
+        ).replace("+asyncpg", ""),
     )
     from backend.scripts import seed_ens_iso27001_mapping
 

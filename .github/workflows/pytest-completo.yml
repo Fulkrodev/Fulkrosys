@@ -96,12 +96,35 @@ jobs:
       APP_ENV: dev
       APP_SECRET_KEY: test-secret-key-not-for-production
       PYTHONPATH: ${{ github.workspace }}
+      # Son los valores por defecto de backend/app/config.py; se dejan
+      # explicitos para que nadie tenga que ir a buscarlos.
+      MINIO_ENDPOINT: localhost:9000
+      MINIO_ACCESS_KEY: fulkro
+      MINIO_SECRET_KEY: changeme
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
           cache: 'pip'
+
+      - name: MinIO con los buckets del backend
+        # La primera ejecucion en GitHub (2026-09-24) fallo en 81 tests por
+        # esto: sin almacen de objetos, subir un documento, un logo o un
+        # contrato firmado da «connection refused» en localhost:9000. En local
+        # pasaban porque la base de pruebas venia con su MinIO al lado. No va
+        # como `services:` porque MinIO necesita el argumento `server /data`.
+        # Los buckets los crea el mismo script que usan el demo y produccion.
+        run: |
+          set -euo pipefail
+          docker run -d --name minio -p 9000:9000 \
+            -e MINIO_ROOT_USER="$MINIO_ACCESS_KEY" -e MINIO_ROOT_PASSWORD="$MINIO_SECRET_KEY" \
+            minio/minio:latest server /data
+          docker run --rm --network host \
+            -e MINIO_INIT_ENDPOINT=http://localhost:9000 \
+            -e MINIO_ROOT_USER="$MINIO_ACCESS_KEY" -e MINIO_ROOT_PASSWORD="$MINIO_SECRET_KEY" \
+            -v "$PWD/infra/docker/minio-init.sh:/minio-init.sh:ro" \
+            --entrypoint /bin/sh minio/mc:latest /minio-init.sh
 
       - name: Claves Ed25519 efímeras (sin secretos de repo)
         # Mismo patrón que ci.yml, y por la misma razón: sin
