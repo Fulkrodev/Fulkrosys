@@ -7,7 +7,7 @@
 [![Licencia](https://img.shields.io/badge/licencia-Apache--2.0-6C63FF?style=for-the-badge&labelColor=1a1a2e)](LICENSE)
 [![Python](https://img.shields.io/badge/Python-3.12-6C63FF?style=for-the-badge&labelColor=1a1a2e&logo=python&logoColor=white)](backend/pyproject.toml)
 [![FastAPI](https://img.shields.io/badge/FastAPI-1.203%20operaciones-6C63FF?style=for-the-badge&labelColor=1a1a2e&logo=fastapi&logoColor=white)](#métricas)
-[![Next.js](https://img.shields.io/badge/Next.js%2014-167%20páginas-6C63FF?style=for-the-badge&labelColor=1a1a2e&logo=nextdotjs&logoColor=white)](#los-cuatro-portales)
+[![Next.js](https://img.shields.io/badge/Next.js%2015-167%20páginas-6C63FF?style=for-the-badge&labelColor=1a1a2e&logo=nextdotjs&logoColor=white)](#los-cuatro-portales)
 [![PostgreSQL](https://img.shields.io/badge/PostgreSQL%2016-253%20tablas-6C63FF?style=for-the-badge&labelColor=1a1a2e&logo=postgresql&logoColor=white)](#cómo-está-construido)
 [![Tests](https://img.shields.io/badge/tests-6.877%20pasan-8B83FF?style=for-the-badge&labelColor=1a1a2e&logo=pytest&logoColor=white)](#suite)
 
@@ -21,6 +21,15 @@
 > Plataforma que implantaba el **Esquema Nacional de Seguridad** (RD 311/2022) de punta a punta,
 > construida y operada por una sola persona. El proyecto cerró en septiembre de 2026 y el código
 > se publica bajo Apache-2.0.
+
+> **In English.** Fulkro was a platform for implementing Spain's National Security Framework
+> (ENS, Royal Decree 311/2022) end to end: system categorisation, MAGERIT risk analysis, the
+> statement of applicability, the remediation plan, document generation, evidence custody and a
+> read-only portal for the certification auditor. Deterministic engines make every regulatory
+> decision; a language model only drafts text, and the drafting agents record whether each text
+> came from the model or from a fallback template. Built and run by one person, closed in
+> September 2026, published under Apache-2.0. `make demo` starts it with sample data; the rest of
+> this README is in Spanish.
 
 <table>
 <tr>
@@ -164,6 +173,101 @@ aparecía en dos, divergía — pasó con la regla del máximo del Anexo I (tres
 con el bienio del artículo 31 (cinco, ya divergentes en 720 vs 730 días) y con
 «¿cuál es el análisis de riesgos vigente?» (ocho). Hay guardas que lo impiden en
 `backend/tests/audit_fixes/test_operaciones_normativas_un_solo_camino.py`.
+
+---
+
+## La capa de IA
+
+Los motores deciden y el modelo redacta. Una regla normativa (qué medidas aplican, la categoría,
+el bienio del artículo 31) la calcula un motor determinista; el modelo de lenguaje interviene en
+el texto: propuestas, informes, el copiloto. Cada afirmación de esta sección lleva el comando que
+la reproduce.
+
+### Los agentes
+
+```bash
+$ ls backend/app/agents | grep -oE '^agent_[0-9]+' | sort -u | wc -l
+13
+# con el entorno de Python del backend:
+$ python -c "from backend.app.agents.registry import AGENT_REGISTRY as R; print(sum(v['status'] == 'activo' for v in R.values()))"
+12
+$ grep -rlE 'structured_output\s*=\s*True' backend/app/agents | grep -oE 'agent_[0-9]+' | sort -u | wc -l
+12
+```
+
+Hay módulos de 13 agentes y el registro marca 12 como activos. El que sobra, el A2 (análisis de
+pliegos), es andamiaje cuya función cubre un motor. Once de los doce activos piden **salida
+estructurada**: el modelo tiene que devolver JSON con un esquema, y si no parsea se reintenta tres
+veces antes de servir una plantilla. La excepción es el copiloto (A14), que conversa en texto
+libre; a su respuesta se le extraen las citas normativas y se mide cuánto se apoya en los
+fragmentos recuperados.
+
+Los diez agentes que tienen plantilla de reserva dicen de dónde sale su texto, en la clave
+`generado_por` ([`backend/app/agents/procedencia.py`](backend/app/agents/procedencia.py)):
+
+```bash
+$ grep -lE 'procedencia\(|generado_por' backend/app/agents/agent_*.py | wc -l
+10
+```
+
+| `generado_por` | qué significa |
+|---|---|
+| `modelo` | lo redactó el modelo y cumplió el esquema |
+| `plantilla_por_fallo_de_esquema` | el modelo contestó, pero su salida no cumplió el esquema tras los reintentos |
+| `sin_clave_de_api` | no hay `ANTHROPIC_API_KEY`: no se llamó a ningún modelo |
+
+La marca viaja hasta la pantalla, que avisa en vez de felicitar cuando el texto no es del modelo.
+
+### El router de LLM
+
+Toda llamada al modelo pasa por [`backend/app/core/ai/llm_router.py`](backend/app/core/ai/llm_router.py):
+
+```bash
+$ grep -n '^_RATE_LIMIT_BACKOFFS' backend/app/core/ai/llm_router.py
+107:_RATE_LIMIT_BACKOFFS: tuple[float, ...] = (2.0, 8.0, 32.0)
+$ grep -n '"cache_control": {"type": "ephemeral"}' backend/app/core/ai/llm_router.py
+286:                        "cache_control": {"type": "ephemeral"},
+```
+
+- **Reintentos ante 429.** Tres, esperando 2, 8 y 32 segundos. Si el modelo pedido sigue en 429
+  o responde con un 5xx, la llamada se repite con el modelo de reserva
+  (`ANTHROPIC_FALLBACK_MODEL`). Un error de clave o una petición mal formada no se reintentan:
+  fallarían igual.
+- **Caché de prompts.** El prompt de sistema viaja como bloque con `cache_control` efímero, así
+  que las llamadas que lo repiten en los cinco minutos siguientes lo leen de la caché de
+  Anthropic en lugar de pagarlo entero.
+
+### La recuperación del corpus
+
+El copiloto responde con fragmentos recuperados del corpus normativo: 1.031 fragmentos del
+RD 311/2022 y de la legislación de la UE. Se midió con 49 consultas etiquetadas a mano, sobre las
+mismas 49 las dos ramas, con intervalos por *bootstrap* de 10.000 remuestreos:
+
+| rama | acierto@5 | recall@5 | MRR |
+|---|---:|---:|---:|
+| **vectorial sola** | **0,959** | **0,824** | **0,752** |
+| fusión RRF (vectorial + léxica) | 0,857 | 0,667 | 0,627 |
+
+```bash
+make eval-recuperacion     # escribe out/eval_recuperacion.json
+```
+
+**La fusión se quitó** porque perdía: la diferencia vectorial menos fusión en recall@5 es +0,157,
+con intervalo [+0,065, +0,255], que no cruza el cero, y lo mismo pasa en acierto@5 y en MRR. No
+fue por una rama rota: la léxica tenía un defecto (exigía que un mismo fragmento contuviera todas
+las palabras de la pregunta, y 27 de las 49 consultas se quedaban sin candidatos), se arregló, y
+con ella arreglada la fusión perdía más. Barrer el peso de la rama léxica de 0 a 1 da una curva
+cuyo máximo está en 0, es decir, en no fusionar. El informe, con la metodología y los tres
+errores de su primera versión, está en [`docs/EVAL_RECUPERACION.md`](docs/EVAL_RECUPERACION.md).
+
+### Lo que no está medido
+
+**La tasa de acierto de los agentes.** Hay 4 conjuntos de evaluación con 10 entradas cada uno
+(`find docs/catalogs/golden_datasets/ -name '*.json' | wc -l`), pero nunca se han pasado contra el
+modelo: medir cuesta dinero y el job `evals-llm` se salta sin `ANTHROPIC_API_KEY`. Lo que sí se
+probó es que cada agente funciona de punta a punta con el modelo real: 22 tests, uno por agente y
+motor, los 22 en verde ([`docs/INFORME_BLOQUE_S.md`](docs/INFORME_BLOQUE_S.md)). Que un agente
+funcione no dice cuántas veces acierta.
 
 ---
 
@@ -352,27 +456,8 @@ $ pytest backend/tests -m requires_db -q            # 4 trozos, base sembrada
 | Saltados | 75 | 46 llaman al modelo real (opt-in), 14 necesitan el HTML del BOE descargado, 11 PDFs de terceros que no se distribuyen, 4 condicionales o de activación futura |
 | E2E Playwright | **413 / 413** | 0 fallan · 0 saltados |
 | Polish WCAG | **97 / 97** | admin 75 · cliente 10 · auditor 12 |
-| Ficheros de test | **639** | `find backend/tests -name 'test_*.py' \| wc -l` |
+| Ficheros de test | **640** | `find backend/tests -name 'test_*.py' \| wc -l` |
 | Specs de Playwright | **300** | `find frontend/tests -name '*.spec.ts' \| wc -l` |
-
-### Recuperación del corpus · evaluación
-
-49 consultas etiquetadas a mano sobre 1.031 fragmentos del corpus normativo
-(RD 311/2022 y legislación de la UE). Intervalos por *bootstrap*, 10.000 remuestreos.
-
-| rama | acierto@5 | recall@5 | MRR |
-|---|---:|---:|---:|
-| **vectorial sola** | **0,959** | **0,824** | **0,752** |
-| fusión RRF (vectorial + léxica) | 0,878 | 0,667 | 0,690 |
-
-```bash
-make eval-recuperacion     # escribe out/eval_recuperacion.json
-```
-
-El resultado mandó: **la fusión se quitó**. La diferencia vectorial − fusión en
-recall@5 es +0,157 con intervalo [+0,065, +0,255] — no cruza el cero. El informe
-completo, con la metodología y los tres errores que tuvo su primera versión, está
-en [`docs/EVAL_RECUPERACION.md`](docs/EVAL_RECUPERACION.md).
 
 ### Carga
 
@@ -431,8 +516,8 @@ y una treintena de defectos que había debajo— está en
    [`docs/adr/ADR-056-postgres-demo-sin-age.md`](docs/adr/ADR-056-postgres-demo-sin-age.md).
 
 4. **Sin `ANTHROPIC_API_KEY` la plataforma arranca y funciona en modo degradado.**
-   Los agentes no fabrican prosa —todos piden salida estructurada, y el texto de
-   relleno no parsea como JSON— pero diez de los doce caen a un camino de reserva
+   Once de los doce agentes activos piden salida estructurada, y el texto de
+   relleno no parsea como JSON, así que diez de ellos caen a un camino de reserva
    de **plantilla estática** y devuelven 200. Ese texto viaja marcado: cada
    resultado declara `generado_por` (`modelo`, `plantilla_por_fallo_de_esquema` o
    `sin_clave_de_api`), la cadena de workflows arrastra el eslabón más débil, y la
@@ -596,7 +681,7 @@ los enlaces a las decisiones que lo justifican: [`ARCHITECTURE.md`](ARCHITECTURE
 
 ```
 backend/          FastAPI · 44 directorios de motor en app/motors/ · 273 migraciones
-frontend/         Next.js 14 · App Router · 5 grupos de ruta:
+frontend/         Next.js 15 · App Router · 5 grupos de ruta:
                   (admin) (client-portal) (legal) (portal) (public)
 docs/             catálogos que lee el arranque (MAGERIT, precios, ENS) y especificaciones
 infra/docker/     init SQL de extensiones, funciones RLS y roles · Dockerfile de producción

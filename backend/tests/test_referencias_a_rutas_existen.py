@@ -22,8 +22,8 @@ Qué cuenta como que existe:
 
 - está versionada (fichero o directorio);
 - existe relativa al directorio de primer nivel del fichero que la cita
-  (``scripts/axe-dump.mjs`` dentro de ``frontend/`` es
-  ``frontend/scripts/axe-dump.mjs``);
+  (dentro de ``frontend/``, una cita a ``scripts/…`` se busca en
+  ``frontend/scripts/``);
 - en ``frontend/app``, existe sin contar los grupos de ruta ``(x)`` de Next,
   que no forman parte de la URL y a menudo se omiten al citar;
 - es una salida que se genera al ejecutar: todo ``out/`` y ``var/``
