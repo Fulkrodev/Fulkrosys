@@ -4,7 +4,12 @@
 #   - bandit · Python SAST (backend/app/) · gate HIGH severity = block merge
 #   - safety · Python dep vulnerabilities · crash de la herramienta = block ·
 #     hallazgos = aviso (o block si existe .github/safety-baseline.json)
-#   - npm audit · Node dep vulnerabilities (frontend/) · gate critical = block
+#   - npm audit · Node dep vulnerabilities (frontend/) · gate critical+high
+#     = block (el umbral subio de solo critical el 2026-09-15; el recuento
+#     de ese dia y el porque estan en la cabecera de npm_audit_gate.py).
+#     Las dependencias de DESARROLLO se cuentan e informan aparte, sin
+#     tumbar el build: no viajan al contenedor, pero --production las
+#     ocultaba enteras y eso tampoco es sano.
 #
 # OPS-052 audit-first Phase 5.0 reveal: NO bandit/safety/npm audit existing
 # en .github/workflows/ci.yml · greenfield wiring. Future-X identificado:
@@ -191,11 +196,21 @@ jobs:
           echo "npm audit exit=${rc} (informativo · decide el gate del paso siguiente)"
           wc -c npm-audit-report.json
 
-      - name: Gate npm audit (critico nuevo → falla · acotado → avisa · roto → falla)
+          # Segundo informe, este SIN --production: trae ademas las
+          # dependencias de desarrollo, que la puerta nunca ha mirado porque el
+          # informe de arriba las oculta. No decide nada; se cuenta y se nombra.
+          set +e
+          npm audit --json > npm-audit-report-dev.json 2>/dev/null
+          echo "npm audit (con dev) exit=$? (informativo)"
+          set -e
+          wc -c npm-audit-report-dev.json
+
+      - name: Gate npm audit (critical/high sin acotar → falla · acotado → avisa · roto → falla)
         run: |
           python3 ../.github/scripts/npm_audit_gate.py \
             npm-audit-report.json \
-            ../.github/npm-audit-allowlist.json
+            ../.github/npm-audit-allowlist.json \
+            --informe-dev npm-audit-report-dev.json
         working-directory: frontend
 
       - name: Upload npm audit report
@@ -203,5 +218,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: npm-audit-report
-          path: frontend/npm-audit-report.json
+          path: |
+            frontend/npm-audit-report.json
+            frontend/npm-audit-report-dev.json
           retention-days: 30

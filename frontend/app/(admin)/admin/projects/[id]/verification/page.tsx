@@ -18,11 +18,12 @@ import { RemediationPlan } from "@/components/verification/RemediationPlan";
 import { RunsHistory } from "@/components/verification/RunsHistory";
 import { SecurityScoreHeader } from "@/components/verification/SecurityScoreHeader";
 
-export default function VerificationPage({
-  params,
-}: {
-  params: { id: string };
-}) {
+export default async function VerificationPage(
+  props: {
+    params: Promise<{ id: string }>;
+  }
+) {
+  const params = await props.params;
   const projectId = params.id;
   return (
     <div className="flex flex-col gap-6" data-testid="verification-page">

@@ -8,7 +8,8 @@
  * Visible all /admin/projects/[id]/* pages dentro del layout. Pattern:
  *   [Cliente] > [Proyecto] > [Sub-página]
  *
- * Click [Cliente] → /admin/clients (lista clients)
+ * Click [Cliente] → /admin/projects/{id}/cliente-info (ficha del cliente · R23;
+ *   la lista global /admin/clients es una redireccion heredada al selector)
  * Click [Proyecto] → /admin/projects/{id}/dashboard
  * Click [Sub-página] = current (no-op)
  *
@@ -113,7 +114,7 @@ export function ProjectBreadcrumb() {
     >
       <div className="flex flex-wrap items-center gap-1.5">
         <Link
-          href={ROUTES.clients}
+          href={`${ROUTES.projects}/${activeProject.id}/cliente-info`}
           className="font-medium hover:text-fulkro-primary-700 hover:underline"
           data-testid="project-breadcrumb-client"
         >

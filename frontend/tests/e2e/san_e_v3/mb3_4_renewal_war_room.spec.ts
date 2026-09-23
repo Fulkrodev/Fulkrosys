@@ -58,12 +58,15 @@ test.describe("MB-3.4 · RenewalWarRoom M27+M28", () => {
     await expect(page.getByText("Auditoría").first()).toBeVisible();
   });
 
-  test("4 ActionCards visibles", async ({ page }) => {
+  test("la accion disponible es real · sin tarjetas de relleno", async ({ page }) => {
+    // 2769c15 quito las tres tarjetas que no hacian nada (preparacion, dossier,
+    // pentest). Queda la que abre un dialogo de verdad; este test impide que
+    // vuelvan como placeholders.
     await expect(page.getByText("Acciones disponibles")).toBeVisible();
-    await expect(page.getByText("Iniciar preparación")).toBeVisible();
     await expect(page.getByText("Contactar auditor ENAC")).toBeVisible();
-    await expect(page.getByText("Generar dossier")).toBeVisible();
-    await expect(page.getByText("Programar pentest refresh")).toBeVisible();
+    for (const placeholder of ["Iniciar preparación", "Generar dossier", "Programar pentest refresh"]) {
+      await expect(page.getByText(placeholder)).toHaveCount(0);
+    }
   });
 
   test("contactAuditor dialog · form fields", async ({ page }) => {

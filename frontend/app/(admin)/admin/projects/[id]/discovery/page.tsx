@@ -1,9 +1,10 @@
 import { DiscoveryPanel } from "@/components/discovery/DiscoveryPanel";
 
 interface DiscoveryPageProps {
-  params: { id: string };
+  params: Promise<{ id: string }>;
 }
 
-export default function DiscoveryPage({ params }: DiscoveryPageProps) {
+export default async function DiscoveryPage(props: DiscoveryPageProps) {
+  const params = await props.params;
   return <DiscoveryPanel projectId={params.id} />;
 }

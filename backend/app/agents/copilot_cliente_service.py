@@ -298,17 +298,18 @@ class CopilotClienteLLMService:
         turnos previos ``[{role, content}, ...]`` inyectados antes del actual.
         """
         from backend.app.core.ai.llm_router import get_default_llm_router
+        from backend.app.core.ai.model_catalog import resolver_id
         import asyncio as _asyncio
 
-        # Model alias resolution per AgentBase pattern existing
+        # Este mapa era una COPIA del de agents/base.py, y habia divergido:
+        # le faltaban los alias "opus-4" y "opus-4.6", que base.py si resuelve.
+        # Era latente solo porque copilot_personas_v1.yaml recomienda
+        # "sonnet-4.6"; cambiar esa linea a "opus-4.6" —un alias legitimo—
+        # mandaba la cadena cruda a la API, o sea un 404 en produccion, porque
+        # el fallo era un ``.get(alias, alias)``. Ahora resuelve contra el
+        # catalogo unico y un alias desconocido LEVANTA aqui.
         model_alias = self.persona_service.model
-        model_map = {
-            "sonnet-4.5": "claude-sonnet-4-5",
-            "sonnet-4.6": "claude-sonnet-4-6",
-            "opus-4.7": "claude-opus-4-7",
-            "haiku-4.5": "claude-haiku-4-5",
-        }
-        real_model = model_map.get(model_alias, model_alias)
+        real_model = resolver_id(model_alias)
 
         router = get_default_llm_router()
         messages = [

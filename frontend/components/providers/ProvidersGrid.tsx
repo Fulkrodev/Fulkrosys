@@ -82,7 +82,7 @@ export function ProvidersGrid({ projectId }: { projectId: string }) {
   const [addOpen, setAddOpen] = React.useState(false);
   const [gapsOpenFor, setGapsOpenFor] = React.useState<Provider | null>(null);
 
-  const providers = ph.list.data?.providers ?? [];
+  const providers = React.useMemo(() => ph.list.data?.providers ?? [], [ph.list.data]);
   const counts = ph.list.data?.counts;
 
   const filtered = React.useMemo(

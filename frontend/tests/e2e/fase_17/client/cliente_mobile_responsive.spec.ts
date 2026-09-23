@@ -27,7 +27,7 @@ test.describe("fase_17 cliente · mobile responsive 375x812", () => {
 
     // Floating button copiloto visible
     await expect(
-      page.getByTestId("copiloto-cliente-toggle"),
+      page.getByTestId("copiloto-dock-toggle"),
     ).toBeVisible();
 
     // Timeline section heading visible

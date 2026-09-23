@@ -7,7 +7,7 @@ Portal persistente con login + password (SAN-E v3.MB-1.1 · TOTP off cliente
 from __future__ import annotations
 
 import uuid
-from datetime import datetime
+from datetime import datetime, timezone
 
 from sqlalchemy import (
     ForeignKey, String, Integer, Boolean, Text, Index, text,
@@ -292,9 +292,15 @@ class ClientUserAudit(Base):
         JSONB, nullable=True,
     )
     ip_address: Mapped[str | None] = mapped_column(INET, nullable=True)
+    # Sin default, el ORM mandaba NULL explicito y la columna es NOT NULL: las
+    # descargas del portal (documento y evidencia) no pasaban created_at y
+    # fallaban con 500 DESPUES de leer el fichero -- el cliente no podia
+    # descargar nada. Hora de Python con microsegundos (OPS-047: now() de
+    # PostgreSQL repite la hora de inicio de la transaccion).
     created_at: Mapped[datetime] = mapped_column(
         TIMESTAMP(timezone=True),
         nullable=False,
+        default=lambda: datetime.now(timezone.utc),
     )
     # SAN-D MB-14.1 hash chain extension (DEC-MB14-1 Opción A)
     project_id: Mapped[uuid.UUID | None] = mapped_column(

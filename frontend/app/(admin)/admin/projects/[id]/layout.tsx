@@ -6,13 +6,18 @@ import { ProjectHeader } from "@/components/project/ProjectHeader";
 import { ProjectTabs } from "@/components/project/ProjectTabs";
 import { ProjectFeaturesProvider } from "@/lib/contexts/ProjectFeaturesContext";
 
-export default function ProjectLayout({
-  children,
-  params,
-}: {
-  children: React.ReactNode;
-  params: { id: string };
-}) {
+export default async function ProjectLayout(
+  props: {
+    children: React.ReactNode;
+    params: Promise<{ id: string }>;
+  }
+) {
+  const params = await props.params;
+
+  const {
+    children
+  } = props;
+
   return (
     <ProjectFeaturesProvider projectId={params.id}>
       {/* Sub-atom 1.E.2 Phase C · ADR-054 · routing guard sync activeProject

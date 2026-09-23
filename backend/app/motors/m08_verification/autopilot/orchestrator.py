@@ -30,7 +30,11 @@ from backend.app.motors.m08_verification.agent.injection_guard import (
     INJECTION_FINDING_TEMPLATE,
     detect_injection_attempt,
 )
-from backend.app.motors.m08_verification.agent.triage_agent import triage_finding
+from backend.app.core.ai.model_catalog import resolver_id
+from backend.app.motors.m08_verification.agent.triage_agent import (
+    TRIAGE_MODEL,
+    triage_finding,
+)
 from backend.app.motors.m08_verification import asset_graph
 from backend.app.motors.m08_verification.autopilot.ephemeral_connector import (
     create_ephemeral_session,
@@ -477,7 +481,20 @@ async def orchestrate_run(
             tool_versions={s_t[0] + ":" + s_t[1]: "pinned"
                            for s_t in CATEGORY_PLAN.get(category, ())},
             config={"category": category, "use_mcp_real": get_settings().use_mcp_real},
-            model_version="claude-opus-4-8",
+            # Era el literal "claude-opus-4-8", tecleado a mano en el
+            # MANIFIESTO DE LA EJECUCION, que es el registro de procedencia de
+            # la evidencia. No era el modelo que contestaba: era una cadena que
+            # alguien escribio, y cambiar TRIAGE_MODEL no la movia. Ahora sale
+            # de la constante del triage, resuelta por el catalogo unico.
+            #
+            # Aqui va el modelo CONFIGURADO, no el que respondio, y a
+            # proposito: este manifiesto se construye ANTES de ejecutar nada y
+            # su hash es la base de la comparacion de determinismo contra el
+            # golden (compare_to_golden mas abajo), asi que no puede depender
+            # del resultado. El modelo que respondio de verdad se graba por
+            # hallazgo en Verdict.model_version, que ahora lo toma de la
+            # respuesta de la llamada (ver triage_agent.triage_finding).
+            model_version=resolver_id(TRIAGE_MODEL),
             target_snapshot_ref=session["session_id"],
         )
         run.run_manifest_hash = manifest_hash

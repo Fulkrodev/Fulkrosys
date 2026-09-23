@@ -107,6 +107,10 @@ async def get_cost_summary(
     }
 
 
+def _int_o_none(valor) -> int | None:
+    return int(valor) if valor is not None else None
+
+
 async def get_interactions_paginated(
     db: AsyncSession,
     *,
@@ -166,14 +170,17 @@ async def get_interactions_paginated(
                 ),
                 "feature": r["feature"],
                 "model": r["model"],
-                "prompt_tokens": int(r["prompt_tokens"]),
-                "completion_tokens": int(r["completion_tokens"]),
-                "total_tokens": int(r["total_tokens"]),
+                # Una llamada que fallo guarda los tokens a NULL (lo exige el
+                # CHECK de `llm_log_status_no_finge_exito_001`): no hay consumo
+                # que contar. `int(None)` tumbaba el listado entero con un 500.
+                "prompt_tokens": _int_o_none(r["prompt_tokens"]),
+                "completion_tokens": _int_o_none(r["completion_tokens"]),
+                "total_tokens": _int_o_none(r["total_tokens"]),
                 "cost_usd": (
                     float(r["cost_usd"]) if r["cost_usd"] is not None
                     else None
                 ),
-                "latency_ms": int(r["latency_ms"]),
+                "latency_ms": _int_o_none(r["latency_ms"]),
                 "status": r["status"],
                 "error_message": r["error_message"],
                 "prompt_preview": r["prompt_preview"],

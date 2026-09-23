@@ -14,7 +14,12 @@
 import { expect, test } from "@playwright/test";
 
 import { loginAsClient } from "../../_helpers/auth-real";
-import { mockClientWorkflowGuide, mockCopilotoClienteStub } from "../_fixtures";
+import { mockClientWorkflowGuide } from "../_fixtures";
+import {
+  RESPUESTA_DOCK_AMABLE,
+  abrirDockYPreguntar,
+  mockCopilotoDockStream,
+} from "../../fase_21/_fixtures";
 
 const COERCITIVE_PATTERNS = [
   /llevas\s+\d+\s+d[ií]as/i,
@@ -25,39 +30,22 @@ const COERCITIVE_PATTERNS = [
 ];
 
 test.describe("fase_17 cliente · CopilotoClienteBottomRight + R29 audit", () => {
-  test("widget renders friendly · QuickAction response · R29 verified", async ({
-    page,
-  }) => {
+  test("dock sin alarma · accion rapida · respuesta sin presion (R29)", async ({ page }) => {
     await mockClientWorkflowGuide(page);
-    await mockCopilotoClienteStub(page);
     await loginAsClient(page);
-
+    await mockCopilotoDockStream(page, RESPUESTA_DOCK_AMABLE);
     await page.goto("/client-portal/workflow");
 
-    // Floating button visible bottom-right
-    const floatingBtn = page.getByTestId("copiloto-cliente-toggle");
-    await expect(floatingBtn).toBeVisible();
+    await expect(page.getByTestId("copiloto-dock-toggle")).toBeVisible();
+    // Sin punto rojo ni distintivo de urgencia.
+    await expect(page.locator(".red-dot, [data-urgent='true']")).toHaveCount(0);
 
-    // NO red dot · NO badge urgente
-    const redDot = page.locator(".red-dot, [data-urgent='true']");
-    await expect(redDot).toHaveCount(0);
-
-    // Click floating · expand chat
-    await floatingBtn.click();
-
-    // QuickAction "¿Qué tengo que hacer ahora?"
-    await page.getByRole("button", { name: /¿Qué tengo que hacer ahora\?/i }).click();
-
-    // Stub response visible
-    const responseText = await page
-      .getByText(/Tu siguiente paso/i)
-      .first()
-      .textContent();
-    expect(responseText).toBeTruthy();
-
-    // R29 AUDIT EMPÍRICO · 0 strings coercitivos
+    await abrirDockYPreguntar(page);
+    const respuesta = page.getByTestId("copiloto-msg-assistant").last();
+    await expect(respuesta).toContainText(/siguiente paso/i);
+    const texto = (await respuesta.textContent()) ?? "";
     for (const pattern of COERCITIVE_PATTERNS) {
-      expect(responseText ?? "").not.toMatch(pattern);
+      expect(texto).not.toMatch(pattern);
     }
   });
 });

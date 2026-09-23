@@ -46,6 +46,7 @@ def _serialize(task) -> dict:
     # el front oculta los botones de acción y la muestra read-only (cliente-mínimo).
     from backend.app.motors.m21_portal_cliente.task_templates_loader import (
         get_template_by_id,
+        resolve_cta_url,
         resolve_primary_actor,
     )
     _tmpl = get_template_by_id(task.template_id)
@@ -59,7 +60,9 @@ def _serialize(task) -> dict:
         "title": task.title,
         "description": task.description,
         "cta_label": task.cta_label,
-        "cta_url": task.cta_url,
+        # Filas creadas antes de resolver el marcador guardan `{project_id}`
+        # literal; se resuelve también al servirlas.
+        "cta_url": resolve_cta_url(task.cta_url, task.project_id),
         "expected_evidence_type": task.expected_evidence_type,
         "expected_evidence_count": task.expected_evidence_count,
         "priority": task.priority,

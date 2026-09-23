@@ -98,7 +98,9 @@ test.describe("fase_36 · cliente /plan Gantt READ-ONLY", () => {
     await loginAsClient(page);
     await mockClientePlanWithTasks(page);
 
-    await page.goto("/client-portal/");
+    // Directo a /dashboard: "/client-portal/" redirige y un click durante esa
+    // navegación se perdía (flaky 1/3).
+    await page.goto("/client-portal/dashboard");
 
     const navLink = page.getByTestId("cliente-nav-mi-plan-ens");
     await expect(navLink).toBeVisible();
@@ -191,7 +193,7 @@ test.describe("fase_36 · cliente /plan Gantt READ-ONLY", () => {
   // evolución UI · NO es selector desfasado · requiere fix en código de producto
   // (componente Gantt cliente) — fuera del scope de limpieza de specs. Candidata
   // a re-activar tras fix de accesibilidad (Marcos).
-  test.skip("WCAG axe-CI · 0 violations", async ({ page }) => {
+  test("WCAG axe-CI · 0 violations", async ({ page }) => {
     await loginAsClient(page);
     await mockClientePlanWithTasks(page);
 
@@ -205,7 +207,7 @@ test.describe("fase_36 · cliente /plan Gantt READ-ONLY", () => {
     expect(
       results.violations,
       `axe violations en cliente /plan:\n${JSON.stringify(
-        results.violations.map((v) => ({ id: v.id, impact: v.impact })),
+        results.violations.map((v) => ({ id: v.id, impact: v.impact, nodes: v.nodes.map((n) => ({ t: n.target, s: n.failureSummary, h: n.html.slice(0, 200) })) })),
         null,
         2,
       )}`,

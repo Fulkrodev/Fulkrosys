@@ -32,7 +32,7 @@ import {
   type MCPToolSchema,
 } from "@/lib/api/mcps";
 
-import { useMCPsCatalog } from "@/hooks/useMCPs";
+import { useMCPExecution, useMCPsCatalog } from "@/hooks/useMCPs";
 
 import { McpExecutionProgress } from "./McpExecutionProgress";
 import { McpExecutionResult } from "./McpExecutionResult";
@@ -71,6 +71,14 @@ export function McpProjectScopedPanel({
     setActiveExecutionId(e.execution_id);
   };
 
+  // Estado vivo de la ejecución activa (misma query que el polling de
+  // McpExecutionProgress · la caché la comparte, no hay petición extra). Antes
+  // el resultado + descarga solo aparecían al elegir la ejecución en el
+  // historial: tras lanzar un escaneo el panel llegaba a "Completado 100%" y
+  // se quedaba sin resultado.
+  const liveExecutionQuery = useMCPExecution(projectId, activeExecutionId);
+  const shownExecution = liveExecutionQuery.data ?? activeExecution;
+
   return (
     <div className="space-y-4" data-testid="mcp-project-scoped-panel">
       <Card>
@@ -100,12 +108,12 @@ export function McpProjectScopedPanel({
                 // No-op · el polling hook se encarga del refresh
               }}
             />
-            {activeExecution &&
-              (activeExecution.status === "completed" ||
-                activeExecution.status === "failed") && (
+            {shownExecution &&
+              (shownExecution.status === "completed" ||
+                shownExecution.status === "failed") && (
                 <McpExecutionResult
                   projectId={projectId}
-                  execution={activeExecution}
+                  execution={shownExecution}
                 />
               )}
           </CardContent>

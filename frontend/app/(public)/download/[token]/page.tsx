@@ -11,7 +11,8 @@
  *
  * Dispatcher real que consume los endpoints m25/public_api.
  */
-"use client";
+"use client";;
+import { use } from "react";
 
 import { useQuery } from "@tanstack/react-query";
 import { Download, FileArchive, Loader2 } from "lucide-react";
@@ -41,11 +42,12 @@ const ALLOWED_PURPOSES: ReadonlySet<MagicLinkBackendPurpose> = new Set<MagicLink
   "descarga_dossier_final",
 ]);
 
-export default function DownloadTokenPage({
-  params,
-}: {
-  params: { token: string };
-}) {
+export default function DownloadTokenPage(
+  props: {
+    params: Promise<{ token: string }>;
+  }
+) {
+  const params = use(props.params);
   const token = params.token;
   const status = useMagicLinkStatus(token);
 

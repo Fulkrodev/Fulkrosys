@@ -1,26 +1,24 @@
 /**
- * E2E test admin clients panel (FASE 5 sub-fase 5.C).
+ * E2E test admin clients (FASE 5 sub-fase 5.C · remodelado R23).
  *
- * Cobertura 5 tests:
- * 1. Listado /admin/clients renders header + DataTable + button
- *    "Nuevo cliente"
- * 2. Wizard 3 pasos /admin/clients/new navigation + submit
- *    secuencial (POST /clients + POST /clients/{id}/users)
- * 3. Detalle /admin/clients/[id] 7 tabs visibles + click renderiza
- *    contenido por tab
- * 4. Tab Datos editable: PATCH client + toast success
- * 5. SuspendDialog type-to-confirm gating: button disabled hasta
- *    razón social match, submit dispara POST /suspend
+ * El panel cross-cliente /admin/clients (listado + wizard 3 pasos + detalle con
+ * 7 tabs) se consolidó en vistas project-scoped (Sesión 3B-2B.3 Phase X.3/X.4):
+ *   - /admin/clients       → redirect /admin/projects
+ *   - /admin/clients/new   → redirect /admin/projects/new
+ *   - /admin/clients/[id]  → resuelve cliente→proyecto → /admin/projects/[id]/cliente-info
+ * Los datos del cliente (DatosTab) y el SuspendDialog viven ahora en
+ * /admin/projects/[id]/cliente-info. Esta spec cubre eso.
  *
- * Pattern post-MF3.5: loginAsMarcos(context) + page.route mocks
- * (canónico admin-settings.spec.ts y verification.spec.ts).
+ * Pattern: loginAsMarcos(context) + mockProjectShell + page.route mocks.
  */
 import { expect, test } from "@playwright/test";
 import type { Page } from "@playwright/test";
 
 import { loginAsMarcos } from "./_helpers/auth-real";
+import { mockProjectShell } from "./_helpers/project-shell";
 
 const CLIENT_ID = "11111111-1111-1111-1111-111111111111";
+const PROJECT_ID = "33333333-3333-4333-8333-333333333333";
 
 const MOCK_CLIENT_LIST = [
   {
@@ -97,17 +95,32 @@ async function stubClientsBackend(page: Page) {
     }
   });
 
-  // GET /api/v1/clients/{id}/projects (Tab Proyectos)
+  // GET /api/v1/clients/{id}/projects (router legacy /admin/clients/[id])
   await page.route(
     `**/api/v1/clients/${CLIENT_ID}/projects`,
     async (route) => {
       await route.fulfill({
         status: 200,
         contentType: "application/json",
-        body: JSON.stringify([]),
+        body: JSON.stringify([
+          {
+            id: PROJECT_ID,
+            client_id: CLIENT_ID,
+            nombre: "Proyecto ENS Test",
+            categoria_objetivo: "MEDIA",
+            created_at: "2026-04-29T10:00:00Z",
+          },
+        ]),
       });
     },
   );
+
+  // Layout project-scoped (header + feature-flags) del proyecto sintético.
+  await mockProjectShell(page, {
+    projectId: PROJECT_ID,
+    clientId: CLIENT_ID,
+    clientName: MOCK_CLIENT_DETAIL.nombre,
+  });
 
   // GET /api/v1/clients/{id}/audit (Tab Audit Log)
   await page.route(
@@ -155,187 +168,43 @@ async function stubClientsBackend(page: Page) {
   );
 }
 
-// SKIP: feature eliminada (panel cross-cliente /admin/clients + /admin/clients/new
-// + /admin/clients/[id] tabs). Todas estas rutas ahora hacen redirect() server-side
-// hacia /admin/projects (consolidación R23 project-scoped · Sesión 3B-2B.3 Phase X.3/X.4):
-//   - /admin/clients          → redirect /admin/projects
-//   - /admin/clients/new       → redirect /admin/projects/new
-//   - /admin/clients/[id]      → resolve cliente→project → /admin/projects/[id]/cliente-info
-// Ningún heading "Clientes"/"datos cliente", DataTable, wizard 3 pasos, 7 tabs ni
-// SuspendDialog existen ya en estas rutas. Candidata a borrar tras contraste (Marcos).
-test.describe.skip("Admin Clients Panel", () => {
+test.describe("Admin Clients · redirects legacy + cliente-info", () => {
   test.beforeEach(async ({ context, page }) => {
     await loginAsMarcos(context);
     await stubClientsBackend(page);
   });
 
-  test("listado renders header + DataTable + button Nuevo cliente", async ({
+  test("rutas legacy /admin/clients redirigen a las vistas project-scoped", async ({
     page,
   }) => {
     await page.goto("/admin/clients");
-
-    await expect(
-      page.getByRole("heading", { name: /^clientes$/i, level: 1 }),
-    ).toBeVisible();
-
-    await expect(
-      page.getByRole("link", { name: /nuevo cliente/i }),
-    ).toBeVisible();
-
-    // DataTable rows: 2 clientes seed mock (scope a main, sidebar también
-    // muestra clientes mock — strict mode violation si no especificamos).
-    const main = page.locator("main");
-    await expect(
-      main.getByRole("link", { name: "Ayuntamiento Test E2E" }),
-    ).toBeVisible();
-    await expect(
-      main.getByRole("link", { name: "Cliente Suspendido SL" }),
-    ).toBeVisible();
-    await expect(main.getByText("P1234567A")).toBeVisible();
-
-    // Filter chips visibles
-    await expect(
-      page.getByRole("button", { name: /^todos$/i }),
-    ).toBeVisible();
-    await expect(
-      page.getByRole("button", { name: /^activos$/i }),
-    ).toBeVisible();
-    await expect(
-      page.getByRole("button", { name: /^suspendidos$/i }),
-    ).toBeVisible();
-  });
-
-  test("wizard 3 pasos navigates + submit secuencial", async ({ page }) => {
-    // Mock POST /clients (step 1 final) + POST /clients/{id}/users (step 2 final)
-    let createdClientId = "";
-    await page.route("**/api/v1/clients", async (route) => {
-      if (route.request().method() === "POST") {
-        const created = {
-          id: CLIENT_ID,
-          nombre: "Cliente Wizard Test",
-          cif: "B12345678",
-          sector: "publico",
-          contacto_email: "wizard@example.com",
-          contacto_telefono: null,
-          created_at: "2026-04-29T12:00:00Z",
-          deleted_at: null,
-        };
-        createdClientId = created.id;
-        await route.fulfill({
-          status: 201,
-          contentType: "application/json",
-          body: JSON.stringify(created),
-        });
-      } else if (route.request().method() === "GET") {
-        await route.fulfill({
-          status: 200,
-          contentType: "application/json",
-          body: JSON.stringify(MOCK_CLIENT_LIST),
-        });
-      } else {
-        await route.continue();
-      }
-    });
-
-    await page.route(
-      `**/api/v1/clients/${CLIENT_ID}/users`,
-      async (route) => {
-        if (route.request().method() === "POST") {
-          await route.fulfill({
-            status: 200,
-            contentType: "application/json",
-            body: JSON.stringify({
-              user: {
-                id: "user-test-id",
-                email: "wizard@example.com",
-                full_name: "Wizard User",
-                role: "rseg",
-                is_active: true,
-                last_login: null,
-                created_at: "2026-04-29T12:00:00Z",
-              },
-              magic_link_sent: true,
-            }),
-          });
-        } else {
-          await route.continue();
-        }
-      },
-    );
+    await expect(page).toHaveURL(/\/admin\/projects$/);
 
     await page.goto("/admin/clients/new");
+    await expect(page).toHaveURL(/\/admin\/projects\/new$/);
 
-    // Step 1: datos cliente
-    await expect(page.getByText(/datos cliente/i).first()).toBeVisible();
-    await page.getByLabel(/razón social/i).fill("Cliente Wizard Test");
-    await page.getByLabel(/nif \/ cif/i).fill("B12345678");
-    await page.getByLabel(/^sector$/i).fill("publico");
-    await page.getByLabel(/email contacto/i).fill("wizard@example.com");
-    await page.getByRole("button", { name: /continuar/i }).click();
-
-    // Step 2: primer usuario
-    await expect(page.getByText(/primer usuario cliente/i)).toBeVisible();
-    await page.getByLabel(/^email$/i).fill("user@example.com");
-    await page.getByLabel(/nombre completo/i).fill("Test User");
-    await page.getByRole("button", { name: /continuar/i }).click();
-
-    // Step 3: confirmación
-    await expect(page.getByText(/confirmación/i).first()).toBeVisible();
-    await expect(page.getByText("Cliente Wizard Test")).toBeVisible();
-    await expect(page.getByText("user@example.com")).toBeVisible();
-
-    // Submit final → POST + redirect
-    await page
-      .getByRole("button", { name: /^crear cliente$/i })
-      .click();
-
-    // Esperamos redirect a /admin/clients/{id} o toast con éxito
-    await expect(
-      page.getByText(
-        /cliente creado|email invitación enviado|magic link/i,
-      ),
-    ).toBeVisible({ timeout: 5000 });
-    expect(createdClientId).toBe(CLIENT_ID);
-  });
-
-  test("detalle renders 7 tabs visibles + click renderiza", async ({
-    page,
-  }) => {
+    // El detalle legacy resuelve el proyecto del cliente y abre su cliente-info.
     await page.goto(`/admin/clients/${CLIENT_ID}`);
-
-    // Header
+    await expect(page).toHaveURL(
+      new RegExp(`/admin/projects/${PROJECT_ID}/cliente-info$`),
+    );
     await expect(
-      page.getByRole("heading", { name: /ayuntamiento test e2e/i }),
+      page.getByRole("heading", { name: /ayuntamiento test e2e/i, level: 1 }),
     ).toBeVisible();
     await expect(page.getByText("P1234567A")).toBeVisible();
-
-    // 7 tabs visibles
-    for (const tabName of [
-      /^datos$/i,
-      /^usuarios$/i,
-      /^proyectos$/i,
-      /^mensajes$/i,
-      /^facturas$/i,
-      /^audit log$/i,
-      /^contactos$/i,
-    ]) {
-      await expect(page.getByRole("tab", { name: tabName })).toBeVisible();
-    }
-
-    // Click tab Mensajes → placeholder M29 visible
-    await page.getByRole("tab", { name: /^mensajes$/i }).click();
-    await expect(page.getByText(/m29 client messaging/i)).toBeVisible();
-
-    // Click tab Contactos → placeholder M30
-    await page.getByRole("tab", { name: /^contactos$/i }).click();
-    await expect(page.getByText(/m30 client contacts/i)).toBeVisible();
+    await expect(
+      page.getByRole("heading", { name: "Datos identificativos" }),
+    ).toBeVisible();
+    await expect(
+      page.getByRole("heading", { name: "Contactos cliente" }),
+    ).toBeVisible();
   });
 
-  test("Tab Datos edits + saves with toast success", async ({ page }) => {
-    let patchCalled = false;
+  test("Datos cliente edits + saves with toast success", async ({ page }) => {
+    let patchBody: Record<string, unknown> | null = null;
     await page.route(`**/api/v1/clients/${CLIENT_ID}`, async (route) => {
       if (route.request().method() === "PATCH") {
-        patchCalled = true;
+        patchBody = route.request().postDataJSON() as Record<string, unknown>;
         await route.fulfill({
           status: 200,
           contentType: "application/json",
@@ -355,24 +224,18 @@ test.describe.skip("Admin Clients Panel", () => {
       }
     });
 
-    await page.goto(`/admin/clients/${CLIENT_ID}`);
+    await page.goto(`/admin/projects/${PROJECT_ID}/cliente-info`);
 
-    // Tab Datos default
-    await expect(page.getByText(/datos cliente/i).first()).toBeVisible();
-
-    // Edit razón social
     const nombreInput = page.locator('input[id="nombre"]');
+    await expect(nombreInput).toHaveValue("Ayuntamiento Test E2E");
     await nombreInput.fill("Ayuntamiento Test EDITADO");
 
-    // Save
     await page.getByRole("button", { name: /guardar cambios/i }).click();
 
-    // Toast success
     await expect(
       page.getByText(/datos cliente actualizados/i),
-    ).toBeVisible({ timeout: 3000 });
-
-    expect(patchCalled).toBe(true);
+    ).toBeVisible({ timeout: 5000 });
+    expect(patchBody).toMatchObject({ nombre: "Ayuntamiento Test EDITADO" });
   });
 
   test("SuspendDialog type-to-confirm gating + submit", async ({ page }) => {
@@ -392,37 +255,31 @@ test.describe.skip("Admin Clients Panel", () => {
       },
     );
 
-    await page.goto(`/admin/clients/${CLIENT_ID}`);
+    await page.goto(`/admin/projects/${PROJECT_ID}/cliente-info`);
 
-    // Click Suspender → AlertDialog opens
     await page.getByRole("button", { name: /^suspender$/i }).click();
 
     await expect(
       page.getByRole("heading", { name: /suspender cliente/i }),
     ).toBeVisible();
 
-    // Confirm button initial disabled (input vacío)
     const confirmBtn = page.getByRole("button", {
       name: /^suspender cliente$/i,
     });
     await expect(confirmBtn).toBeDisabled();
 
-    // Type wrong text → still disabled
     const confirmInput = page.locator('input[id="suspend-confirm-input"]');
     await confirmInput.fill("wrong text");
     await expect(confirmBtn).toBeDisabled();
 
-    // Type correct razón social → enabled
     await confirmInput.fill("Ayuntamiento Test E2E");
     await expect(confirmBtn).toBeEnabled();
 
-    // Submit
     await confirmBtn.click();
 
     await expect(
-      page.getByText(/cliente suspendido/i),
-    ).toBeVisible({ timeout: 3000 });
-
+      page.getByText(/cliente suspendido/i).first(),
+    ).toBeVisible({ timeout: 5000 });
     expect(suspendCalled).toBe(true);
   });
 });

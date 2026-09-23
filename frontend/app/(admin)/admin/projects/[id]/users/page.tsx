@@ -55,7 +55,7 @@ import type { CockpitUserOut } from "@/lib/admin-clients/schemas";
 import { useActiveProjectStore } from "@/lib/stores/active-project-store";
 
 interface PageProps {
-  params: { id: string };
+  params: Promise<{ id: string }>;
 }
 
 export default function ProjectUsersPage(_props: PageProps) {

@@ -31,7 +31,7 @@ import { listAdminThreads } from "@/lib/admin-messages/api";
 import type { ThreadSummary } from "@/lib/admin-messages/schemas";
 
 interface AdminInboxListProps {
-  /** Si presente, filtra por client_id (uso en MensajesTab). */
+  /** Si presente, filtra por client_id (filtro de cliente del inbox). */
   clientIdFilter?: string;
   onSelectThread: (threadId: string) => void;
   pollingIntervalMs?: number;

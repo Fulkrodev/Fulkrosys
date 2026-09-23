@@ -10,11 +10,6 @@ from sqlalchemy import text
 
 from backend.tests.conftest import setup_test_project, _admin_setup
 
-# Module-level skip · M16 create_session drop magic_link emit post-bis3.
-pytestmark = pytest.mark.skip(
-    reason="MB-4.bis3 ADR-020 · M16 create_session drop magic_link · "
-    "tests legacy obsoletos · alternativa MB-4.3 admin panel + portal"
-)
 
 BASE = "/api/v1/onboarding"
 
@@ -26,25 +21,6 @@ async def _seed_project(db):
 
 
 class TestCreateSession:
-
-    @pytest.mark.asyncio
-    async def test_create_returns_200_with_magic_link(self, async_client, db):
-        pid = await _seed_project(db)
-        r = await async_client.post(
-            f"{BASE}/projects/{pid}/sessions",
-            json={
-                "sector": "servicios_profesionales",
-                "role": "sponsor",
-                "interlocutor_email": "sponsor@example.com",
-                "interlocutor_name": "Ana Lopez",
-            },
-        )
-        assert r.status_code == 200, r.text
-        body = r.json()
-        assert body["state"] == "created"
-        assert body["magic_link_url"].startswith("http")
-        assert body["total_questions"] >= 3
-        assert body["tiempo_estimado_minutos"] > 0
 
     @pytest.mark.asyncio
     async def test_create_succeeds_for_full_matrix_combo(self, async_client, db):
@@ -163,23 +139,6 @@ class TestStateTransitions:
         await async_client.post(f"{BASE}/sessions/{sid}/mark-sent")
         r2 = await async_client.post(f"{BASE}/sessions/{sid}/mark-sent")
         assert r2.status_code == 422
-
-    @pytest.mark.asyncio
-    async def test_cancel_revokes_magic_link(self, async_client, db):
-        pid = await _seed_project(db)
-        r = await async_client.post(
-            f"{BASE}/projects/{pid}/sessions",
-            json={"sector": "servicios_profesionales", "role": "sponsor", "interlocutor_email": "a@x.com"},
-        )
-        sid = r.json()["session_id"]
-        r2 = await async_client.post(
-            f"{BASE}/sessions/{sid}/cancel",
-            json={"reason": "sponsor left"},
-        )
-        assert r2.status_code == 200
-        body = r2.json()
-        assert body["state"] == "cancelled"
-        assert body["magic_link_revoked"] is True
 
     @pytest.mark.asyncio
     async def test_cancel_completed_fails(self, async_client, db):

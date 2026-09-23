@@ -139,16 +139,18 @@ export function AappBillingPanel({ projectId }: Props) {
                       disabled={generateMutation.isPending}
                     >
                       <FileText className="h-3 w-3 mr-1" />
-                      Generar <InfoTag term="Facturae" display="Facturae" />
+                      Generar Facturae
                     </Button>
+                    <TooltipENS term="Facturae" />
                     <Button
                       size="sm"
                       variant="outline"
                       onClick={() => faceMutation.mutate(inv.id)}
                       disabled={faceMutation.isPending}
                     >
-                      Submit <InfoTag term="FACE" display="FACe" />
+                      Enviar a FACe
                     </Button>
+                    <TooltipENS term="FACE" />
                     {inv.payment_due_date && (
                       <Button
                         size="sm"

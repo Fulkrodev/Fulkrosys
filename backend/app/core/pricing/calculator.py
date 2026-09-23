@@ -150,6 +150,7 @@ class PricingCalculator:
         madurez_pct: int | None = None,
         sector: str | None = None,
         dias_hasta_plazo: int | None = None,
+        sector_regulado: bool | None = None,
     ) -> ImplantacionPricing:
         """Calcula pricing de implantacion desde categoria + metadata cliente/proyecto.
 
@@ -173,9 +174,16 @@ class PricingCalculator:
 
         cliente_sector_norm = (cliente_sector or "").lower().strip()
 
+        # ``sector_regulado`` explicito (la API comercial lo recibe como
+        # booleano) manda sobre la deduccion por nombre de sector.
+        es_regulado = (
+            sector_regulado if sector_regulado is not None
+            else cliente_sector_norm in SECTORES_REGULADOS
+        )
+
         # Extras solo aplican a MEDIA (spec Apendice M)
         if cat == "MEDIA":
-            if cliente_sector_norm in SECTORES_REGULADOS:
+            if es_regulado:
                 extras.append(ExtraItem(
                     "sector_regulado",
                     EXTRAS_DESCRIPTIONS["sector_regulado"],

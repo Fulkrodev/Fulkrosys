@@ -50,125 +50,136 @@ class TaskTemplateDef:
     completion_signal: str | None = None
 
 
+# ``endpoint`` es la RUTA DE INTERFAZ a la que lleva el botón de la tarjeta
+# (roadmap y resumen del proyecto), no una API. ``{project_id}`` lo sustituye
+# ``get_next_actions``. Antes eran rutas que no existían en el frontend
+# (/admin/proposals/new, /admin/dda/entries, /admin/controls...) y todos los
+# botones acababan en «no encontrado». Ahora cada acción lleva a la pestaña del
+# proyecto donde se hace (R23), con estas salvedades:
+#   - send_proposal se retiró: las propuestas cuelgan del pipeline comercial
+#     (/admin/pipeline), dormido desde el Batch 2, y una acción que lleva a una
+#     redirección no es una acción. Al reactivar el pipeline, restaurarla.
+#   - create_categorization → dimensiones: no hay pantalla admin que llame al
+#     API de M01; la categoría se captura en el asistente de dimensiones, que
+#     es también adonde manda el botón «Ir a Categorización» del roadmap.
+#   - send_onboarding_link → onboarding: /admin/magic-links es una redirección
+#     heredada; el enlace de onboarding lo genera el motor y en la lista de
+#     sesiones se marca como enviada.
 ACTION_TEMPLATES: dict[WorkflowPhase, list[ActionTemplateDef]] = {
     WorkflowPhase.PRE_VENTA: [
         ActionTemplateDef(
             "schedule_exploratoria", "Agendar reunión exploratoria",
             "A18", "/admin/meetings/new", 1, 15,
         ),
-        ActionTemplateDef(
-            "send_proposal", "Enviar propuesta cualificada",
-            "A19", "/admin/proposals/new", 2, 30,
-        ),
     ],
     WorkflowPhase.ONBOARDING: [
         ActionTemplateDef(
             "start_onboarding_session", "Iniciar onboarding cliente",
-            "M16", "/admin/onboarding/sessions/new", 1, 30,
+            "M16", "/admin/projects/{project_id}/onboarding", 1, 30,
         ),
         ActionTemplateDef(
             "send_onboarding_link", "Enviar magic link onboarding",
-            "M12", "/admin/magic-links/new?purpose=onboarding", 2, 5,
+            "M12", "/admin/projects/{project_id}/onboarding", 2, 5,
         ),
         ActionTemplateDef(
             "review_onboarding_answers", "Revisar respuestas cliente",
-            "M16", "/admin/onboarding/sessions", 3, 20,
+            "M16", "/admin/projects/{project_id}/onboarding", 3, 20,
         ),
     ],
     WorkflowPhase.DIAGNOSTICO: [
         ActionTemplateDef(
             "run_diagnosis", "Ejecutar diagnóstico inicial",
-            "M21", "/admin/diagnosis/runs/new", 1, 45,
+            "M21", "/admin/projects/{project_id}/diagnosis", 1, 45,
         ),
         ActionTemplateDef(
             "review_maturity_report", "Revisar informe madurez",
-            "M21", "/admin/diagnosis/runs", 2, 25,
+            "M21", "/admin/projects/{project_id}/diagnosis", 2, 25,
         ),
     ],
     WorkflowPhase.ANALISIS_RIESGOS: [
         ActionTemplateDef(
             "open_magerit_analysis", "Iniciar análisis riesgos MAGERIT (M02)",
-            "M02", "/admin/magerit/analysis/new", 1, 60,
+            "M02", "/admin/projects/{project_id}/magerit", 1, 60,
         ),
         ActionTemplateDef(
             "complete_magerit_dimensions", "Completar dimensiones MAGERIT (5D)",
-            "M02", "/admin/magerit/analysis", 2, 90,
+            "M02", "/admin/projects/{project_id}/magerit", 2, 90,
         ),
         ActionTemplateDef(
             "review_risk_matrix", "Revisar matriz riesgos pre-aprobación",
-            "M02", "/admin/magerit/analysis", 3, 30,
+            "M02", "/admin/projects/{project_id}/magerit", 3, 30,
         ),
     ],
     WorkflowPhase.ADECUACION: [
         ActionTemplateDef(
             "create_categorization", "Categorizar sistema (M01)",
-            "M01", "/admin/categorizations/new", 1, 30,
+            "M01", "/admin/projects/{project_id}/dimensiones", 1, 30,
         ),
         ActionTemplateDef(
             "run_magerit_analysis", "Análisis riesgos MAGERIT (M02)",
-            "M02", "/admin/magerit/analysis/new", 2, 60,
+            "M02", "/admin/projects/{project_id}/magerit", 2, 60,
         ),
         ActionTemplateDef(
             "approve_magerit", "Aprobar análisis MAGERIT",
-            "M02", "/admin/magerit/analysis", 3, 15,
+            "M02", "/admin/projects/{project_id}/magerit", 3, 15,
         ),
     ],
     WorkflowPhase.IMPLANTACION: [
         ActionTemplateDef(
             "complete_dda", "Completar Declaración Aplicabilidad (M03)",
-            "M03", "/admin/dda/entries", 1, 90,
+            "M03", "/admin/projects/{project_id}/dda", 1, 90,
         ),
         ActionTemplateDef(
             "implement_controls", "Implementar controles (M06)",
-            "M06", "/admin/controls", 2, 120,
+            "M06", "/admin/projects/{project_id}/implementation", 2, 120,
         ),
         ActionTemplateDef(
             "collect_evidence", "Recoger evidencias (M07)",
-            "M07", "/admin/evidence", 3, 60,
+            "M07", "/admin/projects/{project_id}/evidence", 3, 60,
         ),
     ],
     WorkflowPhase.DDA_FINAL: [
         ActionTemplateDef(
             "review_dda_complete", "Revisar DdA completa pre-verificación",
-            "M03", "/admin/dda/entries", 1, 60,
+            "M03", "/admin/projects/{project_id}/dda", 1, 60,
         ),
         ActionTemplateDef(
             "freeze_dda", "Congelar DdA (frozen state)",
-            "M03", "/admin/dda/entries", 2, 15,
+            "M03", "/admin/projects/{project_id}/dda", 2, 15,
         ),
         ActionTemplateDef(
             "validate_evidence_completeness", "Validar evidencias completas",
-            "M07", "/admin/evidence", 3, 45,
+            "M07", "/admin/projects/{project_id}/evidence", 3, 45,
         ),
     ],
     WorkflowPhase.VERIFICACION: [
         ActionTemplateDef(
             "schedule_verification_run", "Programar verificación técnica (M08)",
-            "M08", "/admin/verification/runs/new", 1, 30,
+            "M08", "/admin/projects/{project_id}/verification", 1, 30,
         ),
         ActionTemplateDef(
             "review_findings", "Revisar findings",
-            "M08", "/admin/verification/findings", 2, 60,
+            "M08", "/admin/projects/{project_id}/verification", 2, 60,
         ),
     ],
     WorkflowPhase.CONFORMIDAD: [
         ActionTemplateDef(
             "run_audit_preparation", "Preparar dossier auditoría (M09)",
-            "M09", "/admin/audit-prep/runs/new", 1, 90,
+            "M09", "/admin/projects/{project_id}/dossier", 1, 90,
         ),
         ActionTemplateDef(
             "submit_conformity", "Submission conformidad ENAC (M27)",
-            "M27", "/admin/conformity/submissions/new", 2, 30,
+            "M27", "/admin/projects/{project_id}/conformity", 2, 30,
         ),
     ],
     WorkflowPhase.RETAINER_CIERRE: [
         ActionTemplateDef(
             "activate_retainer", "Activar retainer cliente (M23)",
-            "M23", "/admin/retainer/contracts/new", 1, 30,
+            "M23", "/admin/projects/{project_id}/retainer", 1, 30,
         ),
         ActionTemplateDef(
             "schedule_quarterly_review", "Programar revisión trimestral",
-            "M23", "/admin/retainer/quarterly-reports", 2, 20,
+            "M23", "/admin/projects/{project_id}/retainer", 2, 20,
         ),
     ],
 }

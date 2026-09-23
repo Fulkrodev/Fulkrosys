@@ -15,6 +15,8 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { ArrowRight, Bot, Loader2, Send, Sparkles, X } from "lucide-react";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
 
 import { Skeleton } from "@/components/ui/skeleton";
 
@@ -147,6 +149,7 @@ export function CopilotoDock({ hideOnPaths = [] }: Props) {
             next[next.length - 1] = {
               role: "assistant",
               content: "Lo siento, no he podido responder. Intenta de nuevo en unos segundos.",
+              error: true,
             };
           }
           return next;
@@ -268,6 +271,9 @@ export function CopilotoDock({ hideOnPaths = [] }: Props) {
                   {messages.map((msg, i) => (
                     <li
                       key={i}
+                      data-testid={
+                        msg.error ? "copiloto-msg-error" : `copiloto-msg-${msg.role}`
+                      }
                       className={`flex ${
                         msg.role === "user" ? "justify-end" : "justify-start"
                       }`}
@@ -279,11 +285,27 @@ export function CopilotoDock({ hideOnPaths = [] }: Props) {
                             : "bg-fulkro-surface-glass-strong text-[color:var(--fulkro-body)]"
                         }`}
                       >
-                        {msg.content || (
-                          <span className="inline-flex items-center gap-1 text-[color:var(--fulkro-muted)]">
-                            <Loader2 className="h-3 w-3 animate-spin" />
+                        {!msg.content ? (
+                          <span
+                            role="status"
+                            aria-label="El asistente está pensando"
+                            data-testid="copiloto-typing"
+                            className="inline-flex items-center gap-1 text-[color:var(--fulkro-muted)]"
+                          >
+                            <Loader2 className="h-3 w-3 animate-spin" aria-hidden />
                             pensando…
                           </span>
+                        ) : msg.role === "assistant" && !msg.error ? (
+                          // El modelo responde en Markdown: sin renderizar, el
+                          // cliente veia "##" y "**" literales. react-markdown
+                          // escapa el HTML por defecto.
+                          <div className="prose prose-sm max-w-none text-inherit">
+                            <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                              {msg.content}
+                            </ReactMarkdown>
+                          </div>
+                        ) : (
+                          msg.content
                         )}
                       </div>
                     </li>

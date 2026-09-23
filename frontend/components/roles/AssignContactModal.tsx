@@ -100,7 +100,7 @@ export function AssignContactModal({
     }
   }, [open, form]);
 
-  const allContacts = rt.contacts.data?.contacts ?? [];
+  const allContacts = React.useMemo(() => rt.contacts.data?.contacts ?? [], [rt.contacts.data]);
   const portalAccessExisting = validateConstraintV3(allContacts);
 
   const filtered = React.useMemo(() => {
@@ -223,9 +223,25 @@ export function AssignContactModal({
                   Cargando contactos…
                 </p>
               ) : filtered.length === 0 ? (
-                <p className="py-6 text-center text-sm text-fulkro-ink-600">
-                  Sin contactos. Crea uno nuevo en la pestaña siguiente.
-                </p>
+                // Antes decia "Crea uno nuevo en la pestana siguiente", y eso
+                // tenia dos problemas. Uno: "la siguiente" es una referencia
+                // posicional, depende de la disposicion y un lector de
+                // pantalla no la transmite. Dos, y es el de fondo: era una
+                // instruccion para que el usuario hiciera clic en algo que el
+                // codigo puede hacer por el —``setTab`` esta justo aqui.
+                <div className="flex flex-col items-center gap-2 py-6">
+                  <p className="text-center text-sm text-fulkro-ink-600">
+                    Sin contactos.
+                  </p>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setTab("new")}
+                  >
+                    Crear contacto nuevo
+                  </Button>
+                </div>
               ) : (
                 <ul className="flex flex-col">
                   {filtered.map((contact) => {

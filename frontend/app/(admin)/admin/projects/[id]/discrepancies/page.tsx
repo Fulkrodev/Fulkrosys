@@ -1,9 +1,10 @@
 import { DiscrepanciesPanel } from "@/components/agents/DiscrepanciesPanel";
 
-export default function DiscrepanciesPage({
-  params,
-}: {
-  params: { id: string };
-}) {
+export default async function DiscrepanciesPage(
+  props: {
+    params: Promise<{ id: string }>;
+  }
+) {
+  const params = await props.params;
   return <DiscrepanciesPanel projectId={params.id} />;
 }

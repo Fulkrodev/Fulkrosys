@@ -16,20 +16,28 @@ test.describe("SAN-E v3.MB-8.1 · cliente WhatsApp opt-in", () => {
   test("/client-portal/whatsapp renders opt-in card", async ({ page }) => {
     await loginAsClient(page);
     await page.goto("/client-portal/whatsapp");
-    await page.waitForLoadState("networkidle");
+    // `load` y no `networkidle`: el portal mantiene abierta la conexion SSE de
+    // eventos, y con ella la red nunca queda inactiva (la espera no acaba nunca).
+    await page.waitForLoadState("load");
 
-    // El cliente seed no tiene WA · debería ver opt-in card
-    const hasOptInInput = await page.getByTestId("whatsapp-phone-input").isVisible().catch(() => false);
-    const hasOtpInput = await page.getByTestId("whatsapp-otp-input").isVisible().catch(() => false);
-    const hasActiveStatus = await page.getByTestId("whatsapp-active-status").isVisible().catch(() => false);
-    // At least one of the 3 states should render
-    expect(hasOptInInput || hasOtpInput || hasActiveStatus).toBe(true);
+    // Uno de los cuatro estados tiene que aparecer: sin credenciales de
+    // WhatsApp en el entorno (dev, CI) la pagina dice «próximamente», que es
+    // correcto. `isVisible()` no espera: se evaluaba en cuanto terminaba
+    // `load`, antes de que llegasen los datos.
+    const algunEstado = page
+      .getByTestId("whatsapp-phone-input")
+      .or(page.getByTestId("whatsapp-otp-input"))
+      .or(page.getByTestId("whatsapp-active-status"))
+      .or(page.getByTestId("whatsapp-coming-soon"));
+    await expect(algunEstado.first()).toBeVisible({ timeout: 10_000 });
   });
 
   test("header WhatsApp · FULKRO visible", async ({ page }) => {
     await loginAsClient(page);
     await page.goto("/client-portal/whatsapp");
-    await page.waitForLoadState("networkidle");
+    // `load` y no `networkidle`: el portal mantiene abierta la conexion SSE de
+    // eventos, y con ella la red nunca queda inactiva (la espera no acaba nunca).
+    await page.waitForLoadState("load");
 
     await expect(
       page.getByRole("heading", { name: "WhatsApp · FULKRO", exact: true }),

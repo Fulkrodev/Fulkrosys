@@ -16,7 +16,8 @@
  * Si el endpoint backend devuelve 404 (token inválido/expirado o inexistente),
  * se muestra una página de error honesta (NO un formulario de firma falso).
  */
-"use client";
+"use client";;
+import { use } from "react";
 
 import { Loader2 } from "lucide-react";
 import { redirect } from "next/navigation";
@@ -33,11 +34,12 @@ import { ValidateScopeChangeFlow } from "@/components/sign-flows/ValidateScopeCh
 import { Card, CardContent } from "@/components/ui/card";
 import { useMagicLinkStatus } from "@/hooks/magic-link";
 
-export default function SignTokenPage({
-  params,
-}: {
-  params: { token: string };
-}) {
+export default function SignTokenPage(
+  props: {
+    params: Promise<{ token: string }>;
+  }
+) {
+  const params = use(props.params);
   const token = params.token;
   const { data: status, isLoading, isError } = useMagicLinkStatus(token);
 

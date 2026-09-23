@@ -588,6 +588,28 @@ async def get_categorization_result(
 # ENDPOINT 7: Generate Acta E-012
 # ================================================================
 
+async def _recalcular_para_acta(db: AsyncSession, system_id: uuid.UUID):
+    """Recalcula la categorizacion para el acta E-012, o 409 si ya no se puede.
+
+    El acta se construye desde las valoraciones VIGENTES. Un sistema puede
+    estar categorizado y haber perdido despues todos sus tipos de informacion
+    y servicios (la carga es en modo reemplazo: un lote vacio los borra). Sin
+    valoraciones no hay acta veraz que emitir, y ``compute_for_system``
+    levantaba ValueError, que llegaba al usuario como un 500.
+    """
+    try:
+        return await CategorizationService(db).compute_for_system(system_id)
+    except ValueError as exc:
+        raise HTTPException(
+            status_code=409,
+            detail=(
+                "El sistema ya no tiene tipos de informacion ni servicios "
+                "valorados. Vuelve a cargarlos y categoriza de nuevo antes de "
+                "generar el acta."
+            ),
+        ) from exc
+
+
 @router.get(
     "/systems/{system_id}/acta-e012",
     response_model=ActaE012Out,
@@ -615,7 +637,7 @@ async def generate_acta_e012(
 
     # Re-compute the result to get dimension details for the acta
     cat_svc = CategorizationService(db)
-    result = await cat_svc.compute_for_system(system_id)
+    result = await _recalcular_para_acta(db, system_id)
 
     # Get project name
     proj_row = await db.execute(
@@ -1050,7 +1072,7 @@ async def get_acta_e012_json(
 
     # Re-compute to get dimension details
     cat_svc = CategorizationService(db)
-    result = await cat_svc.compute_for_system(system_id)
+    result = await _recalcular_para_acta(db, system_id)
 
     # Load project + client
     proj_row = await db.execute(

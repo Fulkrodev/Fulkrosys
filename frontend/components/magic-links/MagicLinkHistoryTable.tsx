@@ -118,15 +118,20 @@ export function MagicLinkHistoryTable() {
           </div>
           <div className="space-y-1.5">
             <Label htmlFor="filter_purpose">Tipo de operación</Label>
+            {/* Radix Select prohíbe `value=""` en un Item (lanza y tumba la
+                página entera al abrir la pestaña Histórico): "Todos" usa el
+                centinela "all", que equivale a sin filtro. */}
             <Select
-              value={purpose}
-              onValueChange={(v) => setPurpose(v as MagicLinkBackendPurpose | "")}
+              value={purpose || "all"}
+              onValueChange={(v) =>
+                setPurpose(v === "all" ? "" : (v as MagicLinkBackendPurpose))
+              }
             >
               <SelectTrigger id="filter_purpose">
                 <SelectValue placeholder="Todos" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">Todos</SelectItem>
+                <SelectItem value="all">Todos</SelectItem>
                 {Object.entries(MAGIC_LINK_BACKEND_CATEGORIES).map(
                   ([cat, items]) => (
                     <SelectGroup key={cat}>

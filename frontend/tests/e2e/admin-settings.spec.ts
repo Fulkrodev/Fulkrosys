@@ -2,10 +2,12 @@
  * E2E test admin settings panel (FASE 4 sub-fase 4.B.5).
  *
  * Cobertura:
- * - 5 tabs visibles + clickables
+ * - 7 tabs visibles + clickables (Fiscal y Precios añadidos en la unificación
+ *   de pricing/fiscal 2026-06-11)
  * - Branding: edit primary_color via input + save + toast
  * - SMTP: button "Test envío" → mock response → Alert visible
- * - About: 4 Cards visibles + corpus gauge gated por show_corpus_metric
+ * - About: info sistema + corpus gauge gated por show_corpus_metric (toggle
+ *   lo oculta) · card "Tests + cobertura" eliminado en ac06ca6 (S24)
  *
  * Pattern post-MF3.5 (alineado verification.spec.ts):
  * - loginAsMarcos(context) emite cookies JWT Ed25519 reales que pasan
@@ -64,8 +66,8 @@ const MOCK_ABOUT = {
   corpus_chunks_total: 0,
   corpus_last_updated: null,
   corpus_completion_pct: 0,
-  suite_passing: 100,
-  test_loc_ratio_avg: 1.5,
+  // suite_passing / test_loc_ratio_avg eliminados del contrato en ac06ca6
+  // (S24 · vanity metrics sin fuente runtime).
 };
 
 async function stubSettingsBackend(page: Page) {
@@ -105,7 +107,7 @@ test.describe("Admin Settings Panel", () => {
     await stubSettingsBackend(page);
   });
 
-  test("renders 5 tabs and switches between them", async ({ page }) => {
+  test("renders 7 tabs and switches between them", async ({ page }) => {
     await page.goto("/admin/settings");
 
     await expect(
@@ -118,6 +120,8 @@ test.describe("Admin Settings Panel", () => {
     ).toBeVisible();
     await expect(page.getByRole("tab", { name: /^smtp$/i })).toBeVisible();
     await expect(page.getByRole("tab", { name: /general/i })).toBeVisible();
+    await expect(page.getByRole("tab", { name: /fiscal/i })).toBeVisible();
+    await expect(page.getByRole("tab", { name: /precios/i })).toBeVisible();
     await expect(page.getByRole("tab", { name: /acerca/i })).toBeVisible();
 
     await expect(page.getByText("Logo corporativo")).toBeVisible();
@@ -208,6 +212,26 @@ test.describe("Admin Settings Panel", () => {
   test("About tab shows corpus gauge gated by show_corpus_metric", async ({
     page,
   }) => {
+    // PATCH analytics_prefs mockeado: el toggle es optimista y solo revierte si
+    // el PATCH falla, así que el mock debe responder 200 con la pref aplicada.
+    await page.route(
+      "**/api/v1/admin/settings/analytics_prefs",
+      async (route) => {
+        if (route.request().method() === "PATCH") {
+          await route.fulfill({
+            status: 200,
+            contentType: "application/json",
+            body: JSON.stringify({
+              ...MOCK_ADMIN_SETTINGS,
+              analytics_prefs: { show_corpus_metric: false },
+            }),
+          });
+        } else {
+          await route.continue();
+        }
+      },
+    );
+
     await page.goto("/admin/settings");
 
     await page.getByRole("tab", { name: /acerca/i }).click();
@@ -221,8 +245,17 @@ test.describe("Admin Settings Panel", () => {
     ).toBeVisible();
     await expect(page.getByText(/cobertura ingestion/i)).toBeVisible();
 
-    await expect(page.getByText(/suite passing/i)).toBeVisible();
+    // ac06ca6 (S24) retiró el card "Tests + cobertura" (suite_passing=81 fijo
+    // era una métrica fabricada): vigilamos que no vuelva a aparecer.
+    await expect(page.getByText(/suite passing/i)).toHaveCount(0);
 
     await expect(page.getByText(/mostrar métrica corpus/i)).toBeVisible();
+
+    // El gating real: desactivar la preferencia oculta el corpus gauge.
+    await page.getByRole("switch", { name: /mostrar métrica corpus/i }).click();
+    await expect(
+      page.getByRole("heading", { name: /corpus normativo ens/i }),
+    ).toHaveCount(0);
+    await expect(page.getByText(/cobertura ingestion/i)).toHaveCount(0);
   });
 });

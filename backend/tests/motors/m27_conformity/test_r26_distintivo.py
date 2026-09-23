@@ -122,7 +122,11 @@ def test_declaration_docx_category_aware_basica():
     data = generate_declaration_docx(_ctx("BASICA")).getvalue()
     with zipfile.ZipFile(io.BytesIO(data)) as zf:
         xml = zf.read("word/document.xml").decode("utf-8")
-    assert "autoevaluación CCN-STIC 809" in xml or "autoevaluación" in xml
+    # La cita exacta: la autoevaluacion la preve el art. 38.1 del RD 311/2022;
+    # la guia CCN-STIC 809 regula la Declaracion de Conformidad, no la
+    # autoevaluacion (esa es la verificacion de la CCN-STIC 808).
+    assert "artículo 38.1" in xml
+    assert "CCN-STIC 809" in xml
     assert "Distintivo de Conformidad con el ENS" in xml
 
 

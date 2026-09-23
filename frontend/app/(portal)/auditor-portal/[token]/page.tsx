@@ -5,11 +5,12 @@ export const metadata = {
   title: "Portal del auditor ENAC",
 };
 
-export default function AuditorPortalTokenPage({
-  params,
-}: {
-  params: { token: string };
-}) {
+export default async function AuditorPortalTokenPage(
+  props: {
+    params: Promise<{ token: string }>;
+  }
+) {
+  const params = await props.params;
   return (
     <AuditorPortalEntry token={params.token}>
       <SectionPlaceholder

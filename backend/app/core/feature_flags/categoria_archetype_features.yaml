@@ -26,7 +26,7 @@ features:
   # ============================================================
 
   basica_autoevaluacion:
-    description: "Autoevaluación conformidad CCN-STIC 809 (Básica)"
+    description: "Autoevaluación (CCN-STIC 808) y Declaración de Conformidad (CCN-STIC 809) · Básica"
     applicable_categories: ["BASICA"]
     applicable_archetypes: "ALL"
     required_for_phase: 9

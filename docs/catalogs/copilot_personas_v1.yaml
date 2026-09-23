@@ -498,7 +498,7 @@ personas:
           - "Lanzar AuditMode interactivo"
           - "Botón A11AuditorVirtual (Opus 4.7)"
           - "Ver PAC priorizado"
-        context_hints: "Auditoría interna · AuditMode 267 LOC + A11AuditorVirtualButton · output ENAC-ready · solo MEDIA+/ALTA (BASICA usa autoevaluación 809)."
+        context_hints: "Auditoría interna · AuditMode 267 LOC + A11AuditorVirtualButton · output ENAC-ready · solo MEDIA+/ALTA (BASICA: autoevaluación CCN-STIC 808 + Declaración de Conformidad 809)."
       - screen: "/admin/projects/[id]/audit-dry-run"
         screen_name: "Auditoría seca · A11 + M10"
         motor: "m10_audit_sim"

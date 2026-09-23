@@ -15,7 +15,9 @@ test.describe("SAN-E v3.MB-7.1 · dashboard ALTA / archetype hint", () => {
   }) => {
     await loginAsClient(page);
     await page.goto("/client-portal/dashboard");
-    await page.waitForLoadState("networkidle");
+    // `load` y no `networkidle`: el portal mantiene abierta la conexion SSE de
+    // eventos, y con ella la red nunca queda inactiva (la espera no acaba nunca).
+    await page.waitForLoadState("load");
 
     const hero = page.getByTestId("hero-adaptativo");
     await expect(hero).toBeVisible();
@@ -28,7 +30,9 @@ test.describe("SAN-E v3.MB-7.1 · dashboard ALTA / archetype hint", () => {
     await page.setViewportSize({ width: 375, height: 812 });
     await loginAsClient(page);
     await page.goto("/client-portal/dashboard");
-    await page.waitForLoadState("networkidle");
+    // `load` y no `networkidle`: el portal mantiene abierta la conexion SSE de
+    // eventos, y con ella la red nunca queda inactiva (la espera no acaba nunca).
+    await page.waitForLoadState("load");
 
     // Container ajusta sin overflow horizontal (sanity)
     await expect(page.getByTestId("client-dashboard-v3")).toBeVisible();

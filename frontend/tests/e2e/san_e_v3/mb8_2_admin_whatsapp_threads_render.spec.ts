@@ -10,7 +10,9 @@ test.describe("SAN-E v3.MB-8.2 · admin /admin/whatsapp", () => {
   test("threads list pane visible", async ({ context, page }) => {
     await loginAsMarcos(context);
     await page.goto("/admin/whatsapp");
-    await page.waitForLoadState("networkidle");
+    // `load` y no `networkidle`: el portal mantiene abierta la conexion SSE de
+    // eventos, y con ella la red nunca queda inactiva (la espera no acaba nunca).
+    await page.waitForLoadState("load");
 
     await expect(page.getByTestId("admin-wa-threads-list")).toBeVisible({
       timeout: 10_000,

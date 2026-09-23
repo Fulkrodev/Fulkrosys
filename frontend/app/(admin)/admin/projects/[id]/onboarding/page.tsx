@@ -1,9 +1,10 @@
 import { OnboardingAdminPanel } from "@/components/onboarding/OnboardingAdminPanel";
 
 interface OnboardingPageProps {
-  params: { id: string };
+  params: Promise<{ id: string }>;
 }
 
-export default function OnboardingPage({ params }: OnboardingPageProps) {
+export default async function OnboardingPage(props: OnboardingPageProps) {
+  const params = await props.params;
   return <OnboardingAdminPanel projectId={params.id} />;
 }

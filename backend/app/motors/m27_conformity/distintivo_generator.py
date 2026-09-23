@@ -459,8 +459,9 @@ def generate_declaration_docx(ctx: DistintivoContext) -> io.BytesIO:
             f"{ctx.client_name} ({ctx.client_cif}), con domicilio fiscal en "
             f"{ctx.client_domicilio or '(no informado)'}, declara haber cumplido "
             f"los requisitos del Esquema Nacional de Seguridad (RD 311/2022) en la "
-            f"Categoría {ctx.system_category}, conforme al procedimiento de "
-            f"autoevaluación CCN-STIC 809."
+            f"Categoría {ctx.system_category}, mediante la autoevaluación que el "
+            f"artículo 38.1 y el Anexo III del RD 311/2022 prevén para la categoría "
+            f"BÁSICA, con Declaración de Conformidad según la guía CCN-STIC 809."
         )
     else:
         ident_text = (

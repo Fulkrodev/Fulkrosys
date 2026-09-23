@@ -3,11 +3,12 @@ import { SummaryView } from "@/components/auditor-portal/views/SummaryView";
 
 export const metadata = { title: "Portal auditor · Resumen del proyecto" };
 
-export default function AuditorPortalSummaryPage({
-  params,
-}: {
-  params: { token: string };
-}) {
+export default async function AuditorPortalSummaryPage(
+  props: {
+    params: Promise<{ token: string }>;
+  }
+) {
+  const params = await props.params;
   return (
     <AuditorPortalEntry token={params.token}>
       <SummaryView token={params.token} />

@@ -2,7 +2,7 @@
  * FASE 11.A · Sub-atom 1.C.B fase 5 · Registros vivos cliente portal E2E.
  *
  * Cobertura workflow CRUD completo (Plan v3.3 §1.C.B fase 5):
- *   1. Dashboard /client-portal/registros · 26 cards · 9 bloques (BLOQUE_LABELS)
+ *   1. (índice retirado · ver fase_30/client/cliente_registros_redirect_tasks)
  *   2. Crear entrada E-303 empleado · Dialog dinámico FIELD_CONFIGS · persiste
  *   3. Archivar entrada · Sheet detail · cambia status · filter Archivadas
  *   4. Export CSV E-308 · triggerBlobDownload anchor click · filename match
@@ -27,44 +27,10 @@ const RUN_ID = Date.now().toString(36);
 const EMPLEADO_NAME = `Test E2E Empleado ${RUN_ID}`;
 
 test.describe.serial("FASE 11.A · client-portal registros vivos · 1.C.B fase 5", () => {
-  // SKIP: feature eliminada (dashboard índice /client-portal/registros con grid
-  // de 26 cards + grouping por 9 bloques + heading "Registros operativos ENS" +
-  // subtitle "cobertura N bloques"). Sub-atom 1.D.F.bis.III.B v3.11 modelo
-  // "indispensable-cliente-only": el índice ahora REDIRIGE a /client-portal/tasks
-  // (el cliente NO gestiona registros vivos · Marcos los opera en admin). La
-  // página real renderiza "Los registros los lleva tu consultor" + redirect.
-  // El redirect está cubierto por fase_30/client/cliente_registros_redirect_tasks.
-  // Candidata a borrar tras contraste (Marcos). Los tests 2-5 siguen vivos:
-  // la página dinámica /client-portal/registros/[tipo] (crear/archivar/exportar/404)
-  // NO es redirect y mantiene su funcionalidad accesible por URL directa.
-  test.skip("dashboard registros · 26 tipos agrupados en 9 bloques", async ({ page }) => {
-    await loginAsClient(page);
-    await page.goto("/client-portal/registros");
-
-    await expect(
-      page.getByRole("heading", { name: /Registros operativos ENS/i }),
-    ).toBeVisible({ timeout: 10_000 });
-
-    // Esperar carga dashboard (texto subtitle sólo aparece tras fetch OK).
-    await expect(page.getByText(/cobertura 9 bloques/i)).toBeVisible({
-      timeout: 10_000,
-    });
-
-    // 26 cards register_type linkadas (E-300..E-325).
-    const cards = page.locator('a[href^="/client-portal/registros/E-3"]');
-    await expect(cards).toHaveCount(26);
-
-    // 3 headings representativos (verifica grouping BLOQUE_LABELS · sin tildes).
-    await expect(page.getByRole("heading", { name: /^Activos$/i })).toBeVisible();
-    await expect(
-      page.getByRole("heading", { name: /^Incidentes$/i }),
-    ).toBeVisible();
-    // `exact: true` evita colisión con E-323 "Actas Comite SGSI" (h3 card).
-    await expect(
-      page.getByRole("heading", { name: "Comite SGSI", exact: true }),
-    ).toBeVisible();
-  });
-
+  // (El dashboard índice /client-portal/registros con 26 cards se retiró en
+  // 1.D.F.bis.III.B: ahora redirige a /client-portal/tasks · cubierto por
+  // fase_30/client/cliente_registros_redirect_tasks.spec.ts. Las páginas
+  // /client-portal/registros/[tipo] siguen vivas y se prueban aquí.)
   test("crear entrada E-303 empleado · aparece en lista", async ({ page }) => {
     await loginAsClient(page);
     await page.goto("/client-portal/registros/E-303");

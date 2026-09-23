@@ -1,9 +1,10 @@
 import { WorkspacePanel } from "@/components/workspace/WorkspacePanel";
 
 interface WorkspacePageProps {
-  params: { id: string };
+  params: Promise<{ id: string }>;
 }
 
-export default function WorkspacePage({ params }: WorkspacePageProps) {
+export default async function WorkspacePage(props: WorkspacePageProps) {
+  const params = await props.params;
   return <WorkspacePanel projectId={params.id} />;
 }

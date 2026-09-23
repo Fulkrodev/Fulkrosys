@@ -387,9 +387,10 @@ class AutoBillingService:
                     f"Factura {invoice.numero_correlativo} emitida "
                     f"automáticamente · esperando transferencia."
                 ),
-                action_url=self._deep_links._build(
-                    "/admin/finance/pending-payments"
-                ),
+                # /admin/finance/pending-payments es la API, no una página: la
+                # lista de pagos pendientes (conciliación manual) está en
+                # /admin/finance.
+                action_url=self._deep_links._build("/admin/finance"),
                 triggered_by="auto_billing",
                 metadata={
                     "milestone_id": str(milestone.id),

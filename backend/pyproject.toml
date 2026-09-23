@@ -30,8 +30,17 @@ dependencies = [
     # suelo 0.4.2 permitía resolver una versión con CLS y dejar los embeddings
     # del corpus en un espacio distinto del de las consultas, sin ningún error.
     # 0.8.0 es la única versión contra la que se ha medido la recuperación
-    # (docs/EVAL_RECUPERACION.md).
-    "fastembed>=0.6.0",
+    # (docs/EVAL_RECUPERACION.md), y por eso se FIJA: subir de versión es
+    # volver a medir la recuperación.
+    "fastembed==0.8.0",
+    # Techo en huggingface_hub, que entra por fastembed para descargar el
+    # modelo. 1.32.0 reparte los blobs de la caché en subdirectorios
+    # (blobs/9e/<hash>), y onnxruntime 1.30 rechaza cargar un modelo cuyos datos
+    # externos quedan en otro directorio ("External data path escapes model
+    # directory"): los embeddings, y con ellos el RAG del copiloto, dejan de
+    # cargar. Medido en el CI del 2026-09-23: 1.31.0 pasa, 1.32.0 falla, con la
+    # misma onnxruntime 1.30.0 y el mismo fastembed.
+    "huggingface_hub<1.32",
     "pgvector>=0.3.6",
     "python-dotenv>=1.0.1",
     "python-multipart>=0.0.9",

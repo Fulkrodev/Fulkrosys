@@ -117,6 +117,12 @@ MENCION_NO_ES_PROMESA = {
     # Q · analisis estatico sobre los productores de tres entregables; cita el
     # endpoint de verificacion (M08) para decir por donde se lanzan.
     "tests/audit_fixes/test_los_tres_entregables_que_no_salian.py",
+    # R · analisis estatico sobre los diez agentes con camino de reserva y sobre
+    # los dos componentes que los invocan. Menciona el endpoint porque ahi es
+    # donde el 200 tapaba el defecto, no porque pruebe la capa HTTP: lo que
+    # comprueba es que el diccionario de resultado declare su procedencia, y eso
+    # se ve leyendo el codigo, no llamandolo.
+    "tests/agents/test_el_texto_de_plantilla_no_pasa_por_respuesta_del_modelo.py",
 }
 
 

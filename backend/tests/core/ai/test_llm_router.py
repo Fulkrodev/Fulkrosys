@@ -5,6 +5,8 @@ oficial. Los mocks patchean el cliente interno del router.
 """
 
 import logging
+
+import pytest
 from types import SimpleNamespace
 from unittest.mock import MagicMock, patch
 
@@ -195,3 +197,121 @@ def test_get_default_llm_router_returns_singleton(patched_settings):
     r1 = get_default_llm_router()
     r2 = get_default_llm_router()
     assert r1 is r2
+
+
+# ------------------------------------------------------------------
+# Cadena de reserva · R1(c)
+# ------------------------------------------------------------------
+#
+# Esto no se probaba porque no existia. ``use_fallback`` estaba escrito, y el
+# unico sitio de todo el repositorio que lo pasaba a True era el test de arriba,
+# que comprueba que el parametro funciona. Produccion no lo pasaba nunca: un
+# fallo del modelo primario NO caia a la reserva, subia como LLMCallFailed.
+
+
+def _error_del_sdk(clase, codigo):
+    """Construye una excepcion del SDK con la respuesta httpx que exige."""
+    import httpx
+
+    peticion = httpx.Request("POST", "https://api.anthropic.com/v1/messages")
+    respuesta = httpx.Response(codigo, request=peticion)
+    return clase("boom", response=respuesta, body=None)
+
+
+def _stream_que_falla(excepcion, respuesta_reserva, *, modelo_caido):
+    """El modelo caido revienta SIEMPRE; cualquier otro contesta.
+
+    Ojo al detalle que hace util este test: ``_call_with_retries`` ya reintenta
+    el MISMO modelo hasta cuatro veces ante un 5xx. La reserva entra despues de
+    agotar esos reintentos, no en el primer tropiezo, asi que un doble que solo
+    falle una vez nunca llega a ejercitarla.
+    """
+    llamadas: list[str] = []
+
+    def _stream(**kwargs):
+        llamadas.append(kwargs["model"])
+        if kwargs["model"] == modelo_caido:
+            raise excepcion
+        return _FakeStreamCtx(respuesta_reserva)
+
+    return _stream, llamadas
+
+
+def test_el_primario_caido_cae_al_modelo_de_reserva(monkeypatch, patched_settings):
+    from anthropic import InternalServerError
+
+    monkeypatch.setenv("ANTHROPIC_FALLBACK_MODEL", "claude-opus-4-6")
+    patched_settings(anthropic_api_key="sk-test-key")
+    router = LLMRouter(default_model="claude-sonnet-4-6")
+
+    fallo = _error_del_sdk(InternalServerError, 500)
+    stream, llamadas = _stream_que_falla(
+        fallo,
+        _make_mock_message(content="desde la reserva", model="claude-opus-4-6"),
+        modelo_caido="claude-sonnet-4-6",
+    )
+    # sin esperas reales entre reintentos
+    monkeypatch.setattr("backend.app.core.ai.llm_router._sleep_with_jitter", lambda *_: None)
+
+    with patch.object(router._client.messages, "stream", stream):
+        respuesta = router.complete(
+            messages=[{"role": "user", "content": "x"}], max_tokens=10,
+        )
+
+    assert respuesta.content == "desde la reserva"
+    assert llamadas[0] == "claude-sonnet-4-6", "el primer intento es el primario"
+    assert llamadas[-1] == "claude-opus-4-6", "y el ultimo, el de reserva"
+
+
+def test_un_400_de_prompt_no_cae_a_la_reserva(monkeypatch, patched_settings):
+    """Un prompt mal formado se repite igual en el otro modelo: solo duplica coste."""
+    from anthropic import BadRequestError
+
+    from backend.app.core.ai.llm_router import LLMBadRequestError
+
+    monkeypatch.setenv("ANTHROPIC_FALLBACK_MODEL", "claude-opus-4-6")
+    patched_settings(anthropic_api_key="sk-test-key")
+    router = LLMRouter(default_model="claude-sonnet-4-6")
+
+    fallo = _error_del_sdk(BadRequestError, 400)
+    stream, llamadas = _stream_que_falla(
+        fallo, _make_mock_message(), modelo_caido="claude-sonnet-4-6",
+    )
+
+    with patch.object(router._client.messages, "stream", stream):
+        with pytest.raises(LLMBadRequestError):
+            router.complete(messages=[{"role": "user", "content": "x"}], max_tokens=10)
+
+    assert llamadas == ["claude-sonnet-4-6"], "no debe haber segundo intento"
+
+
+def test_la_reserva_recibe_la_temperatura_pedida(monkeypatch, patched_settings):
+    """R3 (temperatura <= 0.2) tambien en el camino de error.
+
+    El primario es opus-4.7, que NO admite ``temperature``, asi que los kwargs
+    de la primera llamada no la llevan. Si la reserva heredara esos kwargs tal
+    cual, el muestreo se quedaria en el default del proveedor.
+    """
+    from anthropic import InternalServerError
+
+    monkeypatch.setenv("ANTHROPIC_FALLBACK_MODEL", "claude-opus-4-6")
+    patched_settings(anthropic_api_key="sk-test-key")
+    router = LLMRouter(default_model="claude-opus-4-7")
+
+    vistos: list[dict] = []
+    fallo = _error_del_sdk(InternalServerError, 500)
+
+    def _stream(**kwargs):
+        vistos.append(kwargs)
+        if kwargs["model"] == "claude-opus-4-7":
+            raise fallo
+        return _FakeStreamCtx(_make_mock_message(model="claude-opus-4-6"))
+
+    monkeypatch.setattr("backend.app.core.ai.llm_router._sleep_with_jitter", lambda *_: None)
+    with patch.object(router._client.messages, "stream", _stream):
+        router.complete(
+            messages=[{"role": "user", "content": "x"}], max_tokens=10, temperature=0.15,
+        )
+
+    assert "temperature" not in vistos[0], "opus-4.7 no la admite"
+    assert vistos[-1]["temperature"] == 0.15, "la reserva si, y con el valor pedido"

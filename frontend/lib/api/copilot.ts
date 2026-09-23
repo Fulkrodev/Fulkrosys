@@ -1,11 +1,5 @@
-import { CSRF_HEADER } from "@/lib/constants";
-import { getCsrfToken } from "@/lib/csrf";
+import { csrfHeaders } from "@/lib/csrf";
 import type { Citation } from "@/lib/sprint4-types";
-
-function csrfHeaders(): Record<string, string> {
-  const token = getCsrfToken();
-  return token ? { [CSRF_HEADER]: token } : {};
-}
 
 export interface CopilotPageContext {
   url?: string;

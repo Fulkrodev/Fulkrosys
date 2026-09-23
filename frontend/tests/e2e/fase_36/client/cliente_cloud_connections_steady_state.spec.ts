@@ -94,6 +94,10 @@ test.describe("fase_36 · cliente /cloud-connections steady-state", () => {
     await mockRemediationsEmpty(page);
 
     await page.goto("/client-portal/");
+    // /client-portal/ redirige a /dashboard: si el clic llega antes de que
+    // acabe esa redireccion, la redireccion gana y el test acaba en el
+    // dashboard (visto con la suite en paralelo). Esperar a que asiente.
+    await expect(page).toHaveURL(/\/client-portal\/dashboard/);
 
     // Sidebar entry visible
     const navLink = page.getByTestId("cliente-nav-conexiones-cloud");
@@ -130,7 +134,15 @@ test.describe("fase_36 · cliente /cloud-connections steady-state", () => {
     // UI drift: /Conectado/i (case-insensitive) matchea el badge "Conectado" y
     // el texto friendly "... conectado · 42 elementos" → strict-mode 2 elementos.
     await expect(card.getByText(/Conectado/i).first()).toBeVisible();
-    await expect(card.getByText(/42 elementos detectados/i)).toBeVisible();
+    // "42 elementos detectados" aparece dos veces en la card: en la metadata
+    // (CardDescription "Última lectura: … · 42 elementos detectados") y en el
+    // friendly_message server-side → se verifica cada uno por separado.
+    await expect(
+      card.getByText(/Última lectura:.*42 elementos detectados/i),
+    ).toBeVisible();
+    await expect(
+      card.getByTestId("cloud-connection-friendly-microsoft_365"),
+    ).toContainText(/42 elementos detectados/i);
 
     // Remediations link NOT visible cuando 0 pendientes
     await expect(

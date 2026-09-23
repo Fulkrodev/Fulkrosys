@@ -16,7 +16,7 @@ pricing_config (BD, editable)
    ▼
 rules.BASE_PRICES  ==  rules.BASE_PRICES_CANONICAL   (mutación in-place)
    ├──► PricingCalculator (propuesta apéndice M · contrato · factura · agents 19/20)
-   ├──► m13 PRICING_CATALOG  (deriva el base de get_base_prices() · ya NO hay 22.000 hardcoded)
+   ├──► m13 PricingService   (delega en PricingCalculator · sin formula propia desde 2026-09-23)
    └──► m23 pricing_catalog (tabla · set_pricing_config la actualiza también)
 ```
 
@@ -74,7 +74,11 @@ tabla `pricing_catalog` y los tests fijan los mismos valores.
 
 - **Constantes**: `backend/app/core/pricing/rules.py` → `BASE_PRICES` / `BASE_PRICES_CANONICAL` / `RETAINER_TIERS`
 - **Fuente editable**: tabla `pricing_config` (BD) · `backend/app/core/pricing/repository.py`
-- **Catálogo comercial**: `backend/app/motors/m13_commercial/pricing_service.py` (deriva de la fuente única)
+- **Catálogo comercial**: `backend/app/motors/m13_commercial/pricing_service.py` · delega base,
+  extras, hitos y rangos en `core/pricing/calculator.py`. Hasta el 2026-09-23 llevaba recargos propios
+  (por empleado, CPDs, bonus de éxito, pentest continuo) que esta tarifa no tiene, y la misma MEDIA
+  salía a 14.650 € en m13 y a 16.300 € aquí. `test_pricing_media_coincide_con_la_calculadora_canonica`
+  impide que vuelvan a separarse.
 - **Catálogo retainer/billing**: `backend/app/motors/m23_retainer/pricing_catalog_seed.py`
 - **Migración de unificación**: `backend/migrations/versions/unify_pricing_fiscal_rls_001.py`
 

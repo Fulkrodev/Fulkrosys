@@ -1,0 +1,265 @@
+# La suite ENTERA, incluidos los tests que exigen la base sembrada.
+#
+# Por que este workflow existe aparte, y por que NO es puerta de PR todavia.
+#
+# `ci.yml` corre `-m "not requires_db"`. Lo que queda fuera es la mitad larga:
+#
+#     $ pytest backend/tests/ --collect-only -q                      6709
+#     $ pytest backend/tests/ --collect-only -q -m "not requires_db" 3338
+#     $ pytest backend/tests/ --collect-only -q -m "requires_db"     3371
+#
+# Esos 3.371 no quedan fuera por el runner (RAM, CPU ni disco): necesitan la
+# base SEMBRADA -- 73 medidas ENS, 57 amenazas, 98 salvaguardas, catalogos de
+# plantillas y tarifas -- mas el fixture de corpus. Contra una base migrada
+# pero SIN sembrar se caen a cientos por catalogos vacios, no por el codigo.
+#
+# Lo que YA estaba medido cuando se escribio este fichero, y es lo que lo hace
+# posible (comentarios de ci.yml:160-200, medido el 2026-09-10 sobre esta misma
+# imagen pgvector/pgvector:pg16):
+#
+#     $ python backend/scripts/seed_all_fulkro.py --skip-corpus --skip-age-kg
+#     "elapsed_seconds": 1.37 · "ok": 25 · "skip": 2 · "fail": 0
+#     $ gzip -dc backend/tests/fixtures/corpus_seed.sql.gz | psql ...
+#     chunks=1031 · refuerzos=133
+#     $ pytest backend/tests/{api,auth,core,models,security,audit_fixes} \
+#         backend/tests/test_rls_multitenancy.py -m requires_db -q
+#     289 passed, 297 deselected in 108.44s
+#
+# El sembrado funciona, el corpus carga, y una muestra acotada sale limpia. Lo
+# que NUNCA se ha hecho es la ejecucion COMPLETA, y por eso este workflow se
+# lanza a mano y de noche en vez de bloquear PRs: hasta que no haya dos noches
+# seguidas en verde, nadie sabe si los 3.371 pasan o si hay defectos reales
+# escondidos ahi dentro. Poner de puerta algo que no se ha visto pasar es como
+# se acaba otra vez con un `continue-on-error`.
+#
+# COMO SE PROMUEVE A PUERTA DE PR (los pasos, para que no se olviden):
+#   1. Lanzarlo a mano (Actions -> este workflow -> Run workflow).
+#   2. Clasificar lo que falle: defecto real, o dependencia no sembrada. Los
+#      defectos reales SE ARREGLAN. Los otros se saltan con un motivo POR
+#      NOMBRE -- nunca con `continue-on-error`, que es lo que apaga la alarma
+#      entera en vez de la que sobra.
+#   3. Cuando este verde dos noches seguidas, anadir `pull_request` a los
+#      disparadores de aqui y meterlo en la proteccion de rama.
+#   4. Recoger el reparto nuevo en docs/CI.md.
+#
+# Ojo a un detalle que cuesta media hora descubrir: `conftest.py:108-113`
+# reescribe cualquier URL acabada en `/fulkro` a `/fulkro_test`. Por eso se
+# exporta `FULKRO_TEST_DB_NAME: fulkro`, para que la reescritura sea la
+# identidad y apunte a la base que este job acaba de provisionar.
+
+name: pytest completo · con la base sembrada
+
+on:
+  workflow_dispatch:
+    inputs:
+      shards:
+        description: 'En cuantos trozos repartir la suite'
+        required: false
+        default: '4'
+  schedule:
+    # 03:17 UTC. El minuto no es redondo a proposito: en punto se amontonan los
+    # cron de medio GitHub y las colas se alargan.
+    - cron: '17 3 * * *'
+
+permissions:
+  contents: read
+
+jobs:
+  pytest-completo:
+    name: pytest requires_db · trozo ${{ matrix.grupo }}/4
+    runs-on: ubuntu-latest
+    # Los 3.371 sin repartir pasan de una hora en local. Cuatro trozos en
+    # paralelo son cuatro runners, no cuatro horas.
+    timeout-minutes: 60
+    strategy:
+      fail-fast: false
+      matrix:
+        grupo: [1, 2, 3, 4]
+    services:
+      postgres:
+        image: pgvector/pgvector:pg16
+        env:
+          POSTGRES_DB: fulkro
+          POSTGRES_USER: fulkro
+          POSTGRES_PASSWORD: fulkro
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U fulkro"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+    env:
+      DATABASE_URL: postgresql+asyncpg://fulkro_app:fulkro_app_dev_password@localhost:5432/fulkro
+      DATABASE_MIGRATE_URL: postgresql://fulkro_migrate:fulkro_migrate_dev_password@localhost:5432/fulkro
+      FULKRO_TEST_DB_NAME: fulkro
+      APP_ENV: dev
+      APP_SECRET_KEY: test-secret-key-not-for-production
+      PYTHONPATH: ${{ github.workspace }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: 'pip'
+
+      - name: Claves Ed25519 efímeras (sin secretos de repo)
+        # Mismo patrón que ci.yml, y por la misma razón: sin
+        # FULKRO_AUTH_PRIVATE_KEY los tests de cifrado en reposo pasan o fallan
+        # según el ORDEN de la suite, porque `get_master_fernet` está bajo
+        # `lru_cache`. Aquí importa el doble: con la suite repartida en trozos,
+        # cada trozo ve un orden distinto.
+        run: |
+          set -euo pipefail
+          openssl genpkey -algorithm ed25519 -out /tmp/auth_priv.pem
+          openssl pkey -in /tmp/auth_priv.pem -pubout -out /tmp/auth_pub.pem
+          openssl genpkey -algorithm ed25519 -out /tmp/ml_priv.pem
+          openssl genpkey -algorithm ed25519 -out /tmp/backup_priv.pem
+          grep -hvE '^-----|^$' /tmp/auth_priv.pem /tmp/ml_priv.pem /tmp/backup_priv.pem \
+            | while IFS= read -r _linea; do echo "::add-mask::${_linea}"; done
+          {
+            echo 'FULKRO_AUTH_PRIVATE_KEY<<__PEM__';   cat /tmp/auth_priv.pem;   echo '__PEM__'
+            echo 'FULKRO_AUTH_PUBLIC_KEY<<__PEM__';    cat /tmp/auth_pub.pem;    echo '__PEM__'
+            echo 'FULKRO_ML_PRIVATE_KEY<<__PEM__';     cat /tmp/ml_priv.pem;     echo '__PEM__'
+            echo 'FULKRO_BACKUP_SIGNING_KEY<<__PEM__'; cat /tmp/backup_priv.pem; echo '__PEM__'
+          } >> "$GITHUB_ENV"
+
+      - name: Install dependencies
+        run: |
+          # libreoffice-writer es dependencia de SISTEMA: m06_document_factory
+          # convierte DOCX a PDF llamando al binario. Sin él,
+          # test_rendering.py muere con PDFConversionError.
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq libcairo2-dev pkg-config libreoffice-writer
+          pip install -e "backend[dev]"
+          pip install psycopg2-binary pytest-split
+
+      - name: Provision DB (extensiones subset + funciones + roles)
+        run: |
+          set -euo pipefail
+          export PGPASSWORD=fulkro
+          psql -h localhost -U fulkro -d fulkro -v ON_ERROR_STOP=1 \
+            -c 'CREATE EXTENSION IF NOT EXISTS "uuid-ossp";' \
+            -c 'CREATE EXTENSION IF NOT EXISTS pgcrypto;' \
+            -c 'CREATE EXTENSION IF NOT EXISTS vector;'
+          psql -h localhost -U fulkro -d fulkro -v ON_ERROR_STOP=1 -f infra/docker/init-functions.sql
+          psql -h localhost -U fulkro -d fulkro -v ON_ERROR_STOP=1 -f infra/docker/init-roles.sql
+
+      - name: Migrations (alembic upgrade head como fulkro_migrate)
+        working-directory: backend
+        # `head`, en singular. Si esto falla con "Multiple head revisions", el
+        # árbol de migraciones se ha vuelto a abrir: converge, no cambies el
+        # comando (lo vigila backend/tests/test_una_sola_cabeza_alembic.py).
+        run: python -m alembic upgrade head
+
+      - name: Grants runtime (fulkro_app sobre las tablas de las migraciones)
+        run: |
+          set -euo pipefail
+          export PGPASSWORD=fulkro
+          psql -h localhost -U fulkro -d fulkro -v ON_ERROR_STOP=1 -c \
+            "GRANT SELECT,INSERT,UPDATE,DELETE ON ALL TABLES IN SCHEMA public TO fulkro_app, fulkro_app_bypassrls;
+             GRANT USAGE,SELECT ON ALL SEQUENCES IN SCHEMA public TO fulkro_app, fulkro_app_bypassrls;
+             GRANT EXECUTE ON ALL FUNCTIONS IN SCHEMA public TO fulkro_app, fulkro_app_bypassrls;"
+
+      # ── LO QUE ci.yml NO HACE, Y ES TODA LA DIFERENCIA ──────────────────
+      - name: Sembrar los catálogos (73 medidas ENS, amenazas, salvaguardas…)
+        run: |
+          set -euo pipefail
+          # El propio script relaja `age` y `pgaudit`, que esta imagen no trae,
+          # así que no hace falta pedírselo: `--skip-age-kg` es además su valor
+          # por omisión. Medido el 2026-09-10: 1,37 s · ok 25 · skip 2 · fail 0.
+          #
+          # Se siembra como `fulkro_migrate`, NO con el DATABASE_URL del job
+          # (`fulkro_app`): el script hace `SET LOCAL ROLE fulkro`, y desde el
+          # endurecimiento de roles `fulkro_app` ya no es miembro de `fulkro`
+          # (init-roles.sql). Con `fulkro_app` muere en el primer catálogo con
+          # «permission denied to set role "fulkro"». Es lo mismo que hace la
+          # provisión del demo (provision-entrypoint.sh, paso 6/7).
+          DATABASE_URL=postgresql+asyncpg://fulkro_migrate:fulkro_migrate_dev_password@localhost:5432/fulkro \
+          DATABASE_URL_SYNC="$DATABASE_MIGRATE_URL" \
+            python backend/scripts/seed_all_fulkro.py --skip-corpus --skip-age-kg
+
+      - name: Cargar el corpus normativo (1.031 fragmentos)
+        run: |
+          set -euo pipefail
+          export PGPASSWORD=fulkro
+          gzip -dc backend/tests/fixtures/corpus_seed.sql.gz \
+            | psql -h localhost -U fulkro -d fulkro -v ON_ERROR_STOP=1
+          psql -h localhost -U fulkro -d fulkro -tAc \
+            "SELECT 'chunks=' || count(*) FROM knowledge_chunks;"
+
+      - name: Directorio de salida `progress/`
+        run: mkdir -p progress
+
+      - name: La suite entera colecciona
+        # Va ANTES de ejecutar nada: si la suite no colecciona, lo que venga
+        # detrás mide sobre una suite incompleta y el resumen no lo dice.
+        run: |
+          set -uo pipefail
+          if ! python -m pytest backend/tests/ --collect-only -q > /tmp/collect.txt 2>&1; then
+            echo "::error::la suite no colecciona · ningún test llegaría a ejecutarse"
+            tail -40 /tmp/collect.txt
+            exit 1
+          fi
+          grep -oE '^[0-9]+ tests? collected' /tmp/collect.txt | tail -1
+
+      - name: Run tests (-m requires_db · trozo ${{ matrix.grupo }} de 4)
+        run: |
+          # -p no:randomly es defensivo: hoy `pytest-randomly` NO está en las
+          # dependencias (backend/pyproject.toml no lo menciona) y la bandera es
+          # inocua sin él, pero si alguien lo añade, con la suite repartida un
+          # orden distinto en cada trozo convertiría cualquier dependencia entre
+          # tests en un fallo que no se reproduce. Aquí se busca determinismo;
+          # el orden aleatorio responde a OTRA pregunta y merece su ejecución.
+          # Sin --timeout: backend/pyproject.toml ya fija timeout=300 por test.
+          python -m pytest backend/tests/ -m requires_db \
+            --splits 4 --group ${{ matrix.grupo }} \
+            -p no:randomly \
+            -q --tb=short --junitxml=/tmp/junit-${{ matrix.grupo }}.xml
+
+      - name: Publicar el resultado del trozo
+        if: always()
+        run: |
+          python - <<'PY' >> "$GITHUB_STEP_SUMMARY"
+          import os
+          import xml.etree.ElementTree as ET
+          from pathlib import Path
+
+          grupo = os.environ["GRUPO"]
+          f = Path(f"/tmp/junit-{grupo}.xml")
+          print(f"## pytest requires_db · trozo {grupo} de 4")
+          print()
+          if not f.exists():
+              print("No hay `junit.xml`: el paso de tests no llegó a producir informe.")
+              raise SystemExit(0)
+          raiz = ET.parse(f).getroot()
+          suite = raiz if raiz.tag == "testsuite" else raiz[0]
+          a = suite.attrib
+          recogidos = int(a["tests"])
+          fallos = int(a.get("failures", 0)) + int(a.get("errors", 0))
+          saltados = int(a.get("skipped", 0))
+          print(f"| | |")
+          print(f"|---|---:|")
+          print(f"| Recogidos en este trozo | {recogidos} |")
+          print(f"| Pasan | {recogidos - fallos - saltados} |")
+          print(f"| Fallan | {fallos} |")
+          print(f"| Saltados | {saltados} |")
+          print()
+          if fallos:
+              print(
+                  "Estos fallos hay que CLASIFICARLOS antes de tocar nada: "
+                  "defecto real, o dependencia no sembrada. Los defectos reales "
+                  "se arreglan; lo otro se salta con un motivo por nombre, "
+                  "nunca con `continue-on-error`."
+              )
+          PY
+        env:
+          GRUPO: ${{ matrix.grupo }}
+
+      - name: Guardar el informe
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: junit-requires-db-${{ matrix.grupo }}
+          path: /tmp/junit-${{ matrix.grupo }}.xml
+          retention-days: 30

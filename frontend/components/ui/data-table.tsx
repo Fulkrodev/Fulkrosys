@@ -72,7 +72,11 @@ export function DataTable<TData, TValue>({
     return (
       <div className="flex flex-col gap-3">
         {searchKey && (
-          <Input placeholder={searchPlaceholder} disabled className="max-w-sm" />
+          <Input
+            placeholder={searchPlaceholder}
+            disabled
+            className="max-w-sm"
+          />
         )}
         <DataTableSkeleton columns={columns.length} />
       </div>
@@ -84,9 +88,7 @@ export function DataTable<TData, TValue>({
       {searchKey && (
         <Input
           placeholder={searchPlaceholder}
-          value={
-            (table.getColumn(searchKey)?.getFilterValue() as string) ?? ""
-          }
+          value={(table.getColumn(searchKey)?.getFilterValue() as string) ?? ""}
           onChange={(e) =>
             table.getColumn(searchKey)?.setFilterValue(e.target.value)
           }
@@ -118,44 +120,41 @@ export function DataTable<TData, TValue>({
                     typeof headerDef === "string" && headerDef.length > 0
                       ? headerDef
                       : header.column.id;
-                  const ariaLabel = canSort
-                    ? `Ordenar por ${headerString}`
-                    : headerString;
+                  // Solo las cabeceras ordenables son <button> (ver abajo).
+                  const ariaLabel = `Ordenar por ${headerString}`;
                   return (
                     <TableHead key={header.id} className="text-foreground">
-                      {header.isPlaceholder ? null : (
+                      {header.isPlaceholder ? null : !canSort ? (
+                        // Sin ordenacion no hay accion: texto, no <button>. Un
+                        // boton desactivado no aporta nada y, si la cabecera
+                        // trae un control (p. ej. el boton de ayuda de
+                        // TooltipENS), lo dejaba anidado (axe nested-interactive).
+                        <span className="inline-flex items-center gap-1 font-medium">
+                          {flexRender(
+                            header.column.columnDef.header,
+                            header.getContext(),
+                          )}
+                        </span>
+                      ) : (
                         <button
                           type="button"
                           aria-label={ariaLabel}
-                          onClick={
-                            canSort
-                              ? header.column.getToggleSortingHandler()
-                              : undefined
-                          }
-                          className={cn(
-                            "inline-flex items-center gap-1 font-medium",
-                            canSort && "cursor-pointer hover:text-primary",
-                          )}
-                          disabled={!canSort}
+                          onClick={header.column.getToggleSortingHandler()}
+                          className="inline-flex cursor-pointer items-center gap-1 font-medium hover:text-primary"
                         >
                           {flexRender(
                             header.column.columnDef.header,
                             header.getContext(),
                           )}
-                          {canSort && (
-                            <span
-                              aria-hidden
-                              className="text-muted-foreground"
-                            >
-                              {sortDir === "asc" ? (
-                                <ArrowUp className="h-3.5 w-3.5" />
-                              ) : sortDir === "desc" ? (
-                                <ArrowDown className="h-3.5 w-3.5" />
-                              ) : (
-                                <ArrowUpDown className="h-3.5 w-3.5 opacity-40" />
-                              )}
-                            </span>
-                          )}
+                          <span aria-hidden className="text-muted-foreground">
+                            {sortDir === "asc" ? (
+                              <ArrowUp className="h-3.5 w-3.5" />
+                            ) : sortDir === "desc" ? (
+                              <ArrowDown className="h-3.5 w-3.5" />
+                            ) : (
+                              <ArrowUpDown className="h-3.5 w-3.5 opacity-40" />
+                            )}
+                          </span>
                         </button>
                       )}
                     </TableHead>
@@ -179,7 +178,9 @@ export function DataTable<TData, TValue>({
               table.getRowModel().rows.map((row) => (
                 <TableRow
                   key={row.id}
-                  onClick={onRowClick ? () => onRowClick(row.original) : undefined}
+                  onClick={
+                    onRowClick ? () => onRowClick(row.original) : undefined
+                  }
                   className={cn(onRowClick && "cursor-pointer")}
                 >
                   {row.getVisibleCells().map((cell) => (

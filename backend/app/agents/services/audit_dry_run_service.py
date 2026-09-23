@@ -282,8 +282,14 @@ class AuditDryRunService:
                         f"Readiness {score}% · {gaps_detected} gaps total · "
                         f"{critical_gaps} no conformidades mayores"
                     ),
+                    # No hay página de detalle por resultado (la ruta
+                    # .../audit-dry-run/results/{id} daba «no encontrado»). La
+                    # pestaña audit-dry-run resume el último dry-run, que es
+                    # este. El id va en la query para no perderlo; hoy la
+                    # página no lo lee.
                     action_url=(
-                        f"/admin/projects/{project_id}/audit-dry-run/results/{result.id}"
+                        f"/admin/projects/{project_id}/audit-dry-run"
+                        f"?result={result.id}"
                     ),
                     triggered_by="audit_dry_run_service",
                     metadata={

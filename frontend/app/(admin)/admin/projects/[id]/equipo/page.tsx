@@ -14,7 +14,7 @@
  *   - Áreas (placeholder · habilitada en 1.C.F.2)
  *   - Roles ENS (EnsRolesStatusPanel · auto-prefill 1.C.F.4)
  */
-import { useState } from "react";
+import { useState, use } from "react";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -30,11 +30,12 @@ import { PortalUserPanel } from "./_components/PortalUserPanel";
 import { ProjectContactCreateModal } from "./_components/ProjectContactCreateModal";
 import { ProjectContactsList } from "./_components/ProjectContactsList";
 
-export default function EquipoPage({
-  params,
-}: {
-  params: { id: string };
-}) {
+export default function EquipoPage(
+  props: {
+    params: Promise<{ id: string }>;
+  }
+) {
+  const params = use(props.params);
   const projectId = params.id;
   const [reloadKey, setReloadKey] = useState(0);
   const [createOpen, setCreateOpen] = useState(false);

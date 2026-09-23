@@ -16,6 +16,8 @@
  */
 import type { Page } from "@playwright/test";
 
+import { mockProjectShell } from "../_helpers/project-shell";
+
 export const PROJECT_F27_ID = "ff271122-3344-5566-7788-99aabbccddee";
 
 // ============================================================
@@ -330,6 +332,15 @@ export async function mockDdaAdmin(
 // ============================================================
 
 export async function mockProjectFeaturesMedia(page: Page) {
+  // Layout project-scoped: ActiveProjectSync pide /header y, si falla (el id
+  // es sintético → 404), redirige al selector /admin/projects antes de que la
+  // DdA monte. Va primero para que el stub de feature-flags de abajo
+  // (registrado después) prevalezca.
+  await mockProjectShell(page, {
+    projectId: PROJECT_F27_ID,
+    category: "MEDIA",
+  });
+
   // El endpoint real es /feature-flags (renombrado desde /features) ·
   // verificado en lib/api/feature-flags.ts → getProjectFeatureFlags. El path
   // viejo /features no interceptaba nada → el provider pegaba al backend real

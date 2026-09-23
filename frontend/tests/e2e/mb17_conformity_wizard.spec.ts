@@ -2,11 +2,14 @@
  * MB-17.7 · ConformityWizard adaptado per categoría B/M/A.
  *
  * Verifica:
- *   - BASICA: muestra autoevaluación CCN-STIC 809 + Declaración Conformidad
+ *   - BASICA: muestra autoevaluación CCN-STIC 808 + Declaración Conformidad
  *     Básica · oculta Pentest CPSTIC + Red Team + Auditor ENAC
  *   - MEDIA: muestra Auditor ENAC + Auditoría externa · oculta Pentest
  *   - ALTA: muestra Pentest CPSTIC + Productos CPSTIC + Red Team +
  *     Criptografía 807
+ *
+ * La autoevaluación es CCN-STIC 808 (Verificación del cumplimiento); 809 es la
+ * Declaración/distintivo. El wizard pasó de 809 a 808 en 0936ae9 (R17-UI).
  */
 import { expect, test } from "@playwright/test";
 
@@ -134,7 +137,7 @@ test.describe("MB-17.7 · ConformityWizard adaptado per categoría", () => {
     );
   });
 
-  test("BASICA · muestra autoevaluación 809 · oculta Pentest + Auditor ENAC", async ({
+  test("BASICA · muestra autoevaluación 808 · oculta Pentest + Auditor ENAC", async ({
     page,
   }) => {
     await page.goto(`/admin/projects/${PROJECT_BASICA_ID}/conformity`);
@@ -146,7 +149,7 @@ test.describe("MB-17.7 · ConformityWizard adaptado per categoría", () => {
       page.getByRole("heading", { name: /Camino a Conformidad/i }),
     ).toBeVisible();
     await expect(
-      page.getByRole("heading", { name: /Autoevaluación CCN-STIC 809/i }),
+      page.getByRole("heading", { name: /Autoevaluación CCN-STIC 808/i }),
     ).toBeVisible();
     await expect(
       page.getByRole("heading", { name: /Declaración de Conformidad \(Básica\)/i }),
@@ -169,7 +172,7 @@ test.describe("MB-17.7 · ConformityWizard adaptado per categoría", () => {
     ).toBeVisible();
     await expect(page.getByText(/Auditoría externa ejecutada/i)).toBeVisible();
     await expect(page.getByText(/Pentest CPSTIC ejecutado/i)).toHaveCount(0);
-    await expect(page.getByText(/Autoevaluación CCN-STIC 809/i)).toHaveCount(
+    await expect(page.getByText(/Autoevaluación CCN-STIC 808/i)).toHaveCount(
       0,
     );
   });

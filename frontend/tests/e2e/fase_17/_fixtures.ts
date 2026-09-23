@@ -295,24 +295,3 @@ export async function mockCopilotoAdminStub(page: Page) {
   );
 }
 
-export async function mockCopilotoClienteStub(page: Page) {
-  await page.route(
-    "**/api/v1/client-portal/copilot/chat",
-    async (route) => {
-      const body = JSON.parse(route.request().postData() ?? "{}");
-      await route.fulfill({
-        status: 200,
-        json: {
-          action_id: body.action_id ?? "que_hago",
-          response_text:
-            "Tu siguiente paso es \"Formación G1 empleados\". Si tienes " +
-            "dudas sobre cómo abordarlo · estoy aquí para explicarte. " +
-            "Sin prisa · avanzamos a tu ritmo.",
-          is_stub: true,
-          next_action_hint: "Cuando termines · márcalo como hecho",
-          citations: [],
-        },
-      });
-    },
-  );
-}

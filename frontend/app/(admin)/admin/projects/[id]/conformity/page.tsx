@@ -4,11 +4,12 @@ import { ConformityCloudScoreCard } from "@/components/conformity/ConformityClou
 import { ConformityConsole } from "@/components/conformity/ConformityConsole";
 import { ConformityWizard } from "@/components/conformity/ConformityWizard";
 
-export default function ConformityPage({
-  params,
-}: {
-  params: { id: string };
-}) {
+export default async function ConformityPage(
+  props: {
+    params: Promise<{ id: string }>;
+  }
+) {
+  const params = await props.params;
   return (
     <div className="space-y-6">
       <CopilotGuidedFlow {...PHASE_GUIDES.conformity(params.id)} />

@@ -26,7 +26,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from backend.app.auth import crypto
 from backend.app.auth.dependencies import require_owner
 from backend.app.config import get_settings
-from backend.app.database import get_db
+from backend.app.database import get_db, set_tenant_context
 from backend.app.models.auth import User
 from backend.app.models.client_portal import (
     ClientUser, ClientUserAudit,
@@ -105,6 +105,22 @@ auth_router = APIRouter(prefix="/client-auth", tags=["Portal Cliente Auth"])
 portal_router = APIRouter(
     prefix="/client-portal", tags=["Portal Cliente"],
 )
+async def _cockpit_tenant_scope(
+    client_id: uuid.UUID,
+    db: AsyncSession = Depends(get_db),
+) -> None:
+    """Fija el contexto RLS del cliente de la ruta para todo el cockpit.
+
+    client_users tiene RLS `client_id = current_client_id()`. Sin contexto, las
+    rutas del cockpit corrían ciegas bajo fulkro_app: el listado devolvía [] con
+    usuarios existentes, el alta daba 500 (la fila nueva viola la policy) y el
+    reseteo/baja respondían "Usuario no encontrado". Acotar al `client_id` de la
+    ruta además impide operar sobre un usuario de OTRO cliente cambiando el id.
+    Mismo patrón que m30 `portal_user_api._get_client_id_for_project`.
+    """
+    await set_tenant_context(db, client_id=client_id)
+
+
 cockpit_router = APIRouter(
     prefix="/clients/{client_id}/users",
     tags=["Cockpit - Usuarios cliente"],
@@ -112,7 +128,7 @@ cockpit_router = APIRouter(
     # Marcos-only (gestión users de cualquier cliente). Sin require_owner
     # un cliente autenticado podría escalate y crear/borrar usuarios en
     # su propio cliente. Global dep auth + ownership check explícito aquí.
-    dependencies=[Depends(require_owner)],
+    dependencies=[Depends(require_owner), Depends(_cockpit_tenant_scope)],
 )
 # Acceso de soporte trazado (impersonation READ-ONLY admin → portal cliente).
 # Router separado del cockpit (prefijo distinto · no cuelga de /users).

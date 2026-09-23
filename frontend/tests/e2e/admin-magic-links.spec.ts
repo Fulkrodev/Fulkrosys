@@ -1,19 +1,23 @@
 /**
- * E2E admin magic-links panel (FASE 4.5 sub-bloque B.2).
+ * E2E admin magic-links (FASE 4.5 sub-bloque B.2 · remodelado Phase X.4e).
  *
- * Cobertura smoke 3 specs (los 35 specs FR14.8/FR18.9 completos van a FASE 14):
- * 1. Navegación a /admin/magic-links · header + tabs (Generar / Histórico)
- * 2. Tab Generar renderiza el select agrupado por categorías de purposes
+ * El panel cross-cliente /admin/magic-links es hoy un redirect a /admin/projects:
+ * el generador manual + el histórico se movieron a la vista project-scoped
+ * /admin/projects/[id]/auditor-handoff ("Entrega al auditor"). Esta spec cubre
+ * el mismo generador en su ubicación actual:
+ * 1. /admin/magic-links redirige · auditor-handoff muestra los 2 tabs
+ * 2. El select de purposes se agrupa por categorías (sin "Deprecated")
  * 3. Generación de un INVITACION_REUNION con campos mínimos · success state
  *
- * Pattern post-MF3.5: mockAuthenticated(page) + page.route mocks · canónico
- * con admin-clients.spec.ts y verification.spec.ts.
+ * Pattern: loginAsMarcos(context) + mockProjectShell + page.route mocks.
  */
 import { expect, test } from "@playwright/test";
 
-import { mockAuthenticated } from "./helpers";
+import { loginAsMarcos } from "./_helpers/auth-real";
+import { mockProjectShell } from "./_helpers/project-shell";
 
-const PROJECT_ID = "11111111-1111-1111-1111-111111111111";
+const PROJECT_ID = "11111111-1111-4111-8111-111111111111";
+const CLIENT_ID = "22222222-2222-4222-8222-222222222222";
 
 const MOCK_GENERATED_LINK = {
   id: "00000000-0000-0000-0000-aaaaaaaaaaaa",
@@ -31,20 +35,18 @@ const MOCK_GENERATED_LINK = {
   created_at: "2026-05-01T10:00:00Z",
 };
 
-// SKIP: feature eliminada (panel cross-cliente /admin/magic-links con generador
-// de 35 purposes + tabs Generar/Histórico). La ruta /admin/magic-links ahora hace
-// redirect() server-side hacia /admin/projects (consolidación · Sesión 3B-2B.3
-// Phase X.4e). El generador manual se redujo a 3 auditor-purposes bajo
-// /admin/projects/[id]/auditor-handoff; el resto de purposes los auto-generan los
-// motores. Ningún heading "Enlaces seguros"/"Generar enlace seguro" ni los tabs
-// existen ya en /admin/magic-links. Candidata a borrar tras contraste (Marcos).
-test.describe.skip("Admin Magic Links", () => {
-  test.beforeEach(async ({ page }) => {
-    await mockAuthenticated(page);
-    // Lista vacía por defecto (tab Histórico no necesita data en B.2 smoke).
-    await page.route("**/api/v1/magic-links*", async (route) => {
+test.describe("Admin Magic Links · entrega al auditor", () => {
+  let generateBody: Record<string, unknown> | null = null;
+
+  test.beforeEach(async ({ context, page }) => {
+    generateBody = null;
+    await loginAsMarcos(context);
+    await mockProjectShell(page, { projectId: PROJECT_ID, clientId: CLIENT_ID });
+    // Histórico vacío por defecto; /generate devuelve el enlace mock.
+    await page.route("**/api/v1/magic-links**", async (route) => {
       const url = route.request().url();
       if (url.includes("/generate")) {
+        generateBody = route.request().postDataJSON() as Record<string, unknown>;
         return route.fulfill({
           status: 201,
           contentType: "application/json",
@@ -59,28 +61,31 @@ test.describe.skip("Admin Magic Links", () => {
     });
   });
 
-  test("admin navigates to /admin/magic-links and sees both tabs", async ({
+  test("/admin/magic-links redirige y auditor-handoff muestra ambos tabs", async ({
     page,
   }) => {
     await page.goto("/admin/magic-links");
-    await expect(page.getByRole("heading", { name: "Enlaces seguros" })).toBeVisible();
-    await expect(page.getByRole("tab", { name: "Generar nuevo" })).toBeVisible();
-    await expect(page.getByRole("tab", { name: "Histórico" })).toBeVisible();
+    await expect(page).toHaveURL(/\/admin\/projects$/);
+
+    await page.goto(`/admin/projects/${PROJECT_ID}/auditor-handoff`);
+    await expect(
+      page.getByRole("heading", { name: "Entrega al auditor", level: 1 }),
+    ).toBeVisible();
+    await expect(
+      page.getByRole("tab", { name: "Generar enlace auditor" }),
+    ).toBeVisible();
+    await page.getByRole("tab", { name: "Histórico enlaces" }).click();
+    await expect(page.getByText("Histórico de enlaces")).toBeVisible();
   });
 
   test("generator form opens and shows purposes grouped by category", async ({
     page,
   }) => {
-    await page.goto("/admin/magic-links");
-    await expect(
-      page.getByRole("heading", { name: "Generar enlace seguro" }),
-    ).toBeVisible();
+    await page.goto(`/admin/projects/${PROJECT_ID}/auditor-handoff`);
+    await expect(page.getByText("Generar enlace seguro")).toBeVisible();
 
-    // Open the purpose select
     await page.getByRole("combobox", { name: /tipo de operación/i }).click();
-
-    // 5 categorías visibles (Onboarding · Firma · Evidencias · Comunicación ·
-    // Cierre); "Deprecated" filtrada del select.
+    const listbox = page.getByRole("listbox");
     for (const cat of [
       "Onboarding y acceso",
       "Firma documental",
@@ -88,25 +93,29 @@ test.describe.skip("Admin Magic Links", () => {
       "Comunicación y reporting",
       "Cierre y descargas",
     ]) {
-      await expect(page.getByText(cat, { exact: true })).toBeVisible();
+      await expect(listbox.getByText(cat, { exact: true })).toBeVisible();
     }
-    // Deprecated NO visible
-    await expect(page.getByText("Deprecated", { exact: true })).not.toBeVisible();
+    await expect(listbox.getByText("Deprecated", { exact: true })).toHaveCount(0);
   });
 
   test("admin generates magic link for INVITACION_REUNION", async ({ page }) => {
-    await page.goto("/admin/magic-links");
-    await page.getByLabel(/proyecto/i).fill(PROJECT_ID);
+    await page.goto(`/admin/projects/${PROJECT_ID}/auditor-handoff`);
+    await page.getByLabel("Proyecto (UUID)").fill(PROJECT_ID);
+    await page.getByLabel("Cliente (UUID)").fill(CLIENT_ID);
     await page.getByRole("combobox", { name: /tipo de operación/i }).click();
-    await page.getByRole("option", { name: "Confirmar asistencia a reunion" }).click();
+    await page
+      .getByRole("option", { name: "Confirmar asistencia a reunion" })
+      .click();
     await page.getByLabel(/email destinatario/i).fill("test@example.com");
-    await page.getByRole("button", { name: /generar enlace/i }).click();
+    await page.getByRole("button", { name: /generar \(copiar enlace\)/i }).click();
 
-    await expect(page.getByText("Enlace generado")).toBeVisible({
-      timeout: 10_000,
+    const result = page.getByRole("alert").filter({ hasText: "Enlace generado" });
+    await expect(result).toBeVisible({ timeout: 10_000 });
+    await expect(result.getByText(MOCK_GENERATED_LINK.id)).toBeVisible();
+    expect(generateBody).toMatchObject({
+      project_id: PROJECT_ID,
+      purpose: "invitacion_reunion",
+      recipient_email: "test@example.com",
     });
-    await expect(
-      page.getByText(MOCK_GENERATED_LINK.id),
-    ).toBeVisible();
   });
 });

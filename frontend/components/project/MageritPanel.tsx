@@ -748,8 +748,9 @@ export function MageritPanel({ projectId }: { projectId: string }) {
             disabled={calcIntrinsicMut.isPending || isFrozen}
           >
             <Calculator size={16} strokeWidth={2.4} />
-            Calcular intrínseco <TooltipENS term="riesgo_intrinseco" />
+            Calcular intrínseco
           </Button>
+          <TooltipENS term="riesgo_intrinseco" />
           <Button
             variant="secondary"
             onClick={() =>
@@ -761,8 +762,9 @@ export function MageritPanel({ projectId }: { projectId: string }) {
             disabled={calcEffectiveMut.isPending || isFrozen}
           >
             <Calculator size={16} strokeWidth={2.4} />
-            Calcular efectivo <TooltipENS term="riesgo_efectivo" />
+            Calcular efectivo
           </Button>
+          <TooltipENS term="riesgo_efectivo" />
           <Button
             variant="secondary"
             onClick={() =>
@@ -774,8 +776,9 @@ export function MageritPanel({ projectId }: { projectId: string }) {
             disabled={calcResidualMut.isPending || isFrozen}
           >
             <Calculator size={16} strokeWidth={2.4} />
-            Calcular residual <TooltipENS term="riesgo_residual" />
+            Calcular residual
           </Button>
+          <TooltipENS term="riesgo_residual" />
           <Button
             onClick={() =>
               treatmentPlanMut

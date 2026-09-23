@@ -273,8 +273,11 @@ test.describe("K.17 Verificación Técnica", () => {
     await stubK17Backend(page);
     await page.goto(`/admin/projects/${PROJECT_ID}/verification`);
 
+    // level 2: la guía CopilotGuidedFlow (0e1c546) añadió un h3
+    // "Verificación técnica · vuln-scan…" y el InfoTag del h2 amplía su nombre
+    // accesible ("… Ayuda: …"), así que el match por substring era ambiguo.
     await expect(
-      page.getByRole("heading", { name: "Verificación técnica" }),
+      page.getByRole("heading", { name: /^Verificación técnica/, level: 2 }),
     ).toBeVisible();
     await page
       .getByRole("button", { name: /Lanzar verificación/i })

@@ -6,10 +6,13 @@
  */
 import { api } from "@/lib/api";
 import { clientApi } from "@/lib/client-portal-api";
+import { csrfHeaders } from "@/lib/csrf";
 
 export interface CopilotMessage {
   role: "user" | "assistant" | "system";
   content: string;
+  /** La respuesta no llego: el texto es el aviso amable, no del modelo. */
+  error?: boolean;
 }
 
 export interface QuickAction {
@@ -109,7 +112,7 @@ export async function streamCopilotAnswer(
   const url = `${API_BASE}/api/v1/client-portal/copiloto/chat/stream`;
   const resp = await fetch(url, {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
+    headers: { "Content-Type": "application/json", ...csrfHeaders() },
     credentials: "include",
     body: JSON.stringify(body),
   });

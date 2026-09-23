@@ -1,4 +1,5 @@
-"use client";
+"use client";;
+import { use } from "react";
 
 /**
  * /admin/projects/[id]/auditor-handoff · Sesión 3B-2B.3 Phase X.4e NEW.
@@ -53,11 +54,12 @@ interface ProjectHeaderResponse {
 // projects/[id]/auditor-handoff) estaban rotas a la vez y por lo mismo. Si
 // algún día se migra a Next.js 15, esto vuelve a ser `Promise` y `use()`; hasta
 // entonces, no.
-export default function AdminProjectAuditorHandoffPage({
-  params,
-}: {
-  params: { id: string };
-}) {
+export default function AdminProjectAuditorHandoffPage(
+  props: {
+    params: Promise<{ id: string }>;
+  }
+) {
+  const params = use(props.params);
   const { id: projectId } = params;
 
   const headerQ = useQuery<ProjectHeaderResponse>({

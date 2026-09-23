@@ -193,6 +193,10 @@ export function FilesTab({ projectId }: FilesTabProps) {
     },
     {
       accessorKey: "hash_sha256",
+      // Sin ordenacion: ordenar por hash no significa nada, y la tabla envuelve
+      // la cabecera ordenable en un <button>, que dejaba el boton de ayuda de
+      // TooltipENS anidado dentro de otro (axe nested-interactive).
+      enableSorting: false,
       header: () => (
         <span className="inline-flex items-center gap-1">
           SHA-256 <TooltipENS term="cadena_custodia" />
@@ -318,7 +322,7 @@ export function FilesTab({ projectId }: FilesTabProps) {
             selecciona desde el equipo
           </button>
         </p>
-        <p className="mt-1 text-xs text-fulkro-ink-500">
+        <p className="mt-1 text-xs text-fulkro-ink-600">
           Máximo {MAX_FILE_SIZE_MB}MB por archivo
         </p>
       </div>

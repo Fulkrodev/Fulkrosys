@@ -5,11 +5,12 @@ export const metadata = {
   title: "Portal de remediación",
 };
 
-export default function RemediationTokenPage({
-  params,
-}: {
-  params: { token: string };
-}) {
+export default async function RemediationTokenPage(
+  props: {
+    params: Promise<{ token: string }>;
+  }
+) {
+  const params = await props.params;
   return (
     <PublicPortalShell>
       <RemediationPortal token={params.token} />

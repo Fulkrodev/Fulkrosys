@@ -127,6 +127,14 @@ WHITELIST_EXACT: frozenset[str] = frozenset({
     # cliente. No lee ni un dato de ningun cliente: los sub-encargados salen
     # del registro RoPA, que es informacion publicada en /sub-processors.
     "/api/v1/legal/dpa-template/download",
+    # Webhook de 360dialog (WhatsApp entrante + acuses). Llega desde 360dialog,
+    # sin sesion: con la ruta fuera de esta lista el auth global devolvia 401
+    # "Authentication required" y el webhook no podia recibir nada. La
+    # credencial es la firma HMAC del body o el token compartido, y se valida
+    # DENTRO del handler (m31_whatsapp/api._webhook_authorized · fail-closed en
+    # produccion si no hay secret). Exime tambien CSRF: el POST es servidor a
+    # servidor.
+    "/api/v1/webhooks/360dialog",
     # ADR-030 · OpenAPI schema público estándar · FastAPI auto-generated
     "/openapi.json",
     # ADR-030 · Swagger UI público estándar · FastAPI auto-generated

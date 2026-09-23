@@ -37,8 +37,10 @@ class _FakeReq:
             self.headers["X-Hub-Signature-256"] = sig
 
 
-def _settings(secret: str) -> SimpleNamespace:
-    return SimpleNamespace(dialog_360_webhook_secret=SecretStr(secret))
+def _settings(secret: str, production: bool = False) -> SimpleNamespace:
+    return SimpleNamespace(
+        dialog_360_webhook_secret=SecretStr(secret), is_production=production,
+    )
 
 
 def _sign(secret: str, body: bytes) -> str:
@@ -51,6 +53,23 @@ def test_open_when_no_secret(monkeypatch):
     # Dev/mock (sin secret) → verificación omitida (True).
     monkeypatch.setattr(wa_api, "get_settings", lambda: _settings(""))
     assert wa_api._webhook_authorized(_FakeReq(), b"{}") is True
+
+
+def test_closed_when_no_secret_in_production(monkeypatch):
+    # La ruta es pública en el auth global: en producción, sin secret, NADA
+    # autentica el webhook → se rechaza todo (fail-closed).
+    monkeypatch.setattr(
+        wa_api, "get_settings", lambda: _settings("", production=True),
+    )
+    assert wa_api._webhook_authorized(_FakeReq(), b"{}") is False
+
+
+def test_webhook_path_is_public_in_global_auth():
+    # 360dialog llega sin sesión: si la ruta no está en la whitelist del auth
+    # global, el middleware devuelve 401 antes de llegar al handler.
+    from backend.app.auth.global_dep import _is_whitelisted
+
+    assert _is_whitelisted("/api/v1/webhooks/360dialog")
 
 
 def test_rejects_missing_or_bad_token(monkeypatch):

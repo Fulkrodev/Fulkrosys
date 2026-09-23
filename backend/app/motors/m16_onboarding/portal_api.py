@@ -530,5 +530,7 @@ async def portal_finish_onboarding(
     return FinishResponse(
         completed=True,
         completed_at=completed_at_str,
-        next_step_url=f"/client-portal/projects/{project_id}/dashboard",
+        # El portal cliente es de un solo proyecto (R27): no hay
+        # /client-portal/projects/{id}/..., el panel es /client-portal/dashboard.
+        next_step_url="/client-portal/dashboard",
     )

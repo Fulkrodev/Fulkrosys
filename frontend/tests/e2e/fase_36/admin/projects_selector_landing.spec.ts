@@ -11,9 +11,9 @@ import { expect, test } from "@playwright/test";
 
 import { loginAsMarcos } from "../../_helpers/auth-real";
 import {
+  CLIENT_F36_B_ID,
   CLIENT_F36_ID,
   PROJECT_F36_A_ID,
-  PROJECT_F36_B_ID,
   mockClientsAndHeaders,
 } from "../_fixtures";
 
@@ -32,8 +32,8 @@ test.describe("fase_36 admin · projects selector landing", () => {
 
     // Grid + 2 cards (mocked clients)
     await expect(page.getByTestId("projects-grid")).toBeVisible();
-    await expect(page.getByTestId(`project-card-${PROJECT_F36_A_ID}`)).toBeVisible();
-    await expect(page.getByTestId(`project-card-${PROJECT_F36_B_ID}`)).toBeVisible();
+    await expect(page.getByTestId(`project-card-${CLIENT_F36_ID}`)).toBeVisible();
+    await expect(page.getByTestId(`project-card-${CLIENT_F36_B_ID}`)).toBeVisible();
   });
 
   test("search filter reduces visible cards", async ({ page }) => {
@@ -41,13 +41,13 @@ test.describe("fase_36 admin · projects selector landing", () => {
     await mockClientsAndHeaders(page);
 
     await page.goto("/admin/projects");
-    await page.getByTestId(`project-card-${PROJECT_F36_A_ID}`).waitFor();
+    await page.getByTestId(`project-card-${CLIENT_F36_ID}`).waitFor();
 
     await page.getByTestId("projects-search-input").fill("Piloto");
 
-    await expect(page.getByTestId(`project-card-${PROJECT_F36_A_ID}`)).toBeVisible();
+    await expect(page.getByTestId(`project-card-${CLIENT_F36_ID}`)).toBeVisible();
     await expect(
-      page.getByTestId(`project-card-${PROJECT_F36_B_ID}`),
+      page.getByTestId(`project-card-${CLIENT_F36_B_ID}`),
     ).not.toBeVisible();
   });
 
@@ -67,13 +67,13 @@ test.describe("fase_36 admin · projects selector landing", () => {
     );
 
     await page.goto("/admin/projects");
-    await page.getByTestId(`project-card-${PROJECT_F36_A_ID}`).waitFor();
+    await page.getByTestId(`project-card-${CLIENT_F36_ID}`).waitFor();
 
     // Badge "Último usado" en card A · NO en card B
-    const cardA = page.getByTestId(`project-card-${PROJECT_F36_A_ID}`);
+    const cardA = page.getByTestId(`project-card-${CLIENT_F36_ID}`);
     await expect(cardA.getByText(/Último usado/i)).toBeVisible();
 
-    const cardB = page.getByTestId(`project-card-${PROJECT_F36_B_ID}`);
+    const cardB = page.getByTestId(`project-card-${CLIENT_F36_B_ID}`);
     await expect(cardB.getByText(/Último usado/i)).not.toBeVisible();
   });
 });

@@ -594,7 +594,7 @@ async def meeting_update_stream(body: dict, db: AsyncSession = Depends(get_db)):
         _stream(),
         media_type="text/event-stream",
         headers={
-            "Cache-Control": "no-cache",
+            "Cache-Control": "no-cache, no-transform",
             "X-Accel-Buffering": "no",  # disable nginx buffering
             "Connection": "keep-alive",
         },

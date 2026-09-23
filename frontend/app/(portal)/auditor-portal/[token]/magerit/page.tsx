@@ -3,11 +3,12 @@ import { MageritView } from "@/components/auditor-portal/views/MageritView";
 
 export const metadata = { title: "Portal auditor · MAGERIT" };
 
-export default function AuditorPortalMageritPage({
-  params,
-}: {
-  params: { token: string };
-}) {
+export default async function AuditorPortalMageritPage(
+  props: {
+    params: Promise<{ token: string }>;
+  }
+) {
+  const params = await props.params;
   return (
     <AuditorPortalEntry token={params.token}>
       <MageritView token={params.token} />

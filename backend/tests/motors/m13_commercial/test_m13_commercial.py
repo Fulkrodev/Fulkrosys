@@ -56,12 +56,16 @@ def test_pricing_basica_fijo_base_without_extras():
     assert sum(h["pct"] for h in r["hitos"]) == 100
 
 
-def test_pricing_basica_fijo_with_employee_extras():
+def test_pricing_basica_fijo_sin_recargos_por_tamano():
+    """BASICA es precio fijo: la tarifa canonica no cobra por empleados ni sistemas.
+
+    Antes m13 sumaba 80 €/empleado por encima de 10 y 600 € por sistema por
+    encima de 2, recargos que la tarifa canonica no tiene.
+    """
     svc = PricingService()
     r = svc.calculate_price("basica_fijo", empleados=25, sistemas=3)
-    # 15 empleados extra × 80 + 1 sistema extra × 600 = 1200 + 600 = 1800 extra
-    assert r["total"] == 3200 + 15 * 80 + 1 * 600
-    assert any("empleados" in e["concepto"] for e in r["extras"])
+    assert r["total"] == 3200
+    assert r["extras"] == []
 
 
 def test_pricing_media_hitos_with_sector_regulado():
@@ -70,27 +74,52 @@ def test_pricing_media_hitos_with_sector_regulado():
         "media_hitos", empleados=40, sistemas=4,
         ubicaciones=2, sector_regulado=True,
     )
-    # base 10700 + 15 empleados × 150 + 1 sistema × 1200 + 1 ubicacion × 1500 + 2000 sector
-    # (extras alineados con EXTRAS_IMPLANTACION_MEDIA canónico · antes 1800/3000 sombra)
-    assert r["total"] == 10700 + 15 * 150 + 1200 + 1500 + 2000
+    # Tarifa canonica MEDIA: base 10.700 + sector regulado 2.000 + mas de una
+    # sede 1.500 (fijo) + 3 sistemas por encima del primero x 1.200. Los
+    # empleados no mueven el precio.
+    assert r["total"] == 10700 + 2000 + 1500 + 3 * 1200
     assert any("sector" in e["concepto"].lower() for e in r["extras"])
 
 
-def test_pricing_alta_with_cpds():
+def test_pricing_media_coincide_con_la_calculadora_canonica():
+    """Un solo camino: m13 da el mismo total que PricingCalculator."""
+    from backend.app.core.pricing.calculator import PricingCalculator
+
+    r = PricingService().calculate_price(
+        "media_hitos", sistemas=4, ubicaciones=2, sector_regulado=True,
+    )
+    canonico = PricingCalculator().calculate_implantacion(
+        "MEDIA", sistemas_en_alcance=4, sedes=2, sector_regulado=True,
+    )
+    assert r["total"] == float(canonico.total)
+    assert [h["code"] for h in r["hitos"]] == [h.code for h in canonico.hitos]
+    assert sum(h["amount"] for h in r["hitos"]) == float(canonico.total)
+
+
+def test_pricing_alta_sin_recargos_por_cpds():
     svc = PricingService()
     r = svc.calculate_price(
         "alta_fases_exito", empleados=50, sistemas=5,
         ubicaciones=1, cpds=2,
     )
-    # base 22800 + 0 empleados (=50 threshold) + 0 sistemas (=5) + 2 cpds × 4500 = 9000
-    assert r["total"] == 22800 + 9000
+    # La tarifa canonica ALTA no lleva extras: ni CPDs ni bonus de exito.
+    assert r["total"] == 22800
+    assert r["rango_max"] == 28000
 
 
 def test_pricing_retainer_monthly_multi_month():
     svc = PricingService()
     r = svc.calculate_price("retainer_basico", sistemas=3, meses_retainer=6)
-    # 700/mes × 6 + 2 sistemas extras × 50 × 6 = 4200 + 600 = 4800
-    assert r["total"] == 4800
+    # R_STD 700 €/mes x 6. La tarifa canonica no cobra por sistema.
+    assert r["total"] == 700 * 6
+
+
+def test_pricing_retainer_premium_sector_regulado():
+    r = PricingService().calculate_price(
+        "retainer_premium", sector_regulado=True, meses_retainer=12,
+    )
+    # R_PLUS 1.200 + 300 de sector regulado (desde R_PLUS), por 12 meses.
+    assert r["total"] == (1200 + 300) * 12
 
 
 def test_pricing_invalid_model_raises():
@@ -109,7 +138,6 @@ def test_get_models_for_categoria_media():
 # ====================== API pricing ======================
 
 @pytest.mark.asyncio
-@pytest.mark.skip(reason="API comercial m13 (pricing/proposals) no montada en Batch 2 · router comercial dormido")
 async def test_api_list_pricing_models(async_client):
     r = await async_client.get(f"{BASE}/pricing-models")
     assert r.status_code == 200
@@ -118,7 +146,6 @@ async def test_api_list_pricing_models(async_client):
 
 
 @pytest.mark.asyncio
-@pytest.mark.skip(reason="API comercial m13 (pricing/proposals) no montada en Batch 2 · router comercial dormido")
 async def test_api_list_pricing_models_filtered_by_categoria(async_client):
     r = await async_client.get(f"{BASE}/pricing-models?categoria=ALTA")
     assert r.status_code == 200
@@ -128,7 +155,6 @@ async def test_api_list_pricing_models_filtered_by_categoria(async_client):
 
 
 @pytest.mark.asyncio
-@pytest.mark.skip(reason="API comercial m13 (pricing/proposals) no montada en Batch 2 · router comercial dormido")
 async def test_api_calculate_price_endpoint(async_client):
     r = await async_client.post(
         f"{BASE}/pricing-models/media_hitos/calculate",
@@ -137,14 +163,18 @@ async def test_api_calculate_price_endpoint(async_client):
     assert r.status_code == 200, r.text
     data = r.json()
     assert data["model_id"] == "media_hitos"
-    assert data["total"] > 22000
+    # Tarifa canonica (docs/pricing/CANONICAL_PRICING.md): base MEDIA 10.700 +
+    # sector regulado 2.000 + 3 sistemas por encima del primero x 1.200. Los
+    # 30 empleados no mueven el precio. Antes este test pedia "> 22.000", la
+    # tarifa sombra que se unifico el 2026-06-11.
+    assert data["base"] == 10700.0
+    assert data["total"] == 10700.0 + 2000.0 + 3 * 1200.0
     assert data["iva_percent"] == 21.0
 
 
 # ====================== API proposals ======================
 
 @pytest.mark.asyncio
-@pytest.mark.skip(reason="API comercial m13 (pricing/proposals) no montada en Batch 2 · router comercial dormido")
 async def test_api_generate_proposal_creates_draft(async_client, db):
     _, project_id = await setup_test_project(db)
     lead_id = await _create_lead(db)
@@ -168,7 +198,6 @@ async def test_api_generate_proposal_creates_draft(async_client, db):
 
 
 @pytest.mark.asyncio
-@pytest.mark.skip(reason="API comercial m13 (pricing/proposals) no montada en Batch 2 · router comercial dormido")
 async def test_api_send_proposal_updates_status(async_client, db):
     _, project_id = await setup_test_project(db)
     lead_id = await _create_lead(db)
@@ -186,7 +215,6 @@ async def test_api_send_proposal_updates_status(async_client, db):
 
 
 @pytest.mark.asyncio
-@pytest.mark.skip(reason="API comercial m13 (pricing/proposals) no montada en Batch 2 · router comercial dormido")
 async def test_api_create_version_increments(async_client, db):
     _, project_id = await setup_test_project(db)
     lead_id = await _create_lead(db)
@@ -206,7 +234,6 @@ async def test_api_create_version_increments(async_client, db):
 
 
 @pytest.mark.asyncio
-@pytest.mark.skip(reason="API comercial m13 (pricing/proposals) no montada en Batch 2 · router comercial dormido")
 async def test_api_download_docx_returns_docx_bytes(async_client, db):
     _, project_id = await setup_test_project(db)
     lead_id = await _create_lead(db)

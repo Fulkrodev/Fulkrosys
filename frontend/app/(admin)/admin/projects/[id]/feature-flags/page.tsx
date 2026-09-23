@@ -16,11 +16,12 @@ export const metadata = {
   title: "Capabilities · FULKRO",
 };
 
-export default function FeatureFlagsAdminPage({
-  params,
-}: {
-  params: { id: string };
-}) {
+export default async function FeatureFlagsAdminPage(
+  props: {
+    params: Promise<{ id: string }>;
+  }
+) {
+  const params = await props.params;
   return (
     <div className="space-y-6">
       <header className="space-y-1">

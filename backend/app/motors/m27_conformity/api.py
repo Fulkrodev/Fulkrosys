@@ -952,14 +952,22 @@ async def ines_annual_json(
     db: AsyncSession = Depends(get_db),
 ):
     """Genera JSON canónico INES (CCN-STIC 824) para subida portal."""
-    from .ines_generator import collect_ines_data, generate_ines_json
+    from .ines_generator import (
+        OrganizacionNoEncontrada,
+        collect_ines_data,
+        generate_ines_json,
+    )
 
     # RLS org-level: projects/incidents filtran por client_id=organization_id;
     # fijar el contexto para que sean visibles bajo fulkro_app (si no, informe vacío).
     await db.execute(sa_text(
         "SELECT set_config('app.current_client_id', :cid, true)"
     ), {"cid": str(organization_id)})
-    report = await collect_ines_data(db, organization_id, year)
+    try:
+        report = await collect_ines_data(db, organization_id, year)
+    except OrganizacionNoEncontrada as exc:
+        # Antes llegaba como ValueError sin capturar: un 500.
+        raise HTTPException(status_code=404, detail=str(exc)) from exc
     return generate_ines_json(report)
 
 
@@ -1026,14 +1034,22 @@ async def ines_annual_docx(
     """Genera DOCX legible INES anual para Dirección + auditor."""
     from fastapi.responses import Response
 
-    from .ines_generator import collect_ines_data, generate_ines_docx
+    from .ines_generator import (
+        OrganizacionNoEncontrada,
+        collect_ines_data,
+        generate_ines_docx,
+    )
 
     # RLS org-level: projects/incidents filtran por client_id=organization_id;
     # fijar el contexto para que sean visibles bajo fulkro_app (si no, informe vacío).
     await db.execute(sa_text(
         "SELECT set_config('app.current_client_id', :cid, true)"
     ), {"cid": str(organization_id)})
-    report = await collect_ines_data(db, organization_id, year)
+    try:
+        report = await collect_ines_data(db, organization_id, year)
+    except OrganizacionNoEncontrada as exc:
+        # Antes llegaba como ValueError sin capturar: un 500.
+        raise HTTPException(status_code=404, detail=str(exc)) from exc
     bio = generate_ines_docx(report)
 
     # Q5 · y se REGISTRA. `documents` es lo que lee el generador del expediente

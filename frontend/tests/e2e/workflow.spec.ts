@@ -2,17 +2,18 @@
  * E2E test workflow phase derivation · admin + cliente (FASE 8 sub-bloque 8.B.7
  * + SAN-C MB-11.1 extensión 10 fases canonical).
  *
- * Cobertura 3 tests:
+ * Cobertura:
  * 1. /admin/projects/[id]/roadmap renders RoadmapView (10 PhaseCards) +
  *    NextActions list (top 5 priorizados)
  * 2. NextActionCard render correcto (motor badge + priority + estimated time)
  *    con mock /workflow/next-actions
- * 3. /client-portal/workflow renders RoadmapView con mock
- *    /portal/workflow/roadmap (cross-pool RBAC)
+ * (La vista cliente /client-portal/workflow ya no usa RoadmapView: se remodeló
+ *  a workflow-guide y la cubre fase_17/client/cliente_step_enriched_friendly.spec.ts.)
  *
  * Pattern post-MF3.5 sostenido: loginAsMarcos / loginAsClient + page.route mocks.
  */
 import { expect, test } from "@playwright/test";
+import type { Page } from "@playwright/test";
 
 import { loginAsMarcos } from "./_helpers/auth-real";
 
@@ -55,32 +56,77 @@ const MOCK_NEXT_ACTIONS = [
 ];
 
 
+// ActiveProjectSync (ADR-054, layout /admin/projects/[id]) pide
+// /projects/{id}/header y, si falla (404: PROJECT_A_ID no existe en BD),
+// limpia el store y hace router.replace al selector /admin/projects. Sin este
+// stub el roadmap llegaba a pintarse o no según ganara la carrera contra el
+// 404 → test intermitente. Stub = proyecto accesible, flujo determinista.
+const MOCK_PROJECT_HEADER = {
+  project: {
+    id: PROJECT_A_ID,
+    nombre: "Proyecto Test FASE 8",
+    fase: "diagnostico",
+    categoria_objetivo: "MEDIA",
+    lifecycle_state: "ACTIVE",
+    fecha_kickoff: null,
+    fecha_objetivo_certificacion: null,
+    certified_at: null,
+  },
+  cliente: {
+    id: "x",
+    nombre: "Cliente Test FASE 8",
+    cif: "B12345678",
+    sector: null,
+    provincia: null,
+  },
+  rseg_contact: null,
+  ciso_contact: null,
+  conformity: {
+    route_status: null,
+    route_type: null,
+    expiration_date: null,
+    submissions_count: 0,
+    renewals_count: 0,
+    material_changes_count: 0,
+  },
+};
+
+async function stubRoadmapBackend(page: Page) {
+  await page.route(
+    `**/api/v1/workflow/roadmap/${PROJECT_A_ID}`,
+    async (route) => {
+      await route.fulfill({ status: 200, json: MOCK_ROADMAP_ADMIN });
+    },
+  );
+  await page.route(
+    new RegExp(`/api/v1/workflow/next-actions/${PROJECT_A_ID}`),
+    async (route) => {
+      await route.fulfill({ status: 200, json: MOCK_NEXT_ACTIONS });
+    },
+  );
+  await page.route(
+    `**/api/v1/projects/${PROJECT_A_ID}/header`,
+    async (route) => {
+      await route.fulfill({ status: 200, json: MOCK_PROJECT_HEADER });
+    },
+  );
+  // ProjectHeader / ProjectTabs query (avoid network failures unrelated)
+  await page.route(`**/api/v1/clients/projects/${PROJECT_A_ID}`, async (route) => {
+    await route.fulfill({
+      status: 200,
+      json: { id: PROJECT_A_ID, nombre: "Proyecto Test FASE 8", client_id: "x" },
+    });
+  });
+}
+
+
 test.describe("FASE 8 · workflow phase derivation", () => {
   test("admin /admin/projects/[id]/roadmap renders 10 phase cards + next actions", async ({
     page,
     context,
   }) => {
     await loginAsMarcos(context);
-
-    await page.route(
-      `**/api/v1/workflow/roadmap/${PROJECT_A_ID}`,
-      async (route) => {
-        await route.fulfill({ status: 200, json: MOCK_ROADMAP_ADMIN });
-      },
-    );
-    await page.route(
-      new RegExp(`/api/v1/workflow/next-actions/${PROJECT_A_ID}`),
-      async (route) => {
-        await route.fulfill({ status: 200, json: MOCK_NEXT_ACTIONS });
-      },
-    );
-    // ProjectHeader / ProjectTabs query (avoid network failures unrelated)
-    await page.route(`**/api/v1/clients/projects/${PROJECT_A_ID}`, async (route) => {
-      await route.fulfill({
-        status: 200,
-        json: { id: PROJECT_A_ID, nombre: "Proyecto Test FASE 8", client_id: "x" },
-      });
-    });
+    await stubRoadmapBackend(page);
 
     await page.goto(`/admin/projects/${PROJECT_A_ID}/roadmap`);
 
@@ -108,25 +154,7 @@ test.describe("FASE 8 · workflow phase derivation", () => {
     context,
   }) => {
     await loginAsMarcos(context);
-
-    await page.route(
-      `**/api/v1/workflow/roadmap/${PROJECT_A_ID}`,
-      async (route) => {
-        await route.fulfill({ status: 200, json: MOCK_ROADMAP_ADMIN });
-      },
-    );
-    await page.route(
-      new RegExp(`/api/v1/workflow/next-actions/${PROJECT_A_ID}`),
-      async (route) => {
-        await route.fulfill({ status: 200, json: MOCK_NEXT_ACTIONS });
-      },
-    );
-    await page.route(`**/api/v1/clients/projects/${PROJECT_A_ID}`, async (route) => {
-      await route.fulfill({
-        status: 200,
-        json: { id: PROJECT_A_ID, nombre: "Proyecto Test FASE 8", client_id: "x" },
-      });
-    });
+    await stubRoadmapBackend(page);
 
     await page.goto(`/admin/projects/${PROJECT_A_ID}/roadmap`);
 
@@ -136,76 +164,5 @@ test.describe("FASE 8 · workflow phase derivation", () => {
     await expect(page.getByText(/45 min/)).toBeVisible();
     // Priority badge "Prioridad Alta"
     await expect(page.getByText(/Prioridad Alta/i).first()).toBeVisible();
-  });
-
-  // SKIP: feature eliminada/remodelada (la vista cliente /client-portal/workflow
-  // dejó de usar RoadmapView + endpoints /portal/workflow/roadmap|next-actions).
-  // REMODELADO v3.8 (sub-atom 1.C.D.C.1): ahora consume `useClientWorkflowGuide`
-  // (endpoint workflow-guide) y renderiza WorkflowGuideTimelineClient +
-  // WorkflowProgressBarClient en lugar de PhaseCards. Por eso los mocks
-  // /portal/workflow/roadmap ya no se invocan, no hay heading "Workflow del
-  // proyecto" ni PhaseCard "Conformidad". El roadmap admin (tests 1/2) sigue vivo.
-  // Candidata a borrar/reescribir contra workflow-guide tras contraste (Marcos).
-  test.skip("client portal /client-portal/workflow renders roadmap (cross-pool RBAC)", async ({
-    page,
-  }) => {
-    // Note: loginAsClient requires globalSetup E2E client + dev backend
-    // Aquí mock-only sin login real (verifica route render fallback)
-    await page.route("**/api/v1/auth/me", async (route) => {
-      await route.fulfill({ status: 401, json: { detail: "Not authenticated" } });
-    });
-    await page.route(
-      "**/client-portal/me",
-      async (route) => {
-        await route.fulfill({
-          status: 200,
-          json: {
-            id: "client-id",
-            email: "test@cliente.com",
-            full_name: "Cliente Test",
-            role: "rseg",
-            scopes: ["view_project_full"],
-            must_change_password: false,
-          },
-        });
-      },
-    );
-    await page.route(
-      "**/client-portal/project",
-      async (route) => {
-        await route.fulfill({
-          status: 200,
-          json: {
-            id: PROJECT_A_ID,
-            nombre: "Proyecto Cliente Test",
-            categoria_objetivo: "MEDIA",
-            estado: "active",
-            lifecycle_state: "ACTIVE",
-          },
-        });
-      },
-    );
-    await page.route(
-      `**/api/v1/portal/workflow/roadmap/${PROJECT_A_ID}`,
-      async (route) => {
-        await route.fulfill({ status: 200, json: MOCK_ROADMAP_ADMIN });
-      },
-    );
-    await page.route(
-      new RegExp(`/api/v1/portal/workflow/next-actions/${PROJECT_A_ID}`),
-      async (route) => {
-        await route.fulfill({ status: 200, json: MOCK_NEXT_ACTIONS });
-      },
-    );
-
-    await page.goto("/client-portal/workflow");
-
-    // Heading "Mi proyecto" + project name
-    await expect(
-      page.getByRole("heading", { name: /Proyecto Cliente Test|Workflow del proyecto/i }),
-    ).toBeVisible();
-
-    // RoadmapView visible (PhaseCards render)
-    await expect(page.getByText("Conformidad", { exact: true }).first()).toBeVisible();
   });
 });

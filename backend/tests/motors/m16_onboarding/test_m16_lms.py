@@ -363,6 +363,10 @@ async def test_progress_aggregates_by_course(db):
 
     progress = await svc.get_progress(uuid.UUID(project_id))
     assert progress["total_assignments"] == 3
+    # Totales por estado (los lee el panel admin LMS): 2 completadas + 1 asignada.
+    assert progress["por_estado"]["completed"] == 2
+    assert progress["por_estado"]["assigned"] == 1
+    assert progress["por_estado"]["in_progress"] == 0
     by_course = {c["course_codigo"]: c for c in progress["by_course"]}
     assert by_course["LMS-001"]["total"] == 2
     assert by_course["LMS-001"]["completed"] == 1

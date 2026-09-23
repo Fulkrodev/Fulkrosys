@@ -390,9 +390,8 @@ export async function askClienteCopilot(
   label: string,
 ): Promise<void> {
   try {
-    // Preferimos el dock global (presente en todo el portal).
+    // El dock global es el unico copiloto de cliente (feat/fulkro-100).
     const dockToggle = page.getByTestId("copiloto-dock-toggle");
-    const cliToggle = page.getByTestId("copiloto-cliente-toggle");
     if (await dockToggle.isVisible().catch(() => false)) {
       await dockToggle.click();
       // quick-action o input directo
@@ -409,12 +408,6 @@ export async function askClienteCopilot(
         .getByTestId("copiloto-messages")
         .waitFor({ state: "visible", timeout: 40_000 })
         .catch(() => {});
-    } else if (await cliToggle.isVisible().catch(() => false)) {
-      await cliToggle.click();
-      const qa = page
-        .getByRole("button", { name: /Qué tengo que hacer ahora/i })
-        .first();
-      if (await qa.isVisible().catch(() => false)) await qa.click();
     }
     await shot(page, n, label, "cliente", "copiloto cliente · ¿qué tengo que hacer?");
   } catch (err) {

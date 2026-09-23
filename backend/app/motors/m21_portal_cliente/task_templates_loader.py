@@ -203,6 +203,20 @@ def get_templates_for_phase(
     return result
 
 
+def resolve_cta_url(cta_url: str | None, project_id: Any) -> str | None:
+    """Sustituye ``{project_id}`` en la ``cta_url`` de una plantilla.
+
+    Las plantillas de ``task_templates.yaml`` apuntan a pestañas del proyecto
+    como ``/admin/projects/{project_id}/dimensiones``. Nadie sustituía el
+    marcador: la tarea se guardaba y se servía con ``{project_id}`` literal y
+    el enlace acababa en «no encontrado». Se resuelve al crear la tarea o al
+    servir el paso, que es cuando se conoce el proyecto.
+    """
+    if not cta_url:
+        return cta_url
+    return cta_url.replace("{project_id}", str(project_id))
+
+
 def get_template_by_id(template_id: str) -> Optional[TaskTemplate]:
     catalog = load_task_templates()
     return next(

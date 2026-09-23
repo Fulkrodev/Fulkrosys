@@ -14,9 +14,10 @@
 
 {{ client_name }} ({{ client_cif }}), con domicilio en {{ client_domicilio }},
 declara haber cumplido los requisitos del Esquema Nacional de Seguridad
-(RD 311/2022) en la **Categoría {{ system_category }}**, conforme al
-procedimiento de autoevaluación previsto en CCN-STIC 809 para sistemas
-clasificados como BÁSICA.
+(RD 311/2022) en la **Categoría {{ system_category }}**, mediante la
+autoevaluación que el artículo 38.1 y el Anexo III del RD 311/2022 prevén para
+los sistemas de categoría BÁSICA, y emite esta Declaración de Conformidad con
+arreglo a la guía CCN-STIC 809.
 
 ## 2. Sistema certificado y alcance
 

@@ -65,6 +65,12 @@ async def list_exit_checklist(
 ) -> dict[str, Any]:
     await _set_project_rls(project_id, db)
     data = await M25ExitService(db).list_items(project_id)
+    # list_items siembra los 16 items por defecto de forma perezosa con un
+    # flush(). Sin este commit la siembra se revertía al acabar la petición:
+    # cada GET devolvía ids nuevos y el POST /{item_id}/complete respondía 404
+    # "Item not found" sobre el id que la pantalla acababa de pintar. Los items
+    # ya son DTOs, así que el commit no expira nada que se lea después.
+    await db.commit()
     return {
         "project_id": str(project_id),
         "items": [

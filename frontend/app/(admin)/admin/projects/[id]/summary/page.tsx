@@ -8,11 +8,12 @@ import { WorkflowBlockingAlert } from "@/components/dashboard/WorkflowBlockingAl
 import { CategoryGate } from "@/components/feature-flags/CategoryGate";
 import { ProjectSummaryView } from "@/components/project/ProjectSummary";
 
-export default function ProjectSummaryPage({
-  params,
-}: {
-  params: { id: string };
-}) {
+export default async function ProjectSummaryPage(
+  props: {
+    params: Promise<{ id: string }>;
+  }
+) {
+  const params = await props.params;
   return (
     <ProjectEventsWrapper projectId={params.id}>
       <div className="space-y-6">

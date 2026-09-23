@@ -212,8 +212,92 @@ export async function mockM22ConsolidatedManualOnly(page: Page) {
 // Mock helpers · M02 MAGERIT enriched
 // ============================================================
 
+// Análisis MAGERIT base del proyecto sintético F35: los 3 activos casan (por id)
+// con MAGERIT_ENRICHED_BASE, así la tabla y la vista enriquecida hablan de lo
+// mismo (2 cloud-verified + 1 manual).
+function mageritBaseAsset(
+  e: (typeof MAGERIT_ENRICHED_BASE)["assets"][number],
+) {
+  return {
+    id: e.asset_id,
+    code: e.asset_code,
+    name: e.asset_name,
+    asset_type_code: "HW",
+    value_d: 3,
+    value_i: 3,
+    value_c: 3,
+    value_a: 3,
+    value_t: 3,
+    accumulated_d: 3,
+    accumulated_i: 3,
+    accumulated_c: 3,
+    accumulated_a: 3,
+    accumulated_t: 3,
+  };
+}
+
+const MAGERIT_ANALYSIS_F35 = {
+  id: ANALYSIS_F35_ID,
+  project_id: PROJECT_F35_ID,
+  name: "MAGERIT v3 F35",
+  version: 1,
+  status: "in_progress",
+  calculation_mode: "qualitative",
+  methodology_version: "3.0",
+  notes: null,
+  created_at: "2026-05-22T08:00:00Z",
+};
+
 export async function mockM02EnrichedBase(page: Page) {
   await mockProjectShell(page, { projectId: PROJECT_F35_ID });
+  await page.route(
+    new RegExp(`/api/v1/magerit/projects/${PROJECT_F35_ID}/analysis$`),
+    async (route) => {
+      await route.fulfill({
+        status: 200,
+        contentType: "application/json",
+        body: JSON.stringify(MAGERIT_ANALYSIS_F35),
+      });
+    },
+  );
+  await page.route(
+    new RegExp(`/api/v1/magerit/analysis/${ANALYSIS_F35_ID}/report$`),
+    async (route) => {
+      await route.fulfill({
+        status: 200,
+        contentType: "application/json",
+        body: JSON.stringify({
+          analysis: MAGERIT_ANALYSIS_F35,
+          assets: MAGERIT_ENRICHED_BASE.assets.map(mageritBaseAsset),
+          risk_calculations: [],
+          treatment_actions: [],
+          summary: {},
+        }),
+      });
+    },
+  );
+  await page.route(
+    new RegExp(
+      `/api/v1/magerit/analysis/${ANALYSIS_F35_ID}/report-e028/signature-status$`,
+    ),
+    async (route) => {
+      await route.fulfill({
+        status: 200,
+        contentType: "application/json",
+        body: JSON.stringify({
+          analysis_id: ANALYSIS_F35_ID,
+          has_signature_request: false,
+          is_frozen: false,
+          link_id: null,
+          state: null,
+          issued_at: null,
+          expires_at: null,
+          consumed_at: null,
+          recipient_email: null,
+        }),
+      });
+    },
+  );
   await page.route(
     /\/api\/v1\/admin\/projects\/[^/]+\/cloud-integrations\/magerit-enriched-inventory/,
     async (route) => {

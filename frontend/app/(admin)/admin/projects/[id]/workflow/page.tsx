@@ -27,11 +27,13 @@ export const metadata = {
 };
 
 interface PageProps {
-  params: { id: string };
-  searchParams: { step?: string };
+  params: Promise<{ id: string }>;
+  searchParams: Promise<{ step?: string }>;
 }
 
-export default function ProjectWorkflowPage({ params, searchParams }: PageProps) {
+export default async function ProjectWorkflowPage(props: PageProps) {
+  const searchParams = await props.searchParams;
+  const params = await props.params;
   return (
     <ProjectCronologicaView
       projectId={params.id}

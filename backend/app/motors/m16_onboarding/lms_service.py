@@ -452,8 +452,20 @@ class LmsService:
                 if entry["total"] else 0.0
             )
 
+        # Totales por estado sobre TODAS las asignaciones: el panel admin
+        # (LMSPanel + cabecera de OnboardingAdminPanel) pinta "N en curso" y
+        # "N completados" leyendo `por_estado`. Sin este campo LMSPanel
+        # reventaba al abrir la pestaña LMS y la cabecera marcaba siempre 0.
+        por_estado = {
+            "assigned": 0, "in_progress": 0,
+            "completed": 0, "failed": 0, "expired": 0,
+        }
+        for a in all_assignments:
+            por_estado[a.estado] = por_estado.get(a.estado, 0) + 1
+
         return {
             "project_id": str(project_id),
             "by_course": list(by_course.values()),
             "total_assignments": len(all_assignments),
+            "por_estado": por_estado,
         }

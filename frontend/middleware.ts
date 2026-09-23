@@ -23,7 +23,12 @@
  * vía jose.importSPKI y se cachea en memoria del proceso para evitar
  * re-parseo en cada request.
  */
-import { type CryptoKey, importSPKI, jwtVerify } from "jose";
+// Subrutas y no la raiz de `jose`: la raiz arrastra el descifrado JWE, que usa
+// CompressionStream, y el runtime Edge no lo tiene (aviso en `next build`).
+// Aqui solo se VERIFICA una firma.
+import type { CryptoKey } from "jose";
+import { importSPKI } from "jose/key/import";
+import { jwtVerify } from "jose/jwt/verify";
 import { type NextRequest, NextResponse } from "next/server";
 
 import { isAdminRole, isClientRole } from "@/lib/auth/roles";

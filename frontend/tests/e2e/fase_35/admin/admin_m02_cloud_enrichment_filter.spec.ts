@@ -1,12 +1,10 @@
 /**
  * E2E · fase_35 admin M02 MAGERIT cloud enrichment · filter "Solo cloud-verified" (1.D.J).
  *
- * Verifica (graceful · skip si MAGERIT base no tiene analysis):
- *  - Checkbox magerit-filter-cloud-verified visible cuando stats card render
- *  - Toggle filter changes table state (rows count)
- *  - Re-toggle restores original
- *
- * Resiliente: si no analysis existe → skip + razón documentada.
+ * Verifica (análisis MAGERIT + vista enriquecida mockeados · 2 cloud + 1 manual):
+ *  - Checkbox magerit-filter-cloud-verified visible con la stats card
+ *  - Toggle ON oculta las filas manuales y deja las cloud-verified
+ *  - Toggle OFF restaura la tabla completa
  */
 import { expect, test } from "@playwright/test";
 
@@ -19,30 +17,25 @@ test.describe("fase_35 admin · M02 MAGERIT cloud enrichment filter", () => {
     await mockM02EnrichedBase(page);
 
     await page.goto(`/admin/projects/${PROJECT_F35_ID}/magerit`);
-    await page.waitForLoadState("networkidle", { timeout: 10_000 }).catch(() => {});
 
     const filter = page.getByTestId("magerit-filter-cloud-verified");
-    const noAnalysis = page.getByText(/No hay análisis MAGERIT activo/i);
-
-    if (await noAnalysis.isVisible().catch(() => false)) {
-      test.skip(
-        true,
-        "MAGERIT analysis not present para project F35 · base data prerequisite · NOT a bug",
-      );
-      return;
-    }
+    const manualRows = page.getByTestId("magerit-row-manual");
+    const cloudRows = page.getByTestId("magerit-row-cloud-verified");
 
     await expect(filter).toBeVisible();
+    await expect(cloudRows).toHaveCount(2);
+    await expect(manualRows).toHaveCount(1);
 
-    // Toggle ON
+    // Toggle ON · solo cloud-verified
     await filter.check();
     await expect(filter).toBeChecked();
+    await expect(manualRows).toHaveCount(0);
+    await expect(cloudRows).toHaveCount(2);
 
-    // Manual rows hidden (verified ≠ true filtered out)
-    await expect(page.getByTestId("magerit-row-manual")).toHaveCount(0);
-
-    // Toggle OFF
+    // Toggle OFF · vuelve la fila manual
     await filter.uncheck();
     await expect(filter).not.toBeChecked();
+    await expect(manualRows).toHaveCount(1);
+    await expect(cloudRows).toHaveCount(2);
   });
 });

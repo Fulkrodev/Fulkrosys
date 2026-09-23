@@ -34,14 +34,6 @@ interface StepCategoriaPreliminarProps {
   onBack: () => void;
 }
 
-const DIM_TOOLTIP_KEYS: Record<keyof typeof ENS_DIM_LABELS, string> = {
-  confidencialidad: "DICAT",
-  integridad: "DICAT",
-  disponibilidad: "DICAT",
-  autenticidad: "DICAT",
-  trazabilidad: "DICAT",
-};
-
 const DIM_INLINE_HELP: Record<keyof typeof ENS_DIM_LABELS, string> = {
   confidencialidad: "Solo lo ve quien debe (sin filtraciones)",
   integridad: "Los datos no cambian sin permiso",
@@ -242,7 +234,6 @@ export function StepCategoriaPreliminar({
             <SelectContent>
               {(Object.keys(CATEGORIA_LABELS) as Categoria[]).map((c) => (
                 <SelectItem key={c} value={c}>
-                  <TooltipENS term={`categoria_${c.toLowerCase()}` as never} text="" />
                   {CATEGORIA_LABELS[c]}
                 </SelectItem>
               ))}
@@ -350,7 +341,6 @@ function DimRow({
       <div className="flex flex-1 flex-col gap-0.5 min-w-0">
         <span className="flex items-center gap-1.5 text-sm font-medium">
           {ENS_DIM_LABELS[dimKey]}
-          <TooltipENS term={DIM_TOOLTIP_KEYS[dimKey] as never} text="" />
         </span>
         <span className="text-[11px] text-muted-foreground">
           {DIM_INLINE_HELP[dimKey]}

@@ -10,6 +10,10 @@ Convenciones:
 - Patterns sin sufijo apuntan a ``/client-portal/...`` (cliente).
 - Path params posicionales · query params via ``query_kv``.
 - IDs UUID validados via ``str(UUID)`` para prevenir injection.
+- Cada ruta tiene que existir como página en ``frontend/app`` (lo comprueba
+  ``backend/tests/test_enlaces_de_interfaz_existen.py``). No hay páginas de
+  detalle por tarea, evidencia o auditoría: el enlace va a la lista donde
+  vive el elemento y el id viaja en la query, como ya hacía ``chat_thread``.
 """
 from __future__ import annotations
 
@@ -53,7 +57,10 @@ class DeepLinkGenerator:
     # ──────────── Cliente portal ────────────
 
     def task(self, task_id: uuid.UUID | str) -> str:
-        return self._build(f"/client-portal/tasks/{_coerce_id(task_id)}")
+        # /client-portal/tasks/{id} no existe: las tareas son una lista.
+        return self._build(
+            "/client-portal/tasks", {"task": _coerce_id(task_id)},
+        )
 
     def chat_thread(self, thread_id: uuid.UUID | str) -> str:
         return self._build(
@@ -62,16 +69,20 @@ class DeepLinkGenerator:
         )
 
     def evidence(self, evidence_id: uuid.UUID | str) -> str:
+        # La página es /client-portal/evidencias (en español) y no tiene
+        # detalle por id; /client-portal/evidences/{id} daba «no encontrado».
         return self._build(
-            f"/client-portal/evidences/{_coerce_id(evidence_id)}"
+            "/client-portal/evidencias", {"evidence": _coerce_id(evidence_id)},
         )
 
     def phase(self, phase_name: str) -> str:
         return self._build("/client-portal/workflow", {"phase": phase_name})
 
     def audit(self, audit_id: uuid.UUID | str) -> str:
+        # No hay /client-portal/audits: el cliente sigue su auditoría en
+        # /client-portal/certificacion (acompañamiento de la certificación).
         return self._build(
-            f"/client-portal/audits/{_coerce_id(audit_id)}"
+            "/client-portal/certificacion", {"audit": _coerce_id(audit_id)},
         )
 
     def dashboard(self) -> str:
@@ -87,13 +98,16 @@ class DeepLinkGenerator:
         return self._build("/client-portal/account")
 
     def notifications(self) -> str:
-        return self._build("/client-portal/account/notifications")
+        # /account/notifications solo redirige aquí; se enlaza el destino.
+        return self._build("/client-portal/settings/notifications")
 
     def login(self) -> str:
         return self._build("/client-portal/login")
 
     def magic_link(self, magic_token: str) -> str:
-        return self._build(f"/auth/magic/{magic_token}")
+        # /auth/magic/{token} no existe. Es la misma URL que construye M12
+        # (MagicLinkService.generate_magic_link): /ml/consume?token=...
+        return self._build("/ml/consume", {"token": magic_token})
 
     # ──────────── Admin (Marcos) ────────────
 
@@ -102,9 +116,11 @@ class DeepLinkGenerator:
         project_id: uuid.UUID | str,
         task_id: uuid.UUID | str,
     ) -> str:
+        # No hay página de tarea admin; las tareas del proyecto se ven en su
+        # pestaña Workflow (vista cronológica).
         return self._build(
-            f"/admin/projects/{_coerce_id(project_id)}"
-            f"/tasks/{_coerce_id(task_id)}"
+            f"/admin/projects/{_coerce_id(project_id)}/workflow",
+            {"task": _coerce_id(task_id)},
         )
 
     def chat_thread_admin(
@@ -122,9 +138,10 @@ class DeepLinkGenerator:
         project_id: uuid.UUID | str,
         evidence_id: uuid.UUID | str,
     ) -> str:
+        # La pestaña Evidencias no tiene detalle por id.
         return self._build(
-            f"/admin/projects/{_coerce_id(project_id)}"
-            f"/evidence/{_coerce_id(evidence_id)}"
+            f"/admin/projects/{_coerce_id(project_id)}/evidence",
+            {"evidence": _coerce_id(evidence_id)},
         )
 
     def phase_admin(
@@ -140,9 +157,10 @@ class DeepLinkGenerator:
         project_id: uuid.UUID | str,
         audit_id: uuid.UUID | str,
     ) -> str:
+        # La pestaña es /audit (singular) y no tiene detalle por id.
         return self._build(
-            f"/admin/projects/{_coerce_id(project_id)}"
-            f"/audits/{_coerce_id(audit_id)}"
+            f"/admin/projects/{_coerce_id(project_id)}/audit",
+            {"audit": _coerce_id(audit_id)},
         )
 
     def project_admin(self, project_id: uuid.UUID | str) -> str:
@@ -155,10 +173,20 @@ class DeepLinkGenerator:
         self,
         client_id: uuid.UUID | str,
         client_user_id: uuid.UUID | str,
+        project_id: uuid.UUID | str | None = None,
     ) -> str:
+        # /admin/clients/{id}/users/{id} no existe (R23: los usuarios del
+        # portal cuelgan del proyecto). Con proyecto se va a su pestaña
+        # Usuarios; sin él, al enrutador /admin/clients/{id}, que resuelve el
+        # proyecto del cliente.
+        user = _coerce_id(client_user_id)
+        if project_id is not None:
+            return self._build(
+                f"/admin/projects/{_coerce_id(project_id)}/users",
+                {"user": user},
+            )
         return self._build(
-            f"/admin/clients/{_coerce_id(client_id)}"
-            f"/users/{_coerce_id(client_user_id)}"
+            f"/admin/clients/{_coerce_id(client_id)}", {"user": user},
         )
 
     def alert_admin(self, alert_id: uuid.UUID | str) -> str:
@@ -175,7 +203,8 @@ class DeepLinkGenerator:
         )
 
     def dashboard_admin(self) -> str:
-        return self._build("/admin")
+        # /admin no tiene página; el panel es /admin/dashboard.
+        return self._build("/admin/dashboard")
 
     def inbox_admin(self) -> str:
         return self._build("/admin/inbox")

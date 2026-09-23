@@ -153,29 +153,25 @@ test.describe("fase_26 client · tooltips ENS cobertura render", () => {
     await expect(tooltipTriggers.first()).toBeAttached({ timeout: 10000 });
   });
 
-  // SKIP: el span tooltip inline "activos críticos" existe en magerit/page.tsx
-  // (línea ~156 · <TooltipENS term="activo"><span class="underline">). El
-  // backend devuelve un summary VÁLIDO para el cliente E2E (assets_by_type
-  // poblado · 8 activos · verificado vía curl). Pero en navegación FRÍA directa
-  // a /client-portal/magarit la página cae en el error-boundary ("Hemos tenido
-  // un pequeño problema" · 4 errores JS) — race de hidratación/SSE en cold-load
-  // (la misma página SÍ renderiza tras setup previo · ver magerit-validation).
-  // Los otros tooltips del fichero (DdA · Conformidad) pasan verde. Es un crash
-  // transitorio product-adjacent, NO deriva de selector. Señalado para
-  // contraste (Marcos · cold-load magerit cliente), NO borrar.
-  test.skip("MAGERIT page tooltip triggers presentes", async ({ page }) => {
+  // MAGERIT se prueba contra el backend REAL: el cliente E2E tiene el proyecto
+  // fijo sembrado (8 activos · 12 riesgos), así que la página entra en el estado
+  // cargado. Los mocks del beforeEach no sirven aquí: el catch-all
+  // /client-portal/** devuelve `{project_id}` a TODO, y los widgets del layout
+  // (guía de workflow, dashboard) revientan con esa forma (`current_phase` de
+  // undefined) → error-boundary. Ese era el "crash en navegación fría" que tenía
+  // el test saltado: lo provocaba el mock, no la app.
+  test("MAGERIT page tooltip triggers presentes", async ({ page }) => {
+    await page.unrouteAll({ behavior: "ignoreErrors" });
     await page.goto(`/client-portal/magerit`);
-    // El tooltip ENS de la página MAGERIT cliente cambió de patrón: ahora es
-    // INLINE (children pasados a TooltipENS → el <span> subrayado ES el trigger,
-    // NO se emite el <button aria-label="Ayuda:">). Verificado en
-    // app/.../magerit/page.tsx (línea ~156: <TooltipENS term="activo"><span
-    // className="underline decoration-dotted ...">activos críticos</span>) +
-    // components/ui/tooltip-ens.tsx (trigger = children ?? <button>). El selector
-    // real es el span subrayado con el texto "activos críticos".
+    await expect(
+      page.getByRole("heading", { name: "Activos del análisis de riesgos" }),
+    ).toBeVisible({ timeout: 10000 });
+    // TooltipENS INLINE: el <span> subrayado "activos críticos" es el trigger
+    // (components/ui/tooltip-ens.tsx · trigger = children ?? <button>).
     const inlineTooltip = page
       .locator("span.underline", { hasText: "activos críticos" })
       .first();
-    await expect(inlineTooltip).toBeVisible({ timeout: 10000 });
+    await expect(inlineTooltip).toBeVisible();
   });
 
   test("Conformidad page tooltip triggers presentes", async ({ page }) => {

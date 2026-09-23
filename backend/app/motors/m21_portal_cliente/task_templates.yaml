@@ -20,7 +20,7 @@ version: "1.0.0"
 
 templates:
   # ============================================================
-  # BÁSICA · 3 templates (autoevaluación 809)
+  # BÁSICA · 3 templates (autoevaluación 808 + Declaración de Conformidad 809)
   # ============================================================
 
   - id: PHASE3_BASICA_REVIEW_DIAGNOSIS
@@ -54,7 +54,7 @@ templates:
     phase: conformidad
     applicable_categories: ["BASICA"]
     applicable_archetypes: "ALL"
-    title: Firmar autoevaluación CCN-STIC 809
+    title: Firmar la Declaración de Conformidad (CCN-STIC 809)
     description: >
       Cuestionario de autoevaluación firmado por RSEG. Sin auditoría
       externa · responsable interno declara conformidad.
@@ -310,8 +310,10 @@ templates:
     rationale_es: >
       Sin cualificación profunda · pipeline incluye leads cold sin probabilidad
       cierre · waste de tiempo. Filtrar antes de invertir horas en propuesta.
-    cta_label: Cualificar lead
-    cta_url: /admin/leads
+    # Sin cta: el pipeline comercial (/admin/pipeline, leads y propuestas) esta
+    # dormido desde el Batch 2 y redirige al selector de proyectos. La tarea
+    # sigue siendo trabajo de Marcos, pero ningun boton debe llevar a una
+    # pagina que no existe. Al reactivar el pipeline, restaurar el cta.
     deliverable_codes: []
     actors: [Marcos, lead_decisor]
     completion_criteria_detailed:
@@ -335,11 +337,13 @@ templates:
       (multi-sector · multi-ubicación · madurez L0-L1 · sistemas adicionales) ·
       genera P-001 con desglose tarifa + hitos pago.
     rationale_es: >
-      Tarifa fija pre-acordada (BÁSICA 3.900€ · MEDIA 9.500€ · ALTA 25.000€+)
-      con extras objetivos · evita negociación tarifa cliente-by-cliente · brand
+      Tarifa fija pre-acordada (docs/pricing/CANONICAL_PRICING.md: BÁSICA
+      3.200€ · MEDIA 10.700€ · ALTA 22.800€) con extras objetivos · evita negociación tarifa cliente-by-cliente · brand
       consistency Marcos consultor commodity-resistant.
-    cta_label: Generar P-001
-    cta_url: /admin/leads
+    # Sin cta: el pipeline comercial (/admin/pipeline, leads y propuestas) esta
+    # dormido desde el Batch 2 y redirige al selector de proyectos. La tarea
+    # sigue siendo trabajo de Marcos, pero ningun boton debe llevar a una
+    # pagina que no existe. Al reactivar el pipeline, restaurar el cta.
     deliverable_codes: [P-001]
     actors: [Marcos, A19_redactor_propuestas]
     prerequisite_template_ids: [ENR_PV_01_LEAD_QUALIFICATION_DEEP]

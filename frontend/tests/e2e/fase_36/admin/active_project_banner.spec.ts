@@ -11,8 +11,9 @@ import { expect, test } from "@playwright/test";
 
 import { loginAsMarcos } from "../../_helpers/auth-real";
 import {
+  CLIENT_F36_B_ID,
+  CLIENT_F36_ID,
   PROJECT_F36_A_ID,
-  PROJECT_F36_B_ID,
   mockClientsAndHeaders,
 } from "../_fixtures";
 
@@ -58,14 +59,9 @@ test.describe("fase_36 admin · active project banner + switcher", () => {
     ).toContainText(/MEDIA/i);
   });
 
-  // SKIP: el ProjectSwitcherDropdown (testids project-switcher-trigger / -item-*)
-  // existe en producto, pero el marcador "activo" del item depende de
-  // activeProject (store) hidratado para el proyecto activo. Con UUID mock que NO
-  // existe en fulkro_test el contenido de página /summary 404ea y el item nunca
-  // se marca como activo. Recuperable solo con mock-rework mayor (sembrar el
-  // proyecto en BD). Los otros 2 tests de banner (empty + metadata) SÍ pasan.
-  // Candidata a borrar/reescribir tras contraste (Marcos · ActiveProjectSync UUID mock).
-  test.skip("switcher dropdown opens y lista clients", async ({ page }) => {
+  // Los items del switcher son CLIENTES (testid por client.id) y el activo se
+  // marca comparando con el cliente del proyecto activo (header · cliente.id).
+  test("switcher dropdown opens y lista clients", async ({ page }) => {
     await loginAsMarcos(page.context());
     await mockClientsAndHeaders(page);
 
@@ -77,14 +73,17 @@ test.describe("fase_36 admin · active project banner + switcher", () => {
 
     // Items visible · activo marcado + alternativo presente
     await expect(
-      page.getByTestId(`project-switcher-item-${PROJECT_F36_A_ID}`),
+      page.getByTestId(`project-switcher-item-${CLIENT_F36_ID}`),
     ).toBeVisible();
     await expect(
-      page.getByTestId(`project-switcher-item-${PROJECT_F36_B_ID}`),
+      page.getByTestId(`project-switcher-item-${CLIENT_F36_B_ID}`),
     ).toBeVisible();
 
     // Activo label visible en item A
-    const itemA = page.getByTestId(`project-switcher-item-${PROJECT_F36_A_ID}`);
+    const itemA = page.getByTestId(`project-switcher-item-${CLIENT_F36_ID}`);
     await expect(itemA.getByText(/activo/i)).toBeVisible();
+    await expect(
+      page.getByTestId(`project-switcher-item-${CLIENT_F36_B_ID}`).getByText(/activo/i),
+    ).toHaveCount(0);
   });
 });

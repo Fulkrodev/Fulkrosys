@@ -38,6 +38,7 @@ from backend.app.motors.m12_magic_link.purposes import (
     MagicLinkPurpose,
     get_config,
 )
+from backend.app.auth.crypto import JWT_LEEWAY
 from backend.app.motors.m12_magic_link.schemas import (
     MagicLinkGenerateRequest,
     MagicLinkGenerateResponse,
@@ -172,7 +173,11 @@ def _verify_jwt(token: str) -> dict:
     Raises pyjwt.InvalidTokenError (or subclass) if signature invalid,
     expired, or malformed.
     """
-    return pyjwt.decode(token, _PUBLIC_KEY_PEM, algorithms=[JWT_ALGORITHM])
+    # Misma tolerancia de reloj que las sesiones (auth/crypto.JWT_LEEWAY): un
+    # enlace recien emitido no puede rechazarse por un desfase de reloj.
+    return pyjwt.decode(
+        token, _PUBLIC_KEY_PEM, algorithms=[JWT_ALGORITHM], leeway=JWT_LEEWAY,
+    )
 
 
 def _hash_token(token: str) -> str:

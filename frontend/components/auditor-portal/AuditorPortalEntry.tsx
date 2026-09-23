@@ -32,6 +32,16 @@ interface Props {
   children: React.ReactNode;
 }
 
+/**
+ * Tokens con la sesión ya arrancada en ESTA pestaña. Cada page.tsx del portal
+ * monta su propio AuditorPortalEntry (no hay layout compartido), así que el
+ * estado de la mutación se perdía en cada clic del menú lateral: el auditor
+ * tenía que volver a teclear el OTP en cada vista y cada vuelta consumía un uso
+ * y registraba otro `auditor.session.start`. Vive en memoria del módulo (dura
+ * lo que la SPA): una recarga completa vuelve a pedir el código.
+ */
+const startedSessions = new Set<string>();
+
 export function AuditorPortalEntry({ token, children }: Props) {
   const meta = useQuery<AuditorPortalMetadata>({
     queryKey: ["auditor-portal", "metadata", token],
@@ -44,8 +54,12 @@ export function AuditorPortalEntry({ token, children }: Props) {
   const [otp, setOtp] = React.useState("");
   const sessionMut = useMutation({
     mutationFn: (code?: string) => startAuditorPortalSession(token, code),
+    onSuccess: () => {
+      startedSessions.add(token);
+    },
   });
   const sessionStartedRef = React.useRef(false);
+  const sessionActive = sessionMut.isSuccess || startedSessions.has(token);
 
   const otpRequired = Boolean(meta.data?.token_meta?.otp_required);
 
@@ -56,12 +70,12 @@ export function AuditorPortalEntry({ token, children }: Props) {
       !otpRequired &&
       !sessionStartedRef.current &&
       !sessionMut.isPending &&
-      !sessionMut.isSuccess
+      !sessionActive
     ) {
       sessionStartedRef.current = true;
       sessionMut.mutate(undefined);
     }
-  }, [meta.data, otpRequired, sessionMut]);
+  }, [meta.data, otpRequired, sessionMut, sessionActive]);
 
   if (meta.isLoading) {
     return (
@@ -105,7 +119,7 @@ export function AuditorPortalEntry({ token, children }: Props) {
   }
 
   // ── Gate de OTP (step-up · feat/fulkro-100) ──
-  if (otpRequired && !sessionMut.isSuccess) {
+  if (otpRequired && !sessionActive) {
     return (
       <div className="flex min-h-dvh items-center justify-center bg-fulkro-ink-50 px-4">
         <Card className="w-full max-w-md">

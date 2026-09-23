@@ -56,7 +56,11 @@ test.describe("fase_22 admin · Copilot admin LLM real chat", () => {
       page.getByTestId("copiloto-admin-mode-badge"),
     ).toHaveText(/LLM/i);
 
-    // Response text includes DICAT con definition trigger (R30 OK)
-    await expect(page.getByText(/DICAT/i).first()).toBeVisible();
+    // Response text includes DICAT con definition trigger (R30 OK). Acotado a
+    // la entrada LLM: sin scope, .first() podía caer en otro "DICAT" de la
+    // página (datos reales del proyecto sembrado) y no en la respuesta mockeada.
+    await expect(
+      page.getByTestId("copiloto-admin-entry-llm").first().getByText(/DICAT/i).first(),
+    ).toBeVisible();
   });
 });

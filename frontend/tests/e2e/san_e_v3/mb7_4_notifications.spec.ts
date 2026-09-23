@@ -18,7 +18,9 @@ test.describe("SAN-E v3.MB-7.4 · NotificationsBell", () => {
   test("bell visible en header · accessible name", async ({ page }) => {
     await loginAsClient(page);
     await page.goto("/client-portal/dashboard");
-    await page.waitForLoadState("networkidle");
+    // `load` y no `networkidle`: el portal mantiene abierta la conexion SSE de
+    // eventos, y con ella la red nunca queda inactiva (la espera no acaba nunca).
+    await page.waitForLoadState("load");
 
     await expect(page.getByTestId("notifications-bell")).toBeVisible();
   });
@@ -26,7 +28,9 @@ test.describe("SAN-E v3.MB-7.4 · NotificationsBell", () => {
   test("click bell abre dropdown · footer link inbox", async ({ page }) => {
     await loginAsClient(page);
     await page.goto("/client-portal/dashboard");
-    await page.waitForLoadState("networkidle");
+    // `load` y no `networkidle`: el portal mantiene abierta la conexion SSE de
+    // eventos, y con ella la red nunca queda inactiva (la espera no acaba nunca).
+    await page.waitForLoadState("load");
 
     await page.getByTestId("notifications-bell").click();
     await expect(page.getByTestId("notifications-dropdown")).toBeVisible();
@@ -42,7 +46,9 @@ test.describe("SAN-E v3.MB-7.4 · NotificationsBell", () => {
   test("click outside cierra dropdown", async ({ page }) => {
     await loginAsClient(page);
     await page.goto("/client-portal/dashboard");
-    await page.waitForLoadState("networkidle");
+    // `load` y no `networkidle`: el portal mantiene abierta la conexion SSE de
+    // eventos, y con ella la red nunca queda inactiva (la espera no acaba nunca).
+    await page.waitForLoadState("load");
 
     await page.getByTestId("notifications-bell").click();
     await expect(page.getByTestId("notifications-dropdown")).toBeVisible();

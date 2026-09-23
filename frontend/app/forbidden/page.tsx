@@ -41,11 +41,12 @@ function ForbiddenContent({
   );
 }
 
-export default function ForbiddenPage({
-  searchParams,
-}: {
-  searchParams: { reason?: string };
-}) {
+export default async function ForbiddenPage(
+  props: {
+    searchParams: Promise<{ reason?: string }>;
+  }
+) {
+  const searchParams = await props.searchParams;
   return (
     <Suspense fallback={<div />}>
       <ForbiddenContent searchParams={searchParams} />

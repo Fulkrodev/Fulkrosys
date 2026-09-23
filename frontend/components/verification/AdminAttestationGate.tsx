@@ -115,9 +115,12 @@ export function AdminAttestationGate({
               className="rounded-md border border-[color:var(--fulkro-surface-glass-border)] px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-fulkro-primary-500/40"
             />
           </label>
-          <label className="flex flex-col gap-1 text-sm">
-            <span className="font-semibold text-[color:var(--fulkro-subtitle)]">
-              Acreditación{" "}
+          {/* Un <div>, no un <label> envolvente: la etiqueta se asocia al PRIMER
+              control que contiene, y el primero era el boton de ayuda, no el
+              campo. Pulsar «Acreditación» abria el tooltip en vez de enfocar. */}
+          <div className="flex flex-col gap-1 text-sm">
+            <span className="flex items-center gap-1 font-semibold text-[color:var(--fulkro-subtitle)]">
+              <label htmlFor="attestation-cert">Acreditación</label>
               <TooltipENS
                 text="Certificación profesional: CPSTIC (CCN), OSCP, OSCE, CRTO… que avala la competencia del firmante."
                 icon="info"
@@ -125,6 +128,7 @@ export function AdminAttestationGate({
               />
             </span>
             <input
+              id="attestation-cert"
               type="text"
               value={cert}
               onChange={(e) => setCert(e.target.value)}
@@ -132,7 +136,7 @@ export function AdminAttestationGate({
               aria-label="Acreditación del pentester"
               className="rounded-md border border-[color:var(--fulkro-surface-glass-border)] px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-fulkro-primary-500/40"
             />
-          </label>
+          </div>
         </div>
 
         <label className="flex flex-col gap-1 text-sm">

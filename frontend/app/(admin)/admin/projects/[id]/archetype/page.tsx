@@ -1,9 +1,10 @@
 import { ArchetypePanel } from "@/components/project/ArchetypePanel";
 
-export default function ArchetypePage({
-  params,
-}: {
-  params: { id: string };
-}) {
+export default async function ArchetypePage(
+  props: {
+    params: Promise<{ id: string }>;
+  }
+) {
+  const params = await props.params;
   return <ArchetypePanel projectId={params.id} />;
 }

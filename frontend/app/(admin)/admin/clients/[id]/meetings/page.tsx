@@ -13,7 +13,7 @@
  *
  * Future-1.E.per-project-meetings-subpage: if Marcos demand-driven post-piloto,
  * create /admin/projects/[id]/meetings sub-page filtered by project_id (needs
- * backend extension to MeetingsHistoryTable accept project_id param).
+ * backend extension of the meetings list to accept project_id).
  */
 import { redirect } from "next/navigation";
 

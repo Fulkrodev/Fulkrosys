@@ -9,28 +9,29 @@ test("command palette: Cmd+K opens and navigates to a route", async ({
   await loginAsMarcos(context);
   await page.goto("/admin/dashboard");
 
-  // Intentamos el atajo de teclado (Meta/Control+K) pero en chromium headless
-  // sobre Linux la tecla Meta + el foco no siempre disparan el handler global.
-  // Fallback determinista: el botón "Buscar ⌘K" del sidebar abre el MISMO
-  // CommandPalette (mismo estado open controlado por el layout admin).
+  // ⌘K / Ctrl+K es un TOGGLE (CommandPalette acepta metaKey o ctrlKey). Antes
+  // se pulsaba Meta+K y luego Control+K: si ambas llegaban al listener se abría
+  // y se volvía a cerrar. Y si se pulsaba antes de hidratar no había listener.
+  // Una sola pulsación por intento, reintentada sólo mientras siga cerrada.
   const dialog = page.getByRole("dialog", { name: /Buscar o ejecutar/ });
-  await page.keyboard.press("Meta+K");
-  if (!(await dialog.isVisible().catch(() => false))) {
-    await page.keyboard.press("Control+K");
-  }
-  if (!(await dialog.isVisible().catch(() => false))) {
-    await page.getByRole("button", { name: /Buscar/i }).first().click();
-  }
-  await expect(dialog).toBeVisible();
+  await expect(async () => {
+    if (!(await dialog.isVisible())) {
+      await page.keyboard.press("Control+K");
+    }
+    await expect(dialog).toBeVisible({ timeout: 2_000 });
+  }).toPass({ timeout: 15_000 });
 
-  // El item real es "Ir al pipeline comercial" (CommandPalette.tsx · group
-  // Navegación · run navigate(ROUTES.pipeline)="/admin/pipeline"). Filtramos por
-  // "pipeline" y clicamos el item explícito en lugar de confiar en Enter +
-  // auto-highlight de cmdk (que en el build podía seleccionar otro item → antes
-  // navegaba a /admin/projects). El click sobre el item concreto es determinista.
-  await page.keyboard.type("pipeline");
-  await dialog.getByRole("option", { name: /Ir al pipeline comercial/i }).click();
+  // Destino: "Ajustes" (ROUTES.settings = /admin/settings), ruta viva. Antes se
+  // usaba "Ir al pipeline comercial", pero /admin/pipeline está dormido
+  // (app/(admin)/admin/pipeline/layout.tsx redirige a /admin/projects): el test
+  // sólo pasaba si toHaveURL veía /pipeline un instante antes del redirect.
+  // Click sobre el item concreto (no Enter + auto-highlight de cmdk).
+  await page.keyboard.type("ajustes");
+  await dialog.getByRole("option", { name: /^Ajustes$/ }).click();
 
-  // ROUTES.pipeline = "/admin/pipeline" (termina en /pipeline).
-  await expect(page).toHaveURL(/\/pipeline$/);
+  await expect(page).toHaveURL(/\/admin\/settings$/);
+  await expect(
+    page.getByRole("heading", { name: /^Ajustes$/, level: 1 }),
+  ).toBeVisible();
+  await expect(dialog).toBeHidden();
 });

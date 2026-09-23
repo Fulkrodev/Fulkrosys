@@ -113,10 +113,15 @@ test.describe("Client Portal · Conformidad ENS BÁSICA · happy path E2E", () =
         .getByText(/firmado correctamente|conforme ENS|distintivo/i)
         .first(),
     ).toBeVisible({ timeout: 15_000 });
-    const cerrarBtn = page.getByRole("button", { name: /Cerrar/i });
-    if (await cerrarBtn.isVisible().catch(() => false)) {
-      await cerrarBtn.click();
+    // Cerrar con Escape y no con un boton «Cerrar»: /Cerrar/i a nivel de
+    // pagina tambien encuentra «Cerrar sesión» (desde que el logout funciona,
+    // eso cerraba la sesion del test y la comprobacion final daba 401), y el
+    // dialogo puede estar cerrandose solo cuando llega el clic.
+    const dialogo = page.getByRole("dialog");
+    if (await dialogo.isVisible().catch(() => false)) {
+      await page.keyboard.press("Escape");
     }
+    await expect(dialogo).toHaveCount(0);
 
     // PostSignSection BASICA · distintivo + cert-id + descarga
     await expect(

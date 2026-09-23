@@ -181,8 +181,13 @@ async def create_annotation(
             "text_chars": len(body.annotation_text),
         },
     )
-    await db.commit()
+    # refresh ANTES del commit: el SELECT de refresh debe correr dentro de la
+    # transaccion que fijo el rol/tenant (SET LOCAL). Tras el commit la conexion
+    # vuelve a fulkro_app sin contexto, RLS oculta la fila y refresh lanza
+    # InvalidRequestError -> 500 con la fila YA guardada (el cliente reintenta y
+    # duplica). expire_on_commit=False mantiene los atributos tras el commit.
     await db.refresh(annotation)
+    await db.commit()
 
     return AnnotationOut.model_validate(annotation).model_dump(mode="json")
 
@@ -398,6 +403,7 @@ async def patch_annotation_admin(
         }),
     })
     await db.flush()
-    await db.commit()
+    # refresh antes del commit (RLS tras commit) · ver create_annotation.
     await db.refresh(annotation)
+    await db.commit()
     return AnnotationOut.model_validate(annotation)

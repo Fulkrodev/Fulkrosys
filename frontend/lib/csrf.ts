@@ -1,4 +1,4 @@
-import { CSRF_COOKIE } from "./constants";
+import { CSRF_COOKIE, CSRF_HEADER } from "./constants";
 
 /**
  * CSRF helper compartido admin + portal cliente.
@@ -17,4 +17,17 @@ export function getCsrfToken(): string | null {
   const pattern = new RegExp(`(?:^|;\\s*)${CSRF_COOKIE}=([^;]+)`);
   const match = document.cookie.match(pattern);
   return match ? decodeURIComponent(match[1]) : null;
+}
+
+/**
+ * Cabecera CSRF para un `fetch` directo que ESCRIBE (POST/PUT/PATCH/DELETE).
+ *
+ * El backend exige `X-CSRF-Token` == cookie `fulkro_csrf` en toda peticion que
+ * no sea GET/HEAD/OPTIONS (auth/csrf.py). Los envoltorios `api`/`clientApi` ya
+ * la ponen; un `fetch` directo NO, y sin ella el backend responde 403. Asi
+ * estuvieron rotos el copiloto de cliente, el logout y el borrador de informe.
+ */
+export function csrfHeaders(): Record<string, string> {
+  const token = getCsrfToken();
+  return token ? { [CSRF_HEADER]: token } : {};
 }
