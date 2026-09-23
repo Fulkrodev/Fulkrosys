@@ -1557,15 +1557,6 @@
     </div>
   </div>
 </footer>
-<div class="cookiebar" id="cookiebar" aria-hidden="true">
-  <div class="ck-in">
-    <p>Usamos cookies propias y de terceros para que la web funcione y para medir de forma agregada cómo se usa. Puedes aceptarlas, rechazarlas o leer la <a href="cookies.html">política de cookies</a>.</p>
-    <div class="ck-btns">
-      <button class="btn btn-ghost" id="ckReject">Rechazar</button>
-      <button class="btn btn-primary" id="ckAccept">Aceptar</button>
-    </div>
-  </div>
-</div>
 
 <script>
 
@@ -1673,23 +1664,6 @@ if(lf){
 }
 
 
-/* ============================================================
-   Banner de cookies (almacenamiento tolerante a fallos)
-   ============================================================ */
-(function(){
-  const bar=document.getElementById('cookiebar'); if(!bar)return;
-  const get=()=>{try{return localStorage.getItem('fk_cookies')}catch(e){return null}};
-  const set=v=>{try{localStorage.setItem('fk_cookies',v)}catch(e){}};
-  const fab=document.getElementById('fab');
-  const hide=v=>{set(v);bar.classList.remove('show');document.body.classList.remove('ck-on');bar.setAttribute('aria-hidden','true');if(fab)fab.classList.add('ready');};
-  if(!get()){
-    document.body.classList.add('ck-on');
-    setTimeout(()=>{bar.classList.add('show');bar.setAttribute('aria-hidden','false');},700);
-    const a=document.getElementById('ckAccept'),r=document.getElementById('ckReject');
-    if(a)a.addEventListener('click',()=>hide('accepted'));
-    if(r)r.addEventListener('click',()=>hide('rejected'));
-  }
-})();
 
 /* ============================================================
    Maquetas (dashboard + ventanas) animadas al entrar en pantalla

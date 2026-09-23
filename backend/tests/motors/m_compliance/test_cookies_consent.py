@@ -273,10 +273,10 @@ def test_legal_pages_render_canonical_titles() -> None:
         / ".." / "frontend" / "app" / "(legal)"
     )
     expected = {
-        "privacy": "Política de Privacidad",
-        "cookies": "Política de Cookies",
-        "terms": "Términos de Servicio",
-        "imprint": "Aviso Legal",
+        "privacy": 'title="Privacidad"',
+        "cookies": 'title="Cookies"',
+        "terms": 'title="Términos"',
+        "imprint": 'title="Aviso legal"',
     }
     for slug, title in expected.items():
         page_path = base / slug / "page.tsx"

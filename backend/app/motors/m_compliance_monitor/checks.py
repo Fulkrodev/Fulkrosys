@@ -137,11 +137,10 @@ def _http_get(url: str, timeout: float = 5.0) -> tuple[int, str]:
 
 
 async def check_cookies_banner_functional(db: AsyncSession) -> CheckResult:
-    """Verify the public cookie banner endpoint responds.
+    """Verify the public cookie policy page responds.
 
-    Calls the public ``/api/v1/legal/cookies`` page (or fallback to
-    ``app_base_url``) and checks 200 + presence of the marker
-    ``CookieConsentBanner`` (server-rendered tag).
+    Calls ``{app_base_url}/legal/cookies`` and checks for a 200. The app only
+    sets technical cookies (session and CSRF), so there is no consent banner.
     """
     settings = get_settings()
     url = f"{settings.app_base_url.rstrip('/')}/legal/cookies"
@@ -980,7 +979,7 @@ CHECK_REGISTRY: dict[str, CheckSpec] = {
             category="cookies",
             frequency=FREQUENCY_DAILY,
             severity=SEVERITY_HIGH,
-            description="CookieConsentBanner page reachable (Guía AEPD 2020)",
+            description="Cookie policy page reachable (Guía AEPD 2020)",
             regulatory_basis="RD-Ley 13/2012 art.4 + Guía AEPD 2020",
             runner=check_cookies_banner_functional,
         ),

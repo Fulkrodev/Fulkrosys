@@ -16,11 +16,12 @@ texto redactado de cero no produce nunca:
   - bloques de referencias arrastrados desde el final de cada sección
     ("ISO/IEC 27000", "NIST SP 800-53").
 
-Es una comprobación barata: no necesita base de datos ni la versión anterior en
-git, así que sirve como guardia permanente en CI. La comprobación fuerte —que
-ninguna descripción comparta 8 o más palabras consecutivas con la original—
-vive en ``scripts/verificar_catalogo_sin_copia_literal.py``, que sí necesita
-git y se ejecuta a mano contra el commit anterior a la reescritura.
+La comprobación fuerte, que ninguna descripción comparta 8 o más palabras
+consecutivas con la original, también corre aquí: compara contra la huella
+``docs/catalogs/ens_catalog_huella_ccn804.json`` (el SHA-256 de cada racha de 8
+palabras del texto antiguo, sin el texto) con las funciones de
+``scripts/verificar_catalogo_sin_copia_literal.py``. No necesita git ni base de
+datos.
 
 Lo que este test NO comprueba: que la descripción sea normativamente correcta.
 Un texto redactado de cero pero equivocado pasa este test. Esa revisión es
@@ -28,6 +29,7 @@ humana.
 """
 from __future__ import annotations
 
+import importlib.util
 import re
 from pathlib import Path
 
@@ -148,4 +150,49 @@ def test_la_guia_sigue_citada_como_fuente_de_consulta(medidas: list[dict]) -> No
     assert citan_guia, (
         "Ninguna medida cita ya la guía CCN-STIC en fuente_oficial: se ha perdido "
         "la trazabilidad a la sección de origen."
+    )
+
+
+# ── Comprobación fuerte: contra la huella del texto antiguo ────────────────
+
+_SCRIPT = Path(__file__).resolve().parents[3] / "scripts" / "verificar_catalogo_sin_copia_literal.py"
+
+
+@pytest.fixture(scope="module")
+def verificador():
+    spec = importlib.util.spec_from_file_location("verificar_catalogo", _SCRIPT)
+    modulo = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(modulo)
+    return modulo
+
+
+def test_la_huella_solo_guarda_hashes(verificador) -> None:
+    """La huella cubre las 79 medidas antiguas y no contiene texto."""
+    palabras, huella, codigos = verificador.cargar_huella()
+    assert palabras == 8
+    assert len(codigos) == 79
+    assert len(huella) > 6000
+    assert all(re.fullmatch(r"[0-9a-f]{64}", h) for h in huella)
+
+
+def test_el_detector_ve_la_copia_aunque_cambien_tildes_y_puntuacion(verificador) -> None:
+    """Control positivo: sin él, un detector roto daría verde siempre."""
+    original = "El responsable de la seguridad aprobará la política de uso aceptable del sistema."
+    huella = set(verificador.hashes_de_rachas(original, 8))
+    copia = "Nota: el RESPONSABLE de la seguridad aprobara, la politica de uso aceptable!"
+    assert verificador.rachas_copiadas(copia, huella, 8)
+    propia = "La dirección firma la política y la revisa cada año con el comité."
+    assert verificador.rachas_copiadas(propia, huella, 8) == []
+
+
+def test_ninguna_descripcion_repite_8_palabras_del_texto_antiguo(verificador, medidas) -> None:
+    palabras, huella, _ = verificador.cargar_huella()
+    copiadas = {
+        m["codigo"]: r
+        for m in medidas
+        if (r := verificador.rachas_copiadas(m.get("descripcion") or "", huella, palabras))
+    }
+    assert not copiadas, (
+        f"{len(copiadas)} descripción(es) repiten {palabras}+ palabras del texto de la "
+        f"guía:\n" + "\n".join(f"  {c}: {r[0]!r}" for c, r in copiadas.items())
     )

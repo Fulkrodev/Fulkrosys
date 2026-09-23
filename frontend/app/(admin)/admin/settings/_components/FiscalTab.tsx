@@ -121,7 +121,7 @@ export function FiscalTab({ fiscal, onUpdate }: Props) {
             </h3>
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
               <Field label="NIF / CIF" error={e.nif?.message} hint="Autónomo: NIF con letra.">
-                <Input placeholder="77171140E" {...form.register("nif")} />
+                <Input placeholder="12345678Z" {...form.register("nif")} />
               </Field>
               <Field label="Tipo de persona">
                 <Select
@@ -156,7 +156,7 @@ export function FiscalTab({ fiscal, onUpdate }: Props) {
             </h3>
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
               <Field label="Vía y número">
-                <Input placeholder="Paseo de la Dirección, 46" {...form.register("domicilio_via")} />
+                <Input placeholder="C/ Luis Montoto, 107" {...form.register("domicilio_via")} />
               </Field>
               <Field label="Código postal">
                 <Input placeholder="28039" {...form.register("domicilio_cp")} />

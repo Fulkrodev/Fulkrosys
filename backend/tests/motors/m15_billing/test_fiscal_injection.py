@@ -32,11 +32,11 @@ from backend.tests.conftest import _admin_setup, setup_test_project
 
 
 _MARCOS_FISCAL = {
-    "nif": "77171140E",
+    "nif": "12345678Z",
     "nombre_fiscal": "Marcos Mata García",
     "nombre_comercial": "FULKRO",
     "tipo_persona": "F",
-    "domicilio_via": "Paseo de la Dirección, 46",
+    "domicilio_via": "C/ Luis Montoto, 107",
     "domicilio_municipio": "Madrid",
     "domicilio_provincia": "Madrid",
     "iban": "ES34 1465 0260 6317 5549 5007",
@@ -87,11 +87,11 @@ async def test_invoice_pdf_carries_emisor_nif_iban(db):
     pdf = await BillingService().generate_invoice_pdf(db, inv.id)
     txt = _docx_text(pdf)
 
-    assert "77171140E" in txt                              # NIF emisor
+    assert "12345678Z" in txt                              # NIF emisor
     assert "ES34 1465 0260 6317 5549 5007" in txt          # IBAN
     assert "Emisor" in txt
     assert "Receptor" in txt
-    assert "Paseo de la Dirección, 46" in txt              # domicilio fiscal
+    assert "C/ Luis Montoto, 107" in txt              # domicilio fiscal
     assert "__CONSULTOR_NIF__" not in txt                  # NUNCA el placeholder
 
 
@@ -102,8 +102,8 @@ async def test_invoice_qr_uses_real_nif(db):
     await _set_fiscal(db, _MARCOS_FISCAL)
     inv = await _make_invoice(db, client_id, project_id)
 
-    qr = BillingService()._build_verifactu_qr_payload(inv, "77171140E")
-    assert "nif=77171140E" in qr
+    qr = BillingService()._build_verifactu_qr_payload(inv, "12345678Z")
+    assert "nif=12345678Z" in qr
     assert "__CONSULTOR_NIF__" not in qr
 
 
@@ -125,7 +125,7 @@ def test_facturae_seller_person_type_F():
     """Seller autónomo → PersonTypeCode 'F'; buyer AAPP → 'J' (default)."""
     seller = PartyData(
         nombre_razon_social="Marcos Mata García",
-        cif_nif="77171140E",
+        cif_nif="12345678Z",
         person_type_code="F",
     )
     buyer = PartyData(nombre_razon_social="AAPP Ejemplo", cif_nif="P0000000A")
@@ -142,7 +142,7 @@ def test_facturae_seller_person_type_F():
 
     assert ">F</PersonTypeCode>" in xml   # seller persona física
     assert ">J</PersonTypeCode>" in xml   # buyer jurídica
-    assert "77171140E" in xml
+    assert "12345678Z" in xml
 
 
 @pytest.mark.asyncio
@@ -183,7 +183,7 @@ async def test_pdf_e2e_via_patch_path_with_audit_log(db):
 
     inv = await _make_invoice(db, client_id, project_id)
     txt = _docx_text(await BillingService().generate_invoice_pdf(db, inv.id))
-    assert "77171140E" in txt
+    assert "12345678Z" in txt
     assert "ES34 1465 0260 6317 5549 5007" in txt
     assert "__CONSULTOR_NIF__" not in txt
 
@@ -193,4 +193,4 @@ async def test_pdf_e2e_via_patch_path_with_audit_log(db):
         "AND usuario = 'fiscal-e2e@fulkro.test' ORDER BY timestamp DESC LIMIT 1"
     ))).first()
     assert row is not None
-    assert row.payload_new["fiscal"]["nif"] == "77171140E"
+    assert row.payload_new["fiscal"]["nif"] == "12345678Z"
