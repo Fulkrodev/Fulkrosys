@@ -20,7 +20,7 @@ def _build_sample_ctx() -> LegalContext:
     return LegalContext(
         project_id=__import__("uuid").uuid4(),
         # Cliente (#9 · autorrelleno desde Client)
-        client_name="Guadaltel S.A.",
+        client_name="NovaEdge S.L.",
         client_cif="A41000000",
         client_domicilio="Av. de la Innovación 1, 41020 Sevilla",
         client_persona_contacto="Ana García López",

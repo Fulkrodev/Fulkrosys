@@ -27,7 +27,7 @@ tabla `pricing_catalog` y los tests fijan los mismos valores.
 
 | Categoría | Precio (fuente única) | Ceiling sector complejo | Plazo implantación | Audit externo |
 |-----------|-----------------------|-------------------------|--------------------|---------------|
-| **Básica** | **3.200€** | 4.500€ | 2-4 semanas | NO (autoevaluación CCN-STIC 809) |
+| **Básica** | **3.200€** | 4.500€ | 2-4 semanas | NO (autoevaluación CCN-STIC 808 + Declaración de Conformidad CCN-STIC 809) |
 | **Media** | **10.700€** | 13.000€ | 2-4 sem (+ 8-16 sem total con ENAC) | SÍ ENAC obligatorio (coste cliente aparte) |
 | **Alta** | **22.800€** | 28.000€ | 4-6 sem (+ 12-20 sem total con ENAC) | SÍ ENAC + SOC + DR + monitorización 24/7 |
 

@@ -135,10 +135,10 @@ services:
       PROVISION_SUPER_PW: ${POSTGRES_PASSWORD:?POSTGRES_PASSWORD requerido en .env.prod}
       # Nombre canónico (= generate-prod-secrets.sh + .env.prod.template).
       # Antes leía FULKRO_MIGRATE_PASSWORD (typo) → caía al dev pwd → mismatch B3.
-      PROVISION_MIGRATE_PW: ${FULKRO_MIGRATE_DB_PASSWORD:-fulkro_migrate_dev_password}
+      PROVISION_MIGRATE_PW: ${FULKRO_MIGRATE_DB_PASSWORD:?FULKRO_MIGRATE_DB_PASSWORD requerido en .env.prod}
       # Password del rol runtime fulkro_app (la consume el ALTER USER del entrypoint
       # para alinear el rol al DATABASE_URL del backend · idempotente).
-      PROVISION_APP_PW: ${FULKRO_APP_DB_PASSWORD:-fulkro_app_dev_password}
+      PROVISION_APP_PW: ${FULKRO_APP_DB_PASSWORD:?FULKRO_APP_DB_PASSWORD requerido en .env.prod}
       PROVISION_REPO_ROOT: /app
       # En Hetzner hay fastembed + (opcional) AGE superuser. Si están listos,
       # poner PROVISION_SEED_FLAGS="" para seed completo. Default conservador:
@@ -169,6 +169,9 @@ services:
     env_file:
       - .env.prod
     environment:
+      # Fijado aquí y no sólo en .env.prod: si faltara, config.py toma
+      # «development» y main.py monta las rutas /_dev (tokens, altas de prueba).
+      APP_ENV: production
       # FIX P3-4: cache de modelos HuggingFace (embeddings e5-large in-process)
       # bajo el volumen persistente vardata → se descarga 1 vez y sobrevive a un
       # recreate (evita ~2GB de descarga en cada arranque del contenedor).
@@ -220,6 +223,7 @@ services:
     env_file:
       - .env.prod
     environment:
+      APP_ENV: production
       # FIX P3-4: mismo cache HF persistente que backend (tareas RAG embeben).
       HF_HOME: /app/var/hf-cache
     volumes:
@@ -259,6 +263,8 @@ services:
     restart: unless-stopped
     env_file:
       - .env.prod
+    environment:
+      APP_ENV: production
     command:
       - "celery"
       - "-A"

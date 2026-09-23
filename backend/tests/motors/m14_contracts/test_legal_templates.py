@@ -225,7 +225,7 @@ def test_canonical_contract_docx_is_redacted_not_dump():
     esqueleto + tabla de hitos + alcance §1 + emisor/cliente + complemento A20."""
     ctx = LegalContext(
         project_id=uuid.uuid4(),
-        client_name="Guadaltel S.A.",
+        client_name="NovaEdge S.L.",
         client_cif="A41000000",
         client_domicilio="Av. Innovación 1, 41020 Sevilla",
         client_persona_contacto="Ana García López",
