@@ -212,7 +212,7 @@ services:
 
   # ════════════════════════════════════════════════════════════════════
   # SAN-B.MB-7.2 · MCP Pentest profile (14 servicios merged from
-  # backend/mcp_servers/docker-compose.pentest.yml).
+  # docker-compose.pentest.yml (retirado del repositorio)).
   # Activar: docker compose --profile pentest up -d
   # Default mode (sin profile): solo arranca core (postgres/redis/minio).
   # ════════════════════════════════════════════════════════════════════
@@ -400,7 +400,7 @@ services:
     profiles: [pentest]
 
   # Greenbone Community Edition (OpenVAS) · monolitica · primer arranque
-  # descarga ~5GB feed (~45-60 min). scripts/start_openvas_container.sh
+  # descarga ~5GB feed (~45-60 min). backend/scripts/start_openvas_container.sh
   openvas:
     image: immauss/openvas:latest
     container_name: fulkro-openvas

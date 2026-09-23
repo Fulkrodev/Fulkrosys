@@ -42,7 +42,7 @@ CRUD de riesgos del proyecto · BIA (Business Impact Analysis) + incidents workf
 
 N/A motor-specific declarado en api.py · usa modelos compartidos:
 - `ProjectRisk` (`backend/app/models/planning.py`)
-- `Incident` (`backend/app/models/incidents.py`)
+- `Incident` (`backend/app/models/operations.py`)
 - `BiaAnalysis` (BIA per asset)
 
 RLS por `project_risks` + `incidents`.

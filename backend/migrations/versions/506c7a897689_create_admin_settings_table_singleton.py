@@ -17,7 +17,7 @@ modelos SQLAlchemy ↔ BD real). Esta migración conserva
 EXCLUSIVAMENTE las operaciones específicas a admin_settings;
 todas las operaciones drift fueron descartadas y preservadas como
 artifact forense en
-``progress/session_11/artifacts/drift_audit_2026-04-28.py.txt``.
+``drift_audit_2026-04-28.py.txt`` (retirado del repositorio).
 
 Política firme S11: ninguna migración hasta Mini-Sesión 11.5
 (post-FASE 12, pre-FASE 13) toca drift cross-motor. Las
@@ -26,7 +26,7 @@ declarado. La reconciliación drift es trabajo dedicado de
 Mini-Sesión 11.5 (estimación 20-30h).
 
 Ver:
-- progress/backlog_formal.md TODO-DB-DRIFT-001
+- backlog_formal.md (retirado del repositorio) TODO-DB-DRIFT-001
 - docs/spec/DECISIONS.md ADR-016 sección Empirical Confirmation
 """
 from typing import Sequence, Union

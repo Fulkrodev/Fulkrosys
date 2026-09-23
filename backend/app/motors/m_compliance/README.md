@@ -38,7 +38,7 @@ Agrupa endpoints de funcionalidad GDPR/compliance expuestos a clientes y admin: 
 ## DB tables
 
 N/A motor-specific declarado · usa modelos compartidos:
-- `RopaActivity` (`backend/app/models/compliance.py`)
+- `FulkroRoPATreatment` (`backend/app/models/ropa_treatments.py`)
 - `DpaAgreement` + `DpaSignature`
 - `RgpdRequest` (acceso/olvido/portabilidad)
 - `BreachNotification` (breach tracking)

@@ -1,6 +1,6 @@
 """Project Knowledge Graph (PKG-lite) models.
 
-ADR: docs/decisions/pkg_lite_vs_apache_age.md
+ADR: pkg_lite_vs_apache_age.md (retirado del repositorio)
 """
 from __future__ import annotations
 

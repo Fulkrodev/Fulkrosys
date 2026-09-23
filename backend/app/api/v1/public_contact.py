@@ -1,6 +1,6 @@
 """Endpoint público de contacto del landing (fulkro.es/contacto).
 
-SIN autenticación. Lo consume el formulario estático de `landing/contacto.html`
+SIN autenticación. Lo consume el formulario estático de `contacto.html` (retirado del repositorio)
 (servido por Caddy en fulkro.es; Caddy proxya esta ruta a app:8000). Envía el
 lead por email a CONTACT_EMAIL (por defecto marcosmata@fulkro.es) usando el
 EmailSender + SMTP propios (datos en el servidor UE · RGPD-clean · NO terceros).

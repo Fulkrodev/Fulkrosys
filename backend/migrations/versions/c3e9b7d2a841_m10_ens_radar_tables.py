@@ -11,7 +11,7 @@ Tablas creadas:
 - empresas_descartadas trazabilidad de filtros ICP
 - sources_runs         auditoría de cada ejecución del pipeline
 
-Los modelos viven en ``backend/app/motors/m10_ens_radar/db/models.py``.
+Los modelos viven en ``models.py`` (retirado del repositorio).
 
 Revision ID: c3e9b7d2a841
 Revises: a7f1e4b8c2d5

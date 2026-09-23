@@ -11,8 +11,8 @@
 
 Pre-audit Atom 10.5 (MB-10) reveló (OPS-026 audit-first 30ª aplicación):
 
-1. **No spec literal "Intelligence cross-motor"** en master plan empirical (`docs/master_plan/fulkro_26_motores_v1.md` = M01-M26 + extensions M27-M31)
-2. **Source única "Intelligence cross-motor"** = cumulative memorial sprint Block 6 closure umbrella term Claude.ai sin spec literal backing (`progress/SPRINT_POLISH_BLOCK6_REDIS_AUDIT_PIVOT_2026_05_12.md:99`)
+1. **No spec literal "Intelligence cross-motor"** en master plan empirical (`fulkro_26_motores_v1.md` (retirado del repositorio) = M01-M26 + extensions M27-M31)
+2. **Source única "Intelligence cross-motor"** = cumulative memorial sprint Block 6 closure umbrella term Claude.ai sin spec literal backing (`SPRINT_POLISH_BLOCK6_REDIS_AUDIT_PIVOT_2026_05_12.md:99` (retirado del repositorio))
 3. **OPS-050 cement 10ª vez validated**: MEMORY drift sistemático cumulative esta sesión (10 instances detected empirical)
 4. **Cross-motor intelligence ALREADY DISTRIBUTED PRODUCTION-GRADE**:
    - **22 agents** existing (agent_02 pliegos · agent_04 redactor · agent_06 contratos · agent_11 auditor virtual · agent_12 coach · agent_14 copiloto · agent_17 cualificador · agent_18 reunion · agent_19 propuestas · agent_20 negociacion · agent_21 discrepancias · agent_27 clasificador · agent_31 enriquecedor_dda · etc)
@@ -103,10 +103,10 @@ If future revisit builds insights surface:
 
 ## References
 
-- `docs/master_plan/fulkro_26_motores_v1.md` (empirical · 26 motores M01-M26 + extensions)
+- `fulkro_26_motores_v1.md` (retirado del repositorio) (empirical · 26 motores M01-M26 + extensions)
 - ADR-046 capability vs feature_flag (cement pattern reference · renamed post-audit B1.2 · was ADR-037 MB-10)
 - ADR-036 SAN-D MB-17 `core/feature_flags/` infrastructure
 - `backend/app/agents/` (22 agents distributed)
 - `backend/app/motors/m21_diagnosis/dashboard_service.py`
 - `backend/app/core/ai/llm_router.py`
-- `progress/SPRINT_POLISH_BLOCK6_REDIS_AUDIT_PIVOT_2026_05_12.md` (umbrella term source)
+- `SPRINT_POLISH_BLOCK6_REDIS_AUDIT_PIVOT_2026_05_12.md` (retirado del repositorio) (umbrella term source)

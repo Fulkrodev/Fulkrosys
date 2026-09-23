@@ -3,7 +3,7 @@
 SAN-D MB-19.9 · magic_link_migration_log table audit trail (ADR-042).
 
 Tabla append-only · log every migration action ejecutada por
-backend/app/scripts/migrate_magic_links_to_tasks.py:
+backend/scripts/migrate_magic_links_to_tasks.py:
 
 - converted_to_task: magic-link CONTINUO → ClientTask portal record creado.
 - revoked_obsolete: magic-link soft-deprecated revocado sin task target

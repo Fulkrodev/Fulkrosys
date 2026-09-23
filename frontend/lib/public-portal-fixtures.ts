@@ -8,7 +8,7 @@
  * cae al LegacyDocumentSignFlow para sign generico mientras se completa la
  * matriz de purposes.
  *
- * Ver: TODO-FASE-X-MAGIC-LINK-PORTAL-INTEGRATION-001 en progress/backlog_formal.md.
+ * Ver: TODO-FASE-X-MAGIC-LINK-PORTAL-INTEGRATION-001 en backlog_formal.md (retirado del repositorio).
  */
 import type {
   MagicLinkContext,

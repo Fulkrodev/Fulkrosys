@@ -287,7 +287,7 @@ Cada semana del plan de 40 semanas termina con un entregable concreto. Al final 
 
 1. Corre los tests E2E (hay una base en `CIERRE_FINAL_3_GAPS.md` Gap 2).
 2. Corre el pipeline de seguridad interno sobre la propia plataforma (Trivy, Nuclei, Lynis, Semgrep).
-3. Genera un informe semanal en `progress/week_NN.md` con qué se ha construido, qué queda, qué bloqueos hay.
+3. Genera un informe semanal en `week_NN.md` (retirado del repositorio) con qué se ha construido, qué queda, qué bloqueos hay.
 4. Actualiza el propio dogfooding: si has tocado el esquema, la DdA de la propia plataforma debe reflejarlo.
 5. Verifica que los backups del Motor 26 funcionan y que el último restore test pasó.
 
@@ -301,7 +301,7 @@ Tu primer commit debería:
 2. Añadir este README, el v2.1 y los 21 entregables en `docs/spec/`.
 3. Configurar CI/CD básico (lint, type check, tests).
 4. Crear `DECISIONS.md` vacío con el template ADR.
-5. Crear `progress/week_00_bootstrap.md` con el estado inicial.
+5. Crear `week_00_bootstrap.md` (retirado del repositorio) con el estado inicial.
 6. Commit message: `chore: bootstrap FULKRO repository with v2.1 spec and entregables`
 
 ---

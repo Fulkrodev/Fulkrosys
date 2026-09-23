@@ -23,7 +23,7 @@ Si falta 1/2/3 el runner devuelve ``RunnerResult`` con ``error`` y
 tools M8.
 
 Docker compose para levantar el container local esta en
-``backend/mcp_servers/docker-compose.pentest.yml`` (servicio ``openvas``),
+``docker-compose.pentest.yml`` (retirado del repositorio) (servicio ``openvas``),
 y hay un helper bash en ``backend/scripts/start_openvas_container.sh``.
 """
 from __future__ import annotations

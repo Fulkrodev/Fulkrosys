@@ -7,7 +7,7 @@ Versiona el texto Art. 13 mostrado (consent_text_version).
 
 SIN RLS a propósito (espejo onboarding_responses): lo escribe el lead account-less,
 sin contexto tenant. El riesgo RLS del flujo account-less de SESIÓN (patrón F-18) se
-verifica en Batch B · ver docs/audits/EJECUTABLE_8_BATCH2_FASE0_RECORRIDO_AUDIT.md.
+verifica en Batch B · ver EJECUTABLE_8_BATCH2_FASE0_RECORRIDO_AUDIT.md (retirado del repositorio).
 
 up: create_table precliente_diagnostic_consents (FK onboarding_sessions · CASCADE) + index.
 down: drop_index + drop_table.

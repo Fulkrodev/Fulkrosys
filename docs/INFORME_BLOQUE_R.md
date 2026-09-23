@@ -179,7 +179,7 @@ miente sobre ello; simplemente no tiene el dato.
 **Lo que hay que hacer, y son tres pasos de nadie más que el dueño del
 repositorio:** poner `ANTHROPIC_API_KEY` como secreto (Settings → Secrets and
 variables → Actions), lanzar `evals.yml` a mano, y escribir
-`docs/EVALUACION_AGENTES.md` con fecha, commit, modelo por agente, tasa por
+`EVALUACION_AGENTES.md` (retirado del repositorio) con fecha, commit, modelo por agente, tasa por
 conjunto, umbral y los fallos uno a uno. **Si algún conjunto baja del umbral, no
 se baja el umbral: se documenta el fallo.**
 

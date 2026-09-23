@@ -894,7 +894,7 @@ async def check_intrusion_detection_present(db: AsyncSession) -> CheckResult:
 
     Dogfooding (R7): FULKRO declara ENS Medio sobre sí mismo, así que DEBE tener
     detección de intrusión / monitorización de logs. Antes el plugin ENS NO
-    tenía ningún check op.mon (gap detectado en docs/audits/SIEM_INVESTIGATION.md).
+    tenía ningún check op.mon (gap detectado en SIEM_INVESTIGATION.md (retirado del repositorio)).
 
     Detecta fail2ban/auditd activos (pidfile/sock) o el flag explícito
     ``FULKRO_IDS_ENABLED`` (atestación tras instalarlo en Hetzner). Honest: si no

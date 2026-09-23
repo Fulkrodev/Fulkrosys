@@ -20,10 +20,10 @@ DROP COLUMN destructivos en ``audit_log.seq``,
 ``verification_findings.client_id``, ``verification_runs.client_id`` y
 4 columnas en ``ens_measure_evidencia_types``).
 
-El drift se documenta en TODO-DB-DRIFT-001 (``progress/backlog_formal.md``)
+El drift se documenta en TODO-DB-DRIFT-001 (``backlog_formal.md`` (retirado del repositorio))
 y ADR-016 (``docs/spec/DECISIONS.md``). Snapshot del autogenerate
 problemático conservado como evidencia en
-``progress/session_11/artifacts/drift_audit_2026-04-27.py.txt``.
+``drift_audit_2026-04-27.py.txt`` (retirado del repositorio).
 
 Esta migración es DELIBERADAMENTE manual y minimalista para no
 contaminar el scope de FASE 3 con la resolución del drift, que se

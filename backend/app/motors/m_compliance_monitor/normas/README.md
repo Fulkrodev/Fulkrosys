@@ -54,7 +54,7 @@ checks.py`. **Si necesitas un check que no existe**, créalo primero:
 ### 3 · Crea el fichero plugin
 
 ```python
-# backend/app/motors/m_compliance_monitor/normas/dora_ue_2022_2554.py
+# dora_ue_2022_2554.py (retirado del repositorio)
 from datetime import datetime
 
 from backend.app.motors.m_compliance_monitor.normas.base import (

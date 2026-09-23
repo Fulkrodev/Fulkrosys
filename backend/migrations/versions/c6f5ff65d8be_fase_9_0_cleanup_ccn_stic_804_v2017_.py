@@ -11,7 +11,7 @@ legacy huerfanos en ens_reinforcements (mp.info.9 R1, op.exp.11 R1) sin
 referencias en dda_entries.refuerzos_aplicados.
 
 Backup: var/backups/fase_9_0_pre_cleanup_20260502_1237.sql
-Reporte: progress/session_11/fase_9_0/REPORT_0C.md (Sub-bloque 0.A Fase 1)
+Reporte: REPORT_0C.md (retirado del repositorio) (Sub-bloque 0.A Fase 1)
 
 Revision ID: c6f5ff65d8be
 Revises: f658961972a2
@@ -85,6 +85,6 @@ def upgrade() -> None:
 def downgrade() -> None:
     # Rollback requiere restore manual desde backup pre-cleanup:
     #   var/backups/fase_9_0_pre_cleanup_20260502_1237.sql
-    # Ver progress/session_11/fase_9_0/REPORT_0C.md (Sub-bloque 0.A Fase 1)
+    # Ver REPORT_0C.md (retirado del repositorio) (Sub-bloque 0.A Fase 1)
     # Los datos fantasma son v2017 obsoletos; reseed canonico llegara en Fase 2.
     pass

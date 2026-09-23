@@ -1,7 +1,7 @@
 """PKG-lite service layer (graph API over SQL tables).
 
 Motores downstream call PKGService, never do SQL directly against pkg_nodes/pkg_edges.
-ADR: docs/decisions/pkg_lite_vs_apache_age.md
+ADR: pkg_lite_vs_apache_age.md (retirado del repositorio)
 """
 from __future__ import annotations
 

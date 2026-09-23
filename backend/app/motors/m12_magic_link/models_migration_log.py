@@ -1,7 +1,7 @@
 """MagicLinkMigrationLog model · audit trail SAN-D MB-19.9 (ADR-042).
 
 Append-only log per migration action ejecutada por
-backend/app/scripts/migrate_magic_links_to_tasks.py.
+backend/scripts/migrate_magic_links_to_tasks.py.
 
 Migration actions (CHECK constraint enforced):
 - converted_to_task: ML CONTINUO migrado a ClientTask portal record.
@@ -13,7 +13,7 @@ Migration actions (CHECK constraint enforced):
 Refs:
 - backend/migrations/versions/sand_magic_link_migration.py
 - ADR-042 (magic-link policy híbrida final)
-- backend/app/scripts/migrate_magic_links_to_tasks.py (consumer)
+- backend/scripts/migrate_magic_links_to_tasks.py (consumer)
 """
 from __future__ import annotations
 

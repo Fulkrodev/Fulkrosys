@@ -13,7 +13,7 @@ Uso:
 
 Output:
     ~/.fulkro/corpus_cache/manual/ccn/<serie>/<slug>.pdf
-    progress/corpus_download_report.md (estado actualizado)
+    corpus_download_report.md (retirado del repositorio) (estado actualizado)
 """
 from __future__ import annotations
 

@@ -1,6 +1,6 @@
 # FULKRO — Architecture Decision Records (DECISIONS.md)
 
-Este documento consolida las decisiones arquitectónicas formales (ADRs) tomadas en el desarrollo de FULKRO. Cada ADR es texto literal extraído del plan oficial Sesión 11 v4.2 (`progress/session_11/PLAN_MASTER.md`, Sección 3).
+Este documento consolida las decisiones arquitectónicas formales (ADRs) tomadas en el desarrollo de FULKRO. Cada ADR es texto literal extraído del plan oficial Sesión 11 v4.2 (`PLAN_MASTER.md` (retirado del repositorio), Sección 3).
 
 ADRs descriptivos previos (S1-S10) viven en `docs/decisions/*.md` con formato narrativo. Los ADRs numerados ADR-004..ADR-014 (Sesión 11) viven aquí.
 
@@ -205,7 +205,7 @@ Marcos pierde contexto de fase ENS al cambiar entre clientes. ¿Está cliente A 
 
 Implementar **Opción A** del Diseño 17 (D17A) — orquestación guiada con módulo `workflow_gates.py`:
 
-1. **Backend**: módulo `backend/app/motors/m00_project_lifecycle/workflow_gates.py` (252 LOC) define 7 fases canónicas:
+1. **Backend**: módulo `backend/app/core/workflow_gates.py` (252 LOC) define 7 fases canónicas:
    - F1 Categorización (M01)
    - F2 Análisis riesgo (M02)
    - F3 DdA (M03)
@@ -317,7 +317,7 @@ La auditoría exhaustiva mostró superficie residual de "TSA / eIDAS qualified" 
 
    - **Lo que sí se hace pre-cliente**: cláusula contractual + página explicativa + revisión por abogado TIC cuando Marcos lo contrate (post-S12).
 
-4. **Auditoría FASE 0.B** elimina TODA referencia eIDAS/TSA del código + docs + tests. Output: `progress/session_11/eidas_audit/REPORT.md`.
+4. **Auditoría FASE 0.B** elimina TODA referencia eIDAS/TSA del código + docs + tests. Output: `REPORT.md` (retirado del repositorio).
 
 5. **Tests confirman**: post-S11, `grep -ri "eidas\|tsa\|fnmt\|qualified\|cualificada" backend/ frontend/ docs/` debe devolver solo referencias en disclaimers + ADRs (no en código activo).
 
@@ -331,7 +331,7 @@ La auditoría exhaustiva mostró superficie residual de "TSA / eIDAS qualified" 
 
 ## Nota operativa post-decisión 25 abril 2026
 
-FASE 0 sub-fase B (auditoría eIDAS exhaustiva) **CANCELADA conscientemente** el 25 abril 2026. La limpieza de prosa documental no aporta valor sin un plan mayor: el código real ya implementa firma simple Art. 25.1 correctamente; solo los docstrings y prosa documental mencionan "eIDAS advanced". El script `scripts/s11_eidas_audit.sh` queda como utilidad neutra reutilizable; los hallazgos del run permanecen en `progress/session_11/eidas_audit/` como histórico (regla 8). Si un cliente AAPP exige eIDAS cualificada en el futuro, se reabrirá esta decisión con un ADR nuevo.
+FASE 0 sub-fase B (auditoría eIDAS exhaustiva) **CANCELADA conscientemente** el 25 abril 2026. La limpieza de prosa documental no aporta valor sin un plan mayor: el código real ya implementa firma simple Art. 25.1 correctamente; solo los docstrings y prosa documental mencionan "eIDAS advanced". El script `s11_eidas_audit.sh` (retirado del repositorio) queda como utilidad neutra reutilizable; los hallazgos del run permanecen en `progress/session_11/eidas_audit/` como histórico (regla 8). Si un cliente AAPP exige eIDAS cualificada en el futuro, se reabrirá esta decisión con un ADR nuevo.
 
 ---
 
@@ -431,7 +431,7 @@ Contenido completo de la página (texto literal para implementación):
 
 ### 10.3 Implementación
 
-- Editar `backend/app/motors/m06_document_factory/templates/C-001.md.j2` añadiendo cláusula 14 (asegurar numeración resto cláusulas)
+- Editar `C-001.md (retirado del repositorio).j2` añadiendo cláusula 14 (asegurar numeración resto cláusulas)
 - Crear `frontend/app/client-portal/firma/page.tsx` con contenido literal arriba (MDX o JSX)
 - Link visible "Cómo funciona la firma" en sidebar portal cliente + en cada página de firma magic link
 - Tooltip en `/client-portal/account/firmas` explicando qué cada firma es válida para qué
@@ -439,7 +439,7 @@ Contenido completo de la página (texto literal para implementación):
 
 ### 10.4 Revisión post-S11
 
-ADR-010 nota: "Esta cláusula y página están escritas por Marcos + Claude sin asesoría legal formal. Debe ser revisada por abogado TIC antes del primer cliente firmante." → registrar en `progress/backlog_formal.md` como `TODO-LEGAL-001`.
+ADR-010 nota: "Esta cláusula y página están escritas por Marcos + Claude sin asesoría legal formal. Debe ser revisada por abogado TIC antes del primer cliente firmante." → registrar en `backlog_formal.md` (retirado del repositorio) como `TODO-LEGAL-001`.
 
 ## Consecuencias
 
@@ -483,7 +483,7 @@ FASE 4.5 sub-tarea 4.5.A: ejecutar auditoría exhaustiva de los 23 purposes exis
 | V9 | One-time consumption funcionando | Sí/No |
 | V10 | Rate limiting aplicado (max 5 reintentos) | Sí/No |
 
-Output: `progress/session_11/magic_links_audit/REPORT.md` con tabla 23 × 10 verificaciones + lista de gaps detectados.
+Output: `REPORT.md` (retirado del repositorio) con tabla 23 × 10 verificaciones + lista de gaps detectados.
 
 ### 11.2 Ampliación con 12 purposes nuevos
 
@@ -829,7 +829,7 @@ Integrar el plan ENS Radar Portal admin-only completo como FASE 8.5 del plan Ses
 
 **Backend** (motor `m10_ens_radar`):
 
-1. **Modelo `PipelineRun` nuevo** en `backend/app/motors/m10_ens_radar/db/models.py` con tracking de cada ejecución (started_at, finished_at, cancelled_at, status, since_date, until_date, tenders_ingested, leads_created, current_step, progress_pct, error_message, summary_json, triggered_by, triggered_via).
+1. **Modelo `PipelineRun` nuevo** en `models.py` (retirado del repositorio) con tracking de cada ejecución (started_at, finished_at, cancelled_at, status, since_date, until_date, tenders_ingested, leads_created, current_step, progress_pct, error_message, summary_json, triggered_by, triggered_via).
 2. **Lead ampliado**: campos `cluster_id`, `plazo_cee_meses_pliego`, `dias_hasta_vencimiento_cee`, `fecha_fin_oferta_proxima`, `es_lead_excluido_ens`, `contactable`.
 3. **ENSAnalysis ampliado**: campos `nivel_ens_inferido`, `confidence_score`, `reasoning_text`.
 4. **Migración SQL idempotente** Alembic con creación tabla + ALTER columns.
@@ -859,7 +859,7 @@ Integrar el plan ENS Radar Portal admin-only completo como FASE 8.5 del plan Ses
 
 **Frontend** (namespace `/radar/*`):
 
-19. **Cliente API tipado** `frontend/src/lib/api/ens-radar.ts` con types Lead, LeadDetail, RunStatus, DashboardStats + funciones fetch.
+19. **Cliente API tipado** `ens-radar.ts` (retirado del repositorio) con types Lead, LeadDetail, RunStatus, DashboardStats + funciones fetch.
 20. **Hooks React Query**: `useRunStatus` (polling 3s mientras run activo), `useLeads`, `useLeadDetail`, `useStats`, `useRuns`, `useClusters`.
 21. **Componentes UI** (en `frontend/src/components/ens-radar/`):
     - `TemperatureBadge` — color-coded por temperatura
@@ -896,7 +896,7 @@ Integrar el plan ENS Radar Portal admin-only completo como FASE 8.5 del plan Ses
 - **Cancelación segura**: si Marcos detecta error en mitad de run (ej. coste descontrolado), botón cancelar lo detiene sin corromper.
 - **Coste mensual estimado**: ~10-30€/mes Anthropic API para runs semanales (vs 50-80€ con pipeline v1 que reprocesaba todo).
 - **Cliente NUNCA ve este portal**: aislamiento estricto verificado por tests.
-- **Outreach paralelo Marcos** (regla 5): este portal es la herramienta principal para ejecutar la regla outreach en `progress/sales_log.md` — leads detectados aquí alimentan los emails que Marcos envía a prospects mientras desarrolla el resto.
+- **Outreach paralelo Marcos** (regla 5): este portal es la herramienta principal para ejecutar la regla outreach en `sales_log.md` (retirado del repositorio) — leads detectados aquí alimentan los emails que Marcos envía a prospects mientras desarrolla el resto.
 
 ---
 
@@ -988,7 +988,7 @@ Los modelos SQLAlchemy y la BD divergieron históricamente: la BD tiene cosas qu
 3. Generar migraciones limpias por bloques temáticos (M22, M28, verification, ens_measure, etc.) (4-6h)
 4. Validación: aplicar fresh DB desde migrations + diff vs BD actual (2-3h)
 
-Snapshot del autogenerate problemático guardado como evidencia inmutable en `progress/session_11/artifacts/drift_audit_2026-04-27.py.txt`.
+Snapshot del autogenerate problemático guardado como evidencia inmutable en `drift_audit_2026-04-27.py.txt` (retirado del repositorio).
 
 ## Bloqueante explícito
 
@@ -1026,7 +1026,7 @@ Nuevas tablas en el inventario drift (no listadas en el ADR original):
 
 Edición manual de la migración `506c7a897689_create_admin_settings_table_singleton.py` para conservar **EXCLUSIVAMENTE** las operaciones de su scope (create_table admin_settings + INSERT seed). Las 380+ operaciones drift fueron descartadas y preservadas como artifact forense en:
 
-`progress/session_11/artifacts/drift_audit_2026-04-28.py.txt` (header contextual + raw output completo, 869 líneas, NO commiteado por regla 5).
+`drift_audit_2026-04-28.py.txt` (retirado del repositorio) (header contextual + raw output completo, 869 líneas, NO commiteado por regla 5).
 
 ### Política firme S11 reafirmada
 
@@ -1158,7 +1158,7 @@ ADRs derivados:
 - **ADR-019** CSRF triple binding cliente — formaliza patrón JWT-bound + cookie + header
 - **ADR-020** Tablas sessions separadas con cookie común — justifica dispatcher dual backend (`sub` prefix) + frontend (`role` semántico)
 
-TODOs derivados (deuda formalizada explícita en `progress/backlog_formal.md`):
+TODOs derivados (deuda formalizada explícita en `backlog_formal.md` (retirado del repositorio)):
 - **TODO-AUTH-CLIENT-BEARER-CLEANUP-001** [MEDIA · FASE 4]: retirar dual-auth Bearer de `verify_session` + eliminar `access_token` del `LoginResponse` Pydantic schema (backward-compat hoy innecesario, frontend usa cookie post-MF3.5; bloqueado por 3 tests baseline que asertan sobre el field)
 - **TODO-DOCKER-RELOAD-001** [BAJA · FASE 13]: añadir backend service a `docker-compose.yml` con `--reload` en dev profile (estructural, evita "uvicorn stale" del BLOQUE 9)
 - **LECCIÓN-OPS-001** [INFO · siempre aplicar]: verificar uvicorn start time vs HEAD timestamp antes de smoke tests
@@ -1201,7 +1201,7 @@ Aceleramos `TODO-AUTH-UNIFY-001` (originalmente programado para FASE 6 M29 Messa
 
 ### Plan
 
-Ver `TODO-AUTH-UNIFY-001` actualizado en `progress/backlog_formal.md` con desglose 9 bloques + horas reales por bloque.
+Ver `TODO-AUTH-UNIFY-001` actualizado en `backlog_formal.md` (retirado del repositorio) con desglose 9 bloques + horas reales por bloque.
 
 Tras Mini-Fase 3.5:
 1. SUB-FASE 3.F: 8 tests Playwright del plan v4.2 + 4-5 capturas baseline (~2h)
@@ -1238,7 +1238,7 @@ Mini-Fase 3.5 es prerrequisito de SUB-FASE 3.F. NO arrancar 3.F sin haber comple
 ## Referencias
 
 - Bug descubierto: audit pre-SUB-FASE 3.F PASO 0 (commit pendiente hash docs(plan))
-- Plan resolución: `TODO-AUTH-UNIFY-001` en `progress/backlog_formal.md`
+- Plan resolución: `TODO-AUTH-UNIFY-001` en `backlog_formal.md` (retirado del repositorio)
 - ADR-017 contexto dual flow original: secciones "Por qué importa" + "Consequences"
 
 ## Resolution (2026-04-28)
@@ -1410,7 +1410,7 @@ Hallazgo audit pre-FASE 5 (TODO-A.3 sub-bloque, 2026-04-29) reveló **gap arquit
 
 Implicaciones del gap:
 - Trazabilidad ENS RD 311/2022 estructuralmente imposible (Anexo III §4.4 — registro de actividad debe identificar al usuario o servicio responsable)
-- `audit_log.usuario` NULL en mutaciones motor (71 entries históricos S1-S10, ver `docs/audits/audit_log_history.md`)
+- `audit_log.usuario` NULL en mutaciones motor (71 entries históricos S1-S10, ver `audit_log_history.md` (retirado del repositorio))
 - Vulnerabilidad de seguridad: cualquier request al backend (sin frontend middleware MF3.5 BLOQUE 7 interpuesto) muta BD sin verificar identidad
 
 Audit pre-4.D cazó 5 hallazgos (H20-H24) que refinaron la propuesta inicialmente formulada como "ASGI middleware" en `TODO-MOTORS-AUTH-LANDING-001`.
@@ -1501,7 +1501,7 @@ Definidas en `backend/app/auth/global_dep.py::WHITELIST_EXACT` y `WHITELIST_PREF
 - TODO actualizado: `TODO-AUDIT-USER-BACKFILL-001` (vector motor cubierto, era PARTIAL → ahora cobertura uniforme via `set_config` global)
 - TODO nuevo: `TODO-TESTS-AUTH-COVERAGE-001` [BAJA · post-deploy] — resolución H17 anti-pattern (49 motor tests sin auth real coverage)
 - LECCIÓN-OPS-003: validar premisas TODOs con grep empírico antes de implementación
-- Docs auditor ENS: `docs/audits/audit_log_history.md` (política B+ preservar inmutabilidad + documentar)
+- Docs auditor ENS: `audit_log_history.md` (retirado del repositorio) (política B+ preservar inmutabilidad + documentar)
 - Hallazgos audit-first cazados durante sub-fase 4.D: H14, H15, H16, H17, H18, H19, H20, H21, H22, H23, H24, H26, H27, H28, H29, H30
 - Esfuerzo real implementación: ~6h (vs 10-17h estimado plan original, audit-first reducción ~60% por pattern global dep + Opción C tests fix)
 
@@ -1875,7 +1875,7 @@ Durante Mini-S11.5 se cazaron 2 falsos positivos en counts iniciales:
 
 ## References
 
-- TODO-DB-DRIFT-001 RESOLVED Mini-S11.5 (`progress/backlog_formal.md` sección Progreso 2026-04-30).
+- TODO-DB-DRIFT-001 RESOLVED Mini-S11.5 (`backlog_formal.md` (retirado del repositorio) sección Progreso 2026-04-30).
 - LECCIÓN-OPS-003 (validar premisas arquitectónicas con grep empírico antes implementación).
 - Backup BD pre-MIG-D snapshot: `/tmp/db_pre_mig_d_backup_20260430_120346.sql` (339KB schema-only).
 - Commits Mini-Sesión 11.5: `63b32ec` (MIG-A) · `68c4e21` (MIG-B) · `0274600` (MIG-C) · `e09d594` (MIG-D).
@@ -1914,7 +1914,7 @@ Implementación FASE 8 strategy híbrida:
    - Order: retainer/cierre → conformidad → verificación → implantación → adecuación → diagnóstico → onboarding → pre_venta (default)
    - 7 EXISTS subqueries cross-tablas motors
 
-4. **4 funciones derive_state** en módulo nuevo `backend/app/core/workflow_state.py` (separado de `workflow_gates.py` para distinguir derive_state vs checkpointing):
+4. **4 funciones derive_state** en módulo nuevo `workflow_state.py` (retirado del repositorio) (separado de `workflow_gates.py` para distinguir derive_state vs checkpointing):
    - `get_current_phase(project_id)` → `WorkflowPhase`
    - `get_next_actions(project_id, limit=5)` → `list[NextAction]`
    - `get_phase_progress(project_id, phase)` → `PhaseProgress`
@@ -2129,8 +2129,8 @@ Adicionalmente, 2 tablas paralelas refuerzos:
 
 ## Referencias
 
-- `progress/session_11/fase_9_0/REPORT_0C.md`
-- `progress/session_11/audit_pre_fase_9/REPORT.md`
+- `REPORT_0C.md` (retirado del repositorio)
+- `REPORT.md` (retirado del repositorio)
 - RD 311/2022 BOE: https://www.boe.es/eli/es/rd/2022/05/03/311
 
 ---
@@ -2748,7 +2748,7 @@ necesita" (ADR-035).
 
 - audit_empírico_san_d.md (251 líneas · paths verificados ·
   secciones 1.1-1.4 + 2.3-2.4 + 8.1-8.4).
-- `backend/app/core/workflow_state.py:285` ·
+- `workflow_state.py:285` (retirado del repositorio) ·
   `get_next_actions()` existing.
 - `backend/app/core/workflow_phase.py` · `WorkflowPhase` enum
   10 fases canonical.
@@ -2912,7 +2912,7 @@ declarativa con 8 principios:
   · etc).
 - `frontend/lib/api/feature-flags.ts` · API client TanStack
   Query.
-- `frontend/lib/hooks/useCategoryFilter.ts` +
+- `useCategoryFilter.ts` (retirado del repositorio) +
   `useArchetypeFilter.ts`.
 - `frontend/lib/contexts/ProjectFeaturesContext.tsx` ·
   Provider compartido.
@@ -3860,13 +3860,13 @@ client portal fallan por `page.route()` mocks incompatibles con
 `AuthGuard.useAuthStore.ready` check introducido en FASE 10.A
 (refactor chrome cliente). Specs afectadas:
 
-- `frontend/tests/e2e/mb17_arquetipo_sector_salud.spec.ts:130` ·
+- `mb17_arquetipo_sector_salud.spec.ts:130` (retirado del repositorio) ·
   banner art.9 RGPD sector salud cliente portal
-- `frontend/tests/e2e/mb17_client_portal_categoria.spec.ts:50` ·
+- `mb17_client_portal_categoria.spec.ts:50` (retirado del repositorio) ·
   ClientCategoryBanner BASICA · autoevaluación 809 · sin pentest
-- `frontend/tests/e2e/mb17_client_portal_categoria.spec.ts:74` ·
+- `mb17_client_portal_categoria.spec.ts:74` (retirado del repositorio) ·
   ClientCategoryBanner MEDIA sector_salud · banner art.9 RGPD
-- `frontend/tests/e2e/mb17_client_portal_categoria.spec.ts:99` ·
+- `mb17_client_portal_categoria.spec.ts:99` (retirado del repositorio) ·
   ClientCategoryBanner ALTA · pentest CPSTIC + productos certificados
 
 Causa raíz: tests mockean `/api/v1/client-portal/me` + `/project` +
@@ -4163,11 +4163,11 @@ emerge necesidad.
 - `backend/app/retainer/churn_predictor.py` · ChurnPredictor + Celery task.
 - `backend/app/retainer/api.py` · 3 endpoints retainer admin.
 - `frontend/lib/billing/schemas.ts` + `api.ts`.
-- `frontend/components/admin/finance/FinanceDashboard.tsx` ·
+- `FinanceDashboard.tsx` (retirado del repositorio) ·
   `ReconciliationManualPanel.tsx` · `ChurnRiskList.tsx`.
 - `frontend/components/client-portal/BillingHistory.tsx`.
 - `frontend/app/(admin)/admin/finance/page.tsx` ·
-  `frontend/app/(admin)/admin/finance/pending-payments/page.tsx` ·
+  `page.tsx` (retirado del repositorio) ·
   `frontend/app/(admin)/admin/retainers/churn-risk/page.tsx`.
 - `frontend/app/(client-portal)/client-portal/billing/page.tsx`.
 - `backend/app/config.py` · MARCOS_BANK_* fields.
@@ -4482,7 +4482,7 @@ schema nuevo en contracts.
 
 #### Principio 7 · Auto-import ENS Radar→leads M13 (Celery beat)
 
-Worker `backend/app/motors/m13_commercial/tasks.py` task
+Worker `tasks.py` (retirado del repositorio) task
 `auto_import_radar_leads_to_commercial`:
 
 - Pull `radar_leads` con `temperatura ∈ {ALTA, MUY_ALTA}` Y
@@ -4560,7 +4560,7 @@ MB-19.A:
 - `backend/app/models/commercial.py:15` · Lead model existing extendido.
 - `backend/app/models/commercial.py:34` · Proposal model existing extendido.
 - `backend/app/models/commercial.py:57` · Contract model existing (sin tocar).
-- `backend/app/motors/m10_ens_radar/db/models.py:142` · RadarLead origen
+- `models.py:142` (retirado del repositorio) · RadarLead origen
   auto-import (estado_contacto 8 estados CheckConstraint).
 - `backend/app/motors/m13_commercial/proposal_service.py:30` · ProposalService
   existing extendido método `generate_revision`.
@@ -4812,7 +4812,7 @@ sólo log warning + header `X-Deprecated-Purpose` en respuesta API.
 
 #### Principio 2 · Migration data script idempotente
 
-Script `backend/app/scripts/migrate_magic_links_to_tasks.py` (ejecutable
+Script `backend/scripts/migrate_magic_links_to_tasks.py` (ejecutable
 manual + idempotente · safe re-run):
 
 1. Pull MagicLinks activos (no consumidos · no expirados · no revocados)
@@ -4891,7 +4891,7 @@ in-place de cockpit_create_user en `m21_portal_cliente/api.py`.
 - 1 service nuevo: `m12_magic_link/policy_enforcer.py:MagicLinkPolicyEnforcer`.
 - 1 migration: `sand_magic_link_migration` create magic_link_migration_log.
 - 1 model: `m12_magic_link/models_migration_log.py:MagicLinkMigrationLog`.
-- 1 script: `backend/app/scripts/migrate_magic_links_to_tasks.py`.
+- 1 script: `backend/scripts/migrate_magic_links_to_tasks.py`.
 - 1 helper YAML: `m12_magic_link/migration_mappings.yaml` (purpose → task template).
 
 **Backend extendido**:
@@ -5025,7 +5025,7 @@ existen fixtures BD admin pipeline post-MB-19.A.
 
 SAN-D · 9 mega-bloques (MB-13 → MB-19.A/B/C) · 247-346h ajustadas a
 realidad audit empírico per atom · cero regresión cumulative · 13/13
-puntos visión Marcos cubiertos verde (ver `docs/audit/SAN_D_FINAL_AUDIT.md`).
+puntos visión Marcos cubiertos verde (ver `SAN_D_FINAL_AUDIT.md` (retirado del repositorio)).
 
 Esta sub-sesión 19.C cierra SAN-D total · ADR-043 documenta lecciones
 metodológicas estructurales aplicables SAN-E roadmap + futuras sesiones.
@@ -5154,7 +5154,7 @@ PER MEGA-BLOQUE:
 ### Trazabilidad
 
 - ADR-034 v2 (V-CHECK 10) · ADR-035 a ADR-042 (8 ADRs SAN-D).
-- `docs/audit/SAN_D_FINAL_AUDIT.md` (13/13 puntos visión).
+- `SAN_D_FINAL_AUDIT.md` (retirado del repositorio) (13/13 puntos visión).
 - Git tags `s13-mb13-...` a `s13-mb19b-magic-link-cerrado` (8 tags
   intermedios) + `s13-fase-14-cliente-real-ready` (tag final 19.18).
 
@@ -5256,7 +5256,7 @@ Después del primer cliente real cierro · iterar sobre:
 
 ### Trazabilidad
 
-- `docs/audit/SAN_D_FINAL_AUDIT.md` (13/13 puntos · technical evidence).
+- `SAN_D_FINAL_AUDIT.md` (retirado del repositorio) (13/13 puntos · technical evidence).
 - ADR-040 (auto-billing IBAN · MARCOS_BANK_*).
 - ADR-039 (NotificationOrchestrator · Postmark setup).
 - ADR-045 (deploy handoff · Sesión 12 procedure).
@@ -5268,7 +5268,7 @@ Después del primer cliente real cierro · iterar sobre:
 **Fecha**: 2026-05-07
 **Status**: Adoptada
 **Stakeholders**: Marcos Mata · Claude
-**Refs**: SAN-D · ADR-043 · ADR-044 · `docs/HANDOFF_SESION_12.md` (procedure detallado)
+**Refs**: SAN-D · ADR-043 · ADR-044 · `HANDOFF_SESION_12.md` (retirado del repositorio) (procedure detallado)
 
 ### Contexto
 
@@ -5280,7 +5280,7 @@ Sesión 12 (post-SAN-D · ANTES primer cliente real piloto) ejecuta:
 3. Migration apply + smoke production + handoff Marcos operativo.
 
 ADR-045 documenta procedimiento canónico · referencia maestra Sesión 12.
-Detalles operativos paso-a-paso en `docs/HANDOFF_SESION_12.md`.
+Detalles operativos paso-a-paso en `HANDOFF_SESION_12.md` (retirado del repositorio).
 
 ### Decisión
 
@@ -5388,7 +5388,7 @@ PYTHONPATH=/opt/fulkro alembic upgrade head
 
 ### Consecuencias
 
-- ADR-045 referencia canónica · `docs/HANDOFF_SESION_12.md` paso-a-paso operativo.
+- ADR-045 referencia canónica · `HANDOFF_SESION_12.md` (retirado del repositorio) paso-a-paso operativo.
 - Sesión 12 NO requiere coding nuevo · solo deploy + smoke + handoff
   (estimado total 8-10h ejecución pura + buffer 4h debug imprevistos).
 - Post-Sesión 12 · primer cliente real piloto onboarding (Sesión 13+).
@@ -5398,7 +5398,7 @@ PYTHONPATH=/opt/fulkro alembic upgrade head
 - ADR-040 (auto-billing · MARCOS_BANK_* env vars producción).
 - ADR-039 (Postmark setup · email producción).
 - ADR-042 (magic-link policy · purposes 35 verificadas).
-- `docs/audit/SAN_D_FINAL_AUDIT.md` (13/13 visión Marcos cubierta).
+- `SAN_D_FINAL_AUDIT.md` (retirado del repositorio) (13/13 visión Marcos cubierta).
 - `backend/app/core/celery_app.py` (13 beat tasks pre-configured production).
 - `frontend/playwright.config.ts` (smoke procedure E2E reusable).
 

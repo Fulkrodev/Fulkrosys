@@ -1,7 +1,7 @@
 """Grafo de activos M8 sobre PKG-lite (doc §3 · D2 PKG-lite reuse).
 
 El doc cita "Apache AGE"; FULKRO usa PKG-lite (pkg_nodes/pkg_edges,
-decisión docs/decisions/pkg_lite_vs_apache_age.md) ya productivo en M22.
+decisión pkg_lite_vs_apache_age.md (retirado del repositorio)) ya productivo en M22.
 Reutilizamos `pkg_service` para mapear cada activo afectado por un hallazgo
 a un nodo del grafo y estimar blast-radius/MTTR vía BFS sobre `depends_on`.
 

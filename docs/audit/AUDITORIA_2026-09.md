@@ -324,9 +324,9 @@ $ ls -d backend/app/motors/m*/ | wc -l                   ; # 44
 $ grep -n 'pnpm' start_frontend.sh
 21:    pnpm build
 24:exec pnpm start --port 3000 "$@"
-$ ls frontend/package-lock.json frontend/pnpm-lock.yaml frontend/yarn.lock
+$ ls frontend/package-lock.json pnpm-lock.yaml (retirado del repositorio) frontend/yarn.lock
 -rw-r--r-- 356844 frontend/package-lock.json
-ls: cannot access 'frontend/pnpm-lock.yaml': No such file or directory
+ls: cannot access 'pnpm-lock.yaml (retirado del repositorio)': No such file or directory
 ls: cannot access 'frontend/yarn.lock': No such file or directory
 ```
 
@@ -689,7 +689,7 @@ RAISED: builtins.TypeError "Could not resolve authentication method. Expected ei
 
 **Qué es.** Respuesta concluyente. `RRF_K = 60` lleva el comentario `# Standard constant (Cormack et al.)` y el docstring cita el paper de 2009: el propio código declara que el valor viene del paper, no de una medición local. La búsqueda de evidencia contraria es negativa por cuatro vías. Segunda corrección a la premisa: no hay pesos; `_rrf_fuse` suma exactamente `1.0/(k+rank)` por lista, sin coeficiente, así que BM25 y vector pesan igual por construcción. Sobre los tests: `test_rrf_fuse_basic` calcula el valor esperado a partir de la propia constante `RRF_K`, así que pasaría igual con k=1 o k=9999.
 
-**Dónde.** `backend/app/corpus/retrieval.py:33`, `:15`, `:161-166` · `backend/tests/corpus/test_hybrid_search.py:92` y `:99` · `docs/spec/ENS_PLATFORM_MASTER_SPEC_v2.1 (2).md:2337`
+**Dónde.** `backend/app/corpus/retrieval.py:33`, `:15`, `:161-166` · `test_hybrid_search.py:92` (retirado del repositorio) y `:99` · `docs/spec/ENS_PLATFORM_MASTER_SPEC_v2.1 (2).md:2337`
 
 **Cómo se midió.**
 ```bash
@@ -751,7 +751,7 @@ $ grep -n "model_used" backend/migrations/versions/sand_audit_dry_run_001.py
 | `claude-sonnet-4-5-20250929` | 1 | Sí | ID completo legítimo |
 | `claude-sonnet` | 1 | **No** | sólo en docstring (`m11_copiloto/api.py:295`); no ejecuta |
 
-**Dónde.** `llm_router.py:185` y `:188` · `config.py:20-21` · `agents/base.py:30` · `copilot_cliente_service.py:306` · `copilot_admin_service.py:362` · `agent_14_copiloto/prompts.py:21` · `m08_verification/llm_classifier.py:32`, `agent/triage_agent.py:33`, `remediation/guide_generator.py:307`, `external/findings_ingester.py:149` · `m04_gap/llm_prioritizer.py:323` · `m23_retainer/agent_15_vigilancia.py:219` · `m_observability/deliverable_text_auditor_capability.py:69` · `m11_copiloto/api.py:295`
+**Dónde.** `llm_router.py:185` y `:188` · `config.py:20-21` · `agents/base.py:30` · `copilot_cliente_service.py:306` · `copilot_admin_service.py:362` · `agent_14_copiloto/prompts.py:21` · `m08_verification/llm_classifier.py:32`, `m08_verification/agent/triage_agent.py:33`, `remediation/guide_generator.py:307`, `external/findings_ingester.py:149` · `m04_gap/llm_prioritizer.py:323` · `m23_retainer/agent_15_vigilancia.py:219` · `m_observability/deliverable_text_auditor_capability.py:69` · `m11_copiloto/api.py:295`
 
 **Cómo se midió.**
 ```bash
@@ -1322,9 +1322,9 @@ $ for c in 85ef44dd f1b26d6e bbaa2770 dc98c119 064571f9 bcb56e4 db880da 29da928 
     git cat-file -e "$c^{commit}" 2>/dev/null && echo "OK $c" || echo "MISS $c"; done
 MISS (los 12)
 $ grep -oE '\]\(([^)]+\.md)\)' CLAUDE.md | sed 's/](//;s/)//' | sort -u | while read -r l; do [ -e "$l" ] || echo "MISS $l"; done
-MISS docs/audits/AUDIT_EJECUTABLE_4_PHASE_7_0_PRE_FIX_DB_STATE.md
-MISS docs/audits/AUDIT_EJECUTABLE_5_SESION_3B_2B_10_SIMULACRO_PRE_ENAC_STATE.md
-MISS docs/audits/AUDIT_EJECUTABLE_7_7_ESIGNATURE_STATE.md      ... (10 de 11 rotos)
+MISS AUDIT_EJECUTABLE_4_PHASE_7_0_PRE_FIX_DB_STATE.md (retirado del repositorio)
+MISS AUDIT_EJECUTABLE_5_SESION_3B_2B_10_SIMULACRO_PRE_ENAC_STATE.md (retirado del repositorio)
+MISS AUDIT_EJECUTABLE_7_7_ESIGNATURE_STATE.md (retirado del repositorio)      ... (10 de 11 rotos)
 $ ls docs/archive
 ls: cannot access 'docs/archive': No such file or directory
 $ grep -cE 'CERRADO|PASS|ZERO regression|empirical|shipped' CLAUDE.md
@@ -1591,15 +1591,15 @@ La incompatibilidad NC/SA con Apache-2.0 es lectura jurídica, no medición, y s
 
 #### Fichero `CCN_STIC_809.md` versionado en el árbol como si fuera la guía del CCN
 
-**Qué es.** `backend/app/corpus/data/CCN_STIC_809.md` (14.727 bytes, 103 líneas) se titula como la guía CCN-STIC-809 y se subtitula «Guía de Seguridad de las TIC · Centro Criptológico Nacional · Abril 2026». El módulo que lo ingiere lo declara como fuente con publisher CCN y lo comenta como «Texto curado versionado en el repo». Contiene una parte reproducible (artículos 31 y 38 del RD 311/2022) y una parte que es la exposición de la guía.
+**Qué es.** `CCN_STIC_809.md` (retirado del repositorio) (14.727 bytes, 103 líneas) se titula como la guía CCN-STIC-809 y se subtitula «Guía de Seguridad de las TIC · Centro Criptológico Nacional · Abril 2026». El módulo que lo ingiere lo declara como fuente con publisher CCN y lo comenta como «Texto curado versionado en el repo». Contiene una parte reproducible (artículos 31 y 38 del RD 311/2022) y una parte que es la exposición de la guía.
 
-**Dónde.** `backend/app/corpus/data/CCN_STIC_809.md:1-103` · `backend/app/corpus/ccn_stic_ingest.py:195-212`
+**Dónde.** `CCN_STIC_809.md:1-103` (retirado del repositorio) · `backend/app/corpus/ccn_stic_ingest.py:195-212`
 
 **Cómo se midió.**
 ```bash
-$ wc -c -w -l backend/app/corpus/data/CCN_STIC_809.md
+$ wc -c -w -l CCN_STIC_809.md (retirado del repositorio)
   103  2141 14727
-$ head -3 backend/app/corpus/data/CCN_STIC_809.md
+$ head -3 CCN_STIC_809.md (retirado del repositorio)
 # CCN-STIC-809 — Declaración, Certificación y Aprobación Provisional de conformidad con el ENS ...
 Guía de Seguridad de las TIC · Centro Criptológico Nacional · Abril 2026.
 $ sed -n '195,205p' backend/app/corpus/ccn_stic_ingest.py

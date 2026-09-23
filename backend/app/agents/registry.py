@@ -5,7 +5,7 @@ scaffolding redundantes con motores deterministas o stubs muertos
 sin invocacion. Se eliminaron codigo + prompts + endpoints
 especificos; los IDs quedan registrados aqui con status=deprecated
 para mantener compatibilidad historica (no reusar). Ver commit
-limpieza y progress/backlog_formal.md "Auditoria solapamiento
+limpieza y backlog_formal.md (retirado del repositorio) "Auditoria solapamiento
 agentes" para el razonamiento por agente.
 
 Sesion 10 cleanup (2026-04-24): A15 y A26 stubs eliminados. La

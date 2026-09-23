@@ -2,7 +2,7 @@
 
 Qué vigila y por qué
 --------------------
-El 2026-09-10 se encontró esto: `backend/app/corpus/data/CCN_STIC_809.md` eran
+El 2026-09-10 se encontró esto: `CCN_STIC_809.md` (retirado del repositorio) eran
 103 líneas y 14,7 KB escritas en este repositorio, tituladas como la guía
 CCN-STIC-809 y subtituladas «Guía de Seguridad de las TIC · Centro Criptológico
 Nacional · Abril 2026». El módulo que lo ingiere las declaraba con

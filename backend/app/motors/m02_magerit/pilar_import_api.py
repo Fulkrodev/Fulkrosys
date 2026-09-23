@@ -8,7 +8,7 @@ POST /api/v1/magerit/analysis/{analysis_id}/import-xml
 
 NOTE: NO existe endpoint para importar PILAR ``.mgr`` (binario propietario
 undocumented por CCN). Caller debe exportar XML legible desde PILAR
-Desktop primero. Limitación documentada en docs/limitations/pilar_export.md.
+Desktop primero. Limitación documentada en pilar_export.md (retirado del repositorio).
 """
 from __future__ import annotations
 

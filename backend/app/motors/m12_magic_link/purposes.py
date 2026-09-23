@@ -82,7 +82,7 @@ class MagicLinkPurpose(str, Enum):
     # Batch A "diagnóstico previo": el lead responde un cuestionario ENS por
     # magic-link ANTES de la reunión (sin cuenta · account-less m16). Purpose
     # limpio (NO reusar ONBOARDING_INICIAL deprecated-soft). Ver
-    # docs/audits/EJECUTABLE_8_BATCH2_FASE0_RECORRIDO_AUDIT.md.
+    # EJECUTABLE_8_BATCH2_FASE0_RECORRIDO_AUDIT.md (retirado del repositorio).
     DIAGNOSTICO_PRECLIENTE = "diagnostico_precliente"                   # #38
 
 

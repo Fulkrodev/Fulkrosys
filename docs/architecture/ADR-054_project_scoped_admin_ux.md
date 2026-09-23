@@ -167,10 +167,10 @@ Backend ya project-scoped production-grade:
 
 ## Cross-ref
 
-- **Phase 0 audit**: `docs/audits/AUDIT_1_E_2_PROJECT_SELECTOR_FINDINGS.md`
+- **Phase 0 audit**: `AUDIT_1_E_2_PROJECT_SELECTOR_FINDINGS.md` (retirado del repositorio)
 - **Zustand patterns**: `frontend/lib/stores/auth-store.ts` + `frontend/lib/stores/copilot-store.ts`
 - **Existing project layout**: `frontend/app/(admin)/admin/projects/[id]/layout.tsx`
-- **DropdownMenu pattern**: `frontend/components/auth/PortalSwitcher.tsx`
+- **DropdownMenu pattern**: `PortalSwitcher.tsx` (retirado del repositorio)
 - **ADR-013** doble pool auth (admin + client) preserved
 - **ADR-025** NO new tables cumulative sostained
 - **ADR-053** Cloud-First Architecture · project-scoping precedent

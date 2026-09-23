@@ -20,7 +20,7 @@ def upgrade() -> None:
     # Libro II traceability columns (Bloque 15)
     # NOTE: 4th occurrence of Alembic autogenerate spurious drop_constraint
     # for uq_magerit_ens_mapping_ens_measure + uq_risk_matrix_impact_prob.
-    # Removed. See TODO-CRITICO-ALEMBIC in progress/todos.md.
+    # Removed. See TODO-CRITICO-ALEMBIC in todos.md (retirado del repositorio).
     op.add_column('magerit_threats', sa.Column('official_description', sa.Text(), nullable=True))
     op.add_column('magerit_threats', sa.Column('official_source', sa.String(length=200), nullable=True))
 

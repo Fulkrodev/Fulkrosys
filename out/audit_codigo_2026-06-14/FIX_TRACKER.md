@@ -137,7 +137,7 @@ Suite backend **verde** (re-confirmada) · frontend **`tsc` 0** · **`ruff` limp
 - **Rama de trabajo**: `fix/audit-2026-06-15` (rama de `main`). **⚠️ YA MERGEADA Y DESPLEGADA**: 2026-06-15 Marcos ordenó push+deploy → `main` FF a `34331dba` + push GitHub + CD desplegó a Hetzner prod (verde, `app.fulkro.es` 200). Ver sección 🚀 DEPLOY al final. La rama sigue viva para continuar la campaña; los próximos commits van sobre `main` (ya FF) o sobre la rama → re-deploy con el mismo flujo.
 - **Modo**: commit por oleada. Push+deploy bajo orden de Marcos (el último fue 2026-06-15). Cada commit lleva `Co-Authored-By: Claude Opus 4.8`.
 - **Doctrinas (de Marcos, inviolables)**:
-  1. **El código manda**, no los docs/ADR/CLAUDE.md ni la propia auditoría. Verificar SIEMPRE
+  1. **El código manda**, no los CLAUDE.md (retirado del repositorio) ni la propia auditoría. Verificar SIEMPRE
      cada hallazgo contra el código real antes de tocar (hay falsos positivos).
   2. **Un test verde NO prueba corrección.** Los tests pueden estar mal planteados/obsoletos.
      Si un test asume el comportamiento erróneo, **se corrige el test** para reflejar la realidad.

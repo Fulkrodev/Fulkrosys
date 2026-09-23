@@ -358,7 +358,7 @@ $ pytest backend/tests -m requires_db -q            # 4 trozos, base sembrada
 ### Recuperación del corpus · evaluación
 
 49 consultas etiquetadas a mano sobre 1.031 fragmentos del corpus normativo
-(RD 311/2022 y guías CCN-STIC). Intervalos por *bootstrap*, 10.000 remuestreos.
+(RD 311/2022 y legislación de la UE). Intervalos por *bootstrap*, 10.000 remuestreos.
 
 | rama | acierto@5 | recall@5 | MRR |
 |---|---:|---:|---:|

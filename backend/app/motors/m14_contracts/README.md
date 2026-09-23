@@ -42,7 +42,7 @@ Gestión del ciclo de vida de contratos FULKRO: plantillas C-001 a C-005 + sub-p
 ## DB tables
 
 N/A motor-specific declarado en api.py · usa modelos compartidos:
-- `Contract` (`backend/app/models/contracts.py`)
+- `Contract` (`backend/app/models/commercial.py`)
 - `Provider` + `ProviderDPA` (providers compartidos)
 - `ClientCommitment` (XYZPR embedded)
 
