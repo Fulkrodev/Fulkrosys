@@ -119,12 +119,12 @@ jobs:
           set -euo pipefail
           docker run -d --name minio -p 9000:9000 \
             -e MINIO_ROOT_USER="$MINIO_ACCESS_KEY" -e MINIO_ROOT_PASSWORD="$MINIO_SECRET_KEY" \
-            minio/minio:latest server /data
+            quay.io/minio/minio:RELEASE.2025-09-07T16-13-09Z server /data
           docker run --rm --network host \
             -e MINIO_INIT_ENDPOINT=http://localhost:9000 \
             -e MINIO_ROOT_USER="$MINIO_ACCESS_KEY" -e MINIO_ROOT_PASSWORD="$MINIO_SECRET_KEY" \
             -v "$PWD/infra/docker/minio-init.sh:/minio-init.sh:ro" \
-            --entrypoint /bin/sh minio/mc:latest /minio-init.sh
+            --entrypoint /bin/sh quay.io/minio/mc:RELEASE.2025-08-13T08-35-41Z /minio-init.sh
 
       - name: Claves Ed25519 efímeras (sin secretos de repo)
         # Mismo patrón que ci.yml, y por la misma razón: sin

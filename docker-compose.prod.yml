@@ -322,7 +322,7 @@ services:
   # ─────────────────────── MinIO (S3-compatible) ───────────────────────
   # Object Lock se habilita por bucket en minio-init (fulkro-evidence-worm).
   minio:
-    image: minio/minio:latest
+    image: quay.io/minio/minio:RELEASE.2025-09-07T16-13-09Z
     restart: unless-stopped
     environment:
       MINIO_ROOT_USER: ${MINIO_ROOT_USER:?MINIO_ROOT_USER requerido en .env.prod}
@@ -342,7 +342,7 @@ services:
 
   # ─────────────────────── MinIO bucket bootstrap (one-shot) ───────────────────────
   minio-init:
-    image: minio/mc:latest
+    image: quay.io/minio/mc:RELEASE.2025-08-13T08-35-41Z
     restart: "no"
     entrypoint: ["/bin/sh", "/scripts/minio-init.sh"]
     environment:
