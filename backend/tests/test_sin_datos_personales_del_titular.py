@@ -14,8 +14,8 @@ El test no puede contener los datos que vigila, porque entonces los publicaría
   letra) de cada fichero;
 - la calle, contra cada racha de 4 palabras que empiece por la palabra cuyo
   hash es ``_PRIMERA_PALABRA_CALLE``. Se normaliza antes: minúsculas, sin
-  tildes y sin puntuación, así que «Paseo de la Dirección, 46» y «PASEO DE LA
-  DIRECCION 46» dan la misma racha.
+  tildes y sin puntuación, así que la calle escrita con o sin tilde, coma o
+  mayúsculas da la misma racha.
 
 Recorre ``git ls-files``: lo versionado, que es lo que se publica. Si falla,
 dice fichero y línea, nunca el valor.

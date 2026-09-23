@@ -64,6 +64,10 @@ AMBITO = (
 )
 EXTENSIONES = {".py", ".yaml", ".yml", ".json", ".ts", ".tsx", ".md"}
 EXCLUIR = ("node_modules", "__pycache__", "/migrations/", "/tests/")
+# La huella del catalogo antiguo guarda, por codigo, los hashes del texto que
+# no debe volver: sus claves son los 79 codigos de entonces, los seis
+# inexistentes incluidos a proposito (scripts/verificar_catalogo_sin_copia_literal.py).
+EXCLUIR_FICHEROS = {"docs/catalogs/ens_catalog_huella_ccn804.json"}
 
 
 def _codigos_validos() -> set[str]:
@@ -81,6 +85,8 @@ def _ficheros() -> list[Path]:
                 continue
             for f in files:
                 p = Path(root) / f
+                if str(p.relative_to(RAIZ)) in EXCLUIR_FICHEROS:
+                    continue
                 if p.suffix in EXTENSIONES:
                     out.append(p)
     return out
