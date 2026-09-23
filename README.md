@@ -521,29 +521,29 @@ sigue siendo reproducible en local para quien tenga las fuentes.
 **Cerrado el 2026-09-10:** `docs/catalogs/ens_measures_catalog_v1.yaml` contenía párrafos copiados
 literalmente de la CCN-STIC 804. Las descripciones están **reescritas con lenguaje propio**; la
 cabecera ya no atribuye las descripciones a la guía, y `fuente_oficial` sigue apuntando a la
-sección concreta para no perder la trazabilidad. Lo vigila un umbral medible:
+sección concreta para no perder la trazabilidad. Lo vigila un umbral medible que no necesita el
+texto antiguo: `docs/catalogs/ens_catalog_huella_ccn804.json` guarda el SHA-256 de cada racha de 8
+palabras de las 79 descripciones antiguas, y ninguna de sus palabras.
 
 ```bash
-$ python3 scripts/verificar_catalogo_sin_copia_literal.py --ref 72d98e5
-Referencia: 72d98e5  (79 medidas)
-Trabajo:    árbol actual (73 medidas)
-Medidas comparadas:        73
-Coincidencia máxima:       7 palabras consecutivas (en mp.if.2)
-  texto de esa racha:      "relacion de personas autorizadas y un sistema"
-Medidas en el umbral o por encima (8+): 0
+$ python3 scripts/verificar_catalogo_sin_copia_literal.py
+Catálogo:   docs/catalogs/ens_measures_catalog_v1.yaml (73 medidas)
+Huella:     docs/catalogs/ens_catalog_huella_ccn804.json (79 medidas, 6430 rachas)
+Racha:      8 palabras consecutivas
+Medidas comparadas:                73
+Medidas con 8+ palabras copiadas:  0
+RESULTADO: VERDE
 ```
 
-Dos cosas de ese bloque, porque hasta el 2026-09-11 decía otra cosa. **Eran 79 medidas y hoy son
-73**: el commit `2276d99` eliminó seis códigos que no existen en el RD 311/2022 (venían de la
-CCN-STIC 804 v2017, basada en el RD 3/2010 derogado). Y **el comando lleva `--ref`**: sin él el
-script se niega a medir y avisa de que comparar HEAD consigo mismo da copia total. La versión
-anterior de este README pegaba una salida que ya no se producía — exactamente el defecto que este
-documento dice perseguir.
+**Eran 79 medidas y hoy son 73**: el commit `2276d99` eliminó seis códigos que no existen en el
+RD 311/2022 (venían de la CCN-STIC 804 v2017, basada en el RD 3/2010 derogado). La huella conserva
+las 79 porque es lo que no debe volver.
 
-Ese script compara contra la versión anterior en git y falla si alguna descripción vuelve a
-compartir 8 palabras seguidas con el original. `backend/tests/scripts/test_catalogo_sin_copia_literal.py`
-lo cubre en CI sin necesitar git. **Lo que ninguno de los dos verifica** es que la descripción sea
-normativamente exacta: eso lo revisa una persona.
+El script falla si una descripción, de la medida que sea, repite 8 palabras seguidas del texto
+antiguo. Pasado sobre ese texto, marca las 79; sobre el catálogo actual, ninguna.
+`backend/tests/scripts/test_catalogo_sin_copia_literal.py` hace la misma comprobación en CI, con un
+control positivo para que un detector roto no dé verde. **Lo que ninguno de los dos verifica** es
+que la descripción sea normativamente exacta: eso lo revisa una persona.
 
 ### Procedencia del corpus: qué es norma y qué es resumen nuestro
 

@@ -18,9 +18,9 @@ notas_importantes:
 - 'Trazabilidad: no se pierde. `fuente_oficial` sigue apuntando a la sección concreta de la guía
   de cada medida, y `codigo`, `nombre`, aplicabilidad por categoría, `dimensiones_aplicables` y
   `refuerzos` no se tocaron en ese cambio.'
-- 'Guardia: scripts/verificar_catalogo_sin_copia_literal.py compara contra la versión anterior en
-  git y falla si alguna descripción comparte 8 o más palabras consecutivas con la original o si
-  cambió algún campo distinto de `descripcion`. El test permanente
+- 'Guardia: scripts/verificar_catalogo_sin_copia_literal.py compara contra la huella
+  docs/catalogs/ens_catalog_huella_ccn804.json (SHA-256 de cada racha de 8 palabras del texto
+  antiguo, sin el texto) y falla si alguna descripción repite 8 o más palabras consecutivas. El test permanente
   backend/tests/scripts/test_catalogo_sin_copia_literal.py comprueba que no reaparecen los
   marcadores de la extracción (encabezados tipo "3.1 [ORG.1]").'
 - 'Cambio 2026-09-11 (bloque N2): se ELIMINARON del catálogo 6 códigos que
