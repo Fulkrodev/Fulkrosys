@@ -9,7 +9,7 @@
 [![FastAPI](https://img.shields.io/badge/FastAPI-1.203%20operaciones-6C63FF?style=for-the-badge&labelColor=1a1a2e&logo=fastapi&logoColor=white)](#métricas)
 [![Next.js](https://img.shields.io/badge/Next.js%2015-167%20páginas-6C63FF?style=for-the-badge&labelColor=1a1a2e&logo=nextdotjs&logoColor=white)](#los-cuatro-portales)
 [![PostgreSQL](https://img.shields.io/badge/PostgreSQL%2016-253%20tablas-6C63FF?style=for-the-badge&labelColor=1a1a2e&logo=postgresql&logoColor=white)](#cómo-está-construido)
-[![Tests](https://img.shields.io/badge/tests-6.877%20pasan-8B83FF?style=for-the-badge&labelColor=1a1a2e&logo=pytest&logoColor=white)](#suite)
+[![Tests](https://img.shields.io/badge/tests-6.884%20pasan-8B83FF?style=for-the-badge&labelColor=1a1a2e&logo=pytest&logoColor=white)](#suite)
 
 **Categorización · Análisis de riesgos MAGERIT · Declaración de aplicabilidad · Plan de adecuación
 · Generación documental · Evidencias · Portal de auditor**
@@ -438,20 +438,22 @@ están marcadas como tales.
 
 ### Suite
 
-Ejecutada entera el 2026-09-23, contra `pgvector/pgvector:pg16` sembrada y MinIO,
-en cuatro trozos paralelos (el mismo reparto que
-[`.github/workflows/pytest-completo.yml`](.github/workflows/pytest-completo.yml)):
+Ejecutada entera el 2026-09-24 desde un clon limpio. La parte con base de datos
+corrió en GitHub, en
+[`.github/workflows/pytest-completo.yml`](.github/workflows/pytest-completo.yml)
+(run 35928277975: `pgvector/pgvector:pg16` sembrada, MinIO y cuatro trozos
+paralelos):
 
 ```bash
 $ pytest backend/tests -m "not requires_db" -q
-3556 passed, 22 skipped, 3374 deselected in 90.21s (0:01:30)
+3563 passed, 22 skipped, 3374 deselected in 94.47s (0:01:34)
 $ pytest backend/tests -m requires_db -q            # 4 trozos, base sembrada
-3321 passed, 53 skipped · 0 failed      # los 4 trozos juntos, ~98 s el más lento
+3321 passed, 53 skipped · 0 failed      # los 4 trozos juntos, 516 s el más lento
 ```
 
 | | | |
 |---|---:|---|
-| Pasan | **6.877** | 3.556 sin base + 3.321 con base |
+| Pasan | **6.884** | 3.563 sin base + 3.321 con base |
 | Fallan | **0** | |
 | Saltados | 75 | 46 llaman al modelo real (opt-in), 14 necesitan el HTML del BOE descargado, 11 PDFs de terceros que no se distribuyen, 4 condicionales o de activación futura |
 | E2E Playwright | **413 / 413** | 0 fallan · 0 saltados |
@@ -495,8 +497,8 @@ salto a Next 15, los 14 avisos de `npm audit`, las pruebas contra el modelo real
 y una treintena de defectos que había debajo— está en
 [`docs/INFORME_BLOQUE_S.md`](docs/INFORME_BLOQUE_S.md).
 
-1. **La suite con base de datos todavía no es puerta de PR.** Se ejecutó entera
-   en local (arriba: 0 fallos), pero en GitHub corre de noche o a mano, en
+1. **La suite con base de datos todavía no es puerta de PR.** Pasó entera en
+   GitHub el 2026-09-24 (arriba: 0 fallos), pero corre de noche o a mano, en
    [`.github/workflows/pytest-completo.yml`](.github/workflows/pytest-completo.yml),
    y se promueve a puerta cuando se vea pasar dos noches seguidas (pasos en
    [`docs/CI.md`](docs/CI.md) §2.7). La puerta de hoy son los tests sin base.
