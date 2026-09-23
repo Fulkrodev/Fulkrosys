@@ -42,7 +42,7 @@ Generación, consumo y revocación criptográfica de magic links: JWT firmados E
 Motor-specific:
 - `magic_link_migration_log` (ORM en `models_migration_log.py`) · tracking ADR-042 policy migration
 
-Y modelos compartidos `MagicLink` (`backend/app/models/magic_links.py`) + `ClientInteraction` (audit trail · append-only).
+Y modelos compartidos `MagicLink` (`backend/app/models/operations.py`) + `ClientInteraction` (audit trail · append-only).
 
 RLS por `magic_links` + `client_interactions`.
 

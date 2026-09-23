@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # Start FULKRO backend production-grade · Ed25519 keys persistentes
 # Bug #6 fix: uvicorn --env-file (carga .env antes de import crypto)
-# Ver progress/MB6_ATOM_02_FIRMAS_HUB_2026_05_11.md · Issue colateral
+# Ver MB6_ATOM_02_FIRMAS_HUB_2026_05_11.md (retirado del repositorio) · Issue colateral
 set -euo pipefail
 
 cd "$(dirname "$0")/backend"

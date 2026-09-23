@@ -13,7 +13,7 @@ Design notes:
   ``claude-opus-4-7`` con ``authentication_error`` aunque la misma key
   via httpx directa funcionaba (bug de routing de litellm con el prefix
   ``anthropic/``). Bypass permanente documentado en
-  progress/backlog_formal.md "deuda menor: remover litellm Sesion 10".
+  backlog_formal.md (retirado del repositorio) "deuda menor: remover litellm Sesion 10".
 - Mantiene el mismo contrato publico (``LLMResponse``, ``LLMRouter``,
   ``get_default_llm_router``) para no romper callers existentes.
 - Traduce el formato OpenAI-style (messages con role=system) al formato

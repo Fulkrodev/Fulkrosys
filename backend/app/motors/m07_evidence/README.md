@@ -48,7 +48,7 @@ Gestión del ciclo de vida completo de evidencias ENS: ingestion (upload cliente
 
 ## DB tables
 
-N/A motor-specific · usa modelo `Evidence` (`backend/app/models/evidence.py`). RLS por `evidences`.
+N/A motor-specific · usa modelo `Evidence` (`backend/app/models/documents.py`). RLS por `evidences`.
 
 ## Cross-motor integration
 

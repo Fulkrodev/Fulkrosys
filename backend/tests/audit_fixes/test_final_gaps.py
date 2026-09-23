@@ -206,7 +206,7 @@ async def test_gap5_create_obligation_cliente_aporta_no_clientuser_best_effort(
 # El test verificaba run_service.py de M8 v4.2 (multi-agente). M8 v5.1
 # sustituye autorizacion_pentest por dos magic links nuevos (autorizar_
 # verificacion_tecnica y autorizar_pentest_externo). El test equivalente
-# vivira en backend/tests/motors/m08_verification/test_magic_links.py.
+# vivira en test_magic_links.py (retirado del repositorio).
 
 
 # ══════ GAP 7: M11 no lo sé (falso positivo — ya existía) ══════

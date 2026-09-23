@@ -38,5 +38,5 @@ Si hay que rotar la clave urgentemente (compromiso):
 ## Referencias
 
 - Service: backend/app/motors/m12_magic_link/service.py
-- Tests: backend/tests/motors/test_m12_service.py
+- Tests: backend/tests/motors/m12_magic_link/test_m12_service.py
 - Spec: ENS_PLATFORM_MASTER_SPEC_v2.1 seccion 5.1 Motor 12

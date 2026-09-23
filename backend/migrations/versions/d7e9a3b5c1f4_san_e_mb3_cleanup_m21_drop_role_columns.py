@@ -3,7 +3,7 @@
 ADR-013 v3 SAN-E.MB-3.cleanup commit 3/6 · drop multi-role columns
 de client_users · single-user-RW model.
 
-Backup BD pre-cleanup en progress/archive/client_users_pre_cleanup_2026-05-08.json
+Backup BD pre-cleanup en client_users_pre_cleanup_2026-05-08.json (retirado del repositorio)
 (8 users con roles legacy preservados antes de drop).
 
 Production · pre K.0 (15-may-2026): no hay clientes productivos. Las 8
@@ -42,7 +42,7 @@ def downgrade() -> None:
 
     Para restaurar datos pre-cleanup desde JSON archive:
     psql -c "UPDATE client_users SET role=...,scopes_jsonb=... WHERE id=...;"
-    usando progress/archive/client_users_pre_cleanup_2026-05-08.json.
+    usando client_users_pre_cleanup_2026-05-08.json (retirado del repositorio).
     """
     op.execute(
         "ALTER TABLE client_users "

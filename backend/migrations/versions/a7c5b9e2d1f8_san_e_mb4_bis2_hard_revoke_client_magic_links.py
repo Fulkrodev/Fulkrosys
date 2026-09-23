@@ -37,5 +37,5 @@ def upgrade() -> None:
 
 def downgrade() -> None:
     # NO restore · hard-deprecation deliberate · backup CSV archive existing
-    # progress/archive/magic_links_client_pre_cleanup_2026-05-09.csv
+    # magic_links_client_pre_cleanup_2026-05-09.csv (retirado del repositorio)
     pass

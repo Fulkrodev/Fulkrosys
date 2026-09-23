@@ -97,6 +97,7 @@ MENCION_NO_ES_PROMESA = {
     "tests/integration/test_sim_alta.py",
     "tests/integration/test_sim_basica.py",
     "tests/test_env_example_completeness.py",
+    "tests/test_referencias_a_rutas_existen.py",
     "tests/motors/m27_conformity/test_bienio_una_sola_fuente.py",
     "tests/motors/m27_conformity/test_r26_distintivo.py",
     "tests/motors/m10_audit_sim/test_umbrales_con_cita.py",

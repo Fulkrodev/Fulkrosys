@@ -120,7 +120,7 @@ cliente AAPP (datos reservados).
 
 **Objetivo**: FULKRO operativo > 50 clientes simultáneos sin degradación UX.
 
-- [ ] Post-baseline Sesión 19.17 audit (`docs/audit/SAN_D_PERFORMANCE.md`)
+- [ ] Post-baseline Sesión 19.17 audit (`SAN_D_PERFORMANCE.md` (retirado del repositorio))
 - [ ] Optimizations identificadas durante MB-19.17 aplicadas
 - [ ] Bulk operations + indices avanzados Postgres
 - [ ] N+1 queries detection + fix (sqlalchemy_explain · sentry trace)
@@ -225,12 +225,12 @@ cliente AAPP (datos reservados).
   Playwright TODAS suites (verificación post-tag · 0 fail · 0 regresión).
 - **DEC-MB19C-LOAD-TEST-EJECUCION-DEFERRED** · SAN-E.4 · load test real
   con locust/pytest-benchmark NO ejecutado MB-19.17. Solo baseline
-  metodológico documentado en `docs/audit/SAN_D_PERFORMANCE.md`. Razón:
+  metodológico documentado en `SAN_D_PERFORMANCE.md` (retirado del repositorio). Razón:
   sin datos representativos cliente real · benchmarks artificiales
   sub-estiman patrones reales (concurrencia + caching cold/warm + N+1
   queries específicas flow real). Ejecución empírica diferida SAN-E.4
   con cliente piloto operando · acceptance criteria p95<500ms / p99<1s
-  validados con tráfico real. Scripts existing `backend/scripts/performance_smoke_s7.py`
+  validados con tráfico real. Scripts existing `performance_smoke_s7.py` (retirado del repositorio)
   + `backend/scripts/load_test_50_retainers_billing.py` reutilizables
   como baseline starter SAN-E.4.
 

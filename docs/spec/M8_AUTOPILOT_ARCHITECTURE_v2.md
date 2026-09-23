@@ -39,7 +39,7 @@ Objetivo: dejar el pentesting automático **funcionando de cabo a rabo** según 
 - **EXTEND `verification_runs`**: `run_manifest_hash`, `golden_run_id`, `coverage_pct`, `assets_in_scope`, `assets_scanned`, `autopilot_status`, `autopilot_phase`, `partial_run`, `tools_attempted`, `tools_failed`, `ephemeral_session_id/expires_at/revoked_at`.
 
 ### D2 · Grafo de activos: PKG-lite, no Apache AGE
-El doc cita "Apache AGE", pero FULKRO ya decidió **PKG-lite** (`pkg_nodes`/`pkg_edges` + `pkg_service.add_node/add_edge/traverse_bfs`, decisión en `docs/decisions/pkg_lite_vs_apache_age.md`), usado por M22. Reutilizamos PKG-lite para el grafo de activos M8 (blast-radius/MTTR vía `traverse_bfs`). Satisface la intención del doc (grafo versionado de activos) sin introducir AGE. **Desviación honesta y fundamentada.**
+El doc cita "Apache AGE", pero FULKRO ya decidió **PKG-lite** (`pkg_nodes`/`pkg_edges` + `pkg_service.add_node/add_edge/traverse_bfs`, decisión en `pkg_lite_vs_apache_age.md` (retirado del repositorio)), usado por M22. Reutilizamos PKG-lite para el grafo de activos M8 (blast-radius/MTTR vía `traverse_bfs`). Satisface la intención del doc (grafo versionado de activos) sin introducir AGE. **Desviación honesta y fundamentada.**
 
 ### D3 · Reutilización del arsenal MCP (OPS-045/OPS-026)
 No se reinventan herramientas. El orquestador invoca el arsenal existente vía `try_invoke_mcp_or_none(server, tool, args)` → `normalize_finding()` (shape canónico). `USE_MCP_REAL` gobierna real vs fallback. Tools que el doc añade y aún no están como adapter (katana, gospider, gitleaks/trufflehog, OSV/CodeQL/Snyk) se registran como `MCPTool` estructurales (code-complete, ejecución real en Hetzner).
@@ -56,7 +56,7 @@ Reutiliza `scope_enforcer` (fail-closed `check_scope`), `derive_scope`, `require
 | §4 Modelo Finding/Verdict/EvidenceRecord | `models.py` (elevado) + `canonical.py` (Verdict/EvidenceRecord helpers) |
 | §5 5 gates + niveles verificación | `zfp_engine.py` (extendido · verification_level) |
 | §6 máquina de estados | `finding_state_machine.py` |
-| §7 capa agéntica anti-injection | `agent/triage_agent.py` + `agent/injection_guard.py` |
+| §7 capa agéntica anti-injection | `backend/app/motors/m08_verification/agent/triage_agent.py` + `backend/app/motors/m08_verification/agent/injection_guard.py` |
 | §8 SLA + aceptación de riesgo | `remediation/sla_calculator.py` (existe) + `remediation/risk_acceptance.py` (NEW) |
 | §9 disparadores/periodicidad | `scheduler.py` (continuo/periódico/cambio) |
 | §10 fiabilidad fail-closed | `autopilot/orchestrator.py` (checkpoint/partial/degradación) |

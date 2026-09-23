@@ -32,7 +32,7 @@ Admin observability sobre uso LLM en FULKRO: cost summary per period (daily/week
 
 N/A motor-specific declarado · lectura sobre tabla compartida central:
 
-- `llm_interaction_log` (`backend/app/models/llm.py`) · log unificado de TODAS las LLM calls FULKRO (motor/agente · tokens · coste · latency · etc.)
+- `llm_interaction_log` (`backend/app/models/knowledge.py`) · log unificado de TODAS las LLM calls FULKRO (motor/agente · tokens · coste · latency · etc.)
 
 NO RLS · platform-global · admin-only.
 

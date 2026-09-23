@@ -18,7 +18,7 @@ Si root tag desconocido o estructura no parseable → raise
 
 Limitación documentada: PILAR ``.mgr`` formato binario propietario fuera
 de scope (CCN no publica spec). Esta limitación es la misma que el
-export-xml ya documenta en ``docs/limitations/pilar_export.md``.
+export-xml ya documenta en ``pilar_export.md`` (retirado del repositorio).
 """
 from __future__ import annotations
 

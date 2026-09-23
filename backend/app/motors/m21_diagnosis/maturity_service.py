@@ -15,7 +15,7 @@ Capa de normalización del drift (#6 · capa A · NO se tocan los 77 templates):
   divergente entre sectores · QUESTION_ALIASES).
 - ``value_points`` mapea TODOS los valores de las variantes a puntos (tabla de
   equivalencias aprobada por Marcos · ver
-  ``docs/audits/AUDIT_PUNTO_6_DRIFT_SCORING_RULES.md`` · VALUE_ALIASES).
+  ``AUDIT_PUNTO_6_DRIFT_SCORING_RULES.md`` (retirado del repositorio) · VALUE_ALIASES).
 - 1 entrada por concepto → ``max_possible`` = el máximo REAL del concepto (arregla el
   bug del ``max_possible`` inflado por reglas mutuamente excluyentes, que ponía un
   techo artificial a la madurez).

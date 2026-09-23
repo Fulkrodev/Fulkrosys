@@ -7,7 +7,7 @@ anti-falso-verde + los criterios de consultor de Marcos:
 - DPO `no_obligatorio` = NEUTRO (ni puntúa ni cuenta como carencia).
 - bug `max_possible` inflado arreglado (1 concepto = 1 entrada, max real).
 
-Ver docs/audits/AUDIT_PUNTO_6_DRIFT_SCORING_RULES.md (tabla aprobada).
+Ver AUDIT_PUNTO_6_DRIFT_SCORING_RULES.md (retirado del repositorio) (tabla aprobada).
 """
 from __future__ import annotations
 

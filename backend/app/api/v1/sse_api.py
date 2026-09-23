@@ -46,7 +46,7 @@ async def project_events_stream(
     + listeners por tipo: ``readiness_changed`` / ``phase_changed`` /
     ``alert_new``.
 
-    Ver ``frontend/lib/hooks/useProjectEvents.ts`` para integración
+    Ver ``frontend/lib/admin-dashboard/useProjectEvents.ts`` para integración
     TanStack Query (auto invalidate queries en cada evento).
     """
     # Anti SSE pool-exhaustion (auditoría 2026-06-07): libera la conexión DB

@@ -11,7 +11,7 @@
 Pre-audit Atom 10.2 (MB-10) reveló:
 
 1. Yo (Claude) cementé concepto "M32 Capabilities" memoria sin spec literal
-2. Master plan real = `docs/master_plan/fulkro_26_motores_v1.md` (M01-M26 + M27-M31 incrementals)
+2. Master plan real = `fulkro_26_motores_v1.md` (retirado del repositorio) (M01-M26 + M27-M31 incrementals)
 3. M32 mencionado SOLO docs ISMS Block 1 como placeholder textual sin scope semántico
 4. ADR-036 SAN-D MB-17 ya cementó `core/feature_flags/` infrastructure widely-used (8+ componentes)
 5. ADR-036 explícitamente difirió `feature_flag_overrides` table a "MB-19+"

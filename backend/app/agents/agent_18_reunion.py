@@ -75,7 +75,7 @@ class Agent18ReunionExploratoria(AgentBase):
     # Caching activado: system prompt COMMON_HEADER + PROMPT A18 ~5k tokens
     # se cachea con TTL 5 min. Primera llamada de la reunion paga cache
     # creation (~15-18s, 1.25x base); updates posteriores pagan cache read
-    # (~3-5s, 0.1x base). Ver progress/backlog_formal.md nota latencia A18.
+    # (~3-5s, 0.1x base). Ver backlog_formal.md (retirado del repositorio) nota latencia A18.
     ENABLE_PROMPT_CACHING = True
 
     MAX_RETRIES_ON_INVALID_JSON = 1

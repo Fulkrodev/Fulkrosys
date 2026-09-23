@@ -1,6 +1,6 @@
 """Legal audit automatizado sobre los 83 templates FULKRO.
 
-Complementa la revision manual narrativa en progress/LEGAL_AUDIT_REPORT.md
+Complementa la revision manual narrativa en LEGAL_AUDIT_REPORT.md (retirado del repositorio)
 con checks estructurales sobre cada template:
 
 1. Presencia de referencias normativas actuales (no derogadas).

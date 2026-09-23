@@ -564,7 +564,7 @@ async def export_analysis_xml(
 
     Contains complete analysis data for backup, interchange, or manual
     conversion. PILAR .mgr is proprietary and undocumented by CCN.
-    See docs/limitations/pilar_export.md for details.
+    See pilar_export.md (retirado del repositorio) for details.
     """
     analysis = await _get_analysis_with_rls(analysis_id, db)
 
@@ -1185,7 +1185,7 @@ async def import_assets(
     """Import assets from CSV or XLSX file.
 
     Fixed column mapping. Atomic mode: all valid rows or none.
-    See docs/decisions/llm_ingestion_pipeline.md for LLM+RAG evolution.
+    See llm_ingestion_pipeline.md (retirado del repositorio) for LLM+RAG evolution.
     """
 
     await _ensure_analysis_not_frozen(analysis_id, db)

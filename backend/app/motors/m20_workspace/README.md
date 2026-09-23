@@ -33,7 +33,7 @@ Workspace colaborativo 1:1 por proyecto cliente · "FULKRO Room" · ficheros + f
 ## DB tables
 
 N/A motor-specific declarado en api.py · usa modelos compartidos:
-- `WorkspaceFile` + `WorkspacePost` + `WorkspaceMessage` (`backend/app/models/workspace.py`)
+- `WorkspaceFile` + `WorkspacePost` + `WorkspaceMessage` (`backend/app/models/collaboration.py`)
 - `VideocallState` (state machine ligera)
 
 RLS por `workspace_files` + `workspace_posts` + `workspace_messages`.

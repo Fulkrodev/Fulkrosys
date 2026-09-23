@@ -31,7 +31,7 @@ $ grep -rn "prometheus\|opentelemetry\|start_http_server" backend/app --include=
 $ git show HEAD:backend/app/main.py | grep -c '"/metrics"'
 0
 $ grep -riEn "prometheus|opentelemetry|statsd|datadog|sentry" \
-    backend/requirements.txt backend/pyproject.toml | wc -l
+    requirements.txt (retirado del repositorio) backend/pyproject.toml | wc -l
 0
 ```
 

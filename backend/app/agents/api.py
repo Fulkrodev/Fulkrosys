@@ -498,7 +498,7 @@ async def meeting_update_stream(body: dict, db: AsyncSession = Depends(get_db)):
     token-by-token streaming requiere refactor `base._call_llm` a
     `Anthropic.messages.stream()` · cross-cutting affecta TODOS los
     agentes heredando AgentBase. Diferido a S13 ·
-    TODO-A18-TOKEN-STREAM-001 backlog formal (progress/backlog_formal.md).
+    TODO-A18-TOKEN-STREAM-001 backlog formal (backlog_formal.md (retirado del repositorio)).
 
     El TTFT mejora porque emitimos `progress: thinking` inmediato
     antes de esperar al LLM completo. Frontend renderiza skeleton

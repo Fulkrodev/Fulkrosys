@@ -501,7 +501,7 @@ async def test_agent_18_prompt_caching_reduces_cost(db):
     NO la latencia total — el bottleneck es generacion output (~920
     tokens @ 70 tok/s Sonnet 4.6 = ~13s fisicos). El streaming SSE
     para feel live esta programado para Sesion 11 Frontend K.4 (ver
-    TODO-A18-LATENCY en progress/backlog_formal.md).
+    TODO-A18-LATENCY en backlog_formal.md (retirado del repositorio)).
 
     Run 1: cache write (cache_creation_input_tokens > 0).
     Run 2: cache read (cache_read_input_tokens > 0) + coste <70%

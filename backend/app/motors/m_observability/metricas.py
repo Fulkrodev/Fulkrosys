@@ -18,7 +18,7 @@ cerrado por CHECK desde el BLOQUE D) y exponerlos como metricas era casi gratis.
 SIN DEPENDENCIAS NUEVAS
 -----------------------
 El formato de exposicion se escribe a mano. `prometheus_client` no esta en
-`backend/requirements.txt` y este repositorio acaba de pasar una campanya sobre
+`requirements.txt` (retirado del repositorio) y este repositorio acaba de pasar una campanya sobre
 instalabilidad: anyadir una dependencia para generar cuatro lineas de texto
 plano seria un mal cambio. El formato es estable y publico, y lo que se emite es
 lo que dice la especificacion (`# HELP`, `# TYPE`, y una linea por serie).

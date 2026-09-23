@@ -41,7 +41,7 @@ Facturación fiscal española completa: IVA 21% + IRPF + correlativo secuencial 
 ## DB tables
 
 N/A motor-specific declarado en api.py · usa modelos compartidos:
-- `Invoice` (`backend/app/models/billing.py`)
+- `Invoice` (`backend/app/models/commercial.py`)
 - `InvoiceLine` (líneas factura)
 - `VerifactuChain` (correlativo + hash chain)
 

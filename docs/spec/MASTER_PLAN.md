@@ -38,7 +38,7 @@ Diferenciadores vs competencia:
 - **~394 tests** SAN-D acumulados verde · 3505+ total backend
 - **0 regresión** cumulative introducida
 - **~36+ Playwright specs** stack real verde (post-19.16 cosechas)
-- **13/13 puntos visión Marcos** cubiertos (`docs/audit/SAN_D_FINAL_AUDIT.md`)
+- **13/13 puntos visión Marcos** cubiertos (`SAN_D_FINAL_AUDIT.md` (retirado del repositorio))
 - **45 deferrables** documentados ADRs (futuras sesiones SAN-E)
 
 ### Mega-bloques SAN-D detalle
@@ -170,7 +170,7 @@ Después del primer cliente real cierro · iteración guiada por feedback:
 
 #### SAN-E.4 · Performance tuning bajo carga real (10-15h)
 
-- Post-baseline Sesión 19.17 audit (`docs/audit/SAN_D_PERFORMANCE.md`)
+- Post-baseline Sesión 19.17 audit (`SAN_D_PERFORMANCE.md` (retirado del repositorio))
 - Optimizations identificadas durante MB-19.17 aplicadas
 - Bulk operations + indices avanzados
 - N+1 queries detection + fix (sqlalchemy_explain)

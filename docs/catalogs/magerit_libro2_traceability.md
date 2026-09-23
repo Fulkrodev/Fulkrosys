@@ -39,7 +39,7 @@ eliminados, articulos simplificados).
 
 ## Validacion cross-check (2026-04-13)
 
-Script: `scripts/crosscheck_magerit_libro2.py`
+Script: `crosscheck_magerit_libro2.py` (retirado del repositorio)
 - Codigos comunes: 57/57 (100%)
 - Grupos N/I/E/A identicos: 57/57 (100%)
 - Nombres identicos: 42/57 (74%, 15 variantes editoriales)

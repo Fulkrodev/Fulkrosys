@@ -1,6 +1,6 @@
 """API endpoints workflow guidance · FASE 8 (ADR-026).
 
-5 endpoints expose 4 funciones derive_state ``backend/app/core/workflow_state.py``:
+5 endpoints expose 4 funciones derive_state ``workflow_state.py`` (retirado del repositorio):
 
     GET /api/v1/workflow/current-phase/{project_id}        → WorkflowPhase
     GET /api/v1/workflow/next-actions/{project_id}?limit=5 → list[NextAction]

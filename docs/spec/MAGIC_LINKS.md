@@ -104,7 +104,7 @@ custom_body_intro         TEXT · prepend body (no replace)
   - `MAGIC_LINK_BACKEND_CATEGORIES` (6 categorías UI dropdown)
   - `MAGIC_LINK_OTP_REQUIRED` (Set para derive client-side)
   - `isMagicLinkActive` helper
-- **Routing** (`frontend/lib/magic-link-routing.ts`):
+- **Routing** (`magic-link-routing.ts` (retirado del repositorio)):
   - `backendPurposeToUIRoute(purpose)` · función pura · 12 UIRoute literal type
 - **API** (`frontend/lib/api/magic-links.ts`):
   - 5 wrappers: `list`, `generate`, `getByToken`, `consume`, `revoke`
@@ -177,7 +177,7 @@ NO se exponen: `id` interno, `project_id`, `recipient_email` completo, `cc_email
 
 ## Deuda y backlog FASE 9
 
-3 entries trazadas en `progress/backlog_formal.md`:
+3 entries trazadas en `backlog_formal.md` (retirado del repositorio):
 
 - **TODO-FASE-9-MAGIC-LINK-FRONTEND-ROUTES-001** [ALTA] · implementar 5 scaffold flows reales (meeting / incident / download / vote / nps).
 - **TODO-FASE-9-MAGIC-LINK-MOCKS-CLEANUP-001** [ALTA] · eliminar `useMagicLink` legacy (sprint4-mock) · migrar consumidores a `useMagicLinkStatus` + `useMagicLinkConsume` reales.
@@ -190,8 +190,8 @@ S12 cleanup:
 
 - ADR-011 (Magic Links auditoría + ampliación · 2026-04-25)
 - ADR-028 (Python inline emails · supersede parcial ADR-011 FR15.4 · 2026-05-01)
-- `progress/session_11/magic_links_audit/REPORT.md` · audit estado FASE 4.5
+- `REPORT.md` (retirado del repositorio) · audit estado FASE 4.5
 - `backend/app/motors/m12_magic_link/purposes.py` · canonical TTL/max/OTP/geo + action_label
 - `backend/app/motors/m12_magic_link/emails/renderer.py` · `_PURPOSE_EMAILS` dict (35 entries)
 - `frontend/lib/magic-link-types.ts` · typing frontend (35 purposes)
-- `frontend/lib/magic-link-routing.ts` · `backendPurposeToUIRoute` función pura
+- `magic-link-routing.ts` (retirado del repositorio) · `backendPurposeToUIRoute` función pura

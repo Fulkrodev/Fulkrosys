@@ -10,7 +10,7 @@ Batch 2 cubre H3 (M05 obligaciones ← MAGERIT) + H4 (M09 audit-prep ← evidenc
 Cada test reactiva ``FULKRO_SKIP_WORKFLOW_GATES=0`` vía monkeypatch (mismo
 patrón que test_workflow_gates.py).
 
-Fuente: docs/audits/EJECUTABLE_8_PASADA_7_COHERENCE_SYSTEMIC.md §2.2 + P7-F1.
+Fuente: EJECUTABLE_8_PASADA_7_COHERENCE_SYSTEMIC.md (retirado del repositorio) §2.2 + P7-F1.
 """
 from __future__ import annotations
 

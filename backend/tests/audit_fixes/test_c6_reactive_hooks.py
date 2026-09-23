@@ -27,4 +27,4 @@ def test_c6_3_m22_has_8_spanish_regex():
 # El endpoint attack-heatmap pertenecia a M8 v4.2 (multi-agente ReAct con
 # attack_graph). M8 v5.1 sustituye attack-heatmap por compliance-heatmap
 # (las 73 medidas ENS con tech_status). El nuevo test correspondiente
-# vivira en backend/tests/motors/m08_verification/test_heatmap.py.
+# vivira en test_heatmap.py (retirado del repositorio).

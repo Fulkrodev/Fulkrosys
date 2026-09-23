@@ -14,7 +14,7 @@
 #     export GVM_PORT=9390
 #     export GVM_USERNAME=admin
 #     export GVM_PASSWORD=fulkro_openvas_dev
-#     PYTHONPATH=. python backend/scripts/demo_s10_paso4_3_openvas.py
+#     PYTHONPATH=. python demo_s10_paso4_3_openvas.py (retirado del repositorio)
 set -euo pipefail
 
 REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"

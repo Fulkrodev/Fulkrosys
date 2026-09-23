@@ -2,7 +2,7 @@
 
 > Ejecutable 3 Phase 5.4 SUPER MEGA PROMPT re-architected · Sesión 5 base.
 > Last updated: 2026-05-27 · Marcos único admin Fulkro 1.0
-> Audit baseline: `docs/audits/SUPER_MEGA_PROMPT_AUDIT_BASELINE_2026-05-27.md`
+> Audit baseline: `SUPER_MEGA_PROMPT_AUDIT_BASELINE_2026-05-27.md` (retirado del repositorio)
 
 ## Purpose
 
@@ -83,7 +83,7 @@ Rotar TODOS los secretos categoría afectada cuando:
 sed -i 's/^ANTHROPIC_API_KEY=.*/ANTHROPIC_API_KEY=<NEW_KEY>/' .env
 
 # Step 3 · Verify local backend smoke test
-.venv/bin/python -m pytest backend/tests/agents/test_a14_rag.py::test_llm_router_smoke -v
+.venv/bin/python -m pytest test_a14_rag.py (retirado del repositorio)::test_llm_router_smoke -v
 
 # Step 4 · Deploy update Hetzner (production)
 # ssh marcos@hetzner-prod

@@ -8,8 +8,8 @@ Cubre las funciones deterministas de:
 - gates.py (classify_visibility · derive_verification_level · is_zero_fp_verified)
 - finding_state_machine.py (transition · guards · is_terminal)
 - determinism/manifest.py (build_run_manifest · compare_to_golden)
-- agent/injection_guard.py (detect_injection_attempt · wrap · validate_verdict_output)
-- agent/triage_agent.py (triage_finding · fail-closed · router fake)
+- backend/app/motors/m08_verification/agent/injection_guard.py (detect_injection_attempt · wrap · validate_verdict_output)
+- backend/app/motors/m08_verification/agent/triage_agent.py (triage_finding · fail-closed · router fake)
 
 NO requiere fixtures de BD: todos los tests son síncronos y deterministas.
 """
