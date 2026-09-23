@@ -34,7 +34,7 @@ def test_basica_no_alta_features():
 
 
 def test_basica_si_autoevaluacion():
-    """BASICA · autoevaluación 809 aplica."""
+    """BASICA · autoevaluación (CCN-STIC 808) aplica."""
     assert is_feature_applicable("basica_autoevaluacion", "BASICA") is True
 
 

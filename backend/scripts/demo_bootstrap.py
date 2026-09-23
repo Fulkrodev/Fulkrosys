@@ -169,7 +169,11 @@ MINIMOS_CORPUS: dict[str, int] = {
 }
 # Del proyecto que siembra el poblador (tier MEDIA).
 MINIMOS_PROYECTO: dict[str, int] = {
-    "dda_entries": 68,             # medido 73 filas · 68 aplicables en MEDIA
+    "dda_entries": 73,             # una fila por medida del Anexo II
+    # Las 73 filas salen aunque la DdA este mal: lo que falla es cuantas
+    # APLICAN. Con el sistema sin valorar salian 44 y el umbral de filas
+    # no lo veia.
+    "dda_aplicables": 68,          # medido 68 en MEDIA
     "evidence": 60,                # medido 204 (3 por medida aplicable)
     "magerit_assets": 1,           # medido 8
     "project_plans": 1,            # medido 1
@@ -184,6 +188,9 @@ MINIMOS_PROYECTO: dict[str, int] = {
 SQL_PROYECTO: dict[str, str] = {
     "dda_entries":
         "SELECT count(*) FROM dda_entries WHERE project_id=:p AND deleted_at IS NULL",
+    "dda_aplicables":
+        "SELECT count(*) FROM dda_entries WHERE project_id=:p AND deleted_at IS NULL "
+        "AND aplicabilidad <> 'no_aplica'",
     "evidence":
         "SELECT count(*) FROM evidence WHERE project_id=:p AND deleted_at IS NULL",
     "magerit_assets":

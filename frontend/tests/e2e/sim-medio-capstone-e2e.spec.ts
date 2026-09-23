@@ -53,6 +53,9 @@ test.describe("CAPSTONE · ENS MEDIO implantado (galería)", () => {
     await api(ctx.request, `/api/v1/_dev/reset-test-cycle?project_id=${PID}`, { timeout: 40_000 });
     const implRes = await api(ctx.request, "/api/v1/_dev/seed-full-implantation?tier=MEDIA", { timeout: 200_000 });
     IMPL = await implRes.json();
+    // Una MEDIA valorada da 68 medidas aplicables. Con el sistema sin valorar
+    // salian 44 (cinco dimensiones NO_AFECTADAS) y este spec solo las imprimia.
+    expect(IMPL.dda_aplicables).toBeGreaterThanOrEqual(68);
 
     await loginAsMarcos(ctx);
     const page = await ctx.newPage();

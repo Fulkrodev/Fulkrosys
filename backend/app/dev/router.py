@@ -1878,6 +1878,45 @@ async def seed_full_implantation(
         await db.flush()
     pid = project.id
     cid = client.id  # capturar valor: commits posteriores expiran el ORM obj
+
+    # ── STEP 2b · el sistema, VALORADO, antes de la DdA ──
+    # Desde O1 la DdA se decide por la categoria Y por el nivel de cada
+    # dimension (Anexo II punto 5). Este seed creaba el sistema sin tipos de
+    # informacion ni servicios: las cinco dimensiones quedaban NO_AFECTADAS
+    # (Anexo I punto 3) y la DdA de una MEDIA salia con 29 medidas «no aplica»,
+    # op.acc.1 Identificacion y mp.info.6 Copias de seguridad entre ellas. La
+    # categoria es el maximo de las dimensiones: una MEDIA tiene alguna en
+    # MEDIO. Se valora como lo haria el consultor en m01.
+    from backend.app.models.core import InformationType, Service, System
+    nivel = {"BASICA": "BAJO", "MEDIA": "MEDIO", "ALTA": "ALTO"}[tier]
+    await db.execute(text("SET LOCAL ROLE fulkro_app_bypassrls"))
+    sistema = (await db.execute(
+        select(System).where(System.project_id == pid).order_by(System.created_at.asc())
+    )).scalars().first()
+    if sistema is None:
+        sistema = System(id=uuid.uuid4(), project_id=pid,
+                         nombre="Sistema de Información Corporativo")
+        db.add(sistema)
+        await db.flush()
+    valorado = (await db.execute(
+        select(InformationType.id).where(
+            InformationType.system_id == sistema.id,
+            InformationType.deleted_at.is_(None),
+        ).limit(1)
+    )).first()
+    if valorado is None:
+        dims = {f"valoracion_{d}": nivel for d in ("d", "i", "c", "a", "t")}
+        db.add(InformationType(
+            system_id=sistema.id, nombre="Expedientes y datos de los interesados",
+            justificacion=f"Valoración {nivel} en las cinco dimensiones (demo).",
+            **dims,
+        ))
+        db.add(Service(
+            system_id=sistema.id, nombre="Tramitación electrónica",
+            justificacion=f"Valoración {nivel} en las cinco dimensiones (demo).",
+            **dims,
+        ))
+    await db.commit()
     await set_tenant_context(db, client_id=cid, project_id=pid)
 
     # ── STEP 3 · DdA TIER-CORRECTA + FREEZE ──
