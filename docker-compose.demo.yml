@@ -154,7 +154,10 @@ services:
 
   # ─────────────────────── MinIO (S3 compatible) ───────────────────────
   minio:
-    image: minio/minio:latest
+    # Del registro de MinIO en quay.io: docker.io/minio/minio ya no existe
+    # («pull access denied»), y en una maquina sin la imagen en cache
+    # `make demo` fallaba al descargarla. Version fijada, no `latest`.
+    image: quay.io/minio/minio:RELEASE.2025-09-07T16-13-09Z
     restart: unless-stopped
     env_file:
       - .env.demo          # MINIO_ROOT_USER · MINIO_ROOT_PASSWORD
@@ -179,7 +182,7 @@ services:
   # En el demo ese bloqueo WORM es real dentro del volumen; `make clean` borra el
   # volumen entero, que es la única forma de deshacerlo.
   minio-init:
-    image: minio/mc:latest
+    image: quay.io/minio/mc:RELEASE.2025-08-13T08-35-41Z
     restart: "no"
     entrypoint: ["/bin/sh", "/scripts/minio-init.sh"]
     env_file:

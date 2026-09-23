@@ -202,11 +202,19 @@ $ pytest backend/tests/{api,auth,core,models,security,audit_fixes} \
 289 passed, 297 deselected in 108.44s
 ```
 
-El sembrado funciona, el corpus carga y una muestra acotada sale limpia. Lo que
-**nunca** se ha hecho es la ejecución completa. Por eso este workflow se lanza a
-mano y de noche, con cuatro trozos en paralelo (`pytest-split`), y **no** es
-puerta de PR: poner de puerta algo que no se ha visto pasar es como se acaba
-otra vez con un `continue-on-error`.
+El sembrado funciona, el corpus carga y una muestra acotada sale limpia. Este
+workflow se lanza a mano y de noche, con cuatro trozos en paralelo
+(`pytest-split`), y **no** es puerta de PR: poner de puerta algo que no se ha
+visto pasar es como se acaba otra vez con un `continue-on-error`.
+
+**Primera ejecución completa en GitHub, 2026-09-24.** La primera (run
+35925779735, sobre `main`) falló en 86 de 3.374 tests, todos por el montaje y
+ninguno por la aplicación: faltaba MinIO (81) y un test fijaba el puerto 5433
+del compose de desarrollo (5). Al añadir MinIO apareció otro: Docker Hub ya no
+sirve `minio/minio`, que pasó a `quay.io/minio/minio` con la versión fijada.
+Con los dos arreglos, run 35928277975: **3.321 pasan, 0 fallan, 53 saltados**,
+516 s el trozo más lento. Falta verla pasar dos noches seguidas para
+promoverla.
 
 **Cómo se promueve a puerta**, en este orden:
 
