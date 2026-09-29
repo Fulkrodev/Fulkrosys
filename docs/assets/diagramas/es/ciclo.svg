@@ -1,0 +1,69 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="330" viewBox="0 0 1200 330" role="img" aria-label="El ciclo ENS: cada fase consume lo que produjo la anterior">
+<defs>
+  <linearGradient id="fondo" x1="0" y1="0" x2="1" y2="1">
+    <stop offset="0" stop-color="#0e0a22"/><stop offset="1" stop-color="#1a1440"/></linearGradient>
+  <linearGradient id="marca" x1="0" y1="0" x2="1" y2="0">
+    <stop offset="0" stop-color="#6C63FF"/><stop offset="1" stop-color="#e879f9"/></linearGradient>
+  <radialGradient id="halo"><stop offset="0" stop-color="#6C63FF" stop-opacity=".55"/>
+    <stop offset="1" stop-color="#6C63FF" stop-opacity="0"/></radialGradient>
+  <marker id="flecha" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+    <path d="M0,0 L10,5 L0,10 z" fill="#8B83FF"/></marker>
+</defs>
+<rect width="1200" height="330" rx="18" fill="url(#fondo)"/>
+<text x="40" y="52" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif" font-size="22" font-weight="700" fill="#ffffff" text-anchor="start" >El ciclo ENS: cada fase consume lo que produjo la anterior</text>
+<rect x="40" y="96" width="142" height="176" rx="14" fill="#1d1838" stroke="#352d66" stroke-width="1.5"><animate attributeName="stroke" values="#352d66;#e879f9;#352d66" keyTimes="0;.1;.28" dur="8.4s" begin="0.0s" repeatCount="indefinite"/></rect>
+<circle cx="70" cy="128" r="16" fill="url(#marca)"/>
+<text x="70" y="134" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif" font-size="15" font-weight="800" fill="#ffffff" text-anchor="middle" >1</text>
+<text x="54" y="178" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif" font-size="14" font-weight="700" fill="#ffffff" text-anchor="start" >Categorización</text>
+<text x="54" y="200" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="12" font-weight="400" fill="#8f89c2" text-anchor="start" >motor m01</text>
+<text x="54" y="234" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif" font-size="12.5" font-weight="400" fill="#c4c0e8" text-anchor="start" >Acta</text>
+<text x="54" y="252" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif" font-size="12.5" font-weight="400" fill="#c4c0e8" text-anchor="start" >E-012</text>
+<rect x="185.5" y="177" width="14" height="14" rx="3" transform="rotate(45 192.5 184)" fill="#6C63FF"/>
+<rect x="203" y="96" width="142" height="176" rx="14" fill="#1d1838" stroke="#352d66" stroke-width="1.5"><animate attributeName="stroke" values="#352d66;#e879f9;#352d66" keyTimes="0;.1;.28" dur="8.4s" begin="1.2s" repeatCount="indefinite"/></rect>
+<circle cx="233" cy="128" r="16" fill="url(#marca)"/>
+<text x="233" y="134" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif" font-size="15" font-weight="800" fill="#ffffff" text-anchor="middle" >2</text>
+<text x="217" y="178" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif" font-size="14" font-weight="700" fill="#ffffff" text-anchor="start" >Riesgos</text>
+<text x="217" y="200" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="12" font-weight="400" fill="#8f89c2" text-anchor="start" >motor m02</text>
+<text x="217" y="234" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif" font-size="12.5" font-weight="400" fill="#c4c0e8" text-anchor="start" >MAGERIT v3</text>
+<rect x="348.5" y="177" width="14" height="14" rx="3" transform="rotate(45 355.5 184)" fill="#6C63FF"/>
+<rect x="366" y="96" width="142" height="176" rx="14" fill="#1d1838" stroke="#352d66" stroke-width="1.5"><animate attributeName="stroke" values="#352d66;#e879f9;#352d66" keyTimes="0;.1;.28" dur="8.4s" begin="2.4s" repeatCount="indefinite"/></rect>
+<circle cx="396" cy="128" r="16" fill="url(#marca)"/>
+<text x="396" y="134" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif" font-size="15" font-weight="800" fill="#ffffff" text-anchor="middle" >3</text>
+<text x="380" y="178" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif" font-size="14" font-weight="700" fill="#ffffff" text-anchor="start" >Aplicabilidad</text>
+<text x="380" y="200" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="12" font-weight="400" fill="#8f89c2" text-anchor="start" >motor m03</text>
+<text x="380" y="234" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif" font-size="12.5" font-weight="400" fill="#c4c0e8" text-anchor="start" >DdA</text>
+<text x="380" y="252" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif" font-size="12.5" font-weight="400" fill="#c4c0e8" text-anchor="start" >73 medidas</text>
+<rect x="511.5" y="177" width="14" height="14" rx="3" transform="rotate(45 518.5 184)" fill="#6C63FF"/>
+<rect x="529" y="96" width="142" height="176" rx="14" fill="#1d1838" stroke="#352d66" stroke-width="1.5"><animate attributeName="stroke" values="#352d66;#e879f9;#352d66" keyTimes="0;.1;.28" dur="8.4s" begin="3.6000000000000005s" repeatCount="indefinite"/></rect>
+<circle cx="559" cy="128" r="16" fill="url(#marca)"/>
+<text x="559" y="134" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif" font-size="15" font-weight="800" fill="#ffffff" text-anchor="middle" >4</text>
+<text x="543" y="178" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif" font-size="14" font-weight="700" fill="#ffffff" text-anchor="start" >Plan</text>
+<text x="543" y="200" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="12" font-weight="400" fill="#8f89c2" text-anchor="start" >motor m17</text>
+<text x="543" y="234" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif" font-size="12.5" font-weight="400" fill="#c4c0e8" text-anchor="start" >E-150</text>
+<text x="543" y="252" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif" font-size="12.5" font-weight="400" fill="#c4c0e8" text-anchor="start" >Gantt</text>
+<rect x="674.5" y="177" width="14" height="14" rx="3" transform="rotate(45 681.5 184)" fill="#6C63FF"/>
+<rect x="692" y="96" width="142" height="176" rx="14" fill="#1d1838" stroke="#352d66" stroke-width="1.5"><animate attributeName="stroke" values="#352d66;#e879f9;#352d66" keyTimes="0;.1;.28" dur="8.4s" begin="4.8s" repeatCount="indefinite"/></rect>
+<circle cx="722" cy="128" r="16" fill="url(#marca)"/>
+<text x="722" y="134" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif" font-size="15" font-weight="800" fill="#ffffff" text-anchor="middle" >5</text>
+<text x="706" y="178" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif" font-size="14" font-weight="700" fill="#ffffff" text-anchor="start" >Implantación</text>
+<text x="706" y="200" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="12" font-weight="400" fill="#8f89c2" text-anchor="start" >motor m07</text>
+<text x="706" y="234" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif" font-size="12.5" font-weight="400" fill="#c4c0e8" text-anchor="start" >Evidencia</text>
+<text x="706" y="252" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif" font-size="12.5" font-weight="400" fill="#c4c0e8" text-anchor="start" >WORM</text>
+<rect x="837.5" y="177" width="14" height="14" rx="3" transform="rotate(45 844.5 184)" fill="#6C63FF"/>
+<rect x="855" y="96" width="142" height="176" rx="14" fill="#1d1838" stroke="#352d66" stroke-width="1.5"><animate attributeName="stroke" values="#352d66;#e879f9;#352d66" keyTimes="0;.1;.28" dur="8.4s" begin="6.0s" repeatCount="indefinite"/></rect>
+<circle cx="885" cy="128" r="16" fill="url(#marca)"/>
+<text x="885" y="134" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif" font-size="15" font-weight="800" fill="#ffffff" text-anchor="middle" >6</text>
+<text x="869" y="178" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif" font-size="14" font-weight="700" fill="#ffffff" text-anchor="start" >Verificación</text>
+<text x="869" y="200" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="12" font-weight="400" fill="#8f89c2" text-anchor="start" >motor m10</text>
+<text x="869" y="234" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif" font-size="12.5" font-weight="400" fill="#c4c0e8" text-anchor="start" >Simulacro</text>
+<text x="869" y="252" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif" font-size="12.5" font-weight="400" fill="#c4c0e8" text-anchor="start" >pre-ENAC</text>
+<rect x="1000.5" y="177" width="14" height="14" rx="3" transform="rotate(45 1007.5 184)" fill="#6C63FF"/>
+<rect x="1018" y="96" width="142" height="176" rx="14" fill="#1d1838" stroke="#352d66" stroke-width="1.5"><animate attributeName="stroke" values="#352d66;#e879f9;#352d66" keyTimes="0;.1;.28" dur="8.4s" begin="7.200000000000001s" repeatCount="indefinite"/></rect>
+<circle cx="1048" cy="128" r="16" fill="url(#marca)"/>
+<text x="1048" y="134" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif" font-size="15" font-weight="800" fill="#ffffff" text-anchor="middle" >7</text>
+<text x="1032" y="178" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif" font-size="14" font-weight="700" fill="#ffffff" text-anchor="start" >Conformidad</text>
+<text x="1032" y="200" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="12" font-weight="400" fill="#8f89c2" text-anchor="start" >motor m27</text>
+<text x="1032" y="234" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif" font-size="12.5" font-weight="400" fill="#c4c0e8" text-anchor="start" >Declaración</text>
+<text x="1032" y="252" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif" font-size="12.5" font-weight="400" fill="#c4c0e8" text-anchor="start" >E-041</text>
+<text x="600" y="306" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif" font-size="12" font-weight="400" fill="#8f89c2" text-anchor="middle" >◆ = puerta</text>
+</svg>

@@ -1,329 +1,169 @@
 <div align="center">
 
-<img src="docs/assets/readme-banner.svg" alt="FULKRO · Esquema Nacional de Seguridad" width="100%">
+<img src="docs/assets/diagramas/es/hero.svg" alt="Fulkro · implantación del Esquema Nacional de Seguridad de punta a punta" width="100%">
 
-<br>
+<br><br>
 
 [![Licencia](https://img.shields.io/badge/licencia-Apache--2.0-6C63FF?style=for-the-badge&labelColor=1a1a2e)](LICENSE)
 [![Python](https://img.shields.io/badge/Python-3.12-6C63FF?style=for-the-badge&labelColor=1a1a2e&logo=python&logoColor=white)](backend/pyproject.toml)
 [![FastAPI](https://img.shields.io/badge/FastAPI-1.203%20operaciones-6C63FF?style=for-the-badge&labelColor=1a1a2e&logo=fastapi&logoColor=white)](#métricas)
 [![Next.js](https://img.shields.io/badge/Next.js%2015-167%20páginas-6C63FF?style=for-the-badge&labelColor=1a1a2e&logo=nextdotjs&logoColor=white)](#los-cuatro-portales)
-[![PostgreSQL](https://img.shields.io/badge/PostgreSQL%2016-253%20tablas-6C63FF?style=for-the-badge&labelColor=1a1a2e&logo=postgresql&logoColor=white)](#cómo-está-construido)
-[![Tests](https://img.shields.io/badge/tests-6.884%20pasan-8B83FF?style=for-the-badge&labelColor=1a1a2e&logo=pytest&logoColor=white)](#suite)
+[![PostgreSQL](https://img.shields.io/badge/PostgreSQL%2016-253%20tablas-6C63FF?style=for-the-badge&labelColor=1a1a2e&logo=postgresql&logoColor=white)](#arquitectura)
+[![Tests](https://img.shields.io/badge/tests-6.884%20pasan-8B83FF?style=for-the-badge&labelColor=1a1a2e&logo=pytest&logoColor=white)](#evals-y-calidad)
 
-**Categorización · Análisis de riesgos MAGERIT · Declaración de aplicabilidad · Plan de adecuación
-· Generación documental · Evidencias · Portal de auditor**
+**Español** · [English](README.en.md)
 
 </div>
 
 <br>
 
-> Plataforma que implantaba el **Esquema Nacional de Seguridad** (RD 311/2022) de punta a punta,
-> construida y operada por una sola persona. El proyecto cerró en septiembre de 2026 y el código
-> se publica bajo Apache-2.0.
-
-> **In English.** Fulkro was a platform for implementing Spain's National Security Framework
-> (ENS, Royal Decree 311/2022) end to end: system categorisation, MAGERIT risk analysis, the
-> statement of applicability, the remediation plan, document generation, evidence custody and a
-> read-only portal for the certification auditor. Deterministic engines make every regulatory
-> decision; a language model only drafts text, and the drafting agents record whether each text
-> came from the model or from a fallback template. Built and run by one person, closed in
-> September 2026, published under Apache-2.0. `make demo` starts it with sample data; the rest of
-> this README is in Spanish.
-
-<table>
-<tr>
-<td width="25%" align="center"><b>44</b><br><sub>motores de dominio</sub></td>
-<td width="25%" align="center"><b>73</b><br><sub>medidas del Anexo II</sub></td>
-<td width="25%" align="center"><b>4</b><br><sub>portales</sub></td>
-<td width="25%" align="center"><b>7</b><br><sub>fases del ciclo</sub></td>
-</tr>
-</table>
-
----
-
-## Qué se ve
-
-<table>
-<tr>
-<td width="50%"><img src="landing/assets/capturas/marketing/admin-mando.png" alt="Centro de mando"></td>
-<td width="50%"><img src="landing/assets/capturas/marketing/admin-dda.png" alt="Declaración de aplicabilidad"></td>
-</tr>
-<tr>
-<td align="center"><b>Centro de mando</b><br><sub>estado de todos los proyectos a la vez</sub></td>
-<td align="center"><b>Declaración de aplicabilidad</b><br><sub>las 73 medidas del Anexo II, con sus dos ejes</sub></td>
-</tr>
-<tr>
-<td width="50%"><img src="landing/assets/capturas/marketing/admin-plan.png" alt="Plan de adecuación"></td>
-<td width="50%"><img src="landing/assets/capturas/marketing/auditor-cobertura.png" alt="Cobertura del auditor"></td>
-</tr>
-<tr>
-<td align="center"><b>Plan de adecuación</b><br><sub>hitos, dependencias y responsables</sub></td>
-<td align="center"><b>Portal de auditor</b><br><sub>cobertura medida contra evidencias, no declarada</sub></td>
-</tr>
-<tr>
-<td width="50%"><img src="landing/assets/capturas/marketing/auditor-registro.png" alt="Registro de auditoría"></td>
-<td width="50%"><img src="landing/assets/capturas/marketing/cliente-inicio.png" alt="Portal de cliente"></td>
-</tr>
-<tr>
-<td align="center"><b>Registro inmutable</b><br><sub>cadena de hashes verificable</sub></td>
-<td align="center"><b>Portal de cliente</b><br><sub>lo que el cliente ve y firma</sub></td>
-</tr>
-</table>
-
-<sub>Quedan cuatro más en <a href="landing/assets/capturas/marketing/"><code>landing/assets/capturas/marketing/</code></a>:
-<code>auditor-resumen</code>, <code>cliente-certificacion</code>, <code>cliente-firmas</code> y <code>cliente-remediaciones</code>.</sub>
-
----
-
-## Para quién está construido, y para quién no
-
-**Está construido para un operador único que lleva varios clientes en paralelo.** No para que una
-empresa se registre y lo use.
-
-No hay autorregistro. No existe un endpoint de alta:
-
-```bash
-$ git grep -nE '"/(signup|register|sign-up)"' -- backend/app
-# sin salida
-```
-
-Solo hay dos poblaciones de sujeto, y están cableadas por nombre:
-
-```bash
-$ git grep -n "role_pool !=" -- backend/app/auth/dependencies.py
-backend/app/auth/dependencies.py:71:    if subject.role_pool != "marcos":
-backend/app/auth/dependencies.py:113:    if subject.role_pool != "cliente":
-```
-
-Y el reparto de las puertas de autorización enseña para quién se diseñó:
-
-```bash
-$ git grep -o 'Depends(require_owner)' -- backend/app | wc -l              # 249
-$ git grep -o 'Depends(require_client_user)' -- backend/app | wc -l        #  31
-$ git grep -o 'Depends(require_marcos_or_client)' -- backend/app | wc -l   #  24
-```
-
-**Esos tres comandos cuentan ocurrencias de un literal, no endpoints**, y una versión anterior de
-este README saltó de lo uno a lo otro. El error no es el que parece: 132 de las 249 de
-`require_owner` están a nivel de `APIRouter`, y **cada una protege todos los endpoints que cuelgan
-de ese router**, que pueden ser uno o dieciséis. Es decir, el `grep` se queda **corto**, no largo.
-
-Medido contra la aplicación en ejecución, recorriendo el árbol de dependencias de cada ruta de
-forma recursiva (las puertas anidadas no salen en el primer nivel):
-
-```bash
-$ PYTHONPATH=. python3 scripts/medir_autorizacion.py
-rutas resueltas          1204
-operaciones (camino x metodo) 1204
-contraste con el esquema OpenAPI: 1100 caminos, 1203 operaciones
-
-puerta                         rutas   % rutas
-require_owner                    847     70.3%
-require_client_user               25      2.1%
-require_marcos_or_client          81      6.7%
-
-Corte por poblacion de sujeto (categorias EXCLUYENTES, suman el total):
-solo administrador               851     70.7%
-solo cliente                     176     14.6%
-cualquiera de los dos             81      6.7%
-ninguna de esas                   96      8.0%
-
-De las 1108 rutas con puerta de poblacion, 851 exigen ser el administrador: 76.8%.
-Rutas que pasan por `authenticate_request` (dependencia global): 1204/1204.
-```
-
-**Población contada: rutas.** Cada ruta declara un solo método, así que rutas y operaciones
-(camino × método) serían lo mismo si no fuera por una: `/metrics`, que se declara con
-`include_in_schema=False` y por eso el recorrido cuenta 1.204 y el esquema OpenAPI 1.203.
-
-Las 847 reales frente a las 249 del `grep` dan la medida del desfase: contar el literal deja fuera
-casi seiscientos endpoints. Y hay un matiz que el conteo de tres puertas también se dejaba: hay
-rutas que resuelven el sujeto con `get_current_user` o `get_current_client_user` sin pasar por
-ninguna de las tres, así que «sin puerta» no significa «sin autenticación» — las 1.204 pasan por
-`authenticate_request`.
-
-**Con la población bien contada, la conclusión se sostiene: 76,8 % de las rutas con puerta de
-población exigen ser el administrador**, casi ocho de cada diez. La frase era correcta; el comando
-que la acompañaba, no. El script queda en el repositorio para que se pueda volver a medir, y hay
-que hacerlo: entre la primera medición (1.201) y esta (1.204) entraron tres rutas, y el porcentaje
-no se movió.
-
-**Consecuencia, dicha sin adornos:** un despacho de tres consultores no puede usar esto tal cual.
-No hay bandeja de administración por usuario, ni roles intermedios, ni forma de repartir clientes
-entre personas. Añadirlo no es configurar nada: es introducir un modelo de identidad que ahora
-mismo no existe.
-
-Es una decisión, no un descuido. Un solo operador significa que no hay que resolver permisos
-entre iguales, ni conflictos de edición, ni jerarquías de visibilidad, y eso permitió llegar mucho
-más lejos en la parte normativa. El coste es que el producto no escala a equipos sin rehacer la
-capa de identidad. Se eligió a sabiendas.
-
----
-
-## Cómo está construido
+Fulkro es una plataforma para implantar el **Esquema Nacional de Seguridad** (ENS, Real Decreto
+311/2022) en empresas que trabajan para la Administración pública. Cubre el ciclo entero, desde la
+categorización del sistema hasta la declaración de conformidad que recibe la entidad certificadora,
+y lo reparte en cuatro portales: el del consultor, el del cliente, el del auditor y el de
+verificación pública. La construyó y la operó una sola persona. El proyecto se detuvo en septiembre
+de 2026 por falta de tracción comercial, y el código se publica completo bajo Apache-2.0: se levanta
+con un comando y con datos de demostración dentro.
 
 <div align="center">
-<img src="docs/assets/arquitectura.svg" alt="Arquitectura: navegador, una sola puerta de autenticación, 44 motores del ciclo ENS, y la capa de datos" width="100%">
+<img src="docs/assets/recorrido.gif" alt="Recorrido por los tres portales: selector de proyectos, workflow, categorización, MAGERIT, declaración de aplicabilidad, plan, evidencias, portal de cliente, firma y portal del auditor" width="100%">
+<br><sub>Recorrido real sobre el demo (<code>make demo</code>): administración, cliente y auditor. Los datos son ficticios.</sub>
 </div>
 
-**La forma tiene una razón.** Un motor es un paquete con su API, su servicio y sus
-modelos, y una regla normativa vive en **un solo motor**. Cuando la misma regla
-aparecía en dos, divergía — pasó con la regla del máximo del Anexo I (tres copias),
-con el bienio del artículo 31 (cinco, ya divergentes en 720 vs 730 días) y con
-«¿cuál es el análisis de riesgos vigente?» (ocho). Hay guardas que lo impiden en
-`backend/tests/audit_fixes/test_operaciones_normativas_un_solo_camino.py`.
+## En un minuto
+
+- **Qué resuelve.** El ENS exige a quien presta servicios a la Administración categorizar su
+  sistema, analizar riesgos con MAGERIT, justificar cuáles de las 73 medidas del Anexo II aplican,
+  implantarlas con evidencia y superar una auditoría. Fulkro convierte ese proceso en un flujo con
+  puertas entre fases, documentos generados y evidencia verificable.
+- **Cómo decide.** 44 motores de dominio en FastAPI. Toda decisión normativa (la categoría, qué
+  medidas aplican, los plazos) la calcula un motor determinista y trazable, nunca un modelo de
+  lenguaje.
+- **Dónde entra la IA.** 12 agentes con salida estructurada y un copiloto con RAG sobre el corpus
+  normativo. El modelo redacta; cada texto declara si lo escribió el modelo o una plantilla de
+  reserva, y la interfaz lo enseña.
+- **Por qué es fiable.** Aislamiento por cliente con RLS en 185 tablas, registro de auditoría con
+  cadena de hashes inmutable, firma Ed25519 de documentos y evidencias, y almacenamiento WORM.
+- **Cómo se sabe que funciona.** 6.884 tests en verde, 413 escenarios E2E, 97 páginas auditadas con
+  axe (WCAG) y una evaluación de recuperación con intervalos de confianza que decidió la
+  arquitectura del RAG.
+
+<table>
+<tr>
+<td align="center" width="25%"><h3>44</h3><sub>motores de dominio</sub></td>
+<td align="center" width="25%"><h3>1.203</h3><sub>operaciones de API</sub></td>
+<td align="center" width="25%"><h3>12</h3><sub>agentes de IA activos</sub></td>
+<td align="center" width="25%"><h3>123</h3><sub>plantillas documentales</sub></td>
+</tr>
+<tr>
+<td align="center"><h3>0,959</h3><sub>acierto@5 del RAG</sub></td>
+<td align="center"><h3>185</h3><sub>tablas con RLS</sub></td>
+<td align="center"><h3>6.884</h3><sub>tests en verde</sub></td>
+<td align="center"><h3>97</h3><sub>páginas WCAG sin fallos graves</sub></td>
+</tr>
+</table>
+
+<details>
+<summary><b>Índice</b></summary>
+
+- [Qué hace Fulkro](#qué-hace-fulkro)
+- [Arquitectura](#arquitectura)
+- [El ciclo ENS](#el-ciclo-ens)
+- [Los cuatro portales](#los-cuatro-portales)
+- [La capa de IA](#la-capa-de-ia)
+- [RAG: recuperación normativa](#rag-recuperación-normativa)
+- [Evals y calidad](#evals-y-calidad)
+- [Seguridad y confianza](#seguridad-y-confianza)
+- [Decisiones de arquitectura](#decisiones-de-arquitectura)
+- [Pruébalo](#pruébalo)
+- [Métricas](#métricas)
+- [Datos, licencias y estructura](#datos-licencias-y-estructura)
+
+</details>
 
 ---
 
-## La capa de IA
+## Qué hace Fulkro
 
-Los motores deciden y el modelo redacta. Una regla normativa (qué medidas aplican, la categoría,
-el bienio del artículo 31) la calcula un motor determinista; el modelo de lenguaje interviene en
-el texto: propuestas, informes, el copiloto. Cada afirmación de esta sección lleva el comando que
-la reproduce.
+<table>
+<tr>
+<td width="33%" valign="top"><b>Ciclo ENS completo</b><br><sub>Categorización por las cinco dimensiones del Anexo I, análisis de riesgos MAGERIT v3, declaración de aplicabilidad de las 73 medidas, plan de adecuación con Gantt, implantación, simulacro de auditoría y declaración de conformidad.</sub></td>
+<td width="33%" valign="top"><b>Motores deterministas</b><br><sub>Cada regla normativa vive en un solo motor, con tests que impiden que se duplique. Los dos ejes de aplicabilidad del Anexo II (categoría y nivel por dimensión) están extraídos del BOE y verificados contra él.</sub></td>
+<td width="33%" valign="top"><b>Capa de IA</b><br><sub>12 agentes (diagnóstico, contratos, propuestas, auditor interno virtual, clasificación documental…) y un copiloto que explica cada pantalla y cita el RD 311/2022, con respuesta en streaming.</sub></td>
+</tr>
+<tr>
+<td valign="top"><b>RAG normativo</b><br><sub>1.031 fragmentos del RD 311/2022 y de la legislación de la UE (RGPD, DORA, NIS2, eIDAS), embeddings e5-large de 1024 dimensiones en pgvector y una arquitectura de recuperación elegida por evaluación.</sub></td>
+<td valign="top"><b>Fábrica documental</b><br><sub>123 plantillas (35 políticas, 36 procedimientos, 41 entregables, registros) que se rellenan con los datos del proyecto y salen en DOCX y PDF, versionadas y firmables.</sub></td>
+<td valign="top"><b>Evidencia con custodia</b><br><sub>Cada evidencia pasa por antivirus, se sella con SHA-256 y firma Ed25519, y se guarda en un almacén WORM con retención de 7 años. El auditor ve la cobertura medida contra ella.</sub></td>
+</tr>
+<tr>
+<td valign="top"><b>Firma electrónica</b><br><sub>Firma sobre lienzo (eIDAS art. 25.1) con sello Ed25519 y cadena de hashes por documento, paso de verificación por OTP y la firma incrustada en la última página del PDF.</sub></td>
+<td valign="top"><b>Nube y verificación técnica</b><br><sub>Conectores de sólo lectura para Microsoft 365 y Google Workspace que detectan brechas, y 13 servidores MCP de verificación (nube, red, web, SAST…) tras un guardián de alcance.</sub></td>
+<td valign="top"><b>Operación y cumplimiento propio</b><br><sub>Observabilidad del coste de cada llamada al modelo, monitor de cumplimiento que aplica el ENS Medio a la propia plataforma, copias cifradas y 20 tareas programadas.</sub></td>
+</tr>
+</table>
 
-### Los agentes
+---
 
-```bash
-$ ls backend/app/agents | grep -oE '^agent_[0-9]+' | sort -u | wc -l
-13
-# con el entorno de Python del backend:
-$ python -c "from backend.app.agents.registry import AGENT_REGISTRY as R; print(sum(v['status'] == 'activo' for v in R.values()))"
-12
-$ grep -rlE 'structured_output\s*=\s*True' backend/app/agents | grep -oE 'agent_[0-9]+' | sort -u | wc -l
-12
-```
+## Arquitectura
 
-Hay módulos de 13 agentes y el registro marca 12 como activos. El que sobra, el A2 (análisis de
-pliegos), es andamiaje cuya función cubre un motor. Once de los doce activos piden **salida
-estructurada**: el modelo tiene que devolver JSON con un esquema, y si no parsea se reintenta tres
-veces antes de servir una plantilla. La excepción es el copiloto (A14), que conversa en texto
-libre; a su respuesta se le extraen las citas normativas y se mide cuánto se apoya en los
-fragmentos recuperados.
+<div align="center">
+<img src="docs/assets/diagramas/es/arquitectura.svg" alt="Arquitectura: cuatro portales, Next.js, una sola puerta de autenticación, 44 motores en cuatro grupos, trabajo asíncrono y capa de datos" width="100%">
+</div>
 
-Los diez agentes que tienen plantilla de reserva dicen de dónde sale su texto, en la clave
-`generado_por` ([`backend/app/agents/procedencia.py`](backend/app/agents/procedencia.py)):
+**Principios que sostienen la forma:**
 
-```bash
-$ grep -lE 'procedencia\(|generado_por' backend/app/agents/agent_*.py | wc -l
-10
-```
+1. **Una regla normativa vive en un solo motor.** Cuando la misma regla existía en dos sitios,
+   divergía. `backend/tests/audit_fixes/test_operaciones_normativas_un_solo_camino.py` lo impide.
+2. **Los motores deciden, el modelo redacta.** Los documentos firmables los produce un motor: la
+   justificación de la DdA sale de una plantilla determinista, y lo que propone un agente lo revisa
+   el consultor.
+3. **Una sola puerta.** `authenticate_request` es una dependencia global: pasan por ella las 1.204
+   rutas de la aplicación, y después cada router exige su población (administrador o cliente).
+4. **Aislamiento en la base, no en la aplicación.** El proceso corre con un rol sin superusuario y
+   cada petición fija su contexto de cliente; las políticas RLS hacen el resto.
+5. **Sin estado entre réplicas.** Sesiones, claves de firma y ficheros viven fuera del proceso;
+   medido con dos réplicas detrás de nginx ([ADR-058](docs/adr/ADR-058-escalabilidad-horizontal.md)).
 
-| `generado_por` | qué significa |
+| capa | tecnología |
 |---|---|
-| `modelo` | lo redactó el modelo y cumplió el esquema |
-| `plantilla_por_fallo_de_esquema` | el modelo contestó, pero su salida no cumplió el esquema tras los reintentos |
-| `sin_clave_de_api` | no hay `ANTHROPIC_API_KEY`: no se llamó a ningún modelo |
-
-La marca viaja hasta la pantalla, que avisa en vez de felicitar cuando el texto no es del modelo.
-
-### El router de LLM
-
-Toda llamada al modelo pasa por [`backend/app/core/ai/llm_router.py`](backend/app/core/ai/llm_router.py):
-
-```bash
-$ grep -n '^_RATE_LIMIT_BACKOFFS' backend/app/core/ai/llm_router.py
-107:_RATE_LIMIT_BACKOFFS: tuple[float, ...] = (2.0, 8.0, 32.0)
-$ grep -n '"cache_control": {"type": "ephemeral"}' backend/app/core/ai/llm_router.py
-286:                        "cache_control": {"type": "ephemeral"},
-```
-
-- **Reintentos ante 429.** Tres, esperando 2, 8 y 32 segundos. Si el modelo pedido sigue en 429
-  o responde con un 5xx, la llamada se repite con el modelo de reserva
-  (`ANTHROPIC_FALLBACK_MODEL`). Un error de clave o una petición mal formada no se reintentan:
-  fallarían igual.
-- **Caché de prompts.** El prompt de sistema viaja como bloque con `cache_control` efímero, así
-  que las llamadas que lo repiten en los cinco minutos siguientes lo leen de la caché de
-  Anthropic en lugar de pagarlo entero.
-
-### La recuperación del corpus
-
-El copiloto responde con fragmentos recuperados del corpus normativo: 1.031 fragmentos del
-RD 311/2022 y de la legislación de la UE. Se midió con 49 consultas etiquetadas a mano, sobre las
-mismas 49 las dos ramas, con intervalos por *bootstrap* de 10.000 remuestreos:
-
-| rama | acierto@5 | recall@5 | MRR |
-|---|---:|---:|---:|
-| **vectorial sola** | **0,959** | **0,824** | **0,752** |
-| fusión RRF (vectorial + léxica) | 0,857 | 0,667 | 0,627 |
-
-```bash
-make eval-recuperacion     # escribe out/eval_recuperacion.json
-```
-
-**La fusión se quitó** porque perdía: la diferencia vectorial menos fusión en recall@5 es +0,157,
-con intervalo [+0,065, +0,255], que no cruza el cero, y lo mismo pasa en acierto@5 y en MRR. No
-fue por una rama rota: la léxica tenía un defecto (exigía que un mismo fragmento contuviera todas
-las palabras de la pregunta, y 27 de las 49 consultas se quedaban sin candidatos), se arregló, y
-con ella arreglada la fusión perdía más. Barrer el peso de la rama léxica de 0 a 1 da una curva
-cuyo máximo está en 0, es decir, en no fusionar. El informe, con la metodología y los tres
-errores de su primera versión, está en [`docs/EVAL_RECUPERACION.md`](docs/EVAL_RECUPERACION.md).
-
-### Lo que no está medido
-
-**La tasa de acierto de los agentes.** Hay 4 conjuntos de evaluación con 10 entradas cada uno
-(`find docs/catalogs/golden_datasets/ -name '*.json' | wc -l`), pero nunca se han pasado contra el
-modelo: medir cuesta dinero y el job `evals-llm` se salta sin `ANTHROPIC_API_KEY`. Lo que sí se
-probó es que cada agente funciona de punta a punta con el modelo real: 22 tests, uno por agente y
-motor, los 22 en verde ([`docs/INFORME_BLOQUE_S.md`](docs/INFORME_BLOQUE_S.md)). Que un agente
-funcione no dice cuántas veces acierta.
+| Frontend | Next.js 15 (App Router), React, TypeScript, Tailwind, shadcn/ui, TanStack Query, Zustand |
+| API | Python 3.12, FastAPI, SQLAlchemy 2 asíncrono, Pydantic, Alembic (273 migraciones) |
+| Datos | PostgreSQL 16 con pgvector (HNSW) y RLS, MinIO con Object Lock, Redis |
+| Trabajo asíncrono | Celery con 20 tareas programadas, difusión SSE con reenvío por `Last-Event-ID` |
+| IA | SDK oficial de Anthropic tras un router propio, FastEmbed con `multilingual-e5-large` |
+| Documentos | docxtpl, LibreOffice sin cabeza, ReportLab, firma Ed25519 |
+| Calidad | pytest, Playwright, axe-core, ruff, mypy, bandit, safety, npm audit |
+| Despliegue | Docker Compose (demo y producción), Caddy, imagen publicada en GHCR |
 
 ---
 
-## Cómo funciona: el ciclo, fase por fase
+## El ciclo ENS
 
-El ENS no es una checklist: es un ciclo con dependencias. Cada fase consume lo que
-produjo la anterior, y las puertas entre fases están en el código, no en la cabeza
-del consultor.
+<div align="center">
+<img src="docs/assets/diagramas/es/ciclo.svg" alt="Las siete fases del ciclo ENS, con una puerta entre cada una" width="100%">
+</div>
+
+El ENS no es una lista de comprobación: es un ciclo con dependencias. Cada fase consume lo que
+produjo la anterior, y las puertas entre fases están en el código.
 
 | # | fase | motor | produce | puerta hacia la siguiente |
 |---|---|---|---|---|
 | 1 | **Categorización** | m01 | acta **E-012** firmada | sin categoría aprobada no hay DdA |
-| 2 | **Análisis de riesgos** | m02 | informe **E-028** (MAGERIT v3) | el análisis vigente es uno, y lo fija la base |
-| 3 | **Declaración de aplicabilidad** | m03 | 73 entradas del Anexo II | congelarla exige ≥80 % valorado y firma del RSEG |
-| 4 | **Plan de adecuación** | m17 | **E-150** con hitos y dependencias | — |
-| 5 | **Implantación** | m07 | evidencias en almacén WORM | — |
-| 6 | **Verificación** | m10 · m09 | simulacro pre-ENAC firmado | — |
-| 7 | **Salida** | m09 · m27 | expediente ENAC · declaración **E-041** | la declaración dice lo verificado, no lo declarado |
+| 2 | **Análisis de riesgos** | m02 | informe **E-028** (MAGERIT v3) | un solo análisis vigente, garantizado por la base |
+| 3 | **Declaración de aplicabilidad** | m03 | 73 entradas del Anexo II | congelarla exige el 80 % valorado y la firma del responsable de seguridad |
+| 4 | **Plan de adecuación** | m17 | **E-150** con hitos y dependencias | se deriva del análisis de brechas |
+| 5 | **Implantación** | m07 | evidencias en almacén WORM | cada medida con evidencia vigente |
+| 6 | **Verificación** | m10 · m09 | simulacro previo a la auditoría, firmado | cobertura medida, no declarada |
+| 7 | **Conformidad** | m27 · m09 | expediente para el auditor y declaración **E-041** | la declaración dice lo verificado |
 
-### 1 · Categorización
-
-Cinco dimensiones —confidencialidad, integridad, disponibilidad, autenticidad,
-trazabilidad— valoradas sobre los servicios y los tipos de información del sistema.
-La categoría es el **máximo** de las dimensiones afectadas.
-
-Una dimensión que nadie valora **no se adscribe a ningún nivel**; es lo que dice el
-Anexo I punto 3, y tiene consecuencias: un sistema sin ninguna dimensión valorada no
-es BÁSICA, es un sistema sin categorizar. El acta E-012 lo imprime como «No afectada»
-y el sistema no la rellena con un nivel inventado.
-
-### 2 · Análisis de riesgos
-
-MAGERIT v3 sobre el inventario de activos: dependencias, amenazas, salvaguardas,
-riesgo intrínseco → efectivo → residual, y plan de tratamiento. La matriz 5×5 es la
-del Libro III.
-
-Un proyecto tiene **un** análisis vigente, y lo garantiza un índice único parcial en
-la base con dos disparadores — no el orden de una consulta. El orden empataba: dos
-análisis creados en la misma transacción comparten `created_at` al microsegundo,
-porque `now()` devuelve el sello de inicio de transacción.
-
-### 3 · Declaración de aplicabilidad
-
-Las 73 medidas del Anexo II, extraídas del PDF del BOE y verificadas contra él
-(`backend/tests/fixtures/anexo2_boe_verificado.json`). Una medida aplica por la
-**categoría** del sistema **o** por el **nivel de una dimensión** — los dos ejes del
-Anexo II punto 5. Son 45 medidas por el eje de categoría, 28 por el de dimensión y
-47 pares (medida, dimensión).
-
-Aplicables por categoría: **BÁSICA 52 · MEDIA 68 · ALTA 73**.
-
-### 4 al 7
-
-El plan de adecuación deriva del análisis de brechas; la implantación deja evidencia
-fechada; la verificación ensaya la auditoría antes de pedirla; y la salida arma el
-expediente que recibe el auditor de la entidad certificadora.
+**Cómo se aplica la norma, con precisión.** La categoría es el **máximo** de las cinco dimensiones
+(confidencialidad, integridad, disponibilidad, autenticidad y trazabilidad) valoradas sobre los
+servicios y la información del sistema. Una dimensión que nadie valora no se adscribe a ningún
+nivel, como dice el Anexo I ([ADR-061](docs/adr/ADR-061-el-eje-de-dimensiones-y-la-dimension-no-afectada.md)).
+Una medida aplica por la **categoría** del sistema o por el **nivel de una dimensión**, los dos
+ejes del Anexo II: 45 medidas por el primero y 28 por el segundo. Aplicables por categoría:
+**BÁSICA 52 · MEDIA 68 · ALTA 73**.
 
 ---
 
@@ -331,48 +171,247 @@ expediente que recibe el auditor de la entidad certificadora.
 
 <table>
 <tr>
-<td width="25%" align="center"><b>Admin</b><br><sub>el consultor</sub><br><br><sub>167 páginas<br>navegación cronológica</sub></td>
-<td width="25%" align="center"><b>Cliente</b><br><sub>ve · autoriza · firma</sub><br><br><sub>firma sobre lienzo<br>eIDAS art. 25.1</sub></td>
-<td width="25%" align="center"><b>Auditor</b><br><sub>sólo lectura</sub><br><br><sub>enlace mágico<br>sin cuenta</sub></td>
-<td width="25%" align="center"><b>Público</b><br><sub>verificar sin entrar</sub><br><br><sub>distintivo<br>+ firma Ed25519</sub></td>
+<td width="50%"><img src="landing/assets/capturas/marketing/admin-mando.png" alt="Centro de mando del consultor"></td>
+<td width="50%"><img src="landing/assets/capturas/marketing/admin-dda.png" alt="Declaración de aplicabilidad"></td>
+</tr>
+<tr>
+<td align="center"><b>Administración · centro de mando</b><br><sub>el estado de todos los proyectos a la vez</sub></td>
+<td align="center"><b>Administración · declaración de aplicabilidad</b><br><sub>las 73 medidas del Anexo II, con sus dos ejes</sub></td>
+</tr>
+<tr>
+<td width="50%"><img src="landing/assets/capturas/marketing/cliente-inicio.png" alt="Portal de cliente"></td>
+<td width="50%"><img src="landing/assets/capturas/marketing/cliente-firmas.png" alt="Firmas del cliente"></td>
+</tr>
+<tr>
+<td align="center"><b>Cliente · inicio</b><br><sub>avance, tareas y documentos, sin jerga</sub></td>
+<td align="center"><b>Cliente · firmas</b><br><sub>cada firma encadenada criptográficamente a la anterior</sub></td>
+</tr>
+<tr>
+<td width="50%"><img src="landing/assets/capturas/marketing/auditor-cobertura.png" alt="Cobertura del auditor"></td>
+<td width="50%"><img src="landing/assets/capturas/marketing/auditor-registro.png" alt="Registro de auditoría"></td>
+</tr>
+<tr>
+<td align="center"><b>Auditor · cobertura</b><br><sub>medidas declaradas frente a evidencia vigente</sub></td>
+<td align="center"><b>Auditor · registro inmutable</b><br><sub>cadena de hashes verificable</sub></td>
 </tr>
 </table>
 
+| portal | quién | cómo entra | qué hace |
+|---|---|---|---|
+| **Administración** | el consultor | contraseña y WebAuthn o TOTP | 95 páginas, casi todas bajo `/admin/projects/{id}/…`: 46 pestañas por proyecto ordenadas según el ciclo, centro de mando de todos los clientes y un copiloto que explica cada pantalla |
+| **Cliente** | la empresa que implanta | correo, contraseña y MFA opcional | 41 páginas para **ver, autorizar, firmar y recibir**: avance, tareas, plan, documentos, firmas, certificación y chat con el consultor, con un tono vigilado por tests |
+| **Auditor** | la entidad certificadora | enlace firmado Ed25519 y código de un solo uso, sin cuenta | expediente de sólo lectura: DdA, MAGERIT, plan, evidencias, registro de auditoría, mapa de cobertura, anotaciones y peticiones de aclaración que llegan al consultor en tiempo real |
+| **Público** | cualquiera con un enlace | enlace firmado | descarga de documentos, cuestionario de diagnóstico previo, firma de terceros y verificación de firmas Ed25519 contra la clave pública del sistema |
 
-### Admin · el consultor
+Hay además un portal acotado para el **pentester externo**, al que se entra con un enlace firmado.
 
-Es la superficie grande: 167 páginas, casi todas bajo `/admin/projects/{id}/…`.
-La navegación es cronológica — sigue el ciclo, no el organigrama de motores — y cada
-página lleva un copiloto que explica qué se está haciendo y por qué, asumiendo cero
-conocimiento previo de ENS.
+---
 
-Lo que no es: un panel de administración genérico. No hay alta de usuarios, ni
-gestión de permisos, ni configuración por cliente. Un solo operador, varios clientes.
+## La capa de IA
 
-### Cliente · lo mínimo
+<div align="center">
+<img src="docs/assets/diagramas/es/ia.svg" alt="Capa de IA: el motor decide y produce los entregables firmables; los agentes redactan con salida estructurada y cada texto declara su procedencia" width="100%">
+</div>
 
-El cliente **ve, autoriza, firma y recibe**. No opera el ENS: no toca la DdA, no
-edita el plan, no gestiona medidas. Firma con el dedo o el ratón sobre un lienzo
-—firma electrónica simple, eIDAS art. 25.1— y el PDF lleva la firma embebida en su
-última página con el sello Ed25519 al lado.
+**Los agentes.** Doce activos en el registro (`backend/app/agents/registry.py`), cada uno ligado al
+motor que lo consume:
 
-El tono está sujeto por tests: hay un filtro que rechaza jerga de administración y
-lenguaje coercitivo en las respuestas al cliente.
+| agente | motor | gama | qué hace |
+|---|---|---|---|
+| A4 · Redactor de diagnósticos | m22 | Sonnet | redacta las secciones narrativas del diagnóstico E-090; los datos los calcula el motor |
+| A6 · Analista de contratos | m14 | Sonnet | revisa los contratos del cliente con sus proveedores y detecta brechas de ENS y RGPD |
+| A11 · Auditor interno virtual | m10 | Opus | añade criterio de auditor sénior al simulacro determinista de 58 preguntas |
+| A12 · Coach del cliente | m09 | Sonnet | evalúa las respuestas del cliente a las preguntas del auditor |
+| A14 · Copiloto | m11 | Sonnet | conversa sobre la pantalla actual con RAG y citas |
+| A17 · Cualificador comercial | m13 | Sonnet | puntúa una oportunidad tras el primer contacto |
+| A18 · Reunión exploratoria | m13 | Sonnet | recalcula en vivo las conclusiones de la reunión a partir de las notas |
+| A19 · Redactor de propuestas | m13 | Opus | redacta la propuesta P-001 sobre la tarifa que calcula el motor |
+| A20 · Negociador contractual | m14 | Sonnet | convierte la propuesta aprobada en el borrador de contrato C-001 |
+| A21 · Detector de discrepancias | m04 | determinista | cruza lo declarado con lo verificado |
+| A27 · Clasificador documental | m24 | Haiku | clasifica los documentos que la heurística determinista no sabe ubicar |
+| A31 · Enriquecedor de la DdA | m03 | Sonnet | propone una justificación con el contexto del cliente para las medidas que no aplican |
 
-### Auditor · sólo lectura, con anotaciones
+**Salida estructurada y procedencia.** Once de los doce piden salida estructurada: JSON con un
+esquema, que se valida y, si no cumple, se reintenta tres veces antes de servir una plantilla de
+reserva. Cada resultado lleva la clave `generado_por` con tres valores posibles
+(`backend/app/agents/procedencia.py`):
 
-Acceso por enlace mágico, sin cuenta. Ve la DdA, el análisis, las evidencias, el
-registro de auditoría y el mapa de calor de cobertura — qué medidas están declaradas
-implantadas y cuáles tienen evidencia vigente detrás. Puede anotar sobre cualquier
-elemento y pedir aclaraciones, que llegan al consultor por SSE en tiempo real.
+| `generado_por` | significado |
+|---|---|
+| `modelo` | lo redactó el modelo y cumplió el esquema |
+| `plantilla_por_fallo_de_esquema` | el modelo contestó, pero su salida no cumplió el esquema |
+| `sin_clave_de_api` | sin `ANTHROPIC_API_KEY`: no se llamó a ningún modelo |
 
-### Público · verificar sin entrar
+La marca viaja hasta la pantalla, así que la plataforma arranca y funciona sin clave de API y
+nunca presenta como redactado por el modelo un texto que no lo fue.
 
-La landing, los avisos legales del art. 13 del RGPD, y el distintivo de conformidad
-con su verificación de firma contra la clave pública del sistema.
+**El router de LLM** (`backend/app/core/ai/llm_router.py`) es la única puerta al modelo:
 
+- **Reintentos ante 429**, tres, con espera exponencial de 2, 8 y 32 segundos; si el modelo pedido
+  sigue saturado o da un 5xx, repite con el modelo de reserva. Un error de clave o una petición mal
+  formada no se reintentan.
+- **Caché de prompts**: el prompt de sistema viaja con `cache_control` efímero, así que las
+  llamadas que lo repiten lo leen de la caché de Anthropic.
+- **Catálogo de modelos**: sabe qué modelos admiten `temperature` y la fija siempre a 0,2 o menos.
+- **Registro de cada llamada** con modelo, tokens y coste en `llm_interaction_log`, topes por
+  superficie y una llamada fallida que nunca queda registrada como éxito
+  ([ADR-059](docs/adr/ADR-059-llamada-llm-fallida-no-es-exito.md)).
 
-## Cómo probarlo
+**Salvaguardas.** Citas normativas obligatorias en toda respuesta, guardia contra inyección de
+prompt (`backend/app/security/llm_prompt_injection_guard.py`), filtro de tono en lo que ve el
+cliente y un modo «no está en el corpus» cuando la respuesta no se puede anclar.
+
+---
+
+## RAG: recuperación normativa
+
+<div align="center">
+<img src="docs/assets/diagramas/es/rag.svg" alt="RAG: ingesta de fuentes oficiales, parser determinista, 1.031 fragmentos, embeddings e5-large en pgvector; consulta con top-30 a top-5, prompt con reglas, router y validación; evaluación con 49 consultas" width="100%">
+</div>
+
+**Ingesta.** Un parser determinista trocea el HTML consolidado del BOE por su estructura real
+(preámbulo, 41 artículos, disposiciones y los cuatro anexos, con los 73 códigos de medida
+exactos) y los textos oficiales de la UE. Salen 1.031 fragmentos: 127 del RD 311/2022 y 904 del
+RGPD, DORA, NIS2 y eIDAS. Cada uno se vectoriza con `intfloat/multilingual-e5-large` (1024
+dimensiones, prefijo `passage:`) y se indexa en pgvector con HNSW sobre coseno (`m=16`,
+`ef_construction=64`).
+
+**Recuperación.** La pregunta, con el contexto de la pantalla y el estado del proyecto, se
+vectoriza con el prefijo `query:`; pgvector devuelve 30 candidatos por coseno y se quedan los 5
+mejores (`backend/app/corpus/retrieval.py`).
+
+**Generación y validación.** El copiloto responde con temperatura baja y con la obligación de citar
+cada afirmación entre corchetes. Después se extraen las citas, se comprueba que al menos el 30 % de
+la respuesta se apoya en los fragmentos recuperados y se detecta la respuesta «no está en el
+corpus». La respuesta llega por streaming SSE, con las citas a medida que aparecen.
+
+```mermaid
+sequenceDiagram
+    autonumber
+    participant U as Usuario
+    participant F as Next.js
+    participant C as Copiloto (m11)
+    participant R as Recuperación
+    participant V as pgvector
+    participant L as Router de LLM
+    U->>F: pregunta en una pantalla
+    F->>C: pregunta + pantalla + proyecto
+    C->>R: consulta
+    R->>V: embedding "query:" · coseno top-30
+    V-->>R: candidatos
+    R-->>C: top-5 fragmentos con su fuente
+    C->>L: prompt con reglas y contexto
+    L-->>C: respuesta en streaming
+    C->>C: extrae citas · mide anclaje
+    C-->>F: SSE: texto, citas y procedencia
+```
+
+**Evaluación: la arquitectura la eligió una medida.** 49 consultas de cumplimiento etiquetadas a
+mano, con las cinco ramas medidas sobre las mismas consultas e intervalos por *bootstrap* de 10.000
+remuestreos:
+
+| rama | acierto@5 | recall@5 | MRR |
+|---|---:|---:|---:|
+| **vectorial sola** | **0,959** | **0,824** | **0,752** |
+| fusión RRF (vectorial + léxica) | 0,857 | 0,667 | 0,627 |
+
+| contraste pareado | diferencia | IC 95 % |
+|---|---:|---|
+| vectorial − fusión · acierto@5 | +0,102 | [+0,020, +0,204] |
+| vectorial − fusión · recall@5 | +0,157 | [+0,065, +0,255] |
+| vectorial − fusión · MRR | +0,125 | [+0,013, +0,246] |
+
+Los tres intervalos excluyen el cero. La rama léxica no aportó ni uno de los 96 fragmentos
+relevantes que el vector no trajera ya entre sus 30 primeros, y un barrido de su peso en la fusión,
+de 0 a 1, da una curva cuyo máximo está en no fusionar. Por eso la recuperación en producción es
+vectorial, y el arnés sigue midiendo las cinco ramas para volver a responder si el corpus cambia:
+
+```bash
+make eval-recuperacion     # escribe out/eval_recuperacion.json
+```
+
+Metodología completa en [`docs/EVAL_RECUPERACION.md`](docs/EVAL_RECUPERACION.md).
+
+---
+
+## Evals y calidad
+
+| qué se mide | resultado | dónde |
+|---|---|---|
+| Suite de backend | **6.884 pasan · 0 fallan** (3.563 sin base + 3.321 con base) | `pytest`, y `pytest-completo.yml` en GitHub |
+| Escenarios E2E | **413 / 413** | Playwright contra la aplicación real |
+| Accesibilidad | **97 / 97** páginas sin fallos críticos ni graves | axe-core en los tres portales, en cada push |
+| Recuperación del RAG | acierto@5 **0,959** · recall@5 **0,824** · MRR **0,752** | `make eval-recuperacion` |
+| Agentes contra el modelo real | **22 / 22** de punta a punta, uno por agente y motor | tests opt-in con `ANTHROPIC_API_KEY` |
+| Conjuntos dorados de agentes | 4 conjuntos, 40 entradas, validados en cada PR | `evals.yml` · job `evals-arnes` |
+| Carga | lecturas a **200-450 pet./s** por réplica, **1,7-1,9×** con dos | [`docs/PRUEBA_DE_CARGA.md`](docs/PRUEBA_DE_CARGA.md) |
+| Demo | **22 / 22** comprobaciones sobre datos reales | `make smoke` |
+
+**Integración continua**, seis workflows:
+
+| workflow | qué comprueba |
+|---|---|
+| `ci.yml` | ruff, mypy, tipos del frontend, la suite sin base y el arnés de evaluación |
+| `pytest-completo.yml` | la suite con base de datos, en cuatro trozos, contra PostgreSQL sembrado y MinIO |
+| `admin-polish-empirical.yml` | axe (WCAG 2.2 AA) sobre 97 páginas de administración, cliente y auditor |
+| `evals.yml` | los conjuntos dorados, y su ejecución contra el modelo cuando hay clave |
+| `security-scan.yml` | bandit, safety y npm audit |
+| `publish-image.yml` | construye y publica la imagen en GHCR |
+
+**Guardas que protegen el repositorio en cada PR:** las cifras del README se reproducen con su
+comando, ningún `fetch` que escribe va sin token CSRF, cada enlace de interfaz del backend lleva a
+una página real, cada cita a una ruta del repositorio existe, ninguna regla normativa se duplica y
+el catálogo ENS no repite texto de terceros (comparado contra una huella SHA-256, sin guardar el
+texto).
+
+---
+
+## Seguridad y confianza
+
+<div align="center">
+<img src="docs/assets/diagramas/es/seguridad.svg" alt="Seguridad en profundidad: identidad, sesión, aislamiento, integridad, custodia y operación" width="100%">
+</div>
+
+- **Identidad.** El consultor entra con contraseña y WebAuthn (llave física) o TOTP; el cliente,
+  con MFA propio; el auditor y los firmantes externos, con enlaces firmados Ed25519 que caducan y
+  piden un código de un solo uso. Hay 37 propósitos de enlace distintos, cada uno con su política.
+- **Sesión.** JWT firmado con Ed25519 en cookie `httpOnly`, con verificación CSRF de triple enlace en
+  toda petición que escribe.
+- **Aislamiento.** RLS en 185 de las 253 tablas, 192 políticas, y un rol de aplicación sin
+  superusuario: una consulta sin contexto de cliente no ve nada.
+- **Integridad.** El registro de auditoría encadena cada fila con SHA-256 mediante un disparador de
+  PostgreSQL, y otros dos impiden `UPDATE` y `DELETE`. La cadena se verifica desde el portal del
+  auditor.
+- **Custodia.** Antivirus, SHA-256 y firma Ed25519 en cada evidencia, y un bucket de MinIO con
+  Object Lock en modo COMPLIANCE durante 7 años.
+- **Operación.** Copias cifradas con Fernet, un monitor que aplica el ENS Medio a la propia
+  plataforma y la gestión de derechos y brechas del RGPD integrada.
+
+---
+
+## Decisiones de arquitectura
+
+| decisión | por qué | dónde |
+|---|---|---|
+| Motores deterministas para toda decisión normativa | una decisión normativa tiene que poder reproducirse y explicarse ante un auditor | `backend/app/motors/` |
+| Una regla normativa, un solo motor | dos copias de una regla acaban divergiendo | `test_operaciones_normativas_un_solo_camino.py` |
+| Procedencia explícita del texto generado | nadie debe confundir una plantilla con una redacción del modelo | [ADR-059](docs/adr/ADR-059-llamada-llm-fallida-no-es-exito.md) |
+| Recuperación vectorial sola | medida contra la fusión: gana en las tres métricas | [`EVAL_RECUPERACION.md`](docs/EVAL_RECUPERACION.md) |
+| Aislamiento por RLS en PostgreSQL | el aislamiento no depende de que cada consulta recuerde filtrar | `infra/docker/init-roles.sql` |
+| Un operador y varios clientes | identidad simple a cambio de profundidad normativa | `backend/app/auth/dependencies.py` |
+| Administración centrada en el proyecto | el consultor trabaja un cliente cada vez, con contexto persistente | [ADR-054](docs/architecture/ADR-054_project_scoped_admin_ux.md) |
+| Conectores de nube de sólo lectura | detectar brechas sin poder romper nada en la cuenta del cliente | [ADR-053](docs/architecture/ADR-053_cloud_first_architecture.md) |
+| Remediación por niveles de riesgo | lo inocuo se automatiza; lo arriesgado exige autorización | [ADR-055](docs/architecture/ADR-055-auto-remediation.md) |
+| Procesos sin estado | escalar es añadir réplicas; medido con dos | [ADR-058](docs/adr/ADR-058-escalabilidad-horizontal.md) |
+| Workers según la memoria del modelo de embeddings | el límite real es la RAM del modelo, no la CPU | [ADR-060](docs/adr/ADR-060-el-modelo-en-el-proceso-limita-los-workers.md) |
+| Imagen de backend partida en dos | la aplicación no carga con el instrumental de pentest | [ADR-057](docs/adr/ADR-057-imagen-backend-sin-instrumental-pentest.md) |
+
+El índice completo está en [`docs/adr/README.md`](docs/adr/README.md) y el mapa de piezas en
+[`ARCHITECTURE.md`](ARCHITECTURE.md).
+
+---
+
+## Pruébalo
 
 Un solo comando, sin ninguna clave de API:
 
@@ -382,49 +421,31 @@ cd Fulkrosys
 make demo
 ```
 
-Deja la aplicación en `http://localhost:3000` con datos dentro —73 medidas del Anexo II, 73
-entradas de Declaración de Aplicabilidad, 204 evidencias, 35 tareas de plan, 21 documentos y 1.031
-fragmentos de corpus normativo— e imprime las credenciales de los tres portales, incluido el
-código del segundo factor y el enlace firmado del auditor.
+Deja la aplicación en `http://localhost:3000` con datos dentro (73 medidas del Anexo II, 73
+entradas de DdA, 209 evidencias, 35 tareas de plan, 21 documentos y 1.031 fragmentos de corpus) e
+imprime las credenciales de los tres portales, incluido el código del segundo factor y el enlace
+firmado del auditor.
 
 ```bash
-make smoke     # comprueba que hay datos REALES en los tres portales
+make smoke     # entra de verdad en los tres portales y contrasta los datos
 make down      # para, conservando la base
 make clean     # borra también los volúmenes
 ```
 
-`make smoke` no consulta `/api/v1/health`, que devuelve un diccionario sin tocar la base y por
-tanto daría verde con el esquema vacío. Contrasta poblaciones contra umbrales y entra de verdad en
-administración, cliente y auditor. **Con la base vacía falla**: es su criterio de aceptación.
+Requisitos, tiempos medidos y problemas frecuentes en [`INSTALL.md`](INSTALL.md); un recorrido
+guiado por las pantallas en [`USAGE.md`](USAGE.md). `docker-compose.yml` declara 23 servicios para
+desarrollo, 15 de ellos de verificación técnica en su propio perfil; el demo sólo necesita cinco.
 
-Los detalles —requisitos con versiones probadas, RAM y disco medidos, cómo pararlo, y los
-problemas frecuentes con sus trazas reales— están en [`INSTALL.md`](INSTALL.md). La línea base de
-lo que había antes, con los siete fallos que encontraba quien seguía el README anterior en una
-máquina limpia, está en [`docs/INSTALL_TRACE.md`](docs/INSTALL_TRACE.md).
-
-### Levantarlo a mano, sin el perfil demo
-
-Se puede, pero necesita un entorno de compilación de C que el proyecto no declaraba: `pip install
--e "backend[dev]"` arrastra `pycairo` vía `mjml-python` y se construye desde fuente. Los paquetes
-de sistema que hacen falta están en `INSTALL.md`. `docker-compose.yml` declara 23 servicios, pero
-**15 son de pentesting** (perfil `pentest`) y otros dos, el escáner, van en su propio perfil
-`scanner`; ninguno de los 17 hace falta para levantar la plataforma:
-
-```bash
-$ python3 -c "import yaml; print(len(yaml.safe_load(open('docker-compose.yml'))['services']))"
-23
-$ grep -c 'profiles: \[pentest\]' docker-compose.yml
-15
-```
+El recorrido del principio se regenera sobre el demo con
+`frontend/tests/capturas/grabar-recorrido.mjs` y `scripts/recorrido_a_gif.sh`, y los diagramas con
+`scripts/generar_diagramas_readme.py`.
 
 ---
 
 ## Métricas
 
-Todas llevan el comando que las reproduce. Las que no se pueden reproducir hoy
-están marcadas como tales.
-
-### Superficie
+Cada cifra lleva el comando que la reproduce, y `backend/tests/test_las_cifras_del_readme_reproducen.py`
+comprueba en cada PR que siguen coincidiendo.
 
 | | | comando |
 |---|---:|---|
@@ -434,119 +455,16 @@ están marcadas como tales.
 | Migraciones Alembic | **273** | `ls backend/migrations/versions/*.py \| wc -l` |
 | Páginas del frontend | **167** | `find frontend/app -name page.tsx \| wc -l` |
 | Componentes React | **424** | `find frontend/components -name '*.tsx' \| wc -l` |
-| Líneas de Python | **244.266** | `find backend/app -name '*.py' \| xargs wc -l` |
-
-### Suite
-
-Ejecutada entera el 2026-09-24 desde un clon limpio. La parte con base de datos
-corrió en GitHub, en
-[`.github/workflows/pytest-completo.yml`](.github/workflows/pytest-completo.yml)
-(run 35928277975: `pgvector/pgvector:pg16` sembrada, MinIO y cuatro trozos
-paralelos):
-
-```bash
-$ pytest backend/tests -m "not requires_db" -q
-3563 passed, 22 skipped, 3374 deselected in 94.47s (0:01:34)
-$ pytest backend/tests -m requires_db -q            # 4 trozos, base sembrada
-3321 passed, 53 skipped · 0 failed      # los 4 trozos juntos, 516 s el más lento
-```
-
-| | | |
-|---|---:|---|
-| Pasan | **6.884** | 3.563 sin base + 3.321 con base |
-| Fallan | **0** | |
-| Saltados | 75 | 46 llaman al modelo real (opt-in), 14 necesitan el HTML del BOE descargado, 11 PDFs de terceros que no se distribuyen, 4 condicionales o de activación futura |
-| E2E Playwright | **413 / 413** | 0 fallan · 0 saltados |
-| Polish WCAG | **97 / 97** | admin 75 · cliente 10 · auditor 12 |
+| Líneas de Python | **244.277** | `find backend/app -name '*.py' \| xargs wc -l` |
 | Ficheros de test | **640** | `find backend/tests -name 'test_*.py' \| wc -l` |
 | Specs de Playwright | **300** | `find frontend/tests -name '*.spec.ts' \| wc -l` |
 
-### Carga
-
-Rampa de 1 a 80 peticiones simultáneas sobre los seis endpoints más llamados,
-elegidos contando el tráfico real del recorrido completo. Umbral de rotura
-declarado **antes** de medir: p95 > 1.000 ms.
-
-| endpoint | techo | p95 a c=80 | dónde rompe |
-|---|---:|---:|---|
-| lecturas de proyecto | no rompe | < 300 ms | — |
-| `/corpus/search` | **17 pet./s** | — | **c=10 · p95 1.385 ms** |
-
-El cuello es el modelo de *embeddings*: se lleva el 89–93 % del tiempo de una
-búsqueda. Detalle en [`docs/PRUEBA_DE_CARGA.md`](docs/PRUEBA_DE_CARGA.md).
-
-### Recorrido de la interfaz
-
-Las 167 páginas visitadas por navegador con identificadores reales, no inventados
-—la pantalla de «no encontrado» devuelve HTTP 200 y dejaría pasar en verde una
-ruta que no se ha comprobado—. Informe en
-[`docs/RECORRIDO_COMPLETO.md`](docs/RECORRIDO_COMPLETO.md).
-
-```bash
-make recorrer-todo
-```
-
----
-
-## Lo que hoy no está cerrado
-
-Cinco cosas. Ninguna es una sorpresa: las cinco están medidas y escritas en
-`docs/`, y se listan aquí para que no haya que encontrarlas leyendo el repositorio
-entero. Lo que se cerró por el camino —la suite completa con base de datos, el
-salto a Next 15, los 14 avisos de `npm audit`, las pruebas contra el modelo real
-y una treintena de defectos que había debajo— está en
-[`docs/INFORME_BLOQUE_S.md`](docs/INFORME_BLOQUE_S.md).
-
-1. **La suite con base de datos todavía no es puerta de PR.** Pasó entera en
-   GitHub el 2026-09-24 (arriba: 0 fallos), pero corre de noche o a mano, en
-   [`.github/workflows/pytest-completo.yml`](.github/workflows/pytest-completo.yml),
-   y se promueve a puerta cuando se vea pasar dos noches seguidas (pasos en
-   [`docs/CI.md`](docs/CI.md) §2.7). La puerta de hoy son los tests sin base.
-
-2. **Cuatro conjuntos de evaluación de agentes, 40 entradas, sin tasa de acierto
-   medida.** Lo que sí se probó contra el modelo real es que cada agente funciona
-   de punta a punta: 22 tests, uno por agente y motor, los 22 en verde, y una
-   llamada mínima a cada uno de los seis modelos del catálogo. Medir la tasa de
-   acierto es otra pregunta, y cuesta dinero: el job `evals-llm` sigue saltado en
-   gris sin `ANTHROPIC_API_KEY` en los secretos. La cobertura declarada es de 3
-   clases de agente sobre 13, con su justificación en
-   [`.github/evals-threshold.yml`](.github/evals-threshold.yml).
-
-3. **Apache AGE no existe en Postgres gestionado** (RDS, Aurora, Cloud SQL, Neon).
-   El grafo de conocimiento exige Postgres propio; todo lo demás funciona con
-   `--skip-age-kg`, que además es el valor por omisión del sembrado. El porqué, en
-   [`docs/adr/ADR-056-postgres-demo-sin-age.md`](docs/adr/ADR-056-postgres-demo-sin-age.md).
-
-4. **Sin `ANTHROPIC_API_KEY` la plataforma arranca y funciona en modo degradado.**
-   Once de los doce agentes activos piden salida estructurada, y el texto de
-   relleno no parsea como JSON, así que diez de ellos caen a un camino de reserva
-   de **plantilla estática** y devuelven 200. Ese texto viaja marcado: cada
-   resultado declara `generado_por` (`modelo`, `plantilla_por_fallo_de_esquema` o
-   `sin_clave_de_api`), la cadena de workflows arrastra el eslabón más débil, y la
-   interfaz avisa en vez de felicitar. Lo que **no** hay es una puerta que lo
-   impida: hoy no hace falta, porque el texto de los agentes no entra en ningún
-   documento firmable —la justificación de la DdA la escribe un motor
-   determinista (R1)—, pero el día que entre, hará falta.
-
-5. **El pipeline comercial del admin está dormido** desde el Batch 2
-   (`/admin/pipeline` redirige al selector de proyectos): hoy no hay pantalla para
-   leads ni para generar propuestas. Su API funciona y sus tests pasan, y los
-   accesos que llevaban a él se retiraron para que ningún botón acabe en el
-   selector. Reactivarlo es borrar `frontend/app/(admin)/admin/pipeline/layout.tsx`.
-
-Cuatro informes que conviene leer antes que el código:
-[`docs/INFORME_CIERRE_CAMPANA.md`](docs/INFORME_CIERRE_CAMPANA.md),
-[`docs/INVENTARIO_Q.md`](docs/INVENTARIO_Q.md),
-[`docs/INFORME_BLOQUE_R.md`](docs/INFORME_BLOQUE_R.md) y
-[`docs/INFORME_BLOQUE_S.md`](docs/INFORME_BLOQUE_S.md), el último.
-
----
-
-## Las cifras, cada una con su comando
+<details>
+<summary><b>Las cifras, cada una con su comando</b></summary>
 
 ```bash
 $ git ls-files backend/app | grep '\.py$' | xargs wc -l | tail -1
- 244266 total
+ 244277 total
 
 $ ls -d backend/app/motors/m*/ | wc -l
 44
@@ -554,139 +472,47 @@ $ ls -d backend/app/motors/m*/ | wc -l
 $ ls backend/migrations/versions/*.py | wc -l
 273
 
-# este necesita el venv activado y el .env cargado: importa la aplicacion
-$ python3 -c "from backend.app.main import app; from fastapi.routing import APIRoute; print(len([r for r in app.routes if isinstance(r, APIRoute)]))"
-1201   # lo que devolvía con fastapi < 0.141; hoy devuelve 0, ver abajo
-```
-
-**Ese comando ya no reproduce, y merece explicación porque es un caso de manual.** Desde FastAPI
-0.141, `include_router` deja de aplanar las rutas en `app.routes`: coloca objetos
-`_IncludedRouter` con resolución perezosa. El mismo comando, con `fastapi 0.141.1` y
-`starlette 1.6.0`, devuelve **0**, y no porque falte ningún endpoint. La etiqueta seguía diciendo
-«rutas», pero lo que contaba había pasado a ser «objetos `APIRoute` que están en el primer nivel
-de `app.routes`», que ya no es lo mismo.
-
-La forma robusta a la versión es preguntar por el esquema, que además es la definición correcta de
-«superficie de la API»: es lo que ve quien la consume.
-
-```bash
+# con el entorno del backend: la superficie de la API es su esquema OpenAPI
 $ python3 -c "from backend.app.main import app; e=app.openapi(); \
 M={'get','post','put','patch','delete','head','options','trace'}; \
 print(len(e['paths']),'caminos ·', sum(1 for v in e['paths'].values() for m in v if m in M),'operaciones')"
 1100 caminos · 1203 operaciones
+
+$ ls backend/app/agents | grep -oE '^agent_[0-9]+' | sort -u | wc -l
+13
+$ python -c "from backend.app.agents.registry import AGENT_REGISTRY as R; print(sum(v['status'] == 'activo' for v in R.values()))"
+12
+$ grep -n '^_RATE_LIMIT_BACKOFFS' backend/app/core/ai/llm_router.py
+107:_RATE_LIMIT_BACKOFFS: tuple[float, ...] = (2.0, 8.0, 32.0)
 ```
 
-El 1.201 era correcto como valor en su día —son operaciones, camino por método; hoy son 1.203—
-y el conteo estático de decoradores difiere porque hay routers incluidos varias veces bajo
-prefijos distintos. Lo que había caducado era el comando.
-
-Esto se llevó por delante dos tests que comprobaban registro de endpoints recorriendo `app.routes`
-y contaban 0. **Nadie lo había visto porque el job de tests del CI no se ejecutaba nunca.**
+</details>
 
 ---
 
-## Datos y licencias
+## Datos, licencias y estructura
 
-El **código** está bajo [Apache-2.0](LICENSE).
+El **código** está bajo [Apache-2.0](LICENSE). El corpus que se distribuye con los tests
+(`backend/tests/fixtures/corpus_seed.sql.gz`) contiene sólo fuentes de libre redistribución: el RD
+311/2022 (texto del BOE) y legislación de la Unión Europea. Las guías del CCN y de la AEPD no se
+versionan: las ingiere el pipeline en local. El catálogo de medidas está redactado con lenguaje
+propio y cada medida conserva la referencia a su fuente oficial.
 
-El **contenido normativo de terceros incluido en el repositorio no está cubierto por esa licencia**
-y conserva el régimen de su fuente.
+| fuente del corpus | qué es |
+|---|---|
+| `RD_311_2022` | norma oficial, BOE-A-2022-7191 |
+| `UE-RGPD`, `UE-DORA`, `UE-NIS2`, `UE-EIDAS` | norma oficial de la Unión Europea |
+| Guías `CCN-STIC-800…814` | guías del CCN, descargadas por el operador |
+| `FULKRO_RESUMEN_CONFORMIDAD_ENS` | resumen propio, etiquetado como tal para que la recuperación lo distinga de la norma |
 
-El fixture de tests (`backend/tests/fixtures/corpus_seed.sql.gz`) incluye **solo fuentes de libre
-redistribución**: el RD 311/2022 —texto del BOE, y el artículo 13 de la Ley de Propiedad
-Intelectual excluye las disposiciones legales y sus textos oficiales de la propiedad intelectual—
-más legislación de la Unión Europea (RGPD, DORA, NIS2, eIDAS). Son 1.031 chunks de 1.977.
-
-Los chunks de las guías **CCN-STIC** y de la **AEPD** no se versionan: los genera el pipeline de
-ingesta en local. Las guías CCN-STIC no son disposiciones legales, y la guía de la AEPD está
-publicada bajo CC BY-NC-SA 4.0, cuya cláusula NonCommercial es incompatible con Apache-2.0.
-
-Es una decisión de ingeniería antes que un trámite: el fixture pesa la mitad, cualquiera puede
-clonarlo y ejecutarlo sin heredar material que no es suyo para redistribuir, y el corpus completo
-sigue siendo reproducible en local para quien tenga las fuentes.
-
-**Cerrado el 2026-09-10:** `docs/catalogs/ens_measures_catalog_v1.yaml` contenía párrafos copiados
-literalmente de la CCN-STIC 804. Las descripciones están **reescritas con lenguaje propio**; la
-cabecera ya no atribuye las descripciones a la guía, y `fuente_oficial` sigue apuntando a la
-sección concreta para no perder la trazabilidad. Lo vigila un umbral medible que no necesita el
-texto antiguo: `docs/catalogs/ens_catalog_huella_ccn804.json` guarda el SHA-256 de cada racha de 8
-palabras de las 79 descripciones antiguas, y ninguna de sus palabras.
-
-```bash
-$ python3 scripts/verificar_catalogo_sin_copia_literal.py
-Catálogo:   docs/catalogs/ens_measures_catalog_v1.yaml (73 medidas)
-Huella:     docs/catalogs/ens_catalog_huella_ccn804.json (79 medidas, 6430 rachas)
-Racha:      8 palabras consecutivas
-Medidas comparadas:                73
-Medidas con 8+ palabras copiadas:  0
-RESULTADO: VERDE
-```
-
-**Eran 79 medidas y hoy son 73**: el commit `2276d99` eliminó seis códigos que no existen en el
-RD 311/2022 (venían de la CCN-STIC 804 v2017, basada en el RD 3/2010 derogado). La huella conserva
-las 79 porque es lo que no debe volver.
-
-El script falla si una descripción, de la medida que sea, repite 8 palabras seguidas del texto
-antiguo. Pasado sobre ese texto, marca las 79; sobre el catálogo actual, ninguna.
-`backend/tests/scripts/test_catalogo_sin_copia_literal.py` hace la misma comprobación en CI, con un
-control positivo para que un detector roto no dé verde. **Lo que ninguno de los dos verifica** es
-que la descripción sea normativamente exacta: eso lo revisa una persona.
-
-### Procedencia del corpus: qué es norma y qué es resumen nuestro
-
-El corpus mezcla dos cosas y **tiene que decir cuál es cuál**, porque el copiloto cita sus fuentes
-y una cita normativa vale lo que valga su procedencia.
-
-| fuente | qué es | editor declarado | de dónde sale el texto |
-|---|---|---|---|
-| `RD_311_2022` | **norma oficial** (BOE-A-2022-7191) | BOE · Ministerio | HTML consolidado del BOE, descargado a `var/corpus/` |
-| `UE-DORA`, `UE-NIS2`, `UE-RGPD`, `UE-EIDAS` | **norma oficial** | Parlamento Europeo y Consejo | textos oficiales, descargados |
-| Guías `CCN-STIC-800…814` | **guías del CCN** | CCN | los PDF que el operador descarga a `var/corpus/` (`git ls-files \| grep stic_serie_800` → 0) |
-| `FULKRO_RESUMEN_CONFORMIDAD_ENS` | **resumen propio** | FULKRO | `backend/app/corpus/data/`, escrito aquí |
-
-**Corregido el 2026-09-10.** Ese último era `CCN_STIC_809.md`: 103 líneas y 14,7 KB escritas en
-este repositorio, tituladas como la guía CCN-STIC-809 y subtituladas como si las publicase el
-Centro Criptológico Nacional, e ingeridas con `publisher="Centro Criptológico Nacional (CCN)"` y
-la URL oficial como origen del texto. La guía real son decenas de páginas.
-
-**No era una copia: era un resumen que se presentaba como el original.** El problema no es de
-derechos de copia, es de **procedencia**: el buscador del copiloto podía devolver un fragmento de
-ese resumen citando al CCN, con un texto que puede no estar en su guía. Es el mismo defecto que
-[ADR-059](docs/adr/ADR-059-llamada-llm-fallida-no-es-exito.md) —fabricar algo y sellarlo como
-auténtico— una capa más abajo. Ahora el título dice lo que es, el editor es FULKRO, la URL oficial
-figura como **referencia** y no como origen, y los fragmentos van etiquetados
-`seccion="resumen_secundario"` para que la recuperación distinga norma de resumen.
-
-Lo que impide que vuelva a pasar con la guía siguiente es un test, no la limpieza:
-`backend/tests/corpus/test_procedencia_corpus.py` falla si un módulo del corpus ingiere un texto
-versionado bajo `backend/app/corpus/data/` **y** declara como editor a un tercero, o pone una URL
-ajena como origen, o si el propio fichero se firma como obra de otro. Lleva lista blanca explícita,
-hoy **vacía**, y comentada con lo que entraría en ella legítimamente y lo que no. Verificado en
-rojo contra el estado anterior: **3 de las reglas saltan**; contra el actual, las 5 pasan.
-
-No necesita base de datos, así que corre en el job `test` de CI.
-
-### Terceros que requieren atribución
-
-- **shadcn/ui** (MIT © 2023 shadcn) — 28 componentes en `frontend/components/ui/`
-- **MITRE ATT&CK** — `backend/app/motors/m08_verification/mitre_mapper.py`
-- **MAGERIT v3.0 Libro II** (MINHAP, reutilizable citando fuente) — `docs/catalogs/magerit_libro2_catalog_v1.yaml`
-
----
-
-## Estructura
-
-**Para el mapa de piezas y los límites entre ellas, con el diagrama del sistema y
-los enlaces a las decisiones que lo justifican: [`ARCHITECTURE.md`](ARCHITECTURE.md)
-— una página.** El índice completo de decisiones está en
-[`docs/adr/README.md`](docs/adr/README.md).
+Terceros con atribución: **shadcn/ui** (MIT), **MITRE ATT&CK** y **MAGERIT v3.0** (MINHAP).
 
 ```
 backend/          FastAPI · 44 directorios de motor en app/motors/ · 273 migraciones
 frontend/         Next.js 15 · App Router · 5 grupos de ruta:
                   (admin) (client-portal) (legal) (portal) (public)
-docs/             catálogos que lee el arranque (MAGERIT, precios, ENS) y especificaciones
-infra/docker/     init SQL de extensiones, funciones RLS y roles · Dockerfile de producción
-scripts/          utilidades de operación y el detector de verdad vacua
-landing/          sitio estático del proyecto, archivado
+docs/             catálogos que lee el arranque (MAGERIT, ENS, plantillas), ADR y evaluaciones
+infra/docker/     init SQL de extensiones, funciones RLS y roles · Dockerfiles
+scripts/          operación, medición y generación de los diagramas y el recorrido
+landing/          sitio estático del proyecto (fulkro.es)
 ```

@@ -5,20 +5,20 @@
 <link rel="icon" type="image/svg+xml" href="favicon.svg">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Fulkro · Plataforma de implantación del Esquema Nacional de Seguridad</title>
-<meta name="description" content="Fulkro fue una plataforma que implantaba el Esquema Nacional de Seguridad (RD 311/2022): categorización, análisis de riesgos MAGERIT, documentación, evidencias y verificación técnica. El proyecto cerró en septiembre de 2026 y su código se está liberando como open source.">
+<meta name="description" content="Fulkro fue una plataforma para implantar el Esquema Nacional de Seguridad (RD 311/2022) de punta a punta: motores deterministas, capa de IA con RAG, cuatro portales y evidencia firmada. El proyecto se detuvo en septiembre de 2026 por falta de tracción comercial y su código se publica bajo Apache-2.0.">
 <link rel="canonical" href="https://fulkro.es/">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="Fulkro">
 <meta property="og:locale" content="es_ES">
 <meta property="og:title" content="Fulkro · Plataforma de implantación del Esquema Nacional de Seguridad">
-<meta property="og:description" content="Fulkro fue una plataforma que implantaba el Esquema Nacional de Seguridad (RD 311/2022): categorización, análisis de riesgos MAGERIT, documentación, evidencias y verificación técnica. El proyecto cerró en septiembre de 2026 y su código se está liberando como open source.">
+<meta property="og:description" content="Fulkro fue una plataforma para implantar el Esquema Nacional de Seguridad (RD 311/2022) de punta a punta: motores deterministas, capa de IA con RAG, cuatro portales y evidencia firmada. El proyecto se detuvo en septiembre de 2026 por falta de tracción comercial y su código se publica bajo Apache-2.0.">
 <meta property="og:url" content="https://fulkro.es/">
 <meta property="og:image" content="https://fulkro.es/og-image.png">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="Fulkro · Plataforma de implantación del Esquema Nacional de Seguridad">
-<meta name="twitter:description" content="Fulkro fue una plataforma que implantaba el Esquema Nacional de Seguridad (RD 311/2022): categorización, análisis de riesgos MAGERIT, documentación, evidencias y verificación técnica. El proyecto cerró en septiembre de 2026 y su código se está liberando como open source.">
+<meta name="twitter:description" content="Fulkro fue una plataforma para implantar el Esquema Nacional de Seguridad (RD 311/2022) de punta a punta: motores deterministas, capa de IA con RAG, cuatro portales y evidencia firmada. El proyecto se detuvo en septiembre de 2026 por falta de tracción comercial y su código se publica bajo Apache-2.0.">
 <meta name="twitter:image" content="https://fulkro.es/og-image.png">
 <meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1">
 <script type="application/ld+json">
@@ -30,7 +30,7 @@
       "@id": "https://fulkro.es/#org",
       "name": "Fulkro",
       "url": "https://fulkro.es",
-      "description": "Fulkro fue un proyecto de software para la implantación del Esquema Nacional de Seguridad (ENS, RD 311/2022) en empresas que contrataban con el sector público. La actividad comercial cesó en septiembre de 2026. El código de la plataforma se está liberando como open source.",
+      "description": "Fulkro fue un proyecto de software para la implantación del Esquema Nacional de Seguridad (ENS, RD 311/2022) en empresas que contrataban con el sector público. El proyecto se detuvo en septiembre de 2026 por falta de tracción comercial. El código de la plataforma se está liberando como open source.",
       "dissolutionDate": "2026-09",
       "areaServed": { "@type": "Country", "name": "España" },
       "sameAs": [ "https://github.com/Fulkrodev/Fulkrosys" ],
@@ -57,7 +57,7 @@
       "@id": "https://fulkro.es/#webpage",
       "url": "https://fulkro.es/",
       "name": "Fulkro · Plataforma de implantación del Esquema Nacional de Seguridad",
-      "description": "Descripción de lo que hacía la plataforma Fulkro. El proyecto cerró en septiembre de 2026 y no presta ningún servicio.",
+      "description": "Visión general de la plataforma Fulkro: capacidades, portales, capa de IA, arquitectura y calidad. El proyecto se detuvo en septiembre de 2026 y no presta ningún servicio.",
       "inLanguage": "es-ES",
       "isPartOf": { "@id": "https://fulkro.es/#website" },
       "about": { "@id": "https://fulkro.es/#org" },
@@ -1031,7 +1031,7 @@
         <circle cx="48" cy="26" r="5" fill="#6C63FF"/>
       </svg></span>fulkro
     </a>
-    <div class="navlinks"><a href="#problema" class="">El problema</a><a href="#como" class="">Cómo funcionaba</a><a href="#plataforma" class="">La plataforma</a><a href="#capturas" class="">Capturas</a><a href="#comparativa" class="">Comparativa</a><a href="#faq" class="">Preguntas</a></div>
+    <div class="navlinks"><a href="#recorrido" class="">Recorrido</a><a href="#capacidades" class="">Capacidades</a><a href="#ciclo" class="">Ciclo ENS</a><a href="#capturas" class="">Portales</a><a href="#ia" class="">IA y RAG</a><a href="#arquitectura" class="">Arquitectura</a><a href="#calidad" class="">Calidad</a></div>
     <div class="navright">
       <a href="https://github.com/Fulkrodev/Fulkrosys" class="btn btn-primary navcta" target="_blank" rel="noopener">Ver en GitHub</a>
       <button class="burger" id="burger" aria-label="Abrir menú"><span></span><span></span><span></span></button>
@@ -1039,28 +1039,140 @@
   </nav>
 </div>
 <div class="mobilemenu">
-  <a href="#problema">El problema</a><a href="#como">Cómo funcionaba</a><a href="#plataforma">La plataforma</a><a href="#capturas">Capturas</a><a href="#comparativa">Comparativa</a><a href="#faq">Preguntas</a>
+  <a href="#recorrido">Recorrido</a><a href="#capacidades">Capacidades</a><a href="#ciclo">Ciclo ENS</a><a href="#capturas">Portales</a><a href="#ia">IA y RAG</a><a href="#arquitectura">Arquitectura</a><a href="#calidad">Calidad</a>
   <a href="https://github.com/Fulkrodev/Fulkrosys" class="btn btn-primary" target="_blank" rel="noopener">Ver en GitHub</a>
 </div>
+<style>
+  /* ── Bloques nuevos de la página (2026-09) ─────────────────────────────── */
+  .sec-intro{max-width:860px}
+  .chip{display:inline-flex;align-items:center;gap:7px;font-size:12.5px;font-weight:600;color:var(--text-dim);padding:7px 13px;border:1px solid var(--line);border-radius:999px;background:rgba(139,131,255,.06)}
+  .chip b{color:#fff}
+  .mono{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}
+  /* recorrido */
+  #rec{margin-top:40px;display:grid;grid-template-columns:minmax(0,1fr) 300px;gap:22px;align-items:start}
+  #rec .rec-frame{border:1px solid var(--line-strong);border-radius:18px;overflow:hidden;background:var(--card-solid);box-shadow:0 30px 80px -34px rgba(0,0,0,.85)}
+  #rec .rec-win{display:flex;align-items:center;gap:7px;padding:11px 15px;background:rgba(255,255,255,.04);border-bottom:1px solid var(--line)}
+  #rec .rec-win i{width:10px;height:10px;border-radius:50%}
+  #rec .rec-win i:nth-child(1){background:rgba(255,107,107,.65)}#rec .rec-win i:nth-child(2){background:rgba(255,211,107,.65)}#rec .rec-win i:nth-child(3){background:rgba(107,220,149,.65)}
+  #rec .rec-win span{margin-left:9px;font-size:12px;color:var(--text-faint)}
+  #rec video{display:block;width:100%;aspect-ratio:1280/854;background:#0e0a22}
+  #rec .rec-bar{height:3px;background:rgba(255,255,255,.06)}
+  #rec .rec-bar i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--violet),var(--rose));transition:width .25s linear}
+  #rec ol{list-style:none;margin:0;padding:0;display:grid;gap:7px}
+  #rec li button{width:100%;text-align:left;display:flex;gap:12px;align-items:center;padding:10px 12px;border:1px solid var(--line);border-radius:12px;background:rgba(255,255,255,.025);color:var(--text-dim);font:600 13.5px/1.3 "Sora",system-ui,sans-serif;cursor:pointer;transition:.2s}
+  #rec li button:hover{border-color:var(--line-strong)}
+  #rec li button.on{border-color:rgba(171,164,255,.6);background:rgba(108,99,255,.14);color:#fff}
+  #rec li button em{flex:0 0 26px;height:26px;border-radius:8px;display:grid;place-items:center;font-style:normal;font-size:12px;background:rgba(139,131,255,.14);color:#cfc9ff}
+  #rec li button.on em{background:linear-gradient(135deg,var(--violet),var(--rose));color:#fff}
+  #rec li button small{display:block;font-weight:400;font-size:11.5px;color:var(--text-faint);margin-top:2px}
+  @media(max-width:980px){#rec{grid-template-columns:1fr}#rec ol{grid-template-columns:1fr 1fr}}
+  @media(max-width:560px){#rec ol{grid-template-columns:1fr}}
+  /* ciclo interactivo */
+  #ciclo-app{margin-top:44px}
+  #ciclo-app .cy-steps{display:grid;grid-template-columns:repeat(7,1fr);gap:10px;position:relative}
+  #ciclo-app .cy-steps:before{content:"";position:absolute;left:4%;right:4%;top:23px;height:2px;background:var(--line-strong)}
+  #ciclo-app .cy-steps .cy-fill{position:absolute;left:4%;top:23px;height:2px;width:0;background:linear-gradient(90deg,var(--violet),var(--rose));transition:width .6s var(--e)}
+  #ciclo-app .cy-step{position:relative;z-index:2;display:flex;flex-direction:column;align-items:center;gap:10px;background:none;border:none;color:var(--text-faint);cursor:pointer;font:600 13px/1.25 "Sora",system-ui,sans-serif;text-align:center;padding:0}
+  #ciclo-app .cy-step i{width:48px;height:48px;border-radius:50%;display:grid;place-items:center;font-style:normal;font-size:16px;font-weight:800;background:var(--card-solid);border:2px solid var(--line-strong);color:#cfc9ff;transition:.35s var(--e)}
+  #ciclo-app .cy-step.done i{border-color:rgba(171,164,255,.7)}
+  #ciclo-app .cy-step.on{color:#fff}
+  #ciclo-app .cy-step.on i{background:linear-gradient(135deg,var(--violet),var(--rose));border-color:transparent;color:#fff;box-shadow:0 0 0 6px rgba(139,131,255,.15),0 10px 30px rgba(199,125,255,.35)}
+  #ciclo-app .cy-panel{margin-top:30px;display:grid;grid-template-columns:1.2fr 1fr;gap:22px;padding:30px;min-height:228px}
+  #ciclo-app .cy-panel h3{font-size:24px;margin:6px 0 12px}
+  #ciclo-app .cy-panel p{color:var(--text-dim);font-size:15.5px;line-height:1.62}
+  #ciclo-app .cy-meta{display:grid;gap:12px;align-content:start}
+  #ciclo-app .cy-meta div{border:1px solid var(--line);border-radius:13px;padding:12px 16px;background:rgba(255,255,255,.025)}
+  #ciclo-app .cy-meta small{display:block;font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:#aba4ff;font-weight:700;margin-bottom:4px}
+  #ciclo-app .cy-meta span{font-size:14.5px;color:#fff}
+  #ciclo-app .cy-fade{animation:cyfade .45s var(--e)}
+  @keyframes cyfade{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+  @media(max-width:560px){#ciclo-app .cy-step{font-size:11px;hyphens:auto;-webkit-hyphens:auto;overflow-wrap:anywhere}#ciclo-app .cy-step i{width:40px;height:40px;font-size:14px}#ciclo-app .cy-panel{padding:22px}}
+  @media(max-width:860px){#ciclo-app .cy-steps{grid-template-columns:repeat(4,minmax(0,1fr));row-gap:18px}#ciclo-app .cy-steps:before,#ciclo-app .cy-steps .cy-fill{display:none}#ciclo-app .cy-panel{grid-template-columns:1fr}}
+  /* portales (tarjetas) */
+  .portal4{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-top:34px}
+  .portal4 .pcard h3{display:flex;align-items:center;gap:9px}
+  .portal4 .pcard .who{font-size:12.5px;color:#aba4ff;font-weight:600;margin-bottom:10px;display:block}
+  .portal4 ul{margin:12px 0 0;padding-left:18px;color:var(--text-dim);font-size:14px;line-height:1.55}
+  @media(max-width:1000px){.portal4{grid-template-columns:1fr 1fr}}
+  @media(max-width:600px){.portal4{grid-template-columns:1fr}}
+  /* diagramas */
+  .diag{margin-top:40px;border-radius:20px;overflow:hidden;border:1px solid var(--line-strong);box-shadow:0 30px 80px -40px rgba(0,0,0,.9)}
+  .diag img{display:block;width:100%;height:auto}
+  /* agentes */
+  .agents{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-top:30px}
+  .agent{border:1px solid var(--line);border-radius:14px;padding:14px 16px;background:rgba(255,255,255,.025);transition:.25s var(--e)}
+  .agent:hover{border-color:var(--line-strong);transform:translateY(-3px);background:rgba(108,99,255,.08)}
+  .agent b{display:block;font-size:14.5px;color:#fff}
+  .agent small{display:flex;gap:8px;margin:4px 0 8px;font-size:11.5px;color:#aba4ff;font-weight:600}
+  .agent p{margin:0;font-size:13px;line-height:1.5;color:var(--text-faint)}
+  @media(max-width:1000px){.agents{grid-template-columns:1fr 1fr}}
+  @media(max-width:560px){.agents{grid-template-columns:1fr}}
+  .prov{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:22px}
+  .prov div{border-radius:14px;padding:16px 18px;border:1px solid var(--line);background:rgba(255,255,255,.025)}
+  .prov code{font-size:13px;color:#fff;background:rgba(139,131,255,.16);padding:3px 8px;border-radius:7px}
+  .prov p{margin:10px 0 0;font-size:13.5px;color:var(--text-dim);line-height:1.5}
+  @media(max-width:760px){.prov{grid-template-columns:1fr}}
+  /* evaluación */
+  .evalbox{margin-top:30px;display:grid;grid-template-columns:1.1fr 1fr;gap:22px;padding:30px}
+  .evalbox h3{font-size:20px;margin-bottom:6px}
+  .bars{display:grid;gap:16px;margin-top:18px}
+  .bars .m{font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:#aba4ff;font-weight:700;margin-bottom:7px}
+  .bars .row{display:grid;grid-template-columns:86px 1fr 56px;gap:10px;align-items:center;font-size:13px;color:var(--text-faint);margin-top:6px}
+  .bars .track{height:12px;border-radius:6px;background:rgba(255,255,255,.06);overflow:hidden}
+  .bars .track i{display:block;height:100%;width:0;border-radius:6px;transition:width 1.4s var(--e)}
+  .bars .vec i{background:linear-gradient(90deg,#34d399,#5eead4)}
+  .bars .rrf i{background:rgba(199,194,228,.55)}
+  .bars .row span:last-child{color:#fff;font-weight:700;text-align:right}
+  .ci{width:100%;border-collapse:collapse;margin-top:16px;font-size:13.5px}
+  .ci td{padding:9px 6px;border-bottom:1px solid var(--line);color:var(--text-dim)}
+  .ci td:nth-child(2){color:#5eead4;font-weight:700;text-align:right}
+  .ci td:nth-child(3){text-align:right;color:var(--text-faint)}
+  @media(max-width:860px){.evalbox{grid-template-columns:1fr}}
+  .steps4{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-top:26px}
+  @media(max-width:900px){.steps4{grid-template-columns:1fr 1fr}}
+  @media(max-width:560px){.steps4{grid-template-columns:1fr}}
+  /* seguridad */
+  .layers{display:grid;gap:10px;margin-top:34px}
+  .layer{display:grid;grid-template-columns:48px 170px 1fr;align-items:center;gap:14px;padding:14px 18px;border:1px solid var(--line);border-radius:15px;background:rgba(255,255,255,.025);transition:.3s var(--e)}
+  .layer:hover{border-color:var(--line-strong);transform:translateX(6px);background:rgba(108,99,255,.08)}
+  .layer i{width:40px;height:40px;border-radius:12px;display:grid;place-items:center;font-style:normal;font-weight:800;color:#fff;background:linear-gradient(135deg,var(--violet),var(--rose))}
+  .layer b{font-size:16px;color:#fff}
+  .layer span{font-size:14.5px;color:var(--text-dim)}
+  @media(max-width:700px){.layer{grid-template-columns:40px 1fr}.layer span{grid-column:1/-1}}
+  /* calidad */
+  .qgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:26px}
+  .qgrid div{border:1px solid var(--line);border-radius:14px;padding:16px 18px;background:rgba(255,255,255,.025)}
+  .qgrid code{font-size:12.5px;color:#cfc9ff}
+  .qgrid p{margin:8px 0 0;font-size:13.5px;color:var(--text-dim);line-height:1.5}
+  @media(max-width:900px){.qgrid{grid-template-columns:1fr 1fr}}
+  @media(max-width:560px){.qgrid{grid-template-columns:1fr}}
+  /* terminal */
+  .term{margin-top:30px;border:1px solid var(--line-strong);border-radius:16px;overflow:hidden;background:#0c0820;max-width:760px}
+  .term .tbar{display:flex;align-items:center;justify-content:space-between;padding:10px 14px;background:rgba(255,255,255,.04);border-bottom:1px solid var(--line);font-size:12px;color:var(--text-faint)}
+  .term pre{margin:0;padding:18px 20px;font-size:14px;line-height:1.75;color:#e9e6ff;overflow-x:auto}
+  .term pre .c{color:#8f89c2}
+  .term button{font:600 12px "Sora",system-ui,sans-serif;color:#fff;background:rgba(108,99,255,.3);border:1px solid var(--line-strong);border-radius:8px;padding:5px 10px;cursor:pointer}
+</style>
+
 <section class="hero">
-    <span class="eyebrow"><span class="dot"></span>Proyecto cerrado en septiembre de 2026 · Código abierto</span>
-    <h1>Una plataforma que implantaba el Esquema Nacional de Seguridad de punta a punta. <span class="grad">Así funcionaba por dentro.</span></h1>
+    <span class="eyebrow"><span class="dot"></span>Proyecto detenido en septiembre de 2026 · código abierto</span>
+    <h1>Una plataforma que implantaba el Esquema Nacional de Seguridad de punta a punta. <span class="grad">Motores deterministas, IA con evidencia.</span></h1>
     <div class="hero-row">
       <div class="hero-copy">
-      <p class="sub">En la mayoría de concursos públicos, <b>sin el Esquema Nacional de Seguridad no se valora la oferta</b>. Fulkro se construyó para resolver eso: una plataforma que implantaba el ENS de una empresa de principio a fin —categorización, riesgos, documentación, evidencias y verificación técnica— y dejaba el expediente preparado para la auditoría de una entidad acreditada por ENAC. <b>Fulkro no emitía el certificado</b>: lo emitía esa entidad, ajena al proyecto.</p>
-      <p class="sub" style="margin-top:14px;font-size:15.5px;color:var(--text-faint)">El diseño partía de una regla: las decisiones normativas las tomaban <b>motores deterministas</b>, no un modelo de lenguaje, para que fueran trazables ante el auditor; y un <b>experto en ENS revisaba y firmaba</b> cada entregable.</p>
+      <p class="sub">Fulkro llevaba a una empresa desde la <b>categorización de su sistema</b> hasta la <b>declaración de conformidad</b> que revisa la entidad certificadora: análisis de riesgos MAGERIT, declaración de aplicabilidad, plan de adecuación, evidencias firmadas y cuatro portales conectados.</p>
+      <p class="sub" style="margin-top:14px;font-size:15.5px;color:var(--text-faint)">Las decisiones normativas las tomaban <b>44 motores deterministas</b>, trazables ante un auditor. <b>12 agentes de IA</b> y un <b>copiloto con RAG</b> redactaban y explicaban, siempre con la procedencia del texto a la vista.</p>
       <div class="ctas">
         <a href="https://github.com/Fulkrodev/Fulkrosys" class="btn btn-primary lg" target="_blank" rel="noopener">Ver el código en GitHub</a>
-        <a href="#como" class="btn btn-ghost lg">Cómo funcionaba →</a>
+        <a href="#recorrido" class="btn btn-ghost lg">Ver el recorrido →</a>
       </div>
       <div class="trust">
-        <span class="ti"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="3"/><path d="M3 9h18M9 21V9"/></svg>Plataforma propia</span>
+        <span class="ti"><svg viewBox="0 0 24 24"><path d="M12 2l8 4v6c0 5-3.5 8.5-8 10-4.5-1.5-8-5-8-10V6z"/></svg>44 motores deterministas</span>
         <span class="sep"></span>
-        <span class="ti"><svg viewBox="0 0 24 24"><path d="M12 3l8 3v5c0 5-3.4 8.5-8 10-4.6-1.5-8-5-8-10V6z"/><path d="M9 12l2 2 4-4"/></svg>Lista para la auditoría ENAC</span>
+        <span class="ti"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 2v4M12 18v4M2 12h4M18 12h4"/></svg>12 agentes de IA · RAG</span>
         <span class="sep"></span>
-        <span class="ti"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3"/></svg>Nube vigilada y escaneo de seguridad</span>
+        <span class="ti"><svg viewBox="0 0 24 24"><rect x="4" y="10" width="16" height="11" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg>Evidencia firmada Ed25519</span>
         <span class="sep"></span>
-        <span class="ti live"><svg viewBox="0 0 24 24"><path d="M12 6v6l4 2"/><circle cx="12" cy="12" r="9"/></svg>Revisión experta antes de firmar</span>
+        <span class="ti live"><svg viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg>6.884 tests en verde</span>
       </div>
     </div>
 
@@ -1086,120 +1198,80 @@
     </div>
   </section>
 
-  <div class="wrap">
+  <div class="wrap" id="proyecto">
     <div class="callout reveal">
-      <div class="ct"><svg viewBox="0 0 24 24" fill="none" stroke="#aba4ff" stroke-width="1.9" style="width:16px;height:16px" stroke-linecap="round"><path d="M12 16v-4M12 8h.01"/><circle cx="12" cy="12" r="9"/></svg>Estado del proyecto</div>
-      <p><b>Fulkro cerró en septiembre de 2026.</b> No hay servicio comercial activo: no se aceptan clientes, no se presta soporte y no se atiende ninguna solicitud. El código de la plataforma se está liberando como <b>open source</b> en <a href="https://github.com/Fulkrodev/Fulkrosys" target="_blank" rel="noopener" style="color:var(--violet-lt);text-decoration:underline;text-underline-offset:3px">github.com/Fulkrodev/Fulkrosys</a>. Esta página se conserva como descripción de lo que el sistema hacía, no como oferta.</p>
+      <div class="ct"><svg viewBox="0 0 24 24" fill="none" stroke="#aba4ff" stroke-width="1.9" style="width:16px;height:16px" stroke-linecap="round"><path d="M12 16v-4M12 8h.01"/><circle cx="12" cy="12" r="9"/></svg>El proyecto</div>
+      <p><b>Fulkro se diseñó, se construyó y se operó de principio a fin por una sola persona.</b> En septiembre de 2026 el proyecto se detuvo por falta de tracción comercial, con la plataforma terminada, verificada y documentada. No presta servicio ni acepta clientes. El código completo se publica bajo <b>Apache-2.0</b> en <a href="https://github.com/Fulkrodev/Fulkrosys" target="_blank" rel="noopener">github.com/Fulkrodev/Fulkrosys</a>, y se levanta en local con un comando y datos de demostración.</p>
+    </div>
+    <div class="pills reveal" style="margin-top:18px;margin-bottom:8px">
+      <span class="pill">1.203 operaciones de API</span>
+      <span class="pill">253 tablas · RLS en 185</span>
+      <span class="pill">123 plantillas documentales</span>
+      <span class="pill">RAG · acierto@5 de 0,959</span>
+      <span class="pill">97 páginas WCAG sin fallos graves</span>
     </div>
   </div>
 
+<section class="block tight" id="recorrido">
   <div class="wrap">
-    <div class="pills reveal" style="margin-top:0;margin-bottom:8px">
-      <span class="pill"><svg viewBox="0 0 24 24"><path d="M5 13l4 4L19 7"/></svg>Código abierto</span>
-      <span class="pill"><svg viewBox="0 0 24 24"><path d="M5 13l4 4L19 7"/></svg>73 medidas del Anexo II</span>
-      <span class="pill"><svg viewBox="0 0 24 24"><path d="M5 13l4 4L19 7"/></svg>Plataforma propia + revisión experta</span>
-      <span class="pill"><svg viewBox="0 0 24 24"><path d="M5 13l4 4L19 7"/></svg>Auditoría ENAC independiente</span>
+    <div class="reveal sec-intro">
+      <div class="kicker">El recorrido</div>
+      <h2>Treinta segundos por los tres portales.</h2>
+      <p class="lead">Una grabación real del producto sobre el entorno de demostración: el consultor recorre el ciclo ENS en administración, el cliente revisa y firma en su portal y el auditor comprueba la cobertura en modo de sólo lectura. Pulsa un capítulo para saltar a él.</p>
     </div>
-  </div>
-
-<div class="marquee-wrap">
-  <div class="mq-label">El ENS ya se exige en contratos de</div>
-  <div class="marquee" id="mq">
-    <div class="mqrow"><span>Administración General del Estado</span><span>Comunidades Autónomas</span><span>Diputaciones</span><span>Ayuntamientos</span><span>Universidades públicas</span><span>Sanidad pública</span><span>Empresas públicas</span></div>
-    <div class="mqrow"><span>Administración General del Estado</span><span>Comunidades Autónomas</span><span>Diputaciones</span><span>Ayuntamientos</span><span>Universidades públicas</span><span>Sanidad pública</span><span>Empresas públicas</span></div>
-  </div>
-</div>
-
-<section class="block" id="disrupcion">
-  <div class="wrap">
-    <div class="reveal">
-      <div class="kicker">La tercera vía</div>
-      <h2 class="wide">Había dos formas de cumplir el ENS. Fulkro intentó ser una tercera.</h2>
-      <p class="lead wide">Para cumplir el ENS se podía contratar una consultoría —lenta y que acaba dejando una carpeta de documentos— o comprar un software de cumplimiento, potente pero que maneja la propia empresa con su equipo técnico. Fulkro era lo tercero: la mecánica de una plataforma, operada de principio a fin por quien prestaba el servicio.</p>
-    </div>
-    <div class="trio">
-      <div class="tcard dim reveal">
-        <div class="tc-h">Consultoría tradicional</div>
-        <h3>Lenta y, al final, en manos del cliente</h3>
-        <p>Reuniones durante meses para acabar con un montón de Word que alguien de la empresa tiene que mantener vivo.</p>
-        <ul>
-          <li><svg viewBox="0 0 24 24"><path d="M18 6 6 18M6 6l12 12"/></svg>Plazos de meses</li>
-          <li><svg viewBox="0 0 24 24"><path d="M18 6 6 18M6 6l12 12"/></svg>Se entregan documentos, no un sistema</li>
-          <li><svg viewBox="0 0 24 24"><path d="M18 6 6 18M6 6l12 12"/></svg>El mantenimiento acaba siendo del cliente</li>
-        </ul>
-      </div>
-      <div class="tcard dim reveal">
-        <div class="tc-h">Software de cumplimiento</div>
-        <h3>Potente, pero lo maneja el cliente</h3>
-        <p>Una herramienta enterprise que se entrega con sus llaves: hay que saber de seguridad y dedicar un equipo a operarla.</p>
-        <ul>
-          <li><svg viewBox="0 0 24 24"><path d="M18 6 6 18M6 6l12 12"/></svg>Hace falta perfil técnico para usarlo</li>
-          <li><svg viewBox="0 0 24 24"><path d="M18 6 6 18M6 6l12 12"/></svg>La carga de trabajo sigue en la empresa</li>
-          <li><svg viewBox="0 0 24 24"><path d="M18 6 6 18M6 6l12 12"/></svg>Curva de aprendizaje y mantenimiento</li>
-        </ul>
-      </div>
-      <div class="tcard feat reveal">
-        <div class="tc-h">Fulkro</div>
-        <h3>La plataforma hacía el trabajo técnico</h3>
-        <p>Generaba, conectaba y verificaba todo el ENS, y la operaba el propio servicio de principio a fin —incluida la implantación técnica—. El cliente veía, aprobaba, firmaba y concedía permisos.</p>
-        <ul>
-          <li><svg viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg>Implantación en 2-4 semanas, con revisión manual experta</li>
-          <li><svg viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg>No hacía falta saber de seguridad</li>
-          <li><svg viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg>Implantación y remediación técnica: se proponían, el cliente las autorizaba y se ejecutaban sobre sus sistemas</li>
-          <li><svg viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg>Nube vigilada en continuo y escaneo de seguridad</li>
-          <li><svg viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg>Un único experto responsable del expediente</li>
-        </ul>
-      </div>
+    <div id="rec" class="reveal">
+      <figure class="rec-frame" style="margin:0">
+        <div class="rec-win"><i></i><i></i><i></i><span>fulkro · entorno de demostración</span></div>
+        <video id="rec-video" poster="assets/video/recorrido-poster.webp" muted loop playsinline preload="metadata" aria-label="Recorrido por los tres portales de Fulkro"><source src="assets/video/recorrido.webm" type="video/webm"><source src="assets/video/recorrido.mp4" type="video/mp4"></video>
+        <div class="rec-bar"><i id="rec-bar"></i></div>
+      </figure>
+      <ol id="rec-caps">
+        <li><button type="button" data-t="0.3"><em>1</em><span>Selector de proyectos<small>un operador, varios clientes</small></span></button></li>
+        <li><button type="button" data-t="3.5"><em>2</em><span>Workflow del proyecto<small>el ciclo, fase a fase</small></span></button></li>
+        <li><button type="button" data-t="6.7"><em>3</em><span>Categorización<small>cinco dimensiones · Anexo I</small></span></button></li>
+        <li><button type="button" data-t="9.9"><em>4</em><span>Análisis de riesgos<small>MAGERIT v3</small></span></button></li>
+        <li><button type="button" data-t="13.0"><em>5</em><span>Declaración de aplicabilidad<small>73 medidas del Anexo II</small></span></button></li>
+        <li><button type="button" data-t="16.2"><em>6</em><span>Plan de adecuación<small>Gantt con dependencias</small></span></button></li>
+        <li><button type="button" data-t="19.4"><em>7</em><span>Evidencias<small>SHA-256 · Ed25519 · WORM</small></span></button></li>
+        <li><button type="button" data-t="22.6"><em>8</em><span>Portal de cliente<small>ve, autoriza y firma</small></span></button></li>
+        <li><button type="button" data-t="25.8"><em>9</em><span>Firma electrónica<small>lienzo · eIDAS art. 25.1</small></span></button></li>
+        <li><button type="button" data-t="29.0"><em>10</em><span>Portal del auditor<small>cobertura medida</small></span></button></li>
+      </ol>
     </div>
   </div>
 </section>
 
-<section class="block" id="en-cristiano">
+<section class="block" id="capacidades">
   <div class="wrap">
-    <div class="reveal">
-      <div class="kicker">El ENS, en cristiano</div>
-      <h2 class="wide">Las reglas del ENS, programadas dentro de la plataforma.</h2>
-      <p class="lead wide">El Esquema Nacional de Seguridad tiene decenas de reglas: qué nivel corresponde, qué medidas, qué documentos y qué pruebas. En una consultoría eso lo hace una persona a mano, despacio. En Fulkro esas reglas estaban <b>programadas dentro de la plataforma</b>, así que se aplicaban completas, iguales y rápidas todas las veces; después, un <b>experto en ENS lo revisaba y lo firmaba</b>. La parte técnica —implantar las medidas en los sistemas del cliente y corregir lo que fallara— <b>también la ejecutaba el servicio</b>, con los accesos que el cliente concedía. El cliente no tocaba un terminal: veía el avance, aprobaba, firmaba y daba permisos.</p>
-    </div>
-    <div class="glass reveal" style="margin-top:30px;padding:26px 30px;border-radius:18px">
-      <div class="kicker">Como la declaración de la Renta</div>
-      <p style="margin:8px 0 0;line-height:1.75;color:var(--text-dim);font-size:16px"><b>La consultoría de siempre</b> es un gestor que lo hace todo a mano durante meses y entrega una carpeta de papeles. <b>Un software de cumplimiento</b> es el programa de Hacienda: te lo dan y lo rellenas —y lo entiendes— <b>tú</b>. <b>Fulkro</b> era aportar los datos y que <b>el sistema hiciera las cuentas solo</b> —las fórmulas ya venían metidas—, que un <b>experto lo revisara y lo firmara</b>, y recibir la declaración terminada. El cliente solo aprobaba y firmaba.</p>
-    </div>
-    <p class="lead wide reveal" style="margin-top:26px">La parte menos habitual del planteamiento era hacer también la <b>implantación técnica y la remediación</b> sobre los sistemas del cliente, no solo los documentos. Siempre con el mismo flujo: <b>se propone → el cliente autoriza y da acceso → se ejecuta y se reverifica</b>.</p>
-  </div>
-</section>
-
-<section class="block" id="porque">
-  <div class="wrap">
-    <div class="reveal">
-      <div class="kicker">Por qué Fulkro</div>
-      <h2 class="wide">Lo que en otros sitios es una carpeta de Word, aquí es un sistema vivo.</h2>
-      <p class="lead wide">La consultoría de siempre te entrega documentos y te deja a tu suerte. En Fulkro, una <b>plataforma propia</b> hace el trabajo pesado del Esquema Nacional de Seguridad —categorización, riesgos, documentación, evidencias— y un <b>experto lo revisa y valida —siempre el mismo, de principio a fin—</b> antes de que llegue al auditor. No necesitas saber de seguridad: lo operamos nosotros y tú ves el avance en tiempo real, revisas, apruebas y firmas. <b>Más abajo lo ves por dentro</b>, pantalla a pantalla, en los tres portales.</p>
-    </div>
-    <div class="cards3" style="margin-top:40px">
-      <div class="pcard glass reveal"><div class="ico"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="3"/><path d="M3 9h18M9 21V9"/></svg></div><h3>Una plataforma, no un PDF</h3><p>Todo el ENS vive en un sistema conectado: nada de plantillas sueltas que acabas rellenando tú.</p></div>
-      <div class="pcard glass reveal"><div class="ico"><svg viewBox="0 0 24 24"><path d="M13 2L4.5 13H11l-1 9 8.5-11H12z"/></svg></div><h3>Semanas, no meses</h3><p>Lo que la consultoría tradicional tardaba medio año, aquí eran 2-4 semanas de implantación, con revisión manual experta y plazo por escrito.</p></div>
-      <div class="pcard glass reveal"><div class="ico"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3"/></svg></div><h3>Nube vigilada y escaneo de seguridad</h3><p>La plataforma vigilaba la nube del cliente en continuo y escaneaba sus sistemas en busca de fallos de forma periódica, y un experto validaba los hallazgos y descartaba las falsas alarmas. En nivel Alta, además, un pentester externo hacía el test de intrusión. El cliente no tenía que ser técnico.</p></div>
-    </div>
-    <div class="ctas reveal" style="margin-top:42px"><a href="https://github.com/Fulkrodev/Fulkrosys" class="btn btn-primary lg" target="_blank" rel="noopener">Ver el código en GitHub</a><a href="#capturas" class="btn btn-ghost lg">Verlo por dentro →</a></div>
-  </div>
-</section>
-
-<section class="block" id="problema">
-  <div class="wrap">
-    <div class="reveal">
-      <div class="kicker">El problema</div>
-      <h2>Sin el Esquema Nacional de Seguridad, no se entra a concursar.</h2>
-      <p class="lead">El Esquema Nacional de Seguridad ha dejado de ser un trámite posterior. Cada vez más pliegos lo exigen como requisito de entrada: si no acreditas la conformidad, la mesa de contratación ni siquiera valora tu oferta. Quedas fuera antes de competir.</p>
+    <div class="reveal sec-intro">
+      <div class="kicker">Capacidades</div>
+      <h2 class="wide">Todo el Esquema Nacional de Seguridad, en un sistema conectado.</h2>
+      <p class="lead">Lo que se decidía en riesgos se reflejaba en las medidas, las medidas pedían sus evidencias y las evidencias llegaban listas al auditor. Estas son las piezas.</p>
     </div>
     <div class="cards3">
-      <div class="pcard glass reveal"><div class="ico"><svg viewBox="0 0 24 24"><path d="M14 3H6a1 1 0 0 0-1 1v16a1 1 0 0 0 1 1h8"/><path d="M13 12h8"/><path d="M18 9l3 3-3 3"/></svg></div><h3>Exclusión de salida</h3><p>Contratos que antes se ganaban dejan fuera a quien no acredita el ENS. Y no compite quien no entra.</p></div>
-      <div class="pcard glass reveal"><div class="ico"><svg viewBox="0 0 24 24"><path d="M12 3l8 3v5c0 5-3.4 8.5-8 10-4.6-1.5-8-5-8-10V6z"/><path d="M9 12l2.2 2.2L16 9.5"/></svg></div><h3>Es requisito previo a la solvencia</h3><p>Cuando el ENS se exige como solvencia o habilitación, hay que acreditarlo con la oferta. Sin él, no se llega a valorar la oferta económica ni la propuesta técnica.</p></div>
-      <div class="pcard glass reveal"><div class="ico"><svg viewBox="0 0 24 24"><circle cx="12" cy="14" r="7"/><path d="M12 14V10"/><path d="M12 14l3 2"/><path d="M9 3h6"/></svg></div><h3>Empezar tarde es perder</h3><p>La consultoría tradicional tarda meses. Cuando sale el pliego, ya no llegas. La conformidad hay que anticiparla.</p></div>
+      <div class="pcard glass reveal"><div class="ico"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg></div><h3>Ciclo ENS completo</h3><p>Categorización por las cinco dimensiones del Anexo I, MAGERIT v3, declaración de aplicabilidad, plan con Gantt, implantación, simulacro de auditoría y declaración de conformidad.</p></div>
+      <div class="pcard glass reveal"><div class="ico"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M7 9h10M7 13h6"/></svg></div><h3>Motores deterministas</h3><p>44 motores de dominio. Cada regla normativa vive en uno solo, con tests que impiden duplicarla, y los dos ejes del Anexo II están verificados contra el BOE.</p></div>
+      <div class="pcard glass reveal"><div class="ico"><svg viewBox="0 0 24 24"><path d="M12 3l2.4 5 5.6.8-4 3.9.9 5.5L12 15.6 7.1 18.2l.9-5.5-4-3.9 5.6-.8z"/></svg></div><h3>Capa de IA</h3><p>12 agentes con salida estructurada y un copiloto que explica cada pantalla, cita el RD 311/2022 y responde en streaming. Cada texto declara su procedencia.</p></div>
+      <div class="pcard glass reveal"><div class="ico"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg></div><h3>RAG normativo</h3><p>1.031 fragmentos del RD 311/2022 y de la legislación de la UE, embeddings e5-large de 1024 dimensiones en pgvector y una recuperación elegida por evaluación.</p></div>
+      <div class="pcard glass reveal"><div class="ico"><svg viewBox="0 0 24 24"><path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><path d="M14 3v6h6M8 13h8M8 17h5"/></svg></div><h3>Fábrica documental</h3><p>123 plantillas (35 políticas, 36 procedimientos, 41 entregables y registros) que salen en DOCX y PDF con los datos del proyecto, versionadas y firmables.</p></div>
+      <div class="pcard glass reveal"><div class="ico"><svg viewBox="0 0 24 24"><rect x="4" y="10" width="16" height="11" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg></div><h3>Evidencia con custodia</h3><p>Antivirus, sello SHA-256 y firma Ed25519 en cada evidencia, guardada en un almacén WORM con retención de 7 años. El auditor ve la cobertura medida contra ella.</p></div>
+      <div class="pcard glass reveal"><div class="ico"><svg viewBox="0 0 24 24"><path d="M3 17c3-4 5 2 8-2s5 2 8-2"/><path d="M3 21h18"/></svg></div><h3>Firma electrónica</h3><p>Firma sobre lienzo (eIDAS art. 25.1) con sello Ed25519, cadena de hashes por documento, verificación por OTP y la firma incrustada en el PDF.</p></div>
+      <div class="pcard glass reveal"><div class="ico"><svg viewBox="0 0 24 24"><path d="M7 18a4 4 0 0 1-.5-8A6 6 0 0 1 18 9a4 4 0 0 1-1 9z"/></svg></div><h3>Nube y verificación técnica</h3><p>Conectores de sólo lectura para Microsoft 365 y Google Workspace, y 13 servidores MCP de verificación (nube, red, web, SAST…) tras un guardián de alcance.</p></div>
+      <div class="pcard glass reveal"><div class="ico"><svg viewBox="0 0 24 24"><path d="M3 12h4l3 8 4-16 3 8h4"/></svg></div><h3>Operación y cumplimiento propio</h3><p>Coste de cada llamada al modelo registrado, un monitor que aplica el ENS Medio a la propia plataforma, copias cifradas y 20 tareas programadas.</p></div>
     </div>
-    <div class="callout reveal">
-      <div class="ct"><svg viewBox="0 0 24 24" fill="none" stroke="#aba4ff" stroke-width="1.9" style="width:16px;height:16px" stroke-linecap="round"><path d="M12 16v-4M12 8h.01"/><circle cx="12" cy="12" r="9"/></svg>Lo que dice la norma</div>
-      <p>El Tribunal Administrativo Central de Recursos Contractuales (TACRC) ha confirmado que la conformidad con el ENS puede exigirse en los pliegos como <b>requisito de habilitación, criterio de solvencia técnica, criterio de adjudicación o condición especial de ejecución</b>. Cuando se configura como requisito de solvencia, su acreditación debe aportarse junto con la oferta y verificarse antes de la adjudicación: su incumplimiento es <b>causa de exclusión</b>. Regulado por el <b>Real Decreto 311/2022</b>. Y no es doctrina antigua: el TACRC sigue resolviendo recursos sobre cláusulas ENS en pliegos este mismo año (p. ej., Resolución 125/2026, de 29 de enero).</p>
+  </div>
+</section>
+
+<section class="block tight" id="ciclo">
+  <div class="wrap">
+    <div class="reveal sec-intro">
+      <div class="kicker">El ciclo ENS</div>
+      <h2 class="wide">Siete fases con puertas entre ellas, programadas en el código.</h2>
+      <p class="lead">Cada fase consume lo que produjo la anterior. Elige una para ver qué motor la resuelve, qué produce y qué hace falta para pasar a la siguiente.</p>
+    </div>
+    <div id="ciclo-app" class="reveal">
+      <div class="cy-steps" role="tablist" aria-label="Fases del ciclo ENS"><span class="cy-fill" id="cy-fill"></span></div>
+      <div class="cy-panel glass" id="cy-panel" aria-live="polite"></div>
     </div>
   </div>
 </section>
@@ -1251,9 +1323,9 @@
   </style>
   <div class="wrap">
     <div class="reveal shots-intro">
-      <div class="kicker">Imágenes reales del producto</div>
-      <h2>Por dentro: los tres portales, pantalla a pantalla.</h2>
-      <p class="lead">No son renders: son capturas del producto. El trabajo pesado ocurría en el <b>portal de administración</b>; el cliente apenas tocaba nada en el <b>portal del cliente</b> —veía, aprobaba y firmaba—; y el <b>portal del auditor</b> era lo que recibía la entidad certificadora.</p>
+      <div class="kicker">Los cuatro portales</div>
+      <h2>Cada actor, su portal. Pantalla a pantalla.</h2>
+      <p class="lead">Capturas reales del producto. El consultor construye el ENS en <b>administración</b>; el cliente ve, autoriza y firma en <b>su portal</b>; el <b>auditor</b> recibe el expediente en sólo lectura; y cualquiera puede <b>verificar</b> una firma sin entrar.</p>
       <div class="demo-tag"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 8v4M12 16h.01"/></svg>Imágenes reales del producto · datos de demostración</div>
     </div>
 
@@ -1319,218 +1391,276 @@
     render();
   })();
   </script>
-</section>
-
-<section class="block tight" id="coste">
   <div class="wrap">
-    <div class="reveal">
-      <div class="kicker">El problema que resolvía</div>
-      <h2 class="wide">Un concurso que exige el Esquema Nacional de Seguridad y no se puede acreditar es un concurso perdido.</h2>
-      <p class="lead wide">Así funciona la contratación pública: la conformidad con el ENS se comprueba antes de adjudicar, y quien no la tiene queda fuera. Esa asimetría es la que Fulkro intentaba cerrar.</p>
-    </div>
-    <div class="split">
-      <div class="splitcard bad reveal">
-        <div class="lbl-top"><span class="badge"><svg viewBox="0 0 24 24"><path d="M18 6 6 18M6 6l12 12"/></svg></span>Sin el ENS</div>
-        <h3>Sin acreditar, fuera antes de competir</h3>
-        <ul>
-          <li><svg viewBox="0 0 24 24"><path d="M18 6 6 18M6 6l12 12"/></svg>La mesa de contratación no valora la oferta: exclusión directa.</li>
-          <li><svg viewBox="0 0 24 24"><path d="M18 6 6 18M6 6l12 12"/></svg>Se pierden contratos que por capacidad técnica se podrían ganar.</li>
-          <li><svg viewBox="0 0 24 24"><path d="M18 6 6 18M6 6l12 12"/></svg>Se empieza a correr cuando el pliego ya ha salido. Tarde.</li>
-          <li><svg viewBox="0 0 24 24"><path d="M18 6 6 18M6 6l12 12"/></svg>Meses de trabajo interno improvisado y sin método.</li>
-          <li><svg viewBox="0 0 24 24"><path d="M18 6 6 18M6 6l12 12"/></svg>El expediente se rehace desde cero en cada licitación.</li>
-        </ul>
-      </div>
-      <div class="splitcard good reveal">
-        <div class="lbl-top"><span class="badge"><svg viewBox="0 0 24 24"><path d="M5 13l4 4L19 7"/></svg></span>Con el ENS implantado</div>
-        <h3>Se llega con la conformidad acreditada</h3>
-        <ul>
-          <li><svg viewBox="0 0 24 24"><path d="M5 13l4 4L19 7"/></svg>Se concursa con el ENS hecho y se compite de tú a tú.</li>
-          <li><svg viewBox="0 0 24 24"><path d="M5 13l4 4L19 7"/></svg>La oferta sí se valora: se gana o se pierde por mérito, no por un papel.</li>
-          <li><svg viewBox="0 0 24 24"><path d="M5 13l4 4L19 7"/></svg>Se llega preparado antes de que salga el concurso.</li>
-          <li><svg viewBox="0 0 24 24"><path d="M5 13l4 4L19 7"/></svg>El expediente queda vivo y reutilizable, no en una carpeta muerta.</li>
-          <li><svg viewBox="0 0 24 24"><path d="M5 13l4 4L19 7"/></svg>Cada medida queda enlazada con su evidencia y su riesgo.</li>
-        </ul>
-      </div>
-    </div>
-    <div class="bigstats">
-      <!-- 44 = ls -d backend/app/motors/m*/ | wc -l -->
-      <div class="bigstat reveal"><div class="n"><span class="count" data-to="44">44</span></div><div class="k">motores del ciclo ENS que componían la plataforma</div></div>
-      <!-- 268 = ls backend/migrations/versions/*.py | wc -l -->
-      <div class="bigstat reveal"><div class="n"><span class="count" data-to="268">268</span></div><div class="k">migraciones con las que evolucionó su base de datos</div></div>
-      <!-- 131 = find backend/app/motors/m06_document_factory/templates -name '*.md' | wc -l
-             (commercial 3 + deliverables 46 + policies 42 + procedures 40) -->
-      <div class="bigstat reveal"><div class="n"><span class="count" data-to="131">131</span></div><div class="k">plantillas de documento de la fábrica documental</div></div>
-      <!-- 73 = TOTAL_MEDIDAS en backend/app/motors/m03_dda/anexo2_rd311_2022.py:117 (4 org + 33 op + 36 mp) -->
-      <div class="bigstat reveal"><div class="n"><span class="count" data-to="73">73</span></div><div class="k">medidas del Anexo II (RD 311/2022) a cubrir en el nivel más exigente</div></div>
+    <div class="portal4">
+      <div class="pcard glass reveal sm"><span class="who">El consultor</span><h3>Administración</h3><p>Contraseña y WebAuthn o TOTP.</p><ul><li>95 páginas, 46 pestañas por proyecto ordenadas según el ciclo</li><li>Centro de mando de todos los clientes</li><li>Copiloto que explica cada pantalla</li></ul></div>
+      <div class="pcard glass reveal sm"><span class="who">La empresa que implanta</span><h3>Cliente</h3><p>Correo, contraseña y MFA.</p><ul><li>41 páginas para ver, autorizar, firmar y recibir</li><li>Avance, tareas, documentos y chat</li><li>Tono sin jerga, vigilado por tests</li></ul></div>
+      <div class="pcard glass reveal sm"><span class="who">La entidad certificadora</span><h3>Auditor</h3><p>Enlace Ed25519 y código de un solo uso.</p><ul><li>Expediente completo de sólo lectura</li><li>Mapa de cobertura y registro inmutable</li><li>Anotaciones y aclaraciones en tiempo real</li></ul></div>
+      <div class="pcard glass reveal sm"><span class="who">Cualquiera con un enlace</span><h3>Público</h3><p>Enlace firmado.</p><ul><li>Descarga de documentos y firma de terceros</li><li>Cuestionario de diagnóstico previo</li><li>Verificación de firmas contra la clave pública</li></ul></div>
     </div>
   </div>
 </section>
 
-<section class="block tight" id="como">
+<section class="block" id="ia">
   <div class="wrap">
-    <div class="reveal"><div class="kicker">Cómo funcionaba</div><h2>De cero a certificado, sin que el cliente tuviera que ser experto.</h2><p class="lead">Cuatro fases, una plataforma que las orquestaba y un experto al lado en cada decisión. El cliente revisaba, autorizaba y firmaba.</p></div>
-    <div class="steps">
-      <div class="step reveal"><div class="num">01</div><div><h3>Diagnóstico</h3><p>Se analizaba la situación de partida, los pliegos a los que la empresa concurría y el nivel ENS que le correspondía de verdad. El resultado era un punto de partida con números: dónde estaba y cuánto le faltaba.</p><div class="meta"><span><b>Salida:</b> nivel ENS y brecha</span><span><b>Duración:</b> 1 reunión</span><span><b>Cliente:</b> describe a qué licita</span></div></div></div>
-      <div class="step reveal"><div class="num">02</div><div><h3>Plan de adecuación</h3><p>De ahí salía una hoja de ruta priorizada, ajustada al nivel ENS y al alcance real del contrato. No era un paquete cerrado: solo las medidas que aplicaban, en el orden correcto y con plazos.</p><div class="meta"><span><b>Entregable:</b> plan de adecuación</span><span><b>Alcance:</b> según nivel y contrato</span></div></div></div>
-      <div class="step reveal"><div class="num">03</div><div><h3>Implantación acompañada</h3><p>Se ejecutaba sobre la plataforma: políticas, análisis de riesgos MAGERIT, controles, evidencias y verificación técnica. No terminaba en un PDF: cada medida quedaba enlazada con su evidencia.</p><div class="meta"><span><b>Documentación:</b> generada automáticamente</span><span><b>Cliente:</b> revisa y firma en su portal</span></div></div></div>
-      <div class="step reveal"><div class="num">04</div><div><h3>Certificación y mantenimiento</h3><p>La empresa llegaba a la auditoría ENAC con el expediente completo, entregado al auditor en su propio portal de solo lectura. Después venía el mantenimiento de la conformidad.</p><div class="meta"><span><b>Auditoría:</b> entidad ENAC independiente</span><span><b>Después:</b> mantenimiento de la conformidad</span></div></div></div>
+    <div class="reveal sec-intro">
+      <div class="kicker">La capa de IA</div>
+      <h2 class="wide">Los motores deciden. El modelo redacta, y lo dice.</h2>
+      <p class="lead">Ninguna decisión normativa depende de un modelo de lenguaje: la categoría, las medidas que aplican y los plazos los calcula un motor determinista. La IA redacta, resume y explica, con salida estructurada, citas obligatorias y la procedencia de cada texto a la vista.</p>
+    </div>
+    <div class="diag reveal"><img src="assets/diagramas/ia.svg" decoding="async" alt="La capa de IA: el motor decide y produce los entregables firmables; los agentes redactan con salida estructurada y cada texto declara su procedencia"></div>
+    <div class="agents">
+      <div class="agent reveal"><b>Redactor de diagnósticos</b><small><span>A4</span><span>m22</span><span>Sonnet</span></small><p>Las secciones narrativas del diagnóstico E-090; los datos los calcula el motor.</p></div>
+      <div class="agent reveal"><b>Analista de contratos</b><small><span>A6</span><span>m14</span><span>Sonnet</span></small><p>Revisa los contratos del cliente con sus proveedores y detecta brechas ENS y RGPD.</p></div>
+      <div class="agent reveal"><b>Auditor interno virtual</b><small><span>A11</span><span>m10</span><span>Opus</span></small><p>Añade criterio de auditor sénior al simulacro determinista de 58 preguntas.</p></div>
+      <div class="agent reveal"><b>Coach del cliente</b><small><span>A12</span><span>m09</span><span>Sonnet</span></small><p>Evalúa las respuestas del cliente a las preguntas del auditor.</p></div>
+      <div class="agent reveal"><b>Copiloto</b><small><span>A14</span><span>m11</span><span>Sonnet</span></small><p>Conversa sobre la pantalla actual con RAG, citas y respuesta en streaming.</p></div>
+      <div class="agent reveal"><b>Cualificador comercial</b><small><span>A17</span><span>m13</span><span>Sonnet</span></small><p>Puntúa una oportunidad tras el primer contacto.</p></div>
+      <div class="agent reveal"><b>Reunión exploratoria</b><small><span>A18</span><span>m13</span><span>Sonnet</span></small><p>Recalcula en vivo las conclusiones de la reunión a partir de las notas.</p></div>
+      <div class="agent reveal"><b>Redactor de propuestas</b><small><span>A19</span><span>m13</span><span>Opus</span></small><p>Redacta la propuesta sobre la tarifa que calcula el motor.</p></div>
+      <div class="agent reveal"><b>Negociador contractual</b><small><span>A20</span><span>m14</span><span>Sonnet</span></small><p>Convierte la propuesta aprobada en el borrador de contrato.</p></div>
+      <div class="agent reveal"><b>Detector de discrepancias</b><small><span>A21</span><span>m04</span><span>determinista</span></small><p>Cruza lo declarado con lo verificado.</p></div>
+      <div class="agent reveal"><b>Clasificador documental</b><small><span>A27</span><span>m24</span><span>Haiku</span></small><p>Ubica los documentos que la heurística determinista no sabe clasificar.</p></div>
+      <div class="agent reveal"><b>Enriquecedor de la DdA</b><small><span>A31</span><span>m03</span><span>Sonnet</span></small><p>Propone una justificación con el contexto del cliente para las medidas que no aplican.</p></div>
+    </div>
+    <div class="prov reveal">
+      <div><code>modelo</code><p>Lo redactó el modelo y la salida cumplió su esquema JSON.</p></div>
+      <div><code>plantilla_por_fallo_de_esquema</code><p>El modelo contestó, pero la salida no cumplió el esquema tras tres reintentos.</p></div>
+      <div><code>sin_clave_de_api</code><p>Sin clave de API no se llama a ningún modelo, y la pantalla lo avisa.</p></div>
+    </div>
+    <div class="qgrid reveal">
+      <div><b>Router de LLM</b><p>Tres reintentos ante un 429 (2, 8 y 32 s) y modelo de reserva si el pedido sigue saturado.</p></div>
+      <div><b>Caché de prompts</b><p>El prompt de sistema viaja con <code>cache_control</code> efímero y se reutiliza entre llamadas.</p></div>
+      <div><b>Coste de cada llamada</b><p>Modelo, tokens y coste en un registro propio, con topes por superficie.</p></div>
+      <div><b>Temperatura ≤ 0,2</b><p>Fijada por un catálogo que sabe qué modelos la admiten.</p></div>
+      <div><b>Guardia anti-inyección</b><p>Filtra instrucciones ocultas en el texto que llega del usuario o de un documento.</p></div>
+      <div><b>Tono al cliente</b><p>Un filtro rechaza jerga interna y lenguaje coercitivo en lo que ve el cliente.</p></div>
     </div>
   </div>
 </section>
 
-<section class="block" id="comparativa">
+<section class="block tight" id="rag">
   <div class="wrap">
-    <div class="reveal"><div class="kicker">La comparativa</div><h2 class="wide">En qué se diferenciaba de una consultoría ENS.</h2><p class="lead">Fulkro no era una consultora con plantillas de Word, sino una plataforma de cumplimiento. Punto por punto, así se repartían las diferencias.</p></div>
-    <div class="cmp reveal">
-      <div class="cmp-scroll">
-        <table class="compare">
-          <thead>
-            <tr>
-              <th></th>
-              <th class="us">Fulkro</th>
-              <th>Consultoría ENS tradicional</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td>Tiempo hasta estar listo para la auditoría</td>
-              <td class="us"><span class="cmp-tag y"><svg viewBox="0 0 24 24"><path d="M5 13l4 4L19 7"/></svg></span> 2-4 semanas de implantación (proceso afinado y automatizado)</td>
-              <td class="them">Meses de trabajo por horas de consultoría</td>
-            </tr>
-            <tr>
-              <td>Modelo económico</td>
-              <td class="us"><span class="cmp-tag y"><svg viewBox="0 0 24 24"><path d="M5 13l4 4L19 7"/></svg></span> Cerrado por adelantado, en función del nivel ENS</td>
-              <td class="them">Presupuesto a medida que se ajusta sobre la marcha</td>
-            </tr>
-            <tr>
-              <td>Documentación ENS</td>
-              <!-- 46 = ls backend/app/motors/m06_document_factory/templates/deliverables/*.md | wc -l -->
-              <td class="us"><span class="cmp-tag y"><svg viewBox="0 0 24 24"><path d="M5 13l4 4L19 7"/></svg></span> 46 entregables ENS generados por la plataforma</td>
-              <td class="them">Plantillas genéricas que rellenas tú</td>
-            </tr>
-            <tr>
-              <td>Portal para el cliente</td>
-              <td class="us"><span class="cmp-tag y"><svg viewBox="0 0 24 24"><path d="M5 13l4 4L19 7"/></svg></span> El cliente ve, autoriza y firma en su portal</td>
-              <td class="them">Correos, Excel y carpetas compartidas</td>
-            </tr>
-            <tr>
-              <td>Análisis de riesgos MAGERIT</td>
-              <td class="us"><span class="cmp-tag y"><svg viewBox="0 0 24 24"><path d="M5 13l4 4L19 7"/></svg></span> Integrado y conectado a las medidas</td>
-              <td class="them">Hoja aparte, sin trazabilidad</td>
-            </tr>
-            <tr>
-              <td>Verificación técnica y pentest</td>
-              <td class="us"><span class="cmp-tag y"><svg viewBox="0 0 24 24"><path d="M5 13l4 4L19 7"/></svg></span> Motor propio (scan en Media, pentest en Alta)</td>
-              <td class="them">Se subcontrata aparte y se factura aparte</td>
-            </tr>
-            <tr>
-              <td>Entrega al auditor ENAC</td>
-              <td class="us"><span class="cmp-tag y"><svg viewBox="0 0 24 24"><path d="M5 13l4 4L19 7"/></svg></span> Portal de solo lectura con todo el expediente</td>
-              <td class="them">Envío manual de documentos por email</td>
-            </tr>
-            <tr>
-              <td>Simulacro de auditoría</td>
-              <td class="us"><span class="cmp-tag y"><svg viewBox="0 0 24 24"><path d="M5 13l4 4L19 7"/></svg></span> Simulacro previo antes de la auditoría real</td>
-              <td class="them">Normalmente no se hace</td>
-            </tr>
-            <tr>
-              <td>Mantenimiento post-certificación</td>
-              <td class="us"><span class="cmp-tag y"><svg viewBox="0 0 24 24"><path d="M5 13l4 4L19 7"/></svg></span> Vigilancia continua y detección de cambios</td>
-              <td class="them">«Hasta la renovación, ya nos llamas»</td>
-            </tr>
-            <tr>
-              <td>Soporte cuando surge algo</td>
-              <td class="us"><span class="cmp-tag y"><svg viewBox="0 0 24 24"><path d="M5 13l4 4L19 7"/></svg></span> Trato directo con el experto, también en plena auditoría</td>
-              <td class="them">Horario de oficina y tickets que tardan días</td>
-            </tr>
-            <tr>
-              <td>Quién atendía</td>
-              <td class="us"><span class="cmp-tag y"><svg viewBox="0 0 24 24"><path d="M5 13l4 4L19 7"/></svg></span> Un experto que conoce el caso, siempre el mismo</td>
-              <td class="them">Comercial primero, técnicos rotando después</td>
-            </tr>
-          </tbody>
+    <div class="reveal sec-intro">
+      <div class="kicker">RAG normativo</div>
+      <h2 class="wide">Recuperación medida, respuestas ancladas a la norma.</h2>
+      <p class="lead">El copiloto responde con fragmentos del RD 311/2022 y de la legislación europea, y cita cada afirmación. La arquitectura de la recuperación no se eligió por intuición: se midió.</p>
+    </div>
+    <div class="diag reveal"><img src="assets/diagramas/rag.svg" decoding="async" alt="RAG: ingesta, fragmentos, embeddings en pgvector, recuperación top-30 a top-5, prompt con reglas, router y validación, y la evaluación"></div>
+    <div class="steps4">
+      <div class="pcard glass reveal sm"><h3>1 · Ingesta</h3><p>Un parser determinista trocea el BOE por artículos y anexos (con los 73 códigos de medida) y los textos de la UE: 1.031 fragmentos.</p></div>
+      <div class="pcard glass reveal sm"><h3>2 · Embeddings</h3><p><span class="mono">multilingual-e5-large</span>, 1024 dimensiones, en pgvector con índice HNSW sobre coseno.</p></div>
+      <div class="pcard glass reveal sm"><h3>3 · Recuperación</h3><p>La pregunta y el contexto de la pantalla se vectorizan; 30 candidatos por coseno, se quedan los 5 mejores.</p></div>
+      <div class="pcard glass reveal sm"><h3>4 · Validación</h3><p>Citas extraídas, al menos un 30 % de anclaje en los fragmentos y detección de «no está en el corpus».</p></div>
+    </div>
+    <div class="evalbox glass reveal" id="evalbox">
+      <div>
+        <div class="kicker" style="margin-bottom:8px">Evaluación</div>
+        <h3>49 consultas etiquetadas a mano</h3>
+        <p style="color:var(--text-dim);font-size:15px;line-height:1.6">Las ramas se midieron sobre las mismas consultas, con intervalos por <i>bootstrap</i> de 10.000 remuestreos. La vectorial sola gana a la fusión con la rama léxica en las tres métricas, con intervalos que excluyen el cero. La fusión se retiró.</p>
+        <table class="ci">
+          <tr><td>vectorial − fusión · acierto@5</td><td>+0,102</td><td>IC [+0,020, +0,204]</td></tr>
+          <tr><td>vectorial − fusión · recall@5</td><td>+0,157</td><td>IC [+0,065, +0,255]</td></tr>
+          <tr><td>vectorial − fusión · MRR</td><td>+0,125</td><td>IC [+0,013, +0,246]</td></tr>
         </table>
       </div>
+      <div class="bars">
+        <div><div class="m">acierto@5</div>
+          <div class="row vec"><span>vectorial</span><div class="track"><i data-w="95.9"></i></div><span>0,959</span></div>
+          <div class="row rrf"><span>fusión</span><div class="track"><i data-w="85.7"></i></div><span>0,857</span></div></div>
+        <div><div class="m">recall@5</div>
+          <div class="row vec"><span>vectorial</span><div class="track"><i data-w="82.4"></i></div><span>0,824</span></div>
+          <div class="row rrf"><span>fusión</span><div class="track"><i data-w="66.7"></i></div><span>0,667</span></div></div>
+        <div><div class="m">MRR</div>
+          <div class="row vec"><span>vectorial</span><div class="track"><i data-w="75.2"></i></div><span>0,752</span></div>
+          <div class="row rrf"><span>fusión</span><div class="track"><i data-w="62.7"></i></div><span>0,627</span></div></div>
+      </div>
     </div>
-    <div class="ctas reveal" style="margin-top:26px"><a href="https://github.com/Fulkrodev/Fulkrosys" class="btn btn-ghost lg" target="_blank" rel="noopener">Ver el código en GitHub →</a></div>
   </div>
 </section>
 
-<section class="block tight" id="paraquien">
+<section class="block" id="arquitectura">
   <div class="wrap">
-    <div class="reveal">
-      <div class="kicker">Para quién es</div>
-      <h2 class="wide">Si licitas con lo público y tocas datos o sistemas, esto va contigo.</h2>
-      <p class="lead wide">El ENS no es solo cosa de la Administración: alcanza a las empresas que le prestan servicios tecnológicos. Estos son los perfiles que más nos llegan.</p>
+    <div class="reveal sec-intro">
+      <div class="kicker">Arquitectura</div>
+      <h2 class="wide">Una sola puerta, cuarenta y cuatro motores y el aislamiento en la base de datos.</h2>
+      <p class="lead">Next.js 15 delante, FastAPI con 1.203 operaciones detrás y PostgreSQL 16 con pgvector y RLS como fuente de verdad. Los procesos no guardan estado: escalar es añadir réplicas, y se midió con dos.</p>
     </div>
-    <div class="sectors reveal">
-      <span class="sector"><svg viewBox="0 0 24 24"><path d="M8 9l3 3-3 3M13 15h3"/><rect x="3" y="4" width="18" height="16" rx="2"/></svg>Software y SaaS para administraciones</span>
-      <span class="sector"><svg viewBox="0 0 24 24"><path d="M6 16a4 4 0 0 1 0-8 5 5 0 0 1 9.6-1.5A4.5 4.5 0 0 1 18 16z"/></svg>Cloud, hosting y centros de datos</span>
-      <span class="sector"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19 12a7 7 0 0 0-.1-1l2-1.5-2-3.4-2.3 1a7 7 0 0 0-1.7-1l-.3-2.5h-4l-.3 2.5a7 7 0 0 0-1.7 1l-2.3-1-2 3.4 2 1.5a7 7 0 0 0 0 2l-2 1.5 2 3.4 2.3-1a7 7 0 0 0 1.7 1l.3 2.5h4l.3-2.5a7 7 0 0 0 1.7-1l2.3 1 2-3.4-2-1.5a7 7 0 0 0 .1-1z"/></svg>Consultoras tecnológicas e integradores</span>
-      <span class="sector"><svg viewBox="0 0 24 24"><path d="M12 3l8 3v5c0 5-3.4 8.5-8 10-4.6-1.5-8-5-8-10V6z"/><path d="M9 12l2 2 4-4"/></svg>Ciberseguridad y servicios gestionados</span>
-      <span class="sector"><svg viewBox="0 0 24 24"><path d="M5 12.5a9 9 0 0 1 14 0M8 16a5 5 0 0 1 8 0M2 9a14 14 0 0 1 20 0"/><circle cx="12" cy="19" r="1"/></svg>Telecomunicaciones y conectividad</span>
-      <span class="sector"><svg viewBox="0 0 24 24"><path d="M14 3v4a1 1 0 0 0 1 1h4"/><path d="M5 4a2 2 0 0 1 2-2h7l5 5v13a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2z"/><path d="M9 13l2 2 4-4"/></svg>Ingeniería, sistemas y BPO</span>
-      <span class="sector"><svg viewBox="0 0 24 24"><path d="M11 3 4 14h7l-1 7 7-11h-7z"/></svg>Empresas de impacto digital crítico</span>
-      <span class="sector"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 10h18M9 16h6"/></svg>Sanidad y administración electrónica</span>
+    <div class="diag reveal"><img src="assets/diagramas/arquitectura.svg" decoding="async" alt="Arquitectura: cuatro portales, Next.js, una sola puerta de autenticación, 44 motores en cuatro grupos, trabajo asíncrono y capa de datos"></div>
+    <div class="pills reveal">
+      <span class="chip">Next.js 15 · React · TypeScript</span><span class="chip">Tailwind · shadcn/ui · TanStack Query</span>
+      <span class="chip">Python 3.12 · FastAPI · SQLAlchemy 2</span><span class="chip">PostgreSQL 16 · pgvector · RLS</span>
+      <span class="chip">Celery · Redis · SSE</span><span class="chip">MinIO · Object Lock</span><span class="chip">SDK de Anthropic · FastEmbed</span>
+      <span class="chip">Docker Compose · Caddy · GHCR</span>
     </div>
   </div>
 </section>
 
-<section class="block tight" id="plataforma">
+<section class="block tight" id="seguridad">
   <div class="wrap">
-    <div class="reveal"><div class="kicker">Lo que hacía Fulkro</div><h2>No dejaba un PDF. Dejaba una plataforma.</h2><p class="lead">Todo el cumplimiento ENS vivía en un único sitio, conectado de principio a fin: lo que se decidía en riesgos se reflejaba en las medidas, las medidas pedían sus evidencias, y las evidencias llegaban listas al auditor.</p></div>
-    <div class="bento">
-      <div class="bx glass reveal"><div class="ico"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="14" rx="2"/><path d="M8 21h8M12 18v3"/><path d="M7 9h6M7 13h4"/></svg></div><h3>El portal del cliente</h3><p>Un espacio claro y sin jerga donde el cliente veía el avance, revisaba las decisiones técnicas, autorizaba las verificaciones y firmaba con validez electrónica. El cliente decidía; la plataforma operaba la parte difícil.</p></div>
-      <div class="bx glass reveal"><div class="ico"><svg viewBox="0 0 24 24"><path d="M12 3l8 3v5c0 5-3.4 8.5-8 10-4.6-1.5-8-5-8-10V6z"/></svg></div><h3>Evidencias con custodia</h3><p>Análisis antivirus, verificación criptográfica y almacenamiento inmutable de cada prueba.</p></div>
-      <div class="bx glass reveal"><div class="ico"><svg viewBox="0 0 24 24"><path d="M3 3v18h18"/><path d="M7 14l4-4 3 3 5-6"/></svg></div><h3>Riesgos MAGERIT</h3><p>El análisis de riesgos integrado y conectado con las medidas que aplican a tu sistema.</p></div>
-      <div class="bx glass reveal"><div class="ico"><svg viewBox="0 0 24 24"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><rect x="8" y="2" width="8" height="4" rx="1"/><path d="M9 12l2 2 4-4"/></svg></div><h3>Fábrica documental</h3><p>Los 46 entregables ENS del expediente, generados y versionados por la plataforma a partir de sus 131 plantillas de documento, y revisados por un experto antes de la firma.</p></div>
-      <div class="bx glass reveal"><div class="ico"><svg viewBox="0 0 24 24"><path d="M12 3l7 4v5c0 4.5-3 7.6-7 9-4-1.4-7-4.5-7-9V7z"/><path d="M9.5 12l1.8 1.8L15 10"/></svg></div><h3>Portal para el auditor ENAC y simulacro previo</h3><p>El auditor recibe un acceso de solo lectura con todo el expediente ordenado. Y antes de la auditoría real se hacía un simulacro para que no hubiera sorpresas el día clave.</p></div>
+    <div class="reveal sec-intro">
+      <div class="kicker">Seguridad y confianza</div>
+      <h2 class="wide">Una plataforma de seguridad que se aplica su propio estándar.</h2>
+      <p class="lead">Fulkro aplicaba el ENS Medio sobre sí misma. Cada capa refuerza a la anterior.</p>
     </div>
-    <div class="ctas reveal" style="margin-top:40px"><a href="#capturas" class="btn btn-ghost lg">Ver las pantallas del producto →</a></div>
+    <div class="layers">
+      <div class="layer reveal"><i>1</i><b>Identidad</b><span>WebAuthn o TOTP para el consultor, MFA para el cliente, enlaces Ed25519 con código de un solo uso para el auditor.</span></div>
+      <div class="layer reveal"><i>2</i><b>Sesión</b><span>JWT firmado con Ed25519 en cookie httpOnly y verificación CSRF en cada petición que escribe.</span></div>
+      <div class="layer reveal"><i>3</i><b>Aislamiento</b><span>RLS en 185 de 253 tablas, 192 políticas y un rol de aplicación sin superusuario.</span></div>
+      <div class="layer reveal"><i>4</i><b>Integridad</b><span>Registro de auditoría con cadena SHA-256 por disparador; sin UPDATE ni DELETE posibles.</span></div>
+      <div class="layer reveal"><i>5</i><b>Custodia</b><span>Antivirus, SHA-256 y firma Ed25519 en cada evidencia; bucket WORM con retención de 7 años.</span></div>
+      <div class="layer reveal"><i>6</i><b>Operación</b><span>Copias cifradas, monitor de cumplimiento ENS sobre la plataforma y derechos RGPD integrados.</span></div>
+    </div>
   </div>
 </section>
 
+<section class="block" id="calidad">
+  <div class="wrap">
+    <div class="reveal sec-intro">
+      <div class="kicker">Calidad y evaluaciones</div>
+      <h2 class="wide">Cada cifra, con el comando que la reproduce.</h2>
+      <p class="lead">La suite completa corre contra PostgreSQL y MinIO reales, los tres portales pasan axe en cada push y cada agente se probó de punta a punta contra el modelo.</p>
+    </div>
+    <div class="bigstats">
+      <div class="bigstat reveal"><div class="n"><span class="cnt" data-to="6884">6.884</span></div><div class="k">tests de backend en verde, con base de datos real</div></div>
+      <div class="bigstat reveal"><div class="n"><span class="cnt" data-to="413">413</span></div><div class="k">escenarios E2E con Playwright, sin fallos</div></div>
+      <div class="bigstat reveal"><div class="n"><span class="cnt" data-to="97">97</span></div><div class="k">páginas auditadas con axe, sin fallos críticos ni graves</div></div>
+      <div class="bigstat reveal"><div class="n"><span class="cnt" data-to="22">22</span></div><div class="k">agentes y motores verificados contra el modelo real</div></div>
+    </div>
+    <div class="qgrid reveal">
+      <div><code>ci.yml</code><p>ruff, mypy, tipos del frontend, la suite sin base y el arnés de evaluación en cada PR.</p></div>
+      <div><code>pytest-completo.yml</code><p>La suite con base de datos en cuatro trozos, contra PostgreSQL sembrado y MinIO.</p></div>
+      <div><code>admin-polish-empirical.yml</code><p>axe (WCAG 2.2 AA) sobre 97 páginas de administración, cliente y auditor.</p></div>
+      <div><code>evals.yml</code><p>Los conjuntos dorados de los agentes, y su ejecución contra el modelo con clave.</p></div>
+      <div><code>security-scan.yml</code><p>bandit, safety y npm audit.</p></div>
+      <div><code>publish-image.yml</code><p>Construye y publica la imagen en GHCR.</p></div>
+    </div>
+  </div>
+</section>
 
+<section class="block tight" id="decisiones">
+  <div class="wrap">
+    <div class="reveal sec-intro">
+      <div class="kicker">Decisiones de arquitectura</div>
+      <h2 class="wide">Las decisiones que dieron forma al sistema, y por qué.</h2>
+    </div>
+    <div class="cards3">
+      <div class="pcard glass reveal sm"><h3>Motores para decidir</h3><p>Una decisión normativa tiene que poder reproducirse y explicarse ante un auditor, así que nunca la toma un modelo.</p></div>
+      <div class="pcard glass reveal sm"><h3>Una regla, un motor</h3><p>Dos copias de una regla acaban divergiendo. Un test impide que una operación normativa exista dos veces.</p></div>
+      <div class="pcard glass reveal sm"><h3>Procedencia explícita</h3><p>Nadie debe confundir una plantilla con un texto del modelo, así que cada resultado lo declara y la interfaz lo enseña.</p></div>
+      <div class="pcard glass reveal sm"><h3>Recuperación vectorial</h3><p>Medida contra la fusión con una rama léxica: gana en las tres métricas con intervalos que excluyen el cero.</p></div>
+      <div class="pcard glass reveal sm"><h3>RLS en PostgreSQL</h3><p>El aislamiento entre clientes no depende de que cada consulta recuerde filtrar: lo impone la base.</p></div>
+      <div class="pcard glass reveal sm"><h3>Nube de sólo lectura</h3><p>Los conectores detectan brechas sin poder cambiar nada en la cuenta del cliente; la remediación arriesgada exige autorización.</p></div>
+    </div>
+  </div>
+</section>
 
-<hr class="hr-glow">
+<section class="block" id="codigo">
+  <div class="wrap">
+    <div class="reveal sec-intro">
+      <div class="kicker">El código</div>
+      <h2 class="wide">Se levanta con un comando, con datos dentro.</h2>
+      <p class="lead">Sin clave de API: la plataforma arranca, siembra un proyecto de categoría MEDIA completo e imprime las credenciales de los tres portales. El README, en español y en inglés, lo explica todo con cifras reproducibles.</p>
+    </div>
+    <div class="term reveal">
+      <div class="tbar"><span>terminal</span><button type="button" id="copyDemo">Copiar</button></div>
+<pre id="demoCmd"><span class="c"># clonar y levantar el demo</span>
+git clone https://github.com/Fulkrodev/Fulkrosys.git
+cd Fulkrosys
+make demo     <span class="c"># http://localhost:3000</span>
+make smoke    <span class="c"># entra en los tres portales y comprueba los datos</span></pre>
+    </div>
+    <div class="ctas reveal" style="margin-top:26px">
+      <a href="https://github.com/Fulkrodev/Fulkrosys" class="btn btn-primary lg" target="_blank" rel="noopener">Ver el código en GitHub</a>
+      <a href="https://github.com/Fulkrodev/Fulkrosys/blob/main/README.en.md" class="btn btn-ghost lg" target="_blank" rel="noopener">README in English →</a>
+    </div>
+  </div>
+</section>
+
 <section class="block tight" id="faq">
-  <div class="wrap narrow">
-    <div class="reveal"><div class="kicker">Preguntas frecuentes</div><h2 class="wide">Lo que toda empresa preguntaba antes de empezar.</h2></div>
-    <div class="faqlist">
-      <details class="faq reveal"><summary>¿Qué es el Esquema Nacional de Seguridad (ENS) y por qué lo necesito para licitar?<span class="pl"></span></summary><div class="ans"><p>El <b>Esquema Nacional de Seguridad (ENS)</b>, regulado por el <b>Real Decreto 311/2022</b>, es el marco español de ciberseguridad obligatorio para los sistemas que tratan información o prestan servicios al sector público. En la mayoría de las licitaciones públicas, acreditar la conformidad con el ENS es requisito para que la oferta se valore: sin él, la mesa de contratación no entra a valorarla.</p></div></details>
-      <details class="faq reveal"><summary>¿Cuánto se tardaba en estar listo para la auditoría del ENS?<span class="pl"></span></summary><div class="ans"><p>La implantación llevaba <b>2-4 semanas</b>, no meses: la plataforma implantaba el ENS de forma determinista y un experto lo revisaba manualmente, lo que acortaba los plazos frente a la consultoría tradicional. El plazo concreto dependía del nivel (Básica, Media o Alta) y del punto de partida.</p></div></details>
-      <details class="faq reveal"><summary>¿Qué determinaba el alcance de un proyecto ENS?<span class="pl"></span></summary><div class="ans"><p>El nivel ENS que corresponde al sistema (Básica, Media o Alta) y el alcance del contrato. La <b>Básica</b> es la menos exigente y se acredita por declaración de conformidad, sin auditoría externa; la <b>Alta</b> es la más exigente e incluye test de intrusión externo. El nivel lo fija la categorización del sistema, y muchas veces lo impone el propio pliego.</p></div></details>
-      <details class="faq reveal"><summary>¿Hacía falta entender de seguridad o de informática?<span class="pl"></span></summary><div class="ans"><p>No. La plataforma hacía el trabajo técnico y un experto lo validaba; el cliente <b>veía el avance, aprobaba y firmaba</b> desde su portal, en lenguaje claro y sin jerga.</p></div></details>
-      <details class="faq reveal"><summary>¿Fulkro emitía el certificado del ENS?<span class="pl"></span></summary><div class="ans"><p>No, nunca. En los niveles Medio y Alto, el certificado de conformidad lo emite una <b>entidad de certificación independiente acreditada por ENAC</b>, ajena a Fulkro, lo que evita conflictos de interés. Fulkro implantaba, preparaba y acompañaba hasta la auditoría; el nivel Básico se acredita por declaración de conformidad, sin auditoría externa.</p></div></details>
-      <details class="faq reveal"><summary>¿En qué se diferenciaba de una consultora de ciberseguridad tradicional?<span class="pl"></span></summary><div class="ans"><p>Una consultora tradicional entrega documentos de Word y depende de horas de personas. <b>Fulkro era una plataforma</b>: aplicaba el ENS de forma determinista y conectaba riesgos, medidas, evidencias y dossier de principio a fin, escaneaba los sistemas del cliente y vigilaba su nube, y un experto revisaba el resultado.</p></div></details>
-    </div>
-    <p style="margin-top:22px;font-size:14.5px;color:var(--text-dim)">El detalle de como estaba construido todo esto está en el <a href="https://github.com/Fulkrodev/Fulkrosys" target="_blank" rel="noopener" style="color:var(--violet-lt);text-decoration:underline;text-underline-offset:3px">repositorio del proyecto</a>.</p>
-  </div>
-</section>
-
-<hr class="hr-glow">
-<section class="block" id="cita">
   <div class="wrap">
-    <div class="pullquote reveal">
-      <p>Si no acreditas el ENS, la mesa de contratación <span class="grad">ni entra a valorar tu oferta.</span></p>
-      <div class="src">Criterio confirmado por el TACRC sobre el ENS como requisito de solvencia · Real Decreto 311/2022</div>
+    <div class="reveal"><div class="kicker">Preguntas sobre el proyecto</div><h2 class="wide">Lo que suele preguntarse de Fulkro.</h2></div>
+    <div class="faqlist">
+      <details class="faq reveal"><summary>¿Qué era el Esquema Nacional de Seguridad y por qué importaba?<span class="pl"></span></summary><div class="ans"><p>El <b>Esquema Nacional de Seguridad</b> (Real Decreto 311/2022) es el marco español de ciberseguridad para los sistemas que tratan información o prestan servicios al sector público. Las empresas que trabajan para la Administración deben acreditarlo, y cada vez más pliegos lo piden como requisito de solvencia.</p></div></details>
+      <details class="faq reveal"><summary>¿Por qué se detuvo el proyecto?<span class="pl"></span></summary><div class="ans"><p>Por falta de tracción comercial. La plataforma quedó terminada y verificada, con su suite de tests, sus evaluaciones y un entorno de demostración, y el código se publica completo para que cualquiera pueda estudiarlo o reutilizarlo.</p></div></details>
+      <details class="faq reveal"><summary>¿Qué hacía la IA y qué no?<span class="pl"></span></summary><div class="ans"><p>La IA redactaba, resumía y explicaba: diagnósticos, propuestas, análisis de contratos y un copiloto que citaba la norma. Lo que <b>no</b> hacía era decidir: la categoría, las medidas aplicables y los plazos los calculaban motores deterministas, y cada texto generado declaraba su procedencia.</p></div></details>
+      <details class="faq reveal"><summary>¿Fulkro emitía el certificado del ENS?<span class="pl"></span></summary><div class="ans"><p>No. En las categorías Media y Alta el certificado lo emite una <b>entidad de certificación acreditada por ENAC</b>, independiente. Fulkro implantaba, preparaba y entregaba al auditor un expediente completo de sólo lectura.</p></div></details>
+      <details class="faq reveal"><summary>¿Se puede probar?<span class="pl"></span></summary><div class="ans"><p>Sí. Con Docker, <span class="mono">make demo</span> levanta la plataforma con un proyecto de demostración completo, sin clave de API. Los datos son ficticios.</p></div></details>
     </div>
   </div>
 </section>
-<hr class="hr-glow">
 
-<section class="block tight" id="stats">
-  <div class="wrap"><div class="stats">
-    <!-- 73 = TOTAL_MEDIDAS en backend/app/motors/m03_dda/anexo2_rd311_2022.py:117 (4 org + 33 op + 36 mp) -->
-    <div class="stat glass reveal"><div class="big"><span class="count" data-to="73">73</span></div><div class="lbl">medidas del Anexo II del ENS implementadas en el código</div></div>
-    <!-- 131 = find backend/app/motors/m06_document_factory/templates -name '*.md' | wc -l
-           (commercial 3 + deliverables 46 + policies 42 + procedures 40) -->
-    <div class="stat glass reveal"><div class="big"><span class="count" data-to="131">131</span></div><div class="lbl">plantillas de documento de la fábrica documental</div></div>
-    <!-- 5789 = grep -rhoE "^\s*(async )?def test_" --include="*.py" backend/tests | wc -l -->
-    <div class="stat glass reveal"><div class="big"><span class="count" data-to="5789">5789</span></div><div class="lbl">pruebas automatizadas en el repositorio</div></div>
-  </div></div>
+<section class="block" id="cita">
+  <div class="wrap" style="text-align:center">
+    <p class="reveal" style="font-family:'Sora',system-ui,sans-serif;font-size:clamp(26px,3.4vw,44px);font-weight:700;line-height:1.2;max-width:22ch;margin:0 auto">Los motores deciden. <span class="grad">El modelo redacta, y lo dice.</span></p>
+  </div>
 </section>
 
+<script>
+(function(){
+  const fmt = n => n.toLocaleString('es-ES');
+  /* contadores con separador de millares */
+  const cio = new IntersectionObserver(es => es.forEach(en => {
+    if (!en.isIntersecting) return;
+    const el = en.target, to = +el.dataset.to; cio.unobserve(el);
+    if (matchMedia('(prefers-reduced-motion:reduce)').matches) { el.textContent = fmt(to); return; }
+    const t0 = performance.now(), d = 1300;
+    (function f(t){ const k = Math.min(1,(t-t0)/d), e = 1-Math.pow(1-k,3); el.textContent = fmt(Math.round(to*e)); if (k<1) requestAnimationFrame(f); })(t0);
+  }), {threshold:.4});
+  document.querySelectorAll('.cnt').forEach(el => cio.observe(el));
+
+  /* barras de la evaluación */
+  const box = document.getElementById('evalbox');
+  if (box) new IntersectionObserver((es, o) => es.forEach(en => { if (en.isIntersecting) {
+    box.querySelectorAll('.track i').forEach((b,i) => setTimeout(() => b.style.width = b.dataset.w + '%', i*120)); o.disconnect(); }
+  }), {threshold:.3}).observe(box);
+
+  /* recorrido: capítulos que saltan en el vídeo */
+  const v = document.getElementById('rec-video'), caps = [...document.querySelectorAll('#rec-caps button')], bar = document.getElementById('rec-bar');
+  if (v && caps.length) {
+    const ts = caps.map(b => +b.dataset.t);
+    caps.forEach((b,i) => b.addEventListener('click', () => { v.currentTime = ts[i]; v.play().catch(()=>{}); }));
+    v.addEventListener('timeupdate', () => {
+      let k = 0; ts.forEach((t,i) => { if (v.currentTime + .05 >= t) k = i; });
+      caps.forEach((b,i) => b.classList.toggle('on', i === k));
+      if (bar && v.duration) bar.style.width = (100 * v.currentTime / v.duration) + '%';
+    });
+    new IntersectionObserver(es => es.forEach(en => { if (en.isIntersecting) v.play().catch(()=>{}); else v.pause(); }), {threshold:.35}).observe(v);
+  }
+
+  /* ciclo ENS interactivo */
+  const FASES = [
+    ['Categorización','m01','Acta E-012 firmada','Sin categoría aprobada no hay declaración de aplicabilidad.','Cinco dimensiones (confidencialidad, integridad, disponibilidad, autenticidad y trazabilidad) valoradas sobre los servicios y la información. La categoría es el máximo de las dimensiones afectadas; una dimensión que nadie valora no se adscribe a ningún nivel, como dice el Anexo I.'],
+    ['Análisis de riesgos','m02','Informe E-028 · MAGERIT v3','Un solo análisis vigente por proyecto, garantizado por la base de datos.','Inventario de activos y sus dependencias, amenazas y salvaguardas del catálogo MAGERIT, riesgo intrínseco, efectivo y residual, y plan de tratamiento sobre la matriz 5×5.'],
+    ['Declaración de aplicabilidad','m03','73 entradas del Anexo II','Congelarla exige el 80 % valorado y la firma del responsable de seguridad.','Una medida aplica por la categoría del sistema o por el nivel de una dimensión, los dos ejes del Anexo II. Aplicables por categoría: BÁSICA 52, MEDIA 68 y ALTA 73.'],
+    ['Plan de adecuación','m17','E-150 con hitos y dependencias','Se deriva del análisis de brechas entre lo aplicable y lo implantado.','Tareas, fases, responsables y dependencias en un Gantt, con el cronograma que el cliente ve en su portal.'],
+    ['Implantación','m07','Evidencias en almacén WORM','Cada medida aplicable, respaldada por una evidencia vigente.','Cada evidencia pasa por antivirus, se sella con SHA-256 y firma Ed25519 y queda en un almacén con retención de 7 años.'],
+    ['Verificación','m10 · m09','Simulacro previo a la auditoría','La cobertura se mide contra las evidencias, no se declara.','Un simulador determinista recorre las preguntas de la auditoría y un agente añade criterio de auditor sénior sobre el resultado.'],
+    ['Conformidad','m27 · m09','Expediente y declaración E-041','La declaración dice lo verificado, no lo declarado.','El auditor recibe un portal de sólo lectura con todo el expediente, el mapa de cobertura y el registro de auditoría encadenado.']
+  ];
+  const cont = document.querySelector('#ciclo-app .cy-steps'), panel = document.getElementById('cy-panel'), fill = document.getElementById('cy-fill');
+  if (cont && panel) {
+    const btns = FASES.map((f,i) => { const b = document.createElement('button'); b.type = 'button'; b.className = 'cy-step'; b.setAttribute('role','tab');
+      b.innerHTML = '<i>' + (i+1) + '</i><span>' + f[0] + '</span>'; cont.appendChild(b); return b; });
+    let cur = 0, auto = true, timer = null;
+    const show = i => { cur = i; const f = FASES[i];
+      btns.forEach((b,k) => { b.classList.toggle('on', k === i); b.classList.toggle('done', k < i); b.setAttribute('aria-selected', k === i); });
+      if (fill) fill.style.width = (92 * i / (FASES.length - 1)) + '%';
+      panel.innerHTML = '<div class="cy-fade"><div class="kicker">Fase ' + (i+1) + ' de 7</div><h3>' + f[0] + '</h3><p>' + f[4] + '</p></div>' +
+        '<div class="cy-meta cy-fade"><div><small>Motor</small><span class="mono">' + f[1] + '</span></div><div><small>Produce</small><span>' + f[2] + '</span></div><div><small>Puerta hacia la siguiente</small><span>' + f[3] + '</span></div></div>'; };
+    btns.forEach((b,i) => b.addEventListener('click', () => { auto = false; clearInterval(timer); show(i); }));
+    show(0);
+    new IntersectionObserver((es, o) => es.forEach(en => { if (en.isIntersecting && auto) { timer = setInterval(() => auto && show((cur + 1) % FASES.length), 4200); o.disconnect(); } }), {threshold:.4}).observe(panel);
+  }
+
+  /* copiar el comando del demo */
+  const cp = document.getElementById('copyDemo');
+  if (cp) cp.addEventListener('click', () => {
+    const txt = 'git clone https://github.com/Fulkrodev/Fulkrosys.git\ncd Fulkrosys\nmake demo';
+    (navigator.clipboard ? navigator.clipboard.writeText(txt) : Promise.reject()).then(() => { cp.textContent = 'Copiado'; setTimeout(() => cp.textContent = 'Copiar', 1600); }).catch(() => {});
+  });
+})();
+</script>
 
 
 <footer>
@@ -1543,12 +1673,12 @@
         <rect class="bar" x="18" y="21" width="60" height="9" rx="4.5" fill="#1a1a2e"/>
         <circle cx="48" cy="26" r="5" fill="#6C63FF"/>
       </svg></span>fulkro</a>
-        <p>Plataforma de implantación del Esquema Nacional de Seguridad para empresas que competían por contratos públicos. El proyecto cerró en septiembre de 2026; su código se está liberando como open source.</p>
+        <p>Plataforma de implantación del Esquema Nacional de Seguridad. El proyecto se detuvo en septiembre de 2026 por falta de tracción comercial; su código completo se publica bajo Apache-2.0.</p>
         <a class="fsocial" href="https://www.linkedin.com/company/fulkro" target="_blank" rel="noopener" aria-label="Fulkro en LinkedIn"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M4.98 3.5a2.5 2.5 0 1 1 0 5 2.5 2.5 0 0 1 0-5zM3 9h4v12H3zM9 9h3.8v1.7h.05c.53-1 1.83-2.05 3.76-2.05C20.4 8.65 22 10.6 22 14v7h-4v-6.2c0-1.5-.03-3.4-2.08-3.4-2.08 0-2.4 1.62-2.4 3.3V21H9z"/></svg>Fulkro en LinkedIn</a>
       </div>
-      <div class="fcol"><h4>El proyecto</h4><a href="#problema">El problema</a><a href="#como">Cómo funcionaba</a><a href="#plataforma">La plataforma</a><a href="#capturas">Capturas</a></div>
-      <div class="fcol"><h4>Contenido</h4><a href="#comparativa">Comparativa</a><a href="#paraquien">Para quién era</a><a href="#faq">Preguntas frecuentes</a><a href="#stats">El sistema en cifras</a></div>
-      <div class="fcol"><h4>Código</h4><a href="https://github.com/Fulkrodev/Fulkrosys" target="_blank" rel="noopener">Repositorio en GitHub</a></div>
+      <div class="fcol"><h4>El proyecto</h4><a href="#proyecto">Estado</a><a href="#recorrido">Recorrido</a><a href="#capacidades">Capacidades</a><a href="#ciclo">Ciclo ENS</a><a href="#capturas">Portales</a></div>
+      <div class="fcol"><h4>Ingeniería</h4><a href="#ia">Capa de IA</a><a href="#rag">RAG normativo</a><a href="#arquitectura">Arquitectura</a><a href="#seguridad">Seguridad</a><a href="#calidad">Calidad</a></div>
+      <div class="fcol"><h4>Código</h4><a href="https://github.com/Fulkrodev/Fulkrosys" target="_blank" rel="noopener">Repositorio en GitHub</a><a href="https://github.com/Fulkrodev/Fulkrosys/blob/main/README.en.md" target="_blank" rel="noopener">README in English</a></div>
       <div class="fcol"><h4>Legal</h4><a href="aviso-legal.html">Aviso legal</a><a href="privacidad.html">Privacidad</a><a href="cookies.html">Cookies</a></div>
     </div>
     <div class="fbot">

@@ -83,11 +83,10 @@ export function FinancialPanel({ projectId }: { projectId: string }) {
   const isLoading = fin.summary.isLoading;
 
   const onGenerate = async () => {
-    if (!summary?.next_milestone?.milestone_index) return;
+    const hito = summary?.next_milestone;
+    if (!hito?.contract_id || !hito.label) return;
     try {
-      const inv = await fin.generate.mutateAsync(
-        summary.next_milestone.milestone_index,
-      );
+      const inv = await fin.generate.mutateAsync(hito);
       toast.success(
         `Factura ${inv.numero_correlativo ?? inv.id.slice(0, 8)} generada`,
       );

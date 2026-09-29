@@ -12,6 +12,7 @@ import {
   type FinancialSummary,
   type AAPPBillingStatus,
   type Invoice,
+  type NextMilestone,
   cancelInvoice,
   generateInvoiceFromMilestone,
   getAAPPBillingStatus,
@@ -56,8 +57,8 @@ export function useFinancialSummary(projectId: string) {
   };
 
   const generateMutation = useMutation({
-    mutationFn: (milestoneIndex: number) =>
-      generateInvoiceFromMilestone(projectId, milestoneIndex),
+    mutationFn: (milestone: NextMilestone) =>
+      generateInvoiceFromMilestone(projectId, milestone),
     onSuccess: invalidateAll,
   });
 

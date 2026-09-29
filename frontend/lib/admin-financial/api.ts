@@ -33,6 +33,7 @@ export interface NextMilestone {
   label: string | null;
   milestone_index: number | null;
   billing_trigger: string | null;
+  contract_id: string | null;
 }
 
 export interface FinancialSummary {
@@ -83,6 +84,9 @@ export interface InvoiceSendResponse {
 }
 
 const projectBase = (projectId: string) => `/api/v1/projects/${projectId}`;
+// Las facturas del motor 15 viven bajo /billing: listado, PDF, pagada, cancelar
+// y desde hito. Colgadas de projectBase respondian 404 y la pestaña salia vacia.
+const billingBase = (projectId: string) => `/api/v1/billing/projects/${projectId}`;
 
 export function getFinancialSummary(
   projectId: string,
@@ -97,11 +101,13 @@ export function getAAPPBillingStatus(
 }
 
 export function listInvoices(projectId: string): Promise<Invoice[]> {
-  return api<Invoice[]>(`${projectBase(projectId)}/invoices`);
+  return api<{ invoices: Invoice[] }>(`${billingBase(projectId)}/invoices`).then(
+    (r) => r.invoices,
+  );
 }
 
 export function getInvoicePdfUrl(projectId: string, invoiceId: string): string {
-  return `${projectBase(projectId)}/invoices/${invoiceId}/pdf`;
+  return `${billingBase(projectId)}/invoices/${invoiceId}/pdf`;
 }
 
 export function sendInvoice(
@@ -119,7 +125,7 @@ export function markInvoicePaid(
   invoiceId: string,
 ): Promise<Invoice> {
   return api<Invoice>(
-    `${projectBase(projectId)}/invoices/${invoiceId}/mark-paid`,
+    `${billingBase(projectId)}/invoices/${invoiceId}/mark-paid`,
     { method: "POST", json: {} },
   );
 }
@@ -130,17 +136,17 @@ export function cancelInvoice(
   reason?: string,
 ): Promise<Invoice> {
   return api<Invoice>(
-    `${projectBase(projectId)}/invoices/${invoiceId}/cancel`,
+    `${billingBase(projectId)}/invoices/${invoiceId}/cancel`,
     { method: "POST", json: { reason: reason ?? null } },
   );
 }
 
 export function generateInvoiceFromMilestone(
   projectId: string,
-  milestoneIndex: number,
+  milestone: NextMilestone,
 ): Promise<Invoice> {
-  return api<Invoice>(
-    `${projectBase(projectId)}/invoices/from-milestone`,
-    { method: "POST", json: { milestone_index: milestoneIndex } },
-  );
+  return api<Invoice>(`${billingBase(projectId)}/invoices/from-milestone`, {
+    method: "POST",
+    json: { contract_id: milestone.contract_id, hito: milestone.label },
+  });
 }
