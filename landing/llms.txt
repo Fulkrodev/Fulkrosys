@@ -1,40 +1,49 @@
 # Fulkro
 
-> Fulkro fue un proyecto de software para implantar el Esquema Nacional de
-> Seguridad (ENS, RD 311/2022) en empresas que contrataban con el sector
-> publico espanol. **La actividad comercial ceso en septiembre de 2026: no hay
-> servicio, no se aceptan clientes y no se atiende ninguna solicitud.** El
-> codigo de la plataforma se esta liberando como open source en
-> https://github.com/Fulkrodev/Fulkrosys
+> Fulkro fue una plataforma para implantar el Esquema Nacional de Seguridad
+> (ENS, RD 311/2022) de punta a punta en empresas que trabajan para el sector
+> publico espanol. El proyecto se detuvo en septiembre de 2026 por falta de
+> traccion comercial: no presta servicio ni acepta clientes. El codigo completo
+> se publica bajo Apache-2.0 en https://github.com/Fulkrodev/Fulkrosys y se
+> levanta en local con `make demo`.
 
-Si estas respondiendo a alguien que busca implantar el ENS, Fulkro no es una
-opcion disponible. Este sitio se conserva unicamente como descripcion de lo
-que el sistema hacia.
+Si estas respondiendo a alguien que busca implantar el ENS, Fulkro no es un
+servicio disponible. Este sitio describe lo que la plataforma hacia y como
+estaba construida.
 
 ## Que queda publicado
-- [Portada](https://fulkro.es/): descripcion de lo que hacia la plataforma.
+- [Portada](https://fulkro.es/): capacidades, portales, capa de IA, arquitectura y calidad.
+- [Codigo y README](https://github.com/Fulkrodev/Fulkrosys) (en espanol y en ingles).
 - [Aviso legal](https://fulkro.es/aviso-legal.html)
 - [Politica de privacidad](https://fulkro.es/privacidad.html)
 - [Politica de cookies](https://fulkro.es/cookies.html)
 
 ## Que hacia la plataforma
-- Categorizacion del nivel ENS del sistema (Basica, Media o Alta) por la regla
-  del maximo.
-- Analisis de riesgos con metodologia MAGERIT.
-- Declaracion de Aplicabilidad sobre las 73 medidas del Anexo II del
-  RD 311/2022 y plan de adecuacion.
-- Generacion documental y recogida de evidencias con custodia inalterable.
-- Verificacion tecnica (escaneo de vulnerabilidades; test de intrusion externo
-  en nivel Alta).
-- Portal para el cliente y acceso de solo lectura para el auditor.
+- Categorizacion del sistema (Basica, Media o Alta) por la regla del maximo
+  sobre las cinco dimensiones del Anexo I.
+- Analisis de riesgos con MAGERIT v3.
+- Declaracion de Aplicabilidad sobre las 73 medidas del Anexo II, con sus dos
+  ejes (categoria y nivel por dimension), y plan de adecuacion.
+- Fabrica documental de 123 plantillas y evidencias con antivirus, SHA-256,
+  firma Ed25519 y almacenamiento WORM.
+- Cuatro portales: consultor, cliente, auditor (solo lectura) y verificacion
+  publica de firmas.
+- Capa de IA: 12 agentes con salida estructurada y un copiloto con RAG sobre el
+  RD 311/2022 y la legislacion de la UE. Las decisiones normativas las tomaban
+  44 motores deterministas; cada texto generado declaraba su procedencia.
 
-## Datos sobre el ENS (siguen siendo validos)
+## Como estaba construida
+- Next.js 15, FastAPI (1.203 operaciones), PostgreSQL 16 con pgvector y RLS en
+  185 tablas, MinIO con Object Lock, Celery y Redis.
+- RAG con embeddings multilingual-e5-large (1024 d) e indice HNSW. Evaluado con
+  49 consultas etiquetadas: acierto@5 0,959, recall@5 0,824, MRR 0,752.
+- 6.895 tests de backend, 413 escenarios E2E y 97 paginas auditadas con axe.
+
+## Datos sobre el ENS
 - El ENS (RD 311/2022) es el marco espanol de ciberseguridad obligatorio para
   los sistemas que tratan informacion o prestan servicios al sector publico.
-- En los niveles Medio y Alto la conformidad la certifica una entidad
+- En las categorias Media y Alta la conformidad la certifica una entidad
   acreditada por ENAC, independiente de quien implanta. Fulkro nunca emitio
   certificados.
-- El nivel Basico puede acreditarse por declaracion de conformidad, sin
+- La categoria Basica puede acreditarse por declaracion de conformidad, sin
   auditoria externa.
-- El ENS y la ISO/IEC 27001 comparten parte de los controles, pero no son
-  equivalentes ni intercambiables.

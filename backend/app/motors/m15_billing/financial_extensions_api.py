@@ -77,7 +77,8 @@ async def get_financial_summary(
     total_outstanding = total_invoiced - total_paid
     next_milestone_q = await db.execute(
         text(
-            "SELECT amount_eur, milestone_name, milestone_index, billing_trigger "
+            "SELECT amount_eur, milestone_name, milestone_index, billing_trigger, "
+            "contract_id "
             "FROM contract_milestones "
             "WHERE project_id = :pid AND status = 'pending' "
             "ORDER BY milestone_index ASC LIMIT 1"
@@ -91,6 +92,9 @@ async def get_financial_summary(
             "label": nm[1],
             "milestone_index": nm[2],
             "billing_trigger": nm[3],
+            # La factura desde hito se genera con (contrato, nombre del hito):
+            # sin el contrato, el frontend no podia pedirla.
+            "contract_id": str(nm[4]) if nm[4] else None,
         }
         if nm else None
     )

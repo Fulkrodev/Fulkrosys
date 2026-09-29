@@ -81,7 +81,6 @@ If future revisit builds insights surface:
 ### Positive
 
 - "0 deuda perfecto" cement honored via explicit architectural decision
-- ~6-10h effort saved (audit-driven empirical decision)
 - 22 agents + 8+ dashboards production-grade infrastructure preserved
 - NO architectural duplication risk
 - Forward path documented if specific gap emerges

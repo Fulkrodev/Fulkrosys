@@ -76,6 +76,24 @@ async def test_admin_escribe_las_dimensiones_del_proyecto(db, async_client):
 
 
 @pytest.mark.asyncio
+async def test_admin_lee_la_vista_cronologica_del_proyecto(db, async_client):
+    """GET /api/v1/admin/workflow-command-center/projects/{id} -> 200.
+
+    Es la pestaña Workflow de cada proyecto. La ruta leia el proyecto sin fijar
+    el contexto de cliente, la RLS lo ocultaba y respondia 404 «Project not
+    found» para cualquier proyecto que existiera.
+    """
+    _, project_id = await setup_test_project(db)
+
+    r = await async_client.get(
+        f"/api/v1/admin/workflow-command-center/projects/{project_id}"
+    )
+
+    assert r.status_code == 200, r.text
+    assert r.json()["project_id"] == str(project_id)
+
+
+@pytest.mark.asyncio
 async def test_proyecto_inexistente_sigue_dando_404(db, async_client):
     """El arreglo abre la puerta a Marcos, no la quita: un proyecto que no
     existe sigue respondiendo 404 y no 200."""

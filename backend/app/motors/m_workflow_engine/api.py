@@ -205,9 +205,16 @@ class ProjectCronologicaResponse(BaseModel):
 )
 async def admin_project_cronologica(
     project_id: uuid.UUID,
+    request: Request,
     db: AsyncSession = Depends(get_db),
 ) -> ProjectCronologicaResponse:
-    """Vista cronológica detallada per proyecto · admin only."""
+    """Vista cronológica detallada per proyecto · admin only.
+
+    Fija el contexto de cliente antes de leer, como el resto de rutas de este
+    router. Sin él la RLS ocultaba el proyecto y la pestaña Workflow respondia
+    404 «Project not found» para cualquier proyecto que existiera.
+    """
+    await _ensure_project_access(db, project_id, request)
     project = await db.get(Project, project_id)
     if project is None:
         raise HTTPException(status_code=404, detail="Project not found")

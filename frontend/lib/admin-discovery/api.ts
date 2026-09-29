@@ -355,7 +355,9 @@ export interface DiscoverySummary {
 // API functions
 // =====================================================================
 
-const BASE = "/api/v1/projects";
+// El router del motor 22 cuelga de /discovery: con /api/v1/projects las ocho
+// llamadas de la pestaña Discovery respondian 404.
+const BASE = "/api/v1/discovery/projects";
 
 // -------- Runs --------
 export async function listDiscoveryRuns(projectId: string): Promise<DiscoveryRun[]> {

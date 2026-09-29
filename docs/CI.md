@@ -211,7 +211,9 @@ visto pasar es como se acaba otra vez con un `continue-on-error`.
 35925779735, sobre `main`) falló en 86 de 3.374 tests, todos por el montaje y
 ninguno por la aplicación: faltaba MinIO (81) y un test fijaba el puerto 5433
 del compose de desarrollo (5). Al añadir MinIO apareció otro: Docker Hub ya no
-sirve `minio/minio`, que pasó a `quay.io/minio/minio` con la versión fijada.
+sirve `minio/minio`. Pasó primero a `quay.io/minio/minio`, y cuando MinIO
+retiró también esas imágenes (2026-09-29) al archivo de Bitnami,
+`bitnamilegacy/minio`, con la versión fijada.
 Con los dos arreglos, run 35928277975: **3.321 pasan, 0 fallan, 53 saltados**,
 516 s el trozo más lento. Falta verla pasar dos noches seguidas para
 promoverla.

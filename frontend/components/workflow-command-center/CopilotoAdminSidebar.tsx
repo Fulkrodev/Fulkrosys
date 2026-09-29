@@ -152,7 +152,7 @@ export function CopilotoAdminSidebar({
             <p className="text-foreground/70">
               Próximo step: <span className="font-medium">{currentStep.title}</span>
               {currentStep.urgency_score >= 75 && (
-                <span className="ml-1 text-red-600">(urgente)</span>
+                <span className="ml-1 text-red-700">(urgente)</span>
               )}
             </p>
           ) : (
@@ -216,7 +216,7 @@ export function CopilotoAdminSidebar({
                       <span className="text-amber-500">•</span>
                       <span>
                         {b.description}
-                        <span className="ml-1 text-[9px] uppercase text-amber-700/70">
+                        <span className="ml-1 text-[10px] uppercase text-amber-800">
                           ({b.motor})
                         </span>
                       </span>

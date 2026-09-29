@@ -7,7 +7,10 @@ dependencies = [
     "fastapi[standard]>=0.115",
     "uvicorn[standard]>=0.30",
     "sse-starlette>=3.4",
-    "sqlalchemy[asyncio]>=2.0",
+    # Techo en 2.1: SQLAlchemy 2.1 cambia el driver por defecto de postgresql://
+    # a psycopg (v3), que no se instala, y las migraciones no arrancan
+    # (ModuleNotFoundError: psycopg). Medido en el CI el 2026-09-29.
+    "sqlalchemy[asyncio]>=2.0,<2.1",
     "asyncpg>=0.29",
     # Driver SINCRONO para Alembic. env.py convierte DATABASE_MIGRATE_URL
     # (postgresql+asyncpg://) a postgresql:// → SQLAlchemy usa psycopg2 por

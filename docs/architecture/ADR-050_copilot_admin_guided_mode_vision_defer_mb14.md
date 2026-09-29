@@ -31,8 +31,6 @@ Visión Marcos requires capacidades NO cubiertas estado actual:
 6. UX zero-friction "padre saca ENS entero" · NO ENS terminology required
 7. End-to-end walkthrough cliente start-to-cert NO intervention manual Marcos
 
-Effort honest estimate cumulative: **~25-45h (1-2 semanas focused)**.
-
 ## Decision
 
 **CEMENT VISIÓN documented · DEFER implementation MB-14 polish bloque mayor dedicated** post FASE 2 high-priority sprint + Blocks 7-9 closure.
@@ -46,7 +44,7 @@ Razón cement audit-driven:
 
 ## Scope MB-14 polish bloque mayor (cement forward design)
 
-### MB-14.0 · Pre-audit architectural design (~2-3h cabeza fresca)
+### MB-14.0 · Pre-audit architectural design
 
 - State machine ENS lifecycle empirical mapping (M01→M27→M23 transitions)
 - Next-best-action engine algorithm design
@@ -54,15 +52,15 @@ Razón cement audit-driven:
 - UX zero-friction wizard cement constraint
 - Coach pattern A12+A14 fusion candidate evaluation
 
-### MB-14.1 · State machine ENS lifecycle backend (~6-8h)
+### MB-14.1 · State machine ENS lifecycle backend
 
-### MB-14.2 · Next-best-action engine (~4-6h)
+### MB-14.2 · Next-best-action engine
 
-### MB-14.3 · Frontend guided UI · Sheet panel + wizard overlay (~6-8h)
+### MB-14.3 · Frontend guided UI · Sheet panel + wizard overlay
 
-### MB-14.4 · Cross-motor integration empirical (~4-6h)
+### MB-14.4 · Cross-motor integration empirical
 
-### MB-14.5 · E2E test "padre saca ENS entero" walkthrough (~2-3h)
+### MB-14.5 · E2E test "padre saca ENS entero" walkthrough
 
 Tag forward: `s14-mb14-copilot-guided-cerrada`
 
@@ -70,8 +68,8 @@ Tag forward: `s14-mb14-copilot-guided-cerrada`
 
 ### FASE 2 actual sostained
 
-- H4 Dashboard backend wire-up simple (~2-3h · NOT guided mode)
-- H5 Copilot streaming SSE wire-up simple (~2-3h · chat básico · NOT guided)
+- H4 Dashboard backend wire-up simple (NOT guided mode)
+- H5 Copilot streaming SSE wire-up simple (chat básico · NOT guided)
 - Estos atoms preservan momentum FASE 2 + cement DevHint mocks resueltos
 - NO scope creep guided mode dentro FASE 2 (OPS-024 + OPS-026 cement)
 
@@ -79,8 +77,7 @@ Tag forward: `s14-mb14-copilot-guided-cerrada`
 
 - Implementation full visión Marcos cement
 - Pre-audit architectural cement cabeza fresca obligatorio
-- Effort cumulative ~25-45h realistic (1-2 semanas focused)
-- ETA forward post Blocks 7-9 cement
+- Secuenciado después de los Blocks 7-9
 
 ### OPS cement
 
@@ -92,7 +89,7 @@ Tag forward: `s14-mb14-copilot-guided-cerrada`
 
 ### Path β · Cancel FASE 2 actual · arrancar MB-14 inmediato
 
-**REJECTED** · FASE 2 sprint momentum compounding · cumulative ~15-18h sprint hasta hoy · BLOQUEANTES cerrados · H atoms cement OPS-024.
+**REJECTED** · FASE 2 en curso · BLOQUEANTES cerrados · H atoms cement OPS-024.
 
 ### Path γ · Hybrid partial guided FASE 2
 

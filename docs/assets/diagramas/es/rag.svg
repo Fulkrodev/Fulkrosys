@@ -1,0 +1,92 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="700" viewBox="0 0 1200 700" role="img" aria-label="RAG normativo: recuperación medida, respuesta anclada">
+<defs>
+  <linearGradient id="fondo" x1="0" y1="0" x2="1" y2="1">
+    <stop offset="0" stop-color="#0e0a22"/><stop offset="1" stop-color="#1a1440"/></linearGradient>
+  <linearGradient id="marca" x1="0" y1="0" x2="1" y2="0">
+    <stop offset="0" stop-color="#6C63FF"/><stop offset="1" stop-color="#e879f9"/></linearGradient>
+  <radialGradient id="halo"><stop offset="0" stop-color="#6C63FF" stop-opacity=".55"/>
+    <stop offset="1" stop-color="#6C63FF" stop-opacity="0"/></radialGradient>
+  <marker id="flecha" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+    <path d="M0,0 L10,5 L0,10 z" fill="#8B83FF"/></marker>
+</defs>
+<rect width="1200" height="700" rx="18" fill="url(#fondo)"/>
+<text x="40" y="52" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif" font-size="22" font-weight="700" fill="#ffffff" text-anchor="start" >RAG normativo: recuperación medida, respuesta anclada</text>
+<text x="40" y="96" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif" font-size="12" font-weight="700" fill="#8f89c2" text-anchor="start" letter-spacing="2">INGESTA · una vez</text>
+<rect x="40.0" y="110" width="206.4" height="104" rx="14" fill="#1d1838" stroke="#352d66" stroke-width="1.5" />
+<text x="54.0" y="140" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif" font-size="15" font-weight="700" fill="#ffffff" text-anchor="start" >Fuentes oficiales</text>
+<text x="54.0" y="166" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif" font-size="13" font-weight="400" fill="#c4c0e8" text-anchor="start" >BOE RD 311/2022 · RGPD</text>
+<text x="54.0" y="188" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif" font-size="13" font-weight="400" fill="#c4c0e8" text-anchor="start" >DORA · NIS2 · eIDAS</text>
+<path d="M248.4,162 L266.4,162" stroke="#8B83FF" stroke-width="2" fill="none" stroke-dasharray="6 7" marker-end="url(#flecha)" opacity=".85"><animate attributeName="stroke-dashoffset" from="26" to="0" dur="1.2s" repeatCount="indefinite"/></path>
+<rect x="268.4" y="110" width="206.4" height="104" rx="14" fill="#1d1838" stroke="#352d66" stroke-width="1.5" />
+<text x="282.4" y="140" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif" font-size="15" font-weight="700" fill="#ffffff" text-anchor="start" >Parser determinista</text>
+<text x="282.4" y="166" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif" font-size="13" font-weight="400" fill="#c4c0e8" text-anchor="start" >artículos y anexos</text>
+<text x="282.4" y="188" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif" font-size="13" font-weight="400" fill="#c4c0e8" text-anchor="start" >73 códigos de medida</text>
+<path d="M476.79999999999995,162 L494.79999999999995,162" stroke="#8B83FF" stroke-width="2" fill="none" stroke-dasharray="6 7" marker-end="url(#flecha)" opacity=".85"><animate attributeName="stroke-dashoffset" from="26" to="0" dur="1.2s" repeatCount="indefinite"/></path>
+<rect x="496.8" y="110" width="206.4" height="104" rx="14" fill="#1d1838" stroke="#352d66" stroke-width="1.5" />
+<text x="510.8" y="140" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif" font-size="15" font-weight="700" fill="#ffffff" text-anchor="start" >1.031 fragmentos</text>
+<text x="510.8" y="166" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif" font-size="13" font-weight="400" fill="#c4c0e8" text-anchor="start" >127 del RD 311</text>
+<text x="510.8" y="188" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif" font-size="13" font-weight="400" fill="#c4c0e8" text-anchor="start" >904 de la UE</text>
+<path d="M705.2,162 L723.2,162" stroke="#8B83FF" stroke-width="2" fill="none" stroke-dasharray="6 7" marker-end="url(#flecha)" opacity=".85"><animate attributeName="stroke-dashoffset" from="26" to="0" dur="1.2s" repeatCount="indefinite"/></path>
+<rect x="725.2" y="110" width="206.4" height="104" rx="14" fill="#1d1838" stroke="#352d66" stroke-width="1.5" />
+<text x="739.2" y="140" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif" font-size="15" font-weight="700" fill="#ffffff" text-anchor="start" >e5-large · 1024 d</text>
+<text x="739.2" y="166" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif" font-size="13" font-weight="400" fill="#c4c0e8" text-anchor="start" >multilingüe</text>
+<text x="739.2" y="188" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif" font-size="13" font-weight="400" fill="#c4c0e8" text-anchor="start" >prefijo passage:</text>
+<path d="M933.6,162 L951.6,162" stroke="#8B83FF" stroke-width="2" fill="none" stroke-dasharray="6 7" marker-end="url(#flecha)" opacity=".85"><animate attributeName="stroke-dashoffset" from="26" to="0" dur="1.2s" repeatCount="indefinite"/></path>
+<rect x="953.6" y="110" width="206.4" height="104" rx="14" fill="#1d1838" stroke="#352d66" stroke-width="1.5" />
+<text x="967.6" y="140" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif" font-size="15" font-weight="700" fill="#ffffff" text-anchor="start" >pgvector</text>
+<text x="967.6" y="166" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif" font-size="13" font-weight="400" fill="#c4c0e8" text-anchor="start" >índice HNSW coseno</text>
+<text x="967.6" y="188" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif" font-size="13" font-weight="400" fill="#c4c0e8" text-anchor="start" >m=16 · ef=64</text>
+<line x1="40" y1="228" x2="1160" y2="228" stroke="#352d66" stroke-width="2" stroke-dasharray="2 6"/>
+<circle r="4.5" fill="#8B83FF"><animateMotion dur="6s" begin="0s" repeatCount="indefinite" path="M40,228 L1160,228"/><animate attributeName="opacity" values="0;1;1;0" keyTimes="0;.1;.9;1" dur="6s" begin="0s" repeatCount="indefinite"/></circle>
+<circle r="4.5" fill="#8B83FF"><animateMotion dur="6s" begin="3.0s" repeatCount="indefinite" path="M40,228 L1160,228"/><animate attributeName="opacity" values="0;1;1;0" keyTimes="0;.1;.9;1" dur="6s" begin="3.0s" repeatCount="indefinite"/></circle>
+<text x="40" y="276" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif" font-size="12" font-weight="700" fill="#8f89c2" text-anchor="start" letter-spacing="2">CONSULTA · en cada pregunta</text>
+<rect x="40.0" y="290" width="168.33333333333334" height="104" rx="14" fill="#1d1838" stroke="#352d66" stroke-width="1.5" />
+<text x="54.0" y="320" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif" font-size="15" font-weight="700" fill="#ffffff" text-anchor="start" >Pregunta</text>
+<text x="54.0" y="346" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif" font-size="13" font-weight="400" fill="#c4c0e8" text-anchor="start" >+ pantalla actual</text>
+<text x="54.0" y="368" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif" font-size="13" font-weight="400" fill="#c4c0e8" text-anchor="start" >+ estado del proyecto</text>
+<path d="M210.33333333333334,342 L228.33333333333334,342" stroke="#8B83FF" stroke-width="2" fill="none" stroke-dasharray="6 7" marker-end="url(#flecha)" opacity=".85"><animate attributeName="stroke-dashoffset" from="26" to="0" dur="1.2s" repeatCount="indefinite"/></path>
+<rect x="230.33333333333334" y="290" width="168.33333333333334" height="104" rx="14" fill="#1d1838" stroke="#352d66" stroke-width="1.5" />
+<text x="244.33333333333334" y="320" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif" font-size="15" font-weight="700" fill="#ffffff" text-anchor="start" >Embedding</text>
+<text x="244.33333333333334" y="346" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif" font-size="13" font-weight="400" fill="#c4c0e8" text-anchor="start" >prefijo query:</text>
+<text x="244.33333333333334" y="368" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif" font-size="13" font-weight="400" fill="#c4c0e8" text-anchor="start" >mismo modelo</text>
+<path d="M400.6666666666667,342 L418.6666666666667,342" stroke="#8B83FF" stroke-width="2" fill="none" stroke-dasharray="6 7" marker-end="url(#flecha)" opacity=".85"><animate attributeName="stroke-dashoffset" from="26" to="0" dur="1.2s" repeatCount="indefinite"/></path>
+<rect x="420.6666666666667" y="290" width="168.33333333333334" height="104" rx="14" fill="#1d1838" stroke="#352d66" stroke-width="1.5" />
+<text x="434.6666666666667" y="320" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif" font-size="15" font-weight="700" fill="#ffffff" text-anchor="start" >Top-30 → top-5</text>
+<text x="434.6666666666667" y="346" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif" font-size="13" font-weight="400" fill="#c4c0e8" text-anchor="start" >por coseno</text>
+<text x="434.6666666666667" y="368" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif" font-size="13" font-weight="400" fill="#c4c0e8" text-anchor="start" >vectorial sola</text>
+<path d="M591.0,342 L609.0,342" stroke="#8B83FF" stroke-width="2" fill="none" stroke-dasharray="6 7" marker-end="url(#flecha)" opacity=".85"><animate attributeName="stroke-dashoffset" from="26" to="0" dur="1.2s" repeatCount="indefinite"/></path>
+<rect x="611.0" y="290" width="168.33333333333334" height="104" rx="14" fill="#1d1838" stroke="#352d66" stroke-width="1.5" />
+<text x="625.0" y="320" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif" font-size="15" font-weight="700" fill="#ffffff" text-anchor="start" >Prompt con reglas</text>
+<text x="625.0" y="346" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif" font-size="13" font-weight="400" fill="#c4c0e8" text-anchor="start" >cita obligatoria</text>
+<text x="625.0" y="368" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif" font-size="13" font-weight="400" fill="#c4c0e8" text-anchor="start" >temperatura ≤ 0,2</text>
+<path d="M781.3333333333334,342 L799.3333333333334,342" stroke="#8B83FF" stroke-width="2" fill="none" stroke-dasharray="6 7" marker-end="url(#flecha)" opacity=".85"><animate attributeName="stroke-dashoffset" from="26" to="0" dur="1.2s" repeatCount="indefinite"/></path>
+<rect x="801.3333333333334" y="290" width="168.33333333333334" height="104" rx="14" fill="#1d1838" stroke="#352d66" stroke-width="1.5" />
+<text x="815.3333333333334" y="320" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif" font-size="15" font-weight="700" fill="#ffffff" text-anchor="start" >Router de LLM</text>
+<text x="815.3333333333334" y="346" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif" font-size="13" font-weight="400" fill="#c4c0e8" text-anchor="start" >reintentos 429</text>
+<text x="815.3333333333334" y="368" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif" font-size="13" font-weight="400" fill="#c4c0e8" text-anchor="start" >caché de prompts</text>
+<path d="M971.6666666666667,342 L989.6666666666667,342" stroke="#8B83FF" stroke-width="2" fill="none" stroke-dasharray="6 7" marker-end="url(#flecha)" opacity=".85"><animate attributeName="stroke-dashoffset" from="26" to="0" dur="1.2s" repeatCount="indefinite"/></path>
+<rect x="991.6666666666667" y="290" width="168.33333333333334" height="104" rx="14" fill="#1d1838" stroke="#352d66" stroke-width="1.5" />
+<text x="1005.6666666666667" y="320" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif" font-size="15" font-weight="700" fill="#ffffff" text-anchor="start" >Validación</text>
+<text x="1005.6666666666667" y="346" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif" font-size="13" font-weight="400" fill="#c4c0e8" text-anchor="start" >citas extraídas</text>
+<text x="1005.6666666666667" y="368" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif" font-size="13" font-weight="400" fill="#c4c0e8" text-anchor="start" >anclaje ≥ 30 %</text>
+<line x1="40" y1="408" x2="1160" y2="408" stroke="#352d66" stroke-width="2" stroke-dasharray="2 6"/>
+<circle r="4.5" fill="#e879f9"><animateMotion dur="5s" begin="0s" repeatCount="indefinite" path="M40,408 L1160,408"/><animate attributeName="opacity" values="0;1;1;0" keyTimes="0;.1;.9;1" dur="5s" begin="0s" repeatCount="indefinite"/></circle>
+<circle r="4.5" fill="#e879f9"><animateMotion dur="5s" begin="2.5s" repeatCount="indefinite" path="M40,408 L1160,408"/><animate attributeName="opacity" values="0;1;1;0" keyTimes="0;.1;.9;1" dur="5s" begin="2.5s" repeatCount="indefinite"/></circle>
+<path d="M1056,216 C1056,262 505,244 505,286" stroke="#8B83FF" stroke-width="2" fill="none" stroke-dasharray="6 7" marker-end="url(#flecha)" opacity=".7"><animate attributeName="stroke-dashoffset" from="26" to="0" dur="1.6s" repeatCount="indefinite"/></path>
+<rect x="40" y="470" width="1120" height="196" rx="14" fill="#18142f" stroke="#6C63FF" stroke-width="1.5" />
+<text x="64" y="506" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif" font-size="12" font-weight="700" fill="#8B83FF" text-anchor="start" letter-spacing="2">EVALUACIÓN · 49 consultas etiquetadas</text>
+<text x="64" y="572" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif" font-size="44" font-weight="800" fill="#ffffff" text-anchor="start" >0,959</text>
+<text x="64" y="600" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="14" font-weight="400" fill="#c4c0e8" text-anchor="start" >acierto@5</text>
+<text x="314" y="572" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif" font-size="44" font-weight="800" fill="#ffffff" text-anchor="start" >0,824</text>
+<text x="314" y="600" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="14" font-weight="400" fill="#c4c0e8" text-anchor="start" >recall@5</text>
+<text x="564" y="572" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif" font-size="44" font-weight="800" fill="#ffffff" text-anchor="start" >0,752</text>
+<text x="564" y="600" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="14" font-weight="400" fill="#c4c0e8" text-anchor="start" >MRR</text>
+<text x="840" y="548" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="13" font-weight="400" fill="#8f89c2" text-anchor="start" >recall@5</text>
+<text x="840" y="574" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="12" font-weight="400" fill="#8f89c2" text-anchor="start" >vec</text>
+<rect x="880" y="560" width="0" height="18" rx="4" fill="#34d399"><animate attributeName="width" from="0" to="214" dur="1.6s" fill="freeze" begin="0.3s"/></rect>
+<text x="1104" y="574" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="12" font-weight="400" fill="#c4c0e8" text-anchor="start" >0,824</text>
+<text x="840" y="604" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="12" font-weight="400" fill="#8f89c2" text-anchor="start" >rrf</text>
+<rect x="880" y="590" width="0" height="18" rx="4" fill="#8f89c2"><animate attributeName="width" from="0" to="173" dur="1.6s" fill="freeze" begin="0.6s"/></rect>
+<text x="1063" y="604" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="12" font-weight="400" fill="#c4c0e8" text-anchor="start" >0,667</text>
+<text x="64" y="640" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif" font-size="14" font-weight="400" fill="#c4c0e8" text-anchor="start" >La fusión léxica se retiró: perdía 0,157 de recall@5, IC 95 % que no cruza el cero.</text>
+</svg>

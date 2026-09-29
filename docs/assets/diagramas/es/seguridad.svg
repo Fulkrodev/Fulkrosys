@@ -1,0 +1,46 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="492" viewBox="0 0 1200 492" role="img" aria-label="Seguridad en profundidad">
+<defs>
+  <linearGradient id="fondo" x1="0" y1="0" x2="1" y2="1">
+    <stop offset="0" stop-color="#0e0a22"/><stop offset="1" stop-color="#1a1440"/></linearGradient>
+  <linearGradient id="marca" x1="0" y1="0" x2="1" y2="0">
+    <stop offset="0" stop-color="#6C63FF"/><stop offset="1" stop-color="#e879f9"/></linearGradient>
+  <radialGradient id="halo"><stop offset="0" stop-color="#6C63FF" stop-opacity=".55"/>
+    <stop offset="1" stop-color="#6C63FF" stop-opacity="0"/></radialGradient>
+  <marker id="flecha" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+    <path d="M0,0 L10,5 L0,10 z" fill="#8B83FF"/></marker>
+</defs>
+<rect width="1200" height="492" rx="18" fill="url(#fondo)"/>
+<text x="40" y="52" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif" font-size="22" font-weight="700" fill="#ffffff" text-anchor="start" >Seguridad en profundidad</text>
+<line x1="70" y1="84" x2="70" y2="444" stroke="#352d66" stroke-width="2" stroke-dasharray="2 6"/>
+<circle r="6" fill="#e879f9"><animateMotion dur="4.5s" begin="0s" repeatCount="indefinite" path="M70,78 L70,444"/><animate attributeName="opacity" values="0;1;1;0" keyTimes="0;.1;.9;1" dur="4.5s" begin="0s" repeatCount="indefinite"/></circle>
+<rect x="100" y="84" width="1060" height="50" rx="12" fill="#1d1838" stroke="#352d66" stroke-width="1.5"><animate attributeName="stroke" values="#352d66;#6C63FF;#352d66" keyTimes="0;.12;.3" dur="4.5s" begin="0.0s" repeatCount="indefinite"/></rect>
+<rect x="100" y="84" width="6" height="50" rx="3" fill="#6C63FF"/>
+<circle cx="70" cy="109" r="7" fill="#0e0a22" stroke="#6C63FF" stroke-width="2"/>
+<text x="126" y="115" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif" font-size="16" font-weight="700" fill="#ffffff" text-anchor="start" >Identidad</text>
+<text x="290" y="115" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif" font-size="14.5" font-weight="400" fill="#c4c0e8" text-anchor="start" >WebAuthn o TOTP · MFA de cliente · enlaces Ed25519 con OTP</text>
+<rect x="100" y="146" width="1060" height="50" rx="12" fill="#1d1838" stroke="#352d66" stroke-width="1.5"><animate attributeName="stroke" values="#352d66;#8B83FF;#352d66" keyTimes="0;.12;.3" dur="4.5s" begin="0.75s" repeatCount="indefinite"/></rect>
+<rect x="100" y="146" width="6" height="50" rx="3" fill="#8B83FF"/>
+<circle cx="70" cy="171" r="7" fill="#0e0a22" stroke="#8B83FF" stroke-width="2"/>
+<text x="126" y="177" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif" font-size="16" font-weight="700" fill="#ffffff" text-anchor="start" >Sesión</text>
+<text x="290" y="177" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif" font-size="14.5" font-weight="400" fill="#c4c0e8" text-anchor="start" >JWT Ed25519 en cookie httpOnly · CSRF por petición</text>
+<rect x="100" y="208" width="1060" height="50" rx="12" fill="#1d1838" stroke="#352d66" stroke-width="1.5"><animate attributeName="stroke" values="#352d66;#e879f9;#352d66" keyTimes="0;.12;.3" dur="4.5s" begin="1.5s" repeatCount="indefinite"/></rect>
+<rect x="100" y="208" width="6" height="50" rx="3" fill="#e879f9"/>
+<circle cx="70" cy="233" r="7" fill="#0e0a22" stroke="#e879f9" stroke-width="2"/>
+<text x="126" y="239" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif" font-size="16" font-weight="700" fill="#ffffff" text-anchor="start" >Aislamiento</text>
+<text x="290" y="239" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif" font-size="14.5" font-weight="400" fill="#c4c0e8" text-anchor="start" >RLS en 185 de 253 tablas · 192 políticas · rol sin superusuario</text>
+<rect x="100" y="270" width="1060" height="50" rx="12" fill="#1d1838" stroke="#352d66" stroke-width="1.5"><animate attributeName="stroke" values="#352d66;#34d399;#352d66" keyTimes="0;.12;.3" dur="4.5s" begin="2.25s" repeatCount="indefinite"/></rect>
+<rect x="100" y="270" width="6" height="50" rx="3" fill="#34d399"/>
+<circle cx="70" cy="295" r="7" fill="#0e0a22" stroke="#34d399" stroke-width="2"/>
+<text x="126" y="301" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif" font-size="16" font-weight="700" fill="#ffffff" text-anchor="start" >Integridad</text>
+<text x="290" y="301" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif" font-size="14.5" font-weight="400" fill="#c4c0e8" text-anchor="start" >registro de auditoría con cadena SHA-256 · sin UPDATE ni DELETE</text>
+<rect x="100" y="332" width="1060" height="50" rx="12" fill="#1d1838" stroke="#352d66" stroke-width="1.5"><animate attributeName="stroke" values="#352d66;#fbbf24;#352d66" keyTimes="0;.12;.3" dur="4.5s" begin="3.0s" repeatCount="indefinite"/></rect>
+<rect x="100" y="332" width="6" height="50" rx="3" fill="#fbbf24"/>
+<circle cx="70" cy="357" r="7" fill="#0e0a22" stroke="#fbbf24" stroke-width="2"/>
+<text x="126" y="363" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif" font-size="16" font-weight="700" fill="#ffffff" text-anchor="start" >Custodia</text>
+<text x="290" y="363" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif" font-size="14.5" font-weight="400" fill="#c4c0e8" text-anchor="start" >antivirus · SHA-256 · firma Ed25519 · WORM 7 años</text>
+<rect x="100" y="394" width="1060" height="50" rx="12" fill="#1d1838" stroke="#352d66" stroke-width="1.5"><animate attributeName="stroke" values="#352d66;#c4c0e8;#352d66" keyTimes="0;.12;.3" dur="4.5s" begin="3.75s" repeatCount="indefinite"/></rect>
+<rect x="100" y="394" width="6" height="50" rx="3" fill="#c4c0e8"/>
+<circle cx="70" cy="419" r="7" fill="#0e0a22" stroke="#c4c0e8" stroke-width="2"/>
+<text x="126" y="425" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif" font-size="16" font-weight="700" fill="#ffffff" text-anchor="start" >Operación</text>
+<text x="290" y="425" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif" font-size="14.5" font-weight="400" fill="#c4c0e8" text-anchor="start" >copias cifradas · monitor ENS Medio sobre sí misma</text>
+</svg>

@@ -1,9 +1,10 @@
 # Web publica de Fulkro (`fulkro.es`)
 
-Sitio **estatico** de Fulkro, conservado como archivo. El proyecto cerro en
-septiembre de 2026: la web ya no vende nada ni ofrece ningun servicio, solo
-describe lo que hacia la plataforma. El codigo del sistema se esta liberando
-como open source en <https://github.com/Fulkrodev/Fulkrosys>.
+Sitio **estatico** de Fulkro. El proyecto se detuvo en septiembre de 2026 por
+falta de traccion comercial: la web no vende nada ni ofrece ningun servicio, y
+presenta lo que la plataforma hacia y como estaba construida (capacidades,
+portales, capa de IA, arquitectura y calidad). El codigo completo se publica
+bajo Apache-2.0 en <https://github.com/Fulkrodev/Fulkrosys>.
 
 Es independiente de la aplicacion (`backend/` + `frontend/`): aqui no hay build
 ni framework, solo HTML/CSS/JS plano. Cada pagina es **autocontenida** (CSS y JS
@@ -13,16 +14,16 @@ en linea), asi que se puede abrir o desplegar sin pasos previos.
 
 ```
 landing/
-├── index.html            # Portada: que era y que hacia la plataforma
+├── index.html            # Portada: capacidades, recorrido, ciclo, portales, IA, arquitectura
 ├── aviso-legal.html      # Aviso legal
 ├── privacidad.html       # Politica de privacidad
 ├── cookies.html          # Politica de cookies
-├── assets/               # Capturas del producto usadas en la portada
+├── assets/               # Capturas, recorrido en video (WebM/MP4) y diagramas SVG
 ├── og-image.png          # Imagen para compartir (1200×630)
 ├── favicon.svg
 ├── robots.txt            # Sin allowlist de crawlers de IA: no hay nada que promocionar
 ├── sitemap.xml           # Las cuatro paginas que quedan
-└── llms.txt              # Resumen para asistentes de IA: proyecto cerrado
+└── llms.txt              # Resumen para asistentes de IA
 ```
 
 Las diez paginas comerciales (`plataforma.html`, `como-funciona.html`,
@@ -57,8 +58,8 @@ borradas hacia `/`, para no dejar 404 en los enlaces que sigan por ahi.
   `aviso-legal.html` y `privacidad.html`, que son de obligada publicacion
   (identificacion del prestador en la LSSI-CE y ejercicio de derechos del
   RGPD). No deben borrarse mientras el sitio siga publicado.
-- **`og-image.png`** conserva el reclamo comercial antiguo; si se sustituye,
-  esta referenciada como `og:image`, `twitter:image` y `logo` de JSON-LD en las
-  cuatro paginas.
+- **`og-image.png`** sale del diagrama de cabecera del README
+  (`docs/assets/diagramas/es/hero.svg`); esta referenciada como `og:image`,
+  `twitter:image` y `logo` de JSON-LD en las cuatro paginas.
 - **Fuentes**: Google Fonts (Bricolage Grotesque + Sora) via CDN; requiere
   conexion a internet al renderizar.

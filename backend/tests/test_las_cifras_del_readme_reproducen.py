@@ -25,14 +25,17 @@ import pytest
 
 _RAIZ = Path(__file__).resolve().parents[2]
 _README = _RAIZ / "README.md"
+# La version inglesa repite las mismas cifras con sus propias etiquetas y el
+# separador de millares ingles: se comprueba igual, para que no se quede atras.
+_README_EN = _RAIZ / "README.en.md"
 
 
-def _numero_del_readme(patron: str) -> int:
+def _numero_del_readme(patron: str, fichero: Path = _README) -> int:
     """Extrae la cifra escrita en el README, con o sin separador de millares."""
-    texto = _README.read_text(encoding="utf-8")
+    texto = fichero.read_text(encoding="utf-8")
     m = re.search(patron, texto)
-    assert m, f"no se encontro en el README el patron {patron!r}"
-    return int(m.group(1).replace(".", ""))
+    assert m, f"no se encontro en {fichero.name} el patron {patron!r}"
+    return int(m.group(1).replace(".", "").replace(",", ""))
 
 
 def _contar(comando: str) -> int:
@@ -109,6 +112,37 @@ _CIFRAS = [
         "print(len(yaml.safe_load(open('docker-compose.yml'))['services']))\"",
     ),
 ]
+
+
+_CIFRAS_EN = [
+    ("domain engines", r"\| Domain engines \| \*\*([\d,]+)\*\*", "ls -d backend/app/motors/m*/ | wc -l"),
+    ("alembic migrations", r"\| Alembic migrations \| \*\*([\d,]+)\*\*",
+     "ls backend/migrations/versions/*.py | wc -l"),
+    ("frontend pages", r"\| Frontend pages \| \*\*([\d,]+)\*\*", "find frontend/app -name page.tsx | wc -l"),
+    ("react components", r"\| React components \| \*\*([\d,]+)\*\*",
+     "find frontend/components -name '*.tsx' | wc -l"),
+    ("lines of python", r"\| Lines of Python \| \*\*([\d,]+)\*\*",
+     "find backend/app -name '*.py' | xargs wc -l | tail -1"),
+    ("test files", r"\| Test files \| \*\*([\d,]+)\*\*", "find backend/tests -name 'test_*.py' | wc -l"),
+    ("playwright specs", r"\| Playwright specs \| \*\*([\d,]+)\*\*",
+     "find frontend/tests -name '*.spec.ts' | wc -l"),
+    ("engines (layout)", r"· (\d+) engine directories", "ls -d backend/app/motors/m*/ | wc -l"),
+    ("migrations (layout)", r"engine directories in app/motors/ · (\d+) migrations",
+     "ls backend/migrations/versions/*.py | wc -l"),
+    ("lines of python (figures block)", r"\n\s*(\d+) total",
+     "git ls-files backend/app | grep '\\.py$' | xargs wc -l | tail -1"),
+]
+
+
+@pytest.mark.parametrize(
+    "que,patron,comando", _CIFRAS_EN, ids=[c[0] for c in _CIFRAS_EN],
+)
+def test_la_cifra_del_readme_en_ingles_reproduce(que, patron, comando):
+    escrita = _numero_del_readme(patron, _README_EN)
+    medida = _contar(comando)
+    assert escrita == medida, (
+        f"README.en.md dice {escrita} {que} y el comando devuelve {medida}.\n  $ {comando}"
+    )
 
 
 @pytest.mark.parametrize(
