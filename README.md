@@ -9,7 +9,7 @@
 [![FastAPI](https://img.shields.io/badge/FastAPI-1.203%20operaciones-6C63FF?style=for-the-badge&labelColor=1a1a2e&logo=fastapi&logoColor=white)](#métricas)
 [![Next.js](https://img.shields.io/badge/Next.js%2015-167%20páginas-6C63FF?style=for-the-badge&labelColor=1a1a2e&logo=nextdotjs&logoColor=white)](#los-cuatro-portales)
 [![PostgreSQL](https://img.shields.io/badge/PostgreSQL%2016-253%20tablas-6C63FF?style=for-the-badge&labelColor=1a1a2e&logo=postgresql&logoColor=white)](#arquitectura)
-[![Tests](https://img.shields.io/badge/tests-6.884%20pasan-8B83FF?style=for-the-badge&labelColor=1a1a2e&logo=pytest&logoColor=white)](#evals-y-calidad)
+[![Tests](https://img.shields.io/badge/tests-6.895%20pasan-8B83FF?style=for-the-badge&labelColor=1a1a2e&logo=pytest&logoColor=white)](#evals-y-calidad)
 
 **Español** · [English](README.en.md)
 
@@ -44,7 +44,7 @@ con un comando y con datos de demostración dentro.
   reserva, y la interfaz lo enseña.
 - **Por qué es fiable.** Aislamiento por cliente con RLS en 185 tablas, registro de auditoría con
   cadena de hashes inmutable, firma Ed25519 de documentos y evidencias, y almacenamiento WORM.
-- **Cómo se sabe que funciona.** 6.884 tests en verde, 413 escenarios E2E, 97 páginas auditadas con
+- **Cómo se sabe que funciona.** 6.895 tests en verde, 413 escenarios E2E, 97 páginas auditadas con
   axe (WCAG) y una evaluación de recuperación con intervalos de confianza que decidió la
   arquitectura del RAG.
 
@@ -58,7 +58,7 @@ con un comando y con datos de demostración dentro.
 <tr>
 <td align="center"><h3>0,959</h3><sub>acierto@5 del RAG</sub></td>
 <td align="center"><h3>185</h3><sub>tablas con RLS</sub></td>
-<td align="center"><h3>6.884</h3><sub>tests en verde</sub></td>
+<td align="center"><h3>6.895</h3><sub>tests en verde</sub></td>
 <td align="center"><h3>97</h3><sub>páginas WCAG sin fallos graves</sub></td>
 </tr>
 </table>
@@ -338,7 +338,7 @@ Metodología completa en [`docs/EVAL_RECUPERACION.md`](docs/EVAL_RECUPERACION.md
 
 | qué se mide | resultado | dónde |
 |---|---|---|
-| Suite de backend | **6.884 pasan · 0 fallan** (3.563 sin base + 3.321 con base) | `pytest`, y `pytest-completo.yml` en GitHub |
+| Suite de backend | **6.895 pasan · 0 fallan** (3.573 sin base + 3.322 con base) | `pytest`, y `pytest-completo.yml` en GitHub |
 | Escenarios E2E | **413 / 413** | Playwright contra la aplicación real |
 | Accesibilidad | **97 / 97** páginas sin fallos críticos ni graves | axe-core en los tres portales, en cada push |
 | Recuperación del RAG | acierto@5 **0,959** · recall@5 **0,824** · MRR **0,752** | `make eval-recuperacion` |

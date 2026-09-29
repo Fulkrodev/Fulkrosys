@@ -95,7 +95,7 @@ TX = {
     "es": {
         "hero_t": "Implantación del Esquema Nacional de Seguridad, de punta a punta",
         "hero_s": "Motores deterministas · capa de IA con RAG · cuatro portales · evidencia firmada",
-        "hero_c": "44 motores · 1.203 operaciones de API · 253 tablas · 6.884 tests",
+        "hero_c": "44 motores · 1.203 operaciones de API · 253 tablas · 6.895 tests",
         "arq_titulo": "Arquitectura", "quien": "QUIÉN ENTRA",
         "portales": [("Administración", "el consultor · WebAuthn o TOTP"),
                      ("Cliente", "ve, autoriza y firma · MFA"),
@@ -153,7 +153,7 @@ TX = {
     "en": {
         "hero_t": "Implementing Spain's National Security Framework, end to end",
         "hero_s": "Deterministic engines · AI layer with RAG · four portals · signed evidence",
-        "hero_c": "44 engines · 1,203 API operations · 253 tables · 6,884 tests",
+        "hero_c": "44 engines · 1,203 API operations · 253 tables · 6,895 tests",
         "arq_titulo": "Architecture", "quien": "WHO COMES IN",
         "portales": [("Admin", "the consultant · WebAuthn or TOTP"),
                      ("Client", "reviews, approves, signs · MFA"),

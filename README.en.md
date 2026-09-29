@@ -44,7 +44,7 @@ starts with one command, with demo data already loaded. The interface is in Span
   template, and the interface shows it.
 - **Why it can be trusted.** Per-client isolation with row-level security on 185 tables, an
   immutable hash-chained audit log, Ed25519 signatures on documents and evidence, and WORM storage.
-- **How we know it works.** 6,884 passing tests, 413 end-to-end scenarios, 97 pages audited with axe
+- **How we know it works.** 6,895 passing tests, 413 end-to-end scenarios, 97 pages audited with axe
   (WCAG) and a retrieval evaluation with confidence intervals that decided the RAG architecture.
 
 <table>
@@ -57,7 +57,7 @@ starts with one command, with demo data already loaded. The interface is in Span
 <tr>
 <td align="center"><h3>0.959</h3><sub>RAG hit@5</sub></td>
 <td align="center"><h3>185</h3><sub>tables with RLS</sub></td>
-<td align="center"><h3>6,884</h3><sub>passing tests</sub></td>
+<td align="center"><h3>6,895</h3><sub>passing tests</sub></td>
 <td align="center"><h3>97</h3><sub>WCAG pages with no serious issues</sub></td>
 </tr>
 </table>
@@ -336,7 +336,7 @@ Full methodology (in Spanish) in [`docs/EVAL_RECUPERACION.md`](docs/EVAL_RECUPER
 
 | what is measured | result | where |
 |---|---|---|
-| Backend suite | **6,884 pass · 0 fail** (3,563 without a database + 3,321 with one) | `pytest`, and `pytest-completo.yml` on GitHub |
+| Backend suite | **6,895 pass · 0 fail** (3,573 without a database + 3,322 with one) | `pytest`, and `pytest-completo.yml` on GitHub |
 | End-to-end scenarios | **413 / 413** | Playwright against the real application |
 | Accessibility | **97 / 97** pages with no critical or serious issues | axe-core on the three portals, on every push |
 | RAG retrieval | hit@5 **0.959** · recall@5 **0.824** · MRR **0.752** | `make eval-recuperacion` |

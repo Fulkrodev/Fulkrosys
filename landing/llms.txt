@@ -37,7 +37,7 @@ estaba construida.
   185 tablas, MinIO con Object Lock, Celery y Redis.
 - RAG con embeddings multilingual-e5-large (1024 d) e indice HNSW. Evaluado con
   49 consultas etiquetadas: acierto@5 0,959, recall@5 0,824, MRR 0,752.
-- 6.884 tests de backend, 413 escenarios E2E y 97 paginas auditadas con axe.
+- 6.895 tests de backend, 413 escenarios E2E y 97 paginas auditadas con axe.
 
 ## Datos sobre el ENS
 - El ENS (RD 311/2022) es el marco espanol de ciberseguridad obligatorio para
