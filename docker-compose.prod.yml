@@ -322,14 +322,18 @@ services:
   # ─────────────────────── MinIO (S3-compatible) ───────────────────────
   # Object Lock se habilita por bucket en minio-init (fulkro-evidence-worm).
   minio:
-    image: quay.io/minio/minio:RELEASE.2025-09-07T16-13-09Z
+    # MinIO retiró sus imágenes públicas de Docker Hub y después de quay.io
+    # (septiembre de 2026). Se usa el archivo de Bitnami, con la versión fijada:
+    # corre como uid 1001, por eso los datos van en /bitnami/minio/data.
+    image: docker.io/bitnamilegacy/minio:2025.7.23-debian-12-r5
+    entrypoint: ["minio"]
     restart: unless-stopped
     environment:
       MINIO_ROOT_USER: ${MINIO_ROOT_USER:?MINIO_ROOT_USER requerido en .env.prod}
       MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD:?MINIO_ROOT_PASSWORD requerido en .env.prod}
-    command: server /data --console-address ":9001"
+    command: server /bitnami/minio/data --console-address ":9001"
     volumes:
-      - miniodata:/data
+      - miniodata:/bitnami/minio/data
     healthcheck:
       test: ["CMD-SHELL", "mc ready local || curl -fsS http://localhost:9000/minio/health/live || exit 1"]
       interval: 15s
@@ -342,7 +346,7 @@ services:
 
   # ─────────────────────── MinIO bucket bootstrap (one-shot) ───────────────────────
   minio-init:
-    image: quay.io/minio/mc:RELEASE.2025-08-13T08-35-41Z
+    image: docker.io/bitnamilegacy/minio-client:2025.7.21-debian-12-r3
     restart: "no"
     entrypoint: ["/bin/sh", "/scripts/minio-init.sh"]
     environment:

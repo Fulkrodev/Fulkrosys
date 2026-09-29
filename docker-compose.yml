@@ -36,7 +36,11 @@ services:
       retries: 5
 
   minio:
-    image: quay.io/minio/minio:RELEASE.2025-09-07T16-13-09Z
+    # MinIO retiró sus imágenes públicas de Docker Hub y después de quay.io
+    # (septiembre de 2026). Se usa el archivo de Bitnami, con la versión fijada:
+    # corre como uid 1001, por eso los datos van en /bitnami/minio/data.
+    image: docker.io/bitnamilegacy/minio:2025.7.23-debian-12-r5
+    entrypoint: ["minio"]
     restart: unless-stopped
     environment:
       MINIO_ROOT_USER: fulkro
@@ -45,8 +49,8 @@ services:
       - "9000:9000"
       - "9001:9001"
     volumes:
-      - miniodata:/data
-    command: server /data --console-address ":9001"
+      - miniodata:/bitnami/minio/data
+    command: server /bitnami/minio/data --console-address ":9001"
 
   # ─────── ClamAV antivirus (MB-6 atom 6 · Gap A27 ENS op.exp.6) ───────
   # Cisco-Talos image · GPL2 · UE-sovereign · clamd TCP 3310 internal.

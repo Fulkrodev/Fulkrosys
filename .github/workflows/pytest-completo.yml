@@ -115,16 +115,18 @@ jobs:
         # pasaban porque la base de pruebas venia con su MinIO al lado. No va
         # como `services:` porque MinIO necesita el argumento `server /data`.
         # Los buckets los crea el mismo script que usan el demo y produccion.
+        # Imagen: el archivo de Bitnami, porque MinIO retiro sus imagenes
+        # publicas de Docker Hub y de quay.io (septiembre de 2026).
         run: |
           set -euo pipefail
           docker run -d --name minio -p 9000:9000 \
             -e MINIO_ROOT_USER="$MINIO_ACCESS_KEY" -e MINIO_ROOT_PASSWORD="$MINIO_SECRET_KEY" \
-            quay.io/minio/minio:RELEASE.2025-09-07T16-13-09Z server /data
+            --entrypoint minio docker.io/bitnamilegacy/minio:2025.7.23-debian-12-r5 server /bitnami/minio/data
           docker run --rm --network host \
             -e MINIO_INIT_ENDPOINT=http://localhost:9000 \
             -e MINIO_ROOT_USER="$MINIO_ACCESS_KEY" -e MINIO_ROOT_PASSWORD="$MINIO_SECRET_KEY" \
             -v "$PWD/infra/docker/minio-init.sh:/minio-init.sh:ro" \
-            --entrypoint /bin/sh quay.io/minio/mc:RELEASE.2025-08-13T08-35-41Z /minio-init.sh
+            --entrypoint /bin/sh docker.io/bitnamilegacy/minio-client:2025.7.21-debian-12-r3 /minio-init.sh
 
       - name: Claves Ed25519 efímeras (sin secretos de repo)
         # Mismo patrón que ci.yml, y por la misma razón: sin
