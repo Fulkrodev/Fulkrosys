@@ -184,7 +184,7 @@ OAuth existing · NO duplicar:
 - TS strict + ESLint 0 errors · 0 regresiones cumulative (74/74 backend tests
   verde)
 
-## Commits cumulative (8 commits · ~17h empírico vs ~25-30h nominal · ahorro ~40%)
+## Commits (8)
 
 | Sub-fase | Commit | LOC | Tests |
 |---|---|---|---|

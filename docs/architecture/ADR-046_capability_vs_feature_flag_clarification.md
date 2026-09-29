@@ -85,7 +85,6 @@ audit_log integration: triggers BD existentes capturan INSERT/UPDATE/DELETE auto
 - 8+ frontend components UNCHANGED (`useProjectFeatures` transparent merge)
 - ADR-036 deferred materializado · debt resolved
 - Q5.3 cement explicit documented · forward unambiguous
-- Effort savings ~40% vs original Atom 10.2 estimate (~3-4h vs 5-7h)
 - NO motor duplicado architecturally clean
 - ISMS terminology preserved (M32 LOGICAL concept)
 

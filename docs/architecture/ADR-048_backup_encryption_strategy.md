@@ -92,7 +92,6 @@ Backup endpoints already gated by `require_owner` dependency (existing pattern).
 
 - ISMS commitments 2 critical honored literal (encryption at rest + offsite)
 - "0 deuda perfecto" cement preserved via architectural decisions explicit
-- Effort ~2-3h within OPS-048 honest estimation
 - `m26_backup` motor 80% → 95% functional dev environment
 - Forward path documented for MB-11 + MB-12 cement sostained
 - `BackupJob.encryption_key_id` field activated (dormant → functional)

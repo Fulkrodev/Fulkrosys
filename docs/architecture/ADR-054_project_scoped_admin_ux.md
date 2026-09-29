@@ -148,21 +148,19 @@ Backend ya project-scoped production-grade:
 
 ## Implementation phases (sub-atom 1.E.2)
 
-| Phase | Scope | ETA empírico |
-|-------|-------|--------------|
-| 0 | Empirical state verification | ~30-45 min (done) |
-| A | This ADR + design decisions | ~30 min (done) |
-| B | Backend additions | ~0h scope-out |
-| C | Frontend implementation (store + sidebar + redirect + guard) | ~1.5-2h |
-| D | Project-scoping verify deep | ~30 min |
-| E | E2E validation + cierre | ~30-45 min |
-| **Total** | | **~3-3.75h cumulative** |
+| Phase | Scope |
+|-------|-------|
+| 0 | Empirical state verification |
+| A | This ADR + design decisions |
+| B | Backend additions (none needed) |
+| C | Frontend implementation (store + sidebar + redirect + guard) |
+| D | Project-scoping verify deep |
+| E | E2E validation + cierre |
 
 ## Honesty notes
 
 - Phase 0 verified empírico ANTES Phase A decisions (OPS-052 strengthened doctrine sostained · 6ª manifestation prevented)
 - Zustand pattern reuse documented · audit reveal precedente existing
-- ETA aligned with briefing nominal (~3.5-5.5h margin 15%) · NO 5ª/6ª manifestation
 - Cliente portal R29 explicit NO breaking change · refactor 1.D.F.bis.III cumulative respect
 
 ## Cross-ref
