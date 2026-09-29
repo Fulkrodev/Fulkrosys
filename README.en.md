@@ -305,7 +305,7 @@ sequenceDiagram
 ```
 
 **Evaluation: a measurement chose the architecture.** 49 hand-labelled compliance queries, all
-five branches measured on the same queries, with bootstrap intervals from 10,000 resamples:
+five branches measured on the same queries, with bootstrap intervals from 1,000 resamples:
 
 | branch | hit@5 | recall@5 | MRR |
 |---|---:|---:|---:|
