@@ -307,7 +307,7 @@ sequenceDiagram
 ```
 
 **Evaluación: la arquitectura la eligió una medida.** 49 consultas de cumplimiento etiquetadas a
-mano, con las cinco ramas medidas sobre las mismas consultas e intervalos por *bootstrap* de 10.000
+mano, con las cinco ramas medidas sobre las mismas consultas e intervalos por *bootstrap* de 1.000
 remuestreos:
 
 | rama | acierto@5 | recall@5 | MRR |
