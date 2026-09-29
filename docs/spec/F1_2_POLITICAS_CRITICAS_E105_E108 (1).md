@@ -1197,4 +1197,4 @@ Las **9 políticas críticas** del SGSI ENS quedan completas:
 
 **Fin del Entregable F1.2.**
 
-4 políticas críticas restantes con texto legal real español (~12.000 palabras), completando el bloque **F1 — 9 políticas críticas SGSI ENS**. Listas para conversión a `.docx` por el Motor 6 durante la Semana 5 del plan de construcción FULKRO.
+4 políticas críticas restantes con texto legal real español (~12.000 palabras), completando el bloque **F1 — 9 políticas críticas SGSI ENS**. Listas para conversión a `.docx` por el Motor 6.

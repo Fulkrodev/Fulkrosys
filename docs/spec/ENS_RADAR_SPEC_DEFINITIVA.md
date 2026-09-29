@@ -534,7 +534,7 @@ Para evitar bloat y dispersión:
 - 50% CIF sin resolver (`SIN_CIF_*` + razón=CIF)
 - eInforma OFF
 
-### V6 — Próximos 3 meses (Q2-Q3 2026, ~25-40 h)
+### V6 — Próximos 3 meses (Q2-Q3 2026)
 **Objetivo:** convertibilidad real del corpus existente.
 
 - [ ] Activar eInforma → desbloquea ~215 leads contactables
@@ -543,7 +543,7 @@ Para evitar bloat y dispersión:
 - [ ] Tier `vence_pronto_oferta` (scrapear pliegos abiertos, no solo adjudicaciones)
 - [ ] Cita jurisprudencial en outbound template (Informe 25/2025 + TARCJA 451/2025)
 
-### V7 — Q3-Q4 2026 (~30-50 h)
+### V7 — Q3-Q4 2026
 **Objetivo:** cobertura geográfica clave + mercados adyacentes obvios.
 
 - [ ] Ingesta Comunidad de Madrid (sede de Marcos)
@@ -552,7 +552,7 @@ Para evitar bloat y dispersión:
 - [ ] Detección pliegos defectuosos impugnables (Resolución Canarias 131/2025)
 - [ ] BORME daily sync básico
 
-### V8 — Q4 2026 / Q1 2027 (~50-80 h)
+### V8 — Q4 2026 / Q1 2027
 **Objetivo:** cobertura nacional completa + escalabilidad.
 
 - [ ] Ingesta Cataluña (PSCP)
@@ -563,7 +563,7 @@ Para evitar bloat y dispersión:
 - [ ] Feedback loop reaprendizaje (penaliza/premia patrones)
 - [ ] Observabilidad dashboard completo (3 familias de métricas)
 
-### V9 — 2027+ (~40-60 h)
+### V9 — 2027+
 **Objetivo:** optimización fina + adyacentes avanzados.
 
 - [ ] BORME alerts de cambios societarios (fusiones, ventas)
@@ -573,7 +573,7 @@ Para evitar bloat y dispersión:
 - [ ] Diputaciones forales vascas (Álava, Bizkaia, Gipuzkoa)
 - [ ] Boletines oficiales autonómicos como ingesta secundaria
 
-**Total Radar definitivo:** ~145-230 h de trabajo distribuido en 9-18 meses. La trampa es querer construirlo todo ya.
+**Radar definitivo:** cuatro versiones incrementales. La trampa es querer construirlo todo ya.
 
 ---
 

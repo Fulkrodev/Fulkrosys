@@ -3,7 +3,7 @@
 **Propietario:** Marcos Mata García · consultor ENS autónomo · Madrid
 **Destinatario:** Claude Code
 **Fecha:** 10 de abril de 2026
-**Objetivo:** construir la plataforma FULKRO de implantación del Esquema Nacional de Seguridad (RD 311/2022) conforme al plan de 40 semanas de la Parte 9 del v2.1.
+**Objetivo:** construir la plataforma FULKRO de implantación del Esquema Nacional de Seguridad (RD 311/2022) conforme al plan por bloques de la Parte 9 del v2.1.
 
 ---
 
@@ -13,7 +13,7 @@ Este paquete contiene **todo lo que necesitas para construir la plataforma FULKR
 
 El paquete está formado por:
 
-1. **`ENS_PLATFORM_MASTER_SPEC_v2.1.md`** — la **especificación maestra** de 6.810 líneas. Es tu biblia. Todo lo que construyas tiene que ser conforme a este documento. Contiene 26 motores, 27 agentes, ~75 tablas SQL, 9 pantallas UI, el plan de construcción de 40 semanas y 15 apéndices.
+1. **`ENS_PLATFORM_MASTER_SPEC_v2.1.md`** — la **especificación maestra** de 6.810 líneas. Es tu biblia. Todo lo que construyas tiene que ser conforme a este documento. Contiene 26 motores, 27 agentes, ~75 tablas SQL, 9 pantallas UI, el plan de construcción por bloques y 15 apéndices.
 
 2. **21 entregables de contenido** (políticas, procedimientos, plantillas, código Python de dos motores, tests E2E, corpus normativo verificado, etc.) que te dan una ventaja enorme: no tienes que inventar texto legal en español ni código del Motor 8 o el Motor 22.
 
@@ -36,7 +36,7 @@ Léelo entero. Son 6.810 líneas pero cada sección importa. Cuando termines, de
 - ¿Cuáles son los 26 motores de la plataforma y qué hace cada uno?
 - ¿Cuáles son los 27 agentes y qué temperatura y modelo usa cada uno?
 - ¿Cómo se estructura la base de datos y qué RLS policies se aplican?
-- ¿Cuál es el plan de construcción en 40 semanas?
+- ¿Cuál es el plan de construcción?
 - ¿Qué medidas del Anexo II del RD 311/2022 tiene que cubrir la plataforma?
 - ¿Cómo funciona el modelo 95/5?
 - ¿Qué es el tenant virtual y cómo se implementa con RLS + MinIO prefix?
@@ -46,7 +46,7 @@ Léelo entero. Son 6.810 líneas pero cada sección importa. Cuando termines, de
 - **Parte 4.3** — Modelo de datos (~75 tablas SQL). Especialmente las **nuevas tablas v2.1 revisión abril 2026** que añaden gestor documental, ciclo de vida y backups.
 - **Parte 5 — Motores 1 a 26.** Los Motores 24 (IDMS), 25 (Lifecycle) y 26 (Backup) son de esta revisión; no los ignores.
 - **Parte 8** — Dogfooding ENS Medio sobre la propia plataforma. **Esto no es opcional: la plataforma se audita a sí misma.**
-- **Parte 9 — Plan de construcción de 40 semanas.** Especialmente la **§9.13 — Plan de integración de los Motores 24, 25 y 26**, que te dice exactamente en qué semanas encajarlos.
+- **Parte 9 — Plan de construcción por bloques.** Especialmente la **§9.13 — Plan de integración de los Motores 24, 25 y 26**, que te dice exactamente en qué bloques encajarlos.
 - **Apéndice C y Apéndice I** — Prompts de los agentes. **No los modifiques.** Son el control anti-alucinación.
 - **Apéndice H** — Corpus normativo completo para ingesta. Úsalo literalmente.
 - **Apéndice K** — 9 pantallas UI con detalle de layout. No diseñes UX a mano: sigue estas pantallas.
@@ -151,9 +151,9 @@ Cuando encuentres una contradicción entre dos ficheros, **el más reciente prev
 
 ## 4. QUÉ TIENES QUE CONSTRUIR
 
-La plataforma completa tiene **26 motores**, **27 agentes**, **~75 tablas SQL**, **9 pantallas de UI** y un **plan de 40 semanas** detallado en la Parte 9 del v2.1.
+La plataforma completa tiene **26 motores**, **27 agentes**, **~75 tablas SQL**, **9 pantallas de UI** y un **plan por bloques** detallado en la Parte 9 del v2.1.
 
-### Arranca por aquí (semanas 1-3)
+### Arranca por aquí
 
 1. **Setup del repositorio.** Monorepo Python con FastAPI + PostgreSQL 16 + pgvector + Redis + Celery + MinIO + HTMX + Tailwind. Detalles en Parte 4.1.
 
@@ -161,11 +161,11 @@ La plataforma completa tiene **26 motores**, **27 agentes**, **~75 tablas SQL**,
 
 3. **Esquema base de datos.** Implementa todas las tablas de Parte 4.3 con migraciones Alembic. Aplica RLS desde el principio. Incluye las **26 tablas nuevas de v2.1 revisión abril 2026** (gestor documental, ciclo de vida, backups, tenant virtual).
 
-### Semanas 4-6 — Backup antes de datos reales (NO SALTAR)
+### Después, backup antes de datos reales (NO SALTAR)
 
-**§9.13 del v2.1 establece que el Motor 26 (Backup & DR) se construye en las semanas 4-6 ANTES de ingerir datos de cliente real.** Esto no es negociable. pgBackRest + MinIO mirror + Vault backup + primer DR drill + panel de Operaciones. El criterio de salida es: tener al menos un backup completo verificado y un restore test pasado.
+**§9.13 del v2.1 establece que el Motor 26 (Backup & DR) se construye ANTES de ingerir datos de cliente real.** Esto no es negociable. pgBackRest + MinIO mirror + Vault backup + primer DR drill + panel de Operaciones. El criterio de salida es: tener al menos un backup completo verificado y un restore test pasado.
 
-### Semanas 7-13 — Corpus y motores core
+### Corpus y motores core
 
 - **Corpus normativo ingestado** usando `APENDICE_H_VERIFICADO.md` y el script `corpus_ingest.py`. RAG con pgvector + grafo Apache AGE.
 - **Motor 1** (Categorization Engine, determinista).
@@ -175,27 +175,27 @@ La plataforma completa tiene **26 motores**, **27 agentes**, **~75 tablas SQL**,
 - **Motor 5** (Obligations & Planning).
 - **Motor 16** (Adaptive Onboarding).
 
-### Semanas 8-10 — Tenant virtual (paralelo)
+### Tenant virtual (en paralelo)
 
 Sidebar multi-cliente, switch rápido Cmd+K, URL amigable por cliente, dashboard específico por cliente, carpetas estructuradas en MinIO con prefijo obligatorio `fulkro/clients/{nif}/projects/{project_id}/...`.
 
-### Semanas 14-20 — Gestor documental inteligente (IDMS)
+### Gestor documental inteligente (IDMS)
 
 **Motor 24 completo** conforme a §24 de la Parte 5 y la pantalla K.7 del Apéndice K. Incluye **Agente 27 Document Intelligence** con prompt del Apéndice I.27.
 
-### Semanas 21-27 — Motores restantes
+### Motores restantes
 
 Motores 6 (Document Factory), 7 (Evidence Collection), 8 (Pentesting con 17 herramientas), 9 (Audit Preparation), 10 (Audit Simulation), 11 (Copiloto), 12 (Magic Link), 13-15 (Commercial + Contracts + Billing), 17-23 (Project Planning, Comunicación, Riesgos, Workspace, Diagnóstico Organizativo, Technical Discovery, Retainer).
 
-### Semanas 28-30 — Ciclo de vida del proyecto
+### Ciclo de vida del proyecto
 
 **Motor 25 completo** conforme a §25 de la Parte 5. Máquina de estados + wizard de archivado de 5 pasos + export puntual + reversibilidad 30 días.
 
-### Semanas 31-36 — Primer cliente piloto
+### Primer cliente piloto
 
 Refinamiento + integración end-to-end + validación con un primer cliente real.
 
-### Semanas 37-40 — Reserva para imprevistos y pulido
+### Reserva para imprevistos y pulido
 
 ---
 
@@ -283,11 +283,11 @@ v2.1 es muy detallada pero no lo cubre literalmente todo. Cuando te encuentres u
 
 ## 9. PROTOCOLO DE ENTREGA
 
-Cada semana del plan de 40 semanas termina con un entregable concreto. Al final de cada semana:
+Cada bloque del plan termina con un entregable concreto. Al final de cada bloque:
 
 1. Corre los tests E2E (hay una base en `CIERRE_FINAL_3_GAPS.md` Gap 2).
 2. Corre el pipeline de seguridad interno sobre la propia plataforma (Trivy, Nuclei, Lynis, Semgrep).
-3. Genera un informe semanal en `week_NN.md` (retirado del repositorio) con qué se ha construido, qué queda, qué bloqueos hay.
+3. Genera un informe del bloque (retirado del repositorio) con qué se ha construido, qué queda, qué bloqueos hay.
 4. Actualiza el propio dogfooding: si has tocado el esquema, la DdA de la propia plataforma debe reflejarlo.
 5. Verifica que los backups del Motor 26 funcionan y que el último restore test pasó.
 
@@ -301,7 +301,7 @@ Tu primer commit debería:
 2. Añadir este README, el v2.1 y los 21 entregables en `docs/spec/`.
 3. Configurar CI/CD básico (lint, type check, tests).
 4. Crear `DECISIONS.md` vacío con el template ADR.
-5. Crear `week_00_bootstrap.md` (retirado del repositorio) con el estado inicial.
+5. Crear un informe con el estado inicial (retirado del repositorio).
 6. Commit message: `chore: bootstrap FULKRO repository with v2.1 spec and entregables`
 
 ---
@@ -314,7 +314,7 @@ Si tienes dudas, Marcos está disponible en su dashboard de Claude.ai. Escribe t
 
 ## 12. ÚLTIMA NOTA DE MARCOS PARA CLAUDE CODE
 
-> *"He pasado meses especificando esta plataforma hasta el último detalle. No estoy buscando creatividad, estoy buscando ejecución. Lee v2.1 entero, entiende cada motor, sigue el plan de 40 semanas, aplica las correcciones, y construye exactamente lo que está descrito. Si algo no encaja, pregúntame. Si una decisión no es crítica, elige la opción más simple y barata de operar. Mi objetivo es tener un primer cliente real en la semana 36. Construyamos esto bien a la primera. Gracias."*
+> *"Esta plataforma está especificada hasta el último detalle. No estoy buscando creatividad, estoy buscando ejecución. Lee v2.1 entero, entiende cada motor, sigue el plan por bloques, aplica las correcciones, y construye exactamente lo que está descrito. Si algo no encaja, pregúntame. Si una decisión no es crítica, elige la opción más simple y barata de operar. Mi objetivo es llegar a un primer cliente real. Construyamos esto bien a la primera. Gracias."*
 
 ---
 

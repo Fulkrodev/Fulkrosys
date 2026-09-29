@@ -396,7 +396,7 @@ Aunque FULKRO es una plataforma unificada, los módulos internos tienen nombres 
 
 ## 8. ASSETS GENERADOS (entregables de este documento)
 
-Todos estos SVGs y especificaciones están listos para que Claude Code los ingeste directamente en la plataforma durante la semana 1 del plan de construcción:
+Todos estos SVGs y especificaciones están listos para que Claude Code los ingeste directamente en la plataforma al inicio del plan de construcción:
 
 ```
 /static/brand/
@@ -497,10 +497,10 @@ Todos estos SVGs y especificaciones están listos para que Claude Code los inges
 6. **Crear repositorio `fulkro-platform` en GitHub** como privado, bajo organización `fulkro`.
 7. **Configurar el Hetzner CCX33** con hostname `app.fulkro.es` y Caddy apuntando al dominio.
 
-**Todo esto son ~3 horas de trabajo administrativo y ~400 € de gasto.** Con eso queda blindada la marca antes de que se publique cualquier línea de código.
+**Todo esto supone unos 400 € de gasto.** Con eso queda blindada la marca antes de que se publique cualquier línea de código.
 
 ---
 
 **Fin del Entregable A — Identidad de marca FULKRO v1.0.**
 
-Claude Code debe consumir este documento durante la Semana 1 del plan (Fundamentos) y generar los assets derivados en `/static/brand/`. Los SVGs de las secciones 2.2–2.5 y 5.5 son válidos tal cual, basta con guardarlos como archivos `.svg`.
+Claude Code debe consumir este documento en el primer bloque del plan (Fundamentos) y generar los assets derivados en `/static/brand/`. Los SVGs de las secciones 2.2–2.5 y 5.5 son válidos tal cual, basta con guardarlos como archivos `.svg`.

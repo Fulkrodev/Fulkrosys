@@ -81,7 +81,7 @@
 
 ## SAN-E roadmap (post-cliente real piloto)
 
-### SAN-E.1 · Auditoría compliance RGPD interna (5-8h)
+### SAN-E.1 · Auditoría compliance RGPD interna
 
 **Objetivo**: FULKRO operativo full RGPD compliance para auditor externo
 verificación cliente B2B.
@@ -93,7 +93,7 @@ verificación cliente B2B.
 - [ ] Política privacidad publicada `/legal/privacidad` · v2 RGPD-aligned
 - [ ] Cookies banner conforme directiva ePrivacy + GDPR
 
-### SAN-E.2 · ISO 27001 readiness FULKRO mismo (15-25h)
+### SAN-E.2 · ISO 27001 readiness FULKRO mismo
 
 **Objetivo**: FULKRO certificado ISO 27001 · valor diferencial vs competencia.
 
@@ -104,7 +104,7 @@ verificación cliente B2B.
 - [ ] Documentación políticas + procedimientos ISO-aligned (10+ documentos)
 - [ ] Risk assessment ISO 27005 (compatible Magerit Libro II FULKRO)
 
-### SAN-E.3 · Soberanía datos · cifrado at-rest (8-12h)
+### SAN-E.3 · Soberanía datos · cifrado at-rest
 
 **Objetivo**: Cumplimiento soberanía datos UE · FULKRO operativo
 cliente AAPP (datos reservados).
@@ -116,7 +116,7 @@ cliente AAPP (datos reservados).
 - [ ] Hetzner Falkenstein · datos UE garantizados (verified)
 - [ ] Logs transit encryption (TLS 1.3 forced)
 
-### SAN-E.4 · Performance tuning bajo carga real (10-15h)
+### SAN-E.4 · Performance tuning bajo carga real
 
 **Objetivo**: FULKRO operativo > 50 clientes simultáneos sin degradación UX.
 
@@ -127,7 +127,7 @@ cliente AAPP (datos reservados).
 - [ ] CDN edge caching estáticos frontend (Cloudflare gratis tier)
 - [ ] Redis caching layer endpoints frecuentes (`/admin/dashboard` · `/projects/{id}/dashboard`)
 
-### SAN-E.5 · Multi-cliente improvements (5-10h)
+### SAN-E.5 · Multi-cliente improvements
 
 **Objetivo**: Iteración basada en feedback empírico cliente piloto.
 

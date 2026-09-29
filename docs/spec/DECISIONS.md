@@ -56,7 +56,7 @@ Esto resultaba sobreingenierizado para:
 
 ## Consecuencias
 
-- Ahorro 25-30h dev (no LiveKit, no chat E2E)
+- Sin LiveKit ni chat E2E que mantener
 - Marcos privacy: notas confidenciales nunca expuestas
 - Onboarding cliente más simple: usa su Meet/Zoom/Teams habitual
 - Panel A18 solo para Marcos = puede iterar UX sin worry sobre UX cliente
@@ -323,7 +323,7 @@ La auditoría exhaustiva mostró superficie residual de "TSA / eIDAS qualified" 
 
 ## Consecuencias
 
-- Ahorro 25-45h dev + 500-1500€/año coste TSA externa
+- Ahorro de 500-1500 €/año de TSA externa
 - Posicionamiento claro: FULKRO = consultoría con plataforma, no firmador qualified
 - Cliente entiende alcance sin sorpresas (cláusula + página)
 - Marcos protegido contractualmente
@@ -944,7 +944,7 @@ Sin formalizar esta distinción, el equipo (Marcos + Claude) corría el riesgo d
 - **Identidad de usuario auditada por BD**: row-level security (RLS), foreign keys, joins, queries SQL — todo lo natural cuando el rol es columna.
 - **Capabilities ajustables sin deploy**: cambio en `.env` + reload de Settings (ya soportado por `get_settings.cache_clear()` cuando proceda) sin migración.
 - **JWT claims simétricos**: `is_owner` (derivado de `role`), `is_ens_radar_owner` (derivado de capability). Ambos booleanos al frontend para AuthGuard role gating.
-- **Coste migración inicial**: ~45 min (FASE 3 sub-paso 3.A.0) — añadir columna + migración Alembic + tests + factory `make_user` reusable.
+- **Migración inicial** (FASE 3 sub-paso 3.A.0): añadir columna + migración Alembic + tests + factory `make_user` reusable.
 - **Reversibilidad**: si una decisión futura cambia, mover de BD a Settings (o viceversa) es local al campo afectado, no afecta otros.
 
 Supersedes: implícitamente la lectura literal del plan v4.2 que sugería role en JWT sin especificar origen.
@@ -981,11 +981,11 @@ Los modelos SQLAlchemy y la BD divergieron históricamente: la BD tiene cosas qu
 
 **Para FASE 3.A.0** (scope inmediato): migración manual minimalista que **solo añade columna `role`** a `auth_users`. NO se aplica el autogenerate completo bajo riesgo de pérdida de datos.
 
-**Para resolución global del drift**: Mini-Sesión 11.5 dedicada **entre FASE 12 (MicroUX polish) y FASE 13 (pre-deploy hardening)** con estimación 13-20h:
+**Para resolución global del drift**: Mini-Sesión 11.5 dedicada **entre FASE 12 (MicroUX polish) y FASE 13 (pre-deploy hardening)**:
 
 1. Audit 1-a-1 de cada operación DDL del autogenerate (4-6h)
 2. Decidir per-operación: aplicar (BD obsoleta) · revertir modelo (modelo obsoleto) · ignorar (intencional sin migración) (3-5h)
-3. Generar migraciones limpias por bloques temáticos (M22, M28, verification, ens_measure, etc.) (4-6h)
+3. Generar migraciones limpias por bloques temáticos (M22, M28, verification, ens_measure, etc.)
 4. Validación: aplicar fresh DB desde migrations + diff vs BD actual (2-3h)
 
 Snapshot del autogenerate problemático guardado como evidencia inmutable en `drift_audit_2026-04-27.py.txt` (retirado del repositorio).
@@ -1017,7 +1017,6 @@ Durante sub-bloque 4.A.1 FASE 4 (creación tabla `admin_settings`), `alembic rev
 
 - **Original ADR-016 estimaba**: ~50 operaciones DDL
 - **Realidad confirmada 2026-04-28**: 380+ operaciones DDL
-- **Estimación Mini-Sesión 11.5 escalada**: 20-30h (vs 13-20h original)
 
 Nuevas tablas en el inventario drift (no listadas en el ADR original):
 `audit_simulation_findings`/`runs`, `auth_login_attempts`, `auth_sessions`, `auth_webauthn_credentials`, `basic_declarations`, `client_commitments`, `collaborative_workspaces`, `commercial_discounts`, `companies`, `conformity_routes`/`submissions`, `dda_project_signatures`, `diagnosis_runs`, `document_tags`, `documents`, `effort_estimates`, `email_log`, `exploratory_meetings`, `extraordinary_audits`, `false_positive_patterns`, `idms_document_permissions`, `invoice_lines`, `material_changes`, `normativa_alerts`, `onboarding_sessions`, `payment_reminders`, `pce_overlays`, `pricing_catalog`, `project_archived_backups`, `project_lifecycle_events`, `project_plans`, `radar_leads`, `recategorizations`, `remediation_retests`, `renewal_campaigns`, `retainer_*` (varios), `role_*`, `sources_runs`, `stakeholders_graph_snapshots`, `tenders`, `videocall_sessions`, `wbs_tasks`, `workspace_*` (chat_messages, feed_items, files).
@@ -1040,7 +1039,6 @@ La sección **"Operacional FASE 4-12"** de este ADR es **norma firme**: ninguna 
 Ambas migraciones aplican el mismo patrón: scout autogenerate → editar manualmente para scope mínimo → preservar evidence forense del drift descartado.
 
 Negativas:
-- +13-20h al estimado total S11 (de ~342-445h a ~355-465h, <5%)
 - Riesgo intermedio FASE 4-12: si alguna fase necesita `alembic --autogenerate`, deberá usar el patrón de FASE 3.A.0 (manual minimalista) hasta que 11.5 resuelva
 
 ---
@@ -1106,7 +1104,7 @@ Durante el audit pre-SUB-FASE 3.E S11, al analizar `/client-portal/login/page.ts
 ## Consequences (estado actual no-unificado)
 
 Positivas:
-- FASE 3 procede sin contaminación de scope (~10h ahorradas que se delegan a FASE 6/10)
+- FASE 3 procede sin contaminación de scope (el resto se delega a FASE 6/10)
 - Admin flow robusto (MFA fuerte + httpOnly + Ed25519 + middleware) intacto
 - Algoritmo JWT compartido (Ed25519 + misma keypair) significa que la unificación futura es más sencilla de lo que parecía: solo cambiar transport, no crypto
 
@@ -1195,7 +1193,7 @@ Aceleramos `TODO-AUTH-UNIFY-001` (originalmente programado para FASE 6 M29 Messa
 1. **Requirement Marcos "cero deuda técnica"**: cualquier opción intermedia (fix B excepción middleware) deja deuda viva en producción.
 2. **Bug requiere fix sí o sí**: cliente bloqueado de su dashboard NO es aceptable ni siquiera en dev/staging.
 3. **Fix B parcial sería retrabajo**: la migración completa C reescribiría el código del fix B, así que invertir en B introduce deuda formalizada que descartamos a las pocas semanas.
-4. **Audit scope honesto Claude Code**: 7.5h conservador (9h con edge cases), no los 8-12h genéricos del TODO inicial. Comparable a 3.B en complejidad (refactor cross-stack, sin merge tablas).
+4. **Audit scope**: comparable a 3.B en complejidad (refactor cross-stack, sin merge tablas).
 5. **0 tests existentes rotos**: ni backend ni frontend tienen tests que dependan del flow cliente actual. Sólo tests nuevos del 3.F afectados (positivamente — vuelven al plan v4.2 sin adaptaciones).
 6. **3.F honesto post-Mini-Fase 3.5**: tests E2E pueden validar los 8 escenarios del plan original v4.2 sin descartes ni helpers simulados.
 
@@ -1204,7 +1202,7 @@ Aceleramos `TODO-AUTH-UNIFY-001` (originalmente programado para FASE 6 M29 Messa
 Ver `TODO-AUTH-UNIFY-001` actualizado en `backlog_formal.md` (retirado del repositorio) con desglose 9 bloques + horas reales por bloque.
 
 Tras Mini-Fase 3.5:
-1. SUB-FASE 3.F: 8 tests Playwright del plan v4.2 + 4-5 capturas baseline (~2h)
+1. SUB-FASE 3.F: 8 tests Playwright del plan v4.2 + 4-5 capturas baseline
 2. SUB-FASE 3.G: cierre + tag `s11-fase-3-cerrada` (15 min)
 
 ## Consequences
@@ -1212,7 +1210,7 @@ Tras Mini-Fase 3.5:
 Positivas:
 
 - **ADR-017 cerrado completamente** (no queda pendiente la dualidad)
-- **TODO-AUTH-UNIFY-001 cerrado** (desbloquea FASE 6 M29 sin prerrequisito 8-12h pendiente)
+- **TODO-AUTH-UNIFY-001 cerrado** (desbloquea FASE 6 M29 sin prerrequisito pendiente)
 - **3.F con tests honestos del plan v4.2** (sin descarte 3/4/7 ni helpers simulados)
 - **Sesión 12 deploy con flow auth único** (un solo modelo cookie httpOnly + Ed25519)
 - **Mini-Sesión 11.5 simplificada** (queda solo el drift BD del ADR-016, sin auth)
@@ -1220,8 +1218,7 @@ Positivas:
 
 Negativas:
 
-- **+7.5h sobre estimado FASE 3** original (~13h FASE 3 → ~20.5h con Mini-Fase 3.5)
-- **Cliente bloqueado en dev hasta Mini-Fase 3.5** (<72h estimado retake): aceptable porque (a) único user dev relevante es Marcos, (b) los 7 `client_users` reales en BD son fixtures de testing, (c) ningún cliente real depende del repo dev actual
+- **Cliente bloqueado en dev hasta Mini-Fase 3.5**: aceptable porque (a) único user dev relevante es Marcos, (b) los 7 `client_users` reales en BD son fixtures de testing, (c) ningún cliente real depende del repo dev actual
 
 ## Bug regresión 3.C — análisis técnico
 
@@ -1379,7 +1376,7 @@ Frontend middleware no podría usar `sub.startswith("client:")` porque no establ
 Positivas:
 - Schemas optimizados por contexto operacional real
 - Cookie común simplifica frontend (un único middleware Next.js)
-- BLOQUEs 1-7 ejecutados en 7.5h reales sin riesgo de migración destructiva
+- BLOQUEs 1-7 ejecutados sin riesgo de migración destructiva
 - Suite tests (40 cliente + 41 admin = 81 total) verde sin acoplamiento
 
 Negativas:
@@ -1455,7 +1452,7 @@ Pattern idiomático FastAPI, composable con `dependency_override` para tests.
 
 ## Why CSRF Unified in Global Dep
 
-CSRF triple binding antes embebido inline duplicado en 2 deps (`auth/dependencies.py` + `m21_portal_cliente/api.py`). Centralización en `csrf.py::verify_csrf` evita duplicación + motors heredan CSRF protection automático sin esfuerzo per-motor. Refactor pequeño (~30 min) gran beneficio arquitectónico.
+CSRF triple binding antes embebido inline duplicado en 2 deps (`auth/dependencies.py` + `m21_portal_cliente/api.py`). Centralización en `csrf.py::verify_csrf` evita duplicación + motors heredan CSRF protection automático sin esfuerzo per-motor. Refactor pequeño, gran beneficio arquitectónico.
 
 ## Whitelist Paths
 
@@ -1503,7 +1500,6 @@ Definidas en `backend/app/auth/global_dep.py::WHITELIST_EXACT` y `WHITELIST_PREF
 - LECCIÓN-OPS-003: validar premisas TODOs con grep empírico antes de implementación
 - Docs auditor ENS: `audit_log_history.md` (retirado del repositorio) (política B+ preservar inmutabilidad + documentar)
 - Hallazgos audit-first cazados durante sub-fase 4.D: H14, H15, H16, H17, H18, H19, H20, H21, H22, H23, H24, H26, H27, H28, H29, H30
-- Esfuerzo real implementación: ~6h (vs 10-17h estimado plan original, audit-first reducción ~60% por pattern global dep + Opción C tests fix)
 
 ---
 
@@ -1588,7 +1584,7 @@ Plan v4.2 propuso 5 tabs. Sub-fase 5.B implementación añadió 2 placeholders d
 - 2 tabs placeholder (Mensajes M29 + Contactos M30) crean expectativa visual sin funcionalidad real. Acceptable porque están claramente marcados como "lazy load FASE X".
 - Suspend reuse `deleted_at` puede causar confusión semántica si en futuro hay "hard delete" real (decisión revisable post-MVP).
 - `core/clients/api.py:74` comment stale "No auth, no RLS — Development only" cleanup oportuno H34 (commit 5.A).
-- TODO-RBAC-PER-ENDPOINT-001 [MEDIA] formalizado: otros motors mutating Marcos-only sin require_owner explícito quedan pendientes (~3-5h dedicado post-FASE 5).
+- TODO-RBAC-PER-ENDPOINT-001 [MEDIA] formalizado: otros motors mutating Marcos-only sin require_owner explícito quedan pendientes para después de FASE 5.
 
 ## References
 
@@ -1597,7 +1593,6 @@ Plan v4.2 propuso 5 tabs. Sub-fase 5.B implementación añadió 2 placeholders d
 - Sub-fase 5.C E2E commit: `dabf359` (5 Playwright tests + Next 14 params API fix)
 - Hallazgos audit-first cazados durante FASE 5: H1, H2, H3, H4, H5, H6, H7, H31, H32, H33, H34, H35, H36, H37, H38, H39, H40, H41, H42, H43
 - TODO formalizado: `TODO-RBAC-PER-ENDPOINT-001` [MEDIA · post-FASE 5]
-- Esfuerzo real FASE 5: ~9h (vs 8-10h plan v4.2)
 
 ---
 
@@ -1767,10 +1762,10 @@ Producción ENS no requiere videocall propio:
 
 - **TODO-LIVEKIT-CLEANUP-001 [BAJA]**: limpiar 4 archivos
   m20_workspace/* + drop tabla videocall_sessions + columna
-  workspaces.livekit_room_id. Estimación 1-2h. Diferido S13.
+  workspaces.livekit_room_id. Diferido S13.
 - **TODO-A18-TOKEN-STREAM-001 [BAJA]**: refactor SSE backend a
   Anthropic messages.stream() real token-by-token (vs MVP wrapper
-  sync). Requiere refactor base._call_llm. Estimación 3-4h. Diferido S13.
+  sync). Requiere refactor base._call_llm. Diferido S13.
 - sprint4-mock.ts + sprint4-types.ts mantenidos por consumers fuera
   scope FASE 7 (copilot / public portals / audit / magic-links). Tipos
   meeting-* dead code en ambos archivos. Limpieza opcional S13.
@@ -2105,7 +2100,7 @@ Adicionalmente, 2 tablas paralelas refuerzos:
    - O construcción cuidadosa desde RD 311/2022 BOE PDF
    - Validación humana entry-by-entry por consultor ENS
 
-   Estimación: 4-6h trabajo cuidadoso · NO fit con sesión actual modo turbo.
+   Requiere trabajo cuidadoso · NO fit con la sesión actual.
 
    TODO: `TODO-S11-ENS-DATA-CANONICAL-DEFER-001`
 
@@ -2454,7 +2449,7 @@ arrancar SAN-C.MB-10.
 Los fantasmas violaban el principio invariante "0 fantasmas backend sin
 trigger UI" enunciado en SAN-B y reafirmado en el audit post-Bloque 3
 v2 EXHAUSTIVO. Deuda silenciosa que requiere sesión adicional MB-9.bis
-(5 atoms · 5-8h reales) para cerrar.
+(5 atoms) para cerrar.
 
 Adicionalmente, durante MB-9.bis.0 pre-flight se detectó un bug latente
 en MB-9.2: dos endpoints `/declaration/generate` registrados en el
@@ -3890,9 +3885,9 @@ MB-19 inbox cross-project + recent activity card). Refactor specs:
 sustituir `page.route()` mocks por `loginAsClient(page)` helper
 existing (`frontend/tests/e2e/_helpers/auth-real.ts`) que ya cumple
 flow real backend con cookies + CSRF (canónico MB-14
-`mb14_client_workspace.spec.ts`). Estimado **1-2h** (cuatro specs ·
+`mb14_client_workspace.spec.ts`). Alcance: cuatro specs ·
 patrón mecánico replace mock + add `loginAsClient` + ajustar
-selectors si AuthGuard mete delay render).
+selectors si AuthGuard mete delay render.
 
 Mientras tanto: 4 specs reportan fail en CI MB-19+ con anotación
 `@deferred MB-19 client portal AuthGuard refactor` para no romper
@@ -4194,9 +4189,9 @@ emerge necesidad.
 ### Diferencias vs ADR-040 v1 archivado (briefing v3 original)
 
 v1 (descartado): Stripe + Redsys + Tink + 5 tablas + 18 endpoints +
-4 webhooks + 50-78h.
+4 webhooks.
 v2 (vigente · este ADR): Manual + 2 tablas + 8 endpoints + 0 webhooks
-externos + 18-28h · ahorra 32-50h + €0/mes coste recurrente.
+externos · €0/mes de coste recurrente.
 
 ### Deferrables MB-18 documentados (no son deuda)
 
@@ -4323,10 +4318,10 @@ adaptativa · MB-18 auto-billing). MB-19 cierra ciclo comercial completo
 **lead → propuesta → contrato firmado → cliente activo** + migration
 magic-link policy + handoff deploy. MB-19 partido en 3 sub-sesiones:
 
-- **MB-19.A** (este ADR · 22-30h · 8 atoms) · CRM workflow comercial.
-- **MB-19.B** (próximo · ADR-042 · 25-35h) · magic-link policy híbrida final
+- **MB-19.A** (este ADR · 8 atoms) · CRM workflow comercial.
+- **MB-19.B** (próximo · ADR-042) · magic-link policy híbrida final
   + migration 12 continuos → portal tasks.
-- **MB-19.C** (cierre SAN-D · ADRs 043/044/045 · 25-35h) · audit final +
+- **MB-19.C** (cierre SAN-D · ADRs 043/044/045) · audit final +
   master spec + commercial readiness + deploy handoff + tag final
   `s13-fase-14-cliente-real-ready`.
 
@@ -4597,7 +4592,7 @@ MB-19.A:
 | ClientUserInviteFlow | servicio nuevo | reusa m21 `cockpit_create_user` flow PRIMER_ACCESO_CLIENTE |
 | ProjectFactory | servicio nuevo | direct ORM Project insert (factory NO existing) |
 | transition_to_phase cosecha | sí cosecha MB-18 deferred | NO cosecha (DEC-MB18 preservado · diferir 19.C) |
-| Estimación | 30-40h | 22-30h (-8h reuso) |
+| Alcance | completo | menor (reuso de lo existente) |
 
 ### Deferrables MB-19.A documentados (no son deuda)
 
@@ -4677,7 +4672,7 @@ detectó conflictos antes ejecutar 8 atoms · evitó:
 - Servicios re-implementados (ProposalService existing vs ProposalGenerator nuevo).
 
 Pivot v3 (m13 extension · español preservado · workflow radar_leads
-reusado) ahorra 8-10h ejecución directa + 20-30h regresión potencial
+reusado) evita la regresión potencial
 post-merge si v2 hubiera procedido.
 
 **Reuso > recreación cuando dominio existe cohesivo**. m13_commercial
@@ -4940,7 +4935,7 @@ no rompen (warning soft no error).
 | ENCUESTA_SATISFACCION_NPS | "CONTINUO" | ONE-SHOT legítimo (1 use NPS · cliente survey externa) |
 | Hard-deprecation | raise ValueError + 410 Gone | Soft warning + X-Deprecated header (compat backward) |
 | ClientUserInviteFlow | servicio nuevo | extension in-place cockpit_create_user m21 |
-| Estimación | 25-35h · 6 atoms | 18-25h · 6 atoms (-7-10h por audit empírico evita scope creep) |
+| Alcance | 6 atoms | 6 atoms (el audit empírico evita scope creep) |
 
 ### Deferrables MB-19.B documentados (no son deuda)
 
@@ -5023,7 +5018,7 @@ existen fixtures BD admin pipeline post-MB-19.A.
 
 ### Contexto
 
-SAN-D · 9 mega-bloques (MB-13 → MB-19.A/B/C) · 247-346h ajustadas a
+SAN-D · 9 mega-bloques (MB-13 → MB-19.A/B/C) · alcance ajustado a
 realidad audit empírico per atom · cero regresión cumulative · 13/13
 puntos visión Marcos cubiertos verde (ver `SAN_D_FINAL_AUDIT.md` (retirado del repositorio)).
 
@@ -5084,8 +5079,8 @@ diff per commit · si excede · split sub-atoms.
 
 MB-13/15 STOP intermedio aplicado por discrepancias arquitectónicas >2.
 MB-19.A pivot v3 (audit briefing v2 detectó 12 discrepancias · m24_idms
-colision + tablas duplicadas + idioma + servicios) · ahorrro 8-10h
-ejecución directa + 20-30h regresión potencial.
+colision + tablas duplicadas + idioma + servicios) · evita
+regresión potencial.
 
 Aplicación SAN-E: cada nuevo briefing requiere audit pre-impl 30min ·
 si >2 discrepancias arquitectónicas · STOP + reporte + pivot vN+1.
@@ -5286,7 +5281,7 @@ Detalles operativos paso-a-paso en `HANDOFF_SESION_12.md` (retirado del reposito
 
 #### Procedimiento canónico Sesión 12 deploy (10 fases)
 
-**Fase 1 · Pre-deploy local validation (1h)**
+**Fase 1 · Pre-deploy local validation**
 
 - [ ] Suite backend full passing (`pytest backend/tests`)
 - [ ] tsc 0 errors + npm run build success
@@ -5295,7 +5290,7 @@ Detalles operativos paso-a-paso en `HANDOFF_SESION_12.md` (retirado del reposito
 - [ ] alembic head verified `sand_magic_link_migration` o posterior
 - [ ] git log clean (no WIP · uncommitted changes resolved)
 
-**Fase 2 · Hetzner CPX21 provisioning (2h)**
+**Fase 2 · Hetzner CPX21 provisioning**
 
 - [ ] Crear servidor Hetzner CPX21 · región Falkenstein (DE)
 - [ ] Ubuntu 24.04 LTS image
@@ -5303,7 +5298,7 @@ Detalles operativos paso-a-paso en `HANDOFF_SESION_12.md` (retirado del reposito
 - [ ] UFW firewall · permitir 22/443/8000 (Postgres internal · NO 5432 público)
 - [ ] Fail2ban configured (SSH brute-force protection)
 
-**Fase 3 · Software stack (1h)**
+**Fase 3 · Software stack**
 
 - [ ] Docker · Docker Compose installed
 - [ ] PostgreSQL 16 + pgvector extension
@@ -5312,7 +5307,7 @@ Detalles operativos paso-a-paso en `HANDOFF_SESION_12.md` (retirado del reposito
 - [ ] Python 3.12 + venv + pip dependencies
 - [ ] Node 20 LTS + npm + pnpm (build frontend)
 
-**Fase 4 · Domain + HTTPS (30min)**
+**Fase 4 · Domain + HTTPS**
 
 - [ ] DNS A record `app.fulkro.es` → Hetzner IP
 - [ ] DNS A record `portal.fulkro.es` → Hetzner IP (split portal cliente)
@@ -5321,7 +5316,7 @@ Detalles operativos paso-a-paso en `HANDOFF_SESION_12.md` (retirado del reposito
 - [ ] nginx reverse proxy configured (admin → :8000 backend · portal → :3000 frontend)
 - [ ] HTTP → HTTPS redirect 301 enforced
 
-**Fase 5 · Variables entorno producción (30min)**
+**Fase 5 · Variables entorno producción**
 
 - [ ] `.env.production` con valores reales · NUNCA commit a repo
 - [ ] FULKRO_AUTH_PRIVATE_KEY (Ed25519 · `openssl genpkey -algorithm Ed25519`)
@@ -5334,7 +5329,7 @@ Detalles operativos paso-a-paso en `HANDOFF_SESION_12.md` (retirado del reposito
 - [ ] MARCOS_BANK_IBAN + MARCOS_BANK_BIC + MARCOS_BANK_HOLDER (ADR-040)
 - [ ] FULKRO_TESTING unset · runs en production mode strict
 
-**Fase 6 · Migrations apply (15min)**
+**Fase 6 · Migrations apply**
 
 ```bash
 cd /opt/fulkro/backend
@@ -5343,7 +5338,7 @@ PYTHONPATH=/opt/fulkro alembic upgrade head
 # Esperado HEAD: sand_magic_link_migration (o posterior post-19.C cosechas)
 ```
 
-**Fase 7 · Database seed initial (30min)**
+**Fase 7 · Database seed initial**
 
 - [ ] Crear usuario admin Marcos manual via dev endpoint o SQL directo
 - [ ] Importar pricing models (Apéndice M v2.2 · `PRICING_CATALOG`)
@@ -5351,7 +5346,7 @@ PYTHONPATH=/opt/fulkro alembic upgrade head
 - [ ] Importar templates magerit Libro II (m02 · `magerit_libro_ii_loader`)
 - [ ] Importar templates DECISIONS legal (MB-14.3 · 18 templates)
 
-**Fase 8 · Smoke production (1h)**
+**Fase 8 · Smoke production**
 
 - [ ] `curl https://app.fulkro.es/api/v1/health` 200 OK
 - [ ] `curl https://app.fulkro.es/api/v1/_dev/login-as-marcos` 404 (env-gated production OK)
@@ -5364,7 +5359,7 @@ PYTHONPATH=/opt/fulkro alembic upgrade head
 - [ ] SSE connect `/api/v1/stream/projects/{id}` · estable 60s
 - [ ] Postmark email test send · delivery confirmed inbox
 
-**Fase 9 · Backup + monitoring (1h)**
+**Fase 9 · Backup + monitoring**
 
 - [ ] pgbackrest configured · primer backup full Sunday 02:00 (Celery beat)
 - [ ] Sentry DSN configured + test exception capture
@@ -5372,7 +5367,7 @@ PYTHONPATH=/opt/fulkro alembic upgrade head
 - [ ] Status page public · status.fulkro.es (opcional · BetterUptime free)
 - [ ] Logrotate `/var/log/fulkro/*.log` · 14 días retention
 
-**Fase 10 · Handoff Marcos operativo (30min)**
+**Fase 10 · Handoff Marcos operativo**
 
 - [ ] Marcos verifica login admin · 1 magic-link real generado test
 - [ ] Marcos crea primer Lead manual `/admin/pipeline` (sin cliente real aún)
@@ -5389,8 +5384,7 @@ PYTHONPATH=/opt/fulkro alembic upgrade head
 ### Consecuencias
 
 - ADR-045 referencia canónica · `HANDOFF_SESION_12.md` (retirado del repositorio) paso-a-paso operativo.
-- Sesión 12 NO requiere coding nuevo · solo deploy + smoke + handoff
-  (estimado total 8-10h ejecución pura + buffer 4h debug imprevistos).
+- Sesión 12 NO requiere coding nuevo · solo deploy + smoke + handoff.
 - Post-Sesión 12 · primer cliente real piloto onboarding (Sesión 13+).
 
 ### Trazabilidad
@@ -5418,7 +5412,7 @@ en cierre arquitectónico.
 CONTINUO inexistentes (DDA_REVIEW · PDA_REVIEW · etc) · representaban
 visión teórica pre-implementación. Real enum 35 post-FASE 4.5 + SAN-B +
 MB-19.4 contiene 2 reales migrables. Lección MB-13/15/19.A aplicada
-(audit pre-impl 30min ahorra horas de scope creep o STOP intermedio).
+(el audit previo a la implementación evita scope creep o STOP intermedio).
 
 **Soft-deprecation > hard-deprecation cuando legacy sites activos**.
 Sites m05/m16 invocan ONBOARDING_INICIAL/APORTE_EVIDENCIA en flows
@@ -5540,20 +5534,18 @@ Ver detalle completo en `docs/architecture/ADR-049_copilot_3_surfaces_architectu
 
 Visión requires capacidades NO cubiertas estado actual: state machine ENS lifecycle end-to-end (50+ states) · next-best-action engine deterministic + LLM hybrid · context-aware suggestions per cliente state empirical · multi-step wizards integration 38 motors orchestration · coach pattern proactive (A12+A14 fusion candidate) · UX zero-friction "padre saca ENS entero" · end-to-end walkthrough NO intervention manual Marcos.
 
-**Effort cumulative honest estimate: ~25-45h (1-2 semanas focused)**.
-
 ### Decision
 
 **CEMENT VISIÓN documented · DEFER implementation MB-14 polish bloque mayor dedicated** post FASE 2 + Blocks 7-9 closure.
 
 ### Scope MB-14 polish bloque mayor (forward)
 
-- MB-14.0 · Pre-audit architectural design (~2-3h cabeza fresca)
-- MB-14.1 · State machine ENS lifecycle backend (~6-8h)
-- MB-14.2 · Next-best-action engine (~4-6h)
-- MB-14.3 · Frontend guided UI · Sheet + wizard overlay (~6-8h)
-- MB-14.4 · Cross-motor integration empirical (~4-6h)
-- MB-14.5 · E2E "padre saca ENS entero" walkthrough (~2-3h)
+- MB-14.0 · Pre-audit architectural design
+- MB-14.1 · State machine ENS lifecycle backend
+- MB-14.2 · Next-best-action engine
+- MB-14.3 · Frontend guided UI · Sheet + wizard overlay
+- MB-14.4 · Cross-motor integration empirical
+- MB-14.5 · E2E "padre saca ENS entero" walkthrough
 
 Tag forward: `s14-mb14-copilot-guided-cerrada`.
 
