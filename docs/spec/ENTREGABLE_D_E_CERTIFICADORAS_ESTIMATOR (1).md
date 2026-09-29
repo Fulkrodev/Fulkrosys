@@ -171,7 +171,7 @@ Durante la investigación aparecen también estas entidades en referencias comer
 ### D.5 Tabla SQL lista para poblar `certification_entities`
 
 ```sql
--- Ingestar durante la Semana 4 del plan de construcción FULKRO
+-- Ingestar junto con el corpus del plan de construcción FULKRO
 -- Fuente: Entregable D del plan 100/100 (verificación manual abril 2026)
 
 INSERT INTO certification_entities (
@@ -914,19 +914,19 @@ if __name__ == "__main__":
 
 ## PARTE 3 — ACCIONES PARA CLAUDE CODE
 
-### F.1 Durante la Semana 4 del plan de construcción
+### F.1 Durante la ingesta del corpus
 
 1. **Crear la tabla `certification_entities`** con el DDL del Apéndice J de la v2.1 + las columnas añadidas en la sección D.5 de este documento.
 2. **Poblar las 14 entidades** con el bloque INSERT de la sección D.5.
 3. **Implementar el Motor 17** (Project Planning / Effort Estimator) con el pseudocódigo de la sección E.9 convertido a Python real con pytest.
 4. **Crear función `recomendar_certificadora(perfil_cliente)`** en el Motor 13 que consulte la matriz de decisión de la sección D.6.
 
-### F.2 Durante la Semana 6 (tras ingesta del corpus)
+### F.2 Tras la ingesta del corpus
 
 1. **Verificar en el buscador ENAC** (https://www.enac.es/entidades-acreditadas/buscador-de-acreditados) el estado actual de las 14 entidades para "Esquema Nacional de Seguridad" y actualizar el campo `verified` en `certification_entities`.
 2. **Descargar y parsear la guía CCN-CERT IC-01/19** para alimentar el Agente 26 (Coach Auditoría) con los criterios reales que usan los auditores.
 
-### F.3 Durante la operación normal (post-Semana 40)
+### F.3 Durante la operación normal
 
 1. **Feedback loop del estimador:** en cada proyecto cerrado por Marcos, el Motor 17 debe comparar `horas_estimadas` vs `horas_reales` y actualizar los factores de la tabla `effort_estimator_calibration` mediante regresión lineal simple. El objetivo es bajar el error de ±25% a ±10% tras 15 proyectos reales.
 2. **Feedback loop de certificadoras:** cada auditoría real con sus NC y tiempos reales alimenta la tabla `certification_entity_experience` con:
@@ -956,4 +956,4 @@ Soy honesto sobre qué no he podido verificar en esta sesión:
 
 **Fin del Entregable D+E.**
 
-Este documento queda vinculado al Apéndice N de la especificación maestra v2.1 como **fuente calibrada oficial** para el Motor 17 y al Apéndice J como fuente de datos para la tabla `certification_entities`. Debe consultarse por Claude Code durante las Semanas 4-6 del plan de construcción.
+Este documento queda vinculado al Apéndice N de la especificación maestra v2.1 como **fuente calibrada oficial** para el Motor 17 y al Apéndice J como fuente de datos para la tabla `certification_entities`. Debe consultarse por Claude Code durante la ingesta del corpus.

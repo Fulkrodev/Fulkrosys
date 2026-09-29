@@ -130,7 +130,7 @@ Diferenciadores vs competencia:
 
 ### Sesión 12 · Deploy Hetzner (post-tag · ANTES primer cliente real)
 
-Procedimiento canónico ADR-045 · 10 fases · estimado 8-10h:
+Procedimiento canónico ADR-045 · 10 fases:
 
 1. Pre-deploy local validation
 2. Hetzner CPX21 provisioning
@@ -147,35 +147,35 @@ Procedimiento canónico ADR-045 · 10 fases · estimado 8-10h:
 
 Después del primer cliente real cierro · iteración guiada por feedback:
 
-#### SAN-E.1 · Auditoría compliance RGPD interna (5-8h)
+#### SAN-E.1 · Auditoría compliance RGPD interna
 
 - DPIA (Data Protection Impact Assessment) FULKRO mismo
 - ROPA (Registro Operaciones Tratamiento) actualizado
 - DPA template para clientes (encargado tratamiento)
 - Checklist GDPR art.32 medidas técnicas + organizativas
 
-#### SAN-E.2 · ISO 27001 readiness FULKRO mismo (15-25h)
+#### SAN-E.2 · ISO 27001 readiness FULKRO mismo
 
 - Gap analysis vs Anexo A (114 controles)
 - ROADMAP implementación priorizado (alta · media · baja prioridad)
 - Statement of Applicability (SoA) FULKRO
 - Pre-auditoría ISO interna · ready certificación post-cliente
 
-#### SAN-E.3 · Soberanía datos · cifrado at-rest (8-12h)
+#### SAN-E.3 · Soberanía datos · cifrado at-rest
 
 - PostgreSQL TDE (Transparent Data Encryption · Citus o pg_tde)
 - Backup encryption-at-rest verified
 - Pentesting interno básico (web + API · OWASP Top 10 baseline)
 - Vulnerability scanning automated (Trivy · Snyk)
 
-#### SAN-E.4 · Performance tuning bajo carga real (10-15h)
+#### SAN-E.4 · Performance tuning bajo carga real
 
 - Post-baseline Sesión 19.17 audit (`SAN_D_PERFORMANCE.md` (retirado del repositorio))
 - Optimizations identificadas durante MB-19.17 aplicadas
 - Bulk operations + indices avanzados
 - N+1 queries detection + fix (sqlalchemy_explain)
 
-#### SAN-E.5 · Multi-cliente improvements (5-10h)
+#### SAN-E.5 · Multi-cliente improvements
 
 - Feedback piloto consolidado (sprint review post-onboarding)
 - UX improvements basados en uso real

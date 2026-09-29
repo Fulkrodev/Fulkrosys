@@ -1319,4 +1319,4 @@ Tras F1.1 y F1.2 quedarán listas las **9 políticas críticas** del SGSI ENS. L
 
 **Fin del Entregable F1.1.**
 
-5 políticas críticas con texto legal real español, ~12.500 palabras totales, listas para ingestar al Motor 6 (Document Factory) durante la Semana 5 del plan de construcción FULKRO.
+5 políticas críticas con texto legal real español, ~12.500 palabras totales, listas para ingestar al Motor 6 (Document Factory).

@@ -3,7 +3,7 @@
 **Plan 100/100 FULKRO — Bloque 7 técnico**
 **Versión:** 1.0 — 9 de abril de 2026
 **Continuación de:** F1, F2, F3, G (núcleo documental + plantillas + pentesting)
-**Destinatarios:** Claude Code (para implementación durante semanas 10-12 del plan de construcción FULKRO)
+**Destinatarios:** Claude Code (para implementación en el plan de construcción FULKRO)
 
 ---
 

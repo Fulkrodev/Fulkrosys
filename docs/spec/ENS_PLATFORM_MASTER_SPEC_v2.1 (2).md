@@ -14,7 +14,7 @@ La v2.0 estaba al 88%. La v2.1 la deja al 97% e incorpora todo lo pendiente dete
 
 **Revisión de 10 de abril de 2026 (manteniendo nombre v2.1):**
 
-0. **AMPLIACIÓN CRÍTICA — Gestor documental inteligente (Motor 24) + Ciclo de vida del proyecto (Motor 25) + Backups (Motor 26).** Esta revisión eleva la gestión documental de "tabla + MinIO" a **IDMS de primera clase** comparable a SharePoint/Drive pero especializado en ENS y con LLM integrado para clasificación automática. Incluye drag & drop inteligente, búsqueda híbrida léxico-semántica con pgvector, etiquetado automático por medida ENS, vista de árbol, línea temporal documental, chat con el repositorio. Además se añade el **ciclo de vida del proyecto** con archivado + ZIP firmado + purga post-período legal, y **backups de primera clase** con pruebas periódicas de restauración y DR drills trimestrales. Por último se refuerza el **tenant virtual por cliente** con RLS + carpetas MinIO estructuradas + URL amigable + switch rápido Cmd+K + dashboard específico por cliente + export completo. Todo esto se describe en los nuevos Motores 24/25/26 (Parte 5), nuevas tablas SQL (Parte 4.3), nuevo Agente 27 (Apéndice I) y nuevas pantallas K.7/K.8/K.9 (Apéndice K). **Esta ampliación debe construirse como parte del plan de 40 semanas conforme al plan de integración descrito en §9.13.**
+0. **AMPLIACIÓN CRÍTICA — Gestor documental inteligente (Motor 24) + Ciclo de vida del proyecto (Motor 25) + Backups (Motor 26).** Esta revisión eleva la gestión documental de "tabla + MinIO" a **IDMS de primera clase** comparable a SharePoint/Drive pero especializado en ENS y con LLM integrado para clasificación automática. Incluye drag & drop inteligente, búsqueda híbrida léxico-semántica con pgvector, etiquetado automático por medida ENS, vista de árbol, línea temporal documental, chat con el repositorio. Además se añade el **ciclo de vida del proyecto** con archivado + ZIP firmado + purga post-período legal, y **backups de primera clase** con pruebas periódicas de restauración y DR drills trimestrales. Por último se refuerza el **tenant virtual por cliente** con RLS + carpetas MinIO estructuradas + URL amigable + switch rápido Cmd+K + dashboard específico por cliente + export completo. Todo esto se describe en los nuevos Motores 24/25/26 (Parte 5), nuevas tablas SQL (Parte 4.3), nuevo Agente 27 (Apéndice I) y nuevas pantallas K.7/K.8/K.9 (Apéndice K). **Esta ampliación debe construirse como parte del plan conforme al plan de integración descrito en §9.13.**
 
 **Revisión de 9 de abril de 2026 (revisión original de v2.1):**
 
@@ -28,7 +28,7 @@ La v2.0 estaba al 88%. La v2.1 la deja al 97% e incorpora todo lo pendiente dete
 
 5. **FIX recuento de políticas en el checklist master**: decía "~25 políticas" cuando el resto del documento dice 27 (E-100 a E-126). Corregido.
 
-6. **NUEVO Apéndice H — Corpus normativo completo para ingesta** con los ~92 documentos que Claude Code debe descargar e ingestar al grafo durante las semanas 3-5 del plan, con URLs, formatos esperados y prioridad. **Esto es crítico:** sin esta lista, Claude Code no sabe qué meter en el corpus.
+6. **NUEVO Apéndice H — Corpus normativo completo para ingesta** con los ~92 documentos que Claude Code debe descargar e ingestar al grafo durante el bloque 2 del plan, con URLs, formatos esperados y prioridad. **Esto es crítico:** sin esta lista, Claude Code no sabe qué meter en el corpus.
 
 7. **NUEVO Apéndice I — System prompts base de los 10 agentes nuevos (17-26)**. El Apéndice C original solo tenía los 16 primeros; este apéndice completa la cobertura a los 26.
 
@@ -650,7 +650,7 @@ Para cada una de las 73 medidas del Anexo II, la plataforma mantiene una **plant
 - **mp.info.3** (Cifrado): listado de bases de datos cifradas en reposo, BitLocker en endpoints, configuración KMS.
 - **mp.if.1** (Áreas separadas): plano del CPD/oficina con zonificación, registro de accesos físicos.
 
-**La plataforma debe generar este catálogo completo (73 entradas) durante la fase de ingesta del corpus** (semanas 3-5 del plan). Cada entrada con: medida, evidencia tipo, formato esperado, fuente (qué herramienta/sistema la genera), automatizable sí/no.
+**La plataforma debe generar este catálogo completo (73 entradas) durante la fase de ingesta del corpus** (bloque 2 del plan). Cada entrada con: medida, evidencia tipo, formato esperado, fuente (qué herramienta/sistema la genera), automatizable sí/no.
 
 ### 2.14 Registros de operación de los meses previos a la auditoría
 
@@ -3522,31 +3522,31 @@ La plataforma debe cumplir ENS Medio sobre sí misma. Si un cliente o un auditor
 
 ---
 
-## PARTE 9 — PLAN DE CONSTRUCCIÓN EN FASES (40 SEMANAS)
+## PARTE 9 — PLAN DE CONSTRUCCIÓN EN FASES
 
-Plan ejecutable por Marcos solo con Claude Code. Cada semana entrega algo funcional. **Recalibrado en v2.0** para incluir los 11 motores y 10 agentes nuevos, y para priorizar que el ciclo comercial esté operativo antes que el ciclo técnico (Marcos necesita firmar clientes para que la implantación tenga sentido).
+Plan ejecutable por Marcos solo con Claude Code. Cada bloque entrega algo funcional. **Recalibrado en v2.0** para incluir los 11 motores y 10 agentes nuevos, y para priorizar que el ciclo comercial esté operativo antes que el ciclo técnico (Marcos necesita firmar clientes para que la implantación tenga sentido).
 
 ### ⚠️ ADVERTENCIA CRÍTICA DE CONSTRUCCIÓN — QUÉ NO ES AUTO-GENERABLE
 
 Antes de empezar el plan, Marcos debe entender que **las 110 plantillas DOCX del Motor 6 no son auto-generables por Claude Code** al 100% con calidad de auditor ENAC. Son el **único trabajo manual intensivo** del proyecto y hay que planificarlo aparte:
 
-- **27 políticas (E-100 a E-126)**: requieren redacción legal real. Cada una debe estar alineada con el RD 311/2022, las CCN-STIC correspondientes, y el criterio del auditor ENAC veterano. Estimación: **40-80 horas de redacción legal** para el paquete completo (Marcos + consultor ENS senior contratado ad-hoc + abogado TIC de revisión).
-- **35 procedimientos (E-200 a E-234)**: requieren conocimiento operativo real. Estimación: **50-100 horas de redacción** con el mismo equipo.
-- **26 registros (E-300 a E-325)**: son plantillas XLSX más simples, 10-20 horas.
-- **Plantillas de continuidad (BIA, BCP, DRP)**: 20-30 horas de redacción especializada.
-- **Plantillas comerciales (P-001 propuesta, C-001 contrato, C-003 retainer)**: 20-40 horas de redacción jurídica con abogado mercantilista español.
+- **27 políticas (E-100 a E-126)**: requieren redacción legal real. Cada una debe estar alineada con el RD 311/2022, las CCN-STIC correspondientes, y el criterio del auditor ENAC veterano. Las redacta Marcos con un consultor ENS senior contratado ad-hoc y un abogado TIC de revisión.
+- **35 procedimientos (E-200 a E-234)**: requieren conocimiento operativo real. Las redacta el mismo equipo.
+- **26 registros (E-300 a E-325)**: son plantillas XLSX más simples.
+- **Plantillas de continuidad (BIA, BCP, DRP)**: requieren redacción especializada.
+- **Plantillas comerciales (P-001 propuesta, C-001 contrato, C-003 retainer)**: requieren redacción jurídica con abogado mercantilista español.
 
-**Total: 140-270 horas de trabajo de redacción humana** que Claude Code no puede hacer con suficiente calidad. Ver Apéndice L para plan de mitigación.
+**Es trabajo de redacción humana** que Claude Code no puede hacer con suficiente calidad. Ver Apéndice L para plan de mitigación.
 
 Claude Code construye la **estructura docxtpl** (Jinja2 placeholders, lógica de personalización, pipeline de generación, firma, versionado) — **no el contenido legal real de las plantillas**. Marcos debe meter el contenido real en paralelo al desarrollo técnico.
 
-**Recomendación:** contratar a un consultor ENS senior por 2-3 semanas al 50% de dedicación durante las semanas 9-15 del plan, y un abogado TIC por 20-30 horas durante las semanas 8-11. Presupuesto orientativo: 8.000-15.000 €. Sin esto, la plataforma estará técnicamente lista pero sin munición real.
+**Recomendación:** contratar a un consultor ENS senior y a un abogado TIC para la redacción y la revisión. Presupuesto orientativo: 8.000-15.000 €. Sin esto, la plataforma estará técnicamente lista pero sin munición real.
 
 ---
 
-### Plan semana a semana
+### Plan bloque a bloque
 
-### Semanas 1-2: Fundamentos
+### Bloque 1: Fundamentos
 - Provisioning Hetzner CCX33, hardening, Docker, Caddy con HTTPS.
 - Stack base: FastAPI, PostgreSQL 16 + extensiones, Redis, Celery, Temporal.
 - Auth de Marcos con WebAuthn.
@@ -3554,7 +3554,7 @@ Claude Code construye la **estructura docxtpl** (Jinja2 placeholders, lógica de
 - CI/CD básico con GitHub Actions + deploy a Hetzner.
 - **Entregable:** Marcos puede loguearse en su plataforma, crear un lead y convertirlo en proyecto.
 
-### Semanas 3-5: Corpus ENS al grafo + RAG
+### Bloque 2: Corpus ENS al grafo + RAG
 - Ingesta del RD 311/2022 (BOE) → tablas + grafo AGE.
 - Ingesta de Anexo I, II, III, IV con las 73 medidas correctamente modeladas (4 org + 33 op + 36 mp).
 - Ingesta de las 20 guías CCN-STIC prioritarias (800-835).
@@ -3564,7 +3564,7 @@ Claude Code construye la **estructura docxtpl** (Jinja2 placeholders, lógica de
 - Búsqueda híbrida (BM25 + vectorial + re-ranking).
 - **Entregable:** Marcos pregunta al copiloto "¿qué me pide op.acc.6 R1?" y obtiene respuesta con citas.
 
-### Semanas 6-7: Motor 16 Adaptive Onboarding + Motor 20 Collaborative Workspace
+### Bloque 3: Motor 16 Adaptive Onboarding + Motor 20 Collaborative Workspace
 - Matriz de 70 plantillas de onboarding (10 sectores × 7 roles).
 - Conectores OAuth: M365/Entra ID, Google Workspace, AWS, Azure, GCP (mínimo 5 al inicio).
 - Servidor MCP local para queries agregadas.
@@ -3573,7 +3573,7 @@ Claude Code construye la **estructura docxtpl** (Jinja2 placeholders, lógica de
 - Feed de notificaciones + chat asíncrono.
 - **Entregable:** Marcos crea un proyecto y envía el onboarding completo al cliente ficticio, que lo rellena vía magic link y conecta su M365 read-only.
 
-### Semanas 8-9: Motor 13 Commercial Doc Factory + Motor 14 Contracts + Motor 15 Billing
+### Bloque 4: Motor 13 Commercial Doc Factory + Motor 14 Contracts + Motor 15 Billing
 - Plantillas P-001 (propuesta 10-20 páginas) y C-001 (contrato con cláusula de recursos del cliente).
 - Generador docxtpl → PDF con LibreOffice headless.
 - Tema visual de marca (colores, tipografía, logo).
@@ -3584,7 +3584,7 @@ Claude Code construye la **estructura docxtpl** (Jinja2 placeholders, lógica de
 - Facturación de parones por incumplimiento de recursos.
 - **Entregable:** Marcos genera propuesta + contrato + factura inicial para un lead, el cliente firma vía magic link, la factura se emite automáticamente.
 
-### Semanas 10-11: Motor 17 Project Planning + Motor 18 Communication + Motor 19 Risk Mgmt
+### Bloque 5: Motor 17 Project Planning + Motor 18 Communication + Motor 19 Risk Mgmt
 - WBS determinista por categoría (B/M/A) con ~150-350 tareas precargadas.
 - Cronograma Gantt con ruta crítica.
 - Estimador de esfuerzo `effort_estimator` calibrado.
@@ -3594,7 +3594,7 @@ Claude Code construye la **estructura docxtpl** (Jinja2 placeholders, lógica de
 - Disparo automático de planes de contingencia.
 - **Entregable:** Marcos firma un cliente y en 10 minutos tiene plan de proyecto completo, plan de comunicación configurado, plan de riesgos instanciado.
 
-### Semanas 12-13: Motor 1 Categorización + Motor 3 DdA + Motor 6 Document Factory
+### Bloque 6: Motor 1 Categorización + Motor 3 DdA + Motor 6 Document Factory
 - Motor 1 — Categorization Engine (determinista).
 - Motor 3 — DdA Engine con las 73 medidas modeladas.
 - Motor 6 — Document Factory con las primeras ~30 plantillas críticas (E-001, E-002, E-003, E-005, E-012, E-040, E-050, E-101, E-102, E-107, E-108, E-204, E-500).
@@ -3602,7 +3602,7 @@ Claude Code construye la **estructura docxtpl** (Jinja2 placeholders, lógica de
 - Versionado de documentos.
 - **Entregable:** Marcos rellena las valoraciones del cliente y la plataforma genera la categorización, la DdA completa firmable y las 30 políticas/procedimientos críticas.
 
-### Semanas 14-15: Motor 22 Technical Discovery
+### Bloque 7: Motor 22 Technical Discovery
 - Asset Discovery (Nmap + conectores cloud).
 - Identity Discovery (export AD/Entra ID).
 - Configuration Discovery (Lynis, CIS-CAT, testssl.sh, DNS).
@@ -3611,14 +3611,14 @@ Claude Code construye la **estructura docxtpl** (Jinja2 placeholders, lógica de
 - Integración con el project knowledge graph.
 - **Entregable:** Marcos pulsa "ejecutar discovery técnico" sobre el cliente y obtiene inventario completo de activos, identidades, configuraciones, vulnerabilidades en pocas horas.
 
-### Semanas 16-17: Motor 21 Organizational Diagnosis + Agentes 22, 23, 24
+### Bloque 8: Motor 21 Organizational Diagnosis + Agentes 22, 23, 24
 - Agente 22 — Analista de Stakeholders con grafo AGE.
 - Agente 23 — Mapeador de Procesos de Negocio.
 - Agente 24 — Detector de Obligaciones Cruzadas (RGPD, NIS2, DORA, sectorial).
 - Informe de Diagnóstico Inicial (E-090) de 30-80 páginas.
 - **Entregable:** Marcos pulsa "generar diagnóstico completo" tras onboarding + discovery y obtiene el informe listo para presentar al Comité del cliente.
 
-### Semanas 18-19: Motor 2 MAGERIT + Motor 4 Gap + Motor 5 Obligations
+### Bloque 9: Motor 2 MAGERIT + Motor 4 Gap + Motor 5 Obligations
 - Catálogos MAGERIT v3 (activos, amenazas, salvaguardas) precargados.
 - Cálculo intrínseco/efectivo/residual.
 - Exportación a formato PILAR (.mgr).
@@ -3627,7 +3627,7 @@ Claude Code construye la **estructura docxtpl** (Jinja2 placeholders, lógica de
 - Los 4 modos de ejecución (consultor_genera, cliente_aporta, acción_tecnica_remota, acción_manual).
 - **Entregable:** Marcos obtiene AR completo + Plan de Adecuación + backlog de obligaciones ejecutables automáticamente.
 
-### Semanas 20-21: Motor 12 Magic Link Engine + Evidence Vault
+### Bloque 10: Motor 12 Magic Link Engine + Evidence Vault
 - JWT Ed25519 + OTP por email.
 - Plantillas de los ~12 tipos de magic link.
 - Páginas HTMX minimalistas para cada operación del cliente.
@@ -3636,7 +3636,7 @@ Claude Code construye la **estructura docxtpl** (Jinja2 placeholders, lógica de
 - Audit trail criptográficamente inmutable (hash chain).
 - **Entregable:** Marcos opera un ciclo completo de obligación con el cliente: genera entregable, lo envía, el cliente lo firma, queda archivado con cadena de evidencia verificable.
 
-### Semanas 22-24: Motor 8 Pentesting & Red Team
+### Bloque 11: Motor 8 Pentesting & Red Team
 - Red Docker `pentest-net` aislada.
 - Integración Nmap, Nuclei, OpenVAS, ZAP, Metasploit, Prowler, CLARA, Lynis, Trivy, Semgrep, testssl.sh (11 herramientas).
 - Servidor MCP local para orquestación dinámica por Agente 9.
@@ -3647,13 +3647,13 @@ Claude Code construye la **estructura docxtpl** (Jinja2 placeholders, lógica de
 - Integración con Caldera para Red Team en Alta (E-704).
 - **Entregable:** Marcos ejecuta pentest completo sobre cliente ficticio en VM aislada, obtiene informe profesional con ~decenas de findings mapeados.
 
-### Semanas 25-26: Resto de plantillas documentales
+### Bloque 12: Resto de plantillas documentales
 - Completar las ~80 plantillas restantes del Document Factory (políticas menores, procedimientos no críticos, registros operativos, BIA, BCP, DRP, formación).
 - Mini-LMS para formación interna del cliente.
 - Integración con GoPhish self-hosted para simulacros.
 - **Entregable:** Marcos puede generar TODOS los entregables de la Parte 2 para un cliente de cualquier categoría.
 
-### Semanas 27-28: Motor 9 Audit Preparation + Motor 10 Audit Simulation + Agente 11
+### Bloque 13: Motor 9 Audit Preparation + Motor 10 Audit Simulation + Agente 11
 - Motor 9 — Audit Preparation Engine con checklist de pre-auditoría.
 - Motor 10 — Audit Simulation Engine (auditor virtual).
 - Agente 11 — Auditor Interno Virtual con las 73 medidas y los grados L0-L5.
@@ -3662,7 +3662,7 @@ Claude Code construye la **estructura docxtpl** (Jinja2 placeholders, lógica de
 - PDF maestro navegable.
 - **Entregable:** Marcos lanza pre-auditoría virtual y obtiene informe estilo ENAC + dossier final listo para entregar al auditor real.
 
-### Semanas 29-30: Motor 11 Copiloto + Agentes comerciales y de onboarding
+### Bloque 14: Motor 11 Copiloto + Agentes comerciales y de onboarding
 - Implementación completa del Motor 11 con UI chat.
 - Agente 17 — Cualificador Comercial.
 - Agente 18 — Asistente de Reunión Exploratoria (interfaz guiada con bloques A-F).
@@ -3673,7 +3673,7 @@ Claude Code construye la **estructura docxtpl** (Jinja2 placeholders, lógica de
 - Agente 26 — Coach de Auditoría y Crisis.
 - **Entregable:** Marcos lleva una reunión exploratoria con la plataforma asistiendo en vivo, genera propuesta en 10 min, negocia y firma contrato. Todo desde la plataforma.
 
-### Semanas 31-32: Motor 14 Contracts avanzado + Motor 15 Billing fiscal completo
+### Bloque 15: Motor 14 Contracts avanzado + Motor 15 Billing fiscal completo
 - Análisis automático de contratos de proveedores del cliente con Agente 6.
 - Generación de adendas contractuales para proveedores.
 - Tracker de compromisos del cliente (cláusula de recursos).
@@ -3683,7 +3683,7 @@ Claude Code construye la **estructura docxtpl** (Jinja2 placeholders, lógica de
 - Exportación contable (Holded/Contasimple/Quipu).
 - **Entregable:** Marcos tiene un sistema comercial + contractual + fiscal completo y cumple con las obligaciones fiscales españolas de 2026.
 
-### Semanas 33-34: Motor 23 Retainer Management + Multi-cliente
+### Bloque 16: Motor 23 Retainer Management + Multi-cliente
 - Calendarización automática de actividades anuales obligatorias.
 - Dashboard multi-cliente con semáforo RAG.
 - Periodicidad de Comités automatizada.
@@ -3692,7 +3692,7 @@ Claude Code construye la **estructura docxtpl** (Jinja2 placeholders, lógica de
 - Facturación recurrente.
 - **Entregable:** Marcos gestiona 5 clientes ficticios en retainer simultáneos desde un único dashboard, dedicando 2h/semana al total.
 
-### Semanas 35-36: Agente 15 Vigilancia Normativa + Integración LUCIA/PILAR/INES
+### Bloque 17: Agente 15 Vigilancia Normativa + Integración LUCIA/PILAR/INES
 - Agente 15 con crawling diario de CCN, BOE, feeds CCN-CERT.
 - Detección y notificación de cambios.
 - Ingesta automática de nuevas ITS y guías CCN-STIC.
@@ -3701,7 +3701,7 @@ Claude Code construye la **estructura docxtpl** (Jinja2 placeholders, lógica de
 - Integración con INES (generación del informe anual).
 - **Entregable:** Marcos recibe alerta automática cuando el CCN publica una guía nueva, la plataforma la ingesta sola.
 
-### Semanas 37-38: Seguridad propia plataforma + Dogfooding ENS Medio
+### Bloque 18: Seguridad propia plataforma + Dogfooding ENS Medio
 - Auto-aplicación de la plataforma a sí misma (la plataforma cumple ENS Medio sobre sí misma).
 - Política de Seguridad propia, DdA propia, AR propio, procedimientos propios.
 - Pentest periódico automatizado sobre la propia plataforma.
@@ -3709,7 +3709,7 @@ Claude Code construye la **estructura docxtpl** (Jinja2 placeholders, lógica de
 - Certificación propia.
 - **Entregable:** Marcos puede mostrar a cualquier cliente desconfiado su propia certificación ENS Medio de la plataforma.
 
-### Semanas 39-40: Pulido final + Primer cliente real
+### Bloque 19: Pulido final + Primer cliente real
 - Tests E2E completos de los 10 fases del ciclo del consultor.
 - Documentación interna para Marcos.
 - Vídeos de formación interna (cómo usar cada motor).
@@ -3721,34 +3721,34 @@ Claude Code construye la **estructura docxtpl** (Jinja2 placeholders, lógica de
 
 ### 9.13 Plan de integración de los Motores 24, 25 y 26 (revisión abril 2026)
 
-Los tres motores nuevos (IDMS, Lifecycle/Archival, Backup/DR) no son un bloque monolítico que se construya al final: se integran en el plan de 40 semanas de forma escalonada para que estén disponibles cuando realmente se necesitan.
+Los tres motores nuevos (IDMS, Lifecycle/Archival, Backup/DR) no son un bloque monolítico que se construya al final: se integran en el plan de forma escalonada para que estén disponibles cuando realmente se necesitan.
 
-**Motor 26 — Backup & Disaster Recovery (semanas 4-6, en paralelo con el dogfooding):**
+**Motor 26 — Backup & Disaster Recovery (bloques 2 y 3, en paralelo con el dogfooding):**
 - Se construye **lo primero** porque la plataforma genera datos valiosos desde el día 1 y no se puede estar sin backup ni una sola semana.
-- Semana 4: pgBackRest + replicación WAL + retención básica + primer backup completo.
-- Semana 5: MinIO mirror + snapshots + verificación de integridad + Vault backup.
-- Semana 6: primer DR drill completo (reconstrucción en servidor efímero con Terraform+Ansible) + tabla `backup_jobs` + panel básico en el dashboard de Operaciones.
+- Paso 1: pgBackRest + replicación WAL + retención básica + primer backup completo.
+- Paso 2: MinIO mirror + snapshots + verificación de integridad + Vault backup.
+- Paso 3: primer DR drill completo (reconstrucción en servidor efímero con Terraform+Ansible) + tabla `backup_jobs` + panel básico en el dashboard de Operaciones.
 - **Criterio de salida:** tener al menos un backup completo verificado y un restore test pasado antes de empezar a ingerir datos del primer cliente real.
 
-**Motor 24 — Intelligent Document Management (semanas 14-20):**
+**Motor 24 — Intelligent Document Management (bloques 7 a 10):**
 - Se construye **antes de la implantación con el primer cliente piloto** porque es donde se masifica la carga de documentos.
-- Semana 14: esquema de tablas del IDMS + migración de la antigua tabla `documents` + estructura de carpetas estándar autogenerada.
-- Semana 15: microservicio `doc-extractor` multi-formato con cola Celery + extracción de texto + cálculo de hash + detección de duplicados exactos.
-- Semana 16: `tsvector` con índice GIN + primer buscador léxico funcional + UI vista de árbol + vista de lista + drag & drop básico.
-- Semana 17: pgvector + embeddings con modelo local `multilingual-e5-large` + búsqueda semántica + deduplicación semántica + búsqueda híbrida.
-- Semana 18: Agente 27 con clasificación automática + etiquetado automático por medidas ENS + metadatos extraídos + dashboard de documentos por vencer.
-- Semana 19: panel derecho de detalle + preview embebido (PDF.js) + historial de versiones con diffs + firma visual + enlaces bidireccionales con medidas/controles.
-- Semana 20: integración con Copiloto (Motor 11) para "chat con el repositorio" + modo sesión de subida masiva + buscador global Cmd+K.
+- Paso 1: esquema de tablas del IDMS + migración de la antigua tabla `documents` + estructura de carpetas estándar autogenerada.
+- Paso 2: microservicio `doc-extractor` multi-formato con cola Celery + extracción de texto + cálculo de hash + detección de duplicados exactos.
+- Paso 3: `tsvector` con índice GIN + primer buscador léxico funcional + UI vista de árbol + vista de lista + drag & drop básico.
+- Paso 4: pgvector + embeddings con modelo local `multilingual-e5-large` + búsqueda semántica + deduplicación semántica + búsqueda híbrida.
+- Paso 5: Agente 27 con clasificación automática + etiquetado automático por medidas ENS + metadatos extraídos + dashboard de documentos por vencer.
+- Paso 6: panel derecho de detalle + preview embebido (PDF.js) + historial de versiones con diffs + firma visual + enlaces bidireccionales con medidas/controles.
+- Paso 7: integración con Copiloto (Motor 11) para "chat con el repositorio" + modo sesión de subida masiva + buscador global Cmd+K.
 - **Criterio de salida:** poder cargar 200 documentos mezclados a la vez y que la plataforma los clasifique, etiquete y archive correctamente con < 5 % de revisión humana.
 
-**Motor 25 — Project Lifecycle & Archival (semanas 28-30):**
+**Motor 25 — Project Lifecycle & Archival (bloques 13 y 14):**
 - Se construye **después del primer cliente real** porque solo se necesita cuando ya hay proyectos maduros que puedan entrar en fase final.
-- Semana 28: máquina de estados del proyecto + tabla `project_lifecycle_states` + transiciones permitidas + integración con Motor 14 (Contracts) y Motor 15 (Billing) para cerrar facturación pendiente antes de archivar.
-- Semana 29: wizard de archivado de 5 pasos + generación del ZIP completo con firma Ed25519 + manifiesto JSON + migración al Storage Box frío + tabla `archived_projects` + export puntual sin archivar.
-- Semana 30: flujo de restauración desde frío + filtros de estado en el sidebar + botón de archivar en el dashboard del cliente + verificación automática de integridad del paquete archivado + ventana de reversibilidad de 30 días.
+- Paso 1: máquina de estados del proyecto + tabla `project_lifecycle_states` + transiciones permitidas + integración con Motor 14 (Contracts) y Motor 15 (Billing) para cerrar facturación pendiente antes de archivar.
+- Paso 2: wizard de archivado de 5 pasos + generación del ZIP completo con firma Ed25519 + manifiesto JSON + migración al Storage Box frío + tabla `archived_projects` + export puntual sin archivar.
+- Paso 3: flujo de restauración desde frío + filtros de estado en el sidebar + botón de archivar en el dashboard del cliente + verificación automática de integridad del paquete archivado + ventana de reversibilidad de 30 días.
 - **Criterio de salida:** archivar un proyecto de prueba real, destruir su contenido de la BD principal, y poder restaurarlo completamente desde el Storage Box en menos de 1 hora.
 
-**Refuerzo del tenant virtual (semanas 8-10, en paralelo con los motores iniciales):**
+**Refuerzo del tenant virtual (bloques 4 y 5, en paralelo con los motores iniciales):**
 - Sidebar multi-cliente con lista de clientes filtrable por estado.
 - Switch rápido Cmd+K con fuzzy finder sobre clientes, acciones y navegación.
 - URL amigable por cliente (`fulkro.es/clients/{slug}/...`) con RLS reforzado por middleware.
@@ -3764,7 +3764,7 @@ Los tres motores nuevos (IDMS, Lifecycle/Archival, Backup/DR) no son un bloque m
 | Motor 25 (Lifecycle) | Motor 14, Motor 15, Motor 24, Motor 26 | Sidebar multi-cliente, dashboard de Operaciones |
 | Agente 27 | Motor 24 | Motor 7, Motor 24 |
 
-**Impacto en el calendario de las 40 semanas:** los motores 24/25/26 añaden aproximadamente **6 semanas de trabajo efectivo** que se absorben en paralelo con otros motores ya planificados. El calendario global no se extiende más allá de las 40 semanas porque Motor 26 solapa con el setup inicial (sem 4-6), Motor 24 solapa con Motor 6 y Motor 7 (sem 14-20) y Motor 25 entra tras el primer cliente piloto (sem 28-30). El primer cliente piloto sigue cerrándose en la semana 36.
+**Impacto en el plan:** los motores 24/25/26 se absorben en paralelo con otros motores ya planificados: Motor 26 solapa con el setup inicial (bloques 2 y 3), Motor 24 solapa con Motor 6 y Motor 7 (bloques 7 a 10) y Motor 25 entra tras el primer cliente piloto (bloques 13 y 14). El plan global no se alarga.
 
 ---
 
@@ -3879,7 +3879,7 @@ ENS Radar caza, esta plataforma certifica. **Cero fricción entre los dos sistem
 
 Esta tabla es la columna vertebral del **Motor 7 — Evidence Collection Engine** y del **Motor 9 — Audit Preparation**. Para cada medida del Anexo II del RD 311/2022, se especifica: qué evidencia exacta pide el auditor, en qué formato, qué herramienta la genera, automatizable sí/no, frescura máxima admitida.
 
-**Marcos: este apéndice se ingesta como JSON estructurado a la tabla `ens_evidence_catalog` durante la fase de construcción del corpus (semanas 3-5). Cada fila tiene: `measure_code`, `evidence_type`, `format`, `source_tool`, `automatable`, `max_age_days`, `audit_query` (la pregunta exacta que hace el auditor).**
+**Marcos: este apéndice se ingesta como JSON estructurado a la tabla `ens_evidence_catalog` durante la fase de construcción del corpus (bloque 2). Cada fila tiene: `measure_code`, `evidence_type`, `format`, `source_tool`, `automatable`, `max_age_days`, `audit_query` (la pregunta exacta que hace el auditor).**
 
 ### A.1 Marco Organizativo (org)
 
@@ -4036,7 +4036,7 @@ Esta tabla es la columna vertebral del **Motor 7 — Evidence Collection Engine*
 
 **Total entradas del catálogo: 73 medidas × N evidencias por medida ≈ 200+ entradas concretas auditables.**
 
-Cada entrada se genera como instancia en `evidence_catalog_templates` durante las semanas 3-5 del plan, y a partir de ahí el Motor 7 sabe automáticamente qué pedirle al cliente para cada control en estado "esperando evidencia".
+Cada entrada se genera como instancia en `evidence_catalog_templates` durante el bloque 2 del plan, y a partir de ahí el Motor 7 sabe automáticamente qué pedirle al cliente para cada control en estado "esperando evidencia".
 
 ---
 
@@ -4578,16 +4578,16 @@ A partir del mes 3, el resto de motores se añaden incrementalmente sin parar la
 
 **¿Empiezas con MAGERIT propio o usas PILAR como pasarela?**
 
-- **Opción A:** construir Motor 2 MAGERIT propio desde el principio (semanas 12-14). Más trabajo inicial, pero independencia total.
+- **Opción A:** construir Motor 2 MAGERIT propio desde el principio (bloques 6 y 7). Más trabajo inicial, pero independencia total.
 - **Opción B:** usar PILAR del CCN como herramienta externa. Marcos exporta los activos desde la plataforma, los importa a PILAR, hace el AR allí, y vuelve a importar el resultado. Menos trabajo inicial, pero dependes de PILAR.
 
-**Recomendación:** opción B para el primer cliente piloto, opción A a partir del cliente 2-3 cuando tengas claro qué necesitas. Esto te ahorra 2-3 semanas de desarrollo al principio.
+**Recomendación:** opción B para el primer cliente piloto, opción A a partir del cliente 2-3 cuando tengas claro qué necesitas.
 
 ### D.5 Riesgos a vigilar durante la construcción
 
 1. **Tentación de meter más allá del scope.** El monitoreo continuo y la app del cliente son add-ons futuros, no parte de v1.
 2. **Sobre-engineering del LLM.** Empieza con prompts simples + RAG + citas. La sofisticación viene con uso real.
-3. **Plantillas DOCX a medio hacer.** Las ~110 plantillas de la Parte 2 son trabajo manual de redacción legal. No hay atajos. Recomendación: contratar una semana a un consultor ENS senior para revisar las 30 plantillas críticas (políticas + procedimientos).
+3. **Plantillas DOCX a medio hacer.** Las ~110 plantillas de la Parte 2 son trabajo manual de redacción legal. No hay atajos. Recomendación: contratar a un consultor ENS senior para revisar las 30 plantillas críticas (políticas + procedimientos).
 4. **Integraciones CCN bloqueadas.** PILAR/LUCIA/INES no tienen APIs modernas. Asume integración por ficheros y carga manual durante v1.
 5. **Pentesting Engine es ambicioso.** Empieza con 5 herramientas (Nmap, Nuclei, ZAP, Prowler, CLARA), añade el resto incrementalmente.
 
@@ -5284,7 +5284,7 @@ risk_instance:
 8. Plan de comunicación
 9. Plan de gestión de riesgos
 10. Entorno colaborativo efímero (cómo se usan los magic links)
-11. Primeras acciones de la semana 1
+11. Primeras acciones del bloque 1
 12. Compromisos del cliente (resumen de cláusula crítica)
 13. Preguntas y cierre
 
@@ -5443,7 +5443,7 @@ Si al finalizar un proyecto Marcos ha dedicado más horas de las previstas por e
 
 ## APÉNDICE H — CORPUS NORMATIVO COMPLETO PARA INGESTA
 
-Este apéndice lista los ~92 documentos que Claude Code debe descargar, ingestar y mantener en el grafo de conocimiento durante las semanas 3-5 del plan. Sin este corpus, el Motor 11 (Copiloto) y el RAG no funcionan y el Agente 15 (Vigilancia Normativa) no tiene nada que monitorizar.
+Este apéndice lista los ~92 documentos que Claude Code debe descargar, ingestar y mantener en el grafo de conocimiento durante el bloque 2 del plan. Sin este corpus, el Motor 11 (Copiloto) y el RAG no funcionan y el Agente 15 (Vigilancia Normativa) no tiene nada que monitorizar.
 
 **Formato:** cada fila tiene `codigo`, `titulo`, `fuente_url`, `formato`, `prioridad` (P0 crítico, P1 alto, P2 medio, P3 bajo), `frecuencia_revision`.
 
@@ -6395,7 +6395,7 @@ Riesgos específicos del proyecto de construir esta plataforma (no confundir con
 
 ### L.1 Plantillas DOCX no auto-generables (riesgo CRÍTICO)
 
-**Descripción:** las 110 plantillas DOCX del Motor 6 requieren redacción legal real que Claude Code no puede producir con la calidad exigida por un auditor ENAC veterano. Estimación: 140-270 horas de trabajo humano especializado.
+**Descripción:** las 110 plantillas DOCX del Motor 6 requieren redacción legal real que Claude Code no puede producir con la calidad exigida por un auditor ENAC veterano.
 
 **Impacto:** sin plantillas reales, la plataforma es una maqueta vacía. No se puede lanzar al primer cliente real.
 
@@ -6406,7 +6406,7 @@ Riesgos específicos del proyecto de construir esta plataforma (no confundir con
 4. Priorizar las 20 plantillas más usadas: E-001, E-002, E-005, E-012, E-040, E-050, E-100, E-101, E-102, E-107, E-108, E-126, E-200, E-204, E-210, E-218, E-400, E-500, E-702, C-001. Estas cubren el 80% de los casos.
 5. El resto de plantillas se desarrollan incrementalmente contra los primeros clientes reales.
 
-**Semanas del plan afectadas:** 9-15. Paralelo al desarrollo técnico del Motor 6.
+**Bloques del plan afectados:** 4 a 7, en paralelo al desarrollo técnico del Motor 6.
 
 ### L.2 Integraciones CCN sin API (riesgo ALTO)
 
@@ -6470,7 +6470,7 @@ Riesgos específicos del proyecto de construir esta plataforma (no confundir con
 
 **Mitigación:**
 - Usar la propia plataforma para gestionar su propio cumplimiento (meta).
-- Semanas 37-38 del plan dedicadas a esto.
+- El bloque 18 del plan se dedica a esto.
 - Documentación interna como "cliente 0".
 
 ---
@@ -6790,7 +6790,7 @@ Tras cada proyecto cerrado, Marcos registra las horas reales y el Motor 17 ajust
 
 **Marcos:** este es el documento definitivo e integral para entrar en Claude Code. Mételo junto con `ENS_PLATFORM_PARTE_2_ENTREGABLES.md` con esta instrucción:
 
-> *"Construye la plataforma ENS según `ENS_PLATFORM_MASTER_SPEC_v2.1.md` como biblia de arquitectura y ciclo del consultor, y `ENS_PLATFORM_PARTE_2_ENTREGABLES.md` como biblia de entregables auditor. Si hay cualquier discrepancia entre ambos, prevalece la Parte 2 porque está verificada contra CCN-STIC 805/806/808/802 oficiales. Empieza por las semanas 1-2 (Fundamentos). Antes de escribir una sola línea de código, lee el Apéndice H (corpus normativo) y descarga los documentos P0 y P1; lee el Apéndice J para los esquemas SQL nuevos; lee el Apéndice L para entender los riesgos de construcción (en especial las plantillas DOCX no auto-generables). Al terminar cada bloque de semanas, genera un reporte honesto de estado, espera mi confirmación antes de pasar al siguiente bloque. No improvises fuera del scope. Si algo no está claro, pregúntame antes de inventar. Mantén siempre el principio del 95/5: el 95% del trabajo lo hace la plataforma, Marcos solo el 5%. Cualquier agente LLM que uses debe seguir las reglas universales del apéndice C e I: temperatura ≤ 0.2, citas obligatorias, modo 'no encontrado' en lugar de inventar, logging completo de cada llamada."*
+> *"Construye la plataforma ENS según `ENS_PLATFORM_MASTER_SPEC_v2.1.md` como biblia de arquitectura y ciclo del consultor, y `ENS_PLATFORM_PARTE_2_ENTREGABLES.md` como biblia de entregables auditor. Si hay cualquier discrepancia entre ambos, prevalece la Parte 2 porque está verificada contra CCN-STIC 805/806/808/802 oficiales. Empieza por el bloque 1 (Fundamentos). Antes de escribir una sola línea de código, lee el Apéndice H (corpus normativo) y descarga los documentos P0 y P1; lee el Apéndice J para los esquemas SQL nuevos; lee el Apéndice L para entender los riesgos de construcción (en especial las plantillas DOCX no auto-generables). Al terminar cada bloque, genera un reporte honesto de estado, espera mi confirmación antes de pasar al siguiente bloque. No improvises fuera del scope. Si algo no está claro, pregúntame antes de inventar. Mantén siempre el principio del 95/5: el 95% del trabajo lo hace la plataforma, Marcos solo el 5%. Cualquier agente LLM que uses debe seguir las reglas universales del apéndice C e I: temperatura ≤ 0.2, citas obligatorias, modo 'no encontrado' en lugar de inventar, logging completo de cada llamada."*
 
 Las principales diferencias operativas de v2.1 respecto a v2.0:
 

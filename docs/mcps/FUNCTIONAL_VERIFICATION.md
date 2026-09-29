@@ -101,8 +101,8 @@
 - ✅ MOCK subprocess test pattern · wrapper resilient to Docker unavailability
 
 ### What requires runtime verification (Future-X)
-- ⚠ **Future-1.E.mcps.functional-runtime-smoke** · Execute Docker MCP servers + smoke test cada uno empíricamente (~2-3h · requires WSL + Docker daemon)
-- ⚠ **Future-1.E.mcps.integration-tests-mock-responses** · MOCK Docker subprocess + verify wrapper logic per tool (~2-4h)
+- ⚠ **Future-1.E.mcps.functional-runtime-smoke** · Execute Docker MCP servers + smoke test cada uno empíricamente (requires WSL + Docker daemon)
+- ⚠ **Future-1.E.mcps.integration-tests-mock-responses** · MOCK Docker subprocess + verify wrapper logic per tool
 - ⚠ Per-tool actual execution against:
   - vulnscan: nuclei against test URL · trivy against alpine:3.18 SBOM
   - cloud: prowler against test AWS account (sandbox/free tier) · scoutsuite multi-cloud
@@ -111,8 +111,8 @@
 
 ### Marcos-requested additional servers
 
-- ❌ **No AWS-dedicated MCP server**: AWS coverage via `cloud/prowler` (audit) + `cloud/pacu` (exploit) · Future-1.F.mcps.aws-dedicated-server (~3-5h)
-- ❌ **No GitHub MCP server**: Future-1.F.mcps.github-server-add (~3-5h scope · NEW server scaffold)
+- ❌ **No AWS-dedicated MCP server**: AWS coverage via `cloud/prowler` (audit) + `cloud/pacu` (exploit) · Future-1.F.mcps.aws-dedicated-server
+- ❌ **No GitHub MCP server**: Future-1.F.mcps.github-server-add (NEW server scaffold)
 
 ## Smoke test invocation patterns (Future runtime · documented for reference)
 
@@ -240,7 +240,7 @@ docker run --rm toniblyx/prowler:latest --version
 # → Prowler 5.29.0 (You are running the latest version, yay!)
 ```
 
-**Verdict**: ✅ **Binary functional empirical** (Docker image pull · binary loads · version check) · ⚠ **Real AWS invocation deferred** (no test AWS credentials available · NO production creds used per ADDENDUM safety guard). Future-1.F.mcps.prowler-aws-sandbox-account would enable full scan empirical (~30 min · requires test AWS account creation).
+**Verdict**: ✅ **Binary functional empirical** (Docker image pull · binary loads · version check) · ⚠ **Real AWS invocation deferred** (no test AWS credentials available · NO production creds used per ADDENDUM safety guard). Future-1.F.mcps.prowler-aws-sandbox-account would enable full scan empirical (requires test AWS account creation).
 
 ### ✅ Gophish v0.12.1 · `gophish/gophish:latest` (phishing/gophish_campaign)
 
@@ -262,7 +262,7 @@ docker pull rastasheep/scoutsuite       # → pull access denied
 docker pull nccgroup/scoutsuite         # → pull access denied (private registry)
 ```
 
-**Verdict**: ❌ **Empirical defer · honest** · ScoutSuite requires building from source (`pip install scoutsuite` inside FULKRO cloud Dockerfile already prepared at `backend/mcp_servers/cloud/Dockerfile` line `pip install scoutsuite`) · NO public Docker image · Future-1.F.mcps.scoutsuite-from-source-smoke would build local FULKRO `fulkro-cloud` image + invoke (~30-60 min build · empirical real cloud requires Azure/GCP/AWS creds).
+**Verdict**: ❌ **Empirical defer · honest** · ScoutSuite requires building from source (`pip install scoutsuite` inside FULKRO cloud Dockerfile already prepared at `backend/mcp_servers/cloud/Dockerfile` line `pip install scoutsuite`) · NO public Docker image · Future-1.F.mcps.scoutsuite-from-source-smoke would build local FULKRO `fulkro-cloud` image + invoke (empirical real cloud requires Azure/GCP/AWS creds).
 
 ## Empirical findings cumulative · 5/6 tools verde
 
@@ -284,11 +284,11 @@ docker pull nccgroup/scoutsuite         # → pull access denied (private regist
 
 ## Future-X items captured ADDENDUM
 
-- **Future-1.F.mcps.prowler-aws-sandbox-account**: provision test AWS account (sandbox/free tier) + execute `prowler aws --quick-checks` empirical (~30 min ENS 311 compliance check empirical)
-- **Future-1.F.mcps.scoutsuite-from-source-smoke**: build `fulkro-cloud` Dockerfile locally (Python:3.12-slim + `pip install scoutsuite`) + smoke against test cloud (~60 min)
-- **Future-1.E.mcps.gophish-config-smoke**: minimal gophish config.json + admin UI smoke (~20 min · NO real campaign)
-- **Future-1.E.mcps.openvas-test-network**: test network CIDR + scan empirical (~60 min · long-running test)
-- **Future-1.F.mcps.fulkro-images-build-end-to-end**: build all 4 FULKRO MCP Docker images locally + invoke via `try_invoke_mcp_or_none` end-to-end USE_MCP_REAL=true (~2-3h cumulative)
+- **Future-1.F.mcps.prowler-aws-sandbox-account**: provision test AWS account (sandbox/free tier) + execute `prowler aws --quick-checks` empirical (ENS 311 compliance check empirical)
+- **Future-1.F.mcps.scoutsuite-from-source-smoke**: build `fulkro-cloud` Dockerfile locally (Python:3.12-slim + `pip install scoutsuite`) + smoke against test cloud
+- **Future-1.E.mcps.gophish-config-smoke**: minimal gophish config.json + admin UI smoke (NO real campaign)
+- **Future-1.E.mcps.openvas-test-network**: test network CIDR + scan empirical (long-running test)
+- **Future-1.F.mcps.fulkro-images-build-end-to-end**: build all 4 FULKRO MCP Docker images locally + invoke via `try_invoke_mcp_or_none` end-to-end USE_MCP_REAL=true
 
 ## Anti-workaround commitment ADDENDUM honored
 

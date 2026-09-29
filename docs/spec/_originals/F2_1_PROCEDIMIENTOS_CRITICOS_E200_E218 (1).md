@@ -1418,4 +1418,4 @@ Tras F2.2 (los 6 procedimientos restantes), la cobertura llegará al **~92%** y 
 
 **Fin del Entregable F2.1.**
 
-6 procedimientos críticos operativos con texto operativo real español, ~12.000 palabras, listas para conversión a `.docx` por el Motor 6 durante la Semana 5-6 del plan de construcción FULKRO. Junto con F1.1 y F1.2 conforman el **núcleo documental SGSI ENS de FULKRO** suficiente para presentar a una primera auditoría real con probabilidad de éxito superior al 80% (asumiendo implantación correcta de los controles técnicos asociados).
+6 procedimientos críticos operativos con texto operativo real español, ~12.000 palabras, listas para conversión a `.docx` por el Motor 6. Junto con F1.1 y F1.2 conforman el **núcleo documental SGSI ENS de FULKRO** suficiente para presentar a una primera auditoría real con probabilidad de éxito superior al 80% (asumiendo implantación correcta de los controles técnicos asociados).

@@ -319,7 +319,7 @@ Y parsear cada página extrayendo los enlaces a los ficheros .pdf/.xlsx/.zip que
 
 ## 5. SCRIPT `corpus_ingest.py` LISTO PARA CLAUDE CODE
 
-Este script se ejecuta en la Semana 3 del plan de construcción de FULKRO, inmediatamente después de crear el esquema de base de datos del Regulatory Knowledge Graph. Verifica cada URL, descarga el documento, calcula hash SHA-256, extrae texto y chunks, genera embeddings y los almacena en el RKG.
+Este script se ejecuta en el plan de construcción de FULKRO inmediatamente después de crear el esquema de base de datos del Regulatory Knowledge Graph. Verifica cada URL, descarga el documento, calcula hash SHA-256, extrae texto y chunks, genera embeddings y los almacena en el RKG.
 
 ```python
 #!/usr/bin/env python3
@@ -867,7 +867,7 @@ async def parse_and_index(doc: CorpusDoc) -> None:
     """
     Parsing multi-formato + chunking + embeddings + upsert al RKG de FULKRO.
 
-    Este stub debe ampliarse por Claude Code en la Semana 3 del plan con:
+    Este stub debe ampliarse por Claude Code con:
       - pdfplumber para PDFs con tablas (RD 311/2022 Anexo II)
       - BeautifulSoup para HTML (ENS Navegable, EUR-Lex, AEPD)
       - python-docx para DOCX (plantillas CCN-STIC 809)
@@ -969,7 +969,7 @@ if __name__ == "__main__":
 
 ### 6.1 Cuándo ejecutar
 
-En la **Semana 3** del plan de construcción, después de crear el esquema de base de datos del RKG en la Semana 2 y **antes** de empezar con los Motores del Semana 4. Sin corpus ingerido, ningún motor que consulte normativa puede arrancar.
+**Después** de crear el esquema de base de datos del RKG y **antes** de empezar con los motores. Sin corpus ingerido, ningún motor que consulte normativa puede arrancar.
 
 ### 6.2 Pasos secuenciales
 
@@ -1000,7 +1000,7 @@ En la **Semana 3** del plan de construcción, después de crear el esquema de ba
    ORDER BY priority, category, doc_id;
    ```
 
-### 6.3 Mantenimiento (Semana 4+ y en adelante)
+### 6.3 Mantenimiento (tras la ingesta inicial)
 
 El Motor 4 del plan de construcción (Regulatory Radar) debe re-verificar el corpus **semanalmente** ejecutando solo la fase de HEAD + SHA-256:
 - Si el SHA cambió → re-parseo + versionado del documento.
